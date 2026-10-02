@@ -1,6 +1,5 @@
 import { cva } from "class-variance-authority";
-import { invalidRingClasses } from "../../scenario.styles";
-import { TableColumnWidthTypes } from "../../scenario.types";
+import { columnWidthClasses, invalidRingClasses } from "../../scenario.styles";
 // -----------------------------------------------------------------------------
 /**
  * @module scenarios/runtime/components/surfaces/ListSurface.styles
@@ -167,17 +166,7 @@ export const headerCell = cva("whitespace-nowrap", {
       // (several `w-full` columns overflow a fixed table). One width class per
       // column either way, so tailwind never arbitrates between two.
       remainder: "w-auto",
-      [TableColumnWidthTypes.TWELFTH]: "w-1/12",
-      [TableColumnWidthTypes.SIXTH]: "w-1/6",
-      [TableColumnWidthTypes.QUARTER]: "w-1/4",
-      [TableColumnWidthTypes.THIRD]: "w-1/3",
-      [TableColumnWidthTypes.FIVE_TWELFTHS]: "w-5/12",
-      [TableColumnWidthTypes.HALF]: "w-1/2",
-      [TableColumnWidthTypes.SEVEN_TWELFTHS]: "w-7/12",
-      [TableColumnWidthTypes.TWO_THIRDS]: "w-2/3",
-      [TableColumnWidthTypes.THREE_QUARTERS]: "w-3/4",
-      [TableColumnWidthTypes.FIVE_SIXTHS]: "w-5/6",
-      [TableColumnWidthTypes.ELEVEN_TWELFTHS]: "w-11/12"
+      ...columnWidthClasses
     }
   },
   defaultVariants: { size: "fluid" }

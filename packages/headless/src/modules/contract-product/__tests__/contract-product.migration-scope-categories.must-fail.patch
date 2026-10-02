@@ -1,0 +1,25 @@
+# Negative-control mutant 46 — scope-categories (FE-3206)
+#
+# Mutation: let the scope instance call `useProductCategories`.
+# Spec it must turn red: "I am told how many plans ..." (a category read with no recording), and the AC-28 unit spec, the scope instance.
+#
+# Authored by the developer seat against the landed production source. The
+# prover applies it blind (tasks.md T41): apply, run the named spec, revert.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+diff --git a/packages/headless/src/modules/product-catalogue/useProductCatalogue.ts b/packages/headless/src/modules/product-catalogue/useProductCatalogue.ts
+--- a/packages/headless/src/modules/product-catalogue/useProductCatalogue.ts
++++ b/packages/headless/src/modules/product-catalogue/useProductCatalogue.ts
+@@ -52,10 +52,7 @@
+   // Resolve category scoping the same way we resolve basket/currency — by
+   // calling the composable, not by having the caller pass it in. Cache-shared
+   // via a stable query key, so this adds no extra fetch.
+-  const getCategoryIds =
+-    scope && scope.categories === false
+-      ? undefined
+-      : useProductCategories().getCategoryIds;
++  const getCategoryIds = useProductCategories().getCategoryIds;
+   const {
+     infinite,
+     includeDescendants = true,

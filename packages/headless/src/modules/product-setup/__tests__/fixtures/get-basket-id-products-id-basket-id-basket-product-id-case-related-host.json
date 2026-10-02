@@ -2,7 +2,7 @@
   "version": 3,
   "request": {
     "method": "GET",
-    "path": "/api/basket/e78642de-5397-145d-7867-c21208469530/products/98574264-8970-1254-475c-21e325d0ed36?case=related-host&with=image,images,prices,products_attributes,products_options,products_options.prices,provision_blueprint.category&basket_id=e78642de-5397-145d-7867-c21208469530&basket_product_id=98574264-8970-1254-475c-21e325d0ed36&currency_code=GBP",
+    "path": "/api/basket/5d96e763-ed09-13d3-28d9-a41748252834/products/085e69d5-6237-1934-737f-218e940d4237?case=related-host&with=image,images,prices,products_attributes,products_options,products_options.prices,provision_blueprint.category&basket_id=5d96e763-ed09-13d3-28d9-a41748252834&basket_product_id=085e69d5-6237-1934-737f-218e940d4237&currency_code=GBP",
     "headers": {
       "accept": "application/json",
       "authorization": "Bearer <REDACTED>",
@@ -1917,7 +1917,404 @@
           "service_name_translated": "web hosting",
           "name_translated": "Web Hosting",
           "description_translated": "This blueprint enables basic provisioning/management of web hosting accounts",
-          "translations": [],
+          "translations": [
+            {
+              "id": "20403869-6e54-721d-57eb-518d9305e7d2",
+              "language_id": "825d96e7-63ed-0913-ddf4-174825283406",
+              "language_code": "az",
+              "translated_fields": {
+                "service_name": "Veb Hostinq"
+              },
+              "created_at": "2026-09-29 07:48:32",
+              "updated_at": "2026-09-29 07:48:32",
+              "deleted_at": null,
+              "object_type": "provision_blueprint",
+              "object_id": "3825d96e-763e-d091-3dc4-174825283406",
+              "service_name": "Veb Hostinq"
+            },
+            {
+              "id": "47d73824-8507-9315-3d2c-81e642d59e06",
+              "language_id": "57898574-2648-9701-25c2-1e325d0ed369",
+              "language_code": "bg",
+              "translated_fields": {
+                "service_name": "уеб хостинг"
+              },
+              "created_at": "2026-09-29 07:48:32",
+              "updated_at": "2026-09-29 07:48:32",
+              "deleted_at": null,
+              "object_type": "provision_blueprint",
+              "object_id": "3825d96e-763e-d091-3dc4-174825283406",
+              "service_name": "уеб хостинг"
+            },
+            {
+              "id": "78985742-6489-7012-004a-21e325d0ed36",
+              "language_id": "3de78642-de53-9714-7ec2-1208469530d0",
+              "language_code": "cs",
+              "translated_fields": {
+                "service_name": "Webhosting"
+              },
+              "created_at": "2026-09-29 07:48:32",
+              "updated_at": "2026-09-29 07:48:32",
+              "deleted_at": null,
+              "object_type": "provision_blueprint",
+              "object_id": "3825d96e-763e-d091-3dc4-174825283406",
+              "service_name": "Webhosting"
+            },
+            {
+              "id": "78985742-6489-7012-44f2-1e325d0ed369",
+              "language_id": "85d085e6-9d56-2371-9ea2-18e940d42370",
+              "language_code": "da",
+              "translated_fields": {
+                "service_name": "Webhosting"
+              },
+              "created_at": "2026-09-29 07:48:31",
+              "updated_at": "2026-09-29 07:48:31",
+              "deleted_at": null,
+              "object_type": "provision_blueprint",
+              "object_id": "3825d96e-763e-d091-3dc4-174825283406",
+              "service_name": "Webhosting"
+            },
+            {
+              "id": "8d632507-9806-5d1e-37ef-8174e234e98d",
+              "language_id": "73de7864-2de5-3971-4ef2-1208469530d0",
+              "language_code": "de",
+              "translated_fields": {
+                "service_name": "Web-Hosting"
+              },
+              "created_at": "2026-09-29 07:48:31",
+              "updated_at": "2026-09-29 07:48:31",
+              "deleted_at": null,
+              "object_type": "provision_blueprint",
+              "object_id": "3825d96e-763e-d091-3dc4-174825283406",
+              "service_name": "Web-Hosting"
+            },
+            {
+              "id": "5952098d-3de4-0917-e05b-31578626e347",
+              "language_id": "9320e435-795e-78d1-88a3-1643202d9860",
+              "language_code": "el",
+              "translated_fields": {
+                "service_name": "web hosting"
+              },
+              "created_at": "2026-09-29 07:48:32",
+              "updated_at": "2026-09-29 07:48:32",
+              "deleted_at": null,
+              "object_type": "provision_blueprint",
+              "object_id": "3825d96e-763e-d091-3dc4-174825283406",
+              "service_name": "web hosting"
+            },
+            {
+              "id": "3de78642-de53-9714-32c2-1208469530d0",
+              "language_id": "3825d96e-763e-d091-3dc4-174825283406",
+              "language_code": "en",
+              "translated_fields": {
+                "service_name": "web hosting",
+                "name": "Web Hosting",
+                "description": "This blueprint enables basic provisioning/management of web hosting accounts"
+              },
+              "created_at": "2026-09-29 07:48:31",
+              "updated_at": "2026-09-29 07:48:31",
+              "deleted_at": null,
+              "object_type": "provision_blueprint",
+              "object_id": "3825d96e-763e-d091-3dc4-174825283406",
+              "service_name": "web hosting",
+              "name": "Web Hosting",
+              "description": "This blueprint enables basic provisioning/management of web hosting accounts"
+            },
+            {
+              "id": "8d632507-9806-5d1e-33eb-8174e234e98d",
+              "language_id": "5d085e69-d562-3719-4eb2-18e940d42370",
+              "language_code": "en-US",
+              "translated_fields": {
+                "service_name": "web hosting"
+              },
+              "created_at": "2026-09-29 07:48:32",
+              "updated_at": "2026-09-29 07:48:32",
+              "deleted_at": null,
+              "object_type": "provision_blueprint",
+              "object_id": "3825d96e-763e-d091-3dc4-174825283406",
+              "service_name": "web hosting"
+            },
+            {
+              "id": "825d96e7-63ed-0913-d36b-417482528340",
+              "language_id": "e47d7382-4850-7931-56c8-1e642d59e063",
+              "language_code": "es",
+              "translated_fields": {
+                "service_name": "alojamiento web"
+              },
+              "created_at": "2026-09-29 07:48:31",
+              "updated_at": "2026-09-29 07:48:31",
+              "deleted_at": null,
+              "object_type": "provision_blueprint",
+              "object_id": "3825d96e-763e-d091-3dc4-174825283406",
+              "service_name": "alojamiento web"
+            },
+            {
+              "id": "20403869-6e54-721d-55ea-518d9305e7d2",
+              "language_id": "47d73824-8507-9315-76a8-1e642d59e063",
+              "language_code": "es-419",
+              "translated_fields": {
+                "service_name": "web hosting"
+              },
+              "created_at": "2026-09-29 07:48:32",
+              "updated_at": "2026-09-29 07:48:32",
+              "deleted_at": null,
+              "object_type": "provision_blueprint",
+              "object_id": "3825d96e-763e-d091-3dc4-174825283406",
+              "service_name": "web hosting"
+            },
+            {
+              "id": "2785d26e-9678-3d16-707f-314502e70439",
+              "language_id": "68d63250-7980-65d1-e6f8-174e234e98d2",
+              "language_code": "fr",
+              "translated_fields": {
+                "service_name": "hébergement Web"
+              },
+              "created_at": "2026-09-29 07:48:31",
+              "updated_at": "2026-09-29 07:48:31",
+              "deleted_at": null,
+              "object_type": "provision_blueprint",
+              "object_id": "3825d96e-763e-d091-3dc4-174825283406",
+              "service_name": "hébergement Web"
+            },
+            {
+              "id": "47d73824-8507-9315-332f-81e642d59e06",
+              "language_id": "4d036794-24d0-e710-44f3-153698d582e8",
+              "language_code": "fr-CA",
+              "translated_fields": {
+                "service_name": "hébergement Web"
+              },
+              "created_at": "2026-09-29 07:48:32",
+              "updated_at": "2026-09-29 07:48:32",
+              "deleted_at": null,
+              "object_type": "provision_blueprint",
+              "object_id": "3825d96e-763e-d091-3dc4-174825283406",
+              "service_name": "hébergement Web"
+            },
+            {
+              "id": "5d085e69-d562-3719-7e4f-218e940d4237",
+              "language_id": "825d96e7-63ed-0913-5dc4-174825283406",
+              "language_code": "hu",
+              "translated_fields": {
+                "service_name": "Webtárhely"
+              },
+              "created_at": "2026-09-29 07:48:32",
+              "updated_at": "2026-09-29 07:48:32",
+              "deleted_at": null,
+              "object_type": "provision_blueprint",
+              "object_id": "3825d96e-763e-d091-3dc4-174825283406",
+              "service_name": "Webtárhely"
+            },
+            {
+              "id": "78985742-6489-7012-064b-21e325d0ed36",
+              "language_id": "47d73824-8507-9315-36f8-1e642d59e063",
+              "language_code": "id",
+              "translated_fields": {
+                "service_name": "Hosting Web"
+              },
+              "created_at": "2026-09-29 07:48:32",
+              "updated_at": "2026-09-29 07:48:32",
+              "deleted_at": null,
+              "object_type": "provision_blueprint",
+              "object_id": "3825d96e-763e-d091-3dc4-174825283406",
+              "service_name": "Hosting Web"
+            },
+            {
+              "id": "4d036794-24d0-e710-937b-3153698d582e",
+              "language_id": "72040386-96e5-4721-d9b5-18d9305e7d23",
+              "language_code": "it",
+              "translated_fields": {
+                "service_name": "Web hosting"
+              },
+              "created_at": "2026-09-29 07:48:31",
+              "updated_at": "2026-09-29 07:48:31",
+              "deleted_at": null,
+              "object_type": "provision_blueprint",
+              "object_id": "3825d96e-763e-d091-3dc4-174825283406",
+              "service_name": "Web hosting"
+            },
+            {
+              "id": "320e4357-95e7-8d18-44ef-31643202d986",
+              "language_id": "20403869-6e54-721d-59a5-18d9305e7d23",
+              "language_code": "nb",
+              "translated_fields": {
+                "service_name": "Webhotell"
+              },
+              "created_at": "2026-09-29 07:48:32",
+              "updated_at": "2026-09-29 07:48:32",
+              "deleted_at": null,
+              "object_type": "provision_blueprint",
+              "object_id": "3825d96e-763e-d091-3dc4-174825283406",
+              "service_name": "Webhotell"
+            },
+            {
+              "id": "3de78642-de53-9714-5d2f-21208469530d",
+              "language_id": "8d632507-9806-5d1e-36b8-174e234e98d2",
+              "language_code": "nl",
+              "translated_fields": {
+                "service_name": "web hosting"
+              },
+              "created_at": "2026-09-29 07:48:32",
+              "updated_at": "2026-09-29 07:48:32",
+              "deleted_at": null,
+              "object_type": "provision_blueprint",
+              "object_id": "3825d96e-763e-d091-3dc4-174825283406",
+              "service_name": "web hosting"
+            },
+            {
+              "id": "320e4357-95e7-8d18-4eec-31643202d986",
+              "language_id": "24d03679-424d-0e71-04b3-153698d582e8",
+              "language_code": "pl",
+              "translated_fields": {
+                "service_name": "hosting"
+              },
+              "created_at": "2026-09-29 07:48:31",
+              "updated_at": "2026-09-29 07:48:31",
+              "deleted_at": null,
+              "object_type": "provision_blueprint",
+              "object_id": "3825d96e-763e-d091-3dc4-174825283406",
+              "service_name": "hosting"
+            },
+            {
+              "id": "5d085e69-d562-3719-724a-218e940d4237",
+              "language_id": "45952098-d3de-4091-76a3-1578626e347e",
+              "language_code": "pt",
+              "translated_fields": {
+                "service_name": "Hospedagem de sites"
+              },
+              "created_at": "2026-09-29 07:48:31",
+              "updated_at": "2026-09-29 07:48:31",
+              "deleted_at": null,
+              "object_type": "provision_blueprint",
+              "object_id": "3825d96e-763e-d091-3dc4-174825283406",
+              "service_name": "Hospedagem de sites"
+            },
+            {
+              "id": "2785d26e-9678-3d16-7e7a-314502e70439",
+              "language_id": "320e4357-95e7-8d18-08b3-1643202d9860",
+              "language_code": "pt-BR",
+              "translated_fields": {
+                "service_name": "Hospedagem de sites"
+              },
+              "created_at": "2026-09-29 07:48:32",
+              "updated_at": "2026-09-29 07:48:32",
+              "deleted_at": null,
+              "object_type": "provision_blueprint",
+              "object_id": "3825d96e-763e-d091-3dc4-174825283406",
+              "service_name": "Hospedagem de sites"
+            },
+            {
+              "id": "3de78642-de53-9714-552b-21208469530d",
+              "language_id": "20403869-6e54-721d-29f5-18d9305e7d23",
+              "language_code": "ro",
+              "translated_fields": {
+                "service_name": "Gazduire web"
+              },
+              "created_at": "2026-09-29 07:48:32",
+              "updated_at": "2026-09-29 07:48:32",
+              "deleted_at": null,
+              "object_type": "provision_blueprint",
+              "object_id": "3825d96e-763e-d091-3dc4-174825283406",
+              "service_name": "Gazduire web"
+            },
+            {
+              "id": "4d036794-24d0-e710-997a-3153698d582e",
+              "language_id": "2785d26e-9678-3d16-e0a3-14502e70439d",
+              "language_code": "ru",
+              "translated_fields": {
+                "service_name": "Веб хостинг"
+              },
+              "created_at": "2026-09-29 07:48:32",
+              "updated_at": "2026-09-29 07:48:32",
+              "deleted_at": null,
+              "object_type": "provision_blueprint",
+              "object_id": "3825d96e-763e-d091-3dc4-174825283406",
+              "service_name": "Веб хостинг"
+            },
+            {
+              "id": "320e4357-95e7-8d18-47eb-31643202d986",
+              "language_id": "78985742-6489-7012-85a2-1e325d0ed369",
+              "language_code": "sk",
+              "translated_fields": {
+                "service_name": "Webhosting"
+              },
+              "created_at": "2026-09-29 07:48:32",
+              "updated_at": "2026-09-29 07:48:32",
+              "deleted_at": null,
+              "object_type": "provision_blueprint",
+              "object_id": "3825d96e-763e-d091-3dc4-174825283406",
+              "service_name": "Webhosting"
+            },
+            {
+              "id": "825d96e7-63ed-0913-d66c-417482528340",
+              "language_id": "2785d26e-9678-3d16-40f3-14502e70439d",
+              "language_code": "sv",
+              "translated_fields": {
+                "service_name": "Webbhotell"
+              },
+              "created_at": "2026-09-29 07:48:32",
+              "updated_at": "2026-09-29 07:48:32",
+              "deleted_at": null,
+              "object_type": "provision_blueprint",
+              "object_id": "3825d96e-763e-d091-3dc4-174825283406",
+              "service_name": "Webbhotell"
+            },
+            {
+              "id": "2785d26e-9678-3d16-777b-314502e70439",
+              "language_id": "3de78642-de53-9714-5eb2-1208469530d0",
+              "language_code": "tr",
+              "translated_fields": {
+                "service_name": "web barındırma"
+              },
+              "created_at": "2026-09-29 07:48:32",
+              "updated_at": "2026-09-29 07:48:32",
+              "deleted_at": null,
+              "object_type": "provision_blueprint",
+              "object_id": "3825d96e-763e-d091-3dc4-174825283406",
+              "service_name": "web barındırma"
+            },
+            {
+              "id": "825d96e7-63ed-0913-dd6a-417482528340",
+              "language_id": "78985742-6489-7012-05f2-1e325d0ed369",
+              "language_code": "uk",
+              "translated_fields": {
+                "service_name": "веб хостинг"
+              },
+              "created_at": "2026-09-29 07:48:32",
+              "updated_at": "2026-09-29 07:48:32",
+              "deleted_at": null,
+              "object_type": "provision_blueprint",
+              "object_id": "3825d96e-763e-d091-3dc4-174825283406",
+              "service_name": "веб хостинг"
+            },
+            {
+              "id": "5d085e69-d562-3719-774c-218e940d4237",
+              "language_id": "320e4357-95e7-8d18-48c3-1643202d9860",
+              "language_code": "ur",
+              "translated_fields": {
+                "service_name": "ویب ہوسٹنگ"
+              },
+              "created_at": "2026-09-29 07:48:32",
+              "updated_at": "2026-09-29 07:48:32",
+              "deleted_at": null,
+              "object_type": "provision_blueprint",
+              "object_id": "3825d96e-763e-d091-3dc4-174825283406",
+              "service_name": "ویب ہوسٹنگ"
+            },
+            {
+              "id": "5952098d-3de4-0917-ee5a-31578626e347",
+              "language_id": "8d632507-9806-5d1e-d6c8-174e234e98d2",
+              "language_code": "zh-TW",
+              "translated_fields": {
+                "service_name": "虛擬主機"
+              },
+              "created_at": "2026-09-29 07:48:32",
+              "updated_at": "2026-09-29 07:48:32",
+              "deleted_at": null,
+              "object_type": "provision_blueprint",
+              "object_id": "3825d96e-763e-d091-3dc4-174825283406",
+              "service_name": "虛擬主機"
+            }
+          ],
           "category": {
             "id": "85d085e6-9d56-2371-9ea2-18e940d42370",
             "code": "shared-hosting",
@@ -1939,7 +2336,7 @@
       "meta": null
     }
   },
-  "captured_at": "2026-09-25T12:04:38.853Z",
+  "captured_at": "2026-10-02T12:20:23.023Z",
   "brand_domain": "qa-automation.local",
   "source": "journey",
   "provenance": {

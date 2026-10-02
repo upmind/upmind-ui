@@ -40,6 +40,11 @@
 //   node docs/corpus/gates/gate-authorship.mjs                 (all four checks)
 //   node docs/corpus/gates/gate-authorship.mjs --check-provenance  (check 4 only)
 //   node docs/corpus/gates/gate-authorship.mjs --print-manifest    (manifest, exit 0)
+//   node docs/corpus/gates/gate-authorship.mjs --pages <dir>   (FE-3271: no check 1;
+//        check 4(a) reads <dir>/reference + <dir>/changelog; empty/missing = fail-closed)
+//   node docs/corpus/gates/gate-authorship.mjs --check-preview --sub <dir> --remote <r>
+//        --branch <b> --base <ref> --lease-out <file>   (FE-3271: preview-branch check
+//        only; writes PREVIEW_LEASE_SHA=<sha|none> on exit 0)
 //   Output one finding per line: `<file> — <reason>`. All findings print before
 //   exit. Exit 0 = clean; exit 1 = at least one finding. Fail-closed: an
 //   unreadable input (missing corpus.json, un-spawnable emitter, …) is a finding,
@@ -53,6 +58,7 @@ import {
   readdirSync,
   rmSync,
   statSync,
+  writeFileSync,
 } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
@@ -97,7 +103,10 @@ const PROVENANCE_KEYS = [
 
 const REMEDY = 'regenerate with pnpm --filter docs corpus:build && pnpm --filter docs corpus:emit';
 
-const toRel = (fp) => relative(ROOT, fp).replace(/\\/g, '/');
+const toRel = (fp) => {
+  const r = relative(ROOT, fp).replace(/\\/g, '/');
+  return r.startsWith('../') ? fp : r;
+};
 
 // ---------------------------------------------------------------------------
 // Canonical serialization + hashing — COPIED VERBATIM from build.mjs so the
@@ -288,12 +297,12 @@ function checkRelationsPin(findings) {
 // ---------------------------------------------------------------------------
 // Check 4 — provenance, both directions (design §8.3, 2950-AC3/AC4).
 // ---------------------------------------------------------------------------
-function checkProvenance(findings) {
+function checkProvenance(findings, { refDir = REF_DIR, changelogDir = CHANGELOG_DIR } = {}) {
   // (a) Inside the partition: every generated page carries all eight keys and
   //     generated: true.
   for (const { dir, audience } of [
-    { dir: REF_DIR, audience: 'reference' },
-    { dir: CHANGELOG_DIR, audience: 'changelog' },
+    { dir: refDir, audience: 'reference' },
+    { dir: changelogDir, audience: 'changelog' },
   ]) {
     for (const rel of walkFiles(dir)) {
       if (!rel.endsWith('.mdx') && !rel.endsWith('.md')) continue;
@@ -330,6 +339,142 @@ function checkProvenance(findings) {
 }
 
 // ---------------------------------------------------------------------------
+// `--pages <dir>` (FE-3271 B4): the fresh emit that check 4(a) reads instead of
+// the committed partition. Fail-closed on a missing dir or an empty reference.
+// ---------------------------------------------------------------------------
+const isPage = (f) => f.endsWith('.mdx') || f.endsWith('.md');
+
+function resolvePages(argv, findings) {
+  const i = argv.indexOf('--pages');
+  if (i === -1) return null;
+  const arg = argv[i + 1];
+  if (!arg || arg.startsWith('-')) {
+    findings.push(`--pages — no directory given (fail-closed)`);
+    return { refDir: null, changelogDir: null };
+  }
+  const dir = resolve(process.cwd(), arg);
+  const refDir = join(dir, 'reference');
+  if (!existsSync(dir)) {
+    findings.push(`${dir} — --pages directory not found (fail-closed)`);
+  } else if (!existsSync(refDir)) {
+    findings.push(`${refDir} — --pages directory has no reference/ (fail-closed)`);
+  } else if (!walkFiles(refDir).some((f) => f.endsWith('.mdx'))) {
+    findings.push(`${refDir} — --pages reference directory has zero .mdx files (fail-closed)`);
+  } else {
+    return { refDir, changelogDir: join(dir, 'changelog') };
+  }
+  return { refDir: null, changelogDir: null };
+}
+
+const countPages = (dirs) => dirs.reduce((n, d) => n + (d ? walkFiles(d).filter(isPage).length : 0), 0);
+
+// ---------------------------------------------------------------------------
+// `--check-preview` (FE-3271 B2): the MR check on the `mintlify-docs` preview
+// branch. Reads only git state in --sub and --remote, never the working tree.
+// ---------------------------------------------------------------------------
+const DOCS_BOT_EMAIL = 'docs-bot@upmind.com';
+const PARTITION = ['developers/reference', 'developers/changelog', 'developers/corpus-version.json'];
+const PREVIEW_NS = 'refs/remotes/corpus-preview';
+const PREVIEW_REMEDY =
+  'revert the hand-edit on the preview branch, or delete the preview branch so the next push re-creates it';
+
+const inPartition = (p) =>
+  p === 'developers/corpus-version.json' || p.startsWith('developers/reference/') || p.startsWith('developers/changelog/');
+
+function flag(argv, name) {
+  const i = argv.indexOf(name);
+  return i !== -1 && argv[i + 1] && !argv[i + 1].startsWith('--') ? argv[i + 1] : null;
+}
+
+function git(sub, args) {
+  const res = spawnSync('git', ['-C', sub, ...args], { encoding: 'utf8' });
+  const detail = (res.error?.message ?? res.stderr ?? '').trim().split('\n').slice(-2).join(' | ');
+  return { status: res.error ? -1 : res.status, out: (res.stdout ?? '').trim(), detail };
+}
+
+const lsRemoteHead = (sub, remote, ref) => git(sub, ['ls-remote', '--exit-code', '--heads', remote, `refs/heads/${ref}`]);
+const why = (r) => `exit ${r.status}${r.detail ? `: ${r.detail}` : ''}`;
+
+function checkPreview(argv) {
+  const findings = [];
+  const sub = flag(argv, '--sub');
+  const remote = flag(argv, '--remote');
+  const branch = flag(argv, '--branch');
+  const base = flag(argv, '--base');
+  const leaseOut = flag(argv, '--lease-out');
+  for (const [name, value] of [['--sub', sub], ['--remote', remote], ['--branch', branch], ['--base', base], ['--lease-out', leaseOut]]) {
+    if (!value) findings.push(`${name} — required by --check-preview (fail-closed)`);
+  }
+  if (findings.length) return report(findings);
+
+  const subDir = resolve(process.cwd(), sub);
+  const leasePath = resolve(process.cwd(), leaseOut);
+  if (!existsSync(join(subDir, '.git'))) {
+    return report([`${join(subDir, '.git')} — missing .git in --sub; cannot read preview history (fail-closed)`]);
+  }
+
+  const head = lsRemoteHead(subDir, remote, branch);
+  if (head.status === 2) {
+    writeFileSync(leasePath, 'PREVIEW_LEASE_SHA=none\n');
+    console.log(`gate:authorship: first push — no preview branch yet (${branch} absent on ${remote})`);
+    process.exit(0);
+  }
+  if (head.status !== 0) return report([`${remote} — cannot list ${branch} on the remote (${why(head)}) (fail-closed)`]);
+  const baseHead = lsRemoteHead(subDir, remote, base);
+  if (baseHead.status !== 0) return report([`${base} — unknown --base ref on ${remote} (${why(baseHead)}) (fail-closed)`]);
+
+  const baseRef = `${PREVIEW_NS}/${base}`;
+  const branchRef = `${PREVIEW_NS}/${branch}`;
+  const fetched = git(subDir, ['fetch', '--quiet', '--no-tags', remote, `+refs/heads/${base}:${baseRef}`, `+refs/heads/${branch}:${branchRef}`]);
+  if (fetched.status !== 0) return report([`${remote} — fetch of ${base} and ${branch} failed (${why(fetched)}) (fail-closed)`]);
+  const branchSha = git(subDir, ['rev-parse', '--verify', `${branchRef}^{commit}`]);
+  if (branchSha.status !== 0) return report([`${branch} — unknown ref after fetch (${why(branchSha)}) (fail-closed)`]);
+
+  const log = git(subDir, ['log', '--format=%H%x09%ae', `${baseRef}..${branchRef}`]);
+  if (log.status !== 0) return report([`${branch} — cannot read ${base}..${branch} history (${why(log)}) (fail-closed)`]);
+  let anchor = log.out
+    .split('\n')
+    .map((l) => l.split('\t'))
+    .find(([, email]) => email === DOCS_BOT_EMAIL)?.[0];
+  if (!anchor) {
+    const mb = git(subDir, ['merge-base', baseRef, branchRef]);
+    if (mb.status !== 0) return report([`${branch} — no merge-base with ${base} (${why(mb)}) (fail-closed)`]);
+    anchor = mb.out;
+  }
+
+  const diff = git(subDir, ['diff', '--name-only', anchor, branchRef, '--', ...PARTITION]);
+  if (diff.status !== 0) return report([`${branch} — cannot diff the partition (${why(diff)}) (fail-closed)`]);
+  for (const path of diff.out.split('\n').filter(Boolean)) {
+    const by = git(subDir, ['log', '-1', '--format=%h %ae "%s"', `${anchor}..${branchRef}`, '--', path]);
+    findings.push(
+      `${path} — hand-edit in the generated partition on ${branch} after ${anchor.slice(0, 12)}, by commit ${by.out || 'unknown'} (${PREVIEW_REMEDY})`,
+    );
+  }
+
+  const tree = git(subDir, ['ls-tree', '-r', '--name-only', branchRef, '--', 'developers/']);
+  if (tree.status !== 0) return report([`${branch} — cannot list developers/ (${why(tree)}) (fail-closed)`]);
+  for (const path of tree.out.split('\n').filter(Boolean)) {
+    if (inPartition(path) || !isPage(path)) continue;
+    const shown = git(subDir, ['show', `${branchRef}:${path}`]);
+    if (shown.status !== 0) {
+      findings.push(`${path} — unreadable on ${branch} (${why(shown)}) (fail-closed)`);
+      continue;
+    }
+    const keys = parseFrontmatter(shown.out);
+    if (keys && keys.has('generated')) {
+      findings.push(`${path} — hand-authored page on ${branch} carries a "generated" key (boundary violation, 2950-AC4)`);
+    }
+  }
+
+  if (findings.length) return report(findings);
+  writeFileSync(leasePath, `PREVIEW_LEASE_SHA=${branchSha.out}\n`);
+  console.log(
+    `gate:authorship: preview OK — ${branch} partition equals ${anchor.slice(0, 12)}; no hand-authored page on it carries a generated flag`,
+  );
+  process.exit(0);
+}
+
+// ---------------------------------------------------------------------------
 // Driver.
 // ---------------------------------------------------------------------------
 function report(findings, okSummary) {
@@ -349,26 +494,32 @@ if (argv.includes('--print-manifest')) {
   process.exit(0);
 }
 
+if (argv.includes('--check-preview')) checkPreview(argv);
+
+const pagesFindings = [];
+const pages = resolvePages(argv, pagesFindings);
+const provenanceDirs = pages ?? { refDir: REF_DIR, changelogDir: CHANGELOG_DIR };
+
 if (argv.includes('--check-provenance')) {
-  const findings = [];
-  checkProvenance(findings);
-  const refCount = walkFiles(REF_DIR).filter((f) => f.endsWith('.mdx') || f.endsWith('.md')).length;
-  const logCount = walkFiles(CHANGELOG_DIR).filter((f) => f.endsWith('.mdx') || f.endsWith('.md')).length;
-  report(findings, `gate:authorship: provenance OK — ${refCount + logCount} generated page(s) carry all ${PROVENANCE_KEYS.length} keys; no hand-authored page carries a generated flag`);
+  const findings = [...pagesFindings];
+  if (!pagesFindings.length) checkProvenance(findings, provenanceDirs);
+  const genCount = countPages([provenanceDirs.refDir, provenanceDirs.changelogDir]);
+  report(findings, `gate:authorship: provenance OK — ${genCount} generated page(s) carry all ${PROVENANCE_KEYS.length} keys; no hand-authored page carries a generated flag`);
 }
 
 // Default: the full guard — all four checks (design §7.1 "emit replay + integrity
-// pins + provenance validation").
-const findings = [];
-checkEmitReplay(findings);
+// pins + provenance validation"). With --pages, check 1 does not run and check
+// 4(a) reads the fresh emit (FE-3271 B4).
+const findings = [...pagesFindings];
+if (!pages) checkEmitReplay(findings);
 checkCorpusPin(findings);
 checkRelationsPin(findings);
-checkProvenance(findings);
+if (!pagesFindings.length) checkProvenance(findings, provenanceDirs);
 
-const genCount =
-  walkFiles(REF_DIR).filter((f) => f.endsWith('.mdx') || f.endsWith('.md')).length +
-  walkFiles(CHANGELOG_DIR).filter((f) => f.endsWith('.mdx') || f.endsWith('.md')).length;
+const genCount = countPages([provenanceDirs.refDir, provenanceDirs.changelogDir]);
 report(
   findings,
-  `gate:authorship: OK — ${genCount} generated page(s) verified (emit replay byte-exact, corpus + relations pins matched, provenance complete)`,
+  pages
+    ? `gate:authorship: OK — ${genCount} fresh generated page(s) verified (corpus + relations pins matched, provenance complete)`
+    : `gate:authorship: OK — ${genCount} generated page(s) verified (emit replay byte-exact, corpus + relations pins matched, provenance complete)`,
 );

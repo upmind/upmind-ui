@@ -213,6 +213,22 @@ export function intentOverlayTarget(
 }
 
 /**
+ * The page itself MINUS a refused or unrecognised `?init` intent. Refusing by
+ * re-target, never by resolving in place, is what keeps the spent param out of
+ * the url: the middleware and the engine both navigate the funnel's target, and
+ * a resolve in place hands back the route that still carries it.
+ */
+export function intentRefusedTarget(
+  route: Pick<RouteLocation, "name" | "params" | "query"> | undefined
+) {
+  return {
+    name: route?.name,
+    params: route?.params,
+    query: omit(route?.query, [QUERY_PARAMS.INIT])
+  };
+}
+
+/**
  * The page BENEATH the overlay, re-scoped to the actor chosen at the gate — the
  * `/as/<actor>` segment the whole playground scopes by, which is why choosing at
  * the gate is a scope change and not a second journey (`R7-1`).

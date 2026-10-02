@@ -1,6 +1,6 @@
 # client-billing-settings — Gotchas
 
-The sharp edges of the consolidation-preference read view and its editor. For anyone consuming `useBillingSettings` / `useBillingSettingsManager`, or writing tests against them.
+The sharp edges of the consolidation-preference composable. For anyone consuming `useBillingSettings`, or writing tests against it.
 
 > **🧪 For Testers:** Every section below carries a 🧪 expected-behaviour statement. Fixture names point at the recorded request/response pairs in `__tests__/fixtures/`.
 
@@ -9,8 +9,8 @@ The sharp edges of the consolidation-preference read view and its editor. For an
 `InvoiceConsolidationTypes.DISABLED` is the number `0`. Anything in a test, or in calling code, that checks "is this field set?" with a plain truthiness test (`if (model.enabled)`) will treat an explicit off exactly the same as "never touched" — which is the single highest-risk failure mode in this module.
 
 ```ts
-import type { UseBillingSettingsManager } from "@upmind-automation/headless";
-declare const manager: ReturnType<UseBillingSettingsManager["fresh"]>;
+import type { UseBillingSettings } from "@upmind-automation/headless";
+declare const manager: ReturnType<UseBillingSettings["fresh"]>;
 
 await manager.useActions().update({ enabled: 0 });
 // → PUT body MUST carry: { "invoice_consolidation_enabled": 0 }
@@ -26,8 +26,8 @@ Fixture: `put-clients-id-case-enabled-off.json` (`{"invoice_consolidation_enable
 The on/off/follow switch always holds one of three literal values (`0` / `1` / `2`) and is deliberately **not** modelled nullable — "follow the brand" is its own third enum value, not an absence. The other four fields (`baseRule`, `dayOfWeek`, `dateOfMonthDay`, `dueDateDay`) each defer to the brand's own default by being `null`.
 
 ```ts
-import type { UseBillingSettingsManager } from "@upmind-automation/headless";
-declare const manager: ReturnType<UseBillingSettingsManager["fresh"]>;
+import type { UseBillingSettings } from "@upmind-automation/headless";
+declare const manager: ReturnType<UseBillingSettings["fresh"]>;
 
 // ✅ Right — follow the brand via the switch's own third value
 await manager.useActions().update({ enabled: 2 });
@@ -44,7 +44,7 @@ Fixtures: `put-clients-id-case-enabled-inherit.json` (`enabled: 2`), `put-client
 
 ## 3. The visibility gate defaults to HIDDEN — an absent key is not "not restricted"
 
-`useMeta().isVisible` (on both composables) is `true` **only** when the brand's own configuration explicitly carries the literal value `false` for the single visibility key. An absent key, a literal `true`, and a failed fetch of that key all resolve to the same outcome: hidden.
+`useMeta().isVisible` is `true` **only** when the brand's own configuration explicitly carries the literal value `false` for the single visibility key. An absent key, a literal `true`, and a failed fetch of that key all resolve to the same outcome: hidden.
 
 ```ts
 // Brand config key absent entirely  → isVisible === false
@@ -52,23 +52,23 @@ Fixtures: `put-clients-id-case-enabled-inherit.json` (`enabled: 2`), `put-client
 // Brand config key === false         → isVisible === true  (the ONLY case that shows the surface)
 ```
 
-> **🧪 For Testers:** Seed all three states and confirm only the explicit `false` case reports `isVisible: true` — on **both** the read view and the editor independently. A regression here has historically inverted the polarity on the editor half while leaving the read half correct, so testing only one half is not sufficient.
+> **🧪 For Testers:** Seed all three states and confirm only the explicit `false` case reports `isVisible: true` — and that `isAvailable` follows it: only the explicit `false` case can ever settle `isAvailable` to `true`.
 
 Fixture: `get-config-brand-values-keys-invoices-consolidation-restrict-to-staff.json`.
 
-## 4. The shared cache key is dedupe-only — this module's own reads never bypass it unsafely
+## 4. The preference read has its own cache entry — it is not shared with client-personal-details
 
-This module reads `clients/{id}?with=custom_fields,custom_fields.field` under the **same** cache key as `client-personal-details` — deliberately, so a page mounting both dedupes onto a single request. This module's own reads are safe: it uses the reactive query primitive, which applies field-selection per observer, in isolation, and its own one-shot lookups bypass the shared cache entirely rather than baking a narrow field-selection into it. `client-custom-fields` reads a different endpoint (`custom_fields`, scoped by the access token) and does not touch this shared key at all.
+This module reads `clients/{id}?with=accounts,accounts.currency` under its own cache entry. `client-personal-details` reads the same client record with a different slice (`custom_fields,custom_fields.field`) under a different entry. A page mounting both therefore issues one `clients/{id}` request each, not one for the pair.
 
-> **🧪 For Testers:** A test seeding this module alongside `client-personal-details` should still see exactly one `clients/{id}` request for the pair — assert request COUNT, not just response shape.
+> **🧪 For Testers:** A test seeding this module alongside `client-personal-details` should expect one `clients/{id}` request per module — assert request COUNT per slice, not a single deduped request.
 
 ## 5. `clear()` still races a pending debounced `input()` — `revert()` does not
 
 Typing into the form schedules a debounced parse. Calling `clear()` immediately afterward resets the model right away — but if the debounce window from the last keystroke hasn't closed yet, that pending `input()` call still fires afterward and silently repopulates the field `clear()` just emptied.
 
 ```ts
-import type { UseBillingSettingsManager } from "@upmind-automation/headless";
-declare const manager: ReturnType<UseBillingSettingsManager["fresh"]>;
+import type { UseBillingSettings } from "@upmind-automation/headless";
+declare const manager: ReturnType<UseBillingSettings["fresh"]>;
 
 manager.useActions().input({ baseRule: "daily" }); // debounced — scheduled, not yet sent
 manager.useActions().clear(); // model clears NOW
@@ -80,24 +80,19 @@ manager.useActions().clear(); // model clears NOW
 
 > **🧪 For Testers:** Do not assume `clear()` and `revert()` share the same debounce safety just because they look like siblings. Test them separately, and specifically with a still-pending `input()` in flight when each is called.
 
-## 6. The read view and the editor are registered under two DIFFERENT internal names — do not assume they share a scope key
+## 6. One composable, one registry name — repeated calls return the same instance
 
-Some other scoped modules in this codebase register a query-backed collection and a machine-backed editor under one shared internal name, relying on the editor always supplying its own `.for()` or `.fresh()` to keep the two composables' scope keys apart. **This module cannot use that pattern**, because a client has exactly one preference — the editor's normal, everyday call (`.as(ScopeActorTypes.CLIENT)`, no further argument) would produce the _identical_ scope key the read view's own normal call produces, under a shared name. So this module's two composables are registered under two distinct internal names instead; they still share one scope matrix and one identity-resolution function underneath.
+`useBillingSettings` is registered under the single internal name `client-billing-settings`. A client has exactly one preference, so the everyday call (`.as(ScopeActorTypes.CLIENT)`, no further argument) always lands on the same registry entry.
 
 ```ts
-import {
-  ScopeActorTypes,
-  useBillingSettings,
-  useBillingSettingsManager
-} from "@upmind-automation/headless";
+import { ScopeActorTypes, useBillingSettings } from "@upmind-automation/headless";
 
-// Both of these resolve the SAME target client, through the SAME seam —
-// but they are two SEPARATE registry entries, not one shared instance.
-const settings = useBillingSettings().as(ScopeActorTypes.CLIENT);
-const manager = useBillingSettingsManager().as(ScopeActorTypes.CLIENT);
+// Both calls return the SAME scoped instance.
+const first = useBillingSettings().as(ScopeActorTypes.CLIENT);
+const second = useBillingSettings().as(ScopeActorTypes.CLIENT);
 ```
 
-> **🧪 For Testers:** Do not expect destroying one composable's instance to affect the other's — they are independent registry entries even though they act on the same client.
+> **🧪 For Testers:** Destroying the instance from one call site destroys it for every consumer of that scope — destroy it once, when the last consumer unmounts.
 
 ## 7. The consolidation write is refused by default — a missing brand opt-in reads as restricted, not as "not yet set"
 
@@ -107,23 +102,23 @@ The consolidation fields are only ever written when the brand has explicitly opt
 
 ## 8. `.as()` takes an enum member, never a string literal
 
-Both scoping methods on both composables are typed against the actual enum, not against the string a member happens to resolve to. Passing a plain string that happens to equal a member's value is a type error, not a working shortcut.
+The actor argument is typed against the actual enum, not against the string a member happens to resolve to. Passing a plain string that happens to equal a member's value is a type error, not a working shortcut.
 
 ```ts
 import {
   ScopeActorTypes,
-  useBillingSettingsManager
+  useBillingSettings
 } from "@upmind-automation/headless";
 
 // ❌ Wrong — TS2345, not a working shortcut
 // @ts-expect-error — a plain string is not a ScopeActorTypes member
-const wrongManager = useBillingSettingsManager().as("client");
+const wrongManager = useBillingSettings().as("client");
 
 // ✅ Right
-const manager = useBillingSettingsManager().as(ScopeActorTypes.CLIENT);
+const manager = useBillingSettings().as(ScopeActorTypes.CLIENT);
 ```
 
-**This bites hardest in specs**, because `__tests__/**` sits outside this package's own build type-check. A string-literal call can sit in either for a long time looking like it works, because nothing in the normal build path ever type-checks it. Runtime behaviour is unaffected either way (the string and the enum member are the same value at runtime) — this is a compile-time coverage gap, not a functional bug.
+**This bites hardest in specs**, because `__tests__/**` sits outside this package's own build type-check. A string-literal call can sit in a spec for a long time looking like it works, because nothing in the normal build path ever type-checks it. Runtime behaviour is unaffected either way (the string and the enum member are the same value at runtime) — this is a compile-time coverage gap, not a functional bug.
 
 ## 9. `pnpm lint` and `pnpm install` are unsafe to run casually against this module's changes
 
@@ -168,13 +163,13 @@ A hand-rolled diff that filters out falsy-looking values before comparing agains
 
 The context id this module's `.for(...)` takes is a plain caller-supplied value. Nothing in this contract checks locally that it matches the calling session's own client — `.as(ScopeActorTypes.CLIENT).for(ClientBillingSettingsContextTypes.CLIENT, someOtherId)` compiles and addresses that other id's preference, on the caller's own session bearer. Whether the platform actually honours the request is a server-side authorization decision, not something this contract enforces or advertises. This is narrower than a staff or on-behalf-of capability: there is no way to act _as_ a different party here. A **bare** `.as(ScopeActorTypes.STAFF)` or `.as(ScopeActorTypes.GUEST)` **type-checks** — the shared matrix's `null as never` row removes `.for(...)` and nothing else — and is refused at **runtime** instead. It is `.as(ScopeActorTypes.STAFF).for(...)` that is the compile-time error.
 
-### Assuming the editor needs a `.for()` argument
+### Assuming the preference needs a `.for()` argument
 
-It doesn't — `useBillingSettingsManager().as(ScopeActorTypes.CLIENT)` alone constructs and settles. A client has exactly one preference; there is nothing to select between.
+It doesn't — `useBillingSettings().as(ScopeActorTypes.CLIENT)` alone constructs and settles. A client has exactly one preference; there is nothing to select between.
 
 ### Treating `isVisible` as settled the instant the composable is constructed
 
-The visibility gate resolves through its own asynchronous fetch, run in parallel with the rest of construction. Reading `isVisible` before `isReady()` has resolved (on the read view) can observe the flag's default rather than its settled value.
+The visibility gate resolves through its own asynchronous brand-configuration fetch, run as part of the machine's loading phase. Reading `isVisible` before `isReady()` has resolved can observe the flag's default (hidden) rather than its settled value.
 
 ## Lifecycle Considerations
 
@@ -182,29 +177,21 @@ The visibility gate resolves through its own asynchronous fetch, run in parallel
 
 ```ts
 import { onUnmounted } from "vue";
-import type {
-  UseBillingSettings,
-  UseBillingSettingsManager
-} from "@upmind-automation/headless";
-declare const settings: ReturnType<UseBillingSettings["fresh"]>;
-declare const manager: ReturnType<UseBillingSettingsManager["fresh"]>;
+import { ScopeActorTypes, useBillingSettings } from "@upmind-automation/headless";
+
+const manager = useBillingSettings().as(ScopeActorTypes.CLIENT);
 
 onUnmounted(() => {
-  settings.useActions().destroy();
-  manager.useActions().destroy(); // also stops the underlying machine
+  manager.useActions().destroy(); // stops the underlying machine and deregisters the instance
 });
 ```
 
 ### Wait for readiness before reading or editing
 
 ```ts
-import type {
-  UseBillingSettings,
-  UseBillingSettingsManager
-} from "@upmind-automation/headless";
-declare const settings: ReturnType<UseBillingSettings["fresh"]>;
-declare const manager: ReturnType<UseBillingSettingsManager["fresh"]>;
+import { ScopeActorTypes, useBillingSettings } from "@upmind-automation/headless";
 
-await settings.useActions().isReady(); // also waits for the visibility gate to settle
+const manager = useBillingSettings().as(ScopeActorTypes.CLIENT);
+
 await manager.useActions().isReady(); // bounded — resolves false rather than hanging
 ```

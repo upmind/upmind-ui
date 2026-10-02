@@ -6,6 +6,7 @@ import {
   RequestSortDirection,
   SortDirection
 } from "../query";
+import { useScopeFilters } from "./product-catalogue.schemas";
 import service from "./product-catalogue.services";
 import {
   get,
@@ -18,6 +19,7 @@ import {
 } from "lodash-es";
 import type { Product } from "../product";
 import type {
+  ProductCatalogueScope,
   ProductSortableProperties,
   ProductQueryModel
 } from "./product-catalogue.types";
@@ -40,14 +42,20 @@ export const useProductCatalogue = (
     search?: MaybeRefOrGetter<string | undefined>;
     sortBy?: MaybeRefOrGetter<ProductSortableProperties | undefined>;
     direction?: MaybeRefOrGetter<RequestSortDirection | undefined>;
+    scope?: ProductCatalogueScope;
   }
 ) => {
   // --- state
-  const { isReady: isBasketReady } = useBasket();
+  const scope = initial?.scope;
+  // A scope reads no basket and, with `categories: false`, no category tree.
+  const isBasketReady = scope ? async () => true : useBasket().isReady;
   // Resolve category scoping the same way we resolve basket/currency — by
   // calling the composable, not by having the caller pass it in. Cache-shared
   // via a stable query key, so this adds no extra fetch.
-  const { getCategoryIds } = useProductCategories();
+  const getCategoryIds =
+    scope && scope.categories === false
+      ? undefined
+      : useProductCategories().getCategoryIds;
   const {
     infinite,
     includeDescendants = true,
@@ -55,6 +63,7 @@ export const useProductCatalogue = (
     search,
     sortBy,
     direction,
+    scope: _scope,
     ...params
   } = initial || {};
 
@@ -62,10 +71,13 @@ export const useProductCatalogue = (
   // loads), plus the free-text term. ONE source, so what the wire carries is
   // what the published model says.
   const filters = computed<ProductQueryModel["filters"]>(() => ({
-    products_category_id: {
-      eq: getCategoryIds(toValue(categoryId), includeDescendants)
-    },
-    name: { like: toValue(search) || undefined }
+    ...(getCategoryIds && {
+      products_category_id: {
+        eq: getCategoryIds(toValue(categoryId), includeDescendants)
+      }
+    }),
+    name: { like: toValue(search) || undefined },
+    ...useScopeFilters(scope)
   }));
 
   const sort = computed<ProductQueryModel["sort"]>(() => {
@@ -86,12 +98,15 @@ export const useProductCatalogue = (
   // model commits once: a `setCriteria` write without `pagination` returns to
   // page 1 by design, and one at mount would wipe a deep-linked offset.
   const model = { ...params, filters: filters.value, sort: sort.value };
-  const query = !infinite
-    ? service.loadList(model)
-    : service.loadInfinite(model);
+  const query = scope?.countOnly
+    ? service.loadCount(model, scope)
+    : !infinite
+      ? service.loadList(model, scope)
+      : service.loadInfinite(model, scope);
 
   const meta = computed(() => ({
     isLoading: query.isFetching.value || !query.isFetched.value,
+    isLoadingMore: get(query, "isFetchingNextPage.value", false) as boolean,
     hasError: !isEmpty(query.error.value),
     isEmpty: isEmpty(query.data?.value) || query.pagination.value.total == 0,
     isAvailable: true,

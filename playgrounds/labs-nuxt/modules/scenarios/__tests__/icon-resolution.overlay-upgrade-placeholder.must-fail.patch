@@ -1,0 +1,24 @@
+Negative control for AC-10, the overlay-upgrade declaration's icon.
+
+The mutant restores the template placeholder `icon-name` in place of the
+resolved lucide name `switch-horizontal-01`. The placeholder resolves to the
+fallback glyph, which is still an <svg>, so only the icon-resolution gate sees it.
+
+Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+
+Expected RED:
+  icon-resolution.spec.ts  "AC-10 every declared icon resolves — no fallback glyph"
+                           -> names `modules/scenarios/overlay-upgrade/overlay-upgrade.scenario.ts:<line> icon-name`
+
+diff --git a/playgrounds/labs-nuxt/modules/scenarios/overlay-upgrade/overlay-upgrade.scenario.ts b/playgrounds/labs-nuxt/modules/scenarios/overlay-upgrade/overlay-upgrade.scenario.ts
+index 9b341fcfa4..53ba64585e 100644
+--- a/playgrounds/labs-nuxt/modules/scenarios/overlay-upgrade/overlay-upgrade.scenario.ts
++++ b/playgrounds/labs-nuxt/modules/scenarios/overlay-upgrade/overlay-upgrade.scenario.ts
+@@ -27,6 +27,6 @@ export const OVERLAY_UPGRADE_SCENARIO = "overlay_upgrade";
+ export default {
+   key: OVERLAY_UPGRADE_SCENARIO,
+   presentation: {
+-    icon: "switch-horizontal-01"
++    icon: "icon-name"
+   }
+ } satisfies ScenarioDeclaration;

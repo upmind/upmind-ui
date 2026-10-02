@@ -10,9 +10,30 @@
  *
  * When the ui package adds ring utilities, update this file to re-export them
  * and remove the local definitions.
+ *
+ * It also holds the ONE share→width map a declared `TableColumnWidthTypes`
+ * resolves through, read by the table's header cells and the record's fields.
  */
 
+import { TableColumnWidthTypes } from "./scenario.types";
+
 // -----------------------------------------------------------------------------
+
+/** The width class each declared share reserves. */
+export const columnWidthClasses: Record<TableColumnWidthTypes, string> = {
+  [TableColumnWidthTypes.TWELFTH]: "w-1/12",
+  [TableColumnWidthTypes.SIXTH]: "w-1/6",
+  [TableColumnWidthTypes.QUARTER]: "w-1/4",
+  [TableColumnWidthTypes.THIRD]: "w-1/3",
+  [TableColumnWidthTypes.FIVE_TWELFTHS]: "w-5/12",
+  [TableColumnWidthTypes.HALF]: "w-1/2",
+  [TableColumnWidthTypes.SEVEN_TWELFTHS]: "w-7/12",
+  [TableColumnWidthTypes.TWO_THIRDS]: "w-2/3",
+  [TableColumnWidthTypes.THREE_QUARTERS]: "w-3/4",
+  [TableColumnWidthTypes.FIVE_SIXTHS]: "w-5/6",
+  [TableColumnWidthTypes.ELEVEN_TWELFTHS]: "w-11/12",
+  [TableColumnWidthTypes.FULL]: "w-full"
+};
 
 /**
  * The highlight ring for forced/deliberate mode — primary color, offset for

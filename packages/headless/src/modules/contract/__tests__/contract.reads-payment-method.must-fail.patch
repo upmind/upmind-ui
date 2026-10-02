@@ -1,0 +1,32 @@
+# Negative-control mutant — the contract carries its paid-with stored method
+#   as paymentMethod { id, label } (FE-3206, commit 4f0025e19e).
+#
+# Spec it must flip: contract.reads.int.test.ts,
+#   "useContract — contract.paymentMethod is the paid-with stored method" >
+#   "labels the method the contract pays with (awaits re-record)".
+# RED-verified 2026-10-02.
+#
+# Mutation: the `paymentMethod` mapping is dropped, so `contract.paymentMethod`
+#   is undefined and the account area shows no paid-with method.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+diff --git a/packages/headless/src/modules/contract/contract.mappers.ts b/packages/headless/src/modules/contract/contract.mappers.ts
+index 77452a4909..d9c1507615 100644
+--- a/packages/headless/src/modules/contract/contract.mappers.ts
++++ b/packages/headless/src/modules/contract/contract.mappers.ts
+@@ -110,14 +110,6 @@ export function mapContract(raw: IContract): Contract {
+         }
+       : {}),
+     paymentDetailsId: raw.payment_details_id,
+-    ...(raw.payment_details
+-      ? {
+-          paymentMethod: {
+-            id: raw.payment_details.id,
+-            label: useTranslateName(raw.payment_details)
+-          }
+-        }
+-      : {}),
+     products: map(raw.products, mapContractProductEmbedded),
+     name: raw.name,
+     title: mapContractTitle(raw),

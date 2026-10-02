@@ -16,11 +16,13 @@ import {
   stopService,
   waitForProcessing
 } from "../../utils";
-import { isNil } from "lodash-es";
+import { find, isNil } from "lodash-es";
 import type {
   CancellationModel,
   ContractProduct,
   ContractProductWriteModel,
+  MigrationHolders,
+  MigrationResult,
   RequestCancellationModel,
   ScheduleCancellationModel,
   SetConsolidationModel,
@@ -55,7 +57,8 @@ const CANCEL_OPTION_EVENT: Record<ContractProductCancelOption, string> = {
 export function createContractProductActions(
   _actorScope: ScopeActorTypes,
   actor: UseActor,
-  scopeKey: string
+  scopeKey: string,
+  holders: MigrationHolders
 ) {
   const { state, send, service } = actor;
   const { t } = useI18n();
@@ -79,7 +82,8 @@ export function createContractProductActions(
     const transient = [
       "processing",
       "available.cancelling.processing",
-      "available.consolidating.processing"
+      "available.consolidating.processing",
+      "available.migrating.configuring.processing"
     ];
 
     return waitFor(
@@ -302,6 +306,76 @@ export function createContractProductActions(
     );
   }
 
+  /**
+   * Opens the change of plan: the plan list starts to load.
+   * @returns true once the list is open; false when the product cannot change plan.
+   */
+  function openMigration(): boolean {
+    send({ type: "MIGRATION" });
+    return stateMatches(state, "available.migrating.choosing");
+  }
+
+  /**
+   * Chooses one plan of the loaded list; its configurator starts to load.
+   * @returns false, with nothing sent, when the loaded list holds no plan of that id.
+   */
+  async function selectMigrationTarget(id: string): Promise<boolean> {
+    const row = find(holders.list.value?.data.value, ["id", id]);
+    if (!row) return false;
+
+    send({ type: "MIGRATION.SELECT", data: { id, product: row } });
+    return stateMatches(state, "available.migrating.configuring");
+  }
+
+  /** Loads the next page of the plan list. */
+  async function loadMoreMigrationTargets(): Promise<void> {
+    await holders.list.value?.nextPage();
+  }
+
+  /** Loads the chosen plan again, from the start, after it failed to load. */
+  function reloadMigrationTarget(): void {
+    send({ type: "MIGRATION.RELOAD" });
+  }
+
+  /** Closes the change of plan. The chosen plan's configurator stops. */
+  function cancelMigration(): void {
+    send({ type: "CANCEL.MIGRATION" });
+  }
+
+  /**
+   * Commits the change of plan. The platform judges the commit, not the local
+   * validation.
+   * @returns the invoice the change raised, or `false` when the commit is not
+   *   offered now: no dry run or refused state, or the configurator is not ready.
+   * @throws {DetailedError} when the platform refuses the change.
+   */
+  async function migrate(): Promise<MigrationResult | false> {
+    if (!holders.isMigrationTargetReady.value) return false;
+
+    send({ type: "MIGRATE" });
+    if (!stateMatches(state, "available.migrating.configuring.processing"))
+      return false;
+
+    await waitForProcessing(
+      service,
+      ["available.migrating.idle", "unavailable"],
+      ["available.migrating.configuring.error", "error"]
+    );
+    const error = contextValue<ResponseError>(state, "error");
+    const result = contextValue<MigrationResult>(state, "migrationResult");
+
+    if (!result) {
+      throw new DetailedError(
+        t("error.contract_product_migrate_failed"),
+        error?.status ?? responseCodes.Timeout,
+        ErrorOrigin.Headless,
+        { error, state: state.value.value }
+      );
+    }
+
+    return result;
+  }
+
   function refresh(): void {
     send({ type: "REFRESH" });
   }
@@ -316,10 +390,12 @@ export function createContractProductActions(
   }
 
   function stop(): void {
+    holders.dispose();
     stopService(service);
   }
 
   function destroy(): void {
+    holders.dispose();
     stopService(service);
     removeFromRegistry(scopeKey);
   }
@@ -334,6 +410,12 @@ export function createContractProductActions(
     cancelForm,
 
     /**
+     * Closes the change of plan.
+     * @scenario-include
+     */
+    cancelMigration,
+
+    /**
      * Destroys this scoped instance — stops the machine and deregisters it.
      * @scenario-include
      */
@@ -344,6 +426,18 @@ export function createContractProductActions(
      * @scenario-include
      */
     isReady,
+
+    /**
+     * Loads the next page of the plan list.
+     * @scenario-include
+     */
+    loadMoreMigrationTargets,
+
+    /**
+     * Commits the change of plan and resolves the invoice it raised.
+     * @scenario-include
+     */
+    migrate,
 
     /**
      * Resolves once a write leaves `processing`, settled on `available` or
@@ -365,10 +459,22 @@ export function createContractProductActions(
     openConsolidation,
 
     /**
+     * Opens the change of plan.
+     * @scenario-include
+     */
+    openMigration,
+
+    /**
      * Re-reads the product.
      * @scenario-include
      */
     refresh,
+
+    /**
+     * Loads the chosen plan again after it failed to load.
+     * @scenario-include
+     */
+    reloadMigrationTarget,
 
     /**
      * Requests immediate cancellation of this product (HARD, R33).
@@ -399,6 +505,12 @@ export function createContractProductActions(
      * @scenario-include
      */
     scheduleCancellation,
+
+    /**
+     * Chooses one plan of the loaded list.
+     * @scenario-include
+     */
+    selectMigrationTarget,
 
     /**
      * Feeds a model into the open form.

@@ -13,15 +13,14 @@
 # Apply with:  git apply <this file>   (run from repo root)
 # Revert with: git apply -R <this file>
 diff --git a/packages/headless/src/modules/contract-product/contract-product.services.ts b/packages/headless/src/modules/contract-product/contract-product.services.ts
-index f9de1acf0..10c82abad 100644
 --- a/packages/headless/src/modules/contract-product/contract-product.services.ts
 +++ b/packages/headless/src/modules/contract-product/contract-product.services.ts
-@@ -310,7 +310,7 @@ export const createContractProductServices = (
+@@ -399,7 +399,7 @@
    return {
      queryKey,
      clientId,
 -    isAvailable: computed(() => isAddressable(clientId.value)),
 +    isAvailable: computed(() => true),
-     loadList: () => loadList(scopeContext, preference),
+     loadList: () => loadList(scopeContext, preference, isPreferenceSettled),
      loadGroupedCounts: () => loadGroupedCounts(scopeContext),
      loadPurchasedCategories: () =>

@@ -2,9 +2,9 @@
 
 ## What it is
 
-The **client-billing-settings** module covers a client's own invoice-consolidation preference on their billing record: reading its five persisted values, editing them through a validated form, and persisting only what actually changed. It is the entity-holding half of a larger billing-settings surface a legacy client-billing page groups together — a second, not-yet-built capability picks up the rest of that surface: resolving what a `null` field actually displays as (the brand's own default), deciding which fields are visible for a given base-rule selection, and coordinating a combined save/revert across the other billing panels the same page shows alongside this preference. This module writes the preference and reports its own persisted values; it does not resolve what an absent value means for display, and it does not coordinate with any sibling panel's own save.
+The **client-billing-settings** module covers a client's own invoice-consolidation preference on their billing record: exposing its five persisted values, editing them through a validated form, and persisting only what actually changed. It is the entity-holding half of a larger billing-settings surface a legacy client-billing page groups together — a second, not-yet-built capability picks up the rest of that surface: resolving what a `null` field actually displays as (the brand's own default), deciding which fields are visible for a given base-rule selection, and coordinating a combined save/revert across the other billing panels the same page shows alongside this preference. This module writes the preference and reports its own persisted values; it does not resolve what an absent value means for display, and it does not coordinate with any sibling panel's own save.
 
-Two working surfaces sit over the same preference: a **read view**, for rendering the client's currently saved values, and a **form editor**, used to change the preference and save only the difference from what was loaded. Both address the preference by its owning client's entity id, always the caller's own — there is no capability in this module for one client to act on another client's record, and there is no capability for a party other than the client to act on it at all. A separate record kept alongside this one lists, capability by capability, the administrative surface a legacy application supports over the same preference that this module deliberately does not build.
+One working surface sits over the preference: a **form editor**, whose model holds the client's currently saved values and which is used to change the preference and save only the difference from what was loaded. It addresses the preference by its owning client's entity id, always the caller's own — there is no capability in this module for one client to act on another client's record, and there is no capability for a party other than the client to act on it at all. A separate record kept alongside this one lists, capability by capability, the administrative surface a legacy application supports over the same preference that this module deliberately does not build.
 
 ## Core concepts
 
@@ -29,8 +29,8 @@ Two working surfaces sit over the same preference: a **read view**, for renderin
 
 **Additional always-on behaviours:**
 
-- Reporting whether the read or the editor is addressable at all — whether a client has been resolved to act on behalf of.
-- Reporting whether the read is loading, errored, or has settled, and resolving once it is settled (bounded — never an unbounded wait).
+- Reporting whether the editor is addressable at all — whether a client has been resolved to act on behalf of.
+- Reporting whether the preference load is in progress, errored, or has settled, and resolving once it is settled (bounded — never an unbounded wait).
 - Reporting the editor's own progress: available (settled AND the brand has opted clients into managing consolidation), valid, dirty, processing, complete.
 - Re-reading the preference AND re-checking the visibility gate on demand. A successful save also marks this module's own cached read stale on its own, so the next read reflects it without a separate call.
 
@@ -107,12 +107,12 @@ No other module in this codebase currently reads from this one — it is newly i
 Role: reads a client's own record, including the five persisted consolidation values and the `never_suspend` flag.
 
 ```bash
-curl "$API/clients/25d96e76-3ed0-913d-d52c-417482528340?with=custom_fields,custom_fields.field" \
+curl "$API/clients/25d96e76-3ed0-913d-d52c-417482528340?with=accounts,accounts.currency" \
   -H "Authorization: Bearer $ACCESS_TOKEN" \
   -H "Accept: application/json"
 ```
 
-The query parameter shown is present on every request this module issues against this URL, even though this module itself reads none of the data it expands — see Lessons for why.
+The `with` parameter expands the client's accounts and each account's currency, which supply the account currency fields. The sample below is trimmed to the consolidation fields.
 
 Sample response (`200`) — trimmed to the fields this module reads:
 
@@ -269,7 +269,7 @@ One-line purpose: the end-to-end shape a consumer plans around.
 
 ```mermaid
 flowchart TD
-  start([Consumer opens the editor]) --> read["GET clients/{id}?with=custom_fields,custom_fields.field"]
+  start([Consumer opens the editor]) --> read["GET clients/{id}?with=accounts,accounts.currency"]
   read --> gate["GET config/brand/values?keys=invoices.consolidation.restrict_to_staff"]
   gate --> base(["Base model seeded from the read; visibility resolved from the gate"])
   base --> available{"Brand has opted clients<br/>into managing consolidation?"}
@@ -307,6 +307,6 @@ Constraints the caller has to plan around: this is a separate read from the pref
 
 - **An explicit "off" and "never set" can be the same falsy value, and a pipeline that tests for emptiness rather than for "did this change" will silently confuse them.** The off state of the on/off/follow switch is representable as a plain falsy number. A parsing or diffing step that drops "empty-looking" values before comparing against the last-loaded value will silently strip an explicit "off" from the outbound update — the request still succeeds, still returns `200`, and changes nothing. The only reliable diff test is identity comparison against the last-loaded value, never a value's own truthiness.
 - **A brand-level visibility default that must fail toward "hidden" needs its absence preserved as absence, all the way through — collapsing an unknown value to a literal `false` early is indistinguishable, downstream, from an explicit opt-in.** A gate that defaults to hidden is only safe if "the brand hasn't set this" and "the brand explicitly showed it" stay two different values as they travel through the system. A step that turns "not set" into a concrete `false` partway through — even meaning "not restricted" — makes a later check that tests for `false` unable to tell an unset gate from an explicit opt-in, and the surface leaks open for every client whose brand simply never touched this setting.
-- **Reading the same underlying record through two different access patterns can silently corrupt a cache one of them doesn't even know it shares.** A request-caching layer that stores whichever access pattern's own field-selection happened to win the race to populate a shared cache entry means a narrow, one-off read of a shared resource — one that only ever wants a single field off that resource — can leave every subsequent reader of the FULL resource looking at that narrow shape instead, for as long as the entry stays fresh. This is a live, unresolved risk for any resource multiple independent editing surfaces read through a shared identifier, not a single-module concern.
+- **Reading the same underlying record through two different access patterns can silently corrupt a cache one of them doesn't even know it shares.** A request-caching layer that stores whichever access pattern's own field-selection happened to win the race to populate a shared cache entry means a narrow, one-off read of a shared resource can leave every subsequent reader of the FULL resource looking at that narrow shape instead, for as long as the entry stays fresh. Each surface that reads this client record with its own field expansion therefore needs its own cache entry; sharing one is only safe when every reader applies its field selection per observer.
 - **Multiple independent editing surfaces can safely coexist on the same record only if each one sends a diff scoped to the fields it itself owns.** A record that several distinct forms can each edit stays safe from one form clobbering another's just-changed field only as long as every form's own save describes just the fields it changed, never the record as a whole. A save that instead always sends the whole record — even fields it never touched — will silently overwrite whatever another form saved moments earlier, with no error from either side.
 - **A save attempted while a dependent async fetch is still in flight can read a value that looks resolved but isn't.** A visibility gate resolved by its own asynchronous fetch, run in parallel with the rest of the editor's own setup, can be read by a consumer before that fetch has actually settled if nothing forces the two to synchronise — the read returns whatever the gate's placeholder value happens to be, not an error, so nothing signals that the answer is provisional.

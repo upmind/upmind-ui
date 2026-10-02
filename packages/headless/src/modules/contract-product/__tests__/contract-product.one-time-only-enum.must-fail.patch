@@ -10,15 +10,14 @@
 # Apply with:  git apply <this file>   (run from repo root)
 # Revert with: git apply -R <this file>
 diff --git a/packages/headless/src/modules/contract-product/contract-product.schemas.ts b/packages/headless/src/modules/contract-product/contract-product.schemas.ts
-index 07a4747dc..ba2bd7ba0 100644
 --- a/packages/headless/src/modules/contract-product/contract-product.schemas.ts
 +++ b/packages/headless/src/modules/contract-product/contract-product.schemas.ts
-@@ -101,7 +101,7 @@ export function useQuerySchema(): ContractProductsQuerySchema {
-               neq: forced
-                 ? { type: "integer", const: 0, default: 0 }
-                 : { type: ["integer", "null"], enum: [0, null] },
--              eq: { type: ["integer", "null"], enum: [0, null] }
-+              eq: { type: ["integer", "null"] }
-             }
+@@ -105,7 +105,7 @@
+               ? { neq: { type: "integer", const: 0, default: 0 } }
+               : {
+                   neq: { type: ["integer", "null"], enum: [0, null] },
+-                  eq: { type: ["integer", "null"], enum: [0, null] }
++                  eq: { type: ["integer", "null"] }
+                 }
            },
            created_at: {

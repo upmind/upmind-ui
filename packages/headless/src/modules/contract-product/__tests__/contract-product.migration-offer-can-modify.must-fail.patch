@@ -1,0 +1,21 @@
+# Negative-control mutant 1 — offer-can-modify (FE-3206)
+#
+# Mutation: drop the `canModify` clause of `canMigrateProduct`.
+# Spec it must turn red: the AC-26 unit spec, the change rule.
+#
+# Authored by the developer seat against the landed production source. The
+# prover applies it blind (tasks.md T41): apply, run the named spec, revert.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+diff --git a/packages/headless/src/modules/contract-product/contract-product.utils.ts b/packages/headless/src/modules/contract-product/contract-product.utils.ts
+--- a/packages/headless/src/modules/contract-product/contract-product.utils.ts
++++ b/packages/headless/src/modules/contract-product/contract-product.utils.ts
+@@ -399,7 +399,6 @@
+       CancellationRequestStatusCodes.REQUEST_ACCEPTED;
+ 
+   return (
+-    product.canModify &&
+     !hasHardCancellationRequest(product) &&
+     !acceptedRequest &&
+     !hasAutoExpireEnabled(product) &&

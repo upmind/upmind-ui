@@ -5,16 +5,18 @@ import { parseBasketProduct } from "../basket-product/basket-product.utils";
 import { mapClient } from "../client";
 import { mapAddress } from "../client-address";
 import { mapCurrency } from "../currency";
-import { useDate } from "../../utils";
+import { useDate, useTranslateName } from "../../utils";
 import {
   castArray,
+  compact,
   first,
   get,
   groupBy,
   join,
   map,
   orderBy,
-  sortBy
+  sortBy,
+  upperFirst
 } from "lodash-es";
 import type { BasketProduct } from "../basket-product";
 import type { LookupItem } from "../lookup";
@@ -23,6 +25,7 @@ import type {
   IContract,
   IContractProduct,
   IInvoice,
+  IPaymentDetail,
   InvoiceStatus
 } from "@upmind-automation/types";
 // -----------------------------------------------------------------------------
@@ -74,13 +77,19 @@ export function mapInvoices(
  */
 export function mapInvoice(raw: IInvoice, readingClientId?: string): Invoice {
   const slug = raw.category?.slug as InvoiceCategoryCode;
-  const products = map(raw.products, product => parseBasketProduct(product));
+  const products = map(raw.products, product => ({
+    ...parseBasketProduct(product),
+    contractId: product.contract_id ?? null,
+    contractsProductId: product.contracts_product_id ?? null
+  }));
   const payments = mapPayments(raw.payments);
 
   return {
     id: raw.id,
     locked: !!raw.locked,
-    status: raw.status.code as InvoiceStatus,
+    // A dry-run invoice (e.g. a change-of-plan preview) is unsaved and carries no `status`.
+    status: raw.status?.code as InvoiceStatus,
+    statusName: useTranslateName(raw.status) ?? "",
     number: raw.number,
     client: mapClient(raw.client)!,
     address: raw.address ? mapAddress(raw.address) : undefined,
@@ -209,6 +218,7 @@ function mapPayments(payments: IInvoice["payments"]): Payment[] {
       },
       cardType: details?.card_type,
       cardLast4: details?.card_last4,
+      label: mapPaymentLabel(details),
       amountFormatted: payment.amount_formatted,
       createdAt: payment.created_at,
       // Frozen at MAP time, not live — a page left open does not age this
@@ -223,6 +233,18 @@ function mapPayments(payments: IInvoice["payments"]): Payment[] {
   });
 
   return orderBy(mapped, ["createdAt"], ["desc"]);
+}
+
+/** @internal One payment's own method, legacy's `invoicePaymentItem.vue` `paymentDetail`. */
+function mapPaymentLabel(details?: IPaymentDetail | null): string {
+  if (!details) return "";
+  return (
+    details.name ||
+    join(
+      compact([upperFirst(details.card_type), "••••", details.card_last4]),
+      " "
+    )
+  );
 }
 
 /**

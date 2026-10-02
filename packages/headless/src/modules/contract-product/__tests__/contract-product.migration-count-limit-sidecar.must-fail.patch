@@ -1,0 +1,41 @@
+# Negative-control mutant 47 — count-limit-sidecar (FE-3206)
+#
+# Mutation: send the count as a `limit=count` URL sidecar through `loadList`.
+# Spec it must turn red: "I am told how many plans ..." ("asked for a count of plans, not a page of them"), and the AC-28 unit spec, the scope instance.
+#
+# Authored by the developer seat against the landed production source. The
+# prover applies it blind (tasks.md T41): apply, run the named spec, revert.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+diff --git a/packages/headless/src/modules/product-catalogue/useProductCatalogue.ts b/packages/headless/src/modules/product-catalogue/useProductCatalogue.ts
+--- a/packages/headless/src/modules/product-catalogue/useProductCatalogue.ts
++++ b/packages/headless/src/modules/product-catalogue/useProductCatalogue.ts
+@@ -98,11 +98,9 @@
+   // model commits once: a `setCriteria` write without `pagination` returns to
+   // page 1 by design, and one at mount would wipe a deep-linked offset.
+   const model = { ...params, filters: filters.value, sort: sort.value };
+-  const query = scope?.countOnly
+-    ? service.loadCount(model, scope)
+-    : !infinite
+-      ? service.loadList(model, scope)
+-      : service.loadInfinite(model, scope);
++  const query = !infinite
++    ? service.loadList(model, scope)
++    : service.loadInfinite(model, scope);
+ 
+   const meta = computed(() => ({
+     isLoading: query.isFetching.value || !query.isFetched.value,
+diff --git a/packages/headless/src/modules/product-catalogue/product-catalogue.services.ts b/packages/headless/src/modules/product-catalogue/product-catalogue.services.ts
+--- a/packages/headless/src/modules/product-catalogue/product-catalogue.services.ts
++++ b/packages/headless/src/modules/product-catalogue/product-catalogue.services.ts
+@@ -61,7 +61,8 @@
+           ProvisionCategoryCodes.DOMAIN_NAMES,
+         with: WITH,
+         account_id: scope?.accountId,
+-        currency_id: scope?.currencyId
++        currency_id: scope?.currencyId,
++        limit: scope?.countOnly ? "count" : undefined
+       },
+       isNil
+     )

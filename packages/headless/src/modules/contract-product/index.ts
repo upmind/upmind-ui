@@ -66,10 +66,15 @@ export {
 export type {
   CancellationModel,
   ContractProduct,
+  ContractProductEmbedded,
   ContractProductContext,
   ContractProductRequest,
   ContractProductRequestStatus,
   ContractProductStatus,
+  MigrationConfig,
+  MigrationPreview,
+  MigrationResult,
+  MigrationTarget,
   RequestCancellationModel,
   ScheduleCancellationModel,
   ScheduledAction,
@@ -78,8 +83,12 @@ export type {
   UnpaidInvoice
 } from "./contract-product.types";
 
-// --- Curated cross-module mapper (the `contract` module maps its `products` relation with it)
-export { mapContractProduct } from "./contract-product.mappers";
+// --- Curated cross-module mappers (the `contract` module maps its `products`
+// relation, and `tickets` its single read's linked product, with these)
+export {
+  mapContractProduct,
+  mapContractProductEmbedded
+} from "./contract-product.mappers";
 
 // --- Unpaid-invoice predicates (AC10, ADR-10, design 8.7 [o23]) — pure
 // functions of `Pick<IInvoice, "status">`, not meta (R23); call per invoice.

@@ -81,6 +81,7 @@
   "client_phones_refresh_failed": "We experienced an error refreshing phones",
   "client_profile_validation_failed": "Profile details validation failed",
   "contract_product_cancel_failed": "We experienced an error cancelling this product",
+  "contract_product_migrate_failed": "We experienced an error changing the plan of this product",
   "contract_product_not_available": "This product is not available",
   "contract_product_revoke_scheduled_cancellation_failed": "We experienced an error revoking the scheduled cancellation",
   "contract_product_set_consolidation_failed": "We experienced an error updating invoice consolidation",

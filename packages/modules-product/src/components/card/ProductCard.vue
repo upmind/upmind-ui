@@ -363,6 +363,7 @@ const actionContent = computed(() => {
   if (reason && configMeta.value.hideImage) {
     return { label: reason.label, icon: reason.icon };
   }
+  if (props.actionLabel) return { label: props.actionLabel };
   if (justAdded.value) {
     return { icon: "check-circle-broken", label: t("action.added_to_basket") };
   }

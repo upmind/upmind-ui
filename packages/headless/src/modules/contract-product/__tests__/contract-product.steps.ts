@@ -41,6 +41,14 @@ import {
   ContractProductCancelOption,
   ContractProductFormTypes
 } from "../contract-product.types";
+import {
+  bodiesByWhen,
+  bodiesInWindow,
+  markWhen,
+  sentByWhen,
+  sentInWindow,
+  wireScenario
+} from "./contract-product.wire";
 import brandHidesNothingPage from "./scenarios/a-brand-that-hides-one-off-purchases-hides-them-from-me-everywhere-nothing/04/get-contracts-products-3ae06085.json";
 import brandHidesNothingCount from "./scenarios/a-brand-that-hides-one-off-purchases-hides-them-from-me-everywhere-nothing/04/get-contracts-products-9f6d8418.json";
 import brandHidesAskedPage from "./scenarios/a-brand-that-hides-one-off-purchases-hides-them-from-me-everywhere-one-off-purchases/03/get-contracts-products-3ae06085.json";
@@ -155,15 +163,27 @@ import earliestDateRecording from "./scenarios/the-earliest-date-i-can-book-a-ca
 import inFlightRereadRecording from "./scenarios/while-a-change-of-mine-is-in-flight-the-module-says-so/03/get-contract-products-id.json";
 import {
   compact,
+  every,
+  filter,
+  find,
   groupBy,
+  has,
+  includes,
+  isEmpty,
+  isEqual,
+  isObject,
   keys,
   map,
+  omit,
   some,
+  sortBy,
   split,
+  toPairs,
   trim,
   uniq,
   values
 } from "lodash-es";
+import type { DetailedError } from "../../../utils";
 import type { World } from "@upmind-automation/scenario-harness";
 
 // -----------------------------------------------------------------------------
@@ -204,7 +224,13 @@ export const CONTRACT_PRODUCT_COVERED_ACTIONS = {
   cancelForm: "cancelForm",
   reset: "reset",
   refresh: "refresh",
-  onDone: "onDone"
+  onDone: "onDone",
+  openMigration: "openMigration",
+  loadMoreMigrationTargets: "loadMoreMigrationTargets",
+  selectMigrationTarget: "selectMigrationTarget",
+  reloadMigrationTarget: "reloadMigrationTarget",
+  migrate: "migrate",
+  cancelMigration: "cancelMigration"
 } as const;
 
 /**
@@ -457,6 +483,7 @@ const LAST_PAGE =
 /** The wire product a detail-read recording answered with. */
 type WireProduct = {
   id: string;
+  allowed_migrations: { migration_product_id: string }[];
   name: string;
   description: string | null;
   contract_id: string;
@@ -829,6 +856,8 @@ async function openCollection(world: World) {
  * recording rather than a copied literal. Session-neutral (see openCollection).
  */
 async function openManager(world: World, id: string = MANAGER_PRODUCT_ID) {
+  holding = false;
+  heldOutcome = undefined;
   await world.boot(CONTRACT_PRODUCT_SCENARIO, {
     actor: ScopeActorTypes.CLIENT,
     id
@@ -847,6 +876,346 @@ async function openActiveSubscription(world: World) {
       canConsolidate: true
     })
   );
+}
+
+// -----------------------------------------------------------------------------
+
+/** The plan reads a step recorded: the counts and the pages. */
+const planReadsOf = (step: number, count: boolean): unknown[] => {
+  const dir = `./scenarios/${slugOf(wireScenario())}/${String(step).padStart(2, "0")}/`;
+  return filter(
+    map(
+      filter(
+        keys(CHANGE_RECORDINGS),
+        path =>
+          /^get-basket-products-[0-9a-f]{8}\.json$/.test(
+            path.slice(dir.length)
+          ) && path.startsWith(dir)
+      ),
+      path => CHANGE_RECORDINGS[path]
+    ),
+    recording =>
+      includes((recording as ListRecording).request.path, "limit=count") ===
+      count
+  );
+};
+
+function onePlanRead(step: number, count: boolean): unknown {
+  const [recording, ...more] = planReadsOf(step, count);
+  if (!recording || more.length)
+    throw new Error(
+      `"${wireScenario()}" holds ${more.length + (recording ? 1 : 0)} plan ${count ? "counts" : "pages"} in step ${step}.`
+    );
+  return recording;
+}
+
+/** The count of plans a step recorded, and the page of plans. */
+const countIn = (step: number) => onePlanRead(step, true);
+const pageIn = (step: number) => onePlanRead(step, false);
+
+/** Each change-of-plan scenario's own product read and plan count. */
+const migrationRecording = () => ({
+  read: mustRecord(2, PRODUCT_READ),
+  count: planReadsOf(2, true)[0]
+});
+
+/** The contract a recorded product read carries. */
+const contractOf = (recording: unknown) =>
+  (
+    recording as {
+      response: {
+        body: {
+          data: { contract: { currency_id: string; account_id: string } };
+        };
+      };
+    }
+  ).response.body.data.contract;
+
+/** The plan ids the recorded product's plan allows, sorted. */
+const allowedIds = () =>
+  sortBy(
+    map(
+      productOf(migrationRecording().read).allowed_migrations,
+      "migration_product_id"
+    )
+  );
+
+const isPlanRead = (url: URL, method: string) =>
+  method === "GET" && url.pathname.endsWith("/basket/products");
+const isCountRead = (url: URL, method: string) =>
+  isPlanRead(url, method) && url.searchParams.get("limit") === "count";
+const isListRead = (url: URL, method: string) =>
+  isPlanRead(url, method) && url.searchParams.get("limit") !== "count";
+
+function mustHold(holds: boolean, otherwise: string): void {
+  if (!holds) throw new Error(otherwise);
+}
+
+/** Boots the manager on the product this scenario's own recording read. */
+const openMigrationScenario = (world: World) =>
+  openManager(world, productOf(migrationRecording().read).id);
+
+// -----------------------------------------------------------------------------
+
+/**
+ * The change-of-plan recordings of the scenario in the window, by step and
+ * file: `02` is the Given, `03` the When.
+ */
+const CHANGE_RECORDINGS = import.meta.glob<unknown>(
+  "./scenarios/*/*/{get-contract-products-id,get-basket-products-*,put-contracts-id-products-id-change}.json",
+  { eager: true, import: "default" }
+);
+
+const slugOf = (name: string) =>
+  name
+    .toLowerCase()
+    .replace(/['’]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+
+/** The recording of `step` whose file name `file` matches, if the step holds one. */
+function changeRecordingOf(step: number, file: RegExp): unknown {
+  const dir = `./scenarios/${slugOf(wireScenario())}/${String(step).padStart(2, "0")}/`;
+  const key = find(
+    keys(CHANGE_RECORDINGS),
+    path => path.startsWith(dir) && file.test(path.slice(dir.length))
+  );
+  return key ? CHANGE_RECORDINGS[key] : undefined;
+}
+
+function mustRecord(step: number, file: RegExp): unknown {
+  const recording = changeRecordingOf(step, file);
+  if (!recording)
+    throw new Error(
+      `"${wireScenario()}" has no recording ${file} in step ${step}.`
+    );
+  return recording;
+}
+
+const PRODUCT_READ = /^get-contract-products-id\.json$/;
+const PLAN_LOAD = /^get-basket-products-id(?!-provision)/;
+const CHANGE = /^put-contracts-id-products-id-change\.json$/;
+
+/** A recorded plan load: the plan and its options, as the platform answered. */
+type WirePlan = {
+  id: string;
+  products_options?: {
+    id: string;
+    pivot?: { default?: number };
+    prices?: {
+      billing_cycle_months: number;
+      price: number | null;
+      price_discounted: number | null;
+    }[];
+  }[];
+};
+
+/** The plan the scenario chose, off its latest recorded plan load. */
+const chosenPlan = (): WirePlan =>
+  productOf(
+    changeRecordingOf(3, PLAN_LOAD) ?? mustRecord(2, PLAN_LOAD)
+  ) as unknown as WirePlan;
+
+/** The recorded answer to a change request, as the platform gave it. */
+type WireChange = {
+  response: {
+    status: number;
+    body: {
+      data?: {
+        id?: string;
+        total_amount_formatted?: string;
+        total_amount_converted?: number;
+        unpaid_amount?: number;
+        products?: unknown[];
+      };
+    };
+  };
+};
+
+const changeAnswerOf = (step: number) =>
+  (mustRecord(step, CHANGE) as WireChange).response;
+
+/** The scenario's own product read. */
+const changeProduct = () => productOf(mustRecord(2, PRODUCT_READ));
+
+/** The module barrel, loaded on first use so the eager step scan never pulls it. */
+let moduleLoad: Promise<typeof import("..")> | undefined;
+
+/** The live manager the World booted for this scenario. */
+const liveManager = async () => {
+  moduleLoad ??= import("..");
+  const { useContractProduct } = await moduleLoad;
+  return useContractProduct()
+    .as(ScopeActorTypes.CLIENT)
+    .withId(changeProduct().id);
+};
+
+const liveConfig = async () => {
+  const config = (await liveManager()).useContext().migrationConfig.value;
+  if (!config) throw new Error("No plan is configured for a change.");
+  return config;
+};
+
+/** The option category of the configured plan that offers `valueId`. */
+const categoryOffering = async (valueId: string) => {
+  const category = find((await liveConfig()).options.value ?? [], option =>
+    some(option.values ?? [], { id: valueId })
+  );
+  if (!category)
+    throw new Error(`The configured plan offers no option ${valueId}.`);
+  return category;
+};
+
+/** The option of the chosen plan that it selects by default, and the other one. */
+const defaultOption = () => {
+  const option = find(chosenPlan().products_options ?? [], ({ pivot }) =>
+    Boolean(pivot?.default)
+  );
+  if (!option) throw new Error("The chosen plan has no default option.");
+  return option;
+};
+const otherOption = () => {
+  const option = find(
+    chosenPlan().products_options ?? [],
+    ({ pivot }) => !pivot?.default
+  );
+  if (!option) throw new Error("The chosen plan has no second option.");
+  return option;
+};
+
+/** The unit total of an option on `term`: the first of the discounted and the list price. */
+function optionPrice(
+  option: NonNullable<WirePlan["products_options"]>[number],
+  term: number
+): number | undefined {
+  const row = find(
+    option.prices ?? [],
+    ({ billing_cycle_months }) =>
+      billing_cycle_months === 0 || billing_cycle_months === term
+  );
+  return row ? (row.price_discounted ?? row.price ?? undefined) : undefined;
+}
+
+const isChangeRequest = (url: URL, method: string) =>
+  method === "PUT" && url.pathname.endsWith("/change");
+const isPlanLoad = (planId: string) => (url: URL, method: string) =>
+  method === "GET" && url.pathname.endsWith(`/basket/products/${planId}`);
+
+/** A change body the module sent. */
+type SentChange = {
+  contract_id?: string;
+  contracts_product_id?: string;
+  product?: Record<string, unknown>;
+  options?: Record<string, unknown>[];
+  attributes?: Record<string, unknown>[];
+  dry_run?: boolean;
+};
+
+/** The one change the `When` sent. */
+async function changeSentByWhen(): Promise<SentChange> {
+  const [sent, ...more] = (await bodiesByWhen(isChangeRequest)) as SentChange[];
+  mustHold(!!sent && !more.length, "exactly one change went out");
+  return sent;
+}
+
+/** The last dry run the module sent. */
+async function lastDryRun(): Promise<SentChange> {
+  const dry = filter((await bodiesInWindow(isChangeRequest)) as SentChange[], {
+    dry_run: true
+  });
+  mustHold(dry.length > 0, "no dry run went out");
+  return dry[dry.length - 1];
+}
+
+const holdsDeep = (value: unknown, key: RegExp): boolean =>
+  isObject(value) &&
+  some(
+    toPairs(value as Record<string, unknown>),
+    ([name, inner]) => key.test(name) || holdsDeep(inner, key)
+  );
+
+let holding = false;
+let heldOutcome: Promise<unknown> | undefined;
+
+/** Fires `action` and leaves it in flight, so a line can read the busy state. */
+async function hold(world: World, action: string): Promise<void> {
+  holding = true;
+  heldOutcome = undefined;
+  await world.fireHold!(action, undefined, CONTRACT_PRODUCT_SCENARIO);
+}
+
+/**
+ * Commits the change of plan through the live manager and leaves the commit
+ * in flight; its outcome is the result, or the refusal it rejected with.
+ */
+async function holdCommit(): Promise<void> {
+  holding = true;
+  const manager = await liveManager();
+  heldOutcome = Promise.race([
+    manager
+      .useActions()
+      .migrate()
+      .then(
+        result => result,
+        (refusal: unknown) => refusal
+      ),
+    new Promise(resolve =>
+      setTimeout(
+        () => resolve(new Error("the commit never landed")),
+        SETTLE_ATTEMPTS * SETTLE_INTERVAL_MS
+      )
+    )
+  ]);
+}
+
+/** A platform refusal carries a numeric HTTP `code`; the race timeout Error does not. */
+const isDetailedError = (value: unknown): value is DetailedError =>
+  value instanceof Error &&
+  typeof (value as { code?: unknown }).code === "number";
+
+/** Awaits the held action once; resolves its rejection, if it was refused. */
+const landed = async (world: World): Promise<unknown> =>
+  holding
+    ? (heldOutcome ??= world.settle!(CONTRACT_PRODUCT_SCENARIO).then(
+        () => undefined,
+        (refusal: unknown) => refusal
+      ))
+    : undefined;
+
+/** Settles once the chosen plan has loaded and its dry run has landed. */
+const configured = (world: World) =>
+  settles(() =>
+    world.expectMeta({
+      isMigrationOpen: true,
+      isChoosingMigrationTarget: false,
+      isMigrationTargetLoading: false,
+      isMigrationPreviewing: false
+    })
+  );
+
+/** Opens the change of plan and settles on its first page. */
+async function openChange(world: World): Promise<void> {
+  await openMigrationScenario(world);
+  await world.fire(CONTRACT_PRODUCT_COVERED_ACTIONS.openMigration);
+  await settles(() =>
+    world.expectMeta({
+      isChoosingMigrationTarget: true,
+      isMigrationTargetsLoading: false
+    })
+  );
+}
+
+const choosePlan = (world: World) =>
+  world.fire(
+    CONTRACT_PRODUCT_COVERED_ACTIONS.selectMigrationTarget,
+    chosenPlan().id
+  );
+
+/** Opens the change of plan, chooses the plan and settles on its cost. */
+async function chooseRecordedPlan(world: World): Promise<void> {
+  await openChange(world);
+  await choosePlan(world);
+  await configured(world);
 }
 
 // -----------------------------------------------------------------------------
@@ -1875,11 +2244,7 @@ export const contractProductSteps = defineSteps(({ Given, When, Then }) => {
   Given("one of my products", openManager);
 
   When("I ask for a change", world =>
-    world.fireHold!(
-      CONTRACT_PRODUCT_COVERED_ACTIONS.stopRenewing,
-      undefined,
-      CONTRACT_PRODUCT_SCENARIO
-    )
+    hold(world, CONTRACT_PRODUCT_COVERED_ACTIONS.stopRenewing)
   );
 
   Then("the module reports itself busy while the change is in flight", world =>
@@ -1887,7 +2252,7 @@ export const contractProductSteps = defineSteps(({ Given, When, Then }) => {
   );
 
   Then("it reports itself settled once the change has landed", async world => {
-    await world.settle!(CONTRACT_PRODUCT_SCENARIO);
+    await landed(world);
     await settles(() =>
       world.expectMeta({ isProcessing: false }, CONTRACT_PRODUCT_SCENARIO)
     );
@@ -2674,6 +3039,794 @@ export const contractProductSteps = defineSteps(({ Given, When, Then }) => {
   );
   Then("my product is no longer shown as being cancelled", world =>
     settles(() => world.expectMeta({ isCancelling: false, isActive: true }))
+  );
+
+  // === AC-26 TO AC-28 · THE CHANGE OF PLAN (FE-3206) ========================
+  // Each scenario boots the product its own recording read; the wire lines
+  // read the requests the module sent in this scenario's window.
+
+  for (const given of [
+    "one of my subscriptions is active, on a plan that allows changes to other plans",
+    "one of my subscriptions is suspended, on a plan that allows changes to other plans",
+    "one of my subscriptions, on a plan that allows changes to other plans, has a cancellation request pending",
+    "one of my subscriptions, on a plan that allows changes to other plans, had its cancellation request accepted",
+    "one of my subscriptions, on a plan that allows changes to other plans, is set to expire at the end of its term",
+    "one of my subscriptions, on a plan that allows changes to other plans, is paid for but not yet active",
+    "one of my subscriptions, on a plan that allows changes to other plans, has a pro-rata invoice I have not paid",
+    "one of my subscriptions is active, on a plan that allows no changes to other plans",
+    "one of my subscriptions is active, on a plan that allows changes to five or more plans",
+    "one of my subscriptions is active, on a plan whose allowed plans are none I can order on its billing term",
+    "one of my subscriptions is a bundle of products",
+    "one of my products, on a plan that allows changes to other plans, is still being imported"
+  ])
+    Given(given, openMigrationScenario);
+
+  Given(
+    "I have opened a change of plan on a subscription whose plan allows changes to five or more plans",
+    async world => {
+      await openMigrationScenario(world);
+      await world.fire(CONTRACT_PRODUCT_COVERED_ACTIONS.openMigration);
+      await settles(() =>
+        world.expectContext({
+          migrationTargets: recordedRows(pageIn(2))
+        })
+      );
+    }
+  );
+
+  When("I look at whether I can change its plan", async world => {
+    markWhen();
+    await settles(() => world.expectMeta({ isLoading: false }));
+  });
+
+  When("I ask to change its plan", async world => {
+    markWhen();
+    await world.fire(CONTRACT_PRODUCT_COVERED_ACTIONS.openMigration);
+  });
+
+  When("I ask to see more plans", async world => {
+    markWhen();
+    await world.fire(CONTRACT_PRODUCT_COVERED_ACTIONS.loadMoreMigrationTargets);
+  });
+
+  Then("I am told I can change its plan", world =>
+    settles(() => world.expectMeta({ canMigrate: true }))
+  );
+  Then("I am told I cannot change its plan", world =>
+    settles(() => world.expectMeta({ canMigrate: false }))
+  );
+  Then("I am told a pro-rata invoice of mine is unpaid", world =>
+    settles(() => world.expectMeta({ hasPendingProRata: true }))
+  );
+  Then("the change of plan does not open", world =>
+    settles(() => world.expectMeta({ isMigrationOpen: false }))
+  );
+  Then("the change of plan opens on the plans I can choose from", world =>
+    settles(() => world.expectMeta({ isChoosingMigrationTarget: true }))
+  );
+
+  Then("I am told which plans its plan allows me to change to", world =>
+    settles(() =>
+      world.expectContext({
+        allowedMigrations: map(
+          productOf(migrationRecording().read).allowed_migrations,
+          ({ migration_product_id }) => ({ migration_product_id })
+        )
+      })
+    )
+  );
+  for (const line of [
+    "I am told how many plans I can change to",
+    "I am told the number of plans the platform counted"
+  ])
+    Then(line, world =>
+      settles(() =>
+        world.expectContext({
+          migrationsCount: recordedTotal(migrationRecording().count)
+        })
+      )
+    );
+  Then("I am told the number of plans I can change to is zero", world => {
+    mustHold(
+      recordedTotal(countIn(2)) === 0,
+      "the recorded count of plans is not zero"
+    );
+    return settles(() => world.expectContext({ migrationsCount: 0 }));
+  });
+
+  // --- the count, as the module asked for it --------------------------------
+
+  const countParam = (key: string, want: (value: string | null) => boolean) =>
+    settles(async () => {
+      const [count, ...more] = sentInWindow(isCountRead);
+      mustHold(!!count && !more.length, "exactly one plan count went out");
+      mustHold(
+        want(new URL(count.url).searchParams.get(key)),
+        `the plan count sent ${key}=${new URL(count.url).searchParams.get(key)}`
+      );
+    });
+
+  Then("the platform is asked for a count of plans, not a page of them", () =>
+    countParam("offset", value => value === null)
+  );
+  Then("the plans are counted in my contract's currency", () =>
+    countParam(
+      "currency_id",
+      value => value === contractOf(migrationRecording().read).currency_id
+    )
+  );
+  Then("the plans are counted on my contract's account", () =>
+    countParam(
+      "account_id",
+      value => value === contractOf(migrationRecording().read).account_id
+    )
+  );
+  Then("only plans on a recurring billing term are counted", () =>
+    countParam("filter[billing_cycle_months|neq]", value => value === "0")
+  );
+  Then("only plans the brand sells are counted", () =>
+    countParam("filter[available_for_sales]", value => value === "1")
+  );
+  Then("only plans a client can order are counted", () =>
+    countParam("filter[clients_can_order]", value => value === "1")
+  );
+  Then("only the plans my plan allows are counted", () =>
+    countParam("filter[id]", value =>
+      isEqual(sortBy(split(value ?? "", ",")), allowedIds())
+    )
+  );
+  Then("the plans are counted in the brand's own order", () =>
+    countParam("order", value => value === "order")
+  );
+  Then("each counted plan is asked for with its image", () =>
+    countParam("with", value => includes(split(value ?? "", ","), "image"))
+  );
+
+  Then("the number of plans I can change to is still read", () =>
+    settles(async () =>
+      mustHold(sentInWindow(isCountRead).length > 0, "no plan count went out")
+    )
+  );
+  Then("no plan count is requested", async () =>
+    mustHold(sentInWindow(isCountRead).length === 0, "a plan count went out")
+  );
+  Then("no plan list is requested", async () =>
+    mustHold(sentInWindow(isListRead).length === 0, "a plan list went out")
+  );
+  Then("no change is sent", async () =>
+    mustHold(
+      sentInWindow(
+        (url, method) => method === "PUT" && url.pathname.endsWith("/change")
+      ).length === 0,
+      "a change of plan went out"
+    )
+  );
+
+  // --- the list, as the module asked for it ---------------------------------
+
+  const listParam = (key: string, want: (value: string | null) => boolean) =>
+    settles(async () => {
+      const [list] = sentByWhen(isListRead);
+      mustHold(!!list, "no plan list went out");
+      mustHold(
+        want(new URL(list.url).searchParams.get(key)),
+        `the plan list sent ${key}=${new URL(list.url).searchParams.get(key)}`
+      );
+    });
+
+  Then("the plans are asked for in my contract's currency", () =>
+    listParam(
+      "currency_id",
+      value => value === contractOf(migrationRecording().read).currency_id
+    )
+  );
+  Then("the plans are asked for on my contract's account", () =>
+    listParam(
+      "account_id",
+      value => value === contractOf(migrationRecording().read).account_id
+    )
+  );
+  Then(
+    "only plans on my subscription's current billing term are asked for",
+    () =>
+      listParam(
+        "filter[prices.billing_cycle_months]",
+        value =>
+          value ===
+          String(productOf(migrationRecording().read).billing_cycle_months)
+      )
+  );
+  Then("only plans the brand sells are asked for", () =>
+    listParam("filter[available_for_sales]", value => value === "1")
+  );
+  Then("only plans a client can order are asked for", () =>
+    listParam("filter[clients_can_order]", value => value === "1")
+  );
+  Then("only the plans my plan allows are asked for", () =>
+    listParam("filter[id]", value =>
+      isEqual(sortBy(split(value ?? "", ",")), allowedIds())
+    )
+  );
+  Then("the plans are asked for in the brand's own order", () =>
+    listParam("order", value => value === "order")
+  );
+  for (const line of [
+    "four plans are asked for",
+    "four more plans are asked for"
+  ])
+    Then(line, () => listParam("limit", value => value === "4"));
+  Then("the plans are asked for from the first plan on", () =>
+    listParam("offset", value => value === "0")
+  );
+  Then("the plans are asked for from the fifth plan on", () =>
+    listParam("offset", value => value === "4")
+  );
+  Then("each plan is asked for with its image and its prices", () =>
+    listParam(
+      "with",
+      value =>
+        includes(split(value ?? "", ","), "image") &&
+        includes(split(value ?? "", ","), "prices")
+    )
+  );
+
+  Then("I see the plans the platform returned, in its order", world =>
+    settles(() =>
+      world.expectContext({ migrationTargets: recordedRows(pageIn(3)) })
+    )
+  );
+  Then(
+    "I see the first four plans followed by the plans the platform returned next",
+    world =>
+      settles(() =>
+        world.expectContext({
+          migrationTargets: [
+            ...recordedRows(pageIn(2)),
+            ...recordedRows(pageIn(3))
+          ]
+        })
+      )
+  );
+  Then("I am told there are more plans to see", world =>
+    settles(() => world.expectMeta({ hasMoreMigrationTargets: true }))
+  );
+  Then("I am told there are no more plans to see", world =>
+    settles(() => world.expectMeta({ hasMoreMigrationTargets: false }))
+  );
+  Then(
+    "I am told whether there are more plans to see, as the platform's total says",
+    world =>
+      settles(() =>
+        world.expectMeta({
+          hasMoreMigrationTargets:
+            recordedRows(pageIn(2)).length + recordedRows(pageIn(3)).length <
+            recordedTotal(countIn(2))
+        })
+      )
+  );
+  Then("I am told there is no plan I can change to", world =>
+    settles(() => world.expectMeta({ hasNoMigrationTargets: true }))
+  );
+
+  // === AC-29 TO AC-34 · CONFIGURE, PRICE AND COMMIT A CHANGE OF PLAN ==========
+  // Each value a line expects is read off the scenario's own recordings; each
+  // wire line and body line reads what the module sent in this window.
+
+  for (const given of [
+    "I have opened a change of plan on one of my active subscriptions",
+    "I have opened a change of plan on a subscription whose plan allows a plan of the same price"
+  ])
+    Given(given, openChange);
+
+  for (const given of [
+    "I have chosen the plan with options and I am shown what the change costs",
+    "I have chosen the plan with options on one of my active subscriptions",
+    "I have chosen the plan with options and the platform will refuse that change",
+    "I have chosen the plan of the same price and I am told the change costs nothing",
+    "I have chosen a plan that needs provisioning details and I am shown what the change costs"
+  ])
+    Given(given, async world => {
+      await chooseRecordedPlan(world);
+      await settles(() => world.expectMeta({ isMigrationPreviewed: true }));
+    });
+
+  Given(
+    "I have chosen the plan with a required choice and I am shown what the change costs",
+    async world => {
+      await chooseRecordedPlan(world);
+      const [first] = chosenPlan().products_options ?? [];
+      await (
+        await liveConfig()
+      ).setOptions(await categoryOffering(first.id), [first.id]);
+      await configured(world);
+      await settles(() => world.expectMeta({ isMigrationPreviewed: true }));
+    }
+  );
+
+  Given(
+    "I have chosen the plan with a required choice and cleared that choice",
+    async world => {
+      await chooseRecordedPlan(world);
+      const [first] = chosenPlan().products_options ?? [];
+      const category = await categoryOffering(first.id);
+      const config = await liveConfig();
+      await config.setOptions(category, [first.id]);
+      await configured(world);
+      await config.setOptions(category, []);
+      await configured(world);
+      await settles(() => world.expectMeta({ isMigrationPreviewed: false }));
+    }
+  );
+
+  Given(
+    "I have changed my subscription to that plan, which allows a change back",
+    async world => {
+      await world.fire(CONTRACT_PRODUCT_COVERED_ACTIONS.migrate);
+      await settles(() =>
+        world.expectMeta({
+          isMigrationOpen: false,
+          isLoading: false,
+          isProcessing: false,
+          canMigrate: true
+        })
+      );
+      await settles(() =>
+        world.expectContext({
+          migrationResult: { invoiceId: changeAnswerOf(3).body.data?.id }
+        })
+      );
+    }
+  );
+
+  Given(
+    "I have chosen a plan to change to and it could not be loaded",
+    async world => {
+      await openChange(world);
+      await choosePlan(world);
+      await settles(() =>
+        world.expectMeta({ isMigrationTargetUnavailable: true })
+      );
+    }
+  );
+
+  When("I choose the plan with options to change to", async world => {
+    markWhen();
+    await choosePlan(world);
+    await configured(world);
+  });
+  When("I choose the plan of the same price", async world => {
+    markWhen();
+    await choosePlan(world);
+    await configured(world);
+  });
+
+  When(
+    "I change the option I chose to the other option of the plan",
+    async world => {
+      markWhen();
+      const other = otherOption();
+      await (
+        await liveConfig()
+      ).setOptions(await categoryOffering(other.id), other.id);
+      await settles(async () =>
+        mustHold(
+          sentByWhen(isChangeRequest).length > 0,
+          "no dry run went out for the new choice"
+        )
+      );
+      await configured(world);
+    }
+  );
+
+  When("I clear the required choice of the plan I chose", async world => {
+    markWhen();
+    const [first] = chosenPlan().products_options ?? [];
+    await (await liveConfig()).setOptions(await categoryOffering(first.id), []);
+    await settles(async () =>
+      mustHold(
+        sentByWhen(isChangeRequest).length > 0,
+        "no dry run went out for the cleared choice"
+      )
+    );
+    await configured(world);
+  });
+
+  When("I commit the change of plan", async () => {
+    markWhen();
+    await holdCommit();
+  });
+
+  When("I close the change of plan", async world => {
+    markWhen();
+    await world.fire(CONTRACT_PRODUCT_COVERED_ACTIONS.cancelMigration);
+  });
+
+  When("I ask for the plan I chose to be loaded again", async world => {
+    markWhen();
+    await world.fire(CONTRACT_PRODUCT_COVERED_ACTIONS.reloadMigrationTarget);
+    await configured(world);
+  });
+
+  // --- the plan load, as the module sent it ----------------------------------
+
+  const planLoadParam = (
+    key: string,
+    want: (value: string | null) => boolean
+  ) =>
+    settles(async () => {
+      const [load] = sentByWhen(isPlanLoad(chosenPlan().id));
+      mustHold(!!load, "the chosen plan was not loaded");
+      mustHold(
+        want(new URL(load.url).searchParams.get(key)),
+        `the plan load sent ${key}=${new URL(load.url).searchParams.get(key)}`
+      );
+    });
+
+  Then("the plan I chose is loaded in my contract's currency", () =>
+    planLoadParam(
+      "currency_id",
+      value => value === contractOf(mustRecord(2, PRODUCT_READ)).currency_id
+    )
+  );
+  Then("the plan I chose is loaded without promotions", async () => {
+    await planLoadParam("omit_promotions", value => value === "1");
+    await planLoadParam("promotions", value => value === null);
+  });
+  Then("the plan I chose is loaded again", () =>
+    settles(async () =>
+      mustHold(
+        sentByWhen(isPlanLoad(chosenPlan().id)).length > 0,
+        "the chosen plan was not loaded again"
+      )
+    )
+  );
+  Then("I am told the plan I chose is ready to configure", async world => {
+    await settles(() =>
+      world.expectMeta({
+        isMigrationTargetUnavailable: false,
+        isMigrationTargetLoading: false
+      })
+    );
+    mustHold(
+      (await liveManager()).useContext().migrationConfig.value !== null,
+      "no plan is configured"
+    );
+  });
+  Then("no price calculation is asked for the plan I chose", async () =>
+    mustHold(
+      sentByWhen((url, method) => {
+        const plan = `/basket/products/${chosenPlan().id}`;
+        return (
+          /calculat|price/i.test(url.pathname) ||
+          (url.pathname.includes(plan) &&
+            !(method === "GET" && url.pathname.endsWith(plan)) &&
+            !url.pathname.endsWith(`${plan}/provision_fields`))
+        );
+      }).length === 0,
+      "a price calculation went out for the chosen plan"
+    )
+  );
+
+  // --- the cost, as the module asked for it ----------------------------------
+
+  for (const line of [
+    "the cost of the change is asked for without committing it",
+    "the cost of the change is asked for again without committing it"
+  ])
+    Then(line, () =>
+      settles(async () =>
+        mustHold(
+          (await changeSentByWhen()).dry_run === true,
+          "the change went out without the dry-run flag"
+        )
+      )
+    );
+
+  const dryRunHolds = (
+    holds: (body: SentChange) => boolean,
+    otherwise: string
+  ) =>
+    settles(async () => mustHold(holds(await changeSentByWhen()), otherwise));
+
+  Then("the cost asked for names my contract", () =>
+    dryRunHolds(
+      body => body.contract_id === changeProduct().contract_id,
+      "the dry run names another contract"
+    )
+  );
+  Then("the cost asked for names my product", () =>
+    dryRunHolds(
+      body => body.contracts_product_id === changeProduct().id,
+      "the dry run names another product"
+    )
+  );
+  Then("the cost asked for names the plan I chose", () =>
+    dryRunHolds(
+      body => body.product?.product_id === chosenPlan().id,
+      "the dry run names another plan"
+    )
+  );
+  for (const line of [
+    "the cost asked for names my subscription's current billing term",
+    "the plan I chose starts on my subscription's current billing term"
+  ])
+    Then(line, () =>
+      dryRunHolds(
+        body =>
+          body.product?.billing_cycle_months ===
+          changeProduct().billing_cycle_months,
+        "the dry run names another billing term"
+      )
+    );
+  Then("the cost asked for carries each option I chose, by its product", () =>
+    dryRunHolds(
+      body => isEqual(map(body.options, "product_id"), [defaultOption().id]),
+      "the dry run carries other options"
+    )
+  );
+  Then("the cost asked for carries the option I changed to", () =>
+    dryRunHolds(
+      body => isEqual(map(body.options, "product_id"), [otherOption().id]),
+      "the dry run does not carry the option I changed to"
+    )
+  );
+  Then("each option carries its billing term", () =>
+    dryRunHolds(
+      body =>
+        !isEmpty(body.options) &&
+        every(body.options, {
+          billing_cycle_months: changeProduct().billing_cycle_months
+        }),
+      "an option carries another billing term"
+    )
+  );
+  Then("each option carries its quantity", () =>
+    dryRunHolds(
+      body =>
+        !isEmpty(body.options) && every(body.options, { unit_quantity: 1 }),
+      "an option carries no quantity of one"
+    )
+  );
+  Then("each option whose price differs from mine carries its new price", () =>
+    dryRunHolds(
+      body =>
+        isEqual(map(body.options, "price"), [
+          optionPrice(defaultOption(), changeProduct().billing_cycle_months)
+        ]),
+      "an option whose price differs carries no new price"
+    )
+  );
+  Then(
+    "the cost asked for carries each attribute I chose, by its product alone",
+    () =>
+      dryRunHolds(
+        body =>
+          Array.isArray(body.attributes) &&
+          every(body.attributes, attribute =>
+            isEqual(keys(attribute), ["product_id"])
+          ),
+        "the dry run carries attributes in another shape"
+      )
+  );
+  Then("the cost asked for carries no quantity for the plan itself", () =>
+    dryRunHolds(
+      body => !!body.product && !("quantity" in body.product),
+      "the dry run carries a quantity for the plan"
+    )
+  );
+
+  // --- the cost, as the module shows it --------------------------------------
+
+  const pricedAt = (step: number) => changeAnswerOf(step).body.data;
+
+  Then("I am shown the pro-rata amount the platform priced", world =>
+    settles(() =>
+      world.expectContext({
+        migrationPreview: { total: pricedAt(3)?.total_amount_formatted }
+      })
+    )
+  );
+  Then("I am shown the lines of the invoice the platform priced", async () =>
+    settles(async () => {
+      const manager = await liveManager();
+      mustHold(
+        (pricedAt(3)?.products ?? []).length > 0 &&
+          isEqual(
+            sortBy(
+              map(
+                manager.useContext().migrationPreview.value?.invoice.products,
+                "id"
+              )
+            ),
+            sortBy(map(pricedAt(3)?.products as { id: string }[], "id"))
+          ),
+        "the cost shows other invoice lines"
+      );
+    })
+  );
+  Then(
+    "I am shown the cost the platform priced for my new choice, not the cost before it",
+    world => {
+      mustHold(
+        pricedAt(3)?.total_amount_formatted !==
+          pricedAt(2)?.total_amount_formatted,
+        "the two recorded costs are the same"
+      );
+      return settles(() =>
+        world.expectContext({
+          migrationPreview: { total: pricedAt(3)?.total_amount_formatted }
+        })
+      );
+    }
+  );
+  Then("I am told the change is not free", world =>
+    settles(() => world.expectMeta({ isMigrationFree: false }))
+  );
+  Then("I am told the change costs nothing", world =>
+    settles(() => world.expectMeta({ isMigrationFree: true }))
+  );
+  Then("I am shown no cost for the change", async () =>
+    settles(async () =>
+      mustHold(
+        (await liveManager()).useContext().migrationPreview.value === undefined,
+        "a cost is still shown"
+      )
+    )
+  );
+  Then("the change of plan reports no error from the platform", world =>
+    settles(() => world.expectMeta({ hasError: false }))
+  );
+  Then("I am told my choice of options is not valid", async () =>
+    settles(async () =>
+      mustHold(
+        (await liveConfig()).meta.value.isInvalid,
+        "the choice of options reads valid"
+      )
+    )
+  );
+  Then("I am told I can still commit the change", world =>
+    settles(() => world.expectMeta({ canCommitMigration: true }))
+  );
+
+  // --- the commit ------------------------------------------------------------
+
+  Then("the change is sent without the dry-run flag", async world => {
+    await landed(world);
+    await settles(async () =>
+      mustHold(
+        (await changeSentByWhen()).dry_run !== true,
+        "the commit went out as a dry run"
+      )
+    );
+  });
+  Then("the change sent is the one I was shown the cost of", async world => {
+    await landed(world);
+    const priced = omit(await lastDryRun(), "dry_run");
+    mustHold(
+      isEqual(omit(await changeSentByWhen(), "dry_run"), priced),
+      "the commit differs from the change that was priced"
+    );
+  });
+  Then("the change sent carries no provisioning details", async world => {
+    await landed(world);
+    mustHold(
+      !holdsDeep(await changeSentByWhen(), /provision/i),
+      "the commit carries provisioning details"
+    );
+  });
+
+  for (const line of [
+    "I am given the invoice the change raised",
+    "I am still given the invoice the change raised"
+  ])
+    Then(line, async world => {
+      await landed(world);
+      await settles(() =>
+        world.expectContext({
+          migrationResult: { invoiceId: changeAnswerOf(3).body.data?.id }
+        })
+      );
+    });
+  Then("I am told what is left to pay on that invoice", async world => {
+    await landed(world);
+    await settles(() =>
+      world.expectContext({
+        migrationResult: {
+          unpaidAmount: changeAnswerOf(3).body.data?.unpaid_amount
+        }
+      })
+    );
+  });
+  Then(
+    "I am told I must pay that invoice before the change takes effect",
+    async world => {
+      await landed(world);
+      mustHold(
+        (changeAnswerOf(3).body.data?.unpaid_amount ?? 0) !== 0,
+        "the recorded invoice leaves nothing to pay"
+      );
+      await settles(() => world.expectMeta({ requiresPayment: true }));
+    }
+  );
+  Then(
+    "I am told I do not have to pay for the change to take effect",
+    async world => {
+      await landed(world);
+      await settles(() => world.expectMeta({ requiresPayment: false }));
+    }
+  );
+  Then("my product is read again", async world => {
+    await landed(world);
+    await settles(async () =>
+      mustHold(
+        sentByWhen(
+          (url, method) =>
+            method === "GET" &&
+            url.pathname.endsWith(`/contract_products/${changeProduct().id}`)
+        ).length > 0,
+        "the product was not read again"
+      )
+    );
+  });
+  Then(
+    "the change of plan reports that the platform refused it",
+    async world => {
+      const refusal = await landed(world);
+      mustHold(
+        isDetailedError(refusal),
+        `the commit was not refused with the platform's error: ${String(refusal)}`
+      );
+      await settles(() =>
+        world.expectMeta({ hasError: true, isMigrationProcessing: false })
+      );
+    }
+  );
+  Then("the change of plan stays open on the plan I chose", async world => {
+    await landed(world);
+    await settles(() =>
+      world.expectMeta({ isMigrationOpen: true, canCommitMigration: true })
+    );
+    await settles(() =>
+      world.expectContext({ migrationTarget: { id: chosenPlan().id } })
+    );
+  });
+  Then("the option I chose is kept", async world => {
+    await landed(world);
+    const kept = (await liveConfig()).model.value?.options ?? {};
+    mustHold(
+      some(values(kept), value => has(value, defaultOption().id)),
+      "the option I chose is gone"
+    );
+  });
+  Then("I am given no invoice", async world => {
+    await landed(world);
+    await settles(() => world.expectContext({ migrationResult: null }));
+  });
+  Then("I am given no invoice from the change before", world =>
+    settles(() => world.expectContext({ migrationResult: null }))
+  );
+
+  // --- closing ---------------------------------------------------------------
+
+  Then("the change of plan is closed", async world => {
+    await landed(world);
+    await settles(() =>
+      world.expectMeta({ isMigrationOpen: false, isLoading: false })
+    );
+  });
+  Then("no plan is configured for a change any more", async world => {
+    await settles(() => world.expectMeta({ isMigrationOpen: false }));
+    await settles(async () => {
+      const manager = await liveManager();
+      mustHold(
+        manager.useContext().migrationConfig.value === null &&
+          manager.useContext().migrationTarget.value === undefined,
+        "a plan is still configured"
+      );
+    });
+  });
+  Then("my product is still active", world =>
+    settles(() => world.expectMeta({ isActive: true }))
   );
 });
 

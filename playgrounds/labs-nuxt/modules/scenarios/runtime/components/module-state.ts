@@ -75,6 +75,24 @@ export function resolveModuleState(
 }
 
 /**
+ * {@link resolveModuleState} for a single-record surface, which also reads the
+ * module's `isUnavailable`: a record whose `hasError` is scoped to a loaded
+ * record (the invoice's payment failure) says its read did not land only
+ * there, and a record surface would otherwise wait on it forever.
+ * @param meta `ModuleDescriptor.snapshot.meta`.
+ * @param context `ModuleDescriptor.snapshot.context`.
+ */
+export function resolveRecordState(
+  meta: Record<string, boolean>,
+  context: Record<string, unknown> = {}
+): ModuleState {
+  const state = resolveModuleState(meta, context);
+  if (state !== ModuleState.READY || !meta[MODULE_STATE_META_FLAG.UNAVAILABLE])
+    return state;
+  return isAbsentRecord(context) ? ModuleState.ABSENT : ModuleState.ERROR;
+}
+
+/**
  * The module's own copy of what went wrong. An absent record is WITHHELD: it is
  * not a failure, so no surface may draw it as one — neither in place of its
  * content nor as a verdict beside it.

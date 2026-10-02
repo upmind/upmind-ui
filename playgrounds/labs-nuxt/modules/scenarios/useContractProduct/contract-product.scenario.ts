@@ -9,28 +9,25 @@
  * page (`useContractProducts`), which lists a client's products but drives
  * none of this manager's writes.
  *
- * This module DRAWS ITSELF: `contract-product.page.vue` beside this file is
- * the route's component (`../index.ts` — "the module's own page wins"), so
- * the shared `ScenarioPlayground`/`ModuleRenderer` never sees it. What keeps
- * it self-drawn is the WRITE side: both forms open from their OWN context
- * slot (`useContext().cancellation` / `.consolidation`), which no generic
- * mutate surface renders, and the formless writes take no argument the
- * generic action panel could gather blind.
+ * The shared playground draws it as a RECORD: `useManage` plus the declared
+ * `presentation.record` (`contract-product.presentation.ts`) route it to the
+ * record surface, which builds every field, write, form and navigation from
+ * that declaration against the live manager — both forms open the manager's
+ * OWN context slot (`cancellation` / `consolidation`).
  *
  * The DIRECTORY is the url segment and route name (`/useContractProduct`).
  * The product is addressed by the `id` route param declared below —
  * `/useContractProduct/<id>` — which the registrar turns into a `/:id`
- * segment; the page reads it off the route and boots
+ * segment; the playground reads it off the route and boots
  * `.as(ScopeActorTypes.CLIENT).withId(id)` (R11 — enum members, no cast;
  * `CONTRACT_PRODUCT_SCOPE_MATRIX` refuses every actor a `.for()` context, so
  * `.as()` is the only step). OPTIONAL, because the bare url is the empty
- * state — with no id the page draws the collection's own finder
- * (`useContractProducts().useContext().schemas.contractProductPicker`), the
+ * state — with no id the page draws the declared picker, the collection's own
+ * finder (`useContractProducts().useContext().schemas.contractProductPicker`), the
  * pick writing the id the manager boots by (R38 item 2).
  *
- * `useManage` is the opt-in a self-drawn declaration makes so the harness can
- * build a boot thunk for its key, and `tracks` names the module whose
- * committed `.feature` and step catalog this page plays — the same module the
+ * `useManage` is what the harness builds the boot thunk for its key from, and
+ * `tracks` names the module whose committed `.feature` and step catalog this page plays — the same module the
  * COLLECTION page tracks, since `stepCatalogs` is keyed by module and serves
  * both keys. Most scenarios are tagged `@collection`, `@manager`, `@meta` or
  * `@machine`; this page leaves `@collection` out — paging, sorting, filtering
@@ -40,6 +37,7 @@
  */
 
 import { useContractProduct } from "@upmind-automation/headless";
+import { contractProductRecord } from "./contract-product.presentation";
 import type { ScenarioDeclaration } from "../runtime/scenario.types";
 
 // -----------------------------------------------------------------------------
@@ -49,11 +47,7 @@ export const CONTRACT_PRODUCT_SCENARIO = "contract_product";
 
 export default {
   key: CONTRACT_PRODUCT_SCENARIO,
-  // `useList` / `useMutate` stay OMITTED — the module draws itself, and no
-  // generic surface can render the two write forms or the formless writes
-  // (see docblock). `useManage` is the self-drawn page's own opt-in: it binds
-  // the manager for BOOTING only, so `World.boot("contract_product", …)`
-  // builds a thunk, and the page keeps drawing every pixel itself.
+  // `useList` / `useMutate` stay OMITTED: the manager draws as a RECORD.
   useManage: useContractProduct,
   // The product is addressed by a path param — `/useContractProduct/:id` —
   // the same shape `useTicket` uses for its own single record. UUID-shaped,
@@ -61,8 +55,12 @@ export default {
   // `/useContractProduct/as/client` resolves `id = "as"` and the actor is
   // lost.
   params: ["id([0-9a-fA-F-]{36})?"],
-  tracks: { module: "contract-product", without: ["@collection"] },
+  tracks: {
+    module: "contract-product",
+    without: ["@collection", "@migration"]
+  },
   presentation: {
-    icon: "box"
+    icon: "box",
+    record: contractProductRecord
   }
 } satisfies ScenarioDeclaration;

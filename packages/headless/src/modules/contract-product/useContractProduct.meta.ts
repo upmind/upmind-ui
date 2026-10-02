@@ -3,15 +3,26 @@ import { ContractStatusCodes } from "@upmind-automation/types";
 import { ContractProductState } from "./contract-product.types";
 import {
   anniversaryAnchor,
+  canMigrateProduct,
   cancellationOptions,
   canConsolidate as isConsolidationEligible,
   hasHardCancellationRequest,
   isCancellable,
   isDue
 } from "./contract-product.utils";
-import { contextValue, useContext, useStateMatches } from "../../utils";
+import {
+  contextValue,
+  stateMatches,
+  useContext,
+  useStateMatches
+} from "../../utils";
 import { isEmpty, isUndefined, some } from "lodash-es";
-import type { ContractProduct, UnpaidInvoice } from "./contract-product.types";
+import type {
+  ContractProduct,
+  MigrationHolders,
+  MigrationResult,
+  UnpaidInvoice
+} from "./contract-product.types";
 import type { UseActor } from "../../utils";
 import type { ScopeActorTypes } from "../scope/scope.types";
 // -----------------------------------------------------------------------------
@@ -25,7 +36,8 @@ import type { ScopeActorTypes } from "../scope/scope.types";
  */
 export function createContractProductMeta(
   _actorScope: ScopeActorTypes,
-  actor: UseActor
+  actor: UseActor,
+  holders: MigrationHolders
 ) {
   const { state } = actor;
 
@@ -43,6 +55,16 @@ export function createContractProductMeta(
         state,
         "contractProduct.hasScheduledFutureCancellation"
       )
+  );
+
+  const isMigrationOpen = useStateMatches(state, [
+    "available.migrating.choosing",
+    "available.migrating.configuring"
+  ]);
+
+  /** The plan list's meta; `undefined` while the list is not built or the change is closed. */
+  const listMeta = computed(() =>
+    isMigrationOpen.value ? holders.list.value?.meta.value : undefined
   );
 
   const unpaidRecurringInvoices = computed<UnpaidInvoice[]>(
@@ -104,6 +126,38 @@ export function createContractProductMeta(
         !isPending.value &&
         !hasScheduledFutureCancellation.value &&
         !!anniversaryAnchor(contractProduct.value)
+    ),
+
+    /** True when the client may start a change of plan: the offer clauses and the start clauses (R14). */
+    canMigrate: computed(
+      () => !!contractProduct.value && canMigrateProduct(contractProduct.value)
+    ),
+
+    /** True when the open change of plan can be committed: a dry run is not in flight, and the configurator can take the commit. Local validation does not gate it; the platform judges it (R8). */
+    canCommitMigration: computed(
+      () =>
+        stateMatches(state, [
+          "available.migrating.configuring.previewed",
+          "available.migrating.configuring.unpreviewed",
+          "available.migrating.configuring.error"
+        ]) && holders.isMigrationTargetReady.value
+    ),
+
+    /** True if the product's pro-rata invoice from an earlier change is still unpaid. */
+    hasPendingProRata: computed(
+      () => !!contextValue<boolean>(state, "contractProduct.proRataPending")
+    ),
+
+    /** True if the plan list failed to load. */
+    hasMigrationTargetsError: computed(() => !!listMeta.value?.hasError),
+
+    /** True if the plan list has another page. */
+    hasMoreMigrationTargets: computed(() => !!listMeta.value?.hasNextPage),
+
+    /** True if the plan list loaded and holds no plan. */
+    hasNoMigrationTargets: computed(
+      () =>
+        !!listMeta.value && !listMeta.value.isLoading && listMeta.value.isEmpty
     ),
 
     /** True if the product no longer creates its renewal invoice (R9). */
@@ -194,6 +248,12 @@ export function createContractProductMeta(
       "available.consolidating.available.valid"
     ),
 
+    /** True when the plan list is open. */
+    isChoosingMigrationTarget: useStateMatches(
+      state,
+      "available.migrating.choosing"
+    ),
+
     /** True if the product is delegated to this client. */
     isDelegatedAccess: computed(
       () => !!contextValue<boolean>(state, "contractProduct.isDelegatedObject")
@@ -217,6 +277,54 @@ export function createContractProductMeta(
     /** True if the product was imported. */
     isImported: computed(
       () => !!contextValue<string>(state, "contractProduct.importId")
+    ),
+
+    /** True when a dry run says the change costs nothing. */
+    isMigrationFree: computed(
+      () => !!contextValue<boolean>(state, "migration.preview.isFree")
+    ),
+
+    /** True while a change of plan is open: the plan list, or a chosen plan. */
+    isMigrationOpen,
+
+    /** True while the dry run is in flight. */
+    isMigrationPreviewing: useStateMatches(
+      state,
+      "available.migrating.configuring.previewing"
+    ),
+
+    /** True when the dry run of the chosen plan has a cost. */
+    isMigrationPreviewed: useStateMatches(
+      state,
+      "available.migrating.configuring.previewed"
+    ),
+
+    /** True while the commit is in flight. */
+    isMigrationProcessing: useStateMatches(
+      state,
+      "available.migrating.configuring.processing"
+    ),
+
+    /** True while the chosen plan loads. */
+    isMigrationTargetLoading: useStateMatches(
+      state,
+      "available.migrating.configuring.loading"
+    ),
+
+    /** True when the chosen plan failed to load. */
+    isMigrationTargetUnavailable: useStateMatches(
+      state,
+      "available.migrating.configuring.unavailable"
+    ),
+
+    /** True while the plan list loads its first page. */
+    isMigrationTargetsLoading: computed(
+      () => !!listMeta.value?.isLoading && !listMeta.value.isLoadingMore
+    ),
+
+    /** True while the plan list loads another page. */
+    isMigrationTargetsLoadingMore: computed(
+      () => !!listMeta.value?.isLoadingMore
     ),
 
     /** True on `available.status.inactive` (awaiting activation). */
@@ -244,7 +352,8 @@ export function createContractProductMeta(
     isProcessing: useStateMatches(state, [
       "processing",
       "available.cancelling.processing",
-      "available.consolidating.processing"
+      "available.consolidating.processing",
+      "available.migrating.configuring.processing"
     ]),
 
     /** True on `available.setup.incomplete`. */
@@ -262,7 +371,14 @@ export function createContractProductMeta(
     ),
 
     /** True on `available.status.suspended`. */
-    isSuspended: useStateMatches(state, ContractProductState.SUSPENDED)
+    isSuspended: useStateMatches(state, ContractProductState.SUSPENDED),
+
+    /** True when the committed change of plan left an amount to pay. */
+    requiresPayment: computed(
+      () =>
+        !!contextValue<MigrationResult>(state, "migrationResult")
+          ?.requiresPayment
+    )
   };
 }
 

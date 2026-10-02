@@ -1,11 +1,13 @@
 import dayjs from "dayjs";
 import { watch } from "vue";
+import { assign, sendParent } from "xstate";
 import {
   CancellationRequestStatusCodes,
   ContractStatusCodes,
   InvoiceConsolidationTypes,
   InvoiceStatus,
-  InvoiceStatusGroups
+  InvoiceStatusGroups,
+  ProductTypes
 } from "@upmind-automation/types";
 import { useI18n } from "../system-localisation";
 import {
@@ -13,25 +15,47 @@ import {
   ContractProductsContextTypes
 } from "./contract-product.types";
 import {
+  contextValue,
   DetailedError,
   ErrorOrigin,
   responseCodes,
+  stateMatches,
   useValidation
 } from "../../utils";
-import { isEmpty } from "lodash-es";
+import {
+  cloneDeep,
+  find,
+  first,
+  flatMap,
+  includes,
+  isEmpty,
+  isNumber,
+  isUndefined,
+  map,
+  without
+} from "lodash-es";
 import type {
+  ChangeProductBody,
+  ChangeProductInput,
   ContractProduct,
+  ContractProductContext,
   ContractProductForm,
+  MigrationChange,
+  MigrationGateFacts,
+  MigrationTarget,
   UnpaidInvoice
 } from "./contract-product.types";
+import type { ProductConfigContext, ProductModel } from "../product";
 import type { ScopeContext } from "../scope/scope.types";
 import type { ComputedRef } from "vue";
+import type { AnyEventObject, InvokeCallback } from "xstate";
 // -----------------------------------------------------------------------------
 /**
  * @module contract-product/contract-product.utils
  * @description Pure predicates, the three node selectors the machine's entry
- * order reads, the delegated force-set, the forced hide-one-time seam and the
- * future-cancellation anniversary maths. No HTTP, no state reads.
+ * order reads, the delegated force-set, the forced hide-one-time seam, the
+ * future-cancellation anniversary maths, and the change-of-plan rule, body,
+ * seed and child overrides. No HTTP, no state reads.
  */
 
 // -----------------------------------------------------------------------------
@@ -347,3 +371,208 @@ export async function validateForm({
     );
   }
 }
+
+// -----------------------------------------------------------------------------
+// Change of plan — the gate, the body, the seed, the child overrides (FE-3206)
+
+/** The wire status code of a product, as the record read gave it. */
+function statusCode(product: Pick<ContractProduct, "status">) {
+  return product.status?.code;
+}
+
+/**
+ * True when the client may start a change of plan: the six offer clauses of
+ * legacy `canUpgradeDowngradeAsClient` [o1] and the three start clauses of its
+ * menu [o2]. The "not admin" clause is constant true for a client.
+ *
+ * The raw status code is read, never the status node: the node differs from
+ * the code for an expiring or a cancelling product.
+ */
+export function canMigrateProduct(product: MigrationGateFacts): boolean {
+  const code = statusCode(product);
+  const acceptedRequest =
+    includes(
+      [ContractStatusCodes.CANCELLED, ContractStatusCodes.CLOSED],
+      code
+    ) &&
+    product.contractRequest?.status?.code ===
+      CancellationRequestStatusCodes.REQUEST_ACCEPTED;
+
+  return (
+    product.canModify &&
+    !hasHardCancellationRequest(product) &&
+    !acceptedRequest &&
+    !hasAutoExpireEnabled(product) &&
+    product.productType === ProductTypes.SINGLE_PRODUCT &&
+    !isEmpty(product.allowedMigrations) &&
+    includes(
+      [ContractStatusCodes.ACTIVE, ContractStatusCodes.SUSPENDED],
+      code
+    ) &&
+    !product.stagedImport &&
+    !product.proRataPending
+  );
+}
+
+/**
+ * The unit total of one option value at the chosen term: the first of
+ * `price_discounted` and `price` that is not `null` [o22], [o23]. Legacy strips
+ * only `null`, so an absent value stays absent.
+ */
+function optionUnitTotal(
+  input: Pick<ChangeProductInput, "rawProduct" | "currencyId" | "model">,
+  productId: string
+): number | undefined {
+  const option = find(input.rawProduct?.products_options, ["id", productId]);
+  const row = find(
+    option?.prices,
+    price =>
+      includes([0, input.model.term], price.billing_cycle_months) &&
+      (!input.currencyId ||
+        !price.currency_id ||
+        price.currency_id === input.currencyId)
+  );
+
+  return first(without([row?.price_discounted, row?.price], null)) as
+    | number
+    | undefined;
+}
+
+/**
+ * The price an option sends, as legacy `computeConfigPrice` [o11]: a numeric
+ * custom price wins, else the new unit total goes when it differs from the old
+ * price, and the result is left out when it equals the old price.
+ */
+function optionPrice(
+  input: ChangeProductInput,
+  productId: string
+): number | undefined {
+  const oldPrice = find(input.currentOptions, [
+    "productId",
+    productId
+  ])?.sellingPrice;
+  const total = optionUnitTotal(input, productId);
+
+  let price: number | undefined;
+  if (isNumber(input.customPrice)) price = input.customPrice;
+  else if (oldPrice !== total) price = total;
+
+  return price === oldPrice ? undefined : price;
+}
+
+/**
+ * The `PUT contracts/{c}/products/{p}/change` body from the child model, the
+ * child's raw plan and the contract's old options [o9]-[o12]. The dry run and
+ * the commit send the same body. No product quantity and no provision field
+ * goes.
+ */
+export function buildChangeProductBody(
+  input: ChangeProductInput
+): ChangeProductBody {
+  const { model } = input;
+
+  return {
+    contract_id: input.contractId,
+    contracts_product_id: input.contractProductId,
+    product: {
+      product_id: input.targetId,
+      billing_cycle_months: model.term
+    },
+    options: flatMap(model.options, category =>
+      map(category, value => {
+        const price = optionPrice(input, value.productId);
+        return {
+          product_id: value.productId,
+          billing_cycle_months: value.cycle,
+          unit_quantity: value.quantity,
+          ...(isUndefined(price) ? {} : { price })
+        };
+      })
+    ),
+    attributes: flatMap(model.attributes, category =>
+      map(category, value => ({ product_id: value.productId }))
+    )
+  };
+}
+
+/**
+ * The seed of the configurator child: the chosen plan on the current term, in
+ * the contract currency, with no promotions and no coupons [o7], [o8]. It sets
+ * no basket, no client and no basket product. `promotions: false` is the
+ * product load's own "omit promotions" value (R12).
+ */
+export function buildMigrationSeed(
+  context: ContractProductContext,
+  target: MigrationTarget
+): ProductConfigContext {
+  const seed = {
+    model: {
+      productId: target.id,
+      term: context.contractProduct?.billingCycleMonths
+    },
+    currencyId: context.contractProduct?.contractCurrencyId,
+    promotions: false,
+    coupons: []
+  };
+
+  return seed as unknown as ProductConfigContext;
+}
+
+/**
+ * The child's model and raw plan, as the two request overrides send them to
+ * the manager. The model is a copy: the editors change the child's nested
+ * options in place, and the manager compares the next model with this one.
+ */
+function migrationChange({
+  model,
+  rawProduct
+}: ProductConfigContext): MigrationChange {
+  return { model: cloneDeep(model) as ProductModel, rawProduct };
+}
+
+/**
+ * The invoked callback of `configuring`: reports the chosen plan's configurator
+ * failing to load, or failing later, as `MIGRATION.UNAVAILABLE`. The cleanup
+ * unsubscribes and leaves the child running: the machine stops it.
+ */
+export function watchMigrationTarget({
+  migration
+}: ContractProductContext): InvokeCallback {
+  return callback => {
+    const subscription = migration?.ref?.subscribe(state => {
+      if (stateMatches(state, ["unavailable"])) {
+        callback({
+          type: "MIGRATION.UNAVAILABLE",
+          data: contextValue(state, "error")
+        });
+      }
+    });
+
+    return () => subscription?.unsubscribe();
+  };
+}
+
+/**
+ * The action overrides of the stock product machine for a change of plan (R6,
+ * R16). `setBasketHelper` connects nothing to the basket and spawns nothing.
+ * `calculate` and `update` hand the model to the manager, which sends the dry
+ * run and the commit. `refreshContext` keeps the contract currency.
+ */
+export const migrationTargetConfig = {
+  actions: {
+    setBasketHelper: assign<ProductConfigContext, AnyEventObject>({}),
+    calculate: sendParent<ProductConfigContext, AnyEventObject, AnyEventObject>(
+      (context: ProductConfigContext): AnyEventObject => ({
+        type: "MIGRATION.CHANGED",
+        data: migrationChange(context)
+      })
+    ),
+    update: sendParent<ProductConfigContext, AnyEventObject, AnyEventObject>(
+      (context: ProductConfigContext): AnyEventObject => ({
+        type: "MIGRATION.COMMIT",
+        data: migrationChange(context)
+      })
+    ),
+    refreshContext: assign<ProductConfigContext, AnyEventObject>({})
+  }
+};

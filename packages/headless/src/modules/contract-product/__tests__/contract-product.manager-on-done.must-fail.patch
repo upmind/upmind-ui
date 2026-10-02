@@ -10,14 +10,12 @@
 # Apply with:  git apply <this file>   (run from repo root)
 # Revert with: git apply -R <this file>
 diff --git a/packages/headless/src/modules/contract-product/useContractProduct.actions.ts b/packages/headless/src/modules/contract-product/useContractProduct.actions.ts
-index 2945ad6e3..e03be01e5 100644
 --- a/packages/headless/src/modules/contract-product/useContractProduct.actions.ts
 +++ b/packages/headless/src/modules/contract-product/useContractProduct.actions.ts
-@@ -68,30 +68,6 @@ export function createContractProductActions(
-     return waitForProcessing(service, ["available", "unavailable"], "error");
+@@ -73,31 +73,6 @@
    }
  
--  /**
+   /**
 -   * Resolves once a write leaves `processing` or `available.<region>.processing`
 -   * (region: `cancelling` | `consolidating`).
 -   * @returns true once the write settles on `available` or `unavailable`; false
@@ -27,7 +25,8 @@ index 2945ad6e3..e03be01e5 100644
 -    const transient = [
 -      "processing",
 -      "available.cancelling.processing",
--      "available.consolidating.processing"
+-      "available.consolidating.processing",
+-      "available.migrating.configuring.processing"
 -    ];
 -
 -    return waitFor(
@@ -41,20 +40,21 @@ index 2945ad6e3..e03be01e5 100644
 -      .catch(() => false);
 -  }
 -
-   /**
+-  /**
     * Resolves the re-read product once a write has settled.
     * @throws {DetailedError} when the write or the re-read recorded an error.
-@@ -326,13 +302,6 @@ export function createContractProductActions(
-      */
-     isReady,
+    */
+@@ -440,13 +415,6 @@
+     migrate,
  
--    /**
+     /**
 -     * Resolves once a write leaves `processing`, settled on `available` or
 -     * `unavailable`; false on `error`.
 -     * @scenario-include
 -     */
 -    onDone,
 -
-     /**
+-    /**
       * Opens the combined cancellation form (R33).
       * @scenario-include
+      */

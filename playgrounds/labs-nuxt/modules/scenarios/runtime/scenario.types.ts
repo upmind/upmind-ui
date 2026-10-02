@@ -33,8 +33,14 @@
  */
 
 import type { LiveCompositionCell } from "./composables/useCompositionPort.types";
-import type { ControlElement, Layout, Rule } from "@jsonforms/core";
-import type { BadgeVariants, ButtonVariants } from "@upmind/ui";
+import type {
+  ControlElement,
+  JsonSchema7,
+  Layout,
+  Rule,
+  UISchemaElement
+} from "@jsonforms/core";
+import type { AlertProps, BadgeVariants, ButtonVariants } from "@upmind/ui";
 import type {
   ActorContextMatrix,
   ScopeActorTypes,
@@ -209,6 +215,13 @@ export type TableBadge = {
   i18n: string;
   color?: BadgeVariants["variant"];
   icon?: string;
+  /**
+   * A uischema scope resolved against the ROW itself, for a flag that lives
+   * outside the cell's scoped value — e.g. a status flag on the record when the
+   * cell reads `meta`. When set, the badge shows if this resolves truthy and
+   * `flag` is the key only.
+   */
+  scope?: string;
 };
 
 /**
@@ -265,7 +278,9 @@ export enum TableColumnWidthTypes {
   /** Five-sixths of the row (10/12). */
   FIVE_SIXTHS = "five-sixths",
   /** Eleven-twelfths of the row. */
-  ELEVEN_TWELFTHS = "eleven-twelfths"
+  ELEVEN_TWELFTHS = "eleven-twelfths",
+  /** The whole row — a long value on a record (an options summary). */
+  FULL = "full"
 }
 
 type TableCellElement = Omit<ControlElement, "type"> & {
@@ -276,15 +291,23 @@ type TableCellElement = Omit<ControlElement, "type"> & {
     slot?: CardSlotTypes;
     /**
      * The share of the row this column reserves when it is fluid; the table
-     * reads it, the card ignores it. Absent, the column shares the remainder
-     * equally (`R7-2`).
+     * reads it, and a record field takes the same share of its section's row.
+     * The card ignores it. Absent, a table column shares the remainder equally
+     * (`R7-2`) and a record field takes a quarter.
      */
     width?: TableColumnWidthTypes;
   };
 };
 
-/** The value, as text. */
-export type TableCellText = TableCellElement & { type: "TableCellText" };
+/**
+ * The value, as text. With `i18nValue`, a value that is a CODE (`recurrent`)
+ * draws as the label `t("<i18nValue>.<code>")` names; a code with no label
+ * draws as itself.
+ */
+export type TableCellText = Omit<TableCellElement, "options"> & {
+  type: "TableCellText";
+  options?: TableCellElement["options"] & { i18nValue?: string };
+};
 
 /**
  * The value as SANITIZED HTML — rich text (an email body, a note) drawn through
@@ -322,10 +345,24 @@ export type TableCellBadges = TableCellElement & {
  * A nested collection on the record — a ticket's messages, an invoice's lines
  * — each item drawn through its own declared cells, scoped to the ITEM.
  */
+/** How a {@link TableCellList} lays its items out. */
+export enum TableCellListLayoutTypes {
+  /** Each item a bordered card of its cells — the default. */
+  CARDS = "cards",
+  /** Each item one line, its first cell leading and its last trailing — a label and its amount. */
+  ROWS = "rows"
+}
+
 export type TableCellList = TableCellElement & {
   type: "TableCellList";
-  options: TableCellElement["options"] & { elements: TableCell[] };
+  options: TableCellElement["options"] & {
+    elements: TableCell[];
+    layout?: TableCellListLayoutTypes;
+  };
 };
+
+/** A record's ONE status (`{ code, name }` or its label), drawn as a status badge. */
+export type TableCellStatus = TableCellElement & { type: "TableCellStatus" };
 
 /**
  * One declared cell, under the renderer its `type` NAMES (`R6-36`) — each one a
@@ -338,7 +375,8 @@ export type TableCell =
   | TableCellDate
   | TableCellIcon
   | TableCellBadges
-  | TableCellList;
+  | TableCellList
+  | TableCellStatus;
 
 /**
  * The WHOLE table: its header labels, its column order, every cell's renderer
@@ -517,6 +555,369 @@ export type ActionsUischema = Layout & {
   elements: ScenarioAction[];
 };
 
+// -----------------------------------------------------------------------------
+// PRESENTATION — how ONE managed record draws
+// -----------------------------------------------------------------------------
+
+/** Where a record action sits on the record surface. */
+export enum RecordActionPlacementTypes {
+  /** The footer bar — the DEFAULT for every write; the first two draw as buttons, the rest under "More". */
+  FOOTER = "footer",
+  /** Under the footer's "More" menu — the gated extras. */
+  OVERFLOW = "overflow",
+  /** The footer bar's trailing low-emphasis utilities (refresh, reset). */
+  UTILITY = "utility",
+  /** Beside the title — an explicit opt-in, never the default. */
+  HEADER = "header",
+  /** In one collection item's section header, as a link. */
+  ROW = "row"
+}
+
+/** The tone a footer control is tinted with, in the bar's one soft treatment. */
+export enum RecordActionColorTypes {
+  PRIMARY = "primary",
+  /** A destructive write. */
+  DANGER = "danger"
+}
+
+/**
+ * The write form a record action opens in the surface's ONE shared drawer. The
+ * drawer renders `context[context]` (`{ schema, uischema, model }`), routes a
+ * change to `set`, the save to `submit` and a dismissal to `cancel` — each a
+ * member of the manager's own action map — and closes when `submit` settles.
+ *
+ * A manager whose write takes ARGUMENTS publishes no model: the form then
+ * declares its own `schema` (and `uischema`, or reads them off `context`), the
+ * drawer holds the model, and `submit` is called with `args`.
+ */
+export type RecordFormDeclaration = {
+  /** The context key holding `{ schema, uischema, model }`, or any part of it. */
+  context?: string;
+  schema?: JsonSchema7;
+  uischema?: UISchemaElement;
+  /** Seed the held model from the same-named members of the row or record. */
+  prefill?: boolean;
+  /**
+   * Scopes `submit` is called with, resolved against the held model over the
+   * row (or record) the form opened on.
+   */
+  args?: string[];
+  /** The action a model change is written through; absent, the drawer holds it. */
+  set?: string;
+  submit: string;
+  cancel?: string;
+  /** A leading argument `set` and `cancel` take — the module's own form key. */
+  target?: string;
+  /** The meta flag that must be true before submit is offered. */
+  valid?: string;
+  /** The drawer title — an i18n key. */
+  i18n?: string;
+  /** The submit label — an i18n key. */
+  submitI18n?: string;
+};
+
+/**
+ * A route a record action NAVIGATES to. `route` is a path template whose `:id`
+ * is the value `idScope` resolves to (against the row for a ROW action, else
+ * the record); the current scope suffix (`/as/:actor`) is appended. Absent
+ * `route`, the current path is kept and only `query` is merged.
+ */
+export type RecordNavigateDeclaration = {
+  route?: string;
+  idScope?: string;
+  query?: Record<string, string>;
+  /** An app route outside the scenario tree (`/auth/register`) carries no scope suffix. */
+  unscoped?: boolean;
+};
+
+/**
+ * A hand-off of the signed-in session to the client area: a transfer code is
+ * minted and the browser leaves for the area's own transfer page, which signs
+ * the client in and lands them on `redirect` — a path template whose `:id` is
+ * the value `idScope` resolves to against the record.
+ */
+export type RecordTransferDeclaration = {
+  redirect: string;
+  idScope?: string;
+};
+
+/**
+ * One action a record surface offers. `gate` names a meta flag, or a `#/` scope
+ * into the row (else the record) it is bound against (`!` reads either's
+ * negation): while it is false the action is HIDDEN, never greyed. While
+ * any action is busy every other write is disabled. `run`
+ * fires a manager action; with a `form` it is the open transition that fills
+ * the form's context slot before the drawer draws it.
+ */
+export type RecordActionDeclaration = {
+  name: string;
+  /** The control's label — an i18n key, never English. */
+  i18n: string;
+  icon?: string;
+  /** The Button treatment of a HEADER control; footer controls share one. */
+  variant?: ButtonVariants["variant"];
+  /** The footer control's tint; absent, primary. */
+  color?: RecordActionColorTypes;
+  /** Absent, the action sits in the footer bar. */
+  placement?: RecordActionPlacementTypes;
+  gate?: string;
+  /**
+   * The meta flag this action's control spins on. Absent, it spins while its
+   * own form is open or its own `run` is in flight.
+   */
+  busy?: string;
+  run?: string;
+  /** Scopes `run` is called with, resolved against the row (else the record). */
+  args?: string[];
+  form?: RecordFormDeclaration;
+  navigate?: RecordNavigateDeclaration;
+  transfer?: RecordTransferDeclaration;
+};
+
+/**
+ * One message a record says about itself — the header's lead line, or an
+ * alert in an `alert` section. Of a list, the FIRST whose gates all open is
+ * drawn. A gate reads as a {@link RecordActionDeclaration} gate does.
+ */
+export type RecordNoticeDeclaration = {
+  name: string;
+  gate?: string | string[];
+  /** i18n keys; each is given `values`. */
+  i18n: { title: string; text?: string };
+  /** i18n params, each a scope into the record model. */
+  values?: Record<string, string>;
+  variant?: AlertProps["variant"];
+  icon?: string;
+  /** Drawn as the alert's own call to action, bound against the record. */
+  action?: RecordActionDeclaration;
+};
+
+/** The record's heading: its title, its ONE status and its flag badges. */
+export type RecordHeaderDeclaration = {
+  /** A scope into the record model. */
+  title: string;
+  /** A scope into the record model; drawn as the one status badge. */
+  status?: string;
+  /**
+   * Each badge's `flag` is a meta flag, or its `scope` a model scope whose
+   * value the label is given as `{value}`.
+   */
+  badges?: TableBadge[];
+  /** The line under the title that says where the record stands. */
+  lead?: RecordNoticeDeclaration[];
+};
+
+/** A group of the record's own declared fields. */
+export type RecordFieldsSection = {
+  kind: "fields";
+  key: string;
+  i18n?: string;
+  icon?: string;
+  /** Section-level controls, drawn in the section header's actions slot. */
+  actions?: RecordActionDeclaration[];
+  elements: TableCell[];
+};
+
+/**
+ * A related collection on the record, each item drawn as its own section. It
+ * never draws a group heading: its `i18n` names it, nothing more.
+ */
+export type RecordCollectionSection = {
+  kind: "collection";
+  key: string;
+  i18n?: string;
+  icon?: string;
+  /** Section-level controls, drawn in the section header's actions slot. */
+  actions?: RecordActionDeclaration[];
+  /** A scope into the record model addressing the item array. */
+  scope: string;
+  /**
+   * Scopes into each item, the first one populated naming its section header
+   * (the `{name}` of `itemLabel`).
+   */
+  rowTitle?: string | string[];
+  /** The i18n key each item's header label reads, given `{name}`; absent, the name alone. */
+  itemLabel?: string;
+  /** The icon of each item's section header. */
+  rowIcon?: string;
+  /** The item's cells, drawn under its header. */
+  row: TableCell[];
+  /** Drawn as links in each item's section header. */
+  rowActions?: RecordActionDeclaration[];
+  summary?: TableCell[];
+  /** A second composable, booted for this record, whose rows fill `scope`. */
+  source?: RecordSectionSource;
+};
+
+/**
+ * A collection a record section reads from ANOTHER composable — booted through
+ * the same port as a list page, at `actor`, `.for(context.type, id)` with the
+ * id read off the record at `context.idScope`.
+ */
+export type RecordSectionSource = {
+  use: FourLayerComposable;
+  actor: ScopeActorTypes;
+  context: { type: string; idScope: string };
+  /** The context key holding the rows; absent, `data`. */
+  rows?: string;
+};
+
+/**
+ * Any other section kind, resolved through the record-section registry by its
+ * `kind` — what lets a later record add a kind (`thread`) with no surface edit.
+ */
+export type RecordCustomSection = {
+  kind: string;
+  key: string;
+  i18n?: string;
+  icon?: string;
+  actions?: RecordActionDeclaration[];
+  [option: string]: unknown;
+};
+
+/** How a thread draws one MESSAGE entry, every scope read off that entry. */
+export type RecordThreadMessage = {
+  /** The message inside its entry. */
+  scope: string;
+  /** Scopes into the message. */
+  author: string;
+  date?: string;
+  files?: string;
+  /** Flags on the message, each drawn as a badge beside its author. */
+  badges?: TableBadge[];
+  /** The message's cells, drawn under its heading. */
+  body: TableCell[];
+  /** Bound against the message, drawn as links in its heading. */
+  actions?: RecordActionDeclaration[];
+  /** Bound against `{ ...file, messageId }`, drawn in each file's menu. */
+  fileActions?: RecordActionDeclaration[];
+};
+
+/** How a thread draws one LOG entry: a line given the value at `value`. */
+export type RecordThreadLog = {
+  scope: string;
+  value: string;
+  /** Given `{value}`. */
+  i18n: string;
+};
+
+/** One view of the thread — a READ the manager makes, never a filter. */
+export type RecordThreadView = {
+  value: string;
+  i18n: string;
+  run: string;
+};
+
+/**
+ * The reply composer under the thread. Each picked file goes up through
+ * `upload` first; `submit` is then called with the body and `{ files }`, and a
+ * submit resolving nothing was REFUSED — the draft is kept and `refusedI18n`
+ * said beside it.
+ */
+export type RecordThreadComposer = {
+  submit: string;
+  upload?: string;
+  /** A meta flag; while it is false the composer is not drawn. */
+  gate?: string;
+  i18n: {
+    placeholder: string;
+    submit: string;
+    attach: string;
+    /** The accessible labels of a file that went up, and one that did not. */
+    uploaded: string;
+    failed: string;
+    refused: string;
+  };
+};
+
+/**
+ * A conversation on the record: its entries as a timeline, its views, per
+ * message and per file controls, and the reply composer beneath it. Paging
+ * rides the section's own `actions`, gated on the record's scopes.
+ */
+export type RecordThreadSection = {
+  kind: "thread";
+  key: string;
+  i18n?: string;
+  icon?: string;
+  actions?: RecordActionDeclaration[];
+  /** A scope into the record model addressing the entry array. */
+  entries: string;
+  /** The entry member naming its kind, and the value each kind carries. */
+  discriminator: { scope: string; message: string; log: string };
+  message: RecordThreadMessage;
+  log?: RecordThreadLog;
+  views?: RecordThreadView[];
+  /** A file's bytes, read through `run` given the file id; `done` is given `{name}` and `{bytes}`. */
+  download?: { run: string; i18n: string; done: string };
+  /** Copies a file's name to the clipboard. */
+  copyI18n?: string;
+  composer?: RecordThreadComposer;
+  empty: { title: string; text: string };
+};
+
+/**
+ * A banner on the record — the first of `alerts` whose gates open, drawn as
+ * one alert with its call to action. With none open the section is not drawn.
+ */
+export type RecordAlertSection = {
+  kind: "alert";
+  key: string;
+  i18n?: string;
+  icon?: string;
+  actions?: RecordActionDeclaration[];
+  alerts: RecordNoticeDeclaration[];
+};
+
+export type RecordSectionDeclaration =
+  | RecordFieldsSection
+  | RecordCollectionSection
+  | RecordThreadSection
+  | RecordAlertSection
+  | RecordCustomSection;
+
+/**
+ * What the page offers with no record in the url: the collection's own picker
+ * form (`context.<schema>`), whose `field` write is the record to open, beside a
+ * direct id input.
+ */
+export type RecordPickerDeclaration = {
+  use: FourLayerComposable;
+  actor: ScopeActorTypes;
+  /** The context path of the picker's `{ schema, uischema }`. */
+  schema: string;
+  /** The model field the picker writes the picked id to. */
+  field: string;
+  /**
+   * An input that is not an id is resolved through the collection's own
+   * criteria filter of this name, and the first match opened.
+   */
+  resolve?: {
+    filter: string;
+    /** i18n keys for no match; `text` is given `{reference}`. */
+    i18n: { title: string; text: string };
+  };
+  icon?: string;
+  /** i18n keys for the empty state, the id input and its open button. */
+  i18n: { title: string; text: string; input: string; open: string };
+};
+
+/**
+ * ONE managed record, drawn whole by the shared record surface: its header,
+ * its sections, every action and where each sits. `record` names the context
+ * key holding the mapped record; `siblings` fold further context keys into the
+ * model beside it, as the detail overlay's do.
+ */
+export type RecordUischema = {
+  type: "RecordLayout";
+  record: string;
+  header: RecordHeaderDeclaration;
+  sections: RecordSectionDeclaration[];
+  actions: RecordActionDeclaration[];
+  siblings?: string[];
+  picker?: RecordPickerDeclaration;
+};
+
 /**
  * ONE collection-level `useMeta()` member surfaced beside the list — a flag
  * reads as an on/off notice, a number as itself. Never a table column: this
@@ -607,6 +1008,11 @@ export type ScenarioPresentation = {
    * draws none, exactly as before this field existed.
    */
   notices?: MetaNoticeElement[];
+  /**
+   * ONE managed record drawn by the shared record surface. Read only with
+   * `useManage`; that pair is what routes a declaration to the RECORD archetype.
+   */
+  record?: RecordUischema;
 };
 
 /**

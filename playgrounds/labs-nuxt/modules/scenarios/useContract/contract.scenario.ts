@@ -8,29 +8,28 @@
  * (`useContracts`), which pages a client's contracts but drives none of this
  * manager's members.
  *
- * This module DRAWS ITSELF: `contract.page.vue` beside this file is the
- * route's component (`../index.ts` — "the module's own page wins"). What keeps
- * it self-drawn is the WRITE side: the payment-method form opens from its OWN
- * context slot (`useContext().paymentMethod`), which no generic mutate surface
- * renders.
+ * The shared playground draws it as a RECORD: `useManage` plus the declared
+ * `presentation.record` (`contract.presentation.ts`) route it to the record
+ * surface, which builds every field, action and form from that declaration
+ * against the live manager.
  *
  * The DIRECTORY is the url segment and route name (`/useContract`). The
  * contract is addressed by the `id` route param declared below —
- * `/useContract/<id>` — and the page boots
+ * `/useContract/<id>` — and the playground boots
  * `.as(ScopeActorTypes.CLIENT).withId(id)`, the single-record read form
  * (templates/SINGLE-READ.md; `CONTRACT_SCOPE_MATRIX` refuses every actor a
  * context). OPTIONAL, because the bare url is the empty state — with no id
- * the page offers the collection's own contracts picker
- * (`useContracts().useContext().schemas.contractPicker`) and a direct id
+ * the page offers the declared picker — the collection's own contracts picker
+ * (`useContracts().useContext().schemas.contractPicker`) — and a direct id
  * input.
  *
- * `useManage` is the opt-in a self-drawn declaration makes so the harness can
- * build a boot thunk for its key, and `tracks` names the module whose
- * committed `.feature` and step catalog this page plays; the listing's
- * `@collection` scenarios are the list page's.
+ * `useManage` is what the harness builds the boot thunk for its key from, and
+ * `tracks` names the module whose committed `.feature` and step catalog this
+ * page plays; the listing's `@collection` scenarios are the list page's.
  */
 
 import { useContract } from "@upmind-automation/headless";
+import { contractRecord } from "./contract.presentation";
 import type { ScenarioDeclaration } from "../runtime/scenario.types";
 
 // -----------------------------------------------------------------------------
@@ -46,6 +45,7 @@ export default {
   params: ["id([0-9a-fA-F-]{36})?"],
   tracks: { module: "contract", without: ["@collection"] },
   presentation: {
-    icon: "receipt"
+    icon: "receipt",
+    record: contractRecord
   }
 } satisfies ScenarioDeclaration;

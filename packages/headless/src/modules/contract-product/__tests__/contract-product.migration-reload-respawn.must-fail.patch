@@ -1,0 +1,22 @@
+# Negative-control mutant 39 — reload-respawn (FE-3206)
+#
+# Mutation: let `MIGRATION.RELOAD` keep the failed child, not spawn a fresh one.
+# Spec it must turn red: "A plan I chose that did not load can be loaded again", and the AC-29 unit spec, a plan that does not load.
+#
+# Authored by the developer seat against the landed production source. The
+# prover applies it blind (tasks.md T41): apply, run the named spec, revert.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+diff --git a/packages/headless/src/modules/contract-product/contract-product.machine.ts b/packages/headless/src/modules/contract-product/contract-product.machine.ts
+--- a/packages/headless/src/modules/contract-product/contract-product.machine.ts
++++ b/packages/headless/src/modules/contract-product/contract-product.machine.ts
+@@ -442,7 +442,7 @@
+                     on: {
+                       "MIGRATION.RELOAD": {
+                         target: "#migrationConfiguring",
+-                        actions: ["clearError", "respawnMigrationTarget"]
++                        actions: ["clearError"]
+                       }
+                     }
+                   },

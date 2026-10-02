@@ -111,7 +111,7 @@ The collection (`useContracts`) resolves its requests through `createContractSer
 | Module | Usage |
 |--------|-------|
 | `session-store` | `resolveClientId`, `useActiveSession`, `authSubscription` — identity resolution and the auth-lifecycle actor the machine spawns |
-| `contract-product` | Not imported for the embedded `products` relation — that maps to its own id/name-stub type. A caller reaches this module directly to load one product in full once the stub names its id. |
+| `contract-product` | `mapContractProduct` and the `ContractProduct` type, via the barrel, map and type the embedded `products` relation. The embedded row's type, `ContractProductEmbedded`, omits `allowedMigrations`, `clientInvoiceConsolidationEnabled`, `contractBillingCycleLabel`, `contractCurrencyId`, `contractStatus` and `contractTaxType`; a caller reaches this module directly for those. |
 | `payment-details` | The client's stored payment methods (`usePaymentDetails().data`, awaited via its own `isReady()`, no duplicate request), and the stored-card schema/uischema pair reused to build the payment-method form control |
 | `query` | `useQuery`, cache invalidation — the whole HTTP/query layer |
 | `system-localisation` | `useI18n` — write-failure messages |

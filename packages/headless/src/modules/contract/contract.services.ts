@@ -53,31 +53,56 @@ import type { IContract } from "@upmind-automation/types";
 export const queryKey: QueryKey = ["contracts"];
 
 /**
- * @decision The contract read drops the product cancellation `with` members
- *   (R34); each product loads its own cancellation facts through
- *   `useContractProduct` (R33).
- * what: `products.contract_request*` and `products.future_cancellation_request`
- *   are gone. The read keeps the contract's OWN `cancellation_request.status`
- *   and each product's `status`, `tags`, `product.image` and
- *   `product.brand.currency` — the contract page genuinely reads those per
- *   product (`contract.reads.int.test.ts`, `contract.feature:144-166`), so the
- *   wider `products` shape stays (R34's "if a wider shape is genuinely read,
- *   keep that and report it").
- * why: cancellation belongs to the product now (R33); the contract keeps only
- *   contract facts and its own request status (R34).
- * rejected: narrowing `products` to id/name/status — the reads oracle proves
- *   the page shows each product's status, tags, image and brand currency, and
- *   that oracle outranks a seat's reading (R31).
+ * @decision The embedded `products` relation carries the full mapper's relation
+ *   set (FE-3206), matching the sibling `useContractProducts` list.
+ * what: each `products.*` member mirrors `CONTRACT_PRODUCTS_LIST_WITH`
+ *   (`contract-product.services.ts`) with a `products.` prefix, plus
+ *   `products.product.brand.currency`, which the list set lacks, because
+ *   `mapContract` now maps every product through the contract-product module's
+ *   full `mapContractProduct` — `contract.products[]` is the same
+ *   `ContractProduct` view model `useContractProduct` serves, so the read must
+ *   supply the relations that mapper reads.
+ * why: legacy requests the same per-product relations on its contract-products
+ *   read (`vue-app store/modules/data/contracts/products.ts:40-65`
+ *   `withParam`): `clients`/`clients.image`/`clients.brand`, `status`,
+ *   `product.image`, `brand.currency`, `product.provision_blueprint`,
+ *   `contract_request`, `future_cancellation_request`,
+ *   `moved_to_contract_product`(`.clients`), `tags`.
+ *   `product.provision_blueprint.category` is not in that getter but the mapper
+ *   strictly needs it: the title's `useProductName` switches on
+ *   `provision_blueprint.category.code` (`product/product.utils.ts:178`).
+ * what (payment method): the read also requests `payment_details`, which
+ *   `mapContract` maps to `contract.paymentMethod` — `{ id, label }`, the
+ *   label legacy's `useTranslateName(payment_details)` reading. Legacy loads
+ *   the same relation (`cProdProvider.vue:888`, read by
+ *   `cProdPaymentMethodComp.vue:64`).
+ * rejected: the former R34 narrowing that dropped `products.contract_request*`
+ *   and `products.future_cancellation_request` — it fit the slim list-row stub
+ *   mapper, which FE-3206 replaced with the full `ContractProduct` mapper (R21);
+ *   also requesting `payment_details.gateway` — the label is the stored
+ *   method's own name, and legacy's gateway-name fallback for a contract with
+ *   no stored method is out of scope.
  */
 const CONTRACT_WITH = [
+  "products.clients",
+  "products.clients.image",
+  "products.clients.brand",
+  "products.status",
   "products.product.image",
   "products.product.brand.currency",
-  "cancellation_request",
-  "products.status",
+  "products.brand.currency",
+  "products.product.provision_blueprint",
+  "products.product.provision_blueprint.category",
+  "products.contract_request",
+  "products.future_cancellation_request",
+  "products.moved_to_contract_product",
+  "products.moved_to_contract_product.clients",
   "products.tags",
+  "cancellation_request",
   "client.image",
   "status",
-  "cancellation_request.status"
+  "cancellation_request.status",
+  "payment_details"
 ].join();
 
 /**

@@ -8,16 +8,11 @@
  * (`useTickets`), which lists tickets but drives none of the manager's
  * 19 members.
  *
- * This module DRAWS ITSELF: `ticket.page.vue` beside this file is the
- * route's component (`../index.ts` — "the module's own page wins"), so the
- * shared `ScenarioPlayground`/`ModuleRenderer` never sees it. What keeps it
- * self-drawn is the WRITE side only: the reply composer, the subject editor
- * and the product link take an argument, the manager publishes no form
- * `schema`/`model` for them, and ACTION_PANEL fires every action
- * argument-free. The READ side no longer needs this page — the collection
- * (`useTickets`) declares `useDetail: useTicket`, so a row's `view` fetches
- * one ticket `.withId(id)` and the generic detail overlay draws it in full,
- * conversation included (`TableCellList` over the manager's `feed`).
+ * The shared playground draws it as a RECORD: `useManage` plus the declared
+ * `presentation.record` (`ticket.presentation.ts`) route it to the record
+ * surface, which builds the header, the fields, the thread (its views, paging,
+ * per-message and per-file writes and the reply composer), every write and its
+ * drawer from that declaration against the live manager. No page file draws it.
  *
  * The DIRECTORY is the url segment and route name (`/useTicket`). The
  * ticket is addressed by the `id` route param declared below —
@@ -29,22 +24,14 @@
  * No module-specific playground spec is owed here or anywhere in this lane
  * (operator ruling, 2026-09-28) — self-drawn or not.
  *
- * ## The playlist this page DOES carry (FE-3226)
- * Drawing itself no longer means playing nothing. `useManage` is the opt-in a
- * self-drawn declaration makes so the harness can build a boot thunk for its
- * key (`registry.ts`), and `tracks` names the module whose committed `.feature`
- * and step catalog the page plays — the same two artefacts the COLLECTION page
- * reads, since `stepCatalogs` is keyed by MODULE and one catalog serves both
- * keys. The page mounts `ScenarioBar` itself; the generic renderer is still
- * never involved.
- *
- * Neither member changes how the page is DRAWN, and neither is inferred: a
- * self-drawn declaration naming neither stays exactly where it was — outside
- * `boundKeys`, Live-only, and `World.boot` on its key still throws. The other
- * self-drawing declarations name neither.
+ * `useManage` is what the harness builds the boot thunk for its key from, and
+ * `tracks` names the module whose committed `.feature` and step catalog this
+ * page plays — the same module the COLLECTION page tracks, since the catalog is
+ * keyed by module and serves both keys.
  */
 
-import { useTicket } from "@upmind-automation/headless";
+import { ScopeActorTypes, useTicket } from "@upmind-automation/headless";
+import { ticketRecord } from "./ticket.presentation";
 import type { ScenarioDeclaration } from "../runtime/scenario.types";
 
 // -----------------------------------------------------------------------------
@@ -54,12 +41,11 @@ export const TICKET_SCENARIO = "ticket";
 
 export default {
   key: TICKET_SCENARIO,
-  // `useList` / `useMutate` stay OMITTED — the module draws itself, and no
-  // generic surface can render a message thread or a reply composer (see
-  // docblock). `useManage` is the self-drawn page's own opt-in: it binds the
-  // manager for BOOTING only, so `World.boot("ticket", …)` builds a
-  // thunk, and the page keeps drawing every pixel itself.
+  // `useList` / `useMutate` stay OMITTED: the manager draws as a RECORD.
   useManage: useTicket,
+  // `TICKET_SCOPE_MATRIX` takes no `.for()` context at any actor, so it marks
+  // every actor `never`; the client is the one actor this manager serves.
+  actors: [ScopeActorTypes.CLIENT],
   // The ticket is addressed by a path param — `/useTicket/:id` — the same
   // shape `useInvoice` uses for its own single record. It rode the scope's
   // `/for/ticket/:id` context segment until an operator review on 2026-09-22:
@@ -81,6 +67,7 @@ export default {
   // they are tagged `@collection` and excluded here too.
   tracks: { module: "tickets", without: ["@collection"] },
   presentation: {
-    icon: "message-question-circle"
+    icon: "message-question-circle",
+    record: ticketRecord
   }
 } satisfies ScenarioDeclaration;

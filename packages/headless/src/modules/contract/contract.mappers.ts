@@ -3,6 +3,7 @@ import {
   CancellationRequestStatusCodes,
   ContractStatusCodes
 } from "@upmind-automation/types";
+import { mapContractProductEmbedded } from "../contract-product";
 import { parseBillingCycle } from "../product";
 import { useDate, useTranslateName } from "../../utils";
 import { castArray, get, map } from "lodash-es";
@@ -10,16 +11,11 @@ import type {
   Contract,
   ContractCancellationRequestMeta,
   ContractMeta,
-  ContractProductListItem,
   SetPaymentMethodBody,
   SetPaymentMethodModel
 } from "./contract.types";
 import type { LookupItem } from "../lookup";
-import type {
-  IContract,
-  IContractProduct,
-  IStatus
-} from "@upmind-automation/types";
+import type { IContract, IStatus } from "@upmind-automation/types";
 // -----------------------------------------------------------------------------
 /**
  * @module contract/contract.mappers
@@ -82,22 +78,6 @@ export function mapContractBillingCycle(months: number): string {
   return months > 0 ? cycle.adverbial : cycle.descriptive;
 }
 
-/**
- * One of a contract's products as its list row names it (R34): its id, its own
- * `name`, and its catalogue product's `name`. NOT a full `ContractProduct` —
- * each product loads itself through `useContractProduct`.
- */
-export function mapContractProductListItem(
-  raw: IContractProduct
-): ContractProductListItem {
-  return {
-    id: raw.id,
-    name: raw.name,
-    ...(raw.product ? { product: { name: raw.product.name } } : {}),
-    isDelegatedObject: !!raw.is_delegated_object
-  };
-}
-
 /** Maps one wire record to the view model. */
 export function mapContract(raw: IContract): Contract {
   const requestStatus = get(raw, "cancellation_request.status") as
@@ -130,7 +110,15 @@ export function mapContract(raw: IContract): Contract {
         }
       : {}),
     paymentDetailsId: raw.payment_details_id,
-    products: map(raw.products, mapContractProductListItem),
+    ...(raw.payment_details
+      ? {
+          paymentMethod: {
+            id: raw.payment_details.id,
+            label: useTranslateName(raw.payment_details)
+          }
+        }
+      : {}),
+    products: map(raw.products, mapContractProductEmbedded),
     name: raw.name,
     title: mapContractTitle(raw),
     nextDueDate: raw.next_due_date,

@@ -1285,10 +1285,6 @@
             "type": "symbol"
           },
           {
-            "id": "@upmind-automation/headless!usePersonalDetailsManager",
-            "type": "symbol"
-          },
-          {
             "id": "@upmind-automation/headless!ProfileModel",
             "type": "symbol"
           }
@@ -2432,7 +2428,7 @@
         "Quick Start",
         "Features",
         "Key Concepts",
-        "Two composables, one preference, two DIFFERENT registry names",
+        "One composable, one preference",
         "The on/off/follow switch is never `null` — the other four fields are",
         "Turning consolidation OFF sends a literal `0` — never an omission",
         "The visibility gate defaults to hidden — and the same key gates whether the editor is open at all",
@@ -2451,8 +2447,7 @@
         "client-billing-settings — Architecture",
         "Overview",
         "Data Flow",
-        "Instantiation — the read view",
-        "Instantiation — the editor",
+        "Instantiation",
         "The save path — two independent diffs, each with its own gate",
         "The falsy-zero restoration",
         "Sub-composables",
@@ -2461,7 +2456,7 @@
         "Dependencies",
         "This module reads from",
         "Modules that read from this one",
-        "The shared cache key",
+        "The preference cache entry",
         "Module boundary"
       ],
       "id": "guide:packages/headless/src/modules/client-billing-settings/docs/architecture",
@@ -2519,9 +2514,9 @@
         "1. Turning consolidation OFF is `0`, and `0` is falsy — assert the literal, never \"truthy or not\"",
         "2. `enabled` is never `null` — the other four fields can be",
         "3. The visibility gate defaults to HIDDEN — an absent key is not \"not restricted\"",
-        "4. The shared cache key is dedupe-only — this module's own reads never bypass it unsafely",
+        "4. The preference read has its own cache entry — it is not shared with client-personal-details",
         "5. `clear()` still races a pending debounced `input()` — `revert()` does not",
-        "6. The read view and the editor are registered under two DIFFERENT internal names — do not assume they share a scope key",
+        "6. One composable, one registry name — repeated calls return the same instance",
         "7. The consolidation write is refused by default — a missing brand opt-in reads as restricted, not as \"not yet set\"",
         "8. `.as()` takes an enum member, never a string literal",
         "9. `pnpm lint` and `pnpm install` are unsafe to run casually against this module's changes",
@@ -2529,7 +2524,7 @@
         "Common Mistakes",
         "Assuming a diff is computed by \"does this field look set\" rather than \"did this field change\"",
         "Assuming a client id resolved into `.for(...)` is validated against the caller",
-        "Assuming the editor needs a `.for()` argument",
+        "Assuming the preference needs a `.for()` argument",
         "Treating `isVisible` as settled the instant the composable is constructed",
         "Lifecycle Considerations",
         "Destroy the instance when done",
@@ -2544,16 +2539,7 @@
       "headings": [
         "client-billing-settings — Usage",
         "Getting an instance",
-        "The read view — `useBillingSettings`",
-        "Read actions — `useActions()`",
-        "`isReady()` — waiting for the preference",
-        "`refresh()`",
-        "`destroy()`",
-        "Read context — `useContext()`",
-        "Read meta — `useMeta()`",
-        "Read internals — `useInternals()`",
-        "The editor — `useBillingSettingsManager`",
-        "Editor actions — `useActions()`",
+        "Actions — `useActions()`",
         "`isReady()` — waiting for the form",
         "`input(model)`",
         "`update(value?)`",
@@ -2562,9 +2548,9 @@
         "`onDone()`",
         "`stop()` — pausing the editor",
         "`destroy()` — releasing the editor",
-        "Editor context — `useContext()`",
-        "Editor meta — `useMeta()`",
-        "Editor internals — `useInternals()`",
+        "Context — `useContext()`",
+        "Meta — `useMeta()`",
+        "Internals — `useInternals()`",
         "The form definition — paste-ready",
         "Starting data",
         "Errors are state, never announcements",
@@ -3406,7 +3392,7 @@
         "Quick Start",
         "Features",
         "Key Concepts",
-        "Two composables, one profile",
+        "One composable, one profile",
         "Reading was genuinely broken before this — not just rough",
         "Clearing a value is not one rule — it's two",
         "Saves are diff-only, and an empty diff is a genuine no-op",
@@ -3424,8 +3410,7 @@
         "client-personal-details — Architecture",
         "Overview",
         "Data Flow",
-        "Instantiation — the read view",
-        "Instantiation — the editor",
+        "Instantiation",
         "The save path — diff, image flush, then persist",
         "Clearing a field — where the clear survives, and where it doesn't",
         "Sub-composables",
@@ -3434,7 +3419,7 @@
         "Dependencies",
         "This module reads from",
         "Modules that read from this one",
-        "The shared cache key with client-billing-settings",
+        "The profile record cache entry",
         "Module boundary"
       ],
       "id": "guide:packages/headless/src/modules/client-personal-details/docs/architecture",
@@ -3486,19 +3471,19 @@
       "headings": [
         "client-personal-details — Gotchas",
         "1. Clearing a native field and clearing a custom field send different wire values — never assume one covers both",
-        "2. The read view and the editor are registered under two DIFFERENT internal names — do not assume they share a scope key",
-        "3. A shared cache key with client-billing-settings — safe, because both sides read reactively",
+        "2. One composable, one registry name — the display list and the editor share an instance",
+        "3. The profile record read has its own cache entry — it is not shared with client-billing-settings",
         "4. Cross-namespace test cleanup — evicting this module's own registry entries is not enough",
         "5. This module registers EAGERLY — safe today, but only circumstantially",
-        "6. `.as()` and `.for()` take enum members, never string literals",
-        "7. `.as(ScopeActorTypes.SELF)` compiles and works, but the result carries no `.for()`",
+        "6. `.as()` takes enum members, never string literals",
+        "7. `.as(ScopeActorTypes.SELF)` resolves to the calling client — name `CLIENT` when you need a retarget or a fresh instance",
         "8. The trap was the context's NAME, not `.for()` itself — a resource-named member carrying the client's own id",
         "9. `pnpm lint` and `pnpm install` are unsafe to run casually against this module's changes",
         "Common Mistakes",
         "Assuming a client id resolved into `.for(...)` is validated against the caller",
-        "Assuming the editor needs a `.for()` argument",
+        "Assuming the profile needs a `.for()` argument",
         "Building an update body by hand instead of through `input()` / `update()`",
-        "Reading a custom field's value off the display projection when you need its raw wire value",
+        "Reading a custom field's value off the display projection when you need its form value",
         "Lifecycle Considerations",
         "Destroy the instance when done",
         "Wait for readiness before reading or editing"
@@ -3512,16 +3497,8 @@
       "headings": [
         "client-personal-details — Usage",
         "Getting an instance",
-        "The read view — `usePersonalDetails`",
-        "Read actions — `useActions()`",
-        "`isReady()` — waiting for the profile",
-        "`refresh()`",
-        "`destroy()`",
-        "Read context — `useContext()`",
-        "Read meta — `useMeta()`",
-        "Read internals — `useInternals()`",
-        "The editor — `usePersonalDetailsManager`",
-        "Editor actions — `useActions()`",
+        "The profile — `usePersonalDetails`",
+        "Actions — `useActions()`",
         "`isReady()` — waiting for the form",
         "`input(model)`",
         "`update(value?)`",
@@ -3529,11 +3506,12 @@
         "`clear()`",
         "`filterFields(fields)`",
         "`onDone()`",
+        "`refresh()`",
         "`stop()` — pausing the editor",
         "`destroy()` — releasing the editor",
-        "Editor context — `useContext()`",
-        "Editor meta — `useMeta()`",
-        "Editor internals — `useInternals()`",
+        "Context — `useContext()`",
+        "Meta — `useMeta()`",
+        "Internals — `useInternals()`",
         "The form definition — paste-ready",
         "Schema",
         "UI schema",
@@ -3769,6 +3747,7 @@
       "headings": [
         "contract-product Changelog",
         "[Unreleased]",
+        "Added",
         "Changed",
         "Added",
         "Migration Guide"
@@ -3834,6 +3813,7 @@
         "PUT /contracts/{contractId}/products/{contractProductId}/schedule-cancel-revoke",
         "POST /contracts/{contractId}/cancel/request",
         "DELETE /contracts/{contractId}/cancel/request",
+        "PUT /contracts/{contractId}/products/{contractProductId}/change",
         "Failure modes",
         "Lessons (hard-won)"
       ],
@@ -3853,6 +3833,12 @@
         "The consolidation form reads no brand setting and no permission",
         "No actor-permission check backs the cancellation or consolidation forms — a known limitation, not a design choice",
         "`hasScheduledFutureCancellation` and `canScheduleFutureCancellation` are not opposites",
+        "A change of plan: the dry-run preview fails silently 🧪",
+        "A change of plan: the commit is forced and the platform judges it",
+        "A change of plan: the plan catalogue keeps the contract's currency and no promotions",
+        "A change of plan: `migrate()` resolves when the write lands, even if the re-read fails",
+        "A change of plan: `isMigrationTargetsLoading` is the first page only",
+        "Common Mistakes",
         "Common Mistakes",
         "Reading `contractProduct.raw` for a field the view model already maps",
         "Assuming the collection and the manager share a cache entry per product",
@@ -3881,6 +3867,7 @@
         "Writes",
         "Cancellation — one combined form, three options",
         "Consolidation — its own form",
+        "Change of plan",
         "Meta (State Flags)",
         "`useContractProducts().useMeta()`",
         "`useContractProduct().useMeta()`",
@@ -3975,7 +3962,7 @@
         "Submitting the SAME payment method (or none) sends nothing — and that is correct 🧪",
         "The payment-method form is offered on `unavailable`, unlike everything else",
         "The payment-method form is offered only for a subscription the client owns 🧪",
-        "A contract's own read carries each product as an id-and-name stub, nothing more",
+        "An embedded product row is a product view model without some members",
         "The contracts list's sort column is an `enum`, not `oneOf` — but its i18n labels are not shipped yet 🧪",
         "Common Mistakes",
         "Reading `contract.raw` for a field the view model already maps",
@@ -6395,6 +6382,12 @@
       "path": "packages/headless/src/modules/contract/contract.types.ts",
       "title": "ContractContext"
     },
+    "@upmind-automation/headless!ContractEmbeddedProduct": {
+      "kind": "symbol",
+      "module": "contract",
+      "path": "packages/headless/src/modules/contract/contract.types.ts",
+      "title": "ContractEmbeddedProduct"
+    },
     "@upmind-automation/headless!ContractProduct": {
       "kind": "symbol",
       "module": "contract-product",
@@ -6412,6 +6405,12 @@
       "module": "contract-product",
       "path": "packages/headless/src/modules/contract-product/contract-product.types.ts",
       "title": "ContractProductContext"
+    },
+    "@upmind-automation/headless!ContractProductEmbedded": {
+      "kind": "symbol",
+      "module": "contract-product",
+      "path": "packages/headless/src/modules/contract-product/contract-product.types.ts",
+      "title": "ContractProductEmbedded"
     },
     "@upmind-automation/headless!ContractProductFormTypes": {
       "kind": "symbol",
@@ -7013,6 +7012,12 @@
       "path": "packages/headless/src/modules/invoices/invoices.types.ts",
       "title": "InvoiceFilterModel"
     },
+    "@upmind-automation/headless!InvoiceLineItem": {
+      "kind": "symbol",
+      "module": "invoices",
+      "path": "packages/headless/src/modules/invoices/invoices.types.ts",
+      "title": "InvoiceLineItem"
+    },
     "@upmind-automation/headless!InvoicePaymentChallenge": {
       "kind": "symbol",
       "module": "invoices",
@@ -7168,6 +7173,30 @@
       "module": "config",
       "path": "packages/headless/src/modules/config/config.types.ts",
       "title": "MetaPrefix"
+    },
+    "@upmind-automation/headless!MigrationConfig": {
+      "kind": "symbol",
+      "module": "contract-product",
+      "path": "packages/headless/src/modules/contract-product/contract-product.types.ts",
+      "title": "MigrationConfig"
+    },
+    "@upmind-automation/headless!MigrationPreview": {
+      "kind": "symbol",
+      "module": "contract-product",
+      "path": "packages/headless/src/modules/contract-product/contract-product.types.ts",
+      "title": "MigrationPreview"
+    },
+    "@upmind-automation/headless!MigrationResult": {
+      "kind": "symbol",
+      "module": "contract-product",
+      "path": "packages/headless/src/modules/contract-product/contract-product.types.ts",
+      "title": "MigrationResult"
+    },
+    "@upmind-automation/headless!MigrationTarget": {
+      "kind": "symbol",
+      "module": "contract-product",
+      "path": "packages/headless/src/modules/contract-product/contract-product.types.ts",
+      "title": "MigrationTarget"
     },
     "@upmind-automation/headless!MutationParams": {
       "kind": "symbol",
@@ -7571,6 +7600,12 @@
       "path": "packages/headless/src/modules/product/product.types.ts",
       "title": "ProductBundles"
     },
+    "@upmind-automation/headless!ProductCatalogueScope": {
+      "kind": "symbol",
+      "module": "product-catalogue",
+      "path": "packages/headless/src/modules/product-catalogue/product-catalogue.types.ts",
+      "title": "ProductCatalogueScope"
+    },
     "@upmind-automation/headless!ProductCategory": {
       "kind": "symbol",
       "module": "product-categories",
@@ -7588,6 +7623,12 @@
       "module": "product",
       "path": "packages/headless/src/modules/product/product.types.ts",
       "title": "ProductConfigContext"
+    },
+    "@upmind-automation/headless!ProductCountQuery": {
+      "kind": "symbol",
+      "module": "product-catalogue",
+      "path": "packages/headless/src/modules/product-catalogue/product-catalogue.types.ts",
+      "title": "ProductCountQuery"
     },
     "@upmind-automation/headless!ProductDetails": {
       "kind": "symbol",
@@ -7618,6 +7659,12 @@
       "module": "config",
       "path": "packages/headless/src/modules/config/schema/types.ts",
       "title": "ProductListStyle"
+    },
+    "@upmind-automation/headless!ProductLoadContext": {
+      "kind": "symbol",
+      "module": "product",
+      "path": "packages/headless/src/modules/product/product.types.ts",
+      "title": "ProductLoadContext"
     },
     "@upmind-automation/headless!ProductModel": {
       "kind": "symbol",
@@ -10144,6 +10191,12 @@
       "module": "contract-product",
       "path": "packages/headless/src/modules/contract-product/contract-product.mappers.ts",
       "title": "mapContractProduct"
+    },
+    "@upmind-automation/headless!mapContractProductEmbedded": {
+      "kind": "symbol",
+      "module": "contract-product",
+      "path": "packages/headless/src/modules/contract-product/contract-product.mappers.ts",
+      "title": "mapContractProductEmbedded"
     },
     "@upmind-automation/headless!mapCustomField": {
       "kind": "symbol",
@@ -17845,21 +17898,21 @@
     }
   },
   "meta": {
-    "built_at": "2026-10-02T10:21:00.166Z",
-    "corpus_version": "1+ae3b5ad4bdc6",
+    "built_at": "2026-10-02T15:00:32.276Z",
+    "corpus_version": "1+af7f16134995",
     "counts": {
       "adrs": 35,
       "changelogSymbols": 0,
       "examples": 0,
       "glossaryTerms": 26,
       "guides": 174,
-      "indexEntries": 2031,
+      "indexEntries": 2042,
       "relationEdges": 5310,
       "relationsPruned": 2227,
-      "symbols": 896
+      "symbols": 907
     },
     "relationsSha256": "9a6f85296b647222228f20f54141377046925e9862437ca4617d3a6a8b87e391",
-    "source_commit": "28690ec986da00a7cb918fc909560c3f621e5d4f"
+    "source_commit": "02ca7f1f096aeadb499654045064f5bc45c33b30"
   },
   "relations": {
     "edges": [
@@ -61148,7 +61201,7 @@
       "name": "CONTRACTS_SCOPE_MATRIX",
       "signature": "CONTRACTS_SCOPE_MATRIX: object",
       "sourceFile": "packages/headless/src/modules/contract/contract.types.ts",
-      "sourceLine": 43,
+      "sourceLine": 42,
       "tsdoc": "Scope matrix for `useContracts`. Only `client` resolves (R2)."
     },
     "@upmind-automation/headless!CONTRACT_PRODUCTS_SCOPE_MATRIX": {
@@ -61159,7 +61212,7 @@
       "name": "CONTRACT_PRODUCTS_SCOPE_MATRIX",
       "signature": "CONTRACT_PRODUCTS_SCOPE_MATRIX: object",
       "sourceFile": "packages/headless/src/modules/contract-product/contract-product.types.ts",
-      "sourceLine": 58,
+      "sourceLine": 63,
       "tsdoc": "Scope matrix for `useContractProducts`. `client` is the only actor that resolves."
     },
     "@upmind-automation/headless!CancellationModel": {
@@ -61170,7 +61223,7 @@
       "name": "CancellationModel",
       "signature": "Symbol CancellationModel",
       "sourceFile": "packages/headless/src/modules/contract-product/contract-product.types.ts",
-      "sourceLine": 394,
+      "sourceLine": 586,
       "tsdoc": "The ONE cancellation form model. `futureCancellationDate` is required only\nfor `SCHEDULE_FUTURE` (the schema's `if`/`then`); `customFields` is the\nCANCEL_REQUEST catalogue."
     },
     "@upmind-automation/headless!CategoryGridLayout": {
@@ -61687,7 +61740,7 @@
       "name": "Contract",
       "signature": "Symbol Contract",
       "sourceFile": "packages/headless/src/modules/contract/contract.types.ts",
-      "sourceLine": 172,
+      "sourceLine": 163,
       "tsdoc": "The view model `contract.mappers.ts` maps `IContract` into — only the fields this module reads."
     },
     "@upmind-automation/headless!ContractContext": {
@@ -61698,8 +61751,19 @@
       "name": "ContractContext",
       "signature": "Symbol ContractContext",
       "sourceFile": "packages/headless/src/modules/contract/contract.types.ts",
-      "sourceLine": 239,
+      "sourceLine": 232,
       "tsdoc": "Context for `contract.machine.ts`."
+    },
+    "@upmind-automation/headless!ContractEmbeddedProduct": {
+      "id": "@upmind-automation/headless!ContractEmbeddedProduct",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "contract",
+      "name": "ContractEmbeddedProduct",
+      "signature": "Symbol ContractEmbeddedProduct",
+      "sourceFile": "packages/headless/src/modules/contract/contract.types.ts",
+      "sourceLine": 160,
+      "tsdoc": "A `ContractProduct` as the contract read embeds it. The embedded shape now\nlives on the contract-product module as ContractProductEmbedded, which\nowns the product view model it narrows; this alias keeps the contract module's\nown name stable for its `products` relation and its consumers."
     },
     "@upmind-automation/headless!ContractProduct": {
       "id": "@upmind-automation/headless!ContractProduct",
@@ -61709,7 +61773,7 @@
       "name": "ContractProduct",
       "signature": "Symbol ContractProduct",
       "sourceFile": "packages/headless/src/modules/contract-product/contract-product.types.ts",
-      "sourceLine": 195,
+      "sourceLine": 207,
       "tsdoc": "The view model `mapContractProduct` maps `IContractProduct` into — only the\nfields this module reads, plus the two derived readings every layer shares.\nThe wire record sits beside it on machine context (`rawContractProduct`)."
     },
     "@upmind-automation/headless!ContractProductCancelOption": {
@@ -61720,7 +61784,7 @@
       "name": "ContractProductCancelOption",
       "signature": "Enum ContractProductCancelOption",
       "sourceFile": "packages/headless/src/modules/contract-product/contract-product.types.ts",
-      "sourceLine": 380,
+      "sourceLine": 572,
       "tsdoc": "The client cancellation options a product may offer (legacy `CancelOptions`,\n`contractCancellation.ts:303-333`). The chosen option routes the submit to\none of four writes."
     },
     "@upmind-automation/headless!ContractProductContext": {
@@ -61731,8 +61795,19 @@
       "name": "ContractProductContext",
       "signature": "Symbol ContractProductContext",
       "sourceFile": "packages/headless/src/modules/contract-product/contract-product.types.ts",
-      "sourceLine": 292,
+      "sourceLine": 333,
       "tsdoc": "Context for the contract-product manager machine."
+    },
+    "@upmind-automation/headless!ContractProductEmbedded": {
+      "id": "@upmind-automation/headless!ContractProductEmbedded",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "contract-product",
+      "name": "ContractProductEmbedded",
+      "signature": "Symbol ContractProductEmbedded",
+      "sourceFile": "packages/headless/src/modules/contract-product/contract-product.types.ts",
+      "sourceLine": 295,
+      "tsdoc": "A `ContractProduct` as a read that embeds it carries it — without the members that need `allowed_migrations` or the parent `contract` relation, which such a read never supplies. The `contract` read and the `tickets` single read both embed a product this way."
     },
     "@upmind-automation/headless!ContractProductFormTypes": {
       "id": "@upmind-automation/headless!ContractProductFormTypes",
@@ -61742,7 +61817,7 @@
       "name": "ContractProductFormTypes",
       "signature": "Enum ContractProductFormTypes",
       "sourceFile": "packages/headless/src/modules/contract-product/contract-product.types.ts",
-      "sourceLine": 333,
+      "sourceLine": 380,
       "tsdoc": "The two write forms, each a parallel region of `available`."
     },
     "@upmind-automation/headless!ContractProductRequest": {
@@ -61753,7 +61828,7 @@
       "name": "ContractProductRequest",
       "signature": "Symbol ContractProductRequest",
       "sourceFile": "packages/headless/src/modules/contract-product/contract-product.types.ts",
-      "sourceLine": 134,
+      "sourceLine": 139,
       "tsdoc": "The `status` and `id` members of `IContractCancellationRequest` this module reads."
     },
     "@upmind-automation/headless!ContractProductRequestStatus": {
@@ -61764,7 +61839,7 @@
       "name": "ContractProductRequestStatus",
       "signature": "Symbol ContractProductRequestStatus",
       "sourceFile": "packages/headless/src/modules/contract-product/contract-product.types.ts",
-      "sourceLine": 129,
+      "sourceLine": 134,
       "tsdoc": "`IStatus.code`, narrowed to the cancellation-request vocabulary."
     },
     "@upmind-automation/headless!ContractProductState": {
@@ -61775,7 +61850,7 @@
       "name": "ContractProductState",
       "signature": "Enum ContractProductState",
       "sourceFile": "packages/headless/src/modules/contract-product/contract-product.types.ts",
-      "sourceLine": 273,
+      "sourceLine": 314,
       "tsdoc": "The fifteen nodes of the locked product chart. Thirteen are reportable\nstates; `SETUP_COMPLETE` and `TRIAL_NONE` are the neutral defaults of their\nregion and carry no meta value."
     },
     "@upmind-automation/headless!ContractProductStatus": {
@@ -61786,7 +61861,7 @@
       "name": "ContractProductStatus",
       "signature": "Symbol ContractProductStatus",
       "sourceFile": "packages/headless/src/modules/contract-product/contract-product.types.ts",
-      "sourceLine": 107,
+      "sourceLine": 112,
       "tsdoc": "`IStatus.code`, narrowed to the contract vocabulary, and the status's translated name."
     },
     "@upmind-automation/headless!ContractProductsContextTypes": {
@@ -61797,7 +61872,7 @@
       "name": "ContractProductsContextTypes",
       "signature": "Enum ContractProductsContextTypes",
       "sourceFile": "packages/headless/src/modules/contract-product/contract-product.types.ts",
-      "sourceLine": 52,
+      "sourceLine": 57,
       "tsdoc": "Context types for the contract-product COLLECTION. `DELEGATED` is a\nSELECTOR context with no id: it narrows the same collection to the client's\ndelegated products, it does not name a different entity."
     },
     "@upmind-automation/headless!ContractProductsScopeMatrix": {
@@ -61808,7 +61883,7 @@
       "name": "ContractProductsScopeMatrix",
       "signature": "Symbol ContractProductsScopeMatrix",
       "sourceFile": "packages/headless/src/modules/contract-product/contract-product.types.ts",
-      "sourceLine": 66,
+      "sourceLine": 71,
       "tsdoc": "Scope matrix type for `useContractProducts` (derived from the runtime const)."
     },
     "@upmind-automation/headless!ContractState": {
@@ -61819,7 +61894,7 @@
       "name": "ContractState",
       "signature": "Enum ContractState",
       "sourceFile": "packages/headless/src/modules/contract/contract.types.ts",
-      "sourceLine": 90,
+      "sourceLine": 89,
       "tsdoc": "The typed state values of `contract.machine.ts`. `available` and\n`unavailable` are parallel over a `status` region and a\n`changingPaymentMethod` form region (R35), so every status node sits under\n`.status`."
     },
     "@upmind-automation/headless!ContractsContextTypes": {
@@ -61830,7 +61905,7 @@
       "name": "ContractsContextTypes",
       "signature": "Enum ContractsContextTypes",
       "sourceFile": "packages/headless/src/modules/contract/contract.types.ts",
-      "sourceLine": 37,
+      "sourceLine": 36,
       "tsdoc": "Context types for the contract COLLECTION — whose list is being addressed."
     },
     "@upmind-automation/headless!ContractsScopeMatrix": {
@@ -61841,7 +61916,7 @@
       "name": "ContractsScopeMatrix",
       "signature": "Symbol ContractsScopeMatrix",
       "sourceFile": "packages/headless/src/modules/contract/contract.types.ts",
-      "sourceLine": 51,
+      "sourceLine": 50,
       "tsdoc": "Scope matrix type for `useContracts` (derived from the runtime const)."
     },
     "@upmind-automation/headless!CriteriaInput": {
@@ -61852,7 +61927,7 @@
       "name": "CriteriaInput",
       "signature": "Symbol CriteriaInput",
       "sourceFile": "packages/headless/src/modules/query/query.types.ts",
-      "sourceLine": 408,
+      "sourceLine": 415,
       "tsdoc": "The ONE way a collection says what it asks for: it DECLARES the request\nbranches, so spelling any of them raw beside the declaration is a compile\nerror rather than a second source of truth. A collection with no filters,\nsort or pagination at all declares no criteria — that stays legal, and it\nsimply has nothing to write.\n\nIntersected with an entry point's own params, NOT folded into\nRequestParams: the one-shot promise helpers (`getRequest`,\n`listRequest`, `countRequest`) still take the branches as plain params."
     },
     "@upmind-automation/headless!CustomField": {
@@ -62589,7 +62664,7 @@
       "name": "HELPERS",
       "signature": "HELPERS: typeOperator",
       "sourceFile": "packages/headless/src/modules/config/config.utils.ts",
-      "sourceLine": 560,
+      "sourceLine": 561,
       "tsdoc": null
     },
     "@upmind-automation/headless!Handler": {
@@ -62699,7 +62774,7 @@
       "name": "INVOICES_SCOPE_MATRIX",
       "signature": "INVOICES_SCOPE_MATRIX: object",
       "sourceFile": "packages/headless/src/modules/invoices/invoices.types.ts",
-      "sourceLine": 151,
+      "sourceLine": 152,
       "tsdoc": "Scope matrix for `useInvoices`.\n\n`STAFF: null as never` states, in code, the operator ruling of 2026-09-01\n(verbatim): \"this is client only, staff is being deprecated.\" This\nwithdraws the oracle's admin path (`oracle:25-34` -> `api/admin/invoices`,\n`oracle:279-542` every admin-only write) for this resource. No Linear issue\nis owed for a retiring platform capability\n(`docs/sdd/FE-3031/parity.yaml`, cells `staff x self` / `staff x client`,\n`signoff: op:dom@upmind.com:2026-09-01`). A matrix cell states what the\nshipped code does, never what the wire can do (design D6).\n\n`SELF: never` withdraws `.for()` only — `.as('self')` still resolves and\nfalls through `resolveClientId` to the reading client's own id, which IS\nthe `client x self` cell (`invoices.services.ts`). A cell governs `.for()`\nONLY (`client-email-history.types.ts:74-77`).\n\nThe `CLIENT` actor's cell is an ARRAY of RETARGET members (`scope.types.ts`\narray-cell form): `client` is the `client x client` cell (a declared\n`client_id` filter column on `useQuerySchema()`, never a path segment — the\nclient lane has no `api/clients/{id}/invoices` route, `oracle:25-34`), and\n`contract` / `contracts_product` / `invoice` are the three entity\nrelationships (FE-3031 F3, OR-1), each a declared filter column the scope\nseam seeds (`INVOICES_CONTEXT_WIRE_KEYS`)."
     },
     "@upmind-automation/headless!IPhoneData": {
@@ -62787,7 +62862,7 @@
       "name": "InfiniteListQuery",
       "signature": "Symbol InfiniteListQuery",
       "sourceFile": "packages/headless/src/modules/query/query.types.ts",
-      "sourceLine": 478,
+      "sourceLine": 485,
       "tsdoc": "The `listInfinite()` query's return shape (`useQuery.ts`). Extracted from\n`listInfinite`'s own inline return-statement cast for the same reason as\nListQuery.\n\n`data` is the accumulated pages FLATTENED — the same flat rows\nListQuery publishes, so a surface can consume either arm."
     },
     "@upmind-automation/headless!InfiniteQueryPage": {
@@ -62809,7 +62884,7 @@
       "name": "Invoice",
       "signature": "Symbol Invoice",
       "sourceFile": "packages/headless/src/modules/invoices/invoices.types.ts",
-      "sourceLine": 329,
+      "sourceLine": 330,
       "tsdoc": "A billable invoice raised against an order — the client, currency, line\nitems, payment history, and amount/status summary, extended with the\nconsolidation/credit, bundle, attribution and next-charge surfaces this\nstory adds."
     },
     "@upmind-automation/headless!InvoiceBundleGroup": {
@@ -62820,7 +62895,7 @@
       "name": "InvoiceBundleGroup",
       "signature": "Symbol InvoiceBundleGroup",
       "sourceFile": "packages/headless/src/modules/invoices/invoices.types.ts",
-      "sourceLine": 459,
+      "sourceLine": 471,
       "tsdoc": "One group of an invoice's bundled line items, grouped by originating\nsubscription (AC5). Grouped on `contracts_product_id`\n(`packages/types/src/models/baskets.ts:157`), falling back to\n`contract_id` (`:155`); un-linked lines land in one trailing group where\nboth ids are `null`."
     },
     "@upmind-automation/headless!InvoiceFilterModel": {
@@ -62831,8 +62906,19 @@
       "name": "InvoiceFilterModel",
       "signature": "Symbol InvoiceFilterModel",
       "sourceFile": "packages/headless/src/modules/invoices/invoices.types.ts",
-      "sourceLine": 277,
+      "sourceLine": 278,
       "tsdoc": "The nested filter model — the `filters` branch of InvoiceQueryModel."
+    },
+    "@upmind-automation/headless!InvoiceLineItem": {
+      "id": "@upmind-automation/headless!InvoiceLineItem",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "invoices",
+      "name": "InvoiceLineItem",
+      "signature": "Symbol InvoiceLineItem",
+      "sourceFile": "packages/headless/src/modules/invoices/invoices.types.ts",
+      "sourceLine": 459,
+      "tsdoc": "One line item — the mapped BasketProduct plus the subscription it\nbills (`contracts_product_id`, `contract_id`), `null` on an un-linked line."
     },
     "@upmind-automation/headless!InvoicePaymentChallenge": {
       "id": "@upmind-automation/headless!InvoicePaymentChallenge",
@@ -62842,7 +62928,7 @@
       "name": "InvoicePaymentChallenge",
       "signature": "Symbol InvoicePaymentChallenge",
       "sourceFile": "packages/headless/src/modules/invoices/invoices.types.ts",
-      "sourceLine": 571,
+      "sourceLine": 600,
       "tsdoc": "The `usePaymentChallenge` provide/inject contract — the ONE shape the pay\nhost provides (`Order.vue`) and the challenge renderer injects\n(`PaymentProcessing.vue`). `meta` is read for the two challenge flags only."
     },
     "@upmind-automation/headless!InvoicePaymentDetailsModel": {
@@ -62853,7 +62939,7 @@
       "name": "InvoicePaymentDetailsModel",
       "signature": "Symbol InvoicePaymentDetailsModel",
       "sourceFile": "packages/headless/src/modules/invoices/invoices.types.ts",
-      "sourceLine": 503,
+      "sourceLine": 521,
       "tsdoc": "AC4's write model. `payment_details_id` is nullable ON PURPOSE: clearing\nthe assignment sends `null` as a PRESENT key, never an omitted one (design\nD1) — \"none selected\" is a sent value, not the absence of one."
     },
     "@upmind-automation/headless!InvoiceQueryModel": {
@@ -62864,7 +62950,7 @@
       "name": "InvoiceQueryModel",
       "signature": "Symbol InvoiceQueryModel",
       "sourceFile": "packages/headless/src/modules/invoices/invoices.types.ts",
-      "sourceLine": 230,
+      "sourceLine": 231,
       "tsdoc": "The whole request state as one model — `filters` (nested column -> operator\n-> value), `sort` (ordered, precedence = position) and `pagination`. The\ninstance validated against `useQuerySchema()`; `list()`'s translator maps\nit to the wire triple. Every column here is named in `design.md`'s \"Filter\ncolumns\" table with the oracle receipt for its operator set — no column or\noperator here is invented."
     },
     "@upmind-automation/headless!InvoiceSortEntry": {
@@ -62875,7 +62961,7 @@
       "name": "InvoiceSortEntry",
       "signature": "Symbol InvoiceSortEntry",
       "sourceFile": "packages/headless/src/modules/invoices/invoices.types.ts",
-      "sourceLine": 204,
+      "sourceLine": 205,
       "tsdoc": "One sort entry — the MODEL's ordered form; precedence is position."
     },
     "@upmind-automation/headless!InvoiceSortModel": {
@@ -62886,7 +62972,7 @@
       "name": "InvoiceSortModel",
       "signature": "Symbol InvoiceSortModel",
       "sourceFile": "packages/headless/src/modules/invoices/invoices.types.ts",
-      "sourceLine": 301,
+      "sourceLine": 302,
       "tsdoc": "The ordered sort model — the `sort` branch of InvoiceQueryModel."
     },
     "@upmind-automation/headless!InvoiceSortableField": {
@@ -62897,7 +62983,7 @@
       "name": "InvoiceSortableField",
       "signature": "Symbol InvoiceSortableField",
       "sourceFile": "packages/headless/src/modules/invoices/invoices.types.ts",
-      "sourceLine": 193,
+      "sourceLine": 194,
       "tsdoc": "The WHOLE vocabulary of sortable columns — the sort control offers exactly\nthese and nothing else. Receipts: `sorters/invoices.ts:5-33` (all but\n`number`) + `sorters/creditNotes.ts:4-21` (`number`)."
     },
     "@upmind-automation/headless!InvoicesContextTypes": {
@@ -62908,7 +62994,7 @@
       "name": "InvoicesContextTypes",
       "signature": "Enum InvoicesContextTypes",
       "sourceFile": "packages/headless/src/modules/invoices/invoices.types.ts",
-      "sourceLine": 91,
+      "sourceLine": 92,
       "tsdoc": "Context types for the invoice COLLECTION — the entity a read is scoped to.\nEvery relationship value is sourced from the canonical object-type enum\n(`UpmindObjectTypes`), never a minted literal — `IdContextsForActor` extracts\nthe string VALUE, so `.for('contract', id)` only spells if that value is\n`\"contract\"` (`scope.types.ts`)."
     },
     "@upmind-automation/headless!InvoicesScopeMatrix": {
@@ -62919,7 +63005,7 @@
       "name": "InvoicesScopeMatrix",
       "signature": "Symbol InvoicesScopeMatrix",
       "sourceFile": "packages/headless/src/modules/invoices/invoices.types.ts",
-      "sourceLine": 164,
+      "sourceLine": 165,
       "tsdoc": "Scope matrix type for `useInvoices` (derived from the runtime const)."
     },
     "@upmind-automation/headless!IsReadyOptions": {
@@ -62963,7 +63049,7 @@
       "name": "ListQuery",
       "signature": "Symbol ListQuery",
       "sourceFile": "packages/headless/src/modules/query/query.types.ts",
-      "sourceLine": 303,
+      "sourceLine": 310,
       "tsdoc": "The `list()` query's return shape (`useQuery.ts`), parameterised by the raw\nfetch type, the (optionally `select`-mapped) data type and the collection's\nquery model — mirrors `list`'s own generic order/defaults. Extracted from\n`list`'s own inline return-statement cast so a scoped module can express its\nlist-query return type without deriving `ReturnType<typeof localFn>` from its\nown already-instantiated service function (graphify-out/ citation above — no\nprior node for this type).\n\nONE shape: sort, filters and pagination are the criteria's, so there are no\n`sort()`/`filter()` setters beside QueryCriteriaHandle.setCriteria."
     },
     "@upmind-automation/headless!ListStyle": {
@@ -63120,6 +63206,50 @@
       "sourceLine": 158,
       "tsdoc": null
     },
+    "@upmind-automation/headless!MigrationConfig": {
+      "id": "@upmind-automation/headless!MigrationConfig",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "contract-product",
+      "name": "MigrationConfig",
+      "signature": "Symbol MigrationConfig",
+      "sourceFile": "packages/headless/src/modules/contract-product/contract-product.types.ts",
+      "sourceLine": 479,
+      "tsdoc": "The configurator of the chosen plan: a subset of `useProductConfig` over the\nchild. It has no `service`, no term setter, no quantity member, no provision\nmember and no trial setter, so a commit cannot skip `migrate()`. Its\n`setConfig` drops `startTrial` and `provisionFields`. Its `schema` and\n`uischema` hold no provision field and no `startTrial`. It has no `id` and no\n`state`, so the child's own state stays out of reach."
+    },
+    "@upmind-automation/headless!MigrationPreview": {
+      "id": "@upmind-automation/headless!MigrationPreview",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "contract-product",
+      "name": "MigrationPreview",
+      "signature": "Symbol MigrationPreview",
+      "sourceFile": "packages/headless/src/modules/contract-product/contract-product.types.ts",
+      "sourceLine": 422,
+      "tsdoc": "The pro-rata cost a dry run gave."
+    },
+    "@upmind-automation/headless!MigrationResult": {
+      "id": "@upmind-automation/headless!MigrationResult",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "contract-product",
+      "name": "MigrationResult",
+      "signature": "Symbol MigrationResult",
+      "sourceFile": "packages/headless/src/modules/contract-product/contract-product.types.ts",
+      "sourceLine": 432,
+      "tsdoc": "What a committed change of plan gave."
+    },
+    "@upmind-automation/headless!MigrationTarget": {
+      "id": "@upmind-automation/headless!MigrationTarget",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "contract-product",
+      "name": "MigrationTarget",
+      "signature": "Symbol MigrationTarget",
+      "sourceFile": "packages/headless/src/modules/contract-product/contract-product.types.ts",
+      "sourceLine": 397,
+      "tsdoc": "The chosen plan: its id and its row of the plan list."
+    },
     "@upmind-automation/headless!MutationParams": {
       "id": "@upmind-automation/headless!MutationParams",
       "kind": "2097152",
@@ -63128,7 +63258,7 @@
       "name": "MutationParams",
       "signature": "Symbol MutationParams",
       "sourceFile": "packages/headless/src/modules/query/query.types.ts",
-      "sourceLine": 276,
+      "sourceLine": 283,
       "tsdoc": "Type alias defining parameters for TanStack Query's `useMutation` hook,\nextending RequestParams with `MutationObserverOptions` and omitting `mutationFn`,\nwhich is handled internally."
     },
     "@upmind-automation/headless!MutationResult": {
@@ -63139,7 +63269,7 @@
       "name": "MutationResult",
       "signature": "Symbol MutationResult",
       "sourceFile": "packages/headless/src/modules/query/query.types.ts",
-      "sourceLine": 504,
+      "sourceLine": 511,
       "tsdoc": "The `mutate()` mutation's return shape (`useQuery.ts`), parameterised by\nits resolved data type. Extracted from `mutate`'s own inline return-\nstatement cast for the same reason as ListQuery."
     },
     "@upmind-automation/headless!NotificationChannel": {
@@ -63216,7 +63346,7 @@
       "name": "ORDER_PAY_RETURN_KEY",
       "signature": "ORDER_PAY_RETURN_KEY: \"order-pay-return\"",
       "sourceFile": "packages/headless/src/modules/invoices/invoices.types.ts",
-      "sourceLine": 515,
+      "sourceLine": 544,
       "tsdoc": "The operations-registry key the outbound writer mints a pay return under and\nthe return handler registers against (FE-3030 / FE-3133)."
     },
     "@upmind-automation/headless!ORIENTATION": {
@@ -63392,7 +63522,7 @@
       "name": "PAYMENT_STATE",
       "signature": "Enum PAYMENT_STATE",
       "sourceFile": "packages/headless/src/modules/invoices/invoices.types.ts",
-      "sourceLine": 313,
+      "sourceLine": 314,
       "tsdoc": "The five states a payment can settle into. Kept from the pre-conversion\nmodule (`invoices.types.ts:8-16`) — wired, not deleted (design D3): the\ndead enum now backs `useInvoice.meta.ts`'s `paymentState`, replacing four\nbooleans that could previously disagree with each other."
     },
     "@upmind-automation/headless!PERSONAL_DETAILS_SCOPE_MATRIX": {
@@ -63436,7 +63566,7 @@
       "name": "PRODUCT_DEFAULT_SORT",
       "signature": "PRODUCT_DEFAULT_SORT: QuerySortEntry[]",
       "sourceFile": "packages/headless/src/modules/product-catalogue/product-catalogue.types.ts",
-      "sourceLine": 49,
+      "sourceLine": 57,
       "tsdoc": "The order the catalogue starts in — the merchant's own product order.\nDeclared as the query schema's `sort` default, so an emptied sort refills\nitself on the next parse."
     },
     "@upmind-automation/headless!PRODUCT_LIST_STYLE": {
@@ -63491,7 +63621,7 @@
       "name": "PaginationInfo",
       "signature": "Symbol PaginationInfo",
       "sourceFile": "packages/headless/src/modules/query/query.types.ts",
-      "sourceLine": 612,
+      "sourceLine": 619,
       "tsdoc": "Interface representing comprehensive pagination information, typically returned\nby an API to describe the current state of paginated results."
     },
     "@upmind-automation/headless!Payment": {
@@ -63502,7 +63632,7 @@
       "name": "Payment",
       "signature": "Symbol Payment",
       "sourceFile": "packages/headless/src/modules/invoices/invoices.types.ts",
-      "sourceLine": 466,
+      "sourceLine": 478,
       "tsdoc": null
     },
     "@upmind-automation/headless!PaymentArgs": {
@@ -63601,7 +63731,7 @@
       "name": "PaymentState",
       "signature": "Symbol PaymentState",
       "sourceFile": "packages/headless/src/modules/invoices/invoices.types.ts",
-      "sourceLine": 321,
+      "sourceLine": 322,
       "tsdoc": null
     },
     "@upmind-automation/headless!PendingOperation": {
@@ -63857,6 +63987,17 @@
       "sourceLine": 849,
       "tsdoc": "Type alias for a collection of product bundles."
     },
+    "@upmind-automation/headless!ProductCatalogueScope": {
+      "id": "@upmind-automation/headless!ProductCatalogueScope",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "product-catalogue",
+      "name": "ProductCatalogueScope",
+      "signature": "Symbol ProductCatalogueScope",
+      "sourceFile": "packages/headless/src/modules/product-catalogue/product-catalogue.types.ts",
+      "sourceLine": 83,
+      "tsdoc": "The opt-in `scope` of `useProductCatalogue`. Each member except `enabled` is\na RESOLVED plain value: the criteria compile one static schema, and each\nforced filter is a `const` leaf that needs its value when that schema is\nbuilt. A caller builds the instance when every value is resolved and builds\nit again when one changes. With no `scope` the composable is unchanged.\n\n- `ids` — only these product ids (`filter[id]`, a comma list)\n- `billingCycleMonths` — only products priced on this term, 0 included\n- `recurringOnly` — only products on a recurring term\n- `orderable` — only products the brand sells that a client can order\n- `currencyId`, `accountId` — the caller's own currency and account\n- `countOnly` — ask for the count of matches, not a page of them\n- `categories` — `false` skips the category tree\n- `enabled` — gates the request\n\nA scope reads no basket: no basket id, no basket currency, no promotions."
+    },
     "@upmind-automation/headless!ProductCategory": {
       "id": "@upmind-automation/headless!ProductCategory",
       "kind": "2097152",
@@ -63889,6 +64030,17 @@
       "sourceFile": "packages/headless/src/modules/product/product.types.ts",
       "sourceLine": 857,
       "tsdoc": "Interface representing the context for product configuration, typically managed by an XState machine.\nIt holds the state for configuring a single product, including its model, lookups, pricing, and associated errors."
+    },
+    "@upmind-automation/headless!ProductCountQuery": {
+      "id": "@upmind-automation/headless!ProductCountQuery",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "product-catalogue",
+      "name": "ProductCountQuery",
+      "signature": "Symbol ProductCountQuery",
+      "sourceFile": "packages/headless/src/modules/product-catalogue/product-catalogue.types.ts",
+      "sourceLine": 99,
+      "tsdoc": "The handle `countOnly` returns in place of a list: the envelope `total` on\n`pagination`, no rows on `data`, and no page to move."
     },
     "@upmind-automation/headless!ProductDetails": {
       "id": "@upmind-automation/headless!ProductDetails",
@@ -63945,6 +64097,17 @@
       "sourceLine": 103,
       "tsdoc": null
     },
+    "@upmind-automation/headless!ProductLoadContext": {
+      "id": "@upmind-automation/headless!ProductLoadContext",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "product",
+      "name": "ProductLoadContext",
+      "signature": "Symbol ProductLoadContext",
+      "sourceFile": "packages/headless/src/modules/product/product.types.ts",
+      "sourceLine": 957,
+      "tsdoc": "The context the product `load` service reads. `promotions: false` omits\npromotions from the load (`omit_promotions=1`, no `promotions`) and is part\nof its cache key. An array behaves as it does for every other caller."
+    },
     "@upmind-automation/headless!ProductModel": {
       "id": "@upmind-automation/headless!ProductModel",
       "kind": "2097152",
@@ -63975,7 +64138,7 @@
       "name": "ProductQueryModel",
       "signature": "Symbol ProductQueryModel",
       "sourceFile": "packages/headless/src/modules/product-catalogue/product-catalogue.types.ts",
-      "sourceLine": 35,
+      "sourceLine": 38,
       "tsdoc": "The whole request state as one model — `filters` (nested column → operator →\nvalue), `sort` (ordered, precedence = position) and `pagination`. This is the\ninstance validated against `useQuerySchema()`; the translator maps it to the\n`QueryProps` the query layer accepts.\n\n`products_category_id.eq` holds the category and its descendants as an id\nARRAY — the translator comma-joins it, which is how this endpoint spells \"in\nany of these categories\". The composable expands the tree; the model holds\nthe expansion, so what the wire carries is what the published model says."
     },
     "@upmind-automation/headless!ProductRecommendConfig": {
@@ -64019,7 +64182,7 @@
       "name": "ProductSortableProperties",
       "signature": "Enum ProductSortableProperties",
       "sourceFile": "packages/headless/src/modules/product-catalogue/product-catalogue.types.ts",
-      "sourceLine": 12,
+      "sourceLine": 15,
       "tsdoc": "Properties by which products can be sorted. The values are the API's own\n`order=` columns, so the schema's `sort.field` enum is this enum's members."
     },
     "@upmind-automation/headless!ProductStateKey": {
@@ -64184,7 +64347,7 @@
       "name": "QueryCriteria",
       "signature": "Symbol QueryCriteria",
       "sourceFile": "packages/headless/src/modules/query/query.types.ts",
-      "sourceLine": 366,
+      "sourceLine": 373,
       "tsdoc": "A collection's REQUEST STATE as a schema-governed model: intent → parse →\nvalidate → translate. Knows nothing about fetching, urls, vue-query or scope,\nso it can be exercised with no HTTP at all. Constructed by `list()` from\nQueryCriteriaOptions — a module never mints one, and so cannot mint\none wrongly."
     },
     "@upmind-automation/headless!QueryCriteriaHandle": {
@@ -64195,7 +64358,7 @@
       "name": "QueryCriteriaHandle",
       "signature": "Symbol QueryCriteriaHandle",
       "sourceFile": "packages/headless/src/modules/query/query.types.ts",
-      "sourceLine": 420,
+      "sourceLine": 427,
       "tsdoc": "What every list handle publishes about its request state, so each layer reads\nONE source and no consumer needs a shadow copy."
     },
     "@upmind-automation/headless!QueryCriteriaOptions": {
@@ -64206,7 +64369,7 @@
       "name": "QueryCriteriaOptions",
       "signature": "Symbol QueryCriteriaOptions",
       "sourceFile": "packages/headless/src/modules/query/query.types.ts",
-      "sourceLine": 339,
+      "sourceLine": 346,
       "tsdoc": null
     },
     "@upmind-automation/headless!QueryParams": {
@@ -64217,7 +64380,7 @@
       "name": "QueryParams",
       "signature": "Symbol QueryParams",
       "sourceFile": "packages/headless/src/modules/query/query.types.ts",
-      "sourceLine": 208,
+      "sourceLine": 215,
       "tsdoc": "Type alias defining parameters for TanStack Query's `useQuery` hook,\nextending RequestParams with `QueryObserverOptions` and omitting\n`queryFn` and `initialData`, which are handled internally."
     },
     "@upmind-automation/headless!QueryProps": {
@@ -64261,7 +64424,7 @@
       "name": "QuerySchema",
       "signature": "Symbol QuerySchema",
       "sourceFile": "packages/headless/src/modules/query/query.types.ts",
-      "sourceLine": 337,
+      "sourceLine": 344,
       "tsdoc": "A collection's declared query schema — filters · sort · pagination as ONE\nDraft-07 schema. The translator and the validators walk it at runtime, so\nthe type stays the general Draft-07 shape, never a module literal."
     },
     "@upmind-automation/headless!QuerySortEntry": {
@@ -64272,7 +64435,7 @@
       "name": "QuerySortEntry",
       "signature": "Symbol QuerySortEntry",
       "sourceFile": "packages/headless/src/modules/query/query.types.ts",
-      "sourceLine": 549,
+      "sourceLine": 556,
       "tsdoc": "One entry in a query model's `sort` branch — precedence is position. The\nMODEL's ordered form; QueryProps.sort's `[direction, property]`\ntuple is its wire form."
     },
     "@upmind-automation/headless!RECEIVED_EMAILS_SCOPE_MATRIX": {
@@ -64327,7 +64490,7 @@
       "name": "ReactiveQueryKeys",
       "signature": "Symbol ReactiveQueryKeys",
       "sourceFile": "packages/headless/src/modules/query/query.types.ts",
-      "sourceLine": 221,
+      "sourceLine": 228,
       "tsdoc": "Type alias for reactive query keys used to create dynamic query keys for TanStack Query.\nThis allows query keys to automatically update based on reactive sources."
     },
     "@upmind-automation/headless!RecaptchaContext": {
@@ -64492,7 +64655,7 @@
       "name": "RequestCancellationModel",
       "signature": "Symbol RequestCancellationModel",
       "sourceFile": "packages/headless/src/modules/contract-product/contract-product.types.ts",
-      "sourceLine": 425,
+      "sourceLine": 617,
       "tsdoc": "The mapper input the hard-cancellation request builds (R33)."
     },
     "@upmind-automation/headless!RequestFilterOperator": {
@@ -64503,7 +64666,7 @@
       "name": "RequestFilterOperator",
       "signature": "Enum RequestFilterOperator",
       "sourceFile": "packages/headless/src/modules/query/query.types.ts",
-      "sourceLine": 574,
+      "sourceLine": 581,
       "tsdoc": "The filter operators the API accepts, as the `filter[column|operator]` key's\noperator half. ONE vocabulary for all three consumers: the criteria's\ntranslator, a query schema's declared operator leaves, and the filter\nrenderer's dispatch.\n\nGrounded on the legacy app's own `ApiOperators` enum\n(`vue-app/src/data/table.ts:4-17`) — the parity oracle, not this module's\ncurrent usage. Two deliberate omissions: its `DEFAULT = \"\"` member is the\nsuffix-LESS form (`filter[column]`), not an operator a schema can name; and\n`any` / `none` are UI-level members of its sibling `FilterOperators` enum\nwith no `ApiOperators` counterpart, so they are not wire vocabulary.\n\nA schema keeps PLAIN STRING KEYS so it stays a liftable JSON literal — a\ncomputed key would break that. This enum names the operator in CODE; the two\nare kept in step by the schema being walked at runtime, where an operator no\ncolumn declares is unspellable."
     },
     "@upmind-automation/headless!RequestFilters": {
@@ -64514,7 +64677,7 @@
       "name": "RequestFilters",
       "signature": "Symbol RequestFilters",
       "sourceFile": "packages/headless/src/modules/query/query.types.ts",
-      "sourceLine": 592,
+      "sourceLine": 599,
       "tsdoc": "Interface representing a collection of filter parameters for a request.\nIt's a record where keys are filter names and values are the filter criteria."
     },
     "@upmind-automation/headless!RequestPagination": {
@@ -64525,7 +64688,7 @@
       "name": "RequestPagination",
       "signature": "Symbol RequestPagination",
       "sourceFile": "packages/headless/src/modules/query/query.types.ts",
-      "sourceLine": 597,
+      "sourceLine": 604,
       "tsdoc": "Interface representing pagination parameters for a request."
     },
     "@upmind-automation/headless!RequestParams": {
@@ -64547,7 +64710,7 @@
       "name": "RequestSortDirection",
       "signature": "Enum RequestSortDirection",
       "sourceFile": "packages/headless/src/modules/query/query.types.ts",
-      "sourceLine": 520,
+      "sourceLine": 527,
       "tsdoc": "Enumeration defining the direction for sorting query results."
     },
     "@upmind-automation/headless!RouteQueryParams": {
@@ -64635,7 +64798,7 @@
       "name": "ScheduleCancellationModel",
       "signature": "Symbol ScheduleCancellationModel",
       "sourceFile": "packages/headless/src/modules/contract-product/contract-product.types.ts",
-      "sourceLine": 418,
+      "sourceLine": 610,
       "tsdoc": "The mapper input `scheduleCancellation` builds from the cancellation model (R18)."
     },
     "@upmind-automation/headless!ScheduledAction": {
@@ -64646,7 +64809,7 @@
       "name": "ScheduledAction",
       "signature": "Symbol ScheduledAction",
       "sourceFile": "packages/headless/src/modules/contract-product/contract-product.types.ts",
-      "sourceLine": 141,
+      "sourceLine": 146,
       "tsdoc": "The `scheduled_actions` member this module reads."
     },
     "@upmind-automation/headless!ScopeActor": {
@@ -65042,7 +65205,7 @@
       "name": "SetConsolidationModel",
       "signature": "Symbol SetConsolidationModel",
       "sourceFile": "packages/headless/src/modules/contract-product/contract-product.types.ts",
-      "sourceLine": 413,
+      "sourceLine": 605,
       "tsdoc": "The model `setConsolidation` takes."
     },
     "@upmind-automation/headless!SetPaymentMethodModel": {
@@ -65053,7 +65216,7 @@
       "name": "SetPaymentMethodModel",
       "signature": "Symbol SetPaymentMethodModel",
       "sourceFile": "packages/headless/src/modules/contract/contract.types.ts",
-      "sourceLine": 267,
+      "sourceLine": 260,
       "tsdoc": "The model `setPaymentMethod` takes."
     },
     "@upmind-automation/headless!SettingValue": {
@@ -65075,7 +65238,7 @@
       "name": "SimpleQuery",
       "signature": "Symbol SimpleQuery",
       "sourceFile": "packages/headless/src/modules/query/query.types.ts",
-      "sourceLine": 456,
+      "sourceLine": 463,
       "tsdoc": "The `query()` query's return shape (`useQuery.ts`), parameterised by the raw\nfetch type, the (optionally `select`-mapped) data type and the collection's\nquery model. Extracted from `query`'s own inline return-statement cast for\nthe same reason as ListQuery.\n\nONE shape: sort and filters are the criteria's, so there are no\n`sort()`/`filter()` setters beside QueryCriteriaHandle.setCriteria.\nA plain GET has no page window, so the model's `pagination` branch — if the\ncollection declares one — is honoured in the model and never reaches the\nwire; a collection that pages is a ListQuery."
     },
     "@upmind-automation/headless!SoftCancelModel": {
@@ -65086,7 +65249,7 @@
       "name": "SoftCancelModel",
       "signature": "Symbol SoftCancelModel",
       "sourceFile": "packages/headless/src/modules/contract-product/contract-product.types.ts",
-      "sourceLine": 406,
+      "sourceLine": 598,
       "tsdoc": "The mapper input the two `modify_renew` writes share; `renew` is set by the service."
     },
     "@upmind-automation/headless!SortDirection": {
@@ -65097,7 +65260,7 @@
       "name": "SortDirection",
       "signature": "Enum SortDirection",
       "sourceFile": "packages/headless/src/modules/query/query.types.ts",
-      "sourceLine": 539,
+      "sourceLine": 546,
       "tsdoc": "A sort direction as the MODEL spells it — what a query schema's `dir` enum\ndeclares and a consumer writes. RequestSortDirection is the same fact\nin its wire form; the criteria's translator is the one place that maps\nbetween them."
     },
     "@upmind-automation/headless!StoredOperation": {
@@ -65185,7 +65348,7 @@
       "name": "TICKETS_SCOPE_MATRIX",
       "signature": "TICKETS_SCOPE_MATRIX: object",
       "sourceFile": "packages/headless/src/modules/tickets/tickets.types.ts",
-      "sourceLine": 112,
+      "sourceLine": 113,
       "tsdoc": null
     },
     "@upmind-automation/headless!TICKET_SCOPE_MATRIX": {
@@ -65196,7 +65359,7 @@
       "name": "TICKET_SCOPE_MATRIX",
       "signature": "TICKET_SCOPE_MATRIX: object",
       "sourceFile": "packages/headless/src/modules/tickets/tickets.types.ts",
-      "sourceLine": 145,
+      "sourceLine": 146,
       "tsdoc": "Scope matrix for `useTicket` — every actor `never`.\n\nThe manager retargets NOTHING: the ticket it reads is its `.withId(id)`\ninstance, not a context, and `.for('client', id)` stays forbidden. An\nall-`never` matrix is what makes `.for(...)` unspellable on this composable\nfor every actor, which is the property that used to be carried by granting\n`client` a `ticket` context.\n\n`.as(ScopeActorTypes.CLIENT)` is still the client actor on their own\nsession — this IS the client×self cell. Actor and context are independent\naxes, and only the context axis is empty here."
     },
     "@upmind-automation/headless!TaxesDisplay": {
@@ -65284,7 +65447,7 @@
       "name": "Ticket",
       "signature": "Symbol Ticket",
       "sourceFile": "packages/headless/src/modules/tickets/tickets.types.ts",
-      "sourceLine": 257,
+      "sourceLine": 258,
       "tsdoc": "The mapped ticket row. `ITicket` already carries the corrected field names\n(`settings.lock`, `settings.scheduled_datetime`, `is_delegated_object`) the\nportal mock got wrong (`locked`, `scheduledAt`, `isDelegated`) — no rename\nis owed here. R4 extends `ITicket` additively with `contract_product` /\n`contract_product_id` / `invoice`."
     },
     "@upmind-automation/headless!TicketAttachmentRef": {
@@ -65295,7 +65458,7 @@
       "name": "TicketAttachmentRef",
       "signature": "Symbol TicketAttachmentRef",
       "sourceFile": "packages/headless/src/modules/tickets/tickets.types.ts",
-      "sourceLine": 338,
+      "sourceLine": 344,
       "tsdoc": "The `POST api/ticket_messages/files` upload-response row (FE-3226 R12\ncapture receipt, `tickets.services.ts:603`) — recorded RICHER than the\nlegacy `{id,hash}` reduction: the live row carries 26 fields, `hash`\nincluded (R14 — corrects R12's truncated-probe misreading; `hash` was\nnever absent, only unmodeled). This type models the subset the module\nconsumes; it is a deliberate narrowing, not a claim that the wire row\nhas only these members. `graphify query \"TicketAttachmentRef\"` against\n`graphify-out/graph.json` (2026-09-15) confirms this is the sole existing\ndeclaration (`L214`), so this is a correction, not a new type.\n`packages/types`' `ITicketMessagePayload.files` stays the separate\nrequest-side `{id,hash}` shape (`research.md` Q10) — this type is the\nresponse only, never forced into that request shape or the reverse."
     },
     "@upmind-automation/headless!TicketCreateModel": {
@@ -65306,7 +65469,7 @@
       "name": "TicketCreateModel",
       "signature": "Symbol TicketCreateModel",
       "sourceFile": "packages/headless/src/modules/tickets/tickets.types.ts",
-      "sourceLine": 372,
+      "sourceLine": 378,
       "tsdoc": "AC9 — the create-ticket form model. `body` is optional (R17(b)) — the\nserver requires it only when `files` is absent; `useCreateSchema()`\nenforces the same conditional. `graphify query \"TicketCreateModel\"`\nagainst `graphify-out/graph.json` (2026-09-15) confirms this is the\nsole existing declaration — a correction, not a new type."
     },
     "@upmind-automation/headless!TicketDepartmentOption": {
@@ -65317,7 +65480,7 @@
       "name": "TicketDepartmentOption",
       "signature": "Symbol TicketDepartmentOption",
       "sourceFile": "packages/headless/src/modules/tickets/tickets.types.ts",
-      "sourceLine": 349,
+      "sourceLine": 355,
       "tsdoc": "One selectable desk option for the create form (Z7 — keyed on `ticket_department_id`, never `id`)."
     },
     "@upmind-automation/headless!TicketFeedEntry": {
@@ -65328,7 +65491,7 @@
       "name": "TicketFeedEntry",
       "signature": "Symbol TicketFeedEntry",
       "sourceFile": "packages/headless/src/modules/tickets/tickets.types.ts",
-      "sourceLine": 320,
+      "sourceLine": 326,
       "tsdoc": "The merged feed AC22 renders — messages and status-log rows in one ordered\nsequence, discriminated by `kind`."
     },
     "@upmind-automation/headless!TicketMessage": {
@@ -65339,7 +65502,7 @@
       "name": "TicketMessage",
       "signature": "Symbol TicketMessage",
       "sourceFile": "packages/headless/src/modules/tickets/tickets.types.ts",
-      "sourceLine": 307,
+      "sourceLine": 313,
       "tsdoc": "The mapped message row (no new type minted — confirmed existing at\ngraphify-out/ `TicketMessage tickets.types.ts:178`). `can_manage`,\n`deleted_at` and `client_actor_id` are already the corrected field names\n(AC-PM). `isDeleted` is a derived convenience boolean read off `is_log`\n(Q5, `research.md` §11, resolved by the recorded withdrawal fixture T2 —\nthe wire never populates `deleted_at`)."
     },
     "@upmind-automation/headless!TicketMessageEditModel": {
@@ -65350,7 +65513,7 @@
       "name": "TicketMessageEditModel",
       "signature": "Symbol TicketMessageEditModel",
       "sourceFile": "packages/headless/src/modules/tickets/tickets.types.ts",
-      "sourceLine": 385,
+      "sourceLine": 391,
       "tsdoc": "AC18 — the edit-own-message form model."
     },
     "@upmind-automation/headless!TicketScopeMatrix": {
@@ -65361,7 +65524,7 @@
       "name": "TicketScopeMatrix",
       "signature": "Symbol TicketScopeMatrix",
       "sourceFile": "packages/headless/src/modules/tickets/tickets.types.ts",
-      "sourceLine": 153,
+      "sourceLine": 154,
       "tsdoc": "Scope matrix type for `useTicket` (derived from the runtime const)."
     },
     "@upmind-automation/headless!TicketStatusLog": {
@@ -65372,7 +65535,7 @@
       "name": "TicketStatusLog",
       "signature": "Symbol TicketStatusLog",
       "sourceFile": "packages/headless/src/modules/tickets/tickets.types.ts",
-      "sourceLine": 314,
+      "sourceLine": 320,
       "tsdoc": "One status-log row, mapped from `IHookLog` for the merged feed (AC22)."
     },
     "@upmind-automation/headless!TicketSubjectModel": {
@@ -65383,7 +65546,7 @@
       "name": "TicketSubjectModel",
       "signature": "Symbol TicketSubjectModel",
       "sourceFile": "packages/headless/src/modules/tickets/tickets.types.ts",
-      "sourceLine": 382,
+      "sourceLine": 388,
       "tsdoc": "AC27 — the change-subject form model."
     },
     "@upmind-automation/headless!TicketSupportPrefs": {
@@ -65394,7 +65557,7 @@
       "name": "TicketSupportPrefs",
       "signature": "Symbol TicketSupportPrefs",
       "sourceFile": "packages/headless/src/modules/tickets/tickets.types.ts",
-      "sourceLine": 541,
+      "sourceLine": 547,
       "tsdoc": "AC33 (R7) — the two client-owned support prefs plus the AC3 page size.\n`ui/support/messageSignature` (FE-1931's key) is preserved by the\nread-modify-write but never exposed here."
     },
     "@upmind-automation/headless!TicketsContextTypes": {
@@ -65405,7 +65568,7 @@
       "name": "TicketsContextTypes",
       "signature": "Enum TicketsContextTypes",
       "sourceFile": "packages/headless/src/modules/tickets/tickets.types.ts",
-      "sourceLine": 71,
+      "sourceLine": 72,
       "tsdoc": "Context types for the COLLECTION — which entity the list is read ABOUT.\nThe context names the ENTITY, not its owner: the owning client falls\nthrough the same `resolveClientId` seam as every other call, exactly as\nTicketContextTypes does for the manager.\n\n`PRODUCT` is spelt `\"product\"` because that is the member ADR-001's own\n`ContextType` union already carries (`ADR-001:114` — beside `contract`,\n`invoice`, `order` and the `ticket` this module's manager uses at `:117`),\nand `ADR-001:138`'s availability matrix already grants it to the `client`\nactor (`contract`, `product`, `invoice`, `ticket`). No new vocabulary is\nminted — the enum binds this module to the platform's word for the thing.\n\nIt is a RETARGET member (a bare string, never `selector()`): the id is\nREQUIRED, because the id IS the answer to \"which product\" (ADR-001\namendment 2026-09-15, the retarget/selector split)."
     },
     "@upmind-automation/headless!TicketsFilterModel": {
@@ -65416,7 +65579,7 @@
       "name": "TicketsFilterModel",
       "signature": "Symbol TicketsFilterModel",
       "sourceFile": "packages/headless/src/modules/tickets/tickets.types.ts",
-      "sourceLine": 235,
+      "sourceLine": 236,
       "tsdoc": null
     },
     "@upmind-automation/headless!TicketsQueryModel": {
@@ -65427,7 +65590,7 @@
       "name": "TicketsQueryModel",
       "signature": "Symbol TicketsQueryModel",
       "sourceFile": "packages/headless/src/modules/tickets/tickets.types.ts",
-      "sourceLine": 223,
+      "sourceLine": 224,
       "tsdoc": null
     },
     "@upmind-automation/headless!TicketsScopeMatrix": {
@@ -65438,7 +65601,7 @@
       "name": "TicketsScopeMatrix",
       "signature": "Symbol TicketsScopeMatrix",
       "sourceFile": "packages/headless/src/modules/tickets/tickets.types.ts",
-      "sourceLine": 120,
+      "sourceLine": 121,
       "tsdoc": "Scope matrix type for `useTickets` (derived from the runtime const)."
     },
     "@upmind-automation/headless!TicketsSortModel": {
@@ -65449,7 +65612,7 @@
       "name": "TicketsSortModel",
       "signature": "Symbol TicketsSortModel",
       "sourceFile": "packages/headless/src/modules/tickets/tickets.types.ts",
-      "sourceLine": 236,
+      "sourceLine": 237,
       "tsdoc": null
     },
     "@upmind-automation/headless!TicketsSortableProperties": {
@@ -65460,7 +65623,7 @@
       "name": "TicketsSortableProperties",
       "signature": "Enum TicketsSortableProperties",
       "sourceFile": "packages/headless/src/modules/tickets/tickets.types.ts",
-      "sourceLine": 160,
+      "sourceLine": 161,
       "tsdoc": "Properties the ticket list can be sorted by (`research.md` §2A-ii AC4)."
     },
     "@upmind-automation/headless!Token": {
@@ -65658,7 +65821,7 @@
       "name": "UnpaidInvoice",
       "signature": "Symbol UnpaidInvoice",
       "sourceFile": "packages/headless/src/modules/contract-product/contract-product.types.ts",
-      "sourceLine": 147,
+      "sourceLine": 152,
       "tsdoc": "The `unpaid_recurring_invoices` member this module reads — the row's `invoice_status`, as `status`."
     },
     "@upmind-automation/headless!UploadContext": {
@@ -66945,7 +67108,7 @@
       "name": "UseContractProduct",
       "signature": "Symbol UseContractProduct",
       "sourceFile": "packages/headless/src/modules/contract-product/useContractProduct.ts",
-      "sourceLine": 102,
+      "sourceLine": 325,
       "tsdoc": null
     },
     "@upmind-automation/headless!UseContractProductActions": {
@@ -66956,7 +67119,7 @@
       "name": "UseContractProductActions",
       "signature": "Symbol UseContractProductActions",
       "sourceFile": "packages/headless/src/modules/contract-product/useContractProduct.actions.ts",
-      "sourceLine": 447,
+      "sourceLine": 559,
       "tsdoc": null
     },
     "@upmind-automation/headless!UseContractProductContext": {
@@ -66967,7 +67130,7 @@
       "name": "UseContractProductContext",
       "signature": "Symbol UseContractProductContext",
       "sourceFile": "packages/headless/src/modules/contract-product/useContractProduct.context.ts",
-      "sourceLine": 108,
+      "sourceLine": 151,
       "tsdoc": null
     },
     "@upmind-automation/headless!UseContractProductInternals": {
@@ -66989,7 +67152,7 @@
       "name": "UseContractProductMeta",
       "signature": "Symbol UseContractProductMeta",
       "sourceFile": "packages/headless/src/modules/contract-product/useContractProduct.meta.ts",
-      "sourceLine": 269,
+      "sourceLine": 385,
       "tsdoc": null
     },
     "@upmind-automation/headless!UseContractProducts": {
@@ -67143,7 +67306,7 @@
       "name": "UseInvoice",
       "signature": "Symbol UseInvoice",
       "sourceFile": "packages/headless/src/modules/invoices/useInvoice.ts",
-      "sourceLine": 154,
+      "sourceLine": 166,
       "tsdoc": null
     },
     "@upmind-automation/headless!UseInvoiceActions": {
@@ -67154,7 +67317,7 @@
       "name": "UseInvoiceActions",
       "signature": "Symbol UseInvoiceActions",
       "sourceFile": "packages/headless/src/modules/invoices/useInvoice.actions.ts",
-      "sourceLine": 171,
+      "sourceLine": 192,
       "tsdoc": null
     },
     "@upmind-automation/headless!UseInvoiceContext": {
@@ -67165,7 +67328,7 @@
       "name": "UseInvoiceContext",
       "signature": "Symbol UseInvoiceContext",
       "sourceFile": "packages/headless/src/modules/invoices/useInvoice.context.ts",
-      "sourceLine": 32,
+      "sourceLine": 79,
       "tsdoc": null
     },
     "@upmind-automation/headless!UseInvoiceInternals": {
@@ -67187,7 +67350,7 @@
       "name": "UseInvoiceMeta",
       "signature": "Symbol UseInvoiceMeta",
       "sourceFile": "packages/headless/src/modules/invoices/useInvoice.meta.ts",
-      "sourceLine": 136,
+      "sourceLine": 146,
       "tsdoc": null
     },
     "@upmind-automation/headless!UseInvoices": {
@@ -67440,7 +67603,7 @@
       "name": "UseProductCatalogue",
       "signature": "Symbol UseProductCatalogue",
       "sourceFile": "packages/headless/src/modules/product-catalogue/useProductCatalogue.ts",
-      "sourceLine": 274,
+      "sourceLine": 289,
       "tsdoc": "The return type of the useProductCatalogue composable function."
     },
     "@upmind-automation/headless!UseProductCategories": {
@@ -67924,7 +68087,7 @@
       "name": "anniversaryAnchor",
       "signature": "anniversaryAnchor(product: Pick<ContractProduct, \"nextDueDate\" | \"billingCycleMonths\">): AnniversaryAnchor | null",
       "sourceFile": "packages/headless/src/modules/contract-product/contract-product.utils.ts",
-      "sourceLine": 221,
+      "sourceLine": 245,
       "tsdoc": "The anchor for every future-cancellation calculation: `next_due_date` plus\nthe billing cycle length. `null` when either input is missing."
     },
     "@upmind-automation/headless!anniversaryAtCycle": {
@@ -67935,7 +68098,7 @@
       "name": "anniversaryAtCycle",
       "signature": "anniversaryAtCycle(product: Pick<ContractProduct, \"nextDueDate\" | \"billingCycleMonths\">, cycles: number): Dayjs | null",
       "sourceFile": "packages/headless/src/modules/contract-product/contract-product.utils.ts",
-      "sourceLine": 232,
+      "sourceLine": 256,
       "tsdoc": "The anniversary date at a given cycle count off the product's own anchor."
     },
     "@upmind-automation/headless!anniversaryCycleForDate": {
@@ -67946,7 +68109,7 @@
       "name": "anniversaryCycleForDate",
       "signature": "anniversaryCycleForDate(product: Pick<ContractProduct, \"nextDueDate\" | \"billingCycleMonths\">, date: string | Date): number | null",
       "sourceFile": "packages/headless/src/modules/contract-product/contract-product.utils.ts",
-      "sourceLine": 269,
+      "sourceLine": 293,
       "tsdoc": "Which cycle `date` lands on off the product's anchor, or `null` when it isn't an exact multiple of the billing cycle."
     },
     "@upmind-automation/headless!applyConfigDefaults": {
@@ -67957,7 +68120,7 @@
       "name": "applyConfigDefaults",
       "signature": "applyConfigDefaults(baseModel: ProductProps, raw: IProduct): ProductProps",
       "sourceFile": "packages/headless/src/modules/product/product.services.ts",
-      "sourceLine": 70,
+      "sourceLine": 71,
       "tsdoc": "Synchronous wrapper around the canonical `useProductConfigSchema +\nuseModelParser` pipeline. Hydrates `baseModel` with any defaults the\nschema declares for `term` / `options` / `attributes` based on the raw\n`IProduct` — same machinery the configurator's `parse` service uses\n(`product/services.ts:289-290`), but without the async\n`loadProvisioningFields` step. For typical TLD-style products with no\nrequired option/attribute categories this is effectively a clone of\n`baseModel`; the value is in keeping all basket-add paths consistent\nso a brand configuring a required category doesn't 422 the add.\n\nReturns `baseModel` unchanged (cloned) when `raw` is undefined or has\nan unparseable shape (e.g. a malformed product from domain suggestion\nresults). This is the documented safe behavior — the function never\nthrows on malformed input."
     },
     "@upmind-automation/headless!authSubscription": {
@@ -68067,7 +68230,7 @@
       "name": "createDataProxy",
       "signature": "createDataProxy(dataItems: Ref<DataItems>, source: Ref<Record<string, any> | undefined, Record<string, any> | undefined>): DataProxy",
       "sourceFile": "packages/headless/src/modules/config/config.utils.ts",
-      "sourceLine": 211,
+      "sourceLine": 212,
       "tsdoc": "Creates a reactive proxy for data meta properties.\n\nEach property is a direct computed value (no helpers needed)\n- Unlike UI meta, these are simple key-value pairs\n- No additional helper methods like isVisible/isHidden\n\nWhy reactive() on the whole object?\n- Each property is a DIRECT computed value, not an object\n- Wrapping the entire result in reactive() auto-unwraps all computed refs\n- Allows usage like `data.productName` instead of `data.productName.value`\n\nTemplate usage: `data.productName`, `data.categoryName`"
     },
     "@upmind-automation/headless!createEndpointNodes": {
@@ -68100,7 +68263,7 @@
       "name": "createUIMetaProxy",
       "signature": "createUIMetaProxy(metaItems: Ref<MetaItems>, conditionState: Ref<Partial<Record<ConditionStateKey, string | number | boolean | unknown[]>>, Partial<Record<ConditionStateKey, string | number | boolean | unknown[]>>>): UIMetaProxy",
       "sourceFile": "packages/headless/src/modules/config/config.utils.ts",
-      "sourceLine": 156,
+      "sourceLine": 157,
       "tsdoc": "Creates a reactive proxy for UI meta properties.\n\nEach property becomes an object with multiple sub-properties:\n- `value`: the resolved value after scope cascade\n- Helper booleans based on type (e.g., visibility → isVisible, isHidden)\n\nWhy reactive() per property?\n- Each property is an OBJECT containing { value, ...helpers }\n- Wrapping each in reactive() auto-unwraps computed refs in templates\n- Allows usage like `ui.breadcrumbs.isHidden` instead of `ui.breadcrumbs.isHidden.value`\n\nTemplate usage: `ui.breadcrumbs.isHidden`, `ui.productDescription.value`"
     },
     "@upmind-automation/headless!dataManagerMachine": {
@@ -68375,7 +68538,7 @@
       "name": "initializeMeta",
       "signature": "initializeMeta(options: MetaInput): object",
       "sourceFile": "packages/headless/src/modules/config/config.utils.ts",
-      "sourceLine": 77,
+      "sourceLine": 78,
       "tsdoc": "Initializes both UI meta and data items from raw meta at each scope level.\nParses raw API data into typed scope items for the resolution engine."
     },
     "@upmind-automation/headless!injectConfig": {
@@ -68386,8 +68549,8 @@
       "name": "injectConfig",
       "signature": "injectConfig(): UseMetaResult | undefined",
       "sourceFile": "packages/headless/src/modules/config/config.utils.ts",
-      "sourceLine": 580,
-      "tsdoc": null
+      "sourceLine": 582,
+      "tsdoc": "The config a parent provided, or `undefined` outside a setup/injection context (a mapper, a query callback)."
     },
     "@upmind-automation/headless!invalidateQueryByKey": {
       "id": "@upmind-automation/headless!invalidateQueryByKey",
@@ -68441,7 +68604,7 @@
       "name": "isCancellable",
       "signature": "isCancellable(invoice: UnpaidInvoice): boolean",
       "sourceFile": "packages/headless/src/modules/contract-product/contract-product.utils.ts",
-      "sourceLine": 324,
+      "sourceLine": 348,
       "tsdoc": "True while cancelling the invoice still means anything."
     },
     "@upmind-automation/headless!isConditionalValue": {
@@ -68485,7 +68648,7 @@
       "name": "isDue",
       "signature": "isDue(invoice: UnpaidInvoice): boolean",
       "sourceFile": "packages/headless/src/modules/contract-product/contract-product.utils.ts",
-      "sourceLine": 319,
+      "sourceLine": 343,
       "tsdoc": "True while the invoice still carries an outstanding balance."
     },
     "@upmind-automation/headless!isNetworkError": {
@@ -68507,7 +68670,7 @@
       "name": "isSelectableFutureCancellationDate",
       "signature": "isSelectableFutureCancellationDate(product: Pick<ContractProduct, \"nextDueDate\" | \"billingCycleMonths\">, date: string | Date): boolean",
       "sourceFile": "packages/headless/src/modules/contract-product/contract-product.utils.ts",
-      "sourceLine": 287,
+      "sourceLine": 311,
       "tsdoc": "Whether `date` is a valid future-cancellation anniversary: an exact cycle, on or after `minFutureCancellationDate`."
     },
     "@upmind-automation/headless!localStoragePersister": {
@@ -68573,8 +68736,19 @@
       "name": "mapContractProduct",
       "signature": "mapContractProduct(raw: IContractProduct): ContractProduct",
       "sourceFile": "packages/headless/src/modules/contract-product/contract-product.mappers.ts",
-      "sourceLine": 197,
+      "sourceLine": 210,
       "tsdoc": "Maps one wire record to the view model, deriving the two shared readings once."
+    },
+    "@upmind-automation/headless!mapContractProductEmbedded": {
+      "id": "@upmind-automation/headless!mapContractProductEmbedded",
+      "kind": "Function",
+      "lessons": [],
+      "module": "contract-product",
+      "name": "mapContractProductEmbedded",
+      "signature": "mapContractProductEmbedded(raw: IContractProduct): ContractProductEmbedded",
+      "sourceFile": "packages/headless/src/modules/contract-product/contract-product.mappers.ts",
+      "sourceLine": 220,
+      "tsdoc": "One embedded product off a read that does not carry `allowed_migrations` or\nthe parent `contract` relation: `mapContractProduct` without the members that\nread them, so the runtime matches `ContractProductEmbedded`. The `contract`\nread and the `tickets` single read both embed a product this way."
     },
     "@upmind-automation/headless!mapCustomField": {
       "id": "@upmind-automation/headless!mapCustomField",
@@ -68650,7 +68824,7 @@
       "name": "mapInvoice",
       "signature": "mapInvoice(raw: IInvoice, readingClientId: string): Invoice",
       "sourceFile": "packages/headless/src/modules/invoices/invoices.mappers.ts",
-      "sourceLine": 75,
+      "sourceLine": 78,
       "tsdoc": "Maps one raw invoice to the VM. `readingClientId` is OPTIONAL, but it is\nNOT reader-independent for every attribution flag: `isDelegated` is\ncomputed from `raw` alone (`!parentClientId && !!raw.delegate_related`,\nsee mapAttribution) and does not depend on `readingClientId` at\nall. Only `isChildOfClient` (and, through it, `isOwn`/`isSettleable`) is\nconservative-by-default when `readingClientId` is absent.\n`orders/order.machine.ts:176` calls this with one argument, so a\n`delegate_related` invoice with no parent client maps `isDelegated: true`\nfrom that call site too (design D2 — `orders/` is protected core and is\nnot changed by this module)."
     },
     "@upmind-automation/headless!mapInvoices": {
@@ -68661,7 +68835,7 @@
       "name": "mapInvoices",
       "signature": "mapInvoices(raw: IInvoice | IInvoice[], readingClientId: string): Invoice[]",
       "sourceFile": "packages/headless/src/modules/invoices/invoices.mappers.ts",
-      "sourceLine": 56,
+      "sourceLine": 59,
       "tsdoc": "Maps one or many raw invoices to the VM. `readingClientId` — the scope's\nresolved target — is supplied by the services layer's `select:` closure and\ndrives the co-mingled row Invoice.attribution (AC13)."
     },
     "@upmind-automation/headless!mapSessionUser": {
@@ -68716,7 +68890,7 @@
       "name": "minFutureCancellationCycle",
       "signature": "minFutureCancellationCycle(product: Pick<ContractProduct, \"nextDueDate\" | \"billingCycleMonths\">): number | null",
       "sourceFile": "packages/headless/src/modules/contract-product/contract-product.utils.ts",
-      "sourceLine": 243,
+      "sourceLine": 267,
       "tsdoc": "The earliest cycle a client may schedule for: the next anniversary strictly after today."
     },
     "@upmind-automation/headless!minFutureCancellationDate": {
@@ -68727,7 +68901,7 @@
       "name": "minFutureCancellationDate",
       "signature": "minFutureCancellationDate(product: Pick<ContractProduct, \"nextDueDate\" | \"billingCycleMonths\">): string | null",
       "sourceFile": "packages/headless/src/modules/contract-product/contract-product.utils.ts",
-      "sourceLine": 257,
+      "sourceLine": 281,
       "tsdoc": "The earliest selectable future-cancellation date, as a wire date string."
     },
     "@upmind-automation/headless!normalizeValue": {
@@ -68793,7 +68967,7 @@
       "name": "parseNumericValue",
       "signature": "parseNumericValue(value: string | undefined): number | undefined",
       "sourceFile": "packages/headless/src/modules/config/config.utils.ts",
-      "sourceLine": 436,
+      "sourceLine": 437,
       "tsdoc": "Extracts leading numeric value from a string.\ne.g., \"2-col\" → 2, \"3\" → 3, \"none\" → undefined"
     },
     "@upmind-automation/headless!parsePrice": {
@@ -68870,7 +69044,7 @@
       "name": "provideConfig",
       "signature": "provideConfig(config: UseMetaResult): void",
       "sourceFile": "packages/headless/src/modules/config/config.utils.ts",
-      "sourceLine": 576,
+      "sourceLine": 577,
       "tsdoc": null
     },
     "@upmind-automation/headless!queryClient": {
@@ -68958,7 +69132,7 @@
       "name": "replaceDataVariables",
       "signature": "replaceDataVariables(template: string | undefined, data: Record<string, any> | undefined): string | undefined",
       "sourceFile": "packages/headless/src/modules/config/config.utils.ts",
-      "sourceLine": 383,
+      "sourceLine": 384,
       "tsdoc": "Interpolates template variables with values from data object.\ne.g., \"{{ name }} - {{ service_identifier }}\" → \"Product - abc123\"\nMissing variables and orphaned braces are removed."
     },
     "@upmind-automation/headless!resetQueryByKey": {
@@ -69310,7 +69484,7 @@
       "name": "useCachedRef",
       "signature": "useCachedRef(source: ComputedRef<T | undefined>): ComputedRef<T | undefined>",
       "sourceFile": "packages/headless/src/modules/config/config.utils.ts",
-      "sourceLine": 588,
+      "sourceLine": 590,
       "tsdoc": "Creates a computed ref that caches the last truthy value.\nWhen the source becomes undefined/null, returns the cached value instead."
     },
     "@upmind-automation/headless!useClientAddressManager": {
@@ -69563,7 +69737,7 @@
       "name": "useContractProduct",
       "signature": "useContractProduct: ScopedComposable<object, object>",
       "sourceFile": "packages/headless/src/modules/contract-product/useContractProduct.ts",
-      "sourceLine": 97,
+      "sourceLine": 320,
       "tsdoc": "Scoped composable for ONE contract product."
     },
     "@upmind-automation/headless!useContractProducts": {
@@ -69717,7 +69891,7 @@
       "name": "useInvoice",
       "signature": "useInvoice: ScopedComposable<object, object>",
       "sourceFile": "packages/headless/src/modules/invoices/useInvoice.ts",
-      "sourceLine": 148,
+      "sourceLine": 160,
       "tsdoc": "Scoped composable for one invoice, read and paid."
     },
     "@upmind-automation/headless!useInvoices": {
@@ -69871,7 +70045,7 @@
       "name": "useProductCatalogue",
       "signature": "useProductCatalogue(initial: Partial<ProductQueryModel> & object): object",
       "sourceFile": "packages/headless/src/modules/product-catalogue/useProductCatalogue.ts",
-      "sourceLine": 35,
+      "sourceLine": 37,
       "tsdoc": "A composable function that manages the product catalogue.\nIt provides methods to filter, sort, and retrieve products from the catalogue."
     },
     "@upmind-automation/headless!useProductCategories": {

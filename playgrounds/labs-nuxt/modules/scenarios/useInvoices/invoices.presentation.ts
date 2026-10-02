@@ -7,31 +7,16 @@
  */
 
 import { ActionPlacementTypes, CardSlotTypes } from "../runtime/scenario.types";
+import { invoiceAttributionBadges } from "../useInvoice/invoice.summary";
 import type {
   ActionsUischema,
   CardUischema,
   DetailUischema,
   MetaNoticeElement,
-  TableBadge,
   TableUischema
 } from "../runtime/scenario.types";
 
 // -----------------------------------------------------------------------------
-
-const ATTRIBUTION_BADGES: TableBadge[] = [
-  { flag: "isOwn", i18n: "invoices.badge.own", color: "neutral" },
-  {
-    flag: "isChildOfClient",
-    i18n: "invoices.badge.child_of_client",
-    color: "info"
-  },
-  { flag: "isDelegated", i18n: "invoices.badge.delegated", color: "warning" },
-  {
-    flag: "isSettleable",
-    i18n: "invoices.badge.settleable",
-    color: "success"
-  }
-];
 
 export const tableUischema: TableUischema = {
   type: "TableLayout",
@@ -43,7 +28,7 @@ export const tableUischema: TableUischema = {
     },
     {
       type: "TableCellText",
-      scope: "#/properties/status",
+      scope: "#/properties/statusName",
       i18n: "invoices.table.status"
     },
     {
@@ -60,7 +45,7 @@ export const tableUischema: TableUischema = {
       type: "TableCellBadges",
       scope: "#/properties/attribution",
       i18n: "invoices.table.attribution",
-      options: { badges: ATTRIBUTION_BADGES }
+      options: { badges: invoiceAttributionBadges }
     },
     {
       type: "TableCellText",
@@ -104,11 +89,11 @@ export const cardUischema: CardUischema = {
       type: "TableCellBadges",
       scope: "#/properties/attribution",
       i18n: "invoices.table.attribution",
-      options: { badges: ATTRIBUTION_BADGES, slot: CardSlotTypes.TITLE }
+      options: { badges: invoiceAttributionBadges, slot: CardSlotTypes.TITLE }
     },
     {
       type: "TableCellText",
-      scope: "#/properties/status",
+      scope: "#/properties/statusName",
       i18n: "invoices.table.status",
       options: { slot: CardSlotTypes.TITLE }
     },

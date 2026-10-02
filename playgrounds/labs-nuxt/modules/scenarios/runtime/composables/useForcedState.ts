@@ -66,6 +66,7 @@ import type {
   ForceWorker,
   UseForcedState
 } from "./useForcedState.types";
+import type { createForceHandlers } from "../force/handlers";
 import type { ForcedState } from "../force/states.types";
 import type { FeatureScenario } from "@upmind-automation/scenario-harness";
 
@@ -178,7 +179,9 @@ function create(): ForcedStateHandle {
    * each scene then arms its own step (`replayStep`); every other preset is
    * answered from the module's corpus.
    */
-  async function handlersFor(preset: ForcePreset) {
+  async function handlersFor(
+    preset: ForcePreset
+  ): Promise<ReturnType<typeof createForceHandlers>> {
     const { createForceHandlers, createScenarioWall, createStepHandlers } =
       await import("../force/handlers");
     const { runtimeRecordsScenarios, runtimeStepFixtures } =

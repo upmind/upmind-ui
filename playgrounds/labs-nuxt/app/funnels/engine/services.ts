@@ -15,7 +15,7 @@ import {
 import { InvoiceStatus } from "@upmind-automation/types";
 import { ROUTE } from "..";
 import { scenarioRoutes } from "../../../modules/scenarios/runtime/registry";
-import { intentOverlayTarget } from "../labs";
+import { intentOverlayTarget, intentRefusedTarget } from "../labs";
 import { INIT_INTENT_OVERLAY, InitIntent } from "../labs.constants";
 import {
   endsWith,
@@ -134,7 +134,8 @@ async function guardScenario({
 /**
  * `?init=<intent>` — the EMAIL's instruction to the screen. It reads the param,
  * waits for that screen's own data to settle, decides per value, and rejects
- * with the overlay child which answers the intent. It opens nothing itself: the
+ * with the overlay child which answers the intent — or, refused, with the page
+ * itself minus the param. It opens nothing itself: the
  * funnel assigns the target and the middleware navigates it, the exercised
  * `guardAuthenticated` → `authOverlayTarget` shape.
  *
@@ -154,15 +155,16 @@ async function guardInitIntent({
   if (!intent) return { type: FunnelActions.NEXT };
 
   const overlay = get(INIT_INTENT_OVERLAY, toString(intent));
-  const settle: Promise<FunnelResponse> = overlay
-    ? admitsIntent(intent as InitIntent, route).then(admits => {
-        if (!admits) return { type: FunnelActions.NEXT };
-        const redirect: FunnelResponse = {
-          target: intentOverlayTarget(route, overlay)
-        };
-        return Promise.reject<FunnelResponse>(redirect);
-      })
-    : Promise.resolve({ type: FunnelActions.NEXT });
+  const admits = overlay
+    ? admitsIntent(intent as InitIntent, route)
+    : Promise.resolve(false);
+  const settle = admits.then(admitted =>
+    Promise.reject<FunnelResponse>({
+      target: admitted
+        ? intentOverlayTarget(route, overlay)
+        : intentRefusedTarget(route)
+    })
+  );
   return settle.finally(() => {
     // The playground's ONE url writer, and `undefined` is its clear sentinel.
     // `useQueryParams().unsetParam` writes `window.location` behind the bag,

@@ -337,7 +337,6 @@ personal-details:
     by the client custom fields composables.
   referents:
     - { type: symbol, id: "@upmind-automation/headless!usePersonalDetails" }
-    - { type: symbol, id: "@upmind-automation/headless!usePersonalDetailsManager" }
     - { type: symbol, id: "@upmind-automation/headless!ProfileModel" }
 
 phone:

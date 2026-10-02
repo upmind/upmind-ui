@@ -30,9 +30,10 @@ const i18n = useFormI18n();
 
 const badges = computed<TableBadge[]>(() => {
   const value = resolveScope(props.row, props.element.scope);
-  return filter(
-    props.element.options.badges,
-    badge => !!get(value, badge.flag)
+  return filter(props.element.options.badges, badge =>
+    badge.scope
+      ? !!resolveScope(props.row, badge.scope)
+      : !!get(value, badge.flag)
   );
 });
 </script>

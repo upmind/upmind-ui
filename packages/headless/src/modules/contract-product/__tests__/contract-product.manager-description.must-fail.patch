@@ -13,23 +13,21 @@
 diff --git a/packages/headless/src/modules/contract-product/useContractProduct.context.ts b/packages/headless/src/modules/contract-product/useContractProduct.context.ts
 --- a/packages/headless/src/modules/contract-product/useContractProduct.context.ts
 +++ b/packages/headless/src/modules/contract-product/useContractProduct.context.ts
-@@ -45,9 +45,6 @@ export function createContractProductContext(
+@@ -53,8 +53,6 @@
    /** Display title of the product — derived off the view model, as `scheduledActions` is. */
    const title = computed(() => contractProduct.value?.name);
  
 -  /** Description of the product — derived off the raw wire record, as `scheduledActions` is. */
 -  const description = computed(() => contractProduct.value?.raw?.description);
--
-   return {
-     /** The open cancellation form: `schema`, `uischema` and the parsed `model`. */
-     cancellation: useContext<ContractProductForm | undefined>(
-@@ -70,9 +67,6 @@ export function createContractProductContext(
+ 
+   const allowedMigrations = computed<IProductMigration[]>(
+     () => contractProduct.value?.allowedMigrations ?? []
+@@ -85,8 +83,6 @@
      /** The mapped contract product. */
      contractProduct,
  
 -    /** Display description of the product. */
 -    description,
--
+ 
      /** Machine-captured error, if any — read, never raised. */
      error: useContext<ResponseError | undefined>(state, "error"),
- 

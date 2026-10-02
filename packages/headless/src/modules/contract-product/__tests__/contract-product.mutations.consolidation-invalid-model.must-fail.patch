@@ -26,27 +26,22 @@
 # Apply with:  git apply <this file>   (run from repo root)
 # Revert with: git apply -R <this file>
 diff --git a/packages/headless/src/modules/contract-product/useContractProduct.actions.ts b/packages/headless/src/modules/contract-product/useContractProduct.actions.ts
-index 16833ff01..2945ad6e3 100644
 --- a/packages/headless/src/modules/contract-product/useContractProduct.actions.ts
 +++ b/packages/headless/src/modules/contract-product/useContractProduct.actions.ts
-@@ -16,7 +16,6 @@ import {
+@@ -16,7 +16,7 @@
    stopService,
    waitForProcessing
  } from "../../utils";
--import { isNil } from "lodash-es";
+-import { find, isNil } from "lodash-es";
++import { find } from "lodash-es";
  import type {
    CancellationModel,
    ContractProduct,
-@@ -201,12 +200,6 @@ export function createContractProductActions(
-    * @returns the re-read product, or `false` when the node refused the event.
-    */
-   async function submitConsolidation(): Promise<ContractProduct | false> {
--    const model = contextValue<SetConsolidationModel>(
--      state,
--      "consolidation.model"
--    );
+@@ -212,7 +212,6 @@
+       state,
+       "consolidation.model"
+     );
 -    if (isNil(model?.invoiceConsolidationEnabled)) return false;
--
-     send({ type: "SET_CONSOLIDATION" });
-     if (!stateMatches(state, "available.consolidating.processing")) {
-       return false;
+     if (
+       model.invoiceConsolidationEnabled ===
+       contextValue<number>(

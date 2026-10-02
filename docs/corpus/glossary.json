@@ -231,10 +231,6 @@
             "type": "symbol"
           },
           {
-            "id": "@upmind-automation/headless!usePersonalDetailsManager",
-            "type": "symbol"
-          },
-          {
             "id": "@upmind-automation/headless!ProfileModel",
             "type": "symbol"
           }
@@ -569,12 +565,6 @@
       "module": "client-personal-details",
       "path": "packages/headless/src/modules/client-personal-details/usePersonalDetails.ts",
       "title": "usePersonalDetails"
-    },
-    "@upmind-automation/headless!usePersonalDetailsManager": {
-      "kind": "symbol",
-      "module": "client-personal-details",
-      "path": "packages/headless/src/modules/client-personal-details/usePersonalDetailsManager.ts",
-      "title": "usePersonalDetailsManager"
     },
     "@upmind-automation/headless!useProductCatalogue": {
       "kind": "symbol",

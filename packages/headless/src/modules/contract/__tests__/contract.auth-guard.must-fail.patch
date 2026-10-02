@@ -1,7 +1,8 @@
-# STALE (FE-3145): `git apply --check` rejects this mutant against the
-#   current source; it needs re-authoring before it can prove anything.
-#
 # Negative-control mutant — contract auth guard (AC-16)
+#
+# RE-CUT (FE-3206): `createContractServices`'s return object gained a `lookups:`
+#   member between `refresh,` and `...scopedServices`, which shifted the trailing
+#   context. The mutation is unchanged — only the hunk is rebased.
 #
 # Scenario it must flip: contract.feature >
 #   "Nothing is read or changed on my contracts without an authenticated client session"
@@ -16,10 +17,9 @@
 # Apply with:  git apply <this file>   (run from repo root)
 # Revert with: git apply -R <this file>
 diff --git a/packages/headless/src/modules/contract/contract.services.ts b/packages/headless/src/modules/contract/contract.services.ts
-index 22a13db00..26fb6c8e8 100644
 --- a/packages/headless/src/modules/contract/contract.services.ts
 +++ b/packages/headless/src/modules/contract/contract.services.ts
-@@ -239,7 +239,7 @@ export const createContractServices = (
+@@ -311,7 +311,7 @@ export const createContractServices = (
    return {
      queryKey,
      clientId,
@@ -27,4 +27,4 @@ index 22a13db00..26fb6c8e8 100644
 +    isAvailable: computed(() => true),
      loadList: () => loadList(scopeContext),
      refresh,
-     ...scopedServices(scopeActor, scopeContext)
+     lookups: {

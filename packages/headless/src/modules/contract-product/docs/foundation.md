@@ -18,6 +18,7 @@ Cancellation of every kind is this module's responsibility, not the contract's: 
   - **Scheduled (future-dated) cancellation** — a subscription client can additionally book an exact future date on which the product will be cancelled, and can revoke that booking before it fires. A future date is only valid when it lands exactly on one of the product's own billing anniversaries (its next due date, or that date plus a whole number of billing cycles) and is not earlier than the next anniversary strictly after today; the module publishes the maths to compute and validate that date, it does not enumerate every valid date itself.
   - **The whole form disappears, rather than offering a refused option, once**: the subscription has already stopped renewing with a calculated end date (auto-expiring), a hard request is already pending, or a future cancellation is already booked. Each of the three options additionally has its own narrower condition (a live subscription that is not already pending, for the soft and scheduled options; the platform's own cancellable flag, for the hard option; a computable billing anniversary, for the scheduled option).
 - **Invoice consolidation** — a subscription client can choose whether this product's future invoices are billed together with the rest of the contract's invoices, or kept separate. The form is offered only to a live (not staged), non-cancelled, non-lapsed subscription whose client-level consolidation preference is enabled or inherited and whose catalogue product itself allows consolidation.
+- **Change of plan** — a client can move a recurring single product to another plan its current plan allows, on the same billing term. The offer requires that the platform allows a modification, the product is active or suspended, plans are allowed, no hard cancellation request is pending, auto-expire is not set, the product is not a staged import and no pro-rata invoice from an earlier change is unpaid. The client picks a plan from a paged list, adjusts its options, sees the cost of the change from a dry run, and commits. The platform judges the commit; local validation does not gate it. The result is the invoice the change raised and whether an amount is left to pay. The plan's provision fields and trial choice are not offered.
 - **Unpaid invoices** — a contract product carries its own list of recurring invoices that are currently outstanding; each is independently reported as "still due" or "still eligible to be cancelled", which are overlapping but not identical states (an adjusted invoice, for example, is still due but is no longer cancellable).
 
 ## Operations
@@ -39,6 +40,9 @@ Cancellation of every kind is this module's responsibility, not the contract's: 
 | 13  | **Compute the valid future-cancellation date range**                              | the product's billing facts, and (to validate one) a candidate date | The earliest bookable date, and whether a given date lands on a valid anniversary        |
 | 14  | **Judge an unpaid invoice's due/cancellable state**                               | one invoice                                                     | Whether it is still due, and whether it is still eligible to be included in a cancellation    |
 | 15  | **Include or exclude delegated products from the list**                           | a client-held choice, or an explicit request to turn exclusion off | The list scope changes accordingly — delegated products join the client's own, never replace them. Always excluded when nothing is delegated |
+| 16  | **Read how many plans a product can change to**                                     | the product's allowed plans                                      | A count of orderable, recurring plans in the contract's currency |
+| 17  | **List the plans a product can change to, and price a change**                    | a chosen plan and its options                                    | A paged list of plans on the current term; for a chosen plan, the cost of the change from a dry run (absent when the platform cannot price the choice) |
+| 18  | **Commit a change of plan**                                                       | the chosen plan and its options                                  | The invoice the change raised, and whether an amount is left to pay; the re-read product reflects the change |
 
 **Additional always-on behaviours:**
 
@@ -69,6 +73,8 @@ type ContractProduct = {
   status?: { code: ContractStatusCodes }; // one of the published contract-product status codes
   /** The owning contract's own status code — the hard-cancellation gate reads it (a hard request cannot be opened on a pending contract). */
   contractStatus?: ContractStatusCodes;
+  /** The owning contract's translated billing-cycle label (from the contract's own `billing_cycle_months`) — the product record's "Contract billing cycle"; "One time" for a one-off contract. `undefined` when the read carries no contract relation. */
+  contractBillingCycleLabel?: string;
   stagedImport: boolean;
   /** `id` is the pending request's own id — withdrawing a hard cancellation sends it back. */
   contractRequest?: { id?: string; status?: { code: CancellationRequestStatusCodes } };
@@ -179,6 +185,7 @@ The wire record underneath (`GET .../contract_products/{id}`) carries a `tags` a
 | Module     | What it uses                                                                                     |
 | ---------- | -------------------------------------------------------------------------------------------------- |
 | `contract` | Maps a contract's embedded `products` relation through this module's own mapper, and types that relation against this module's view model. A contract cannot represent its own product line items without this module. |
+| `tickets` | Maps a ticket's linked `contract_product` (single read only) through `mapContractProductEmbedded` and types it as `ContractProductEmbedded`, both imported via the barrel. A ticket cannot present its linked product without this module. |
 
 ### This module's own dependencies
 
@@ -186,7 +193,11 @@ The wire record underneath (`GET .../contract_products/{id}`) carries a `tags` a
 - **HTTP transport / query layer** — request construction, response caching, cache invalidation on write, and pagination and criteria handling for the collection's list.
 - **Client personal details (preferences)** — the client's held choice for whether delegated products are excluded from their own list; this module owns the meaning of that preference, the personal-details surface owns the storage channel.
 - **Localisation** — the human-readable failure messages returned when a write does not succeed.
+- **Product configurator** — the product module's configurator, spawned for the plan a client chooses in a change of plan.
+- **Product catalogue** — the plan count and the paged plan list of a change of plan.
+- **Invoices** — the invoice mapper that maps a change of plan's dry-run invoice.
 - **Brand** — the portal brand's tax type (for the formatted price) and its one-off-purchases visibility setting (for the forced hide).
+- **Lookups** — the shared lookup-item shape that status, tag and currency fields of the product view model are typed against (type only).
 - **Product titles** — the shared product title and product name rules the display title is built from.
 
 ## API endpoints
@@ -333,6 +344,19 @@ curl -X DELETE "$API/contracts/$CONTRACT_ID/cancel/request" \
 
 Fixture: `delete-contracts-id-cancel-request.json` — recorded under the sibling `contract` module's fixtures; the recorded capture is a `404` (no live pending request to withdraw at capture time), so a 200 success shape is not yet on file.
 
+### PUT /contracts/{contractId}/products/{contractProductId}/change
+
+Role: prices (with `dry_run`) or commits a change of plan.
+
+```bash
+curl -X PUT "$API/contracts/$CONTRACT_ID/products/$CONTRACT_PRODUCT_ID/change" \
+  -H "Authorization: Bearer $ACCESS_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"contract_id": "<id>", "contracts_product_id": "<id>", "product": {"product_id": "<target id>", "billing_cycle_months": 1}, "options": [], "attributes": [], "dry_run": true}'
+```
+
+The body names the chosen plan, one entry per chosen option (with its term, quantity and, only when it differs from the old price, a price) and one per attribute. The commit sends the same body without `dry_run`. The response is the invoice the change raised.
+
 ## Failure modes
 
 - **An unauthenticated or unaddressable caller** — every read and write rejects rather than silently returning nothing, so a caller cannot mistake "not signed in" for "the client has no products".
@@ -341,6 +365,8 @@ Fixture: `delete-contracts-id-cancel-request.json` — recorded under the siblin
 - **A second write while one is already in flight** — the module resolves the product to one definite state before accepting the next write; a caller that fires a second write while the first is still processing is left to the same one-write-at-a-time discipline the platform enforces generally.
 - **Submitting the open form with an invalid selection** — the module validates the open form's model against its own schema before any request leaves; an invalid model (a missing required field, a `SCHEDULE_FUTURE` option with no date) never reaches the server at all, and the form's own error state reports the rejection.
 - **A permission check this module does not make** — the platform's own cancellation and consolidation permission model is not read here at all: the module offers every option its record facts allow, with no separate permission read behind it (see Lessons).
+- **A dry run that fails** — the module shows no cost and raises no error; the commit stays available and the platform judges it.
+- **A commit refused by the platform** — the write rejects and the form stays open on the chosen plan with its error.
 
 ## Lessons (hard-won)
 

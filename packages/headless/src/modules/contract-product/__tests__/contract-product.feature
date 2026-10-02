@@ -61,10 +61,15 @@
 # than a composable of its own. @AC-15 is unchanged in scope and keeps its
 # mutant.
 #
-# TRACEABILITY. Every @AC-n tag resolves 1:1 to an acceptance criterion in
-# `design ✅.md`. No tag is dropped, renamed or renumbered from the carried set
-# this file now owns, and AC-22/AC-23 are newly scheduled here under ruling
-# R18 (`design ✅.md` §8.3, flow.md §3's two added self-transitions).
+# TRACEABILITY. Every @AC-n tag resolves 1:1 to an acceptance criterion.
+# @AC-1 to @AC-25 resolve to `design ✅.md` of FE-3029. No tag is dropped,
+# renamed or renumbered from the carried set this file now owns, and
+# AC-22/AC-23 are newly scheduled here under ruling R18 (`design ✅.md` §8.3,
+# flow.md §3's two added self-transitions).
+# @AC-26 to @AC-34 resolve to `docs/sdd/FE-3206/requirements.md`, the change
+# of plan (FE-3206, CT-2). Its design is `docs/sdd/FE-3206/design.md` and its
+# state model is `docs/sdd/FE-3206/flow.md`. If the plan verdict adds a
+# glyph to a file or folder name, cite the name as it sits on disk.
 #
 # NEGATIVE CONTROLS. Each @negative-control scenario names the mutation that
 # must turn it RED in a COMMENT directly above the scenario (amendment A2) —
@@ -1027,3 +1032,368 @@ Feature: A client manages the products on their own contracts
   # The FE-3029 subscription-type-toggle and sort twins (see-only-subscriptions,
   # see-only-one-time, see-every-type, order-by-next-due) were DELETED — they
   # duplicate the AC-1 subscription-type-toggle and order outlines.
+
+  # === CHANGING THE PLAN OF ONE OF MY SUBSCRIPTIONS (FE-3206) ==============
+  # The migration source plan, the plans it allows and each state below are
+  # ARRANGED for the recording by staff on a fresh subscription of mine, and
+  # reset after it (docs/sdd/FE-3206/tasks.md, the arrangement table). No
+  # other scenario orders the source plan or the plan of the same price, so
+  # no other recording carries an allowed plan. Each wire line reads the
+  # request the module sent, not the recording it was served.
+
+  # MUTANT (amendment A2): starting a change of plan on an active subscription
+  # only, and not on a suspended one, must turn the "suspended" row RED.
+  @AC-26 @AC-27 @manager @migration @negative-control
+  Scenario Outline: I am told I can change the plan of a subscription whose plan allows it
+    Given one of my subscriptions is <state>, on a plan that allows changes to other plans
+    When I look at whether I can change its plan
+    Then I am told I can change its plan
+    And I am told which plans its plan allows me to change to
+    And I am told how many plans I can change to
+
+    Examples:
+      | state     |
+      | active    |
+      | suspended |
+
+  # MUTANT (amendment A2): leaving out the recurring-term filter of the count
+  # must turn this scenario RED.
+  @AC-28 @manager @migration @negative-control
+  Scenario: I am told how many plans I can change my subscription to
+    Given one of my subscriptions is active, on a plan that allows changes to other plans
+    When I look at whether I can change its plan
+    Then the platform is asked for a count of plans, not a page of them
+    And the plans are counted in my contract's currency
+    And the plans are counted on my contract's account
+    And only plans on a recurring billing term are counted
+    And only plans the brand sells are counted
+    And only plans a client can order are counted
+    And only the plans my plan allows are counted
+    And the plans are counted in the brand's own order
+    And each counted plan is asked for with its image
+    And I am told the number of plans the platform counted
+
+  # MUTANT (amendment A2): each of these must turn its row RED —
+  # (a) dropping the hard-request clause, the first row,
+  # (b) dropping the auto-expire clause, the third row,
+  # (c) counting only when I can change the plan, each row.
+  # The second row reads can_modify false as well, so the accepted-request
+  # clause is proven by the unit spec ("AC-26 — the change rule"). The
+  # can_modify clause is proven by the unit spec only. Each row's plan allows
+  # changes, so the count is still read at load, as legacy reads it
+  # (cProdProvider.vue:821-827).
+  @AC-26 @manager @migration @guard @negative-control
+  Scenario Outline: A change of plan is not offered while my subscription is held back
+    Given one of my subscriptions, on a plan that allows changes to other plans, <hold>
+    When I ask to change its plan
+    Then I am told I cannot change its plan
+    And the change of plan does not open
+    And the number of plans I can change to is still read
+    And no plan list is requested
+    And no change is sent
+
+    Examples:
+      | hold                                           |
+      | has a cancellation request pending             |
+      | had its cancellation request accepted          |
+      | is set to expire at the end of its term        |
+
+  # Staff create the bundle product for the recording and remove it after it.
+  # Departure from bdd.md section 4 (check 4): the Given drops "on a plan that
+  # allows changes to other plans", because the platform lets a bundle allow
+  # no other plans.
+  # The product-type clause is proven by the unit spec ("AC-26 — the change rule").
+  @AC-26 @manager @migration @guard
+  Scenario: A change of plan is not offered for a bundle of products
+    Given one of my subscriptions is a bundle of products
+    When I ask to change its plan
+    Then I am told I cannot change its plan
+    And the change of plan does not open
+    And no plan list is requested
+    And no change is sent
+
+  # The platform reads can_modify false before the subscription is active,
+  # so the status clause of the change rule is proven by the unit spec
+  # ("AC-26 — the change rule").
+  # MUTANT (amendment A2): counting only when I can change the plan must
+  # turn this scenario RED.
+  @AC-26 @manager @migration @guard @negative-control
+  Scenario: A change of plan is not offered before my subscription is active
+    Given one of my subscriptions, on a plan that allows changes to other plans, is paid for but not yet active
+    When I ask to change its plan
+    Then I am told I cannot change its plan
+    And the change of plan does not open
+    And the number of plans I can change to is still read
+    And no plan list is requested
+    And no change is sent
+
+  # The platform reads can_modify false while a pro-rata invoice is unpaid,
+  # so the pro-rata clause of the change rule is proven by the unit spec
+  # ("AC-26 — the change rule").
+  # MUTANT (amendment A2): each of these must turn this scenario RED —
+  # (a) reading the pro-rata fact of my product as false,
+  # (b) counting only when I can change the plan.
+  @AC-26 @AC-33 @manager @migration @guard @negative-control
+  Scenario: A change of plan cannot start while a pro-rata invoice of mine is unpaid
+    Given one of my subscriptions, on a plan that allows changes to other plans, has a pro-rata invoice I have not paid
+    When I ask to change its plan
+    Then I am told a pro-rata invoice of mine is unpaid
+    And I am told I cannot change its plan
+    And the change of plan does not open
+    And the number of plans I can change to is still read
+    And no plan list is requested
+    And no change is sent
+
+  # BLOCKED (tasks.md check 12): the import route needs a file in a format the
+  # contract does not give. POST /api/admin/import/files answers 422
+  # "Missing file!". The failed route is reported to the operator.
+  @AC-26 @manager @migration @guard @todo
+  Scenario: A change of plan cannot start while my product is still being imported
+    Given one of my products, on a plan that allows changes to other plans, is still being imported
+    When I ask to change its plan
+    Then I am told I cannot change its plan
+    And the change of plan does not open
+    And no plan list is requested
+    And no change is sent
+
+  # MUTANT (amendment A2): reading the count for a plan that allows no change
+  # must turn this scenario RED — the count request has no recording, so the
+  # replay fails with a capture gap.
+  @AC-26 @AC-28 @manager @migration @guard @negative-control
+  Scenario: A change of plan is not offered when my plan allows no change
+    Given one of my subscriptions is active, on a plan that allows no changes to other plans
+    When I ask to change its plan
+    Then I am told I cannot change its plan
+    And the change of plan does not open
+    And no plan count is requested
+    And no plan list is requested
+    And no change is sent
+
+  # MUTANT (amendment A2): each of these must turn this scenario RED —
+  # (a) dropping the current-term filter from the plan list,
+  # (b) asking for a page of more or fewer than four plans.
+  @AC-28 @manager @migration @negative-control
+  Scenario: See the plans I can change my subscription to
+    Given one of my subscriptions is active, on a plan that allows changes to five or more plans
+    When I ask to change its plan
+    Then the change of plan opens on the plans I can choose from
+    And the plans are asked for in my contract's currency
+    And the plans are asked for on my contract's account
+    And only plans on my subscription's current billing term are asked for
+    And only plans the brand sells are asked for
+    And only plans a client can order are asked for
+    And only the plans my plan allows are asked for
+    And the plans are asked for in the brand's own order
+    And four plans are asked for
+    And the plans are asked for from the first plan on
+    And each plan is asked for with its image and its prices
+    And I see the plans the platform returned, in its order
+    And I am told there are more plans to see
+
+  # MUTANT (amendment A2): asking for the next page from the first plan
+  # again, and not from the fifth plan, must turn this scenario RED.
+  @AC-28 @manager @migration @negative-control
+  Scenario: See more of the plans I can change my subscription to
+    Given I have opened a change of plan on a subscription whose plan allows changes to five or more plans
+    When I ask to see more plans
+    Then four more plans are asked for
+    And the plans are asked for from the fifth plan on
+    And I see the first four plans followed by the plans the platform returned next
+    And I am told whether there are more plans to see, as the platform's total says
+
+  # The only plan the source plan allows is a one-off plan, so no plan is on a
+  # recurring term and none is on the subscription's term. The last line
+  # reads the counted total, not the list.
+  @AC-28 @manager @migration
+  Scenario: No plan is available to change my subscription to
+    Given one of my subscriptions is active, on a plan whose allowed plans are none I can order on its billing term
+    When I ask to change its plan
+    Then the change of plan opens on the plans I can choose from
+    And I am told there is no plan I can change to
+    And I am told there are no more plans to see
+    And I am told the number of plans I can change to is zero
+
+  # MUTANT (amendment A2): each of these must turn this scenario RED —
+  # (a) loading the chosen plan without omitting promotions,
+  # (c) leaving out the price of an option whose price differs from mine,
+  # (d) leaving the stock price calculation on the chosen plan.
+  @AC-29 @AC-30 @AC-32 @manager @migration @negative-control
+  Scenario: Choose a plan and see what the change costs before I commit
+    Given I have opened a change of plan on one of my active subscriptions
+    When I choose the plan with options to change to
+    Then the plan I chose is loaded in my contract's currency
+    And the plan I chose is loaded without promotions
+    And the plan I chose starts on my subscription's current billing term
+    And no price calculation is asked for the plan I chose
+    And the cost of the change is asked for without committing it
+    And the cost asked for names my contract
+    And the cost asked for names my product
+    And the cost asked for names the plan I chose
+    And the cost asked for names my subscription's current billing term
+    And the cost asked for carries each option I chose, by its product
+    And each option carries its billing term
+    And each option carries its quantity
+    And each option whose price differs from mine carries its new price
+    And the cost asked for carries each attribute I chose, by its product alone
+    And the cost asked for carries no quantity for the plan itself
+    And I am shown the pro-rata amount the platform priced
+    And I am shown the lines of the invoice the platform priced
+    And I am told the change is not free
+
+  # MUTANT (amendment A2): each of these must turn this scenario RED —
+  # (a) not asking for the cost again when an option changes,
+  # (b) keeping the first cost when the new cost lands.
+  @AC-30 @AC-32 @manager @migration @negative-control
+  Scenario: Changing an option of the chosen plan re-prices what the change costs
+    Given I have chosen the plan with options and I am shown what the change costs
+    When I change the option I chose to the other option of the plan
+    Then the cost of the change is asked for again without committing it
+    And the cost asked for carries the option I changed to
+    And I am shown the cost the platform priced for my new choice, not the cost before it
+
+  @AC-30 @manager @migration
+  Scenario: I am told a change of plan to a plan of the same price costs nothing
+    Given I have opened a change of plan on a subscription whose plan allows a plan of the same price
+    When I choose the plan of the same price
+    Then the cost of the change is asked for without committing it
+    And I am told the change costs nothing
+
+  # Ruling R7: the cost is asked for after each change of my choice, and the
+  # platform is the judge. The plan with a required choice has a required
+  # choice of many options with no default, so a cleared choice stays empty.
+  # The platform refuses to price it (arrangement check 5 of T02).
+  # MUTANT (amendment A2): keeping the cost of the choice before when the
+  # platform cannot price the new choice must turn this scenario RED.
+  @AC-30 @AC-34 @manager @migration @negative-control
+  Scenario: A choice of options the platform cannot price shows no cost
+    Given I have chosen the plan with a required choice and I am shown what the change costs
+    When I clear the required choice of the plan I chose
+    Then the cost of the change is asked for again without committing it
+    And I am shown no cost for the change
+    And the change of plan reports no error from the platform
+    And I am told my choice of options is not valid
+    And I am told I can still commit the change
+
+  # MUTANT (amendment A2): each of these must turn this scenario RED —
+  # (a) leaving the commit out of the module's busy flag,
+  # (b) clearing the invoice when my product is read again,
+  # (c) sending the commit with the dry-run flag.
+  # The lines "reports itself busy" and "reports itself settled" are the
+  # AC-25 lines, verbatim, so the catalog's busy observer applies.
+  @AC-31 @AC-32 @AC-25 @manager @migration @mutation @negative-control
+  Scenario: Change my subscription to the plan I chose
+    Given I have chosen the plan with options and I am shown what the change costs
+    When I commit the change of plan
+    Then the module reports itself busy while the change is in flight
+    And the change is sent without the dry-run flag
+    And the change sent is the one I was shown the cost of
+    And it reports itself settled once the change has landed
+    And I am given the invoice the change raised
+    And I am told what is left to pay on that invoice
+    And I am told I must pay that invoice before the change takes effect
+    And my product is read again
+    And the change of plan is closed
+    And I am still given the invoice the change raised
+
+  @AC-31 @manager @migration @mutation
+  Scenario: A change of plan that costs nothing asks me to pay nothing
+    Given I have chosen the plan of the same price and I am told the change costs nothing
+    When I commit the change of plan
+    Then I am given the invoice the change raised
+    And I am told I do not have to pay for the change to take effect
+    And my product is read again
+
+  # Between the cost and the commit, staff change the same subscription, so
+  # its pro-rata invoice is pending and the platform refuses the second
+  # change. The generator asserts a 4xx answer.
+  # MUTANT (amendment A2): clearing my choice when the platform refuses the
+  # change must turn this scenario RED.
+  @AC-31 @AC-34 @manager @migration @mutation @negative-control
+  Scenario: A change of plan the platform refuses keeps my choice
+    Given I have chosen the plan with options and the platform will refuse that change
+    When I commit the change of plan
+    Then the change of plan reports that the platform refused it
+    And the change of plan stays open on the plan I chose
+    And the option I chose is kept
+    And I am given no invoice
+
+  # Rulings R8 and R9: the commit is forced, so my own form does not hold it
+  # back. The platform refuses a change with the required choice cleared
+  # (arrangement check 5 of T02).
+  # MUTANT (amendment A2): sending the commit without the forced flag, so
+  # that the configurator's own validation holds it back, must turn this
+  # scenario RED.
+  @AC-31 @AC-34 @manager @migration @mutation @negative-control
+  Scenario: The platform judges a change of plan whose choice of options is not valid
+    Given I have chosen the plan with a required choice and cleared that choice
+    When I commit the change of plan
+    Then the change is sent without the dry-run flag
+    And the change of plan reports that the platform refused it
+    And the change of plan stays open on the plan I chose
+    And I am given no invoice
+
+  # MUTANT (amendment A2): closing the change of plan without clearing my
+  # choice and stopping the configurator must turn this scenario RED.
+  @AC-34 @manager @migration @negative-control
+  Scenario: Close a change of plan without changing
+    Given I have chosen the plan with options and I am shown what the change costs
+    When I close the change of plan
+    Then the change of plan is closed
+    And no plan is configured for a change any more
+    And I am shown no cost for the change
+    And my product is still active
+
+  # MUTANT (amendment A2): keeping the invoice of the change before when a new
+  # change of plan opens must turn this scenario RED. The plan of the same
+  # price allows a change back to the source plan, arranged and reset. The
+  # change lands in a step of its own, so the product read before it and the
+  # read after it each keep their own recorded answer.
+  @AC-31 @AC-34 @manager @migration @negative-control
+  Scenario: A new change of plan starts with no invoice from the change before
+    Given I have chosen the plan of the same price and I am told the change costs nothing
+    And I have changed my subscription to that plan, which allows a change back
+    When I ask to change its plan
+    Then the change of plan opens on the plans I can choose from
+    And I am given no invoice from the change before
+
+  # MUTANT (amendment A2): leaving the change-of-plan slot out of the loading
+  # entry must turn each row RED. The first row reuses the house action of
+  # "Read my product afresh".
+  @AC-34 @manager @migration @negative-control
+  Scenario Outline: Another change to my product closes my open change of plan
+    Given I have chosen the plan with options on one of my active subscriptions
+    When I <other change>
+    Then the change of plan is closed
+    And no plan is configured for a change any more
+
+    Examples:
+      | other change                          |
+      | refresh my product                    |
+      | ask for it to stop renewing           |
+      | set its consolidation to "opted out"  |
+
+  # Ruling R15: after the list is read, staff turn the chosen plan off for
+  # sale, so its load is refused. Staff turn it on again between the Given and
+  # the When (tasks.md, the arrangement table).
+  # MUTANT (amendment A2): answering a reload with the same failed plan, not a
+  # fresh load, must turn this scenario RED.
+  @AC-29 @manager @migration @negative-control
+  Scenario: A plan I chose that did not load can be loaded again
+    Given I have chosen a plan to change to and it could not be loaded
+    When I ask for the plan I chose to be loaded again
+    Then the plan I chose is loaded again
+    And I am told the plan I chose is ready to configure
+
+  # Rulings R8, R9 and R15: legacy asks for no provisioning detail when the
+  # plan changes. Staff make a provisioning field of the plan required for
+  # the recording, and reset it after it (tasks.md, the arrangement table).
+  # MUTANT (amendment A2): each of these must turn this scenario RED —
+  # (a) sending the commit without the forced flag,
+  # (b) sending provisioning details in the change.
+  @AC-34 @manager @migration @mutation @negative-control
+  Scenario: A plan that needs provisioning details can still be changed to
+    Given I have chosen a plan that needs provisioning details and I am shown what the change costs
+    When I commit the change of plan
+    Then the change is sent without the dry-run flag
+    And the change sent carries no provisioning details
+    And I am given the invoice the change raised

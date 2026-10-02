@@ -1,0 +1,25 @@
+# Negative-control mutant — the single-contract read must send the full per-product
+#   relation set (FE-3206, commit 26f5a0ce0a).
+#
+# Spec it must flip: contract.reads.int.test.ts,
+#   "useContract — the with set the read sends" >
+#   "sends exactly the mapped CONTRACT_WITH members, payment_details included".
+# RED-verified 2026-10-01.
+#
+# Mutation: `CONTRACT_WITH` drops `products.future_cancellation_request`, so the
+#   sent `with` set no longer matches the mapped members the account area reads.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+diff --git a/packages/headless/src/modules/contract/contract.services.ts b/packages/headless/src/modules/contract/contract.services.ts
+index 9bcd35fb00..0f089c8b7f 100644
+--- a/packages/headless/src/modules/contract/contract.services.ts
++++ b/packages/headless/src/modules/contract/contract.services.ts
+@@ -94,7 +94,6 @@ const CONTRACT_WITH = [
+   "products.product.provision_blueprint",
+   "products.product.provision_blueprint.category",
+   "products.contract_request",
+-  "products.future_cancellation_request",
+   "products.moved_to_contract_product",
+   "products.moved_to_contract_product.clients",
+   "products.tags",

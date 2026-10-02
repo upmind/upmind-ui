@@ -12,24 +12,15 @@ slot then survives a re-read: after a successful submit the manager re-places
 `available` with the product re-read, but the old form (its old model) stays
 on context, so a page drawing it on slot truthiness keeps showing a dead form
 next to the re-shown "open" control.
-
 diff --git a/packages/headless/src/modules/contract-product/contract-product.machine.ts b/packages/headless/src/modules/contract-product/contract-product.machine.ts
-index 619696103..54a769cc9 100644
 --- a/packages/headless/src/modules/contract-product/contract-product.machine.ts
 +++ b/packages/headless/src/modules/contract-product/contract-product.machine.ts
-@@ -59,14 +59,7 @@ export const contractProductMachine = createMachine(
-
-       loading: {
-         id: "loading",
--        // A form's context slot is the form's own — outliving the read that
--        // re-placed the product would leave a page drawing a dead form beside
--        // its re-shown "open" control.
--        entry: [
--          "clearContractProduct",
--          "clearCancellation",
--          "clearConsolidation"
--        ],
-+        entry: ["clearContractProduct"],
+@@ -88,7 +88,7 @@
+         // A form's context slot is the form's own — outliving the read that
+         // re-placed the product would leave a page drawing a dead form beside
+         // its re-shown "open" control.
+-        entry: ["clearCancellation", "clearConsolidation", "clearMigration"],
++        entry: ["clearMigration"],
          invoke: {
            src: "load",
-           onDone: { actions: ["setContractProduct", "setLookups"] },
+           // The settled read places the status node; the guards read the

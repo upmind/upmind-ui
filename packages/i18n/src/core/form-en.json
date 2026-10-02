@@ -430,6 +430,16 @@
     "label": "Parent invoice",
     "placeholder": "Select an invoice"
   },
+  "invoice_currency": {
+    "description": null,
+    "label": "Pay currency",
+    "placeholder": "Select currency"
+  },
+  "invoice_payment_method": {
+    "description": null,
+    "label": "Payment method",
+    "placeholder": null
+  },
   "invoice_picker": {
     "description": null,
     "label": "Find an invoice",

@@ -1,0 +1,22 @@
+# Negative-control mutant 26 — loading-clear (FE-3206)
+#
+# Mutation: leave `clearMigration` out of the `loading` entry.
+# Spec it must turn red: "Another change ... closes ..." (3 rows).
+#
+# Authored by the developer seat against the landed production source. The
+# prover applies it blind (tasks.md T41): apply, run the named spec, revert.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+diff --git a/packages/headless/src/modules/contract-product/contract-product.machine.ts b/packages/headless/src/modules/contract-product/contract-product.machine.ts
+--- a/packages/headless/src/modules/contract-product/contract-product.machine.ts
++++ b/packages/headless/src/modules/contract-product/contract-product.machine.ts
+@@ -88,7 +88,7 @@
+         // A form's context slot is the form's own — outliving the read that
+         // re-placed the product would leave a page drawing a dead form beside
+         // its re-shown "open" control.
+-        entry: ["clearCancellation", "clearConsolidation", "clearMigration"],
++        entry: ["clearCancellation", "clearConsolidation"],
+         invoke: {
+           src: "load",
+           // The settled read places the status node; the guards read the

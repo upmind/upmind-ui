@@ -1,0 +1,22 @@
+# Negative-control mutant 16 — target-omit-promotions (FE-3206)
+#
+# Mutation: pass a promotions array in the seed, not `false`.
+# Spec it must turn red: "Choose a plan ...".
+#
+# Authored by the developer seat against the landed production source. The
+# prover applies it blind (tasks.md T41): apply, run the named spec, revert.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+diff --git a/packages/headless/src/modules/contract-product/contract-product.utils.ts b/packages/headless/src/modules/contract-product/contract-product.utils.ts
+--- a/packages/headless/src/modules/contract-product/contract-product.utils.ts
++++ b/packages/headless/src/modules/contract-product/contract-product.utils.ts
+@@ -511,7 +511,7 @@
+       term: context.contractProduct?.billingCycleMonths
+     },
+     currencyId: context.contractProduct?.contractCurrencyId,
+-    promotions: false,
++    promotions: [],
+     coupons: []
+   };
+ 

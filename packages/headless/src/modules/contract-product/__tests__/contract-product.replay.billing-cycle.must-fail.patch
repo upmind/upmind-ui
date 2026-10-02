@@ -12,7 +12,7 @@
 diff --git a/packages/headless/src/modules/contract-product/contract-product.mappers.ts b/packages/headless/src/modules/contract-product/contract-product.mappers.ts
 --- a/packages/headless/src/modules/contract-product/contract-product.mappers.ts
 +++ b/packages/headless/src/modules/contract-product/contract-product.mappers.ts
-@@ -114,7 +114,7 @@ export function mapContractProductPrice(
+@@ -143,7 +143,7 @@
  /** The translated billing-cycle label (R38 item 10, G5) — legacy's cycle name; "One time" for a one-time product. */
  export function mapContractProductBillingCycle(months: number): string {
    const cycle = parseBillingCycle(months);
@@ -20,4 +20,4 @@ diff --git a/packages/headless/src/modules/contract-product/contract-product.map
 +  return cycle.numeric;
  }
  
- /** Maps one wire record to the view model, deriving the two shared readings once. */
+ /**

@@ -6,6 +6,7 @@ All notable changes to the `scenarios` module are documented here. Format follow
 
 ### Added
 
+- **The record archetype.** A declaration naming a manager, an optional record id param and `presentation.record` draws one managed record as one panel: header (title, one status badge, flag badges), declared `fields`, `collection` and `thread` sections through a section registry, footer write actions (soft small group, danger tint, "More" after two, utilities last), one shared form dialog, and a skeleton boot from the declaration. A collection section may read a second composable for the record on screen. Contract, contract product and ticket are drawn this way, sharing contract, product and ticket summaries declared once. See [record.md](./record.md).
 - **A nested collection cell.** A record that carries a collection of its own — a ticket's conversation, an invoice's lines — can now be drawn item by item in a detail layout: `TableCellList` scopes at the array and draws each item through the cells it declares, so the message thread of one ticket renders through the same generic single-read overlay every other record does, with no page of its own.
 - **An optional route param.** A declaration may mark a param optional (`params: ["id?"]`), so a module whose bare url is a picker state — "which ticket?" — keeps that state while its `/:id` url addresses one record. The registrar already passed the marker through; nothing in the runtime changed.
 

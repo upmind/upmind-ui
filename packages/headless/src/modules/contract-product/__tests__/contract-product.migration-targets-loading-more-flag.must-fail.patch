@@ -1,0 +1,24 @@
+# Negative-control mutant 51 — targets-loading-more-flag (FE-3206)
+#
+# Mutation: Make the load-more flag always false.
+# Spec it must turn red: a unit spec of `isMigrationTargetsLoadingMore` (true while a further page loads) (prover authors it; this patch is the contract).
+#
+# Authored by the developer seat against the landed production source. The
+# prover applies it blind (tasks.md T41): apply, run the named spec, revert.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+diff --git a/packages/headless/src/modules/contract-product/useContractProduct.meta.ts b/packages/headless/src/modules/contract-product/useContractProduct.meta.ts
+--- a/packages/headless/src/modules/contract-product/useContractProduct.meta.ts
++++ b/packages/headless/src/modules/contract-product/useContractProduct.meta.ts
+@@ -323,9 +323,7 @@ export function createContractProductMeta(
+     ),
+ 
+     /** True while the plan list loads another page. */
+-    isMigrationTargetsLoadingMore: computed(
+-      () => !!listMeta.value?.isLoadingMore
+-    ),
++    isMigrationTargetsLoadingMore: computed(() => false),
+ 
+     /** True on `available.status.inactive` (awaiting activation). */
+     isInactive: useStateMatches(state, ContractProductState.INACTIVE),

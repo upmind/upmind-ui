@@ -16,7 +16,7 @@ import {
   DEFAULT_SORT
 } from "./contract-product.types";
 import { hidesOneTimePurchasesForced } from "./contract-product.utils";
-import { isEmpty } from "lodash-es";
+import { isEmpty, map, omit, reject, startsWith, without } from "lodash-es";
 import type { CustomField } from "../client-custom-fields";
 import type {
   ContractProductServices,
@@ -25,6 +25,7 @@ import type {
 import type {
   ControlElement,
   JsonSchema7,
+  Layout,
   UISchemaElement
 } from "@jsonforms/core";
 // -----------------------------------------------------------------------------
@@ -535,5 +536,57 @@ export function useCancellationUischema(
       },
       ...useCustomFieldsUischema(customFields)
     ]
+  } as UISchemaElement;
+}
+
+// -----------------------------------------------------------------------------
+// Change of plan — the configurator form (FE-3206)
+
+const MIGRATION_OMITTED_FIELDS = ["provisionFields", "startTrial"];
+
+/**
+ * The configurator schema of a change of plan: no provision field and no
+ * trial choice, and neither is required. Legacy draws only the options and the
+ * attributes [o36], and FE-3207 owns the trial.
+ */
+export function omitMigrationSchema(
+  schema: JsonSchema7 | undefined
+): JsonSchema7 | undefined {
+  if (!schema) return schema;
+
+  return {
+    ...schema,
+    properties: omit(schema.properties, MIGRATION_OMITTED_FIELDS),
+    ...(schema.required
+      ? { required: without(schema.required, ...MIGRATION_OMITTED_FIELDS) }
+      : {})
+  };
+}
+
+function isMigrationOmittedScope(scope?: string): boolean {
+  return (
+    !!scope &&
+    (startsWith(scope, "#/properties/provisionFields") ||
+      scope === "#/properties/startTrial")
+  );
+}
+
+/** The configurator uischema of a change of plan: each element that draws a provision field or the trial choice is left out. */
+export function omitMigrationUischema(
+  uischema: UISchemaElement | undefined
+): UISchemaElement | undefined {
+  if (!uischema) return uischema;
+
+  const elements = (uischema as Layout).elements;
+  if (!elements) return uischema;
+
+  return {
+    ...uischema,
+    elements: map(
+      reject(elements, element =>
+        isMigrationOmittedScope((element as ControlElement).scope)
+      ),
+      element => omitMigrationUischema(element)
+    )
   } as UISchemaElement;
 }
