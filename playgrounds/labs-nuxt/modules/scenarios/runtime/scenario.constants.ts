@@ -34,3 +34,9 @@ export const SCENARIO_DECLARATION_GLOB = "*/*.scenario.ts";
  * declaration to read a flag off it.
  */
 export const MODULE_PAGE_GLOB = "*/*.page.vue";
+
+/**
+ * The url param an area's active tab rides — `section=commissions`. Not `tab`:
+ * that is the open sheet's section, and the two must never share a value.
+ */
+export const AREA_SECTION_PARAM = "section";

@@ -93,6 +93,21 @@
     "placeholder": null,
     "created_at": "Date"
   },
+  "affiliate_visit_referrer_url": {
+    "description": null,
+    "label": "Referrer URL",
+    "placeholder": null
+  },
+  "affiliate_visit_url": {
+    "description": null,
+    "label": "Visit URL",
+    "placeholder": null
+  },
+  "affiliate_visit_user_agent": {
+    "description": null,
+    "label": "User agent",
+    "placeholder": null
+  },
   "affiliate_withdrawal_message": {
     "description": null,
     "label": "Message",

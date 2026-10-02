@@ -24,6 +24,13 @@ export type ManageDialogProps = {
    */
   context?: ScopeContext;
   /**
+   * The one record the editor opens on, addressed `.withId(recordId)` — the
+   * row's own id read by the handoff's `record` pointer. Present, the editor
+   * edits that record and titles as an update; it wins over a handoff's
+   * relayed link-token id.
+   */
+  recordId?: string;
+  /**
    * Narrows the editor to ONE field — the field code resolved from the row.
    * The editor draws only the control whose scope matches this field; absent,
    * the full form renders.

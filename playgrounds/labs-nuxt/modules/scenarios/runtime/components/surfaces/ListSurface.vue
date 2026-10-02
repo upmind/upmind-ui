@@ -440,10 +440,7 @@ import { useRouter } from "vue-router";
 import { useFormI18n } from "@upmind-automation/foundation";
 import { SortDirection } from "@upmind-automation/headless";
 import { usePlaygroundUrlState } from "../../../../../app/composables/usePlaygroundUrlState";
-import {
-  clearScenarioStage,
-  useScenarioStage
-} from "../../composables/useScenarioStage";
+import { useScenarioStage } from "../../composables/useScenarioStage";
 import { TableIntentTypes } from "../../composables/useTableChannel";
 import { ActionPlacementTypes, CardSlotTypes } from "../../scenario.types";
 import {
@@ -964,7 +961,7 @@ const manage = ref<ManageDialogProps | undefined>(undefined);
  */
 const manageKey = computed(
   () =>
-    `${manage.value?.context?.type ?? "new"}:${manage.value?.context?.id}:${manage.value?.fieldScope ?? ""}`
+    `${manage.value?.context?.type ?? "new"}:${manage.value?.context?.id}:${manage.value?.recordId ?? ""}:${manage.value?.fieldScope ?? ""}`
 );
 
 function openHandoff(action: ScenarioAction, row?: ListRow): void {
@@ -976,6 +973,13 @@ function openHandoff(action: ScenarioAction, row?: ListRow): void {
       ? resolvePointer(row, handoff.context.from)
       : undefined;
 
+  // The row's own record, addressed `.withId` — never a context (ADR-001
+  // Amendment 2026-09-15), so it travels beside `context`, not inside it.
+  const recordId =
+    handoff.record && row
+      ? resolvePointer(row, handoff.record.from)
+      : undefined;
+
   // The declared handoff carries a `fieldScope.from` pointer; resolve it to the
   // row's own field code, so the editor can narrow its uischema to that field.
   const fieldScope =
@@ -985,6 +989,7 @@ function openHandoff(action: ScenarioAction, row?: ListRow): void {
 
   manage.value = {
     handoff,
+    recordId: isNil(recordId) ? undefined : toString(recordId),
     // A context is only ever COMPLETE (`R6-30c`): no id off the row means a
     // record that does not exist yet, which the editor boots fresh.
     context:
@@ -1368,7 +1373,7 @@ stage.registerCollection({
   }
 });
 
-onUnmounted(() => clearScenarioStage("collection"));
+onUnmounted(() => stage.clear("collection"));
 
 // The page renders them; the list keeps the editor they open, so they are
 // published already bound rather than re-derived from the declaration by

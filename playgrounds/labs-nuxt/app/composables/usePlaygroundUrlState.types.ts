@@ -14,9 +14,19 @@
  * and the handle it hands every consumer — the criteria sync included.
  */
 
-import type { ComputedRef, WritableComputedRef } from "vue";
+import type { ComputedRef, InjectionKey, WritableComputedRef } from "vue";
 
 // -----------------------------------------------------------------------------
+
+/**
+ * The namespace an area's panel provides to everything drawn under it. Under
+ * one, `usePlaygroundUrlState` hands back a view of the one bag whose surface
+ * and criteria params are prefixed with the key, so panels on one page never
+ * share a `track`, a `sort` or a `limit`.
+ */
+export const PLAYGROUND_URL_NAMESPACE: InjectionKey<string> = Symbol(
+  "playground-url-namespace"
+);
 
 /**
  * The url as the writer holds it. A query string holds strings — and the same

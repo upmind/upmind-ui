@@ -29,7 +29,14 @@
  */
 
 import { useUrlSearchParams } from "@vueuse/core";
-import { computed, effectScope, reactive } from "vue";
+import {
+  computed,
+  effectScope,
+  getCurrentInstance,
+  inject,
+  reactive
+} from "vue";
+import { PLAYGROUND_URL_NAMESPACE } from "./usePlaygroundUrlState.types";
 import {
   assign,
   castArray,
@@ -39,8 +46,11 @@ import {
   isString,
   isUndefined,
   keys,
+  mapKeys,
   omit,
+  pickBy,
   size,
+  startsWith,
   toNumber,
   toString
 } from "lodash-es";
@@ -58,6 +68,7 @@ import { AUTH_TARGET_PARAMS } from "~/funnels/labs.constants";
 type PlaygroundUrlBag = {
   state: PlaygroundUrlState;
   reconcile: () => void;
+  scopes: Map<string, PlaygroundUrlState>;
 };
 
 let bag: PlaygroundUrlBag | undefined;
@@ -99,6 +110,85 @@ function preserveQuery(params: PlaygroundUrlParams, path: string): string {
   });
 
   return `${url.pathname}${url.search}${url.hash}`;
+}
+
+/** The playhead as the url spells it: an integer, absent for anything else. */
+function playheadOf(raw: unknown): number | undefined {
+  if (!isString(raw) || isEmpty(raw)) return undefined;
+  const value = toNumber(raw);
+  return isInteger(value) ? value : undefined;
+}
+
+/**
+ * The surface slots over ONE reader and ONE writer, so the page's own bag and a
+ * panel's namespaced view of it share a single statement of how each slot
+ * reads and writes.
+ */
+function surfaceSlots(
+  read: (param: string) => unknown,
+  write: (patch: PlaygroundUrlPatch) => void
+): Pick<
+  PlaygroundUrlState,
+  "view" | "columns" | "track" | "scene" | "sheet" | "tab" | "force"
+> {
+  function slot(
+    param: PlaygroundSurfaceParam
+  ): WritableComputedRef<string | undefined> {
+    return computed({
+      get: () => {
+        const value = read(param);
+        return isString(value) ? value : undefined;
+      },
+      set: value => write({ [param]: legal(value) })
+    });
+  }
+
+  return {
+    view: slot("view"),
+    columns: slot("columns"),
+    track: slot("track"),
+    scene: computed({
+      get: () => playheadOf(read("scene")),
+      set: value => write({ scene: legal(value) })
+    }),
+    sheet: slot("sheet"),
+    tab: slot("tab"),
+    force: slot("force")
+  };
+}
+
+/**
+ * One panel's view of the shared bag. An area draws several surfaces on one
+ * page, and each owns the same params (`track`, `sort`, `filter.*`, `limit`…),
+ * so every param a panel reads or writes is prefixed with the panel's key
+ * (`links.sort`). `sheet` and `tab` stay the page's: there is one sheet over
+ * the page, whatever is under it.
+ */
+function namespaced(
+  base: PlaygroundUrlState,
+  namespace: string
+): PlaygroundUrlState {
+  const prefix = `${namespace}.`;
+  const qualify = (param: string): string => `${prefix}${param}`;
+
+  const params = computed<PlaygroundUrlParams>(() =>
+    mapKeys(
+      pickBy(base.params.value, (_value, param) => startsWith(param, prefix)),
+      (_value, param) => param.slice(prefix.length)
+    )
+  );
+
+  const write = (patch: PlaygroundUrlPatch): void =>
+    base.write(mapKeys(patch, (_value, param) => qualify(param)));
+
+  return {
+    ...surfaceSlots(param => params.value[param], write),
+    params,
+    write,
+    sheet: base.sheet,
+    tab: base.tab,
+    preserveQuery: base.preserveQuery
+  };
 }
 
 /**
@@ -174,50 +264,48 @@ function create(): PlaygroundUrlBag {
     setTimeout(commit);
   }
 
-  function slot(
-    param: PlaygroundSurfaceParam
-  ): WritableComputedRef<string | undefined> {
-    return computed({
-      get: () => {
-        const value = current.value[param];
-        return isString(value) ? value : undefined;
-      },
-      set: value => write({ [param]: legal(value) })
-    });
-  }
-
   return {
     reconcile: () => reconcile(params, pending),
     state: {
       params: current,
       write,
-      view: slot("view"),
-      columns: slot("columns"),
-      track: slot("track"),
-      scene: computed({
-        get: () => {
-          const raw = current.value.scene;
-          if (!isString(raw) || isEmpty(raw)) return undefined;
-          const value = toNumber(raw);
-          return isInteger(value) ? value : undefined;
-        },
-        set: value => write({ scene: legal(value) })
-      }),
-      sheet: slot("sheet"),
-      tab: slot("tab"),
-      force: slot("force"),
+      ...surfaceSlots(param => current.value[param], write),
       preserveQuery: path => preserveQuery(current.value, path)
-    }
+    },
+    scopes: new Map()
   };
 }
 
-/** The one writer. Every consumer shares its bag; nobody else opens a second. */
-export function usePlaygroundUrlState(): PlaygroundUrlState {
+/**
+ * The one writer. Every consumer shares its bag; nobody else opens a second.
+ *
+ * @param options `unscoped` opts out of a panel's namespace for the state that
+ * belongs to the whole page — the one forced preset the one worker serves.
+ */
+export function usePlaygroundUrlState(
+  options: { unscoped?: boolean } = {}
+): PlaygroundUrlState {
   // Minted in a DETACHED scope: VueUse's popstate listener and its write-back
   // watcher are effect-scoped, so a bag first created inside a component would
   // stop writing the moment that component unmounted.
   if (!bag) bag = effectScope(true).run(create)!;
   else bag.reconcile();
 
-  return bag.state;
+  // A panel of an area provides its key, and everything drawn under it reads
+  // and writes the bag through that namespace. A call outside a component has
+  // nothing to inject from and gets the page's own state.
+  const namespace =
+    !options.unscoped && getCurrentInstance()
+      ? inject(PLAYGROUND_URL_NAMESPACE, undefined)
+      : undefined;
+  if (!namespace) return bag.state;
+
+  const held = bag.scopes;
+  if (!held.has(namespace))
+    held.set(
+      namespace,
+      effectScope(true).run(() => namespaced(bag!.state, namespace))!
+    );
+
+  return held.get(namespace)!;
 }

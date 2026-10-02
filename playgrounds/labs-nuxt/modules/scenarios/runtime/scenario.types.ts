@@ -136,6 +136,14 @@ export type ScenarioHandoff = {
    */
   context?: { type: ScopeContext["type"]; from: string };
   /**
+   * The ONE record the editor opens on, as a JSON Pointer into the row. It is
+   * the builder's own `.withId(id)` and NOT a context: a leaf record has no
+   * context type (ADR-001, Amendment 2026-09-15), so the editor boots the row's
+   * own record rather than `.for(type, id)`. Absent, the editor opens on
+   * `context` if declared, else a record that does not exist yet.
+   */
+  record?: { from: string };
+  /**
    * Narrows the editor to ONE field — the field code read off the ROW at
    * `from`. When present, the editor draws only the control whose scope
    * matches this field; when absent, the full form renders. Save stays
@@ -695,7 +703,9 @@ export type RecordNoticeDeclaration = {
 /** The record's heading: its title, its ONE status and its flag badges. */
 export type RecordHeaderDeclaration = {
   /** A scope into the record model. */
-  title: string;
+  title?: string;
+  /** The title when `title` resolves nothing (or is absent) — an i18n key. */
+  titleI18n?: string;
   /** A scope into the record model; drawn as the one status badge. */
   status?: string;
   /**
@@ -916,6 +926,12 @@ export type RecordUischema = {
   actions: RecordActionDeclaration[];
   siblings?: string[];
   picker?: RecordPickerDeclaration;
+  /**
+   * The record has no fetch to wait on, so the surface draws as soon as the
+   * cell is served — an empty record is its starting state, not a load. Only an
+   * unserved scope still replaces it.
+   */
+  drawsEmpty?: boolean;
 };
 
 /**
@@ -1155,6 +1171,29 @@ export type ScenarioBinding = (
 };
 
 /**
+ * One panel of a tab — the existing surface for its own binding (a record, a
+ * collection with its editor, or a form), drawn under the tab it belongs to.
+ * `key` is local to the area; the harness addresses the panel as
+ * `<area key>.<panel key>`.
+ */
+export type ScenarioPanel = ScenarioBinding & {
+  key: string;
+  /** The panel's heading — an i18n key. Absent, the panel draws no heading. */
+  i18n?: string;
+  presentation: ScenarioPresentation;
+  tracks?: ScenarioTracks;
+};
+
+/** One tab of an area: its label, its icon and the panels stacked under it. */
+export type ScenarioTab = {
+  key: string;
+  /** The tab's label — an i18n key. */
+  i18n: string;
+  icon: string;
+  panels: ScenarioPanel[];
+};
+
+/**
  * ONE scenario, whole — the single file the factory writes and re-reconciles.
  * `route` is deliberately absent: the url segment and the route name are the
  * declaring DIRECTORY's name, attached by the registry and by the build-time
@@ -1167,10 +1206,25 @@ export type ScenarioDeclaration = ScenarioBinding & {
   tracks?: ScenarioTracks;
   /** Route params this module's url carries — `["oid"]` gives `/useInvoice/:oid`. */
   params?: string[];
+  /**
+   * Makes the declaration an AREA: one page header, a tab strip and the panels
+   * of the active tab, each panel booting its own binding. An area binds
+   * nothing itself; its `presentation` carries the page icon only.
+   */
+  tabs?: ScenarioTab[];
 };
 
 /** A declaration once the registry has attached the directory it was found in. */
 export type RegisteredScenario = ScenarioDeclaration & {
   /** The url segment AND the route name — the declaring directory's name. */
   route: string;
+};
+
+/**
+ * An area's panel once the registry has flattened it: addressed by the harness
+ * key `<area>.<panel>`, carrying the area's route and its own local key.
+ */
+export type RegisteredPanel = RegisteredScenario & {
+  /** The panel's key local to its area — also its url namespace. */
+  panel: string;
 };

@@ -134,3 +134,12 @@ export function excludedTagsOf(
 ): readonly string[] | undefined {
   return isString(tracks) ? undefined : tracks?.without;
 }
+
+/**
+ * The harness key of an area's panel — `<area key>.<panel key>`. One statement
+ * of the format, read by the registry that flattens the area and by anything
+ * that addresses a panel by it.
+ */
+export function panelKeyOf(area: string, panel: string): string {
+  return `${area}.${panel}`;
+}

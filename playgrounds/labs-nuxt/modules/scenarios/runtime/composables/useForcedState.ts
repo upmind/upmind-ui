@@ -88,7 +88,9 @@ let handle: ForcedStateHandle | undefined;
 let page: string | undefined;
 
 function create(): ForcedStateHandle {
-  const url = usePlaygroundUrlState();
+  // The page's, never a panel's: one handle serves the one worker, whichever
+  // panel of an area happened to create it first.
+  const url = usePlaygroundUrlState({ unscoped: true });
   if (typeof window !== "undefined") page = window.location.pathname;
 
   // The preset the url cannot carry, so it cannot be read back off one either.

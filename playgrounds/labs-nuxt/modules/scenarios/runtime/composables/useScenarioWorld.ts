@@ -20,7 +20,7 @@ import {
   fireArgv,
   matchesExpectation
 } from "@upmind-automation/scenario-harness";
-import { registry } from "../registry";
+import { bindings as allBindings } from "../registry";
 import { useModulePort } from "./useModulePort";
 import { useScenarioStage } from "./useScenarioStage";
 import {
@@ -117,7 +117,7 @@ type LiveCell = { scope: WorldScope; port: ModulePort };
  * world. See {@link ScenarioWorldHost}.
  */
 export function useScenarioWorld(
-  bindings: Record<ScenarioKey, ScenarioBinding> = registry,
+  bindings: Record<ScenarioKey, ScenarioBinding> = allBindings,
   host?: ScenarioWorldHost
 ): World<ScenarioKey> {
   // One live cell PER scenario key — parity with the Node world
@@ -126,6 +126,10 @@ export function useScenarioWorld(
   // is what lets a scenario hold two editor cells at once — two image fields
   // under two keys re-uploading independently (client-custom-fields AC-22).
   const live = new Map<ScenarioKey, LiveCell>();
+
+  // Taken at setup, while the page's namespace can still be injected: a press
+  // is made from async callbacks, and the panel a step booted owns its stage.
+  const stage = useScenarioStage();
 
   /** The key booted last — the cell a step addresses when it names no key. */
   let lastKey: ScenarioKey | undefined;
@@ -234,7 +238,6 @@ export function useScenarioWorld(
       // The screen first, always. A step is a PRESS: it runs the control's own
       // closure, so the spinner turns, the toast lands, and a handoff opens its
       // editor over the list — the whole point of watching a replay.
-      const stage = useScenarioStage();
       const rowId = isString(input)
         ? input
         : (get(input, "id") as string | undefined);

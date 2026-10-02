@@ -57,7 +57,7 @@ const emit = defineEmits<{
 
 const { t } = useI18n();
 
-const isNew = computed(() => isNil(props.context));
+const isNew = computed(() => isNil(props.context) && isNil(props.recordId));
 
 // The TITLE's question is not the boot's: a field-scoped open edits an
 // EXISTING record even when no row context is named (the single-entity
@@ -69,7 +69,7 @@ const port = useModulePort(props.handoff.useMutate, {
   context: props.context,
   // A `?token=` editor is addressed by the token (`.withId`), not by a fresh
   // session — so it boots keyed by that identity rather than as a new instance.
-  id: props.handoff.id,
+  id: props.recordId ?? props.handoff.id,
   fresh: isNew.value && isNil(props.handoff.id),
   // The overlay builds its OWN port, so it must be told the same offered
   // actors the list was — otherwise the editor refuses an actor the

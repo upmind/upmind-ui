@@ -15,8 +15,8 @@
 import { computed } from "vue";
 import { useRoute, useRouter, type RouteRecordNormalized } from "vue-router";
 import {
-  registry,
-  scenarioKeys
+  scenarioPageKeys,
+  scenarioPages
 } from "../../modules/scenarios/runtime/registry";
 import { navIcon } from "./useNavigation.icons";
 import {
@@ -50,6 +50,7 @@ import type { Component } from "vue";
 const BINDING_TAGS: Record<string, string> = {
   handoff: "Handoff",
   persistCriteria: "URL state",
+  tabs: "Tabs",
   useMutate: "Editable"
 };
 
@@ -82,16 +83,16 @@ function brandSegment(brandId?: string): string | undefined {
 function scenarioEntries(brandId?: string): LabEntry[] {
   const brand = brandSegment(brandId);
 
-  return map(scenarioKeys, key => {
+  return map(scenarioPageKeys, key => {
     // The url segment is the scenario's own DIRECTORY, which is also its route
     // name — so the sidebar link and the registered route cannot drift.
-    const route = get(registry, [key, "route"], key) as string;
+    const route = get(scenarioPages, [key, "route"], key) as string;
 
     return {
       key,
       label: route,
       icon: navIcon(
-        get(registry, [key, "presentation", "icon"]) as string | undefined
+        get(scenarioPages, [key, "presentation", "icon"]) as string | undefined
       ),
       // The FAMILY stays the directory's: a declared label is a human name for
       // one entry, never the grouping every entry in the family answers to.
@@ -102,7 +103,7 @@ function scenarioEntries(brandId?: string): LabEntry[] {
       // picked, which is why the brand never survived navigation.
       to: brand ? `/${brand}/${route}` : `/${route}`,
       tags: compact(
-        map(keys(get(registry, key)), field => get(BINDING_TAGS, field))
+        map(keys(get(scenarioPages, key)), field => get(BINDING_TAGS, field))
       )
     };
   });

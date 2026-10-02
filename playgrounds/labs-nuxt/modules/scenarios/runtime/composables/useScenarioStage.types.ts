@@ -30,6 +30,8 @@ export type StageEditor = {
 export type ScenarioStage = {
   registerCollection: (collection: StageCollection) => void;
   registerEditor: (editor: StageEditor) => void;
+  /** Takes this stage's collection and/or editor off it; both when no role is named. */
+  clear: (role?: "collection" | "editor") => void;
   /** True once a surface is mounted and offering its controls. */
   isStaged: () => boolean;
   press: StageCollection["press"];

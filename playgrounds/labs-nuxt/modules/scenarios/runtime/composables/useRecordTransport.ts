@@ -13,7 +13,7 @@
  */
 
 import { computed, onUnmounted, ref, watch } from "vue";
-import { registry } from "../registry";
+import { bindings as allBindings } from "../registry";
 import { useModulePort } from "./useModulePort";
 import { useScenarioWorld } from "./useScenarioWorld";
 import { get, isFunction } from "lodash-es";
@@ -39,7 +39,12 @@ export function useRecordTransport(
 ): RecordTransport {
   const replayId = ref<string>();
 
-  const subjectId = computed(() => replayId.value ?? source.id);
+  // An id-less record names no instance: its subject is the page's own key, so
+  // the surface draws as soon as the cell boots, and the cell is booted at the
+  // actor alone — the key is a handle for the map, never a `.withId`.
+  const home = source.idless ? source.key : source.id;
+
+  const subjectId = computed(() => replayId.value ?? home);
 
   const cells = new Map<string, ModulePort>();
 
@@ -48,7 +53,7 @@ export function useRecordTransport(
       cells.get(id) ??
       useModulePort(source.composable, {
         actor: source.actor,
-        id,
+        id: source.idless ? undefined : id,
         offeredActors: source.offeredActors
       });
     cells.set(id, cell);
@@ -64,7 +69,7 @@ export function useRecordTransport(
     }
   }
 
-  if (source.id) cellFor(source.id);
+  if (home) cellFor(home);
 
   const current = computed(() =>
     subjectId.value ? cellFor(subjectId.value) : undefined
@@ -82,16 +87,17 @@ export function useRecordTransport(
     useContext: () => current.value?.useContext?.() ?? {}
   };
 
-  const hostWorld = useScenarioWorld(registry, {
+  const hostWorld = useScenarioWorld(allBindings, {
     key: source.key,
-    id: source.id
+    id: source.idless ? undefined : source.id
   });
 
   const world: World = {
     ...hostWorld,
     async boot(key, scope) {
       await hostWorld.boot(key, scope);
-      if (key === source.key && scope.id) replayId.value = scope.id;
+      if (key === source.key && scope.id && !source.idless)
+        replayId.value = scope.id;
     }
   };
 
@@ -101,7 +107,7 @@ export function useRecordTransport(
       () => {
         replayId.value = undefined;
         void world.dispose();
-        release(source.id);
+        release(home);
       },
       { flush: "sync" }
     );

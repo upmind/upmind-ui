@@ -1,6 +1,6 @@
 <template>
   <ToggleGroup
-    v-if="hasSections"
+    v-if="hasSections && !isInPanel"
     type="single"
     :model-value="sheet"
     size="sm"
@@ -40,16 +40,21 @@
  * while the preference holds a sheet open over the page.
  *
  * A page that registers no sections has nothing to show, so it offers no
- * toggle at all (design §3.6, `P1-R4`).
+ * toggle at all (design §3.6, `P1-R4`). Nor does a bar inside a panel of an
+ * area: the sheet is the PAGE's, and the area's header draws its one toggle.
  */
 
 import { ToggleGroup, ToggleGroupItem } from "@upmind/ui";
+import { inject } from "vue";
 import { useI18n } from "vue-i18n";
 import { usePlaygroundSheet } from "../../../../app/components/sheets/usePlaygroundSheet";
 import { SHEET_LABELS } from "../../../../app/components/sheets/usePlaygroundSheet.types";
+import { PLAYGROUND_URL_NAMESPACE } from "../../../../app/composables/usePlaygroundUrlState.types";
 // -----------------------------------------------------------------------------
 
 const { sheet, hasSections, toggle } = usePlaygroundSheet();
+
+const isInPanel = !!inject(PLAYGROUND_URL_NAMESPACE, undefined);
 
 const { t } = useI18n();
 </script>

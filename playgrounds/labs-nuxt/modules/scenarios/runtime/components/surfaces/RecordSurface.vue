@@ -414,6 +414,7 @@ import {
 } from "./record/record.utils";
 import { recordSurface } from "./RecordSurface.styles";
 import {
+  cloneDeep,
   compact,
   drop,
   every,
@@ -500,7 +501,7 @@ const model = computed<Record<string, unknown>>(() => ({
 const notice = computed(() => {
   const state = resolveRecordState(meta.value, context.value);
   if (state === ModuleState.UNSERVED) return state;
-  if (!isEmpty(record.value)) return undefined;
+  if (props.uischema.drawsEmpty || !isEmpty(record.value)) return undefined;
   return state === ModuleState.READY ? ModuleState.LOADING : state;
 });
 
@@ -513,7 +514,11 @@ function textAt(scope?: string): string | undefined {
   return isNil(value) || value === "" ? undefined : String(value);
 }
 
-const title = computed(() => textAt(props.uischema.header.title) ?? "");
+const title = computed(
+  () =>
+    textAt(props.uischema.header.title) ??
+    (props.uischema.header.titleI18n ? t(props.uischema.header.titleI18n) : "")
+);
 
 const status = computed(() => textAt(props.uischema.header.status));
 
@@ -829,7 +834,7 @@ async function select(
     openRow.value = row;
     draft.value = action.form.prefill
       ? pick(row ?? model.value, keys(schemaOf(action.form)?.properties))
-      : {};
+      : cloneDeep(unref(slotOf(action.form)?.defaults) ?? {});
     openAction.value = action;
     return;
   }

@@ -114,10 +114,7 @@ import { computed, onUnmounted, ref, watch, watchEffect } from "vue";
 import { useI18n } from "vue-i18n";
 import { formRenderers } from "@upmind-automation/client-vue";
 import { Form, Icon } from "@upmind-automation/foundation";
-import {
-  clearScenarioStage,
-  useScenarioStage
-} from "../../composables/useScenarioStage";
+import { useScenarioStage } from "../../composables/useScenarioStage";
 import {
   FORCE_RECIPE_KIND,
   FORCE_RECIPE_TARGET
@@ -379,7 +376,7 @@ stage.registerEditor({
   submit: () => onResolve()
 });
 
-onUnmounted(() => clearScenarioStage("editor"));
+onUnmounted(() => stage.clear("editor"));
 
 async function onResolve(): Promise<void> {
   const submit = props.actions[submitAction.value];

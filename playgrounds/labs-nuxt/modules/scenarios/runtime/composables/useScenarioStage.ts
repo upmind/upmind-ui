@@ -23,7 +23,8 @@
  * Nothing else may use it, or the lie comes straight back.
  */
 
-import { shallowRef } from "vue";
+import { getCurrentInstance, inject, shallowReactive } from "vue";
+import { PLAYGROUND_URL_NAMESPACE } from "../../../../app/composables/usePlaygroundUrlState.types";
 import type {
   ScenarioStage,
   StageCollection,
@@ -39,10 +40,14 @@ const EDITOR_TIMEOUT_MS = 5000;
 const EDITOR_POLL_MS = 50;
 
 // --- Global, because the stage IS the screen: one collection is on it, and at
-//     most one editor over that. Shared across every instance by design.
-const collection = shallowRef<StageCollection | undefined>();
+//     most one editor over that. Shared across every instance by design — and
+//     held once PER PANEL on an area's page, where several collections are on
+//     the screen at once and a press must reach the panel its step booted.
+const DEFAULT_NAMESPACE = "";
 
-const editor = shallowRef<StageEditor | undefined>();
+const collections = shallowReactive(new Map<string, StageCollection>());
+
+const editors = shallowReactive(new Map<string, StageEditor>());
 
 function fail(message: string): never {
   throw new Error(`scenario stage: ${message}`);
@@ -51,12 +56,23 @@ function fail(message: string): never {
 // -----------------------------------------------------------------------------
 
 export function useScenarioStage(): ScenarioStage {
+  // Read once, here: a world presses from async callbacks long after setup,
+  // when there is no instance left to inject from.
+  const namespace =
+    (getCurrentInstance()
+      ? inject(PLAYGROUND_URL_NAMESPACE, undefined)
+      : undefined) ?? DEFAULT_NAMESPACE;
+
   function registerCollection(value: StageCollection): void {
-    collection.value = value;
+    collections.set(namespace, value);
   }
 
   function registerEditor(value: StageEditor): void {
-    editor.value = value;
+    editors.set(namespace, value);
+  }
+
+  function clear(role?: "collection" | "editor"): void {
+    clearScenarioStage(role, namespace);
   }
 
   /**
@@ -73,7 +89,7 @@ export function useScenarioStage(): ScenarioStage {
     timeout: number = EDITOR_TIMEOUT_MS
   ): Promise<boolean> {
     const deadline = performance.now() + timeout;
-    while (!collection.value) {
+    while (!collections.has(namespace)) {
       if (performance.now() > deadline) return false;
       await new Promise(resolve => setTimeout(resolve, EDITOR_POLL_MS));
     }
@@ -85,7 +101,7 @@ export function useScenarioStage(): ScenarioStage {
     timeout: number = EDITOR_TIMEOUT_MS
   ): Promise<StageEditor> {
     const deadline = performance.now() + timeout;
-    while (!editor.value) {
+    while (!editors.has(namespace)) {
       if (performance.now() > deadline)
         fail(
           "no editor opened — the press that should have opened one did not"
@@ -93,27 +109,30 @@ export function useScenarioStage(): ScenarioStage {
       await new Promise(resolve => setTimeout(resolve, EDITOR_POLL_MS));
     }
 
-    return editor.value;
+    return editors.get(namespace)!;
   }
 
   return {
     registerCollection,
     registerEditor,
+    clear,
     whenEditor,
     whenStaged,
-    isStaged: () => !!collection.value,
+    isStaged: () => collections.has(namespace),
     press: (actionName, rowId) =>
-      collection.value
-        ? collection.value.press(actionName, rowId)
+      collections.has(namespace)
+        ? collections.get(namespace)!.press(actionName, rowId)
         : fail(`nothing is on stage to press "${actionName}" on`),
     offers: (actionName, rowId) =>
-      collection.value?.offers(actionName, rowId) ?? false,
+      collections.get(namespace)?.offers(actionName, rowId) ?? false,
     fill: input =>
-      editor.value
-        ? editor.value.fill(input)
+      editors.has(namespace)
+        ? editors.get(namespace)!.fill(input)
         : fail("no editor is open to fill"),
     submit: () =>
-      editor.value ? editor.value.submit() : fail("no editor is open to submit")
+      editors.has(namespace)
+        ? editors.get(namespace)!.submit()
+        : fail("no editor is open to submit")
   };
 }
 
@@ -121,7 +140,10 @@ export function useScenarioStage(): ScenarioStage {
  * Clear the stage. The surfaces do this on unmount; a world disposing between
  * tracks does it too, so a stale collection can never be pressed by the next.
  */
-export function clearScenarioStage(role?: "collection" | "editor"): void {
-  if (role !== "editor") collection.value = undefined;
-  if (role !== "collection") editor.value = undefined;
+export function clearScenarioStage(
+  role?: "collection" | "editor",
+  namespace: string = DEFAULT_NAMESPACE
+): void {
+  if (role !== "editor") collections.delete(namespace);
+  if (role !== "collection") editors.delete(namespace);
 }

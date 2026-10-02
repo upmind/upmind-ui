@@ -14,17 +14,21 @@
  */
 
 import { SCENARIO_ROUTE_META_KEY } from "./scenario.constants";
+import { panelKeyOf } from "./scenario.utils";
 import {
   filter,
   find,
+  flatMap,
   fromPairs,
   get,
   keyBy,
   keys,
   map,
+  partition,
   values
 } from "lodash-es";
 import type {
+  RegisteredPanel,
   RegisteredScenario,
   ScenarioDeclaration,
   ScenarioKey
@@ -47,17 +51,69 @@ const sources = import.meta.glob<string>("../*/*.scenario.ts", {
   eager: true
 });
 
-/** Every scenario, keyed by its own declared key. */
-export const registry: Record<ScenarioKey, RegisteredScenario> = fromPairs(
-  map(keys(declared), path => {
-    const declaration = get(declared, [path, "default"]);
-    const route = SCENARIO_DIRECTORY.exec(path)?.[1] as string;
-    return [declaration.key, { ...declaration, route }];
-  })
+const discovered: RegisteredScenario[] = map(keys(declared), path => {
+  const declaration = get(declared, [path, "default"]);
+  const route = SCENARIO_DIRECTORY.exec(path)?.[1] as string;
+  return { ...declaration, route };
+});
+
+// An AREA (`tabs`) binds nothing itself: it composes the panels its tabs name,
+// so it is kept out of `registry`, which holds exactly the declarations a
+// single surface draws.
+const [areaDeclarations, singleDeclarations] = partition(
+  discovered,
+  declaration => !!declaration.tabs
 );
+
+/** Every single-surface scenario, keyed by its own declared key. */
+export const registry: Record<ScenarioKey, RegisteredScenario> = fromPairs(
+  map(singleDeclarations, declaration => [declaration.key, declaration])
+);
+
+/** Every area (tabbed page), keyed by its own declared key. */
+export const areas: Record<ScenarioKey, RegisteredScenario> = fromPairs(
+  map(areaDeclarations, declaration => [declaration.key, declaration])
+);
+
+/**
+ * Every panel of every area, flattened and keyed by the harness key
+ * `<area>.<panel>`: each carries the area's route and its own local key, so a
+ * panel boots and is addressed exactly like a single-surface scenario.
+ */
+export const panels: Record<ScenarioKey, RegisteredPanel> = fromPairs(
+  flatMap(areaDeclarations, area =>
+    flatMap(area.tabs, tab =>
+      map(tab.panels, panel => {
+        const key = panelKeyOf(area.key, panel.key);
+        return [
+          key,
+          { ...panel, key, route: area.route, panel: panel.key }
+        ] as [ScenarioKey, RegisteredPanel];
+      })
+    )
+  )
+);
+
+/**
+ * Everything the harness can address a composable by — the single surfaces and
+ * every area's panels.
+ */
+export const bindings: Record<ScenarioKey, RegisteredScenario> = {
+  ...registry,
+  ...panels
+};
 
 /** Every declared key, in directory order — what the playground loops. */
 export const scenarioKeys = keys(registry);
+
+/** Every page a url reaches — the single surfaces and the areas. */
+export const scenarioPages: Record<ScenarioKey, RegisteredScenario> = {
+  ...registry,
+  ...areas
+};
+
+/** The keys of {@link scenarioPages}, in directory order. */
+export const scenarioPageKeys = map(discovered, "key");
 
 /**
  * The keys the harness can BOOT — a self-drawn module binds no collection and
@@ -70,12 +126,12 @@ export const scenarioKeys = keys(registry);
  * none of the three is excluded exactly as before.
  */
 const boundKeys = filter(
-  scenarioKeys,
+  keys(bindings),
   key =>
     !!(
-      get(registry, [key, "useList"]) ??
-      get(registry, [key, "useMutate"]) ??
-      get(registry, [key, "useManage"])
+      get(bindings, [key, "useList"]) ??
+      get(bindings, [key, "useMutate"]) ??
+      get(bindings, [key, "useManage"])
     )
 );
 
@@ -85,7 +141,7 @@ const boundKeys = filter(
  * directory it came from and resolves the rest through here.
  */
 export const scenarioRoutes: Record<string, RegisteredScenario> = keyBy(
-  values(registry),
+  values(scenarioPages),
   "route"
 );
 
@@ -143,8 +199,8 @@ export const scenarioRegistry: ScenarioRegistry<ScenarioKey, unknown> =
       // composable a self-drawn page opted in with. Same order as `boundKeys`,
       // which is what keeps the set and the thunks one reading.
       () =>
-        (get(registry, [key, "useList"]) ??
-          get(registry, [key, "useMutate"]) ??
-          get(registry, [key, "useManage"]))!()
+        (get(bindings, [key, "useList"]) ??
+          get(bindings, [key, "useMutate"]) ??
+          get(bindings, [key, "useManage"]))!()
     ])
   );

@@ -17,6 +17,7 @@ import type {
 } from "../../scenario.types";
 import type { ActionSlotItem } from "../ActionSlots.types";
 import type { FormProps } from "@upmind-automation/client-vue";
+import type { Ref } from "vue";
 
 // -----------------------------------------------------------------------------
 
@@ -39,6 +40,12 @@ export type RecordFormSlot = {
   schema?: FormProps["schema"];
   uischema?: FormProps["uischema"];
   model?: Record<string, unknown>;
+  /**
+   * The model a slot that publishes none starts from — a ref or a plain object,
+   * as the manager exposes it. Seeds the drawer's held model when `model` is
+   * absent.
+   */
+  defaults?: Record<string, unknown> | Ref<Record<string, unknown>>;
 };
 
 export type RecordLookupProps = {

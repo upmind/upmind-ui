@@ -26,6 +26,11 @@ export type RecordTransportSource = {
   composable: FourLayerComposable;
   /** The record the url's route param names; absent, the page boots no cell. */
   id?: string;
+  /**
+   * The manager addresses the session's own record, never an id: the page boots
+   * the cell at the actor alone and draws it at once. `id` is then ignored.
+   */
+  idless?: boolean;
   /** The actor the url names. */
   actor: ScopeActorTypes;
   /** The declaration's own `actors`, relayed to every cell the page opens. */
