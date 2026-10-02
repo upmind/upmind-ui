@@ -24,7 +24,7 @@
 <script lang="ts" setup>
 import { useI18n } from "vue-i18n";
 import { parseBillingCycle } from "@upmind-automation/headless";
-import CurrentPrice from "../../../product/components/pricing/CurrentPrice.vue";
+import { CurrentPrice } from "@upmind-automation/product";
 import {
   productOptionRootVariants,
   productPricingCurrentVariants

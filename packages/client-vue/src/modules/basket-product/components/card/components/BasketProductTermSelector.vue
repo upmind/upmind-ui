@@ -29,7 +29,7 @@ import {
   parseBillingCycle,
   PriceDisplayTypes
 } from "@upmind-automation/headless";
-import TermRow from "../../../../product/components/terms/TermRow.vue";
+import { TermRow } from "@upmind-automation/product";
 import { toNumber } from "lodash-es";
 import type { TermSelectorProps } from "./types";
 

@@ -106,7 +106,7 @@
 <script lang="ts" setup>
 import { useSlots } from "@upmind/ui";
 import { computed } from "vue";
-import { isMobile } from "../../../composables/isMobile";
+import { isMobile } from "@upmind-automation/foundation";
 import { isEmptySlot } from "../../../utils/isEmptySlot";
 import {
   COLUMN_BACKGROUND,

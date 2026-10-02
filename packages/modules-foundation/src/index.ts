@@ -6,5 +6,8 @@ export * from "./renderers";
 export * from "./icon";
 export * from "./hero";
 export * from "./navigation";
+export * from "./viewport";
 export * from "./section";
 export * from "./forms";
+export * from "./slots";
+export * from "./variants";

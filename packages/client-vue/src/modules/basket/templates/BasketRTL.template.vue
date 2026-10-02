@@ -33,11 +33,11 @@
 
 <script lang="ts" setup>
 import { onMounted } from "vue";
+import { isMobile } from "@upmind-automation/foundation";
 import { useConfig } from "@upmind-automation/headless";
 import { useHeader } from "../../../components/header/useHeader";
 import { useFooter } from "../../../components/footer/useFooter";
 import { useSection } from "@upmind-automation/foundation";
-import { isMobile } from "../../../composables/isMobile";
 import Layout from "../../../components/layout/Layout.vue";
 import { HEADER_BACKGROUND } from "../../../components/header/types";
 import { LAYOUT_VARIANTS } from "../../../components/layout/types";

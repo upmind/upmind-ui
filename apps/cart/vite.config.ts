@@ -90,6 +90,10 @@ export default defineConfig(({ mode, command }) => {
           __dirname,
           "../../packages/modules-foundation/src/index.ts"
         ),
+        "@upmind-automation/product/styles": resolve(
+          __dirname,
+          "../../packages/modules-product/src/styles.css"
+        ),
         "@upmind-automation/product": resolve(
           __dirname,
           "../../packages/modules-product/src/index.ts"

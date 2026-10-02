@@ -30,6 +30,7 @@
     "@jsonforms/core": "^3.6.0",
     "@upmind/ui": "workspace:*",
     "@upmind-automation/headless": "workspace:*",
+    "@vueuse/core": "^13.6.0",
     "class-variance-authority": "^0.7.1",
     "lodash-es": "^4.17.21",
     "lucide-vue-next": "catalog:",

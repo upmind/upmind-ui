@@ -7,6 +7,7 @@
 @import "@upmind-automation/auth/styles";
 @import "@upmind-automation/foundation/styles";
 @import "@upmind-automation/payment/styles";
+@import "@upmind-automation/product/styles";
 
 /* The library's Markdown component styles its output with `prose-*` classes,
    which only exist once the typography plugin is loaded by the app that

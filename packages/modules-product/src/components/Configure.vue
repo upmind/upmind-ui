@@ -1,0 +1,429 @@
+<template>
+  <LayoutProvider>
+    <slot :template="template" />
+
+    <template v-if="!isSlotHidden('product-details')" #product-details>
+      <slot
+        name="product-details"
+        :product-meta="productMeta"
+        :config-meta="configMeta"
+        :product="product"
+        :product-image="productImage"
+      >
+        <ProductHero
+          v-if="productMeta?.isAvailable && product?.productDetails"
+          :product-details="product.productDetails"
+          :direction="stylesMeta.direction"
+          :image="stylesMeta.heroImage"
+          :meta="configMeta"
+        >
+          <template #prepend>
+            <Breadcrumb
+              :more-label="t('text.more')"
+              v-if="productMeta?.isAvailable && breadcrumbItems.length"
+              :items="breadcrumbItems"
+              separator="/"
+            >
+              <template #item="{ crumb }">
+                <BreadcrumbPage
+                  v-if="(!crumb.to && !crumb.href) || crumb.current"
+                  class="text-faint inline-flex items-center gap-1 text-base font-normal"
+                  ><Icon :icon="crumb.icon" /> {{ crumb.label }}</BreadcrumbPage
+                >
+                <Link
+                  v-else
+                  :to="crumb.to"
+                  :href="crumb.href"
+                  :size="crumb.icon ? 'sm' : 'md'"
+                  color="muted"
+                  ><Icon :icon="crumb.icon" /> {{ crumb.label }}</Link
+                >
+              </template>
+            </Breadcrumb>
+          </template>
+        </ProductHero>
+        <ProductHeroSkeleton v-else />
+      </slot>
+    </template>
+
+    <template #image>
+      <ProductImage
+        v-if="
+          product?.productDetails &&
+          configMeta.ui.productImages.isVisible &&
+          (!isEmpty(product.productDetails?.images) ||
+            product.productDetails.imgUrl)
+        "
+        :product-details="product.productDetails"
+        :images="product.productDetails?.images"
+      />
+    </template>
+
+    <template #configuration>
+      <Section
+        :label="t('text.product_configuration')"
+        value="product-configuration"
+        icon="settings-04"
+        :actions="configurationActions"
+      >
+        <slot
+          name="configuration"
+          :product="product"
+          :pending-product="pendingProduct"
+          :config-meta="configMeta"
+          :product-meta="productMeta"
+          :do-resolve="doResolve"
+          :do-reject="doReject"
+        >
+          <form @submit.prevent @reset.prevent>
+            <ProductConfig
+              v-if="pendingProduct && productMeta?.isAvailable"
+              as="fieldset"
+              :item="pendingProduct"
+              :model-value="pendingProduct?.id"
+              :meta="configMeta"
+              :touched="productMeta?.showErrors"
+              no-footer
+              :hide-terms="hideTerms"
+              @resolve="doResolve"
+              @reject="doReject"
+            />
+
+            <ProductNotFound
+              v-else-if="productMeta?.isUnavailable"
+              :storefront-route="props.storefrontRoute"
+            />
+
+            <ConfigSkeleton v-else />
+          </form>
+        </slot>
+      </Section>
+    </template>
+
+    <template #pricing>
+      <Section
+        :label="t('text.configuration_summary')"
+        icon="shopping-bag-02"
+        :class="productSummaryVariants()"
+      >
+        <slot
+          name="pricing"
+          :product="product"
+          :model="model"
+          :terms="terms"
+          :product-meta="productMeta"
+          :config-meta="configMeta"
+          :do-resolve="doResolve"
+          :update-quantity="updateQuantity"
+          :update-term="updateTerm"
+        >
+          <Pricing
+            v-if="product && productMeta?.isAvailable"
+            :product="product"
+            :meta="productMeta"
+            :template="props.template"
+            :total="stylesMeta.showTotal"
+            :title="configMeta.data.productName || product.productDetails.title"
+            :options="configMeta.ui.productConfigOptionsSummary.isVisible"
+            :fields="configMeta.ui.productConfigFieldsSummary.isVisible"
+          />
+
+          <PricingSkeleton v-else />
+
+          <slot
+            v-if="
+              template === PRODUCT_TEMPLATE.INSET ||
+              (template === PRODUCT_TEMPLATE.TWO_COLUMN_LTR && !isMobile)
+            "
+            name="actions"
+            :product="product"
+            :config-meta="configMeta"
+            :product-meta="productMeta"
+            :template="props.template"
+            :do-resolve="doResolve"
+            :update-quantity="updateQuantity"
+          >
+            <ProductActions
+              v-if="product && productMeta?.isAvailable"
+              :product="product"
+              :meta="productMeta"
+              :template="props.template"
+              @resolve="doResolve"
+              @update:quantity="updateQuantity"
+            />
+          </slot>
+        </slot>
+      </Section>
+    </template>
+
+    <template
+      v-if="
+        configMeta.ui.trustMessaging.isVisible &&
+        configMeta.data.trustMessagingMarkdown
+      "
+      #markdown
+    >
+      <slot
+        name="markdown"
+        :product="product"
+        :config-meta="configMeta"
+        :product-meta="productMeta"
+      >
+        <Markdown
+          v-if="product?.productDetails"
+          v-bind="markdownTestAttrs"
+          :model-value="configMeta.data.trustMessagingMarkdown"
+        />
+      </slot>
+    </template>
+
+    <template #actions>
+      <slot
+        name="actions"
+        :product="product"
+        :config-meta="configMeta"
+        :product-meta="productMeta"
+        :template="props.template"
+        :do-resolve="doResolve"
+        :update-quantity="updateQuantity"
+      >
+        <ProductActions
+          v-if="product && productMeta?.isAvailable"
+          :product="product"
+          :meta="productMeta"
+          :template="props.template"
+          @resolve="doResolve"
+          @update:quantity="updateQuantity"
+        />
+      </slot>
+    </template>
+
+    <template #errors>
+      <Alert
+        class="w-full"
+        v-if="externalErrors?.message"
+        variant="danger"
+        :title="externalErrors?.message"
+      >
+        <template #icon><Icon icon="alert-triangle" /></template>
+      </Alert>
+      <ConfigErrors
+        :visible="productMeta?.showErrors"
+        :errors="validationErrors"
+      />
+    </template>
+
+    <template #total>
+      <PricingTotal
+        v-if="product && productMeta?.isAvailable"
+        :pricing="product.pricing"
+        footer
+      />
+    </template>
+
+    <template #terms>
+      <slot name="terms" />
+    </template>
+  </LayoutProvider>
+</template>
+
+<script lang="ts" setup>
+import { useTestAttrs } from "@upmind/ui";
+import { Link, Markdown } from "@upmind/ui";
+import { Breadcrumb } from "@upmind/ui";
+import { BreadcrumbPage } from "@upmind/ui";
+import { Alert } from "@upmind/ui";
+import { useClipboard } from "@vueuse/core";
+import { computed, onUnmounted, provide, watch } from "vue";
+import { useI18n } from "vue-i18n";
+import { Section } from "@upmind-automation/foundation";
+import { Icon } from "@upmind-automation/foundation";
+import { isMobile } from "@upmind-automation/foundation";
+import { useBreadcrumbs } from "@upmind-automation/foundation";
+import { LayoutProvider } from "@upmind-automation/foundation";
+import { BreadcrumbVariant } from "@upmind-automation/headless";
+import { useConfig, validateTemplate } from "@upmind-automation/headless";
+import {
+  useRoutingEngine,
+  useBasketProductsPending,
+  useQueryParams,
+  useProductConfig,
+  UIContext,
+  type ProductDetails,
+  DetailedError,
+  responseCodes,
+  ErrorOrigin
+} from "@upmind-automation/headless";
+import { PRODUCT_TEMPLATE } from "../types";
+import { productSummaryVariants } from "../variants";
+import ProductConfig from "./Config.vue";
+import ConfigErrors from "./ConfigErrors.vue";
+import ConfigSkeleton from "./ConfigSkeleton.vue";
+import ProductHero from "./hero/ProductHero.vue";
+import ProductHeroSkeleton from "./hero/ProductHeroSkeleton.vue";
+import ProductImage from "./hero/ProductImage.vue";
+import { PRODUCT_HERO_DIRECTION } from "./hero/types";
+import ProductNotFound from "./NotFound.vue";
+import Pricing from "./pricing-list/Pricing.vue";
+import PricingSkeleton from "./pricing-list/PricingSkeleton.vue";
+import PricingTotal from "./pricing-list/PricingTotal.vue";
+import ProductActions from "./ProductActions.vue";
+import { includes, take, isEmpty } from "lodash-es";
+import type { ConfigureProps } from "../types";
+
+// -----------------------------------------------------------------------------
+
+const props = withDefaults(defineProps<ConfigureProps>(), {
+  hideSlots: () => []
+});
+
+const { t } = useI18n();
+
+const { navigateBack, navigateNext } = useRoutingEngine();
+const { configure, resolve, remove } = useBasketProductsPending();
+const { productId } = useQueryParams();
+const { copy, copied, isSupported } = useClipboard({ legacy: true });
+
+const {
+  update,
+  service: pendingProduct,
+  onDone,
+  isReady
+} = await configure(productId);
+
+const productConfig = useProductConfig(pendingProduct);
+if (!productConfig)
+  throw new DetailedError(
+    t("error.product_not_available"),
+    responseCodes.Service_Unavailable,
+    ErrorOrigin.Headless
+  );
+
+provide("useProductConfig", productConfig);
+
+const {
+  meta: productMeta,
+  model,
+  product,
+  externalErrors,
+  validationErrors,
+  productImage,
+  updateQuantity,
+  updateTerm,
+  terms,
+  shareUrl
+} = productConfig;
+
+const configMeta = useConfig({
+  context: UIContext.CONFIGURE,
+  product: () => product.value,
+  provide: true
+});
+
+await isReady();
+
+const isSlotHidden = (name: string) => includes(props.hideSlots, name);
+
+const template = computed(() =>
+  validateTemplate(
+    configMeta.ui.template.value || props.template,
+    PRODUCT_TEMPLATE,
+    PRODUCT_TEMPLATE.TWO_COLUMN_RTL
+  )
+);
+
+const stylesMeta = computed(() => {
+  return {
+    breadcrumbs: configMeta.ui.breadcrumbs.value as BreadcrumbVariant,
+    direction:
+      template.value === PRODUCT_TEMPLATE.TWO_COLUMN_RTL
+        ? PRODUCT_HERO_DIRECTION.VERTICAL
+        : PRODUCT_HERO_DIRECTION.HORIZONTAL,
+    heroImage:
+      (template.value !== PRODUCT_TEMPLATE.TWO_COLUMN_LTR || isMobile.value) &&
+      configMeta.ui.productImages.isVisible,
+    showTotal:
+      (template.value === PRODUCT_TEMPLATE.TWO_COLUMN_RTL && isMobile.value) ||
+      template.value === PRODUCT_TEMPLATE.TWO_COLUMN_LTR ||
+      template.value === PRODUCT_TEMPLATE.FULL ||
+      template.value === PRODUCT_TEMPLATE.INSET
+  };
+});
+
+const { items: breadcrumbItems } = useBreadcrumbs({
+  categories: () => {
+    const breadcrumb = product.value?.productDetails?.breadcrumb ?? [];
+    return stylesMeta.value?.breadcrumbs === BreadcrumbVariant.PARENT
+      ? take(breadcrumb, 1)
+      : breadcrumb;
+  },
+  route: () => props.catalogueRoute,
+  storefrontRoute: () => props.storefrontRoute,
+  variant: () => stylesMeta.value?.breadcrumbs,
+  currentItem: () =>
+    product.value?.productDetails &&
+    stylesMeta.value?.breadcrumbs !== BreadcrumbVariant.PARENT
+      ? { label: product.value.productDetails.title }
+      : undefined
+});
+
+async function doResolve() {
+  update()
+    .then(() => {
+      resolve(pendingProduct);
+      navigateNext(pendingProduct);
+    })
+    .catch(error => {
+      console.warn("Product Configuration Error", error);
+      // if we take more than 60 seconds to resolve the product ( which is unlikely but possible),
+      // add a failsafe to ensure the user is not stuck on the page and that we actually navigate away,
+      // if the product is successfully added to the basket ( onDone = success)
+      onDone().then(() => {
+        resolve(pendingProduct);
+        navigateNext(pendingProduct);
+      });
+    });
+}
+
+function doReject() {
+  navigateBack();
+}
+
+const configurationActions = computed(() => {
+  if (!isSupported.value) return [];
+  return [
+    {
+      icon: copied.value ? "check" : "share-07",
+      label: copied.value ? t("confirm.copied") : t("action.share"),
+      handler: handleShare
+    }
+  ];
+});
+
+const handleShare = () => {
+  copy(shareUrl.value || window.location.href);
+};
+
+onUnmounted(() => {
+  remove(productId);
+});
+
+// Emit productDetails when it loads/changes for parent components (e.g., SEO, schema)
+const emit = defineEmits<{
+  productDetails: [payload: ProductDetails];
+}>();
+
+watch(
+  () => product.value?.productDetails,
+  value => {
+    if (value) {
+      emit("productDetails", value);
+    }
+  },
+  { immediate: true }
+);
+
+defineExpose({ product: () => product.value?.productDetails });
+
+const markdownTestAttrs = useTestAttrs({ key: "slots:summary-append" });
+</script>

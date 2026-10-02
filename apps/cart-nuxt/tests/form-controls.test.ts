@@ -29,6 +29,11 @@ const PACKAGES = [
     name: "payment",
     controls: async () =>
       (await import("@upmind-automation/payment")).paymentRenderers
+  },
+  {
+    name: "product",
+    controls: async () =>
+      (await import("@upmind-automation/product")).productRenderers
   }
 ];
 

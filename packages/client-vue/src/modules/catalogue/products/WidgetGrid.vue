@@ -128,10 +128,7 @@ import {
   type UseProductCategories
 } from "@upmind-automation/headless";
 import { useConfig } from "@upmind-automation/headless";
-import {
-  ProductCard,
-  ProductCardSkeleton
-} from "../../product/components/card";
+import { ProductCard, ProductCardSkeleton } from "@upmind-automation/product";
 import {
   productsMainRootVariants,
   productsMainControlsVariants,

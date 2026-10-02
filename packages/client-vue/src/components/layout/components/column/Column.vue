@@ -8,7 +8,7 @@
 import { cn } from "@upmind/ui";
 import { computed } from "vue";
 import { useSection } from "@upmind-automation/foundation";
-import { isMobile } from "../../../../composables/isMobile";
+import { isMobile } from "@upmind-automation/foundation";
 import { columnVariants } from "./variants";
 import type { ColumnProps } from "./types";
 
