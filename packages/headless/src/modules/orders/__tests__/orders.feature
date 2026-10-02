@@ -18,6 +18,14 @@ Feature: Order history — the client self-service capability
     Then the order history publishes the client's own orders
     And the order history criteria hold the forced order category
 
+  @AC-1 @FE-3237 @client
+  Scenario: The client refreshes the order history from the platform
+    Given a signed-in client has loaded their order history
+    When the client drops the order history cache through its own controls
+    Then an invalidated order history asks the platform for the list again
+    And a reset order history clears a forced list and asks the platform again
+    And a destroyed order history leaves the scope registry with no stale reader
+
   @AC-2 @FE-3237 @client
   Scenario: The list asks for the legacy relations
     Given a signed-in client of a single-brand or a multi-brand organisation
@@ -141,6 +149,14 @@ Feature: Order history — the client self-service capability
     Then the manager reads that order with the staged-import flag and the legacy relation set
     And an identifier that does not resolve publishes no record and an error
     And the reload control sends the read again
+
+  @AC-13 @FE-3237 @client
+  Scenario: The client refreshes one order from the platform
+    Given a client has opened one placed order
+    When the client drops the order cache through the manager's own controls
+    Then an invalidated order asks the platform for that order again
+    And a reset order clears a forced order and asks the platform again
+    And a destroyed order manager leaves the scope registry, and a fresh manager reads the order again
 
   @AC-14 @FE-3237 @client
   Scenario: The detail carries the legacy fields
