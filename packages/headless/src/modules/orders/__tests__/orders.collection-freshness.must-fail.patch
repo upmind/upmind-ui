@@ -1,0 +1,13 @@
+diff --git a/packages/headless/src/modules/orders/useOrders.actions.ts b/packages/headless/src/modules/orders/useOrders.actions.ts
+index 9bc303aa19..1ae9cb0e10 100644
+--- a/packages/headless/src/modules/orders/useOrders.actions.ts
++++ b/packages/headless/src/modules/orders/useOrders.actions.ts
+@@ -399,7 +399,7 @@ export function createOrdersActions(
+     filterBy,
+ 
+     /** Marks the shared cache key stale so the next read refetches. */
+-    invalidate: invalidateQueryByKey(service.queryKey, { exact: false }),
++    invalidate: async () => {},
+ 
+     /** Resolves true when the collection is ready to read. Always settles. */
+     isReady,
