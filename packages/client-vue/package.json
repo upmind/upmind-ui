@@ -49,6 +49,7 @@
     "@upmind-automation/client": "workspace:*",
     "@upmind-automation/foundation": "workspace:*",
     "@upmind-automation/headless": "workspace:*",
+    "@upmind-automation/invoice": "workspace:*",
     "@upmind-automation/payment": "workspace:*",
     "@upmind-automation/product": "workspace:*",
     "@upmind-automation/types": "workspace:*",

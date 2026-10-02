@@ -207,23 +207,13 @@ import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
 import { UpmAuth } from "@upmind-automation/auth";
 import {
-  detailsTotalRootVariants,
-  detailsTotalLabelVariants,
-  detailsTotalValueVariants,
-  detailsSkeletonRootVariants,
-  detailsSkeletonRowVariants,
-  detailsSkeletonTotalRowVariants,
-  detailsSkeletonItemVariants,
-  useAnnouncement,
-  useThemes,
-  ORDER_TEMPLATE,
   UpmOrderEnclosedTemplate as OrderEnclosedTemplate,
   UpmOrderFullTemplate as OrderFullTemplate,
   UpmOrderInsetTemplate as OrderInsetTemplate,
   UpmOrderLTRTemplate as OrderLTRTemplate,
-  UpmOrderProducts as OrderProducts,
   UpmOrderRTLTemplate as OrderRTLTemplate
 } from "@upmind-automation/client-vue";
+import { useAnnouncement } from "@upmind-automation/foundation";
 import { Hero, Icon, Section } from "@upmind-automation/foundation";
 import { useConfig } from "@upmind-automation/headless";
 import {
@@ -238,8 +228,19 @@ import {
   type Badge,
   type InvoicePaymentChallenge
 } from "@upmind-automation/headless";
+import {
+  detailsTotalRootVariants,
+  detailsTotalLabelVariants,
+  detailsTotalValueVariants,
+  detailsSkeletonRootVariants,
+  detailsSkeletonRowVariants,
+  detailsSkeletonTotalRowVariants,
+  detailsSkeletonItemVariants,
+  ORDER_TEMPLATE,
+  UpmOrderProducts as OrderProducts
+} from "@upmind-automation/invoice";
 import { capitalize, first, get, omit, toString } from "lodash-es";
-import type { OrderProps } from "@upmind-automation/client-vue";
+import type { OrderProps } from "@upmind-automation/invoice";
 import { PAYMENT_OVERLAY_ID } from "~/funnels/labs.constants";
 
 interface OrderItem {
@@ -293,14 +294,6 @@ const orderId = toString(
     get(route.params, QUERY_PARAMS.ORDER_ID) ||
     get(route.query, QUERY_PARAMS.ORDER_ID)
 );
-
-const { set } = useThemes();
-
-const { ui } = useConfig({
-  context: UIContext.CONFIRMATION
-});
-
-set(ui.theme.value);
 
 // -----------------------------------------------------------------------------
 

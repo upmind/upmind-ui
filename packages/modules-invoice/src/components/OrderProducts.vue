@@ -103,8 +103,8 @@ import { Link } from "@upmind/ui";
 import { computed, inject, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { Section } from "@upmind-automation/foundation";
-import { useSection } from "@upmind-automation/foundation";
 import { Icon } from "@upmind-automation/foundation";
+import { useSection } from "@upmind-automation/foundation";
 import { parseBillingCycle } from "@upmind-automation/headless";
 import {
   tableBodyVariants,

@@ -1,6 +1,8 @@
 <template>
   <div data-test-key="order-page">
-    <UpmOrder />
+    <UpmOrder v-slot="{ template }">
+      <component :is="ORDER_TEMPLATES[template]" />
+    </UpmOrder>
   </div>
 </template>
 
@@ -15,7 +17,8 @@
  * child, so this page needs no return logic of its own.
  */
 
-import { UpmOrder } from "@upmind-automation/client-vue";
+import { ORDER_TEMPLATES } from "@upmind-automation/client-vue";
+import { UpmOrder } from "@upmind-automation/invoice";
 import { ROUTE } from "~/funnels/types";
 
 // -----------------------------------------------------------------------------

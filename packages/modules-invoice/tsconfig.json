@@ -1,6 +1,26 @@
 {
   "$schema": "https://json.schemastore.org/tsconfig",
   "extends": "../../tsconfig/vue-package.json",
+  "compilerOptions": {
+    // `paths` is one flat map, so declaring it at all REPLACES the base's
+    // entries. They are restated here — against this package's own baseUrl, not
+    // the base config's — because `vue/compiler-sfc` resolves a props
+    // interface's `extends` base through the nearest tsconfig, and because the
+    // editor must see the same graph the build does.
+    //
+    // The set is the ADR 023 §3 "May import" allowlist — the same list
+    // `tsconfig.build.json` carries. Adding a package outside §3's
+    // grant here would defeat the direction guard; removing an entry is a
+    // decision, not an omission.
+    "baseUrl": ".",
+    "paths": {
+      "@upmind/ui": ["../../design-system/packages/ui/src/index.ts"],
+      "@upmind-automation/auth": ["../modules-auth/src/index.ts"],
+      "@upmind-automation/foundation": ["../modules-foundation/src/index.ts"],
+      "@upmind-automation/headless": ["../headless/src/index.ts"],
+      "@upmind-automation/payment": ["../modules-payment/src/index.ts"]
+    }
+  },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist", "**/*.spec.*", "**/*.test.*"]
 }

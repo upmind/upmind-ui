@@ -140,7 +140,7 @@ three sites use the real component rather than a mock, because the components ex
 | `BILLING_ORDERS` | `UpmOrder` over headless `orders` | Phase 8 extracted the order surface into `packages/modules-invoice`, but the portal cannot mount it. See below. Recorded on !585. |
 | `BILLING_ORDER_DETAIL` | `UpmOrder` (detail) | Same blocker. |
 
-**The blocker.** `packages/modules-invoice/src/Order.vue:255` reads its id from a fixed route
+**The blocker.** `packages/modules-invoice/src/components/Order.vue:255` reads its id from a fixed route
 parameter:
 
 ```js

@@ -1,0 +1,11 @@
+# Negative control — the order detail page goes back to an `id` parameter, which
+# UpmOrder never reads, so every order link opens a page with no order.
+#
+# Intended RED:
+#   apps/portal-nuxt/tests/order-detail-page.test.ts
+#     "is routed on the parameter the organism reads"
+
+diff --git a/apps/portal-nuxt/app/pages/billing/orders/[oid].vue b/apps/portal-nuxt/app/pages/billing/orders/[id].vue
+similarity index 100%
+rename from apps/portal-nuxt/app/pages/billing/orders/[oid].vue
+rename to apps/portal-nuxt/app/pages/billing/orders/[id].vue

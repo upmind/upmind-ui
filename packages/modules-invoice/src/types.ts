@@ -1,4 +1,5 @@
 import type { StorefrontRoute } from "@upmind-automation/foundation";
+import type { Component } from "vue";
 import type { RouteLocationAsRelativeGeneric } from "vue-router";
 
 export { PAYMENT_STATE, type PaymentState } from "@upmind-automation/headless";
@@ -10,6 +11,9 @@ export enum ORDER_TEMPLATE {
   ENCLOSED = "enclosed",
   INSET = "inset"
 }
+
+/** The host's page templates, one per `ORDER_TEMPLATE`. */
+export type OrderTemplates = Record<ORDER_TEMPLATE, Component>;
 
 export type OrderProps = {
   template?: ORDER_TEMPLATE;

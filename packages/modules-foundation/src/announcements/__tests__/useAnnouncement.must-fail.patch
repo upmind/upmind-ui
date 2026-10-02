@@ -1,0 +1,32 @@
+# Negative control — each caller gets its own announcement. The state moves from
+# module scope into the composable, so a page's `show()` lands in a copy the
+# shell's bar never reads, and a `dismiss()` from anywhere else clears nothing.
+#
+# Intended RED:
+#   packages/modules-foundation/src/announcements/__tests__/useAnnouncement.test.ts
+#     "draws a page's announcement in the bar beside it, with no provider in the tree"
+#     "takes the bar down when any caller dismisses"
+#     "gives every caller the same visibility and the same announcement"
+#     "carries the action the page gave it to whoever draws it"
+#     "draws the latest announcement in place of the one before"
+#     "keeps the announcement on the bar after the page that showed it goes away"
+
+diff --git a/packages/modules-foundation/src/announcements/useAnnouncement.ts b/packages/modules-foundation/src/announcements/useAnnouncement.ts
+--- a/packages/modules-foundation/src/announcements/useAnnouncement.ts
++++ b/packages/modules-foundation/src/announcements/useAnnouncement.ts
+@@ -5,7 +5,6 @@ import type { AnnouncementOptions } from "./types";
+ // -----------------------------------------------------------------------------
+ // --- global context
+ 
+-const announcement = ref<AnnouncementOptions | null>(null);
+ 
+ // -----------------------------------------------------------------------------
+ /**
+@@ -13,6 +12,7 @@ const announcement = ref<AnnouncementOptions | null>(null);
+  * Uses a module-level singleton so any component can show/dismiss announcements.
+  */
+ export const useAnnouncement = () => {
++  const announcement = ref<AnnouncementOptions | null>(null);
+   const isVisible = computed(() => !!announcement.value);
+ 
+   /**

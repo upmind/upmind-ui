@@ -1,0 +1,21 @@
+# Negative control — the order page fills its products block under a name no
+# layout draws, so the page's layout never gets develop's products.
+#
+# Intended RED:
+#   packages/modules-invoice/src/__tests__/order-slots.int.test.ts
+#     "hands the layout develop's blocks, and no guest registration for a signed-in client"
+#     "draws each block's develop content in its own frame"
+
+diff --git a/packages/modules-invoice/src/components/Order.vue b/packages/modules-invoice/src/components/Order.vue
+index 326fa8b..8e07a68 100644
+--- a/packages/modules-invoice/src/components/Order.vue
++++ b/packages/modules-invoice/src/components/Order.vue
+@@ -142,7 +142,7 @@
+       </Section>
+     </template>
+ 
+-    <template v-if="!orderMeta.isUnavailable" #order-products>
++    <template v-if="!orderMeta.isUnavailable" #products>
+       <OrderProducts v-show="!orderMeta.isProcessing">
+         <template #append>
+           <Button
