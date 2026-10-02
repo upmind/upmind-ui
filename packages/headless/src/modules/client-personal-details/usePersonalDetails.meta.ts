@@ -1,49 +1,95 @@
 import { computed } from "vue";
-import { isEmpty } from "lodash-es";
-import type {
-  ClientPersonalDetailsRecordQuery,
-  ClientPersonalDetailsServices
-} from "./client-personal-details.types";
+import { contextValue, stateMatches } from "../../utils";
+import { isEmpty, isEqual } from "lodash-es";
+import type { ProfileContext } from "./client-personal-details.types";
+import type { UseActor } from "../../utils";
 import type { ScopeActorTypes } from "../scope/scope.types";
 // -----------------------------------------------------------------------------
 /**
  * @module client-personal-details/usePersonalDetails.meta
- * @description Read meta — computed state flags, one computed per flag.
- * @doctrine clause 2 — shared-only (armless). No capability read-state
- * exists in this module, so `meta` legitimately stays shared-only rather
- * than needing a per-actor capability arm.
+ * @description Manager meta — FLAT computeds, one per flag, read through the
+ * canonical state utilities only.
+ *
+ * @doctrine clause 2 — shared-only (armless).
  */
 export function createPersonalDetailsMeta(
   _actorScope: ScopeActorTypes,
-  service: ClientPersonalDetailsServices,
-  query: ClientPersonalDetailsRecordQuery
+  actor: UseActor
 ) {
-  const hasError = computed(() => !!query.error.value);
+  const { state } = actor;
 
-  const isLoading = computed(
-    () => query.isLoading.value || !query.isFetched.value
+  /** True once the form is available for input. */
+  const isAvailable = computed(() => stateMatches(state, "available"));
+
+  /**
+   * True while the machine is waiting for its client id or resolving
+   * lookups. `subscribing` is included deliberately: a manager whose
+   * `hasSubscription` guard has not passed yet is loading, not broken.
+   */
+  const isLoading = computed(() =>
+    stateMatches(state, ["subscribing", "loading"])
   );
 
-  const isEmptyProfile = computed(() => isEmpty(query.data.value));
+  /** True if the machine captured an error. */
+  const hasErrors = computed(
+    () =>
+      stateMatches(state, "available.error") ||
+      !isEmpty(contextValue<ProfileContext["error"]>(state, "error"))
+  );
+
+  /** True if a validation error exists AND the form has been touched. */
+  const showErrors = computed(
+    () =>
+      !isEmpty(contextValue<ProfileContext["error"]>(state, "error")) &&
+      stateMatches(state, ["available.invalid", "available.error"])
+  );
+
+  /** True if the current model passes schema validation. */
+  const isValid = computed(() => stateMatches(state, "available.valid"));
+
+  /** True if the model differs from its persisted baseline. */
+  const isDirty = computed(
+    () =>
+      !isEqual(
+        contextValue<ProfileContext["model"]>(state, "model"),
+        contextValue<ProfileContext["baseModel"]>(state, "baseModel")
+      )
+  );
+
+  /** True while a save is being processed. */
+  const isProcessing = computed(() => stateMatches(state, "processing"));
+
+  /** True once the profile has been saved. */
+  const isComplete = computed(() =>
+    stateMatches(state, ["processed", "complete"])
+  );
 
   // --- actor-specific meta: none earned yet (clause 2).
 
   return {
-    /** True if the profile read failed. */
-    hasError,
+    /** True if the machine captured an error. */
+    hasErrors,
 
-    /**
-     * True while this scope can address a client — authenticated with a
-     * resolved client id. Handed straight through from the services
-     * instance: this IS the predicate the request gate calls.
-     */
-    isAvailable: service.isAvailable,
+    /** True once the form is available for input. */
+    isAvailable,
 
-    /** True if the profile read has not yet returned any fields. */
-    isEmpty: isEmptyProfile,
+    /** True once the profile has been saved. */
+    isComplete,
 
-    /** True while the read is loading or has not completed its first fetch. */
-    isLoading
+    /** True if the model differs from its persisted baseline. */
+    isDirty,
+
+    /** True while subscribing or loading. */
+    isLoading,
+
+    /** True while a save is being processed. */
+    isProcessing,
+
+    /** True if the current model passes schema validation. */
+    isValid,
+
+    /** True if an error exists and the form has been touched. */
+    showErrors
 
     // The arm merges in HERE, last.
     // ...actorMeta

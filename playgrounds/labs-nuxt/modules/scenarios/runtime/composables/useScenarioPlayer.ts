@@ -251,7 +251,7 @@ export function useScenarioPlayer(
     playhead.value = SCENE_UNPLAYED;
     status.value = SCENARIO_PLAYER_STATUS.ARMED;
 
-    await forced.arm("replay", track.name);
+    await forced.arm("replay", track);
     resetCriteria();
   }
 
@@ -298,34 +298,40 @@ export function useScenarioPlayer(
     // Re-armed, not merely re-run: the scenes about to fire again are the ones
     // that already moved the replay's collection, so it goes back to the
     // recording first or the second pass would land on the first pass's state.
-    if (armed.value) await forced.arm("replay", armed.value.name);
+    if (armed.value) await forced.arm("replay", armed.value);
 
     for (let scene = 0; scene <= index; scene++) await runScene(scene);
   }
 
-  async function play(): Promise<void> {
-    if (!armed.value) return;
+  function play(): Promise<void> {
+    if (!armed.value) return Promise.resolve();
 
     const last = size(armed.value.scenes) - 1;
     status.value = SCENARIO_PLAYER_STATUS.PLAYING;
 
-    try {
-      while (
-        status.value === SCENARIO_PLAYER_STATUS.PLAYING &&
-        playhead.value < last
-      ) {
-        await runScene(playhead.value + 1);
+    function step(): Promise<void> {
+      if (
+        status.value !== SCENARIO_PLAYER_STATUS.PLAYING ||
+        playhead.value >= last
+      )
+        return Promise.resolve();
+
+      return runScene(playhead.value + 1).then(() => {
         if (
           status.value !== SCENARIO_PLAYER_STATUS.PLAYING ||
           playhead.value >= last
         )
-          break;
-        await new Promise<void>(resolve => setTimeout(resolve, dwell));
-      }
-    } finally {
+          return undefined;
+        return new Promise<void>(resolve => setTimeout(resolve, dwell)).then(
+          step
+        );
+      });
+    }
+
+    return step().finally(() => {
       if (status.value === SCENARIO_PLAYER_STATUS.PLAYING)
         status.value = SCENARIO_PLAYER_STATUS.PAUSED;
-    }
+    });
   }
 
   async function disarm(): Promise<void> {

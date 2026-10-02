@@ -1074,11 +1074,9 @@ describe("Contract scenario recordings", () => {
     it(AGAIN, async () => {
       const target = await ensureSubscription();
       await setStatus(target, "contract_suspended");
-      try {
-        await recordStep(scenario, AGAIN, suspendedNewestFirst);
-      } finally {
-        await liftStatus(target);
-      }
+      await recordStep(scenario, AGAIN, suspendedNewestFirst).finally(() =>
+        liftStatus(target)
+      );
     });
     it("my list shows the contract that was suspended since I last read it", () =>
       recordStep(
@@ -1113,15 +1111,11 @@ describe("Contract scenario recordings", () => {
         it(OPEN_IT, async () => {
           const target = await ensureSubscription();
           await lodgeCancellationRequest(target);
-          try {
-            await recordStep(
-              scenario,
-              OPEN_IT,
-              readContract(target.contractId)
-            );
-          } finally {
-            await withdrawCancellationRequest(target);
-          }
+          await recordStep(
+            scenario,
+            OPEN_IT,
+            readContract(target.contractId)
+          ).finally(() => withdrawCancellationRequest(target));
         });
         forEach(thens, step =>
           it(step, () => recordStep(scenario, step, nothing))
@@ -1181,11 +1175,11 @@ describe("Contract scenario recordings", () => {
       it(RESET, async () => {
         const target = await ensureSubscription();
         await setStatus(target, "contract_suspended");
-        try {
-          await recordStep(scenario, RESET, readContract(target.contractId));
-        } finally {
-          await liftStatus(target);
-        }
+        await recordStep(
+          scenario,
+          RESET,
+          readContract(target.contractId)
+        ).finally(() => liftStatus(target));
       });
       it("my contract is shown to me as suspended, with no error", () =>
         recordStep(

@@ -21,7 +21,7 @@ import {
   INVOICE_PARENT_WIRE_PARAM,
   InvoicesContextTypes
 } from "./invoices.types";
-import { scopeWireParams } from "./invoices.utils";
+import { probeClientFilter, scopeWireParams } from "./invoices.utils";
 import { useTime, NotAuthenticatedError, DEBOUNCE_DELAY } from "../../utils";
 import type { LookupItem } from "../lookup";
 import type { ScopeContext } from "../scope";
@@ -234,7 +234,40 @@ function loadInvoiceLookup(
     select: mapInvoiceLookupItems,
     retryDelay: DEBOUNCE_DELAY,
     enabled: () => isAddressable(clientId.value)
-  }) as unknown as InvoiceLookupQuery;
+  });
+}
+
+/**
+ * The invoices a surface's invoice finder offers — a `listInfinite` over the
+ * scope's OWN invoices, searched by `filters.number.like`, with NO parent
+ * filter. Unlike `loadInvoiceLookup` (the `.for('invoice', id)` retarget,
+ * which offers only credited PARENT invoices), this is a plain finder over
+ * every invoice the scope's client owns, credited or not. Its own query key
+ * keeps the finder's search from evicting the retarget lookup's rows.
+ */
+function loadInvoicePickerLookup(
+  scopeContext: ScopeContext | undefined
+): InvoiceLookupQuery {
+  const { listInfinite, useUrl } = useQuery();
+  const clientId = resolveClientId(scopeContext);
+
+  return listInfinite<IInvoice[], LookupItem[], InvoiceLookupQueryModel>({
+    criteria: { schema: useInvoiceLookupQuerySchema() },
+    queryKey: [...queryKey, "lookups", "invoice-picker", { client: clientId }],
+    url: useUrl("invoices", { client_id: clientId.value }),
+    withAccessToken: true,
+    guard: async () =>
+      new Promise((resolve, reject) => {
+        if (!isAddressable(clientId.value)) {
+          reject(new NotAuthenticatedError());
+          return;
+        }
+        resolve(true);
+      }),
+    select: mapInvoiceLookupItems,
+    retryDelay: DEBOUNCE_DELAY,
+    enabled: () => isAddressable(clientId.value)
+  });
 }
 
 /**
@@ -254,7 +287,7 @@ function loadUnpaidExistence(
       model: {
         filters: {
           "status.code": InvoiceStatusGroups.UNPAID,
-          client_id: clientId.value
+          ...probeClientFilter(scopeContext, clientId.value)
         },
         pagination: { limit: 1 }
       }
@@ -292,7 +325,10 @@ function loadConsolidatableCount(
     criteria: {
       schema: useQuerySchema(),
       model: {
-        filters: { ...CONSOLIDATABLE_FILTER, client_id: clientId.value },
+        filters: {
+          ...CONSOLIDATABLE_FILTER,
+          ...probeClientFilter(scopeContext, clientId.value)
+        },
         pagination: { limit: 1 }
       }
     },
@@ -353,6 +389,7 @@ export const createInvoicesServices = (
     error: computed<ResponseError | undefined>(() => undefined),
     loadList: () => loadList(scopeContext),
     loadInvoiceLookup: () => loadInvoiceLookup(scopeContext),
+    loadInvoicePickerLookup: () => loadInvoicePickerLookup(scopeContext),
     loadContractLookup: () => loadContractLookup(scopeContext),
     loadContractProductLookup: () => loadContractProductLookup(scopeContext),
     loadUnpaidExistence: () =>

@@ -14,11 +14,11 @@ import type { ConsolidationWeekday } from "./contracts/client-billing-settings.s
 import type { NewLineKey } from "./contracts/client-tickets";
 import type {
   Address,
+  ClientRecord,
   Company,
   CustomField,
   Email,
   Phone,
-  ProfileRecord,
   SentEmail
 } from "@upmind-automation/headless";
 import type {
@@ -122,7 +122,7 @@ export type MockPersonaAccount = ClientAccount;
  * `usePersonalDetails` will one day hand over, under the same names.
  */
 export type MockPersona = Pick<
-  ProfileRecord,
+  ClientRecord,
   "firstName" | "lastName" | "publicName" | "language"
 > & {
   readonly id: string;

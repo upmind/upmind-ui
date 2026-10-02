@@ -6,9 +6,9 @@
  * `defineSteps` and `World` and nothing else, so the same catalog can be
  * re-registered against any runner.
  *
- * Two composables are driven, each under its own scenario key: the read half
- * (`client_personal_details`) and the FORM EDITOR
- * (`client_personal_details_manager`). A capability that cannot be driven
+ * One composable is driven, under one scenario key (`client_personal_details`):
+ * `usePersonalDetails` serves both the profile read (its `data` display list)
+ * and the form editor. A capability that cannot be driven
  * honestly (a load failure the recording pipeline cannot arrange, an array-valued
  * language list `expectContext` cannot subset-match, a request-body or
  * request-count fact, an unauthenticated boot) is `@todo` in the feature and has
@@ -18,23 +18,20 @@
 
 import { defineSteps } from "@upmind-automation/scenario-harness";
 import { ScopeActorTypes } from "../../scope/scope.types";
-import { values } from "lodash-es";
-import type { World } from "@upmind-automation/scenario-harness";
 import ac35BrandRecording from "./scenarios/if-my-current-language-isnt-offered-any-more-i-still-see-it-just-not-selectable/01/get-brand-settings.json";
 import ac35ProfileRecording from "./scenarios/if-my-current-language-isnt-offered-any-more-i-still-see-it-just-not-selectable/01/get-clients-id.json";
+import { values } from "lodash-es";
+import type { World } from "@upmind-automation/scenario-harness";
 
 // -----------------------------------------------------------------------------
 
-/** The read-half scenario key — the playground registers `usePersonalDetails` here. */
+/** The scenario key — the playground registers `usePersonalDetails` here, as list and editor. */
 export const CLIENT_PERSONAL_DETAILS_SCENARIO = "client_personal_details";
-/** The editor scenario key — the playground registers `usePersonalDetailsManager` here. */
-export const CLIENT_PERSONAL_DETAILS_MANAGER_SCENARIO =
-  "client_personal_details_manager";
 
 /**
  * The action ids these steps drive. Exported as the gate's `coveredActionIds`
- * so the covered set and the calls that cover it cannot drift. `refresh` is the
- * read half's; `input`/`update`/`revert` are the editor's; `isReady` is shared.
+ * so the covered set and the calls that cover it cannot drift. `refresh` drives
+ * the read; `input`/`update`/`revert` drive the editor; `isReady` boots both.
  */
 export const CLIENT_PERSONAL_DETAILS_COVERED_ACTIONS = {
   isReady: "isReady",
@@ -63,16 +60,20 @@ async function settles(assertion: () => Promise<void>): Promise<void> {
   return assertion();
 }
 
-/** Boots the read half over the active client's own profile, and settles it ready. */
+/**
+ * Boots the composable over the active client's own profile, and settles it
+ * loaded. A failed load settles `unavailable`, so `isAvailable: true` is the
+ * "loaded without failure" fact; `hasErrors` also carries validation errors
+ * (AC-51's required field), so it is asserted only where a scenario says so.
+ */
 async function openReadHalf(world: World): Promise<void> {
   await world.boot(CLIENT_PERSONAL_DETAILS_SCENARIO, {
     actor: ScopeActorTypes.SELF
   });
   await world.fire(CLIENT_PERSONAL_DETAILS_COVERED_ACTIONS.isReady);
-  await settles(() => world.expectMeta({ isAvailable: true, hasError: false }));
+  await settles(() => world.expectMeta({ isAvailable: true }));
 }
 
-/** Boots the form editor over the active client's own profile, and settles it ready. */
 /**
  * AC-35 — the brand's recorded languages (the dropped one absent) and the
  * client's recorded current language: the options the editor must publish.
@@ -92,28 +93,24 @@ const AC35 = (() => {
   };
 })();
 
+/** Boots the form editor over the active client's own profile, and settles it ready. */
 async function openManager(world: World): Promise<void> {
-  await world.boot(CLIENT_PERSONAL_DETAILS_MANAGER_SCENARIO, {
+  await world.boot(CLIENT_PERSONAL_DETAILS_SCENARIO, {
     actor: ScopeActorTypes.SELF
   });
   await world.fire(CLIENT_PERSONAL_DETAILS_COVERED_ACTIONS.isReady);
   await settles(() => world.expectMeta({ isAvailable: true }));
 }
 
-/**
- * Set by the replay arrange before an `@errored` scenario's steps run: that
- * scenario keeps the signed-in Background, but its profile read is a recorded
- * 500, so the read half settles on `hasError` rather than the loaded assertion.
- */
-export const arrangeState = { errored: false };
-
-/** Boots the read half whose profile read the recording forces to a 500. */
+/** Boots the composable whose profile read the recording forces to a 500. */
 async function openReadHalfErrored(world: World): Promise<void> {
   await world.boot(CLIENT_PERSONAL_DETAILS_SCENARIO, {
     actor: ScopeActorTypes.SELF
   });
-  await world.fire(CLIENT_PERSONAL_DETAILS_COVERED_ACTIONS.isReady);
-  await settles(() => world.expectMeta({ hasError: true }));
+  await world
+    .fire(CLIENT_PERSONAL_DETAILS_COVERED_ACTIONS.isReady)
+    .catch(() => undefined);
+  await settles(() => world.expectMeta({ hasErrors: true }));
 }
 
 /** Boots the read half under a signed-out session — it settles unavailable. */
@@ -129,8 +126,11 @@ async function openReadHalfSignedOut(world: World): Promise<void> {
 
 export const clientPersonalDetailsSteps = defineSteps(
   ({ Given, When, Then }) => {
-    Given("I am an authenticated client with my own profile", world =>
-      arrangeState.errored ? openReadHalfErrored(world) : openReadHalf(world)
+    Given("I am an authenticated client with my own profile", openReadHalf);
+
+    Given(
+      "I am an authenticated client whose profile fails to load",
+      openReadHalfErrored
     );
 
     // AC-30 — the read half
@@ -143,7 +143,7 @@ export const clientPersonalDetailsSteps = defineSteps(
     );
 
     Then("my profile reports no failure", world =>
-      settles(() => world.expectMeta({ hasError: false }))
+      settles(() => world.expectMeta({ hasErrors: false }))
     );
 
     // AC-43 — the editor opens bare
@@ -222,7 +222,7 @@ export const clientPersonalDetailsSteps = defineSteps(
     When("I inspect my profile after its load has failed", async () => {});
 
     Then("my profile reports that it failed to load", world =>
-      settles(() => world.expectMeta({ hasError: true }))
+      settles(() => world.expectMeta({ hasErrors: true }))
     );
 
     // --- AC-41/54: the read half without an authenticated client session -------
@@ -255,7 +255,7 @@ export const clientPersonalDetailsSteps = defineSteps(
     Given(
       "I open my profile editor without an authenticated client session",
       async world => {
-        await world.boot(CLIENT_PERSONAL_DETAILS_MANAGER_SCENARIO, {
+        await world.boot(CLIENT_PERSONAL_DETAILS_SCENARIO, {
           actor: ScopeActorTypes.SELF
         });
         await world

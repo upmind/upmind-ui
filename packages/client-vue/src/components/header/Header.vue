@@ -54,7 +54,7 @@
 
 <script setup lang="ts">
 import { computed, ref } from "vue";
-import { isMobile } from "../../composables/isMobile";
+import { isMobile } from "@upmind-automation/foundation";
 import { useRouteTransition } from "../../modules/system/useRouteTransition";
 import { COLUMN_BACKGROUND } from "../layout/components/column";
 import Column from "../layout/components/column/Column.vue";

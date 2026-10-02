@@ -208,7 +208,10 @@ Feature: A client manages their own contracts
     Then the payment-method form is closed and that contract still bills against the method it had
     And the next time I open the payment-method form it starts on the method my contract pays with
 
-  @AC-8 @manager @mutation
+  # `@held-write` tells the replay to hold this scenario's recorded write answers
+  # (`scenarioTiming`), so the step can observe the change in progress before it
+  # lands. A replay-time timing concern, not a recorded value.
+  @AC-8 @manager @mutation @held-write
   Scenario: While my payment-method change is being sent I am told it is in progress
     Given I have my active subscription open in the manager, paying by one of my stored methods
     And I have opened the payment-method form, with a different stored card chosen

@@ -26,10 +26,10 @@
 
 import { computed, ref, watch } from "vue";
 import { useRoute } from "vue-router";
-import OverlayContainer from "./OverlayContainer.vue";
+import { OverlayContainer } from "@upmind-automation/foundation";
 import { useOverlayRoute } from "./useOverlayRoute";
 import { defaults, find, pick, some } from "lodash-es";
-import type { OverlayContainerProps } from "./OverlayContainer.vue";
+import type { OverlayContainerProps } from "@upmind-automation/foundation";
 
 // -----------------------------------------------------------------------------
 

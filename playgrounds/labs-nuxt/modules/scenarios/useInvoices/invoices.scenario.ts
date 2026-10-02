@@ -46,7 +46,7 @@ export default {
   useDetail: useInvoice,
   persistCriteria: true,
   // The MODULE whose committed `.feature` and step catalog this page plays.
-  tracks: "invoices",
+  tracks: { module: "invoices", without: ["@detail"] },
   presentation: {
     icon: "tag-02",
     table: tableUischema,

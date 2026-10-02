@@ -102,14 +102,14 @@ Feature: A client reads and manages their invoices
   # unavailable and read nothing. The replay arms no recording, so any request it
   # makes is an unmatched request the replay wall fails it by name on.
 
-  @AC-14 @client @module @guard @signed-out
+  @AC-14 @client @module @guard @signed-out @collection
   Scenario: Refuse to read when no client is addressable
     Given no client is addressable for my invoices
     When any invoice read is attempted while signed out
     Then my invoices report themselves unavailable
     And no invoice request is made
 
-  @AC-17 @client @module @guard @signed-out
+  @AC-17 @client @module @guard @signed-out @collection
   Scenario: Refuse to download when no client is addressable
     Given no client is addressable for my invoices
     When an invoice download is attempted while signed out
@@ -123,26 +123,26 @@ Feature: A client reads and manages their invoices
 
   # === THE COLLECTION — READING MY OWN INVOICES (client×self) ===============
 
-  @AC-2 @client @cell:client-self
+  @AC-2 @client @cell:client-self @collection
   Scenario: Filter my invoice list to what I need
     When I filter my invoice list by status, category, amount or date
     Then only the invoices matching every filter I set are returned
     And an unpaid-status filter and a category filter narrow the list together
 
-  @AC-2 @client @cell:client-self
+  @AC-2 @client @cell:client-self @collection
   Scenario: Sort my invoice list
     Given before I sort, I see the default order: most recently created first
     When I sort my invoice list by due date, newest first
     Then my invoice list comes back ordered by due date, newest first
 
-  @AC-2 @client @cell:client-self
+  @AC-2 @client @cell:client-self @collection
   Scenario: Page through my invoice list
     Given I have more invoices than fit on one page
     When I open my invoice list
     Then I am given the first page, and the total number of invoices I have
     And asking for the next page of my invoices gives me the next page
 
-  @AC-2 @AC-5 @client @cell:client-self
+  @AC-2 @AC-5 @client @cell:client-self @collection
   Scenario: Read one of my invoices in full
     Given one of my invoices
     When I open that invoice
@@ -152,22 +152,82 @@ Feature: A client reads and manages their invoices
   # now grades numbers exactly (world.types.ts), and reading it fires a single
   # limit=1 count read the recording carries — never a load of every matching
   # invoice, which is the half AC-2 guards.
-  @AC-2 @client @cell:client-self
+  @AC-2 @client @cell:client-self @collection
   Scenario: See how many of my invoices could be consolidated
     When I ask how many of my invoices could be consolidated
     Then I am given a count, without the module loading every matching invoice
 
-  # The detail cell is driven by id (openDetail); `refreshUnpaidAmount` is the
-  # published action the World fires with a new currency, and `unpaidAmount` is a
-  # context sibling of `data` the World's expectContext reads. Two currencies are
-  # recorded (£72 vs DZD 12,763.69), so the re-read returns a genuinely fresh
-  # amount, never the one already held.
-  @AC-1 @client @cell:client-self
-  Scenario: Re-read the live unpaid amount for one invoice
+  # === THE PAY CURRENCY OF ONE INVOICE (client×self) =========================
+  # Rewritten for fix-invoices-no-basket (docs/plans/fix-invoices-no-basket.md).
+  # The pay currency belongs to the invoice, never to the basket. The platform
+  # is the authority: at open and after every re-read, the invoice carries the
+  # pay currency the platform holds. A change converts the amount the invoice
+  # still owes and moves the next payment into that currency. Two currencies
+  # are recorded (£72 vs DZD 12,770.49), so a change is observable as a
+  # different amount, never the one already held.
+  #
+  # Cells: client×self, the same cell set as the rest of this feature (staff is
+  # dropped, see the header). The guest cell is a @todo at the end of this
+  # file, outside the signed-in-client Rule, so it inherits no client Background.
+
+  @AC-1 @client @cell:client-self @pay
+  Scenario: Open an invoice in the pay currency the platform holds for it
     Given an invoice of mine that still owes money
-    When I ask what I still owe on it
-    Then I am given the current unpaid amount in its currency
-    And asking again after changing the currency gives me a fresh amount, never the one I already had
+    When I open that invoice
+    Then it owes its unpaid amount in the pay currency the platform holds for it
+    And the payment I make next is taken in that currency
+
+  @AC-1 @client @cell:client-self @pay
+  Scenario: Change the pay currency of an invoice I still owe money on
+    Given I have opened an invoice of mine that still owes money
+    When I change its pay currency
+    Then it owes its unpaid amount converted into the currency I chose, never the amount it held before
+    And the payment I make next is taken in the currency I chose
+
+  @AC-1 @client @cell:client-self @negative-control @pay
+  Scenario: Changing the pay currency of an invoice leaves my basket alone
+    Given I have opened an invoice of mine that still owes money
+    When I change its pay currency
+    Then my basket's currency is unchanged
+
+  @AC-1 @client @cell:client-self @pay
+  Scenario: An invoice reports itself processing while its pay currency changes
+    Given I have opened an invoice of mine that still owes money
+    When I change its pay currency
+    Then the invoice reports itself processing until the converted amount arrives
+
+  @AC-1 @client @cell:client-self @negative-control @pay
+  Scenario: A pay-currency change the platform cannot convert keeps the invoice as it was
+    Given I have opened an invoice of mine that still owes money
+    When I change its pay currency to one the platform cannot convert to
+    Then I am told the change failed
+    And the invoice keeps the pay currency and the amount it held before
+
+  @AC-1 @client @cell:client-self @guard @pay
+  Scenario: I cannot change the pay currency while a payment is in progress
+    Given a payment on an invoice of mine is in progress
+    When I try to change that invoice's pay currency
+    Then the payment continues in the currency it started in
+
+  # Legacy parity (invoicePaymentModal.vue canChangeCurrency): the brand must
+  # allow a different pay currency, and a partly paid invoice keeps its currency.
+  @AC-1 @client @cell:client-self @guard @pay
+  Scenario: I cannot change the pay currency when my brand does not allow it
+    Given my brand does not allow paying in a different currency
+    When I try to change the pay currency of an invoice I still owe money on
+    Then the invoice keeps the pay currency and the amount it held before
+
+  @AC-1 @client @cell:client-self @guard @pay
+  Scenario: I cannot change the pay currency of a partly paid invoice
+    Given I have opened a partly paid invoice of mine
+    When I try to change its pay currency
+    Then that partly paid invoice keeps its pay currency and the amount it held before
+
+  @AC-1 @client @cell:client-self @pay
+  Scenario: A fresh read of an invoice honours the platform's pay currency
+    Given I have changed the pay currency of an invoice of mine
+    When the invoice is read again from the platform
+    Then it carries the pay currency the platform holds, not the one I chose locally
 
   # Arranged with a STAFF manual payment (never a real third-party gateway,
   # never a client-initiated one — confirmed live, 2026-09-28: every
@@ -175,57 +235,57 @@ Feature: A client reads and manages their invoices
   # with "This gateway does not support automatic payments", and every
   # type-1 gateway answers 200 with a real third-party redirect, which is
   # banned). The generator creates this settlement fresh every run.
-  @AC-3 @client @cell:client-self
+  @AC-3 @client @cell:client-self @collection
   Scenario: See a payment's outcome reflected without a manual reload
     Given I have just made a payment on one of my invoices
     When that payment settles or fails
     Then my invoice list reflects the new payment row on its own
     And I do not have to reopen or reload my invoice list to see it
 
-  @AC-4 @client @cell:client-self
+  @AC-4 @client @cell:client-self @collection
   Scenario: Assign a payment method to an invoice
     Given one of my invoices has no payment method assigned
     When I assign a payment method to it
     Then that invoice now shows the payment method I chose
 
-  @AC-4 @client @cell:client-self @negative-control
+  @AC-4 @client @cell:client-self @negative-control @collection
   Scenario: Clear the assigned payment method back to "none selected"
     Given one of my invoices has a payment method assigned
     When I clear the assigned payment method
     Then that invoice shows "none selected" for its payment method
 
-  @AC-5 @client @cell:client-self
+  @AC-5 @client @cell:client-self @collection
   Scenario: Read the consolidation identity and credit fields of a merged invoice
     Given one of my invoices was merged into a consolidation
     When I open that invoice
     Then I see which document it merged into, which credit note partners it, and how much is queued for credit
 
-  @AC-5 @client @cell:client-self
+  @AC-5 @client @cell:client-self @collection
   Scenario: Read a consolidated invoice's line items grouped by subscription
     Given a consolidated invoice with line items from more than one subscription
     When I open that invoice
     Then its line items are grouped, one group per subscription they came from
     And a line item with no subscription of its own is grouped separately, never dropped
 
-  @AC-6 @client @cell:client-self @negative-control
+  @AC-6 @client @cell:client-self @negative-control @collection
   Scenario: Know a bundle is large without counting a truncated line-item array
     Given a consolidated invoice bundling more line items than the platform returns in one page
     When I open that invoice
     Then it tells me the bundle is large
     And that answer comes from the platform's own count, not from how many line items actually arrived
 
-  @AC-7 @client @cell:client-self
+  @AC-7 @client @cell:client-self @collection
   Scenario: Read my credit notes as a filtered view of my invoices
     When I ask for my credit notes
     Then I am given only the invoices categorised as a credit note
 
-  @AC-7 @client @cell:client-self
+  @AC-7 @client @cell:client-self @collection
   Scenario: Tie a credit note back to the invoice it credits
     Given one of my credit notes
     When I open it
     Then it names the invoice it credits
 
-  @AC-7 @client @cell:client-self @negative-control
+  @AC-7 @client @cell:client-self @negative-control @collection
   Scenario: Label a consolidation credit note as a consolidation, not a refund
     Given a credit note that was also created by a consolidation
     When I read its label
@@ -244,13 +304,13 @@ Feature: A client reads and manages their invoices
   # The "absent" example is not replayed: staging sets next_charge_date on every
   # invoice, a one-off included (the Hat, billing cycle 0, still answers
   # next_charge_date 2026-09-26 — recorder run 2026-09-29).
-  @AC-9 @client @cell:client-self
+  @AC-9 @client @cell:client-self @collection
   Scenario: Read the next charge date of an invoice that is on a recurring product
     Given an invoice that "is on a recurring product"
     When I read that invoice's next charge date
     Then the next charge date is "shown"
 
-  @AC-10 @client @cell:client-self
+  @AC-10 @client @cell:client-self @collection
   Scenario: Find out whether I owe anything at all
     When I ask whether I have anything unpaid
     Then I am told yes or no, without the module loading my whole invoice list
@@ -275,25 +335,25 @@ Feature: A client reads and manages their invoices
   # id (arranged-invoices.json); paid and pending come from the client's own
   # corpus. The state flags are boolean-assertable (world.types.ts).
 
-  @AC-16 @client @cell:client-self
+  @AC-16 @client @cell:client-self @collection
   Scenario: Read an invoice with no charge as free
     Given I have opened a free invoice of mine
     When I read that invoice's payment state
     Then it is reported as free
 
-  @AC-16 @client @cell:client-self
+  @AC-16 @client @cell:client-self @collection
   Scenario: Read a fully paid invoice as paid
     Given I have opened a fully paid invoice of mine
     When I read that invoice's payment state
     Then it is reported as paid
 
-  @AC-16 @client @cell:client-self
+  @AC-16 @client @cell:client-self @collection
   Scenario: Read a partly paid invoice as partially paid
     Given I have opened a partly paid invoice of mine
     When I read that invoice's payment state
     Then it is reported as partially paid
 
-  @AC-16 @client @module @guard
+  @AC-16 @client @module @guard @collection
   Scenario: A failed invoice load reports no guessed payment state
     Given an invoice load that failed
     When I ask for its payment state
@@ -309,7 +369,7 @@ Feature: A client reads and manages their invoices
   # reading client — so "not my own" is observable; the self re-read carries
   # client_id=<me>. The recorded owner row's client id differing from the reading
   # client is what a dropped `.for()` (FE-2824) would fail.
-  @AC-12 @client @cell:client-client @negative-control @fe-2824
+  @AC-12 @client @cell:client-client @negative-control @fe-2824 @collection
   Scenario: Retarget my reading at an entitled client
     Given I am entitled to act for another client
     When I read that client's invoices
@@ -319,7 +379,7 @@ Feature: A client reads and manages their invoices
   # A sub-account created once by the recorder (child of this client, with its
   # own invoice); the client's own list co-mingles both. The delegated
   # attribution is driven by "A delegated invoice is not mine to settle" below.
-  @AC-13 @client @cell:client-client @negative-control
+  @AC-13 @client @cell:client-client @negative-control @collection
   Scenario: Attribute each invoice in a co-mingled list
     Given a list mixing my own invoices and a sub-account's
     When I read that list
@@ -328,7 +388,7 @@ Feature: A client reads and manages their invoices
   # Recorded as the delegate MEMBER reading a delegated invoice (delegate_related:
   # true -> isDelegated, isSettleable:false), contrasted with the reading client's
   # OWN invoice (isSettleable:true) read as itself.
-  @AC-13 @client @cell:client-client @negative-control
+  @AC-13 @client @cell:client-client @negative-control @collection
   Scenario: A delegated invoice is not mine to settle
     Given an invoice attributed to me as delegated
     When I look at what I can do with it
@@ -337,7 +397,7 @@ Feature: A client reads and manages their invoices
 
   # === WHOLE-MODULE GUARANTEES ===============================================
 
-  @AC-15 @client @module @negative-control
+  @AC-15 @client @module @negative-control @collection
   Scenario: Refuse an undeclared filter, and never let one bypass the declared criteria
     Given the filters, sort and pagination my invoice list accepts are all declared
     When I try to filter by something the module has not declared
@@ -379,7 +439,7 @@ Feature: A client reads and manages their invoices
   # `downloadPdf()` resolves without error against that response (operator
   # ruling 2026-09-28 — no browser Blob/filename assertion at this layer; that
   # belongs to whatever consumer actually saves the file).
-  @AC-17 @client @cell:client-self
+  @AC-17 @client @cell:client-self @collection
   Scenario: Download an invoice's PDF document
     Given I have opened one of my invoices
     When I download its PDF document
@@ -387,7 +447,7 @@ Feature: A client reads and manages their invoices
 
   # DRIVEN (FE-3145 resume, 2026-09-28): same binary download GET recorded on
   # a credit note; same headless proof shape as the invoice PDF scenario above.
-  @AC-17 @client @cell:client-self
+  @AC-17 @client @cell:client-self @collection
   Scenario: Download a credit note's PDF document the same way
     Given I have opened one of my credit notes
     When I download its PDF document
@@ -419,7 +479,7 @@ Feature: A client reads and manages their invoices
   # the 1180 unfiltered) can only settle if the module actually sent the
   # declared `contracts_product` context param — a dropped/renamed one would
   # gap (unmatched request) or resolve the unfiltered recording instead.
-  @AC-18 @client @cell:client-self
+  @AC-18 @client @cell:client-self @collection
   Scenario: Narrow my invoice list to one contract product's invoices
     Given I have opened my invoice list
     When I narrow it to one contract product's invoices
@@ -430,9 +490,20 @@ Feature: A client reads and manages their invoices
   # (PUT api/clients/{owner}/delegates/{record} {full_delegate:false,
   # add_contract_product_ids:[cp]}), restored to full after. Legacy's product
   # page asks with no client_id — the actor's own context.
-  @AC-18 @client @cell:client-client
+  @AC-18 @client @cell:client-client @collection
   Scenario: Narrowing to a product does not re-widen a retargeted reading
     Given I have been entrusted with another client's invoices
     When I narrow that client's invoices to one contract product's invoices
     Then I am given only that client's invoices for that product
     And my reading is still attributed to that client, not to me
+
+# === THE PAY CURRENCY — GUEST CELL (guest×self) — fix-invoices-no-basket =====
+# `useInvoice` resolves for a guest (INVOICE_SCOPE_MATRIX), so the guest cell is
+# not silent. No guest invoice is recorded yet, so the scenario is @todo. It
+# sits under the appended Rule, which resets the signed-in-client Background.
+
+  @AC-1 @guest @cell:guest-self @todo @pay
+  Scenario: As a guest, change the pay currency of an invoice I still owe money on
+    Given as a guest I have opened an invoice I still owe money on
+    When I change its pay currency
+    Then it owes its unpaid amount converted into the currency I chose

@@ -24,24 +24,32 @@
 import { defineSteps } from "@upmind-automation/scenario-harness";
 import { InvoiceCategoryCode, InvoiceStatus } from "@upmind-automation/types";
 import { ScopeActorTypes } from "../../scope/scope.types";
-import ac9ShownRecording from "./scenarios/read-the-next-charge-date-of-an-invoice-that-is-on-a-recurring-product/02/get-invoices-id.json";
-import comingledRecording from "./scenarios/attribute-each-invoice-in-a-co-mingled-list/02/get-invoices.json";
+import delegatedDetailRecording from "./scenarios/a-delegated-invoice-is-not-mine-to-settle/02/get-invoices-id.json";
+import ownDetailRecording from "./scenarios/a-delegated-invoice-is-not-mine-to-settle/05/get-invoices-id.json";
 import ac4AssignTargetRecording from "./scenarios/assign-a-payment-method-to-an-invoice/02/get-invoices-id.json";
 import ac4AssignPatchRecording from "./scenarios/assign-a-payment-method-to-an-invoice/03/patch-invoices-id-payment-details.json";
+import comingledRecording from "./scenarios/attribute-each-invoice-in-a-co-mingled-list/02/get-invoices.json";
 import ac4AssignedRecording from "./scenarios/clear-the-assigned-payment-method-back-to-none-selected/02/get-invoices-id.json";
-import ac7CreditNoteRecording from "./scenarios/label-a-consolidation-credit-note-as-a-consolidation-not-a-refund/02/get-invoices-id.json";
-import ac18UnfilteredRecording from "./scenarios/narrow-my-invoice-list-to-one-contract-products-invoices/01/get-invoices.json";
-import ac18NarrowedRecording from "./scenarios/narrow-my-invoice-list-to-one-contract-products-invoices/02/get-invoices-filter-products-contracts-product-id.json";
-import delegatedDetailRecording from "./scenarios/a-delegated-invoice-is-not-mine-to-settle/02/get-invoices-id.json";
 import creditNotePdfDetailRecording from "./scenarios/download-a-credit-notes-pdf-document-the-same-way/01/get-invoices-id.json";
 import invoicePdfDetailRecording from "./scenarios/download-an-invoices-pdf-document/01/get-invoices-id.json";
-import ownDetailRecording from "./scenarios/a-delegated-invoice-is-not-mine-to-settle/05/get-invoices-id.json";
+import payPartlyPaidDetailRecording from "./scenarios/i-cannot-change-the-pay-currency-of-a-partly-paid-invoice/02/get-invoices-id.json";
+import payPartlyPaidCurrenciesRecording from "./scenarios/i-cannot-change-the-pay-currency-of-a-partly-paid-invoice/03/get-currencies.json";
 import largeBundleRecording from "./scenarios/know-a-bundle-is-large-without-counting-a-truncated-line-item-array/02/get-invoices-id.json";
+import ac7CreditNoteRecording from "./scenarios/label-a-consolidation-credit-note-as-a-consolidation-not-a-refund/02/get-invoices-id.json";
+import ac18ConsolidatablePreNarrowRecording from "./scenarios/narrow-my-invoice-list-to-one-contract-products-invoices/01/get-invoices-221d7f0d.json";
+import ac18UnpaidPreNarrowRecording from "./scenarios/narrow-my-invoice-list-to-one-contract-products-invoices/01/get-invoices-filter-client-id-filter-status-code-invoice-unpaid-invoice-overdue-invoice-adjusted.json";
+import ac18UnfilteredRecording from "./scenarios/narrow-my-invoice-list-to-one-contract-products-invoices/01/get-invoices.json";
+import ac18ConsolidatableNarrowedRecording from "./scenarios/narrow-my-invoice-list-to-one-contract-products-invoices/02/get-invoices-0d478351.json";
+import ac18UnpaidNarrowedRecording from "./scenarios/narrow-my-invoice-list-to-one-contract-products-invoices/02/get-invoices-96f111db.json";
+import ac18NarrowedRecording from "./scenarios/narrow-my-invoice-list-to-one-contract-products-invoices/02/get-invoices-filter-products-contracts-product-id.json";
+import ac18ccConsolidatablePreNarrowRecording from "./scenarios/narrowing-to-a-product-does-not-re-widen-a-retargeted-reading/01/get-invoices-a20eca98.json";
+import ac18ccUnpaidPreNarrowRecording from "./scenarios/narrowing-to-a-product-does-not-re-widen-a-retargeted-reading/01/get-invoices-b84a9fba.json";
+import delegatedBootRecording from "./scenarios/narrowing-to-a-product-does-not-re-widen-a-retargeted-reading/01/get-invoices-client-id.json";
+import ac18ccConsolidatableNarrowedRecording from "./scenarios/narrowing-to-a-product-does-not-re-widen-a-retargeted-reading/02/get-invoices-0d478351.json";
+import ac18ccUnpaidNarrowedRecording from "./scenarios/narrowing-to-a-product-does-not-re-widen-a-retargeted-reading/02/get-invoices-96f111db.json";
+import delegatedNarrowRecording from "./scenarios/narrowing-to-a-product-does-not-re-widen-a-retargeted-reading/02/get-invoices-filter-products-contracts-product-id.json";
+import payOpenDetailRecording from "./scenarios/open-an-invoice-in-the-pay-currency-the-platform-holds-for-it/02/get-invoices-id.json";
 import pageOneRecording from "./scenarios/page-through-my-invoice-list/03/get-invoices.json";
-import ac1DetailRecording from "./scenarios/re-read-the-live-unpaid-amount-for-one-invoice/02/get-invoices-id.json";
-import ac1OwnUnpaidRecording from "./scenarios/re-read-the-live-unpaid-amount-for-one-invoice/02/get-invoices-unpaid-amount-id.json";
-import ac1AltUnpaidRecording from "./scenarios/re-read-the-live-unpaid-amount-for-one-invoice/05/get-invoices-unpaid-amount-id.json";
-import ac1CurrenciesRecording from "./scenarios/re-read-the-live-unpaid-amount-for-one-invoice/05/get-currencies.json";
 import bundleGroupsRecording from "./scenarios/read-a-consolidated-invoices-line-items-grouped-by-subscription/02/get-invoices-id.json";
 import ac16PaidRecording from "./scenarios/read-a-fully-paid-invoice-as-paid/02/get-invoices-id.json";
 import ac16PartialRecording from "./scenarios/read-a-partly-paid-invoice-as-partially-paid/02/get-invoices-id.json";
@@ -49,11 +57,10 @@ import ac16FreeRecording from "./scenarios/read-an-invoice-with-no-charge-as-fre
 import creditNotesRecording from "./scenarios/read-my-credit-notes-as-a-filtered-view-of-my-invoices/02/get-invoices-filter-category-slug-credit-note-credit-note-for-refund.json";
 import readInFullRecording from "./scenarios/read-one-of-my-invoices-in-full/02/get-invoices-id.json";
 import consolidationRecording from "./scenarios/read-the-consolidation-identity-and-credit-fields-of-a-merged-invoice/02/get-invoices-id.json";
+import ac9ShownRecording from "./scenarios/read-the-next-charge-date-of-an-invoice-that-is-on-a-recurring-product/02/get-invoices-id.json";
 import retargetRecording from "./scenarios/retarget-my-reading-at-an-entitled-client/03/get-invoices-client-id.json";
 import consolidatableCountRecording from "./scenarios/see-how-many-of-my-invoices-could-be-consolidated/01/get-invoices-221d7f0d.json";
 import creditNoteRecording from "./scenarios/tie-a-credit-note-back-to-the-invoice-it-credits/02/get-invoices-id.json";
-import delegatedBootRecording from "./scenarios/narrowing-to-a-product-does-not-re-widen-a-retargeted-reading/01/get-invoices-client-id.json";
-import delegatedNarrowRecording from "./scenarios/narrowing-to-a-product-does-not-re-widen-a-retargeted-reading/02/get-invoices-filter-products-contracts-product-id.json";
 import { findLast, first, map, split, values } from "lodash-es";
 import type { World } from "@upmind-automation/scenario-harness";
 
@@ -154,11 +161,6 @@ const UNKNOWN_INVOICE_ID = "00000000-0000-0000-0000-000000000000";
 
 // --- values for the delegate + unpaid-amount scenarios, read off recordings ---
 
-type UnpaidRecording = {
-  request: { path: string };
-  response: { body: { data: { unpaid_amount: number } } };
-};
-
 /** One query-string param value off a recorded request path. */
 const paramOf = (path: string, key: string): string =>
   new URLSearchParams(split(path, "?")[1] ?? "").get(key) ?? "";
@@ -167,27 +169,51 @@ type CurrenciesRecording = {
   response: { body: { data: Array<{ id?: string; code?: string }> } };
 };
 
+type PayDetailRecording = {
+  request: { path: string };
+  response: {
+    body: {
+      data: {
+        payment_currency?: { code?: string } | null;
+        currency?: { code?: string } | null;
+        unpaid_amount?: number;
+      };
+    };
+  };
+};
+
+/** The pay currency the platform holds, the invoice's own currency, and the amount owed, read off a detail recording. */
+const payFacts = (recording: PayDetailRecording) => {
+  const data = recording.response.body.data;
+  return {
+    payCode: (data.payment_currency ?? data.currency)?.code ?? "",
+    currencyCode: data.currency?.code ?? "",
+    unpaidAmount: data.unpaid_amount ?? 0
+  };
+};
+
+/** AC-1 — the invoice opened in the pay currency the platform holds for it. */
+const PAY_OPEN = {
+  invoiceId: recordedId(payOpenDetailRecording as DetailRecording),
+  ...payFacts(payOpenDetailRecording as PayDetailRecording)
+} as const;
+
 /**
- * AC-1 — the invoice, its two recorded amounts, and the currency id the
- * re-read asks for. The live request carries `currency_code` (never
- * `currency_id` — verbatim replay evidence, operator ruling 2026-09-28), so
- * the id the `input` action needs is resolved from the SAME step's own
- * recorded currency list, matched on that code — never a fabricated id.
+ * AC-1 — the partly paid invoice whose pay currency cannot change, its held
+ * amount, and an alternative currency code (read off its own recorded currency
+ * list) the refused change attempts to move it to.
  */
-const AC1_ALT_CODE = paramOf(
-  (ac1AltUnpaidRecording as UnpaidRecording).request.path,
-  "currency_code"
-);
-const AC1 = {
-  invoiceId: recordedId(ac1DetailRecording as DetailRecording),
-  ownAmount: (ac1OwnUnpaidRecording as UnpaidRecording).response.body.data
-    .unpaid_amount,
-  altAmount: (ac1AltUnpaidRecording as UnpaidRecording).response.body.data
-    .unpaid_amount,
-  altCurrencyId:
-    (ac1CurrenciesRecording as CurrenciesRecording).response.body.data.find(
-      c => c.code === AC1_ALT_CODE
-    )?.id ?? ""
+const PAY_PARTLY_PAID = {
+  ...payFacts(payPartlyPaidDetailRecording as PayDetailRecording),
+  altCode:
+    (
+      payPartlyPaidCurrenciesRecording as CurrenciesRecording
+    ).response.body.data.find(
+      c =>
+        c.code &&
+        c.code !==
+          payFacts(payPartlyPaidDetailRecording as PayDetailRecording).payCode
+    )?.code ?? ""
 } as const;
 
 /** AC-13 — the delegated invoice and an own invoice, read off their detail recordings. */
@@ -333,6 +359,42 @@ const AC18 = {
   ),
   unfilteredTotal: (ac18UnfilteredRecording as Recording).response.body.total,
   narrowedTotal: (ac18NarrowedRecording as Recording).response.body.total
+} as const;
+
+/**
+ * AC-18 — the two gated count probes (`consolidatableCount`, `hasUnpaid`) a
+ * narrowed read must re-scope to its contract product rather than re-widen back
+ * to the whole account. Each value is read off the probe's own recording, so a
+ * re-widened probe carries a `client_id` the narrowed recording never answers.
+ */
+type CountRecording = { response: { body: { total: number | null } } };
+
+const probeFacts = (consolidatable: CountRecording, unpaid: CountRecording) =>
+  ({
+    consolidatableCount: Number(consolidatable.response.body.total),
+    hasUnpaid: Number(unpaid.response.body.total) > 0
+  }) as const;
+
+const AC18_PROBES = {
+  preNarrow: probeFacts(
+    ac18ConsolidatablePreNarrowRecording as CountRecording,
+    ac18UnpaidPreNarrowRecording as CountRecording
+  ),
+  narrowed: probeFacts(
+    ac18ConsolidatableNarrowedRecording as CountRecording,
+    ac18UnpaidNarrowedRecording as CountRecording
+  )
+} as const;
+
+const AC18_DELEGATED_PROBES = {
+  preNarrow: probeFacts(
+    ac18ccConsolidatablePreNarrowRecording as CountRecording,
+    ac18ccUnpaidPreNarrowRecording as CountRecording
+  ),
+  narrowed: probeFacts(
+    ac18ccConsolidatableNarrowedRecording as CountRecording,
+    ac18ccUnpaidNarrowedRecording as CountRecording
+  )
 } as const;
 
 const SETTLE_ATTEMPTS = 40;
@@ -760,33 +822,56 @@ export const invoicesSteps = defineSteps(({ Given, When, Then }) => {
     )
   );
 
-  // === AC-1: RE-READ THE LIVE UNPAID AMOUNT AT A NEW CURRENCY ================
+  // === AC-1: THE PAY CURRENCY THE PLATFORM HOLDS FOR ONE INVOICE =============
 
   Given("an invoice of mine that still owes money", world =>
-    openDetail(world, AC1.invoiceId)
-  );
-
-  When("I ask what I still owe on it", world =>
-    settles(() => world.expectMeta({ isLoading: false }))
-  );
-
-  Then("I am given the current unpaid amount in its currency", world =>
-    settles(() =>
-      world.expectContext({ unpaidAmount: { amount: AC1.ownAmount } })
-    )
+    openDetail(world, PAY_OPEN.invoiceId)
   );
 
   Then(
-    "asking again after changing the currency gives me a fresh amount, never the one I already had",
-    async world => {
-      await world.fire("setCurrency", {
-        id: AC1.altCurrencyId,
-        code: AC1_ALT_CODE
-      });
-      await settles(() =>
-        world.expectContext({ unpaidAmount: { amount: AC1.altAmount } })
+    "it owes its unpaid amount in the pay currency the platform holds for it",
+    world => {
+      if (!PAY_OPEN.payCode || PAY_OPEN.payCode === PAY_OPEN.currencyCode)
+        throw new Error(
+          "open-in-pay-currency recording must carry a payment_currency that " +
+            `differs from the invoice currency (payment=${PAY_OPEN.payCode} ` +
+            `currency=${PAY_OPEN.currencyCode}); re-record the scenario.`
+        );
+      return settles(() =>
+        world.expectContext({
+          model: {
+            currency: { code: PAY_OPEN.currencyCode },
+            currencyPayment: { code: PAY_OPEN.payCode },
+            summary: { unpaidAmount: PAY_OPEN.unpaidAmount }
+          }
+        })
       );
     }
+  );
+
+  Then("the payment I make next is taken in that currency", world =>
+    settles(() =>
+      world.expectContext({
+        model: { currencyPayment: { code: PAY_OPEN.payCode } }
+      })
+    )
+  );
+
+  When("I try to change its pay currency", world =>
+    world.fire("setCurrency", PAY_PARTLY_PAID.altCode)
+  );
+
+  Then(
+    "that partly paid invoice keeps its pay currency and the amount it held before",
+    world =>
+      settles(() =>
+        world.expectContext({
+          model: {
+            currencyPayment: { code: PAY_PARTLY_PAID.payCode },
+            summary: { unpaidAmount: PAY_PARTLY_PAID.unpaidAmount }
+          }
+        })
+      )
   );
 
   // === AC-13: ATTRIBUTE EACH INVOICE IN A CO-MINGLED LIST ===================
@@ -906,6 +991,12 @@ export const invoicesSteps = defineSteps(({ Given, When, Then }) => {
     await settles(() =>
       world.expectContext({ pagination: { total: AC18.unfilteredTotal } })
     );
+    await settles(() =>
+      world.expectMeta({
+        consolidatableCount: AC18_PROBES.preNarrow.consolidatableCount,
+        hasUnpaid: AC18_PROBES.preNarrow.hasUnpaid
+      })
+    );
   });
 
   When("I narrow it to one contract product's invoices", async world => {
@@ -917,12 +1008,23 @@ export const invoicesSteps = defineSteps(({ Given, When, Then }) => {
     await settles(() =>
       world.expectMeta({ isAvailable: true, hasError: false })
     );
+    await settles(() =>
+      world.expectMeta({
+        consolidatableCount: AC18_PROBES.narrowed.consolidatableCount,
+        hasUnpaid: AC18_PROBES.narrowed.hasUnpaid
+      })
+    );
+    await world.fire(INVOICES_COVERED_ACTIONS.refresh);
   });
 
   Then("only that product's invoices are returned", world =>
-    settles(() =>
-      world.expectContext({ pagination: { total: AC18.narrowedTotal } })
-    )
+    settles(async () => {
+      await world.expectContext({ pagination: { total: AC18.narrowedTotal } });
+      await world.expectMeta({
+        consolidatableCount: AC18_PROBES.narrowed.consolidatableCount,
+        hasUnpaid: AC18_PROBES.narrowed.hasUnpaid
+      });
+    })
   );
 
   // The replay wall matches by exact recorded request: this exact narrowed
@@ -949,6 +1051,13 @@ export const invoicesSteps = defineSteps(({ Given, When, Then }) => {
     await settles(() =>
       world.expectMeta({ isAvailable: true, hasError: false })
     );
+    await settles(() =>
+      world.expectMeta({
+        consolidatableCount:
+          AC18_DELEGATED_PROBES.preNarrow.consolidatableCount,
+        hasUnpaid: AC18_DELEGATED_PROBES.preNarrow.hasUnpaid
+      })
+    );
   });
 
   When(
@@ -965,6 +1074,14 @@ export const invoicesSteps = defineSteps(({ Given, When, Then }) => {
       await settles(() =>
         world.expectMeta({ isAvailable: true, hasError: false })
       );
+      await settles(() =>
+        world.expectMeta({
+          consolidatableCount:
+            AC18_DELEGATED_PROBES.narrowed.consolidatableCount,
+          hasUnpaid: AC18_DELEGATED_PROBES.narrowed.hasUnpaid
+        })
+      );
+      await world.fire(INVOICES_COVERED_ACTIONS.refresh);
     }
   );
 
@@ -978,13 +1095,17 @@ export const invoicesSteps = defineSteps(({ Given, When, Then }) => {
   );
 
   Then("my reading is still attributed to that client, not to me", world =>
-    settles(() =>
-      world.expectContext({
+    settles(async () => {
+      await world.expectContext({
         data: map(AC18_DELEGATED.rows, () => ({
           attribution: { isDelegated: true }
         }))
-      })
-    )
+      });
+      await world.expectMeta({
+        consolidatableCount: AC18_DELEGATED_PROBES.narrowed.consolidatableCount,
+        hasUnpaid: AC18_DELEGATED_PROBES.narrowed.hasUnpaid
+      });
+    })
   );
 
   // === AC-17: DOWNLOAD THE PDF DOCUMENT ======================================

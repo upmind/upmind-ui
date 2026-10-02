@@ -119,6 +119,13 @@ Feature: A client manages their own phone numbers
     Then the phone editor reports itself unavailable
     And no phone request is made without a session
 
+  # AC-3 / AC-4 — the errored list read. The signed-in boot's list read is a
+  # recorded 5xx, so the collection settles errored on a genuine request.
+  @AC-3 @AC-4 @collection @errored @layer-e2e
+  Scenario: When my phone list cannot be read, I am told it failed
+    Given I am an authenticated client whose phone list cannot be read
+    Then my phone list tells me it failed
+
   Rule: A signed-in client manages their own phone numbers
 
     Background:
@@ -136,12 +143,6 @@ Feature: A client manages their own phone numbers
       Then my own phone numbers are listed
       And each of my phone numbers shows whether it is my default, can be deleted and is verified
       And I receive the query schema, the filter bar and the order control as plain JSON
-
-    # AC-3 / AC-4 — the errored list read. The signed-in boot's list read is a
-    # recorded 5xx, so the collection settles errored on a genuine request.
-    @AC-3 @AC-4 @collection @errored @layer-e2e
-    Scenario: When my phone list cannot be read, I am told it failed
-      Then my phone list tells me it failed
 
     @AC-5 @collection
     Scenario: Read my default phone number

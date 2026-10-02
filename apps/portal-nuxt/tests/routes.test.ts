@@ -54,7 +54,7 @@ const EXPECTED_ROUTES = [
   "/billing/invoices/:id",
   "/billing/invoices/:id/print",
   "/billing/orders",
-  "/billing/orders/:id",
+  "/billing/orders/:oid",
   "/billing/payment-methods",
   "/billing/settings",
   "/support",

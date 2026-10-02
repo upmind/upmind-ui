@@ -12,7 +12,7 @@
         'mx-auto w-full max-w-app md:px-6 lg:px-18 lg:flex-row lg:justify-between'
     }"
   >
-    <ProductConfig
+    <Config
       v-if="pendingProduct && productMeta?.isAvailable"
       as="fieldset"
       :item="pendingProduct"
@@ -54,7 +54,7 @@ import {
   responseCodes,
   ErrorOrigin
 } from "@upmind-automation/headless";
-import ProductConfig from "../../product/components/Config.vue";
+import { Config } from "@upmind-automation/product";
 import type { RecommendationConfigurationProps } from "./types";
 // -----------------------------------------------------------------------------
 

@@ -2,7 +2,7 @@
   <UpmProductNotFound :storefront-route="storefrontRoute" />
 </template>
 <script lang="ts" setup>
-import { UpmProductNotFound } from "@upmind-automation/client-vue";
+import { UpmProductNotFound } from "@upmind-automation/product";
 import { useStorefrontRoute } from "../../router/useStorefrontRoute";
 
 // -----------------------------------------------------------------------------

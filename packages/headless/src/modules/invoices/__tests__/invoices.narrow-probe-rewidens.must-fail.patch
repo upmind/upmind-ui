@@ -1,0 +1,33 @@
+# must-fail: invoices.feature @AC-2 > the two narrow-to-one-contract
+# scenarios ("narrow-my-invoice-list-to-one-contract-products-invoices" and
+# "narrowing-to-a-product-does-not-re-widen-a-retargeted-reading",
+# invoices.replay.int.test.ts). FE-2824. Authored by the developer seat.
+#
+# Mutation: `loadUnpaidExistence` and `loadConsolidatableCount` revert the
+# `probeClientFilter(scopeContext, clientId.value)` spread back to the old
+# `client_id: clientId.value`. A relationship narrow then re-widens its probe
+# to the session client: the probe reads carry a `client_id` filter the
+# narrowed recording does not hold, so the replay meets an unmatched probe
+# request and the two narrow scenarios fail by name.
+diff --git a/packages/headless/src/modules/invoices/invoices.services.ts b/packages/headless/src/modules/invoices/invoices.services.ts
+index f7137c496c..0000000000 100644
+--- a/packages/headless/src/modules/invoices/invoices.services.ts
++++ b/packages/headless/src/modules/invoices/invoices.services.ts
+@@ -254,7 +254,7 @@ function loadUnpaidExistence(
+       model: {
+         filters: {
+           "status.code": InvoiceStatusGroups.UNPAID,
+-          ...probeClientFilter(scopeContext, clientId.value)
++          client_id: clientId.value
+         },
+         pagination: { limit: 1 }
+       }
+@@ -294,7 +294,7 @@ function loadConsolidatableCount(
+       model: {
+         filters: {
+           ...CONSOLIDATABLE_FILTER,
+-          ...probeClientFilter(scopeContext, clientId.value)
++          client_id: clientId.value
+         },
+         pagination: { limit: 1 }
+       }

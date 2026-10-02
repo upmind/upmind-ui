@@ -142,17 +142,18 @@ async function runScenario(
 
     await beforeStep?.(scenario, index);
 
-    try {
-      await matched.def.handler(world, ...matched.args);
-    } catch (error) {
-      // Re-thrown carrying the step that failed: a world error names the flag
-      // or the action, and this names the line of the feature that asked for
-      // it — together they are the whole diagnosis.
-      throw new Error(
-        `replay-feature: "${step.kind} ${step.text}" (line ${step.line}) failed — ${error instanceof Error ? error.message : String(error)}`,
-        { cause: error }
-      );
-    }
+    // Deferred into the chain so a handler that throws synchronously rejects
+    // here too, matching the old try/catch. Re-thrown carrying the step that
+    // failed: a world error names the flag or the action, and this names the
+    // line of the feature that asked for it — together they are the diagnosis.
+    await Promise.resolve()
+      .then(() => matched.def.handler(world, ...matched.args))
+      .catch((error: unknown) => {
+        throw new Error(
+          `replay-feature: "${step.kind} ${step.text}" (line ${step.line}) failed — ${error instanceof Error ? error.message : String(error)}`,
+          { cause: error }
+        );
+      });
   }
 }
 
@@ -221,9 +222,12 @@ export function replayFeature<K extends string>(
           resetReplayState();
           await source.arrange?.(scenario);
 
-          try {
-            await runScenario(scenario, matcher, world, source.beforeStep);
-          } finally {
+          await runScenario(
+            scenario,
+            matcher,
+            world,
+            source.beforeStep
+          ).finally(async () => {
             // Both always, even on a red: a live instance left in the scope
             // registry is the next scenario's silent adoption.
             await world.dispose();
@@ -233,7 +237,7 @@ export function replayFeature<K extends string>(
               timeout: 5000
             });
             await source.cleanup?.();
-          }
+          });
         },
         source.timeoutMs
       );

@@ -105,13 +105,6 @@ async function open(world: World, scope: Parameters<World["boot"]>[1]) {
   await settles(() => world.expectMeta({ isAvailable: true, hasError: false }));
 }
 
-/**
- * Set by the replay arrange before an `@errored` scenario's steps run: that
- * scenario keeps the signed-in Background, but its list read is a recorded 500,
- * so the boot settles on `hasError` rather than the loaded-list assertion.
- */
-export const arrangeState = { errored: false };
-
 /** Boots the collection whose boot list read the recording forces to a 500. */
 async function openErrored(world: World): Promise<void> {
   await world.boot(CLIENT_EMAIL_HISTORY_SCENARIO, {
@@ -143,18 +136,18 @@ async function openSingleEmail(world: World): Promise<void> {
 // -----------------------------------------------------------------------------
 
 export const clientEmailHistorySteps = defineSteps(({ Given, When, Then }) => {
+  Given(
+    "I am an authenticated client whose email history cannot be read",
+    openErrored
+  );
+
   Given("I am an authenticated client reading my own account", world =>
-    arrangeState.errored
-      ? openErrored(world)
-      : open(world, { actor: ScopeActorTypes.CLIENT })
+    open(world, { actor: ScopeActorTypes.CLIENT })
   );
 
   Given(
     "every request I make is addressed to my own email history as that client",
-    world =>
-      arrangeState.errored
-        ? Promise.resolve()
-        : world.expectMeta({ isAvailable: true })
+    world => world.expectMeta({ isAvailable: true })
   );
 
   When("I sort my history by subject", world =>

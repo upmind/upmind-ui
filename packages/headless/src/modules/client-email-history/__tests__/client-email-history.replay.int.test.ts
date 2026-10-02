@@ -37,14 +37,13 @@ import {
   stepDirDrift,
   stepFixturesDir
 } from "../../../testing/scenario-fixtures";
+import { seedSessionFor, SIGNED_OUT_TAG } from "../../../testing/session-seed";
 import {
   resetClientEmailHistoryScopes,
   seedClientSession,
   seedGuestSession
 } from "./client-email-history.int-helpers";
-import { seedSessionFor, SIGNED_OUT_TAG } from "../../../testing/session-seed";
 import {
-  arrangeState,
   CLIENT_EMAIL_HISTORY_SCENARIO,
   CLIENT_RECEIVED_EMAIL_SCENARIO,
   clientEmailHistorySteps
@@ -71,7 +70,6 @@ let currentScenario = "";
 async function arrangeScenario(scenario: FeatureScenario): Promise<void> {
   currentScenario = scenario.name;
   const signedOut = includes(scenario.tags, SIGNED_OUT_TAG);
-  arrangeState.errored = includes(scenario.tags, "@errored");
   if (
     !signedOut &&
     !existsSync(scenarioDir(import.meta.dirname, scenario.name))

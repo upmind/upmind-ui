@@ -15,8 +15,8 @@
 import { describe, expect, it } from "vitest";
 import { mapContractProductPickerItems } from "../contract-product.mappers";
 import { titleOf } from "./contract-product.steps";
-import withIdentifierRecording from "./scenarios/each-of-my-products-shows-the-date-i-bought-it/02/get-contracts-products-exclude-delegated-1-skip-count-1-split-count-1.json";
 import withoutIdentifierRecording from "./scenarios/a-one-time-purchase-shows-the-price-i-paid-for-it-as-my-brands-tax-rule-prices-it/03/get-contracts-products-exclude-delegated-1-filter-billing-cycle-days-eq-0-skip-count-1-split-count-1.json";
+import withIdentifierRecording from "./scenarios/each-of-my-products-shows-the-date-i-bought-it/02/get-contracts-products-exclude-delegated-1-skip-count-1-split-count-1.json";
 import { filter, map } from "lodash-es";
 import type { IContractProduct } from "@upmind-automation/types";
 

@@ -29,9 +29,13 @@
 import { join } from "node:path";
 import { describe, it, beforeAll, afterAll } from "vitest";
 import { Generator } from "@upmind-automation/test-fixtures/generator";
-import { ProvisionCategoryCodes } from "@upmind-automation/types";
+import {
+  BrandConfigKeys,
+  ProvisionCategoryCodes
+} from "@upmind-automation/types";
 // eslint-disable-next-line @internal/no-cross-module-imports -- token minting is auth-domain and auth owns the only copy; this is the recording lane, not the runtime module graph the Visibility Law protects.
 import { mintClientToken } from "../../auth/__tests__/auth.tokens";
+import { defaultBrandConfigKeys } from "../../brand/brand.constants";
 
 // -----------------------------------------------------------------------------
 
@@ -60,6 +64,13 @@ const SCOPE = [
   `filter[provision_blueprint.category.code|neq]=${ProvisionCategoryCodes.DOMAIN_NAMES}`,
   "with=image,images,prices,products_attributes,products_options,products_options.prices,category.top_category.top_category.top_category.top_category"
 ].join("&");
+
+// The brand-config keys the storefront boot accumulates, in the order the brand
+// consumers register them. Recorded as two requests: the accumulator fetches
+// once as the storefront consumers register, then again when the last
+// (zero-amount-orders) consumer joins.
+const BRAND_VALUE_KEYS = defaultBrandConfigKeys.join(",");
+const BRAND_VALUE_KEYS_SETTLED = `${BRAND_VALUE_KEYS},${BrandConfigKeys.REQUIRE_PAYMENT_METHOD_FOR_FREE_ORDERS}`;
 
 // -----------------------------------------------------------------------------
 
@@ -130,7 +141,8 @@ describe("Product-Catalogue API Fixtures Generator", () => {
       "/api/orders/current",
       "/api/org/modules",
       "/api/brand/settings",
-      "/api/config/brand/values",
+      `/api/config/brand/values?keys=${BRAND_VALUE_KEYS}`,
+      `/api/config/brand/values?keys=${BRAND_VALUE_KEYS_SETTLED}`,
       "/api/config/organisation/values"
     ]) {
       const { status } = await generator.get(path);

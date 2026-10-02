@@ -20,10 +20,10 @@
 
 import { defineSteps } from "@upmind-automation/scenario-harness";
 import { ScopeActorTypes } from "../../scope/scope.types";
+import ac21Upload from "./scenarios/a-changed-image-is-safely-stored-before-the-rest-of-my-save-happens/04/post-clients-fields-id-image.json";
 import ac20Record from "./scenarios/a-stored-image-gives-me-a-link-and-a-preview-and-clearing-removes-both/03/get-clients-id.json";
 import ac22Catalogue from "./scenarios/only-the-images-i-actually-changed-get-uploaded-again/03/get-custom-fields-filter-object-type-client.json";
 import ac22ChangedUpload from "./scenarios/only-the-images-i-actually-changed-get-uploaded-again/04/post-clients-fields-id-image.json";
-import ac21Upload from "./scenarios/a-changed-image-is-safely-stored-before-the-rest-of-my-save-happens/04/post-clients-fields-id-image.json";
 import { find, startsWith, values } from "lodash-es";
 import type { World } from "@upmind-automation/scenario-harness";
 

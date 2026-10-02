@@ -1,0 +1,35 @@
+# client-billing-settings.currency-options-own-missing.must-fail.patch
+#
+# Targets: rows B2/B3 — the currency pick-list offers the brand's supported set
+# PLUS the account's own currency when the brand list omits it, so a client on a
+# now-unsupported currency still sees (and validates) their own.
+#
+# Mutates: client-billing-settings.utils.ts combineCurrencyOptions — drops the
+# own-currency append, returning the brand set alone.
+#
+# Expected RED (integration): client-billing-settings.replay.int.test.ts —
+# when the account currency is absent from the brand list, the seeded
+# `currencyId` no longer validates against the schema enum, so the editor lands
+# invalid and the AC-20/AC-22 `open()` Given (isAvailable/hasErrors) fails.
+#
+# Apply / verify / revert:
+#   git apply <this file>
+#   pnpm exec vitest run src/modules/client-billing-settings/__tests__/client-billing-settings.replay.int.test.ts   # RED
+#   git apply -R <this file>
+#
+--- a/packages/headless/src/modules/client-billing-settings/client-billing-settings.utils.ts
++++ b/packages/headless/src/modules/client-billing-settings/client-billing-settings.utils.ts
+@@ -34,12 +34,7 @@ export function combineCurrencyOptions(
+   brandCurrencies: ICurrency[],
+   accountCurrency?: ICurrency
+ ): ICurrency[] {
+-  const list =
+-    accountCurrency && !some(brandCurrencies, { id: accountCurrency.id })
+-      ? concat(brandCurrencies, accountCurrency)
+-      : brandCurrencies;
+-
+-  return orderBy(list, ["name"], ["asc"]);
++  return orderBy(brandCurrencies, ["name"], ["asc"]);
+ }
+ 
+ /** One pick-list entry per member, its label read off the member's own map. */

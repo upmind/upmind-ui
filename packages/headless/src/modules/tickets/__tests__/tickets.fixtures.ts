@@ -98,7 +98,7 @@ import { join } from "node:path";
 import { describe, it, beforeAll, afterAll } from "vitest";
 import { API_CREDENTIALS } from "@upmind-automation/test-fixtures/credentials";
 import { Generator } from "@upmind-automation/test-fixtures/generator";
-import { GrantTypes } from "@upmind-automation/types";
+import { BrandConfigKeys, GrantTypes } from "@upmind-automation/types";
 import {
   prepareScenarioDirs,
   recordedStepDir
@@ -109,6 +109,7 @@ import {
   mintStaffToken,
   mintToken
 } from "../../auth/__tests__/auth.tokens";
+import { defaultBrandConfigKeys } from "../../brand/brand.constants";
 import type { IToken } from "@upmind-automation/types";
 
 const ACCEPT_LINK = /delegate_access\/accept\/([A-Za-z0-9]+)/;
@@ -1053,48 +1054,12 @@ const DEFAULT_LIST =
  * than derived: the key set is the platform's own, not this module's to spell.
  */
 const BRAND_VALUES_KEYS = [
-  "analytics.google.measurement_id",
-  "analytics.gtm.container_id",
-  "ui.basket.default_currency",
-  "ui.basket.add_to_basket_funnelling",
-  "ui.basket.payment_term_descriptions",
-  "billing.gateway.force_auto_payment_for_stored_details",
-  "billing.gateway.force_card_storage",
-  "ui.checkout.checkout_flow",
-  "ui.checkout.hide_promotions_field",
-  "invoices.common.require_phone_for_orders",
-  "ui.checkout.checkout_summary_color_stop1",
-  "ui.checkout.checkout_summary_color_stop2",
-  "ui.checkout.checkout_summary_contrast_mode",
-  "security.ui.allow_vault",
-  "ui.client_area.homepage",
-  "invoices.common.default_payment_period",
-  "ui.client_area.hide_registration_forms",
-  "invoices.guest_checkout.enabled",
-  "provisioning.domain_names.search_method",
-  "billing.gateway.client_allow_partial_payments",
-  "invoices.common.is_available_pay_later",
-  "billing.gateway.allow_card_removal_replacement",
-  "invoices.common.display_price_type",
-  "invoices.common.require_address_for_orders",
-  "invoices.common.require_company_for_orders",
-  "ui.client_registration.require_phone",
-  "invoices.common.required_region_in_address",
-  "security.orders.require_verified_email",
-  "ui.basket.truncate_product_description",
-  "ui.client_area.show_catalog",
-  "invoices.common.show_promotion_as",
-  "tickets.support.support_pin_enabled",
-  "price_tax.tax.enable_automatic_vat_validation",
-  "ui.client_area.disable_support_system",
-  "ui.client_area.page_after_login",
-  "ui.client_area.enter_key_action",
-  "ui.client_area.price_before_discount_position",
-  "invoices.common.require_payment_details_for_zero_amount_orders",
-  "security.uploads.allowed_upload_file_types"
-] as const;
+  ...defaultBrandConfigKeys,
+  BrandConfigKeys.REQUIRE_PAYMENT_METHOD_FOR_FREE_ORDERS,
+  BrandConfigKeys.ALLOWED_UPLOAD_FILE_TYPES
+];
 
-const BRAND_VALUES_URL = `/api/config/brand/values?filter[keys|eq]=${BRAND_VALUES_KEYS.join(",")}`;
+const BRAND_VALUES_URL = `/api/config/brand/values?keys=${BRAND_VALUES_KEYS.join(",")}`;
 
 describe("Tickets scenario recordings (collection)", () => {
   let scenarioClientToken: IToken;
@@ -1431,7 +1396,12 @@ describe("Tickets scenario recordings (collection)", () => {
 
   describe("Read a ticket's status as words, not as a code", () => {
     const scenario = "Read a ticket's status as words, not as a code";
-    it(BG_AUTH, () => recordStep(scenario, BG_AUTH, readDefaultList));
+    it(BG_AUTH, () =>
+      recordStep(scenario, BG_AUTH, async generator => {
+        await readDefaultList(generator);
+        await generator.get(BRAND_VALUES_URL);
+      })
+    );
     it(BG_PATH, () => recordStep(scenario, BG_PATH, () => Promise.resolve()));
     it("I read its status", () =>
       recordStep(scenario, "I read its status", generator =>
@@ -2560,8 +2530,6 @@ describe("Tickets scenario recordings (manager + delegated-in)", () => {
       );
     }, 30000);
 
-    let notMineMessageId: string;
-
     describe("I cannot correct a message that is not mine", () => {
       const scenario = "I cannot correct a message that is not mine";
       it(BG_AUTH, () =>
@@ -2577,13 +2545,9 @@ describe("Tickets scenario recordings (manager + delegated-in)", () => {
           async generator => {
             await openManagerTicket(notMineTicketId)(generator);
             await loadOlderPage(notMineTicketId)(generator);
-            const { body } = await generator.get(
+            await generator.get(
               `/api/tickets/${notMineTicketId}/messages?with=files&limit=11&filter[is_log]=0&order=-created_at,-id`
             );
-            const rows =
-              (body as { data?: Array<{ id: string; can_manage?: boolean }> })
-                ?.data ?? [];
-            notMineMessageId = rows.find(row => !row.can_manage)?.id ?? "";
           }
         ));
       it("I try to correct it", () =>
@@ -2607,13 +2571,9 @@ describe("Tickets scenario recordings (manager + delegated-in)", () => {
           async generator => {
             await openManagerTicket(notMineTicketId)(generator);
             await loadOlderPage(notMineTicketId)(generator);
-            const { body } = await generator.get(
+            await generator.get(
               `/api/tickets/${notMineTicketId}/messages?with=files&limit=11&filter[is_log]=0&order=-created_at,-id`
             );
-            const rows =
-              (body as { data?: Array<{ id: string; can_manage?: boolean }> })
-                ?.data ?? [];
-            notMineMessageId = rows.find(row => !row.can_manage)?.id ?? "";
           }
         ));
       it("I try to withdraw it", () =>

@@ -18,15 +18,15 @@
       "access-control-expose-headers": "Origin, X-Requested-With, Content-Type, Accept, Token-Type",
       "cache-control": "private",
       "cf-cache-status": "DYNAMIC",
-      "cf-ray": "a429add8ef044eca-JNB",
+      "cf-ray": "a435c2199ade15d1-JNB",
       "connection": "keep-alive",
       "content-disposition": "attachment; filename=\"QAT-CN-09834.pdf\"",
       "content-length": "23051",
       "content-type": "application/pdf",
-      "date": "Tue, 29 Sep 2026 08:39:45 GMT",
+      "date": "Wed, 30 Sep 2026 19:50:44 GMT",
       "etag": "\"9889cd52b35979e6cfae54ccf11d94bd\"",
       "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
-      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=lrRwj1FH2V2yMfwJIgQbpEKfWxLCmrjRz7TquPzkLbZVqaH2rFAYy7pxPRAjmAGrzN5Z78QYO8lg9NbyWmnwFmRpcOln5LeiWzO6AwnorZUVzHfdndFi79FBnXV1WJiUtf3gpcTrZA%3D%3D\"}]}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=IWuJ%2BAxyfGun3ymRSRJEcJdysFcaKtqV0TyAUJhheSVuoKkUcsgByL3Nx0KfAeTQb%2FNrx2KJcc%2Bc3FUG0QpnJ6h9gO28XVZwUgkcSNeGKHEv%2F%2FkI9gaq9FM7UHkoDPKo68df8ByOdQ%3D%3D\"}]}",
       "server": "cloudflare",
       "vary": "Origin",
       "x-frame-options": "SAMEORIGIN"
@@ -36,7 +36,7 @@
       "byteLength": 23051
     }
   },
-  "captured_at": "2026-09-29T08:39:45.465Z",
+  "captured_at": "2026-09-30T19:50:44.119Z",
   "brand_domain": "qa-automation.local",
   "source": "case",
   "provenance": {

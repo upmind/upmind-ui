@@ -21,18 +21,19 @@ reach.
 diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/force/corpus.ts b/playgrounds/labs-nuxt/modules/scenarios/runtime/force/corpus.ts
 --- a/playgrounds/labs-nuxt/modules/scenarios/runtime/force/corpus.ts
 +++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/force/corpus.ts
-@@ -212,12 +212,12 @@ function offsetOf(fixture: RecordedFixture): number {
+@@ -88,11 +88,10 @@
  export async function armCorpusModule(module: string): Promise<boolean> {
    if (!isModuleResolved(module)) return false;
  
-+  armedModule = module;
-+
-   const bodies = await loadCorpusBodies(module);
-   if (!bodies || !armsForceableSurface(featureTextFor(module), bodies))
-     return false;
- 
--  armedModule = module;
+-  const bodies = await loadCorpusBodies(module);
+-  if (!bodies || !armsForceableSurface(featureTextFor(module), bodies))
+-    return false;
 -
+-  armedModule = module;
++  void loadCorpusBodies(module).then(bodies => {
++    if (bodies && armsForceableSurface(featureTextFor(module), bodies))
++      armedModule = module;
++  });
+ 
    return true;
  }
- 

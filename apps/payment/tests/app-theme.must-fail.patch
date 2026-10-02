@@ -1,0 +1,32 @@
+# Negative control — puts back a first-value latch per brand id. The page
+# keeps the first theme it saw for a brand, so a refetch that changes the
+# theme under the same brand id leaves the stale theme on screen.
+#
+# Intended RED:
+#   apps/payment/tests/app-theme.test.ts
+#     "follows a theme change under the same brand id"
+
+diff --git a/apps/payment/src/App.vue b/apps/payment/src/App.vue
+--- a/apps/payment/src/App.vue
++++ b/apps/payment/src/App.vue
+@@ -16,11 +16,18 @@ import { appRootVariants } from "./variants";
+ const { brandId } = useBrand();
+ const { ui } = useConfig();
+ 
++const firstThemeByBrand = new Map<string, string>();
++
+ watchEffect(() => {
+   const themeId = ui.theme.value;
+ 
+-  if (brandId.value && themeId) {
+-    document.documentElement.setAttribute("data-theme", themeId);
++  if (!brandId.value || !themeId) return;
++  if (!firstThemeByBrand.has(brandId.value)) {
++    firstThemeByBrand.set(brandId.value, themeId);
+   }
++  document.documentElement.setAttribute(
++    "data-theme",
++    firstThemeByBrand.get(brandId.value) ?? themeId
++  );
+ });
+ </script>

@@ -2,7 +2,7 @@
   "version": 3,
   "request": {
     "method": "DELETE",
-    "path": "/api/tickets/d085e69d-5623-7197-44da-218e940d4237/messages/20e43579-5e78-d187-703f-31643202d986/files/5952098d-3de4-0917-e48c-31578626e347",
+    "path": "/api/tickets/89857426-4897-0120-8e7f-21e325d0ed36/messages/d0367942-4d0e-7102-2d3b-3153698d582e/files/5d085e69-d562-3719-e26f-218e940d4237",
     "headers": {
       "Content-Type": "application/json",
       "Accept": "application/json",
@@ -17,14 +17,14 @@
       "access-control-allow-origin": "http://qa-automation.local:5173",
       "cache-control": "no-cache, private",
       "cf-cache-status": "DYNAMIC",
-      "cf-ray": "a42917d5faceb281-DUR",
+      "cf-ray": "a43345f06d5693d1-JNB",
       "connection": "keep-alive",
       "content-encoding": "br",
       "content-type": "application/json",
-      "date": "Tue, 29 Sep 2026 06:57:21 GMT",
+      "date": "Wed, 30 Sep 2026 12:36:27 GMT",
       "impersonation": "0",
       "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
-      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=%2FMNproqqEgLsZEIuq3fcweMtueQwkOluj4%2Fgutw8CiKsUkyedT0Cy9iP2KuHgzxs3JOREo9tqUOHvievEmeON2WUKQLyQH4t2E%2Fs7qjfWViICDhfPqgClXcoEu6xalaoKPwErGb9wQ%3D%3D\"}]}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=YDrC08jDcE3EfpODQpqx3MGkDrKP4PkwS382S9l9cUjhKJV8oJL3udM%2B1niaJtZM50g3UtCqKq2F68Iz5haYklawnqKwnViDS4RAuzysI5LMvUGsCUYSGNNFh4UyCCXUhcFrdFwnKg%3D%3D\"}]}",
       "server": "cloudflare",
       "transfer-encoding": "chunked",
       "vary": "Accept-Encoding",
@@ -40,7 +40,7 @@
       "meta": null
     }
   },
-  "captured_at": "2026-09-29T06:57:21.014Z",
+  "captured_at": "2026-09-30T12:36:26.984Z",
   "brand_domain": "qa-automation.local",
   "source": "case",
   "provenance": {

@@ -1,0 +1,56 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/config/brand/values?keys=invoices.common.require_phone_for_orders%2Cinvoices.common.require_address_for_orders%2Cinvoices.common.require_company_for_orders%2Cui.basket.default_currency%2Cinvoices.common.default_payment_period%2Cinvoices.common.display_price_type",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a4334b862859f48a-JNB",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json",
+      "date": "Wed, 30 Sep 2026 12:40:15 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=tmZTj4Xuz1VxDKJJl2QCKmonvUcFYLsBcP2nsYoci%2Fka0bLpXhBJXxWbUKQhNMYYp6HJlVnMdCo4mZHn4MY0E62zSaM%2BlAe9j8YXTB1A2dDs7eFaGjZvHcJ0qWvidziqAQE5pSfXbg%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-frame-options": "SAMEORIGIN"
+    },
+    "body": {
+      "status": "ok",
+      "data": {
+        "invoices.common.display_price_type": "lowest_monthly_price",
+        "invoices.common.default_payment_period": 1,
+        "invoices.common.require_address_for_orders": false,
+        "invoices.common.require_company_for_orders": false,
+        "invoices.common.require_phone_for_orders": false,
+        "ui.basket.default_currency": "brand"
+      },
+      "related": null,
+      "total": null,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-09-30T12:40:15.352Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "unified"
+  }
+}

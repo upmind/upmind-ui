@@ -75,7 +75,7 @@
             :actions="configurationActions"
           >
             <form @submit.prevent @reset.prevent>
-              <ProductConfig
+              <Config
                 v-if="basketProduct && productMeta?.isAvailable"
                 :meta="configMeta"
                 :touched="productMeta?.showErrors"
@@ -88,7 +88,7 @@
                 @reject="doReject"
               />
 
-              <ProductNotFound
+              <UpmProductNotFound
                 v-else-if="productMeta?.isUnavailable"
                 :storefront-route="props.storefrontRoute"
               />
@@ -248,6 +248,8 @@ import { computed, provide, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { Section } from "@upmind-automation/foundation";
 import { Icon } from "@upmind-automation/foundation";
+import { isMobile } from "@upmind-automation/foundation";
+import { useBreadcrumbs } from "@upmind-automation/foundation";
 import {
   useRoutingEngine,
   useBasketProducts,
@@ -260,20 +262,18 @@ import {
 } from "@upmind-automation/headless";
 import { useConfig, validateTemplate } from "@upmind-automation/headless";
 import { BreadcrumbVariant, UIContext } from "@upmind-automation/headless";
+import { Config } from "@upmind-automation/product";
+import { ConfigErrors } from "@upmind-automation/product";
+import { ConfigSkeleton } from "@upmind-automation/product";
+import { ProductHero } from "@upmind-automation/product";
+import { ProductHeroSkeleton } from "@upmind-automation/product";
+import { ProductImage } from "@upmind-automation/product";
+import { PRODUCT_HERO_DIRECTION } from "@upmind-automation/product";
+import { Pricing } from "@upmind-automation/product";
+import { PricingSkeleton } from "@upmind-automation/product";
+import { PricingTotal } from "@upmind-automation/product";
+import { UpmProductNotFound } from "@upmind-automation/product";
 import Transitions from "../../components/layout/components/transition/Transition.vue";
-import { isMobile } from "../../composables/isMobile";
-import { useBreadcrumbs } from "../../composables/useBreadcrumbs";
-import ProductConfig from "../product/components/Config.vue";
-import ConfigErrors from "../product/components/ConfigErrors.vue";
-import ConfigSkeleton from "../product/components/ConfigSkeleton.vue";
-import ProductHero from "../product/components/hero/ProductHero.vue";
-import ProductHeroSkeleton from "../product/components/hero/ProductHeroSkeleton.vue";
-import ProductImage from "../product/components/hero/ProductImage.vue";
-import { PRODUCT_HERO_DIRECTION } from "../product/components/hero/types";
-import Pricing from "../product/components/pricing-list/Pricing.vue";
-import PricingSkeleton from "../product/components/pricing-list/PricingSkeleton.vue";
-import PricingTotal from "../product/components/pricing-list/PricingTotal.vue";
-import ProductNotFound from "../product/NotFound.vue";
 import { useThemes } from "../theming";
 import BasketActions from "./components/BasketActions.vue";
 import BasketProductEnclosedTemplate from "./templates/BasketProductEnclosed.template.vue";

@@ -286,19 +286,21 @@ function doResolve(model: unknown) {
       }
     });
   } else if (showGuestUpgradeForm.value) {
-    register(model as CompleteRegistrationModel).then(async success => {
+    register(model as CompleteRegistrationModel).then(success => {
       if (!success) return;
       // Guest→client promotion (loadUser + actor flip) lands a beat after
       // register() resolves; wait for it so consumers re-reading session state
       // on resolve see the promoted client. Escalate rather than hang if the
       // user load fails.
-      try {
-        await session.useActions().whenAuthenticated();
-      } catch {
-        emit("reject");
-        return;
-      }
-      emit("resolve", model);
+      return session
+        .useActions()
+        .whenAuthenticated()
+        .then(() => {
+          emit("resolve", model);
+        })
+        .catch(() => {
+          emit("reject");
+        });
     });
   }
 }

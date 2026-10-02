@@ -402,15 +402,14 @@ function labelFor(id: string): string {
 async function ensureClientSession(id: string): Promise<boolean> {
   if (has(pool.value, id)) return true;
 
-  try {
-    const token = await impersonateClient(id);
-    const { registerImpersonation, add } = store.useActions();
-    registerImpersonation(id);
-    await add(token);
-    return true;
-  } catch {
-    return false;
-  }
+  return impersonateClient(id)
+    .then(token => {
+      const { registerImpersonation, add } = store.useActions();
+      registerImpersonation(id);
+      return add(token);
+    })
+    .then(() => true)
+    .catch(() => false);
 }
 
 /**

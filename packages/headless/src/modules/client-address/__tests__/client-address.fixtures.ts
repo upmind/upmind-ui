@@ -149,8 +149,8 @@ const BRAND_FIXTURES = join(
  * forbidding copy is recorded for all of them — the module's editor boot reads one
  * of them and we cannot know which by identity, so all are armed at replay.
  */
-const REGION_BUNDLE_HASHES = ["18352d6c", "e325b875", "fad5b056", "8ebc17a8"];
-const LOCK_BUNDLE_HASHES = ["18352d6c", "e325b875", "fad5b056", "8ebc17a8"];
+const REGION_BUNDLE_HASHES = ["1c963981", "c52ff370", "d158227c", "f57ff14a"];
+const LOCK_BUNDLE_HASHES = ["1c963981", "c52ff370", "d158227c", "f57ff14a"];
 const REGION_KEY = "invoices.common.required_region_in_address";
 const LOCK_KEY = "clients.settings.allow_address_update";
 
@@ -382,6 +382,8 @@ const feature = readFileSync(
 
 /** The Background step every scenario opens with — it reads the collection. */
 const OPEN_BG = "I am signed in as a client managing my addresses";
+const ERRORED_OPEN =
+  "I am signed in as a client whose address list cannot be read";
 /** The page-scenario Given — it opens the same collection. */
 const OPEN_PAGE = "I am an authenticated client on the addresses page";
 
@@ -905,8 +907,8 @@ describe("Client-Address scenario recordings", () => {
   // forced to a 500, so the collection settles errored on a genuine request.
   describe("When my address list cannot be read, I am told it failed", () => {
     const scenario = "When my address list cannot be read, I am told it failed";
-    it(OPEN_BG, () =>
-      recordStep(scenario, OPEN_BG, generator =>
+    it(ERRORED_OPEN, () =>
+      recordStep(scenario, ERRORED_OPEN, generator =>
         generator.get(list(), undefined, ForcedErrorCode.Internal_Server_Error)
       )
     );

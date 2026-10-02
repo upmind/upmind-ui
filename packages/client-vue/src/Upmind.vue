@@ -76,12 +76,12 @@ import { AnnouncementBar } from "@upmind/ui";
 import { Loading } from "@upmind/ui";
 import { computed, nextTick, ref } from "vue";
 import { useI18n } from "vue-i18n";
+import { useAnnouncement } from "@upmind-automation/foundation";
 import useUpmind, {
   UpmindStatus,
   useRoutingEngine
 } from "@upmind-automation/headless";
 import { useConfig } from "@upmind-automation/headless";
-import { useAnnouncement } from "./components/announcement/useAnnouncement";
 import Footer from "./components/footer/Footer.vue";
 import Header from "./components/header/Header.vue";
 import Main from "./components/main/Main.vue";

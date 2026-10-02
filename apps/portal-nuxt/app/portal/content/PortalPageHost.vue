@@ -150,7 +150,9 @@ const meta = computed(() => ({
       :aside-divider="resolvedContent.asideDivider"
       :aside-side="resolvedContent.asideSide"
       :aside-label="asideLabel"
-    />
+    >
+      <slot />
+    </PortalContent>
 
     <!-- Empty until the brand's own `footer` template slot lands (plan Phase 6). -->
     <div

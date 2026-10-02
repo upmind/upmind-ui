@@ -14,6 +14,11 @@ const AUTH_APP_PORT = 4010;
 export const AUTH_APP_URL =
   process.env.PW_AUTH_APP_URL ?? `http://qa-automation.local:${AUTH_APP_PORT}/`;
 
+const PAYMENT_APP_PORT = 4020;
+export const PAYMENT_APP_URL =
+  process.env.PW_PAYMENT_APP_URL ??
+  `http://qa-automation.local:${PAYMENT_APP_PORT}/`;
+
 function git(args: string): string | undefined {
   try {
     return execSync(`git ${args}`, { stdio: ["ignore", "pipe", "ignore"] })
@@ -117,6 +122,12 @@ export default defineConfig({
       command: `pnpm exec vite build --mode test && pnpm exec vite preview --port ${AUTH_APP_PORT} --host qa-automation.local --strictPort`,
       cwd: "./apps/auth",
       url: AUTH_APP_URL,
+      reuseExistingServer: true
+    },
+    {
+      command: `pnpm exec vite build --mode test && pnpm exec vite preview --port ${PAYMENT_APP_PORT} --host qa-automation.local --strictPort`,
+      cwd: "./apps/payment",
+      url: PAYMENT_APP_URL,
       reuseExistingServer: true
     }
   ],

@@ -17,14 +17,14 @@
       "access-control-allow-origin": "http://qa-automation.local:5173",
       "cache-control": "no-cache, private",
       "cf-cache-status": "DYNAMIC",
-      "cf-ray": "a41c63ba0d24517e-JNB",
+      "cf-ray": "a4334dc548b0d0e9-JNB",
       "connection": "keep-alive",
       "content-encoding": "br",
       "content-type": "application/json",
-      "date": "Sun, 27 Sep 2026 17:57:14 GMT",
+      "date": "Wed, 30 Sep 2026 12:41:47 GMT",
       "impersonation": "0",
       "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
-      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=6N5ZYaerbfapGVYYh9P2dKbP28%2BWPWSmQ6Xw%2FvC5ciG2BXdpTSIhpC1amJF9r0QQ14dC7LsOuD2H8zDgVzh2zazhYRkxRrtMbNw4it8fjVLyAHrTJtvYlZBkpxPdwjOxEVSso2wbPw%3D%3D\"}]}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=UWkiPdf%2FY0iDNu0InonqrwUHv9ckG8%2F8O1N9K6Z6ALqrem5vabj0Qvlfi%2BrS47Iy7GLJG3d9OQf3QvPGcihcJvtoW1AoOHHysmFolUqVe9YY8rfq8olshYghxc75mm0KJAgixMa9GA%3D%3D\"}]}",
       "server": "cloudflare",
       "transfer-encoding": "chunked",
       "vary": "Accept-Encoding",
@@ -131,7 +131,7 @@
           "translations": []
         },
         {
-          "id": "3de78642-de53-9714-9ef2-1208469530d0",
+          "id": "78985742-6489-7012-d5f2-1e325d0ed369",
           "import_id": null,
           "staged_import": false,
           "external_id": null,
@@ -147,9 +147,9 @@
           "user_id": "825d96e7-63ed-0913-de6c-417482528340",
           "order": 3,
           "values": [],
-          "created_at": "2026-09-27 17:57:02",
-          "updated_at": "2026-09-27 17:57:02",
-          "code": "fe3145_second_image_1790531821950",
+          "created_at": "2026-09-30 12:41:35",
+          "updated_at": "2026-09-30 12:41:35",
+          "code": "fe3145_second_image_1790772095657",
           "user_only": false,
           "show_on_order_form": false,
           "show_on_invoice": false,
@@ -173,7 +173,7 @@
       "meta": null
     }
   },
-  "captured_at": "2026-09-27T17:57:14.076Z",
+  "captured_at": "2026-09-30T12:41:47.405Z",
   "brand_domain": "qa-automation.local",
   "source": "case",
   "provenance": {

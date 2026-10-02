@@ -430,6 +430,11 @@
     "label": "Parent invoice",
     "placeholder": "Select an invoice"
   },
+  "invoice_picker": {
+    "description": null,
+    "label": "Find an invoice",
+    "placeholder": "Search by invoice number"
+  },
   "invoice_net_filter": {
     "description": null,
     "label": "Net amount",

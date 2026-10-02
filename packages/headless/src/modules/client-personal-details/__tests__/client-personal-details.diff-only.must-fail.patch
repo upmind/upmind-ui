@@ -1,9 +1,13 @@
+diff --git a/packages/headless/src/modules/client-personal-details/client-personal-details.mappers.ts b/packages/headless/src/modules/client-personal-details/client-personal-details.mappers.ts
+index 0f7b2a0ec0..0ef36f8d85 100644
 --- a/packages/headless/src/modules/client-personal-details/client-personal-details.mappers.ts
 +++ b/packages/headless/src/modules/client-personal-details/client-personal-details.mappers.ts
-@@ -158,5 +158,5 @@
-   );
-   if (customFields !== undefined) diff.custom_fields = customFields;
+@@ -76,7 +76,7 @@ export function mapIProfileFields(
+     };
+   }
  
 -  return Object.keys(diff).length ? diff : undefined;
 +  return { firstname: model.firstName, lastname: model.lastName, public_name: model.publicName, interface_language_id: model.language, document_language_id: model.language, custom_fields: model.customFields };
  }
+ 
+ /** The client-surface permission metadata every native profile row carries. */

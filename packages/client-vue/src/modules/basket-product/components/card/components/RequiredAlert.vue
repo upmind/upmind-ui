@@ -20,7 +20,7 @@
 import { Alert } from "@upmind/ui";
 import { useI18n } from "vue-i18n";
 import { Icon } from "@upmind-automation/foundation";
-import { isMobile } from "../../../../../composables/isMobile";
+import { isMobile } from "@upmind-automation/foundation";
 import type { RequiredAlertProps } from "./types";
 
 // -----------------------------------------------------------------------------

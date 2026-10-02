@@ -9,7 +9,7 @@ import {
   InvoiceConsolidationRuleTypes,
   InvoiceConsolidationTypes
 } from "@upmind-automation/types";
-import { concat, map, size } from "lodash-es";
+import { concat, map, orderBy, size, some } from "lodash-es";
 import type { OptionedSchema } from "./client-billing-settings.types";
 import type { ICurrency } from "@upmind-automation/types";
 // -----------------------------------------------------------------------------
@@ -23,6 +23,24 @@ import type { ICurrency } from "@upmind-automation/types";
  * `never_suspend` ride in the model (`BillingSettingsModel.brand` /
  * `.neverSuspend`).
  */
+
+/**
+ * The currencies both account-currency controls offer: the brand's supported
+ * set ordered by name, plus the account's own currency when the brand list
+ * omits it (rows B2/B3). Moved out of the services file — it derives view
+ * data, it is not a request.
+ */
+export function combineCurrencyOptions(
+  brandCurrencies: ICurrency[],
+  accountCurrency?: ICurrency
+): ICurrency[] {
+  const list =
+    accountCurrency && !some(brandCurrencies, { id: accountCurrency.id })
+      ? concat(brandCurrencies, accountCurrency)
+      : brandCurrencies;
+
+  return orderBy(list, ["name"], ["asc"]);
+}
 
 /** One pick-list entry per member, its label read off the member's own map. */
 export function enumOptions<T extends string | number>(

@@ -5,7 +5,7 @@ import {
   ClientCustomFieldsContextTypes,
   useClientCustomFields
 } from "../client-custom-fields";
-import { usePersonalDetailsManager } from "../client-personal-details";
+import { usePersonalDetails } from "../client-personal-details";
 import { invalidateQueryByKey, useQuery, useQueryCriteria } from "../query";
 import { ScopeActorTypes } from "../scope/scope.types";
 import { resolveClientId, useActiveSession } from "../session-store";
@@ -167,9 +167,7 @@ function createShowDelegatedPreference(scopeContext?: ScopeContext): {
     };
   }
 
-  const manager = usePersonalDetailsManager()
-    .as(ScopeActorTypes.CLIENT)
-    .fresh();
+  const manager = usePersonalDetails().as(ScopeActorTypes.CLIENT).fresh();
   manager.useActions().filterFields(["excludeDelegatedProducts"]);
 
   return {

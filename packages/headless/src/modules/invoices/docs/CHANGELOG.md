@@ -12,6 +12,11 @@ All notable changes to the invoices module.
 - Reading an entitled other client's invoices (`.for('client', id)`) — a parent
   account or an accepted delegate reads a sub-account's or delegator's invoices,
   addressed by the target client's id.
+- `useInvoices().useContext().schemas.invoicePicker` — a searchable invoice lookup
+  (`{ schema, uischema }`, model `{ invoice?: string | null }`, label key
+  `form.invoice_picker`) with its control pre-bound to its own lookup, which lists every invoice the
+  scope's client owns (not only credited ones). It finds one invoice by number; it is distinct from `schemas.lookups`,
+  the `.for()` retarget picker, and does not narrow the list.
 - Three more collection scope contexts, each a declared, read-only filter column
   that is seeded on scope and stays durable across every published criteria write:
   `.for('contract', id)` (`filter[contracts.id]`), `.for('contracts_product', id)`
@@ -21,8 +26,6 @@ All notable changes to the invoices module.
   go through the same resolve/seed/durability path.
 - Co-mingled row attribution — own / sub-account / delegated, and whether the reader
   may settle a given row.
-- A live, on-demand re-read of one invoice's unpaid amount, independent of the full
-  invoice load, re-issued on a currency change.
 - Two dedicated count reads: "does this client owe anything at all" and "how many
   invoices could be consolidated" — each from its own query, never disturbing a
   concurrently-visible list.
@@ -38,8 +41,7 @@ All notable changes to the invoices module.
   machine-backed (`invoiceManager`): `useActions().pay()` / `.retry()` trigger and
   retry a payment attempt, `.renderChallenge()` / `.cancelChallenge()` drive an
   inline 3DS challenge, `.downloadPdf()` saves the invoice (or credit note) PDF, and
-  `.setCurrency()` saves a pay-currency switch and re-reads the converted unpaid
-  amount. The machine spawns `payment`'s machine and a `payment-details` picker as
+  `.setCurrency(code)` switches the pay currency and converts the unpaid amount. The machine spawns `payment`'s machine and a `payment-details` picker as
   children rather than re-implementing submission.
 - `.as('client')` and `.as('guest')` both resolve on `useInvoice` (and `.as('self')`
   resolves to whichever the active session is) — a guest checkout reads and pays its
@@ -49,6 +51,21 @@ All notable changes to the invoices module.
   fixture generator with recorded, PII-masked fixtures.
 
 ### Changed (breaking)
+
+- **The invoice machine owns the pay currency; the basket is out of the pay path.**
+  - `useInvoice().useActions().setCurrency()` takes a currency code
+    (`setCurrency(code)`), not an object, and returns nothing. It is ignored unless
+    `useMeta().hasPaymentCurrencyChoice` is true.
+  - `useInvoice().useContext().unpaidAmount` is removed. Read
+    `model.summary.unpaidAmountConverted` / `unpaidAmountFormatted` instead.
+  - `useInvoice().useInternals().basketCurrency` is removed.
+  - `model.currencyPayment` is added: the pay currency, when the invoice has one.
+  - `useMeta().isProcessing` is also true while the pay currency converts.
+  - `useMeta().hasPaymentCurrencyChoice` and `useMeta().isSettling` are added.
+    `isSettling` is true during the post-payment balance re-fetch.
+  - A failed conversion sets `useMeta().hasError`, and leaves the invoice unchanged.
+  - The payment request sends `currency_code`: the pay currency, else the invoice
+    currency.
 
 - `useInvoice(invoiceId)` becomes `useInvoice().withId(invoiceId)` — the single
   invoice is now a scoped, machine-backed composable rather than a flat read. No

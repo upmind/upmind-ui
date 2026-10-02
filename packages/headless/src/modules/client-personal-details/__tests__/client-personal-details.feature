@@ -5,9 +5,8 @@
 # ruling 2026-09-24, ADR 035 + Amendment 1) replayed through the World, or a
 # capability proven no-network by one of this module's PURE `*.test.ts` (which
 # Amendment 1 keeps). Only a capability NO test can honestly prove here is
-# `@todo`, with its one-line blocker. Two composables are booted: the read half
-# (`usePersonalDetails`) under `client_personal_details`, and the FORM EDITOR
-# (`usePersonalDetailsManager`) under `client_personal_details_manager`.
+# `@todo`, with its one-line blocker. One composable is booted: `usePersonalDetails`
+# under `client_personal_details` — it serves both the profile read and the editor.
 #
 # Which test proves each non-driven capability:
 #   - client-personal-details.mappers.test.ts — AC-32, AC-33, AC-48, AC-49, AC-59.
@@ -62,6 +61,15 @@ Feature: A client reads and manages their own personal details, including their 
     When I try to use my profile editor while signed out
     Then my profile editor reports itself unavailable
 
+  # The profile read is issued for real, its response forced to a 500 (Generator
+  # forceStatus — a control response), so the read half settles errored on a
+  # genuine request the recording overrides.
+  @AC-31 @AC-40 @read @manager @errored
+  Scenario: I am told when my profile fails to load, and I am never left waiting
+    Given I am an authenticated client whose profile fails to load
+    When I inspect my profile after its load has failed
+    Then my profile reports that it failed to load
+
   Rule: A signed-in client reads and manages their own profile
 
     Background:
@@ -74,14 +82,6 @@ Feature: A client reads and manages their own personal details, including their 
     When I read my profile
     Then my profile is available to me
     And my profile reports no failure
-
-  # The profile read is issued for real, its response forced to a 500 (Generator
-  # forceStatus — a control response), so the read half settles errored on a
-  # genuine request the recording overrides.
-  @AC-31 @AC-40 @read @manager @errored
-  Scenario: I am told when my profile fails to load, and I am never left waiting
-    When I inspect my profile after its load has failed
-    Then my profile reports that it failed to load
 
   @AC-32 @read
   Scenario: Each of my profile fields correctly tells me whether it's read-only for me

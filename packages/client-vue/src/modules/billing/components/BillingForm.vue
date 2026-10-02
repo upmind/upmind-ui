@@ -75,6 +75,7 @@ import { computed, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { Sections } from "@upmind-automation/foundation";
 import { Icon } from "@upmind-automation/foundation";
+import { isMobile } from "@upmind-automation/foundation";
 import {
   ScopeActorTypes,
   UnifiedType,
@@ -85,7 +86,6 @@ import {
   useClientPhones,
   useRoutingEngine
 } from "@upmind-automation/headless";
-import { isMobile } from "../../../composables/isMobile";
 import { formSectionsVariants } from "../variants";
 import TabBusiness from "./TabBusiness.vue";
 import TabPersonal from "./TabPersonal.vue";

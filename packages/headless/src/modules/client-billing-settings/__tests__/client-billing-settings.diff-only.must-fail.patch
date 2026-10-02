@@ -1,0 +1,29 @@
+# client-billing-settings.diff-only.must-fail.patch
+#
+# Targets: the consolidation PUT is diff-only — an empty diff makes NO request
+# (was AC-11), so a no-op save never touches the shared `clients/{id}` record.
+#
+# Mutates: client-billing-settings.services.ts update — drops the
+# `if (diff === undefined) return {} as IClient;` short-circuit, so a no-op save
+# falls through to the PUT.
+#
+# Expected RED (integration): client-billing-settings.replay.int.test.ts —
+# the AC-21 step "saving with no change to either currency makes no request at
+# all" records no such PUT, so the fall-through fires a request the scenario
+# never recorded — a capture gap fails the scenario by name.
+#
+# Apply / verify / revert:
+#   git apply <this file>
+#   pnpm exec vitest run src/modules/client-billing-settings/__tests__/client-billing-settings.replay.int.test.ts   # RED
+#   git apply -R <this file>
+#
+--- a/packages/headless/src/modules/client-billing-settings/client-billing-settings.services.ts
++++ b/packages/headless/src/modules/client-billing-settings/client-billing-settings.services.ts
+@@ -259,7 +259,6 @@ async function update(
+   }
+ 
+   const diff = mapIBillingSettingsFields(model, baseModel);
+-  if (diff === undefined) return {} as IClient;
+ 
+   if ((await loadBrandGates()).restrictToStaff !== false) {
+     return Promise.reject(

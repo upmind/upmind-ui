@@ -3,7 +3,10 @@
  * @module plugins/upmind.client
  * @description Boots the headless runtime the `@upmind-automation/auth` organisms need.
  */
+import "@upmind-automation/client";
 import useUpmind from "@upmind-automation/headless";
+import "@upmind-automation/payment";
+import "@upmind-automation/product";
 import { AccessRoleTypes } from "@upmind-automation/types";
 import { defineNuxtPlugin, useRouter, useRuntimeConfig } from "#app";
 import i18n from "~/portal/i18n";

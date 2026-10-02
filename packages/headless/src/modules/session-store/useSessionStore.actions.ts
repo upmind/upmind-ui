@@ -112,15 +112,16 @@ async function activateSession(
       return;
 
     if (!sessionId && isEmpty(guestSessions)) {
-      try {
-        await mintGuestToken();
-      } catch (error) {
-        // Soft degrade, matching `add`'s /self failure: the user keeps the
-        // session they had. Not SessionState.error — that field is the fatal
-        // BOOT error, not a failed mid-session switch.
-        console.warn("Failed to mint a guest session to switch to:", error);
-        return;
-      }
+      // Soft degrade, matching `add`'s /self failure: the user keeps the
+      // session they had. Not SessionState.error — that field is the fatal
+      // BOOT error, not a failed mid-session switch.
+      const minted = await mintGuestToken()
+        .then(() => true)
+        .catch(error => {
+          console.warn("Failed to mint a guest session to switch to:", error);
+          return false;
+        });
+      if (!minted) return;
 
       // Superseded while the mint was in flight — the newer activation owns the
       // pointer, so this one resolves without touching it. The minted guest
@@ -375,13 +376,17 @@ export function useSessionStoreActions() {
 
     const sequence = claimActivation();
 
-    try {
-      const token = await mintNewGuestToken();
-      if (!isActivationCurrent(sequence)) return;
-      await activateSession(AccessRoleTypes.GUEST, token.actor_id || undefined);
-    } catch (error) {
-      console.warn("Failed to mint a new guest session:", error);
-    }
+    return mintNewGuestToken()
+      .then(token => {
+        if (!isActivationCurrent(sequence)) return;
+        return activateSession(
+          AccessRoleTypes.GUEST,
+          token.actor_id || undefined
+        );
+      })
+      .catch(error => {
+        console.warn("Failed to mint a new guest session:", error);
+      });
   }
 
   /**

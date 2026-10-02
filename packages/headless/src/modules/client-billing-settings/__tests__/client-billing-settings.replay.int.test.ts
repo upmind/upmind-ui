@@ -9,7 +9,7 @@
  * scenario recorded fails the scenario by name. A `@todo` scenario is skipped
  * by name (spec-only, ADR-020 Am.5).
  *
- * The editor half (`useBillingSettingsManager`) is booted under this module's
+ * The composable (`useBillingSettings`) is booted under this module's
  * one scenario key: it loads the record on entry, so a read capability and an
  * edit capability are both driven through it. The recordings come from
  * `pnpm fixtures:generate client-billing-settings`.
@@ -27,11 +27,12 @@ import {
   createStepMatcher,
   parseFeatureScenarios
 } from "@upmind-automation/scenario-harness";
+import { scenarioTiming } from "@upmind-automation/test-fixtures/fixture-handlers";
 import {
   replayStep,
   startScenarioReplay
 } from "@upmind-automation/test-fixtures/replay-server";
-import { useBillingSettingsManager } from "..";
+import { useBillingSettings } from "..";
 import { replayFeature } from "../../../testing/replay-feature";
 import {
   scenarioDir,
@@ -39,6 +40,7 @@ import {
   stepFixturesDir
 } from "../../../testing/scenario-fixtures";
 import {
+  armBootStep,
   resetClientBillingSettingsScopes,
   seedClientSession
 } from "./client-billing-settings.int-helpers";
@@ -69,6 +71,7 @@ async function arrangeScenario(scenario: FeatureScenario): Promise<void> {
 
   replay = startScenarioReplay(server);
 
+  armBootStep(stepFixturesDir(import.meta.dirname, scenario, 0));
   await seedClientSession();
 }
 
@@ -88,15 +91,10 @@ function cleanupScenario(scenario: FeatureScenario): void {
 
 /** Arms the answers THIS step recorded; a step that made no request has none. */
 function armStep(scenario: FeatureScenario, index: number): void {
-  // AC-13 reads `isProcessing` mid-save, so its held consolidation PUT answer is
-  // delayed to give the in-flight window length; every other request answers at once.
-  const timing = includes(scenario.name, "While my save is in progress")
-    ? { delayMs: (request: Request) => (request.method === "PUT" ? 4000 : 0) }
-    : undefined;
   replayStep(
     server,
     stepFixturesDir(import.meta.dirname, scenario, index),
-    timing
+    scenarioTiming(scenario.tags)
   );
 }
 
@@ -142,7 +140,7 @@ replayFeature({
     // World boots. One widening cast at the seam, never a loosening of the
     // helper.
     [CLIENT_BILLING_SETTINGS_SCENARIO]:
-      useBillingSettingsManager as unknown as NodeComposable
+      useBillingSettings as unknown as NodeComposable
   },
   arrange: arrangeScenario,
   beforeStep: armStep,

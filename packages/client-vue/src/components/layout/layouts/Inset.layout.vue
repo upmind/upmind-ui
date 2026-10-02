@@ -104,10 +104,9 @@
 // --- external
 import { computed, onMounted } from "vue";
 // --- internal
+import { isMobile } from "@upmind-automation/foundation";
 import { useConfig } from "@upmind-automation/headless";
 // --- components
-// --- utils
-import { isMobile } from "../../../composables/isMobile";
 // --- types
 import { FOOTER_LAYOUT, FOOTER_BACKGROUND } from "../../footer/types";
 import { useFooter } from "../../footer/useFooter";

@@ -1,5 +1,20 @@
 <template>
   <template v-if="meta.isAvailable">
+    <Section
+      v-if="invoiceMeta.hasPaymentCurrencyChoice.value"
+      icon="switch-horizontal-01"
+      :label="t('invoices.detail.switch_currency')"
+    >
+      <UpmCurrencySelect
+        :model-value="invoice?.currencyPayment?.code"
+        :currencies="currencies"
+        :disabled="meta.isProcessing"
+        @update:model-value="
+          code => code && order.useActions().setCurrency(String(code))
+        "
+      />
+    </Section>
+
     <UpmPaymentDetails
       v-if="!meta.isLocked"
       v-show="!meta.isProcessing"
@@ -23,19 +38,20 @@
  * This is a LABS duplicate of the payment slot of client-vue's `Order.vue`,
  * split out here so the order PAGE shows the order without payment and the pay
  * MODAL shows the payment only — different surfaces, not the same component in
- * both. Nothing in `client-vue` changes; the pieces it exposes publicly
- * (`UpmPaymentDetails`, `Icon`, `useOrder`) are reused as they are.
+ * both. The pieces client-vue exposes publicly (`UpmPaymentDetails`,
+ * `UpmCurrencySelect`, `useOrder`) are reused as they are.
  *
  * The invoice arrives as a PROP; this never reads the route. The default slot
  * renders inside the payment context, so the host can add `UpmPaymentProcessing`
  * for an inline 3DS challenge without a second engine.
  */
 
-import { useQueryClient } from "@tanstack/vue-query";
 import { computed, onMounted, provide, watch } from "vue";
 import { useI18n } from "vue-i18n";
-import { UpmPaymentDetails } from "@upmind-automation/client-vue";
-import { useInvoice } from "@upmind-automation/headless";
+import { UpmCurrencySelect } from "@upmind-automation/client-vue";
+import { Section } from "@upmind-automation/foundation";
+import { useBrand, useInvoice } from "@upmind-automation/headless";
+import { UpmPaymentDetails } from "@upmind-automation/payment";
 import type { InvoicePaymentChallenge } from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------
@@ -47,7 +63,6 @@ const props = defineProps<{ invoiceId: string }>();
 const emit = defineEmits<{ success: [] }>();
 
 const { t } = useI18n();
-const queryClient = useQueryClient();
 
 const order = useInvoice().withId(props.invoiceId);
 
@@ -57,38 +72,38 @@ const { model: invoice } = order.useContext();
 const invoiceMeta = order.useMeta();
 const { renderChallenge, cancelChallenge } = order.useActions();
 const { paymentDetail } = order.useInternals();
+const { currencies } = useBrand();
 
 // The provided challenge reads a single meta object; fold the flags it uses.
 const meta = computed(() => ({
+  isAvailable: invoiceMeta.isAvailable.value,
   isComplete: invoiceMeta.isComplete.value,
+  isFree: invoiceMeta.isFree.value,
+  isLocked: invoiceMeta.isLocked.value,
+  isProcessing: invoiceMeta.isProcessing.value,
   isRenderingChallenge: invoiceMeta.isRenderingChallenge.value,
+  isSettling: invoiceMeta.isSettling.value,
   needsApproval: invoiceMeta.needsApproval.value
 }));
 
-// A payment is a MUTATION: the order page underneath reads the same invoice
-// through vue-query and would otherwise show its stale, pre-payment cache. So on
-// settle, invalidate the order + invoice queries (forcing a refetch on the page)
-// BEFORE closing, then close.
-async function settle() {
-  await queryClient.invalidateQueries({ queryKey: ["order", props.invoiceId] });
-  await queryClient.invalidateQueries({ queryKey: ["invoices"] });
+// The module invalidates the order + invoice caches inside its post-payment
+// refresh, so the page only signals the host to close.
+function settle() {
   emit("success");
 }
 
 // The invoice was already settled when the modal opened — nothing to pay, so
 // close rather than show an empty surface.
 onMounted(() => {
-  const unpaid = invoice.value?.summary.unpaidAmount ?? 0;
-  if (meta.value.isComplete || unpaid <= 0) settle();
+  if (meta.value.isComplete || meta.value.isFree) settle();
 });
 
-// A payment recorded — `paidAmount` rises on any successful settle (full or
-// partial), which is `useOrder`'s own success signal (it stamps
-// `payment_success=true`). Close on the first rise.
+// A payment landed — the machine enters its post-payment refresh (full or
+// partial). Close on that signal instead of watching the summary total.
 watch(
-  () => invoice.value?.summary.paidAmount ?? 0,
-  (now, was) => {
-    if (now > was) settle();
+  () => meta.value.isSettling,
+  isSettling => {
+    if (isSettling) settle();
   }
 );
 

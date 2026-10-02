@@ -225,9 +225,9 @@ import { Badge, Tooltip } from "@upmind/ui";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { Icon } from "@upmind-automation/foundation";
+import { isMobile } from "@upmind-automation/foundation";
 import { parseBillingCycle } from "@upmind-automation/headless";
-import { isMobile } from "../../../composables/isMobile";
-import CurrentPrice from "../../product/components/pricing/CurrentPrice.vue";
+import { CurrentPrice } from "@upmind-automation/product";
 import {
   cardRootVariants,
   cardHeaderRootVariants,

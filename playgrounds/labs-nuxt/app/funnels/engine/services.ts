@@ -153,22 +153,23 @@ async function guardInitIntent({
   const intent = useQueryParams(route).getParam(QUERY_PARAMS.INIT);
   if (!intent) return { type: FunnelActions.NEXT };
 
-  try {
-    const overlay = get(INIT_INTENT_OVERLAY, toString(intent));
-
-    if (overlay && (await admitsIntent(intent as InitIntent, route)))
-      return Promise.reject({
-        target: intentOverlayTarget(route, overlay)
-      } as FunnelResponse);
-
-    return { type: FunnelActions.NEXT };
-  } finally {
+  const overlay = get(INIT_INTENT_OVERLAY, toString(intent));
+  const settle: Promise<FunnelResponse> = overlay
+    ? admitsIntent(intent as InitIntent, route).then(admits => {
+        if (!admits) return { type: FunnelActions.NEXT };
+        const redirect: FunnelResponse = {
+          target: intentOverlayTarget(route, overlay)
+        };
+        return Promise.reject<FunnelResponse>(redirect);
+      })
+    : Promise.resolve({ type: FunnelActions.NEXT });
+  return settle.finally(() => {
     // The playground's ONE url writer, and `undefined` is its clear sentinel.
     // `useQueryParams().unsetParam` writes `window.location` behind the bag,
     // whose next write of any surface param rebuilds the whole query from its
     // own stale state and re-stamps `init` (`usePlaygroundUrlState.ts:13-18`).
     usePlaygroundUrlState().write({ [QUERY_PARAMS.INIT]: undefined });
-  }
+  });
 }
 
 // -----------------------------------------------------------------------------

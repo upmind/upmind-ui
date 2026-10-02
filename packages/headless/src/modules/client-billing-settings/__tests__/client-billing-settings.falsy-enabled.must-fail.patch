@@ -1,0 +1,30 @@
+# client-billing-settings.falsy-enabled.must-fail.patch
+#
+# Targets: the write-body fact that turning consolidation OFF writes the off
+# value EXPLICITLY (was AC-18). `DISABLED` is the falsy `0`, so the wire diff
+# must compare by value (`isEqual`), never by truthiness.
+#
+# Mutates: client-billing-settings.mappers.ts toBillingWire — coerces the
+# enabled leaf `model.enabled || undefined`, so the meaningful `0` (DISABLED)
+# collapses to `undefined` and the off value never reaches the diff.
+#
+# Expected RED (unit): client-billing-settings.write-body.test.ts —
+# "writes the off value explicitly when consolidation is turned off" — the diff
+# carries `invoice_consolidation_enabled: undefined`, not DISABLED.
+#
+# Apply / verify / revert:
+#   git apply <this file>
+#   pnpm exec vitest run src/modules/client-billing-settings/__tests__/client-billing-settings.write-body.test.ts   # RED
+#   git apply -R <this file>
+#
+--- a/packages/headless/src/modules/client-billing-settings/client-billing-settings.mappers.ts
++++ b/packages/headless/src/modules/client-billing-settings/client-billing-settings.mappers.ts
+@@ -29,7 +29,7 @@ export function emptyToNull<T>(value: T | ""): T | null {
+ /** The five consolidation fields at wire shape; clearable leaves coerced `?? null`. */
+ function toBillingWire(model: BillingSettingsModel): BillingSettingsUpdateBody {
+   return {
+-    invoice_consolidation_enabled: model.enabled,
++    invoice_consolidation_enabled: model.enabled || undefined,
+     invoice_consolidation_base_rule: model.baseRule ?? null,
+     invoice_consolidation_base_rule_day_of_week: model.dayOfWeek ?? null,
+     invoice_consolidation_base_rule_date_of_month_day:

@@ -364,16 +364,15 @@ describe("the wrapper's country list reaches the phone control", () => {
     const bare = sentinel.countries;
     sentinel.countries = supplied;
 
-    try {
-      const html = await openCountryPicker(
-        await mountWrapper({ schema: phoneSchema, uischema: phoneUischema })
-      );
-
-      expect(html).toContain("+44");
-      expect(html).not.toContain("999");
-    } finally {
-      sentinel.countries = bare;
-    }
+    await mountWrapper({ schema: phoneSchema, uischema: phoneUischema })
+      .then(openCountryPicker)
+      .then(html => {
+        expect(html).toContain("+44");
+        expect(html).not.toContain("999");
+      })
+      .finally(() => {
+        sentinel.countries = bare;
+      });
   });
 });
 

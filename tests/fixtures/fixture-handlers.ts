@@ -17,7 +17,7 @@
  */
 
 import { delay, http, HttpResponse } from "msw";
-import { find, forEach, groupBy, isEqual, omitBy } from "lodash-es";
+import { find, forEach, groupBy, includes, isEqual, omitBy } from "lodash-es";
 import { fixtureIdentity, isId } from "./fixture-naming.mjs";
 import type { HttpHandler } from "msw";
 import type { ApiFixtureV3, NormalizedFixture } from "./types";
@@ -62,6 +62,24 @@ function routePattern(path: string): string {
 export type ReplayTiming = {
   delayMs?: (request: Request) => number;
 };
+
+/** Scenario tag that holds every recorded write's answer for {@link HELD_WRITE_MS}. */
+export const HELD_WRITE_TAG = "@held-write";
+
+/** How long a `@held-write` scenario's recorded writes are held before answering — longer than the labs player's 1200 ms scene dwell, so the next scene still reads the write in flight. */
+export const HELD_WRITE_MS = 4000;
+
+/** The replay timing a scenario's tags ask for, or `undefined` for none. */
+export function scenarioTiming(
+  tags: readonly string[]
+): ReplayTiming | undefined {
+  return includes(tags, HELD_WRITE_TAG)
+    ? {
+        delayMs: (request: Request): number =>
+          request.method === "GET" ? 0 : HELD_WRITE_MS
+      }
+    : undefined;
+}
 
 /**
  * Build the MSW handler list from `fixtures`. Fixtures sharing a (method,

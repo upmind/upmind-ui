@@ -4,7 +4,7 @@
 
 <script lang="ts" setup>
 import { useI18n } from "vue-i18n";
-import { UpmProductNotFound } from "@upmind-automation/client-vue";
+import { UpmProductNotFound } from "@upmind-automation/product";
 import { useStorefrontRoute } from "~/composables/useStorefrontRoute";
 import { ROUTE } from "~/funnels/types";
 

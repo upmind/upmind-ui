@@ -18,7 +18,7 @@
     # rename would turn this gate green-and-empty. Assert each one resolves.
     - |
       for name in @upmind/tokens @upmind/ui; do
-        pnpm ls --filter "$name" --depth -1 --json | grep -q '"name"' \
+        pnpm ls --filter "$name" --depth -1 --json | grep '"name"' > /dev/null \
           || { echo "(ui) test: no workspace package matched $name"; exit 1; }
       done
     # The DS's `mcp` package is deliberately outside this workspace

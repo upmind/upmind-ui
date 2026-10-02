@@ -3,12 +3,16 @@
     :storefront-route="storefrontRoute"
     :catalogue-route="{ name: ROUTE.CATALOGUE }"
     @product-details="handleProductDetails"
-  />
+    v-slot="{ template }"
+  >
+    <component :is="PRODUCT_TEMPLATES[template]" />
+  </UpmProductConfigure>
 </template>
 
 <script lang="ts" setup>
 import { useI18n } from "vue-i18n";
-import { UpmProductConfigure, useBrand } from "@upmind-automation/client-vue";
+import { PRODUCT_TEMPLATES, useBrand } from "@upmind-automation/client-vue";
+import { UpmProductConfigure } from "@upmind-automation/product";
 import type { ProductDetails } from "@upmind-automation/client-vue";
 import { useStorefrontRoute } from "~/composables/useStorefrontRoute";
 import { ROUTE } from "~/funnels/types";

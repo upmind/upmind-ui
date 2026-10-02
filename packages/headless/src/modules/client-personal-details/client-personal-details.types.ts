@@ -13,7 +13,7 @@
  * @module client-personal-details/client-personal-details.types
  * @description Types for a client's own profile — the query-backed read half
  * (`usePersonalDetails`) and the `dataManagerMachine`-backed editor half
- * (`usePersonalDetailsManager`). Both composables share the SAME scope matrix
+ * (`usePersonalDetails`). Both composables share the SAME scope matrix
  * and `CLIENT` context enum (design.md §3.2): the client whose profile is
  * read/edited is named by a matrix-gated `.for('client', id)` retarget, or
  * falls back to the active session — mirroring every sibling client module
@@ -22,15 +22,10 @@
  */
 import { AccessRoleTypes } from "@upmind-automation/types";
 import { ScopeActorTypes } from "../scope/scope.types";
-import type { ResponseError } from "../../utils";
 import type { CustomField, CustomFieldModel } from "../client-custom-fields";
 import type { DataManagerContext } from "../data-manager/data-manager.types";
-import type {
-  DefaultError,
-  QueryKey,
-  useQuery as vueUseQuery
-} from "@tanstack/vue-query";
-import type { IClient, ICustomFieldValue } from "@upmind-automation/types";
+import type { QueryKey } from "@tanstack/vue-query";
+import type { IClient } from "@upmind-automation/types";
 import type { ComputedRef } from "vue";
 import type { AnyEventObject } from "xstate";
 // -----------------------------------------------------------------------------
@@ -51,7 +46,7 @@ export enum ClientPersonalDetailsContextTypes {
 }
 
 /**
- * Scope matrix shared by `usePersonalDetails` and `usePersonalDetailsManager`
+ * Scope matrix shared by `usePersonalDetails` and `usePersonalDetails`
  * (design.md §3.2 — a deliberate divergence from `client-email`'s two
  * matrices, since both composables here scope on the same entity). `client`
  * is the only actor that resolves; `self`, `staff` and `guest` are
@@ -83,23 +78,6 @@ export type PersonalDetailsScopeMatrix = typeof PERSONAL_DETAILS_SCOPE_MATRIX;
 // -----------------------------------------------------------------------------
 // MODELS
 // -----------------------------------------------------------------------------
-
-/**
- * The client's profile as read off the wire — native fields plus the raw
- * embedded custom field values (each carrying its own definition, AC-16).
- * `mapProfile` produces this; `mapProfileFields` projects it for display.
- */
-export type ProfileRecord = {
-  id: IClient["id"];
-  firstName?: string;
-  lastName?: string;
-  publicName?: string;
-  /** The interface language id — an id, never the display name (AC-33). */
-  language?: string;
-  /** The show-delegated-products preference (section 8.5). */
-  excludeDelegatedProducts?: boolean;
-  customFieldValues: ICustomFieldValue[];
-};
 
 /**
  * The form/request model for the profile editor. Was `FieldsModel` — renamed
@@ -167,15 +145,19 @@ export type ProfileUpdateBody = Omit<
  */
 export type ProfileContext = DataManagerContext<ProfileModel>;
 
-/** One profile field projected for display — native or custom. */
+/**
+ * One profile field projected for display — native or custom. The read side of
+ * the ONE machine-backed composable publishes an array of these off machine
+ * context (`usePersonalDetails.context.ts` `data`), one row per native field
+ * then per custom-field definition, for the playground's table/card/detail.
+ */
 export type ProfileField = {
   id: string;
   code: string;
   /**
-   * The exact token `useActions().filterFields()` accepts for this row —
-   * the module's own narrowing grammar (`firstName`, `customFields.<code>`),
-   * published so a consumer never re-derives it. See graphify-out/ for the
-   * consumer map.
+   * The exact token a row-level edit narrows on — the module's own narrowing
+   * grammar (`firstName`, `customFields.<code>`), published so a consumer never
+   * re-derives it.
    */
   fieldPath: string;
   title: string;
@@ -186,37 +168,17 @@ export type ProfileField = {
 };
 
 /**
- * The reactive single-record read query, minted ONCE per scope in
- * `usePersonalDetails.ts`. No platform-level alias exists for a REACTIVE
- * single-object query — only {@link ListQuery} does, for paginated
- * collections (`query/query.types.ts`) — so this structurally mirrors
- * `useQuery().query()`'s own return cast rather than deriving with
- * `ReturnType<typeof loadProfile>`, for the same reason `ListQuery` itself
- * is a hand-typed alias and not that.
- */
-export type ClientPersonalDetailsRecordQuery = ReturnType<
-  typeof vueUseQuery<IClient, DefaultError, ProfileRecord>
-> & {
-  data: ComputedRef<ProfileRecord>;
-};
-
-/**
- * The contract `createClientPersonalDetailsServices` resolves to — consumed
- * by BOTH composables, so the read half and the editor half address the same
- * client through the same seam.
+ * The contract `createClientPersonalDetailsServices` resolves to — the editor
+ * addresses its client through this one seam.
  */
 export type ClientPersonalDetailsServices = {
-  /** The module's base cache key prefix (the resolved id + record segment are appended at request/invalidation time). */
+  /** The module's base cache key prefix. */
   queryKey: QueryKey;
   /** The target client this scope resolved. */
   clientId: ComputedRef<string | undefined>;
   /** The reactive form of the ONE addressability predicate every request gate calls. */
   isAvailable: ComputedRef<boolean>;
-  /** The last failed mutation, captured as state — never raised. */
-  error: ComputedRef<ResponseError | undefined>;
-  /** The reactive profile read, minted once per scope. */
-  loadProfile: () => ClientPersonalDetailsRecordQuery;
-  /** One-shot profile read + A's definitions, floored to the schema-parsed base model. */
+  /** One-shot record read + A's definitions, floored to the schema-parsed base model. */
   loadLookups: (context: ProfileContext) => Promise<Partial<ProfileContext>>;
   /** Schema-parses a SET event's incoming data, dropping out-of-schema keys. */
   parse: (
@@ -229,6 +191,10 @@ export type ClientPersonalDetailsServices = {
   update: (model: ProfileModel, baseModel?: ProfileModel) => Promise<IClient>;
   /** Invalidates this scope's own cache key so the read refetches. */
   refresh: () => Promise<void>;
+  /** Marks this scope's own record read stale so the next read refetches, keeping the rows. */
+  invalidate: () => Promise<unknown>;
+  /** Drops this scope's own record read so the next read starts from loading. */
+  reset: () => Promise<unknown>;
 };
 
 /**
@@ -237,7 +203,7 @@ export type ClientPersonalDetailsServices = {
  * on entering its state rather than failing to compile, so read
  * `data-manager/data-manager.machine.ts` before trimming this list.
  */
-export type ClientPersonalDetailsManagerMachineServices = {
+export type ClientPersonalDetailsMachineServices = {
   /** `loading` — the context patch the form starts from. */
   loadLookups: (context: ProfileContext) => Promise<Partial<ProfileContext>>;
   /** `available.checking.parsing` — schema-parses whatever the SET event carried. */
@@ -266,7 +232,7 @@ export type ClientPersonalDetailsManagerMachineServices = {
 };
 
 // -----------------------------------------------------------------------------
-// MANAGER CONTEXT — usePersonalDetailsManager.context
+// MANAGER CONTEXT — usePersonalDetails.context
 // -----------------------------------------------------------------------------
 
 /** Options for `uischemaFor`. */

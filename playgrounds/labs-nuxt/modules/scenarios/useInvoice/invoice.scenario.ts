@@ -13,8 +13,13 @@
  * Registration is unchanged by that: the key, the icon, the url segment and the
  * sidebar entry all come from here, exactly as they do for a playground-drawn
  * module.
+ *
+ * `useManage` opts the page into a playlist (the `useTicket` precedent): the
+ * page mounts its own `ScenarioBar` and plays the module's `@detail`
+ * scenarios, leaving the collection page's `@collection` ones out.
  */
 
+import { useInvoice } from "@upmind-automation/headless";
 import type { ScenarioDeclaration } from "../runtime/scenario.types";
 
 // -----------------------------------------------------------------------------
@@ -26,7 +31,9 @@ export default {
   key: INVOICE_SCENARIO,
   // The invoice is addressed by a path param — `/useInvoice/:oid` — the same word
   // `/order/:oid` uses, so an emailed link works with the id in the path.
-  params: ["oid"],
+  params: ["oid([0-9a-fA-F-]{36})?"],
+  useManage: useInvoice,
+  tracks: { module: "invoices", without: ["@collection"] },
   presentation: {
     icon: "receipt"
   }

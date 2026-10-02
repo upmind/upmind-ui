@@ -7,6 +7,8 @@
 
 @import "@upmind-automation/auth/styles";
 @import "@upmind-automation/foundation/styles";
+@import "@upmind-automation/invoice/styles";
+@import "@upmind-automation/payment/styles";
 
 /* This file lives in `app/`, so the relative glob below reaches nothing under
    `modules/` — every local Nuxt module needs its own line or its classes are

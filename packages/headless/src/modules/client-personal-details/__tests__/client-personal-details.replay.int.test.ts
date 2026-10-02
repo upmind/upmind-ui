@@ -2,7 +2,7 @@
 /**
  * @module client-personal-details/__tests__/client-personal-details.replay
  * @description The co-located `client-personal-details.feature`, REPLAYED through
- * the module's own step catalog against the real composables — ONE scenario, ONE
+ * the module's own step catalog against the real composable — ONE scenario, ONE
  * recording (FE-3145, ADR 035 + Amendment 1). Each scenario plays its own
  * `scenarios/<scenario>/` fixtures, step by step, and nothing else: before each
  * step, that step's recorded answers are armed. A request no step of the scenario
@@ -28,23 +28,21 @@ import {
   replayStep,
   startScenarioReplay
 } from "@upmind-automation/test-fixtures/replay-server";
-import { usePersonalDetails, usePersonalDetailsManager } from "..";
+import { usePersonalDetails } from "..";
 import { replayFeature } from "../../../testing/replay-feature";
 import {
   scenarioDir,
   stepDirDrift,
   stepFixturesDir
 } from "../../../testing/scenario-fixtures";
+import { seedSessionFor, SIGNED_OUT_TAG } from "../../../testing/session-seed";
 import {
   armBootStep,
   resetClientPersonalDetailsScopes,
   seedClientSession,
   seedGuestSession
 } from "./client-personal-details.int-helpers";
-import { seedSessionFor, SIGNED_OUT_TAG } from "../../../testing/session-seed";
 import {
-  arrangeState,
-  CLIENT_PERSONAL_DETAILS_MANAGER_SCENARIO,
   CLIENT_PERSONAL_DETAILS_SCENARIO,
   clientPersonalDetailsSteps
 } from "./client-personal-details.steps";
@@ -70,7 +68,6 @@ let activeScenario = "";
 async function arrangeScenario(scenario: FeatureScenario): Promise<void> {
   activeScenario = scenario.name;
   const signedOut = includes(scenario.tags, SIGNED_OUT_TAG);
-  arrangeState.errored = includes(scenario.tags, "@errored");
   if (
     !signedOut &&
     !existsSync(scenarioDir(import.meta.dirname, scenario.name))
@@ -145,14 +142,12 @@ replayFeature({
   feature,
   catalog: clientPersonalDetailsSteps,
   composables: {
-    // The scope builder types `.as()`/`.for()` narrowly to each composable's own
+    // The scope builder types `.as()`/`.for()` narrowly to the composable's own
     // actor×context matrix; `NodeComposable` is the erased structural shape the
-    // World boots. One widening cast at the seam per key. The read half and the
-    // per-profile editor each get their own key.
+    // World boots. One widening cast at the seam. The one composable serves the
+    // read and the editor under one key.
     [CLIENT_PERSONAL_DETAILS_SCENARIO]:
-      usePersonalDetails as unknown as NodeComposable,
-    [CLIENT_PERSONAL_DETAILS_MANAGER_SCENARIO]:
-      usePersonalDetailsManager as unknown as NodeComposable
+      usePersonalDetails as unknown as NodeComposable
   },
   arrange: arrangeScenario,
   beforeStep: armStep,

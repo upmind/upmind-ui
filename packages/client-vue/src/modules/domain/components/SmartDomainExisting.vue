@@ -141,6 +141,7 @@ import { Button } from "@upmind/ui";
 import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { Icon } from "@upmind-automation/foundation";
+import { isMobile } from "@upmind-automation/foundation";
 import {
   DEBOUNCE_DELAY,
   parseBillingCycle,
@@ -148,7 +149,6 @@ import {
   useMoney
 } from "@upmind-automation/headless";
 import { FormMessage } from "../../../components/form";
-import { isMobile } from "../../../composables/isMobile";
 import {
   fieldTransferRootVariants,
   fieldTransferTextVariants

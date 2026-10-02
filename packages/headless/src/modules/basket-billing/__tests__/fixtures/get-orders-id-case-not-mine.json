@@ -17,14 +17,14 @@
       "access-control-allow-origin": "http://qa-automation.local:5173",
       "cache-control": "no-cache, private",
       "cf-cache-status": "DYNAMIC",
-      "cf-ray": "a38bfbf36d31bdb4-DUB",
+      "cf-ray": "a4334b544fc57406-JNB",
       "connection": "keep-alive",
       "content-encoding": "br",
       "content-type": "application/json",
-      "date": "Thu, 10 Sep 2026 05:20:34 GMT",
+      "date": "Wed, 30 Sep 2026 12:40:07 GMT",
       "impersonation": "0",
       "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
-      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=J5dlkF5lC4S%2Bot%2BgiBmi5m7t%2F4XjzmcTFJgD4pvXD5ZkfEb7r2HX292VIsYTfqTVEDfujz%2BiFyJRstnRUrw%2Bwq0cJB8yr3QDU9STbgo75qprT2bO1LShEneWOuy9Kbb6TXoznPP41Q%3D%3D\"}]}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=gbpfhbB1W3f8crixOt0GpspvjeW29GgEftPefy2lvbiPKoRNtPUOD2mlYhfxEgY17rqlUlhn0xrjOMLAQ6kyK2%2F6YaIRjAkBquYOWWyuxJzejlRyDbv8yjUr784GRWryax7s5mdFBw%3D%3D\"}]}",
       "server": "cloudflare",
       "transfer-encoding": "chunked",
       "vary": "Accept-Encoding",
@@ -36,7 +36,7 @@
       "related": null,
       "total": null,
       "error": {
-        "id": "3d0876a021d380831eb47e22489052291f2b8232",
+        "id": "8cfb815aa33063bfc7083636a17f60aa7895d252",
         "type": 0,
         "code": 403,
         "message": "Unauthorized access to basket",
@@ -46,7 +46,7 @@
       "meta": null
     }
   },
-  "captured_at": "2026-09-10T05:20:33.923Z",
+  "captured_at": "2026-09-30T12:40:07.362Z",
   "brand_domain": "qa-automation.local",
   "source": "case",
   "provenance": {

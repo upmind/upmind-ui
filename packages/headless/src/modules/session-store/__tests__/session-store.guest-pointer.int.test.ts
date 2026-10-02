@@ -349,24 +349,28 @@ describe("session-store integration (guest as a real, chosen session)", () => {
       value: undefined
     });
 
-    try {
-      await ctx.useSessionStore().initStore();
-      await ctx.useSessionStore().useActions().activate(AccessRoleTypes.GUEST);
+    await ctx
+      .useSessionStore()
+      .initStore()
+      .then(() =>
+        ctx.useSessionStore().useActions().activate(AccessRoleTypes.GUEST)
+      )
+      .then(() => {
+        const { activeActor, activeSessionId, guestSession } = ctx
+          .useSessionStore()
+          .useContext();
 
-      const { activeActor, activeSessionId, guestSession } = ctx
-        .useSessionStore()
-        .useContext();
-
-      expect(activeActor.value).toBe(AccessRoleTypes.GUEST);
-      expect(activeSessionId.value).toEqual(expect.any(String));
-      expect(activeSessionId.value).not.toBe("");
-      expect(guestSession.value?.actor_id).toBe(activeSessionId.value);
-    } finally {
-      Object.defineProperty(globalThis.crypto, "randomUUID", {
-        configurable: true,
-        value: randomUUID
+        expect(activeActor.value).toBe(AccessRoleTypes.GUEST);
+        expect(activeSessionId.value).toEqual(expect.any(String));
+        expect(activeSessionId.value).not.toBe("");
+        expect(guestSession.value?.actor_id).toBe(activeSessionId.value);
+      })
+      .finally(() => {
+        Object.defineProperty(globalThis.crypto, "randomUUID", {
+          configurable: true,
+          value: randomUUID
+        });
       });
-    }
   });
 
   it("resolves without moving the pointer when the guest mint fails every retry @AC-G22", async () => {

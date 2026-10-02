@@ -5,7 +5,8 @@
  *
  * ## Job To Be Done
  * Prove the pure wire ⇄ view-model boundary this module owns:
- *   - `mapProfile` carries the language as an ID, never a display name
+ *   - `mapClientRecord` (the `client` module's one record mapper this module
+ *     reads) carries the language as an ID, never a display name
  *     (AC-33), and the client's own recorded custom-field values arrive
  *     un-stringified (AC-30's "not the placeholder word 'undefined'" half is
  *     re-asserted at the mapper boundary here; the composable-level read-back
@@ -41,18 +42,20 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import "./mocks";
 import { getFixtureBody } from "@upmind-automation/test-fixtures";
+import { mapClientRecord } from "../../client";
 import {
+  mapCustomField,
   mapCustomFieldValues,
   mapCustomFieldValuesToRequest
 } from "../../client-custom-fields";
 import {
   mapIProfileFields,
-  mapProfile,
   mapProfileFields
 } from "../client-personal-details.mappers";
-import type { CustomFieldModel } from "../../client-custom-fields";
+import { map } from "lodash-es";
+import type { CustomField, CustomFieldModel } from "../../client-custom-fields";
 import type { ProfileModel } from "../client-personal-details.types";
-import type { IClient } from "@upmind-automation/types";
+import type { IClient, ICustomField } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
 
@@ -100,13 +103,41 @@ function clientWithReadOnlyField(): IClient {
   } as IClient;
 }
 
+/** The custom-field definitions embedded in the record, mapped by A's own seam. */
+function embeddedDefinitions(client: IClient): CustomField[] {
+  return map(client.custom_fields, row =>
+    mapCustomField(row.field as unknown as ICustomField)
+  );
+}
+
+/** Identity translator — the row titles are not under test here. */
+const t = (key: string): string => key;
+
+/**
+ * The editor's model and the read display list, built the way `loadLookups`
+ * and the composable's `data` build them: the shared record, then A's
+ * `mapCustomFieldValues` against the definitions, then `mapProfileFields`.
+ */
+function projectFields(client: IClient) {
+  const record = mapClientRecord(client);
+  const definitions = embeddedDefinitions(client);
+  const model: ProfileModel = {
+    firstName: record.firstName,
+    lastName: record.lastName,
+    publicName: record.publicName,
+    language: record.language,
+    customFields: mapCustomFieldValues(record.customFieldValues, definitions)
+  };
+  return { record, fields: mapProfileFields(model, definitions, [], t) };
+}
+
 // -----------------------------------------------------------------------------
 
-describe("mapProfile — AC-33 the language is an ID, never a display name", () => {
+describe("mapClientRecord — AC-33 the language is an ID, never a display name", () => {
   it("AC-33 carries the interface language as the raw ID the wire sent, not a name string", () => {
     const client = recordedClient();
 
-    const record = mapProfile(client);
+    const record = mapClientRecord(client);
 
     expect(record.language).toBe(client.interface_language_id);
     expect(record.language).not.toBe(
@@ -118,7 +149,7 @@ describe("mapProfile — AC-33 the language is an ID, never a display name", () 
   it("AC-33 carries the client's id and native fields through unchanged", () => {
     const client = recordedClient();
 
-    const record = mapProfile(client);
+    const record = mapClientRecord(client);
 
     expect(record.id).toBe(client.id);
     expect(record.firstName).toBe(client.firstname);
@@ -129,7 +160,7 @@ describe("mapProfile — AC-33 the language is an ID, never a display name", () 
   it('AC-30 carries the real custom field values through, never coerced to the placeholder string "undefined"', () => {
     const client = recordedClient();
 
-    const record = mapProfile(client);
+    const record = mapClientRecord(client);
 
     expect(record.customFieldValues.length).toBeGreaterThan(0);
     for (const value of record.customFieldValues) {
@@ -140,9 +171,7 @@ describe("mapProfile — AC-33 the language is an ID, never a display name", () 
 
 describe("mapProfileFields — AC-32 read-only/disabled are derived per field, not fixed", () => {
   it("AC-32 reports a client_readonly:true custom field as read-only", () => {
-    const record = mapProfile(clientWithReadOnlyField());
-
-    const fields = mapProfileFields(record);
+    const { fields } = projectFields(clientWithReadOnlyField());
     const readOnlyField = fields.find(
       field => field.code === "readonly_number"
     );
@@ -152,9 +181,7 @@ describe("mapProfileFields — AC-32 read-only/disabled are derived per field, n
   });
 
   it("AC-32 reports the real client_readonly:false 'age' field as NOT read-only, differing from the constructed row", () => {
-    const record = mapProfile(clientWithReadOnlyField());
-
-    const fields = mapProfileFields(record);
+    const { fields } = projectFields(clientWithReadOnlyField());
     const ageField = fields.find(field => field.code === "age");
     const readOnlyField = fields.find(
       field => field.code === "readonly_number"
@@ -166,9 +193,7 @@ describe("mapProfileFields — AC-32 read-only/disabled are derived per field, n
   });
 
   it("AC-32 does not report every projected field with the same isReadOnly/isDisabled flags", () => {
-    const record = mapProfile(clientWithReadOnlyField());
-
-    const fields = mapProfileFields(record);
+    const { fields } = projectFields(clientWithReadOnlyField());
     const distinctReadOnlyValues = new Set(
       fields.map(field => field.meta.isReadOnly)
     );
@@ -357,8 +382,7 @@ describe("mapProfileFields — every custom field appears alongside the native f
   it("projects a display row for every custom field embedded in the record, plus the native fields", () => {
     const client = recordedClient();
 
-    const record = mapProfile(client);
-    const fields = mapProfileFields(record);
+    const { record, fields } = projectFields(client);
     const customRows = fields.filter(field => field.meta.isCustomField);
     const nativeRows = fields.filter(field => !field.meta.isCustomField);
 
@@ -398,8 +422,7 @@ describe("mapProfileFields — AC-59 the READ-side custom field value is A's coe
       );
     }
 
-    const record = mapProfile(client);
-    const fields = mapProfileFields(record);
+    const { fields } = projectFields(client);
     const projected = fields.find(field => field.code === "age");
     const viaA = mapCustomFieldValues([ageRow as never]);
 

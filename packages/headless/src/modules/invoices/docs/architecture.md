@@ -6,6 +6,10 @@ Invoices ships two separately-exported composables: `useInvoices` (the collectio
 
 `ScopeActorTypes.STAFF` resolves to `never` on both scope matrices (deprecated for this resource) — the only live actor is `client`. The collection's matrix carries four context members off the `client` cell: `client` (an entitled other client's own invoices, via `.for('client', id)`), and three relationships — `contract`, `contracts_product`, `invoice` — each narrowing to that relationship's invoices or credit notes. Every context is resolved and kept durable through the same seam (`resolveFilterSlots` / `seedFilterSlots` / `withDurableFilterSlots` in `invoices.utils.ts` and `invoices.services.ts`), so a collection scope and a single-read scope addressing the same target can never disagree, and no published criteria write can silently drop a scoped column. The single read's matrix stays all-`never` — `.for(type, id)` is unspellable on `useInvoice`.
 
+## Pay currency
+
+The invoice machine owns the pay currency. There is no basket in the pay path: `useInvoice` does not read, stage or write a basket currency, and it exposes no separate unpaid-amount query. `setCurrency(code)` sends `SET_CURRENCY`. The event is accepted in `available.collecting` only, and only when the brand allows a different pay currency and nothing is paid. The machine enters `available.converting`, which invokes `convertCurrency`. On success, `setPaymentCurrency` writes the pay currency and the converted unpaid amount onto the raw invoice and re-maps it, so `model.currencyPayment` and `model.summary` carry them. On failure, `setConversionError` stores `conversionError` and the invoice stays as it was. Either way the machine returns to `collecting`, which respawns the payment form. The payment child receives the pay currency (else the invoice currency) and sends it as `currency_code`.
+
 ## Data flow
 
 ```mermaid
@@ -22,8 +26,8 @@ flowchart TD
     J([useInvoice as-actor withId id]) --> K["invoiceManager machine: loading —<br/>GET /invoices/id, the wide relation set"]
     K --> L["setInvoice — mapped invoice onto machine context"]
     L --> M["model — published on useContext()"]
-    J --> N["GET /invoices/unpaid_amount/id<br/>— re-keyed on currency change"]
-    N --> O["useContext().unpaidAmount"]
+    J --> N["useActions().setCurrency(code) sends SET_CURRENCY<br/>— collecting only, brand allows it, nothing paid"]
+    N --> O["converting: GET /invoices/unpaid_amount/id?currency_code —<br/>setPaymentCurrency updates model.currencyPayment / model.summary"]
     L --> R{"free or already paid?"}
     R -- yes --> S["complete"]
     R -- no --> T["collecting — useActions().pay() sends PAY"]
@@ -48,13 +52,13 @@ flowchart TD
 | `useInvoices.context.ts`   | Collection context — the reactive list, its total, pagination, published criteria, schemas.                                                                                                                                                                                 |
 | `useInvoices.meta.ts`      | Collection state flags — including the two dedicated count reads.                                                                                                                                                                                                           |
 | `useInvoices.internals.ts` | Debugging: the raw query object, the resolved target client, the wire the live criteria builds.                                                                                                                                                                             |
-| `invoice.machine.ts`       | The single-invoice XState orchestrator (`invoiceManager`) — loads the invoice, spawns `payment` and `paymentDetail` children, and drives pay/retry/challenge/settle.                                                                                                        |
-| `invoice.services.ts`      | The single-invoice services — the item load, the unpaid-amount read, the PDF download, and the payment-method write (`PATCH /invoices/{id}/payment_details`).                                                                                                               |
+| `invoice.machine.ts`       | The single-invoice XState orchestrator (`invoiceManager`) — loads the invoice, spawns `payment` and `paymentDetail` children, and drives pay/retry/challenge/settle and the pay-currency switch (`available.converting`).                                                                                                        |
+| `invoice.services.ts`      | The single-invoice services — the item load, the pay-currency conversion (`GET /invoices/unpaid_amount/{id}?currency_code=`), the PDF download, and the payment-method write (`PATCH /invoices/{id}/payment_details`).                                                                                                               |
 | `useInvoice.ts`            | Single-invoice composable: interprets `invoice.machine.ts` once per scope, exposes the four sub-composables.                                                                                                                                                                |
 | `useInvoice.actions.ts`    | Single-invoice actions — pay, retry, the challenge controls, PDF download, the payment-method write (`input()` + `updatePaymentDetails()`), the pay-currency switch, readiness, lifecycle.                                                                                  |
-| `useInvoice.context.ts`    | Single-invoice context — the mapped invoice (`model`), the live unpaid amount, the captured error.                                                                                                                                                                          |
+| `useInvoice.context.ts`    | Single-invoice context — the mapped invoice (`model`, carrying `currencyPayment` and `summary`) and the captured error.                                                                                                                                                                          |
 | `useInvoice.meta.ts`       | Single-invoice state flags — availability, loading, payment-progress and challenge flags. No single discriminated payment-state value.                                                                                                                                     |
-| `useInvoice.internals.ts`  | Debugging: the raw machine send/service/state, plus the delegated `gateway` / `paymentDetail` / `basketCurrency` composables the pay UI provides/injects.                                                                                                                   |
+| `useInvoice.internals.ts`  | Debugging: the raw machine send/service/state, plus the delegated `gateway` / `paymentDetail` composables the pay UI provides/injects.                                                                                                                   |
 | `index.ts`                 | Public barrel: `useInvoices`, `useInvoice`, the collection's scope matrix/context enum, public model types, curated `mapInvoice`/`mapInvoices` re-exports.                                                                                                                  |
 
 No `.{actor}.ts` arm exists on either composable's layers — the `client`/`client` context difference on the collection is resolved inside its shared factory, and the staff actor resolves to `never` on both.
@@ -72,7 +76,7 @@ No `.{actor}.ts` arm exists on either composable's layers — the `client`/`clie
 | `basket` / `basket-product`              | shared line-item and tax parse                                                        |
 | `payment`                                | `paymentMachine`, invoked as a child of the single-invoice machine to submit and observe a payment attempt |
 | `payment-details`                        | `spawnInvoicePaymentDetail`, `usePaymentDetail`, `usePaymentGateway` — the spawned payment-method picker and its delegated composables |
-| `basket-currency`                        | `useBasketCurrency`, delegated on internals so the pay UI can stage and save the pay currency |
+| `brand`                                  | `ensureConfig` for the different-currency-payment key; `currencies` for the pay-currency lookup |
 
 ### Modules that depend on invoices
 

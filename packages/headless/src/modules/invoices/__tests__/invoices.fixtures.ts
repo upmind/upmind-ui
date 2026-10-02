@@ -72,6 +72,7 @@ import {
   InvoiceStatus,
   PaymentType
 } from "@upmind-automation/types";
+import { BrandConfigKeys } from "@upmind-automation/types";
 import {
   prepareScenarioDirs,
   recordedStepDir
@@ -82,7 +83,8 @@ import {
   mintStaffToken,
   mintToken
 } from "../../auth/__tests__/auth.tokens";
-import { find, sortBy } from "lodash-es";
+import { defaultBrandConfigKeys } from "../../brand/brand.constants";
+import { find, forEach, sortBy, split } from "lodash-es";
 import type { IToken } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
@@ -138,6 +140,31 @@ const BASKET_CURRENCY_CODE = (
   ) as { response: { body: { data: { currency?: { code?: string } } } } }
 ).response.body.data.currency?.code;
 
+// The accumulated brand-config request the `useInvoice` DETAIL boot fires once
+// via `useBrand().ensureConfig` (fix-invoices-no-basket step 16): the storefront
+// default set (`defaultBrandConfigKeys`) the whole detail module graph
+// accumulates, plus the basket's zero-amount-orders key and the invoices
+// pay-currency gate key `billing.payment_currencies.enable_different_currency_payment`.
+// Derived from the production export rather than retyped, so a key added there is
+// recorded here. Captured verbatim into each detail scenario's own boot folder so
+// the replay serves it (the default set alone lives in the brand module's boot
+// fixtures; the gate-key widening is invoices' own, so no brand fixture holds this
+// superset). `keys` is an order-insensitive identity param (`fixture-naming.mjs`
+// sorts it), so the SET must match — a key added or dropped gaps the replay and
+// re-records, never silently mismatches. NOT fired by the COLLECTION boot.
+const DETAIL_BRAND_CONFIG_KEYS = [
+  ...defaultBrandConfigKeys,
+  BrandConfigKeys.REQUIRE_PAYMENT_METHOD_FOR_FREE_ORDERS,
+  BrandConfigKeys.BILLING_DIFFERENT_CURRENCY_PAYMENT_ENABLED
+].join(",");
+
+/** The brand-config read the detail boot fires — captured into the boot folder. */
+async function recordDetailBrandConfig(generator: Generator): Promise<void> {
+  await generator.get(
+    `/api/config/brand/values?keys=${DETAIL_BRAND_CONFIG_KEYS}`
+  );
+}
+
 const STORED_METHOD_WITH = ["gateway", "client"].join();
 const DETAIL_GATEWAY_WITH = [
   "gateway.gateway_provider",
@@ -156,12 +183,15 @@ type WalletBalanceBody = {
  * the account-credit `cart/calculate` posts), spawned every time the
  * `useInvoice` detail cell opens an invoice — NOT a `LOAD_ONE_WITH` field.
  * `country_id` is the INVOICE'S OWN `address.country_id` (never the client's
- * default address), `currency_code`/`currency_id` are the invoice's own
- * currency. Silently skips when the detail body carries neither (a
- * 404/control read never fires the machine). The exact param shapes and the
- * `cart/calculate` body derivation (`payment-details.mappers.ts
- * mapAccountCredit`) are the module's own real requests, verbatim off the
- * replay log — never guessed.
+ * default address). The stored-method and gateway reads carry the invoice's PAY
+ * currency (`payment_currency` when present, else `currency`) — the methods and
+ * gateways offered depend on what the client pays in. The account-credit
+ * `cart/calculate` carries the invoice's own `currency_id`, the billing
+ * currency the wallet balance is held in. Silently skips when the detail body
+ * carries no currency (a 404/control read never fires the machine). The exact
+ * param shapes and the `cart/calculate` body derivation
+ * (`payment-details.mappers.ts mapAccountCredit`) are the module's own real
+ * requests, verbatim off the replay log — never guessed.
  */
 async function recordPaymentDetailMachineReads(
   generator: Generator,
@@ -172,6 +202,7 @@ async function recordPaymentDetailMachineReads(
     | {
         address?: { country_id?: string } | null;
         currency?: { id?: string; code?: string };
+        payment_currency?: { id?: string; code?: string } | null;
       }
     | undefined,
   walletBalanceBody: WalletBalanceBody | undefined
@@ -179,13 +210,14 @@ async function recordPaymentDetailMachineReads(
   const countryId = invoiceData?.address?.country_id;
   const currencyCode = invoiceData?.currency?.code;
   const currencyId = invoiceData?.currency?.id;
-  if (!brandId || !clientId || !countryId || !currencyCode) return;
+  const payCode = invoiceData?.payment_currency?.code ?? currencyCode;
+  if (!brandId || !clientId || !countryId || !payCode) return;
 
   const pdParams = new URLSearchParams({
     limit: "0",
     brand_id: brandId,
     country_id: countryId,
-    currency_code: currencyCode,
+    currency_code: payCode,
     active: "true",
     with: STORED_METHOD_WITH,
     order: "-default,id",
@@ -200,7 +232,7 @@ async function recordPaymentDetailMachineReads(
     client_id: clientId,
     invoice_id: invoiceId,
     country_id: countryId,
-    currency_code: currencyCode,
+    currency_code: payCode,
     active: "true",
     with: DETAIL_GATEWAY_WITH,
     order: "order",
@@ -208,7 +240,7 @@ async function recordPaymentDetailMachineReads(
   });
   await generator.get(`/api/brands/${brandId}/gateways?${gwParams.toString()}`);
 
-  if (!currencyId || !walletBalanceBody) return;
+  if (!currencyId || !currencyCode || !walletBalanceBody) return;
   const owned = Math.max(
     walletBalanceBody.data?.total?.[currencyCode]?.amount_converted ?? 0,
     0
@@ -222,6 +254,55 @@ async function recordPaymentDetailMachineReads(
     currency_id: currencyId,
     prices: [owned, credit]
   });
+}
+
+type DetailBody = {
+  currency_id?: string;
+  address?: { country_id?: string } | null;
+  currency?: { id?: string; code?: string };
+  payment_currency?: { id?: string; code?: string } | null;
+};
+
+/**
+ * The full boot read the `useInvoice` DETAIL cell fires: the brand config it
+ * accumulates via `ensureConfig`, the invoice read, the wallet balance in the
+ * invoice's own `currency` (the account credit is held in the billing currency,
+ * not the pay currency), the unpaid-amount read, and the payment-detail
+ * machine's own reads. Shared by every detail-scenario helper so a boot read
+ * added in one is recorded by all.
+ */
+async function recordDetailReads(
+  generator: Generator,
+  brandId: string,
+  requestingClientId: string,
+  id: string
+): Promise<DetailBody | undefined> {
+  await recordDetailBrandConfig(generator);
+  const { body } = await generator.get(
+    `/api/invoices/${id}?${LOAD_ONE_WITH}&with_count=products`
+  );
+  const data = (body as { data?: DetailBody })?.data;
+  let walletBalanceBody: WalletBalanceBody | undefined;
+  if (data) {
+    await generator.get("/api/wallet/balance?lang=en");
+    walletBalanceBody = (
+      await generator.get(
+        `/api/wallet/balance?lang=en&currency_code=${data.currency?.code}`
+      )
+    ).body as WalletBalanceBody;
+  }
+  await generator.get(
+    `/api/invoices/unpaid_amount/${id}?lang=en&currency_code=${BASKET_CURRENCY_CODE}`
+  );
+  await recordPaymentDetailMachineReads(
+    generator,
+    brandId,
+    requestingClientId,
+    id,
+    data,
+    walletBalanceBody
+  );
+  return data;
 }
 
 // -----------------------------------------------------------------------------
@@ -766,48 +847,15 @@ describe("Invoices scenario recordings", () => {
     await generator.get(consolidatableCountUrl());
   };
 
-  /** The single-invoice detail read the `useInvoice` detail cell issues. */
-  const detailUrl = (id: string): string =>
-    `/api/invoices/${id}?${LOAD_ONE_WITH}&with_count=products`;
-
-  /**
-   * Records one detail scenario's Given step: the `GET /invoices/{id}` read the
-   * detail cell issues on boot, PLUS the `GET /invoices/unpaid_amount/{id}` the
-   * cell fires alongside it (with the invoice's own currency). A 404 read
-   * carries no currency, so only the detail is recorded.
-   */
+  /** Records one detail scenario's Given step through the shared detail-reads helper. */
   async function recordDetail(
     scenario: string,
     step: string,
     id: string
   ): Promise<void> {
-    return recordStep(scenario, step, async generator => {
-      const { body } = await generator.get(detailUrl(id));
-      const data = (
-        body as {
-          data?: {
-            currency_id?: string;
-            address?: { country_id?: string } | null;
-            currency?: { id?: string; code?: string };
-          };
-        }
-      )?.data;
-      let walletBalanceBody: WalletBalanceBody | undefined;
-      if (data)
-        walletBalanceBody = (await generator.get("/api/wallet/balance"))
-          .body as WalletBalanceBody;
-      await generator.get(
-        `/api/invoices/unpaid_amount/${id}?lang=en&currency_code=${BASKET_CURRENCY_CODE}`
-      );
-      await recordPaymentDetailMachineReads(
-        generator,
-        brandId,
-        clientId,
-        id,
-        data,
-        walletBalanceBody
-      );
-    });
+    return recordStep(scenario, step, generator =>
+      recordDetailReads(generator, brandId, clientId, id)
+    );
   }
 
   /** First row id (and currency) the given server-side query returns, uncaptured. */
@@ -1118,12 +1166,14 @@ describe("Invoices scenario recordings", () => {
 });
 
 // -----------------------------------------------------------------------------
-// DELEGATE + UNPAID-AMOUNT SCENARIOS (FE-3145, ADR 035) — AC-1's currency
-// re-read (an existing GET at two currencies) and AC-12/AC-13's delegated reads
-// (the delegate MEMBER reading a client it is entitled to,
+// DELEGATE + PAY-CURRENCY SCENARIOS (FE-3145, ADR 035) — AC-1's "open in the pay
+// currency the platform holds" (an invoice whose `payment_currency` differs from
+// its own `currency`, arranged by turning the brand's different-currency-payment
+// gate ON and setting the account's preferred payment currency) and AC-12/AC-13's
+// delegated reads (the delegate MEMBER reading a client it is entitled to,
 // `delegate_related:true` — `credentials.ts`). The owner's own invoice is
-// arranged through the owner's real order flow; the currency switch is put back
-// on the basket after its step records.
+// arranged through the owner's real order flow; the gate and the account
+// preference are restored after the recording (ADR-035 §3).
 // -----------------------------------------------------------------------------
 
 type WireInvoiceRow = {
@@ -1352,17 +1402,12 @@ async function arrangePartlyPaid(
   return id;
 }
 
-describe("Invoices delegate + unpaid-amount scenario recordings", () => {
+describe("Invoices delegate + pay-currency scenario recordings", () => {
   let clientToken: IToken;
   let memberToken: IToken | undefined;
   let clientId: string;
   let brandId: string;
   let ownerId: string | undefined;
-  let unpaidId: string | undefined;
-  let unpaidCurrencyId: string | undefined;
-  let unpaidCurrencyCode: string | undefined;
-  let altCurrencyId: string | undefined;
-  let altCurrencyCode: string | undefined;
   let delegatedInvoiceId: string | undefined;
   let ownInvoiceId: string | undefined;
   const prepared = new Set<string>();
@@ -1377,39 +1422,10 @@ describe("Invoices delegate + unpaid-amount scenario recordings", () => {
     `/api/invoices?${id === clientId ? "" : `client_id=${id}&`}order=-create_datetime&limit=1` +
     `&filter[status.code]=invoice_unpaid,invoice_overdue,invoice_adjusted&filter[is_consolidation]=0` +
     `&filter[category.slug]=recurrent&filter[paid_amount]=0&filter[client_id]=${id}`;
-  const detailUrlFor = (id: string): string =>
-    `/api/invoices/${id}?${LOAD_ONE_WITH}&with_count=products`;
-
   /** The detail read the cell issues, plus the unpaid-amount read it fires beside it. */
   const recordDetailWith =
-    (id: string, requestingClientId: string) =>
-    async (generator: Generator) => {
-      const { body } = await generator.get(detailUrlFor(id));
-      const data = (
-        body as {
-          data?: {
-            currency_id?: string;
-            address?: { country_id?: string } | null;
-            currency?: { id?: string; code?: string };
-          };
-        }
-      )?.data;
-      let walletBalanceBody: WalletBalanceBody | undefined;
-      if (data)
-        walletBalanceBody = (await generator.get("/api/wallet/balance"))
-          .body as WalletBalanceBody;
-      await generator.get(
-        `/api/invoices/unpaid_amount/${id}?lang=en&currency_code=${BASKET_CURRENCY_CODE}`
-      );
-      await recordPaymentDetailMachineReads(
-        generator,
-        brandId,
-        requestingClientId,
-        id,
-        data,
-        walletBalanceBody
-      );
-    };
+    (id: string, requestingClientId: string) => (generator: Generator) =>
+      recordDetailReads(generator, brandId, requestingClientId, id);
 
   async function recordStepWith(
     scenario: string,
@@ -1474,39 +1490,14 @@ describe("Invoices delegate + unpaid-amount scenario recordings", () => {
         24
       );
 
-    // AC-1 — an unpaid invoice of the checkout client, its own currency, and a
-    // DIFFERENT currency to re-read it in.
-    const overdue = await lookupRows(
-      listUrlFor(clientId, "&filter[status.code]=invoice_overdue&limit=1"),
-      clientToken.access_token
-    );
-    const anyRow =
-      overdue[0] ??
-      (
-        await lookupRows(
-          listUrlFor(clientId, "&limit=1"),
-          clientToken.access_token
-        )
-      )[0];
-    unpaidId = overdue[0]?.id ?? anyRow?.id;
-    unpaidCurrencyId = (overdue[0] ?? anyRow)?.currency_id;
-    ownInvoiceId = anyRow?.id;
-    const currenciesRead = await arrangeCall(
-      "GET",
-      `/api/currencies?limit=25`,
-      clientToken.access_token
-    );
-    const currencyRows =
-      (currenciesRead.body as { data?: Array<{ id?: string; code?: string }> })
-        ?.data ?? [];
-    unpaidCurrencyCode = currencyRows.find(
-      c => c.id === unpaidCurrencyId
-    )?.code;
-    const altCurrency = currencyRows.find(
-      c => c.id && c.id !== unpaidCurrencyId
-    );
-    altCurrencyId = altCurrency?.id;
-    altCurrencyCode = altCurrency?.code;
+    // AC-13 — an invoice of the reading client's own, for the "own invoice is
+    // mine to settle" contrast.
+    ownInvoiceId = (
+      await lookupRows(
+        listUrlFor(clientId, "&limit=1"),
+        clientToken.access_token
+      )
+    )[0]?.id;
 
     // AC-12/13 — the delegate member reading the client it is entitled to; the
     // first row it sees attributed as delegated.
@@ -1525,111 +1516,53 @@ describe("Invoices delegate + unpaid-amount scenario recordings", () => {
     }
 
     console.log(
-      "[fixtures:generate invoices] delegate/unpaid recon — " +
+      "[fixtures:generate invoices] delegate recon — " +
         `clientId:${!!clientId} ownerId:${ownerId ?? "NONE"} ` +
-        `unpaidId:${unpaidId ?? "NONE"} unpaidCurrency:${unpaidCurrencyId ?? "NONE"} ` +
-        `altCurrency:${altCurrencyId ?? "NONE"} delegatedInvoiceId:${delegatedInvoiceId ?? "NONE"} ` +
+        `delegatedInvoiceId:${delegatedInvoiceId ?? "NONE"} ` +
         `ownInvoiceId:${ownInvoiceId ?? "NONE"}`
     );
   }, 45000);
 
-  // --- AC-1: re-read the live unpaid amount at a second currency -------------
+  // --- AC-1: open an invoice in the pay currency the platform holds ----------
+  // The pay currency the platform holds must DIFFER from the invoice's own
+  // currency, or the Then cannot tell `currencyPayment` from `currency` (audit
+  // S7). Arranged by turning the brand's different-currency-payment gate ON and
+  // setting the account's preferred payment currency to a brand-supported
+  // currency other than its billing currency, then ordering a fresh pay-later
+  // invoice that inherits the preferred currency as its `payment_currency`.
+  // Restored (gate + account preference) after the step records (ADR-035 §3).
 
-  describe("Re-read the live unpaid amount for one invoice", () => {
-    const scenario = "Re-read the live unpaid amount for one invoice";
+  describe("Open an invoice in the pay currency the platform holds for it", () => {
+    const scenario =
+      "Open an invoice in the pay currency the platform holds for it";
     const bgStep = "I am an authenticated client reading my invoices";
     const givenStep = "an invoice of mine that still owes money";
-    const freshStep =
-      "asking again after changing the currency gives me a fresh amount, never the one I already had";
+    let arranged: DifferentPaymentCurrencyArrange = {};
+
+    beforeAll(async () => {
+      arranged = await arrangeDifferentPaymentCurrency(
+        clientToken.access_token
+      );
+    }, 90000);
+
+    afterAll(async () => {
+      await restoreDifferentPaymentCurrency(clientToken.access_token, arranged);
+    }, 30000);
 
     it(bgStep, () =>
       recordStepWith(scenario, bgStep, clientToken, bootFor(clientId))
     );
     it(givenStep, () => {
-      if (!unpaidId || !unpaidCurrencyCode)
-        throw new Error(`${scenario}: no unpaid invoice or its currency code.`);
+      if (!arranged.invoiceId)
+        throw new Error(
+          `${scenario}: could not arrange an invoice whose pay currency ` +
+            "differs from its own currency."
+        );
       return recordStepWith(
         scenario,
         givenStep,
         clientToken,
-        async generator => {
-          const { body } = await generator.get(detailUrlFor(unpaidId!));
-          const data = (
-            body as {
-              data?: {
-                address?: { country_id?: string } | null;
-                currency?: { id?: string; code?: string };
-              };
-            }
-          )?.data;
-          const walletBalanceBody = (await generator.get("/api/wallet/balance"))
-            .body as WalletBalanceBody;
-          // The live composable's unpaid-amount re-read carries `lang` +
-          // `currency_code`, never `currency_id` (verbatim replay gap,
-          // operator ruling 2026-09-28: "GET .../unpaid_amount/{id}?
-          // lang=en&currency_code=GBP").
-          await generator.get(
-            `/api/invoices/unpaid_amount/${unpaidId}?lang=en&currency_code=${unpaidCurrencyCode}`
-          );
-          await recordPaymentDetailMachineReads(
-            generator,
-            brandId,
-            clientId,
-            unpaidId!,
-            data,
-            walletBalanceBody
-          );
-        }
-      );
-    });
-    it(freshStep, () => {
-      if (!unpaidId || !altCurrencyCode)
-        throw new Error(
-          `${scenario}: no unpaid invoice or no alternative currency.`
-        );
-      return recordStepWith(
-        scenario,
-        freshStep,
-        clientToken,
-        async generator => {
-          // The composable's `input` action takes a currency ID; the recorded
-          // currency list lets the step catalog resolve that id off the SAME
-          // `currency_code` the wire request below carries, honestly — never a
-          // fabricated/injected id.
-          await generator.get(`/api/currencies?limit=25`);
-          // Switching the pay currency saves it on the client's basket — the one
-          // the basket module's boot recording serves — then re-reads the amount.
-          const basket = JSON.parse(
-            readFileSync(
-              join(
-                import.meta.dirname,
-                "../../basket/__tests__/fixtures/get-orders-current.json"
-              ),
-              "utf-8"
-            )
-          ) as {
-            response: {
-              body: { data: { id: string; currency?: { code?: string } } };
-            };
-          };
-          const basketId = basket.response.body.data.id;
-          const basketCode = basket.response.body.data.currency?.code;
-          await generator.put(`/api/orders/${basketId}/currency?lang=en`, {
-            currency_code: altCurrencyCode
-          });
-          await generator.get(
-            `/api/invoices/unpaid_amount/${unpaidId}?lang=en&currency_code=${altCurrencyCode}`
-          );
-          if (basketCode)
-            await arrangeCall(
-              "PUT",
-              `/api/orders/${basketId}/currency?lang=en`,
-              clientToken.access_token,
-              {
-                currency_code: basketCode
-              }
-            );
-        }
+        recordDetailWith(arranged.invoiceId, clientId)
       );
     });
   });
@@ -1758,35 +1691,8 @@ describe("Invoices payment-state scenario recordings", () => {
     );
   };
 
-  const recordDetail = (id: string) => async (generator: Generator) => {
-    const { body } = await generator.get(
-      `/api/invoices/${id}?${LOAD_ONE_WITH}&with_count=products`
-    );
-    const data = (
-      body as {
-        data?: {
-          currency_id?: string;
-          address?: { country_id?: string } | null;
-          currency?: { id?: string; code?: string };
-        };
-      }
-    )?.data;
-    let walletBalanceBody: WalletBalanceBody | undefined;
-    if (data)
-      walletBalanceBody = (await generator.get("/api/wallet/balance"))
-        .body as WalletBalanceBody;
-    await generator.get(
-      `/api/invoices/unpaid_amount/${id}?lang=en&currency_code=${BASKET_CURRENCY_CODE}`
-    );
-    await recordPaymentDetailMachineReads(
-      generator,
-      brandId,
-      clientId,
-      id,
-      data,
-      walletBalanceBody
-    );
-  };
+  const recordDetail = (id: string) => (generator: Generator) =>
+    recordDetailReads(generator, brandId, clientId, id);
 
   beforeAll(async () => {
     clientToken = await mintClientToken();
@@ -1849,6 +1755,29 @@ describe("Invoices payment-state scenario recordings", () => {
       );
     });
   });
+
+  // --- AC-1 guard: a partly paid invoice keeps its pay currency --------------
+  // Reuses the partly-paid invoice above. The change step records the currency
+  // list the step reads an alternative code from; the partial-payment guard
+  // refuses the change, so the composable fires no conversion request.
+  describe("I cannot change the pay currency of a partly paid invoice", () => {
+    const scenario =
+      "I cannot change the pay currency of a partly paid invoice";
+    it(BG, () => recordStep(scenario, BG, recordBoot));
+    it("I have opened a partly paid invoice of mine", () => {
+      if (!partialId)
+        throw new Error(`${scenario}: no partly paid invoice arranged.`);
+      return recordStep(
+        scenario,
+        "I have opened a partly paid invoice of mine",
+        recordDetail(partialId)
+      );
+    });
+    it("I try to change its pay currency", () =>
+      recordStep(scenario, "I try to change its pay currency", generator =>
+        generator.get(`/api/currencies?limit=25`)
+      ));
+  });
 });
 
 // -----------------------------------------------------------------------------
@@ -1877,6 +1806,205 @@ const OFFLINE_GATEWAY = "4d036794-24d0-e710-275c-3153698d582e";
 async function resolveBrandId(accessToken: string): Promise<string> {
   const { body } = await selfCall("/api/brand/settings", accessToken);
   return String((body as { data?: { id?: string } })?.data?.id ?? "");
+}
+
+// --- different-pay-currency arrange (brand gate + account preference) ---------
+// The admin brand-config read/write the gate toggle rides, mirrored verbatim
+// from client-billing-settings.fixtures.ts (the module that owns this gate's
+// own scenarios). `writeBrandValue` echoes the whole group back with only the
+// target field changed — a group with interdependent fields 422s a single-field
+// body.
+
+const CURRENCY_GATE =
+  "billing.payment_currencies.enable_different_currency_payment";
+
+type BrandGroupField = { code?: string; value?: { value?: unknown } | null };
+type BrandGroup = {
+  code?: string;
+  fields?: BrandGroupField[] | { data?: BrandGroupField[] };
+};
+
+async function readBrandGroupFields(
+  staffAccessToken: string,
+  brandId: string,
+  category: string,
+  group: string
+): Promise<Record<string, unknown>> {
+  const { status, body } = await arrangeCall(
+    "GET",
+    `/api/admin/config/brand/categories/${category}/groups?brand_id=${brandId}&with=fields.value`,
+    staffAccessToken
+  );
+  if (status !== 200)
+    throw new Error(`admin read of ${category}/${group} returned ${status}.`);
+  const groups = (body as { data?: BrandGroup[] })?.data ?? [];
+  const grp = find(groups, g => g.code === group);
+  if (!grp) throw new Error(`admin group ${category}/${group} not found.`);
+  const fieldList = Array.isArray(grp.fields)
+    ? grp.fields
+    : (grp.fields?.data ?? []);
+  const fields: Record<string, unknown> = {};
+  forEach(fieldList, f => {
+    if (f.code)
+      fields[f.code] = (f.value as { value?: unknown })?.value ?? null;
+  });
+  return fields;
+}
+
+async function readBrandValue(
+  staffAccessToken: string,
+  brandId: string,
+  dottedKey: string
+): Promise<unknown> {
+  const [category, group, field] = split(dottedKey, ".");
+  const fields = await readBrandGroupFields(
+    staffAccessToken,
+    brandId,
+    category,
+    group
+  );
+  return fields[field] ?? null;
+}
+
+async function writeBrandValue(
+  staffAccessToken: string,
+  brandId: string,
+  dottedKey: string,
+  value: unknown
+): Promise<void> {
+  const [category, group, field] = split(dottedKey, ".");
+  const fields = await readBrandGroupFields(
+    staffAccessToken,
+    brandId,
+    category,
+    group
+  );
+  fields[field] = value;
+  const { status, body } = await arrangeCall(
+    "PUT",
+    `/api/admin/config/brand/${category}?brand_id=${brandId}`,
+    staffAccessToken,
+    { groups: { [group]: { fields } } }
+  );
+  if (status !== 200)
+    throw new Error(
+      `admin write of ${dottedKey}=${JSON.stringify(value)} returned ${status}: ${JSON.stringify(body).slice(0, 300)}`
+    );
+}
+
+type DifferentPaymentCurrencyArrange = {
+  invoiceId?: string;
+  gateOriginal?: unknown;
+  staffAccessToken?: string;
+  brandId?: string;
+};
+
+/**
+ * Arranges an unpaid invoice whose `payment_currency` differs from its own
+ * `currency`: turns the brand's different-currency-payment gate ON, sets the
+ * brand-supported currency other than its own billing currency, then starts a
+ * STAFF manual payment on a fresh pay-later invoice in that currency — a token
+ * amount, so the invoice still owes money while the platform now holds a pay
+ * currency that differs from the invoice's own. The gate is restored by
+ * `restoreDifferentPaymentCurrency` after the recording (ADR-035 §3). A real
+ * third-party / client payment is never used (operator ruling 2026-09-28); a
+ * staff manual payment is the only way to set a pay currency on staging.
+ */
+async function arrangeDifferentPaymentCurrency(
+  clientAccessToken: string
+): Promise<DifferentPaymentCurrencyArrange> {
+  const staffAccessToken = (await mintStaffToken()).access_token;
+  const brandId = await resolveBrandId(clientAccessToken);
+  const gateOriginal = await readBrandValue(
+    staffAccessToken,
+    brandId,
+    CURRENCY_GATE
+  );
+  await writeBrandValue(staffAccessToken, brandId, CURRENCY_GATE, true);
+
+  const brand = await arrangeCall(
+    "GET",
+    "/api/brand/settings",
+    clientAccessToken
+  );
+  const brandData = (
+    brand.body as {
+      data?: {
+        currency_id?: string;
+        currencies?: Array<{ id?: string; code?: string }>;
+      };
+    }
+  )?.data;
+  const baseCurrencyId = brandData?.currency_id;
+  const alt = find(
+    brandData?.currencies ?? [],
+    c => !!c.id && !!c.code && c.id !== baseCurrencyId
+  );
+  const altCurrencyId = alt?.id;
+  const altCurrencyCode = alt?.code;
+  if (!altCurrencyId || !altCurrencyCode)
+    throw new Error(
+      "open-in-pay-currency arrange: the brand supports no currency other than its own."
+    );
+
+  const invoiceId = await orderAndConvert(
+    clientAccessToken,
+    ARRANGE_PRODUCTS.recurring,
+    1
+  );
+  if (!invoiceId)
+    throw new Error(
+      "open-in-pay-currency arrange: could not order an invoice."
+    );
+
+  const clientId = await lookupActorId(clientAccessToken);
+  await arrangeCall("POST", "/api/admin/payments/manual", staffAccessToken, {
+    invoice_id: invoiceId,
+    client_id: clientId,
+    amount: 1,
+    gateway_id: OFFLINE_GATEWAY,
+    currency_id: altCurrencyId
+  });
+
+  const read = await arrangeCall(
+    "GET",
+    `/api/invoices/${invoiceId}`,
+    clientAccessToken
+  );
+  const data = (
+    read.body as {
+      data?: {
+        unpaid_amount?: number;
+        currency?: { code?: string };
+        payment_currency?: { code?: string } | null;
+      };
+    }
+  )?.data;
+  console.log(
+    `[fixtures:generate invoices] open-in-pay-currency arrange: invoice ${invoiceId} ` +
+      `currency=${data?.currency?.code ?? "NONE"} payment_currency=${data?.payment_currency?.code ?? "NONE"} ` +
+      `unpaid=${data?.unpaid_amount ?? "NONE"}`
+  );
+  if (!(Number(data?.unpaid_amount ?? 0) > 0))
+    throw new Error(
+      "open-in-pay-currency arrange: the invoice no longer owes money after the token payment."
+    );
+
+  return { invoiceId, gateOriginal, staffAccessToken, brandId };
+}
+
+/** Restores the brand gate the arrange turned on. */
+async function restoreDifferentPaymentCurrency(
+  _clientAccessToken: string,
+  arrange: DifferentPaymentCurrencyArrange
+): Promise<void> {
+  if (arrange.staffAccessToken && arrange.brandId)
+    await writeBrandValue(
+      arrange.staffAccessToken,
+      arrange.brandId,
+      CURRENCY_GATE,
+      arrange.gateOriginal
+    );
 }
 
 /** The two ids a renewal needs, off a freshly ordered+converted invoice's first product. */
@@ -2115,6 +2243,29 @@ describe("Invoices FE-3145-resume scenario recordings", () => {
   const detailUrl = (id: string): string =>
     `/api/invoices/${id}?${LOAD_ONE_WITH}&with_count=products`;
 
+  // Narrowing to a contracts_product re-fires the two gated count reads. They
+  // mirror the narrowed list read: the product context replaces any client
+  // context, so the probes carry `products.contracts_product_id` and NO
+  // `filter[client_id]` — exactly as `listUrl` drops it on a narrow. `cp` is
+  // the contract product narrowed to.
+  const narrowedCountUrl = (cp: string, extra = ""): string =>
+    `/api/invoices?order=-create_datetime&limit=1` +
+    `&filter[status.code]=invoice_unpaid,invoice_overdue,invoice_adjusted${extra}` +
+    `&filter[products.contracts_product_id]=${cp}`;
+
+  const recordNarrowedCounts =
+    (cp: string) =>
+    async (generator: Generator): Promise<void> => {
+      await generator.get(narrowedCountUrl(cp));
+      await generator.get(
+        narrowedCountUrl(
+          cp,
+          "&filter[is_consolidation]=0&filter[category.slug]=recurrent" +
+            "&filter[paid_amount]=0"
+        )
+      );
+    };
+
   async function record(
     scenario: string,
     step: string,
@@ -2157,31 +2308,7 @@ describe("Invoices FE-3145-resume scenario recordings", () => {
   const detail =
     (id: string) =>
     async (generator: Generator): Promise<void> => {
-      const { body } = await generator.get(detailUrl(id));
-      const data = (
-        body as {
-          data?: {
-            currency_id?: string;
-            address?: { country_id?: string } | null;
-            currency?: { id?: string; code?: string };
-          };
-        }
-      )?.data;
-      let walletBalanceBody: WalletBalanceBody | undefined;
-      if (data)
-        walletBalanceBody = (await generator.get("/api/wallet/balance"))
-          .body as WalletBalanceBody;
-      await generator.get(
-        `/api/invoices/unpaid_amount/${id}?lang=en&currency_code=${BASKET_CURRENCY_CODE}`
-      );
-      await recordPaymentDetailMachineReads(
-        generator,
-        brandId,
-        clientId,
-        id,
-        data,
-        walletBalanceBody
-      );
+      await recordDetailReads(generator, brandId, clientId, id);
     };
 
   const BG = "I am an authenticated client reading my invoices";
@@ -2189,14 +2316,13 @@ describe("Invoices FE-3145-resume scenario recordings", () => {
   beforeAll(async () => {
     clientToken = await mintClientToken();
     clientId = (await lookupActorId(clientToken.access_token)) ?? "";
-    try {
-      staffToken = await mintStaffToken();
-    } catch (e) {
+    staffToken = await mintStaffToken().catch(e => {
       console.log(
         "[fixtures:generate invoices] staff mint FAILED:",
         (e as Error).message
       );
-    }
+      return undefined;
+    });
     brandId = await resolveBrandId(clientToken.access_token);
     console.log(
       `[fixtures:generate invoices] resume recon — clientId:${!!clientId} staff:${!!staffToken} brandId:${brandId || "NONE"}`
@@ -2244,14 +2370,25 @@ describe("Invoices FE-3145-resume scenario recordings", () => {
     // 2026-09-28 — never exercise a real payment gateway in an integration
     // test); this replaces the pending-payment corpus scan that used to
     // supply their fallback anchor.
-    const unpaidRows = await lookupRows(
-      listUrl(
-        clientId,
-        "&filter[status.code]=invoice_unpaid,invoice_overdue&limit=1"
-      ),
+    // The PDF-download anchor must be a genuinely downloadable invoice: a
+    // freshly arranged pay-later/unpaid invoice has no rendered PDF and 404s
+    // the download. Probe the corpus and take the first whose /download is 200.
+    const downloadCandidates = await lookupRows(
+      listUrl(clientId, "&limit=25"),
       clientToken.access_token
     );
-    ids.anyInvoice = unpaidRows[0]?.id;
+    for (const row of downloadCandidates) {
+      if (!row.id) continue;
+      const probe = await arrangeCall(
+        "GET",
+        `/api/invoices/${row.id}/download`,
+        clientToken.access_token
+      );
+      if (probe.status === 200) {
+        ids.anyInvoice = row.id;
+        break;
+      }
+    }
 
     if (!staffToken)
       throw new Error(
@@ -2351,78 +2488,102 @@ describe("Invoices FE-3145-resume scenario recordings", () => {
 
     // AC-18 c×c — grant the delegate MEMBER a per-product delegation on an owner's
     // contract product, so a retargeted read can be narrowed to that product.
-    try {
-      memberToken = await mintToken({
-        grant_type: GrantTypes.PASSWORD,
-        username: API_CREDENTIALS.delegateMember.username,
-        password: API_CREDENTIALS.delegateMember.password
-      });
-      const ownerToken = await mintToken({
-        grant_type: GrantTypes.PASSWORD,
-        username: API_CREDENTIALS.delegateOwner.username,
-        password: API_CREDENTIALS.delegateOwner.password
-      });
-      if (memberToken && ownerToken) {
-        ids.delegateOwnerId = await lookupActorId(ownerToken.access_token);
-        const memberId = await lookupActorId(memberToken.access_token);
-        const ownerCps = await lookupRows(
-          `/api/contracts_products?client_id=${ids.delegateOwnerId}&limit=5`,
-          ownerToken.access_token
+    await mintToken({
+      grant_type: GrantTypes.PASSWORD,
+      username: API_CREDENTIALS.delegateMember.username,
+      password: API_CREDENTIALS.delegateMember.password
+    })
+      .then(mt => {
+        memberToken = mt;
+        return mintToken({
+          grant_type: GrantTypes.PASSWORD,
+          username: API_CREDENTIALS.delegateOwner.username,
+          password: API_CREDENTIALS.delegateOwner.password
+        });
+      })
+      .then(ownerToken => {
+        if (!memberToken || !ownerToken) return undefined;
+        const member = memberToken;
+        const owner = ownerToken;
+        return lookupActorId(owner.access_token)
+          .then(ownerActorId => {
+            ids.delegateOwnerId = ownerActorId;
+            return lookupActorId(member.access_token);
+          })
+          .then(memberId =>
+            lookupRows(
+              `/api/contracts_products?client_id=${ids.delegateOwnerId}&limit=5`,
+              owner.access_token
+            ).then(ownerCps => {
+              ids.delegateOwnerContractProduct = ownerCps[0]?.id;
+              // The delegate RECORD id, not the member's client id — legacy
+              // `delegates.ts` updateDelegate PUTs `api/clients/{owner}/delegates/{delegateId}`.
+              return lookupRows(
+                `/api/clients/${ids.delegateOwnerId}/delegates`,
+                owner.access_token
+              ).then(delegatesRaw => {
+                const delegates = delegatesRaw as {
+                  id?: string;
+                  client_id?: string | null;
+                }[];
+                delegateRecordId = find(delegates, {
+                  client_id: memberId
+                })?.id;
+                if (
+                  ids.delegateOwnerId &&
+                  delegateRecordId &&
+                  ids.delegateOwnerContractProduct
+                ) {
+                  return arrangeCall(
+                    "PUT",
+                    `/api/clients/${ids.delegateOwnerId}/delegates/${delegateRecordId}`,
+                    owner.access_token,
+                    {
+                      full_delegate: false,
+                      add_contract_product_ids: [
+                        ids.delegateOwnerContractProduct
+                      ]
+                    }
+                  ).then(grant => {
+                    console.log(
+                      `[fixtures:generate invoices] AC-18 c×c grant ${grant.status} owner:${ids.delegateOwnerId} cp:${ids.delegateOwnerContractProduct}`
+                    );
+                  });
+                }
+                return undefined;
+              });
+            })
+          );
+      })
+      .catch(e => {
+        console.log(
+          "[fixtures:generate invoices] AC-18 c×c delegation arrange failed:",
+          (e as Error).message
         );
-        ids.delegateOwnerContractProduct = ownerCps[0]?.id;
-        // The delegate RECORD id, not the member's client id — legacy
-        // `delegates.ts` updateDelegate PUTs `api/clients/{owner}/delegates/{delegateId}`.
-        const delegates = (await lookupRows(
-          `/api/clients/${ids.delegateOwnerId}/delegates`,
-          ownerToken.access_token
-        )) as unknown as { id: string; client_id: string | null }[];
-        delegateRecordId = find(delegates, { client_id: memberId })?.id;
-        if (
-          ids.delegateOwnerId &&
-          delegateRecordId &&
-          ids.delegateOwnerContractProduct
-        ) {
-          const grant = await arrangeCall(
-            "PUT",
-            `/api/clients/${ids.delegateOwnerId}/delegates/${delegateRecordId}`,
-            ownerToken.access_token,
-            {
-              full_delegate: false,
-              add_contract_product_ids: [ids.delegateOwnerContractProduct]
-            }
-          );
-          console.log(
-            `[fixtures:generate invoices] AC-18 c×c grant ${grant.status} owner:${ids.delegateOwnerId} cp:${ids.delegateOwnerContractProduct}`
-          );
-        }
-      }
-    } catch (e) {
-      console.log(
-        "[fixtures:generate invoices] AC-18 c×c delegation arrange failed:",
-        (e as Error).message
-      );
-    }
+      });
   }, 240000);
 
   afterAll(async () => {
     // Restore the per-product delegation grant to full (leave staging as found).
     if (memberToken && ids.delegateOwnerId) {
-      try {
-        const ownerToken = await mintToken({
-          grant_type: GrantTypes.PASSWORD,
-          username: API_CREDENTIALS.delegateOwner.username,
-          password: API_CREDENTIALS.delegateOwner.password
+      await mintToken({
+        grant_type: GrantTypes.PASSWORD,
+        username: API_CREDENTIALS.delegateOwner.username,
+        password: API_CREDENTIALS.delegateOwner.password
+      })
+        .then(ownerToken => {
+          if (ownerToken && delegateRecordId)
+            return arrangeCall(
+              "PUT",
+              `/api/clients/${ids.delegateOwnerId}/delegates/${delegateRecordId}`,
+              ownerToken.access_token,
+              { full_delegate: true }
+            );
+          return undefined;
+        })
+        .catch(() => {
+          /* disclosure only — restore is best-effort */
         });
-        if (ownerToken && delegateRecordId)
-          await arrangeCall(
-            "PUT",
-            `/api/clients/${ids.delegateOwnerId}/delegates/${delegateRecordId}`,
-            ownerToken.access_token,
-            { full_delegate: true }
-          );
-      } catch {
-        /* disclosure only — restore is best-effort */
-      }
     }
   }, 60000);
 
@@ -2565,8 +2726,9 @@ describe("Invoices FE-3145-resume scenario recordings", () => {
   describe("Download an invoice's PDF document", () => {
     const scenario = "Download an invoice's PDF document";
     it("I have opened one of my invoices", async () => {
-      const anchor = ids.assignedMethod ?? ids.anyInvoice;
-      if (!anchor) throw new Error(`${scenario}: no anchor invoice.`);
+      const anchor = ids.anyInvoice;
+      if (!anchor)
+        throw new Error(`${scenario}: no downloadable anchor invoice.`);
       await record(
         scenario,
         "I have opened one of my invoices",
@@ -2746,13 +2908,15 @@ describe("Invoices FE-3145-resume scenario recordings", () => {
         scenario,
         "I narrow it to one contract product's invoices",
         clientToken,
-        generator =>
-          generator.get(
+        async generator => {
+          await generator.get(
             listUrl(
               clientId,
               `&filter[products.contracts_product_id]=${ids.contractProduct}`
             )
-          )
+          );
+          await recordNarrowedCounts(ids.contractProduct!)(generator);
+        }
       );
     });
   });
@@ -2783,10 +2947,18 @@ describe("Invoices FE-3145-resume scenario recordings", () => {
         scenario,
         "I narrow that client's invoices to one contract product's invoices",
         memberToken,
-        generator =>
-          generator.get(
+        async generator => {
+          await generator.get(
             `/api/invoices?${LOAD_LIST_WITH}&with_count=products&order=-create_datetime&filter[products.contracts_product_id]=${ids.delegateOwnerContractProduct}`
-          )
+          );
+          // The replay drives this cell from the one shared primary session;
+          // the narrowed probes carry no client_id, so record them as that
+          // session.
+          generator.setBearerToken(clientToken.access_token);
+          await recordNarrowedCounts(ids.delegateOwnerContractProduct!)(
+            generator
+          );
+        }
       );
     });
   });

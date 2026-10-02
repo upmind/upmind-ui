@@ -13,17 +13,15 @@ export async function orderUpdated(
   orderId: string | null,
   timeout: number = 5000
 ): Promise<boolean> {
-  try {
-    await page.waitForRequest(
+  return page
+    .waitForRequest(
       request =>
         request.url().includes(`/api/orders/${orderId}`) &&
         request.method() === "PUT",
       { timeout }
-    );
-    return true;
-  } catch {
-    return false;
-  }
+    )
+    .then(() => true)
+    .catch(() => false);
 }
 
 /**

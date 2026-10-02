@@ -56,6 +56,13 @@ Feature: A client manages their own email addresses
     Then the editor reports itself unavailable
     And no request is made against any client's email resource
 
+  # The signed-in boot's list read is a recorded 500, so the collection settles
+  # errored on a genuine request the recording overrides.
+  @AC-3 @collection @errored @layer-e2e
+  Scenario: When my list cannot be read, the collection tells me it errored
+    Given I am an authenticated client whose email collection cannot be read
+    Then the email collection reports it errored
+
   Rule: A signed-in client manages their own addresses
 
     Background:
@@ -162,13 +169,6 @@ Feature: A client manages their own email addresses
       Then the editor reports the address saved
 
     # === THE ERRORED COLLECTION (forced 5xx) =================================
-    # The signed-in boot's list read is a recorded 500, so the collection settles
-    # errored on a genuine request the recording overrides.
-
-    @AC-3 @collection @errored @layer-e2e
-    Scenario: When my list cannot be read, the collection tells me it errored
-      Then the email collection reports it errored
-
     # === THE LIST AND THE EDITOR TOGETHER ====================================
 
     @AC-20 @manager @collection @layer-e2e

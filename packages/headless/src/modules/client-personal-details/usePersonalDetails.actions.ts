@@ -1,180 +1,283 @@
-import { watch } from "vue";
-// A's own collection (AC-63) — this scope's readiness must fold in A's, or
-// `isReady()` resolves before the joined custom-field rows have settled
-// (`usePersonalDetails.context.ts`'s own `@decision` for WHY a bare vs
-// `.for('client', id)` scope is chosen — mirrored here verbatim, never
-// re-derived).
-import {
-  ClientCustomFieldsContextTypes,
-  useClientCustomFields
-} from "../client-custom-fields";
-import { resetQueryByKey } from "../query";
+import { waitFor } from "xstate/lib/waitFor";
 import { remove as removeFromRegistry } from "../scope";
-import { ScopeActorTypes } from "../scope/scope.types";
 import { useActiveSession } from "../session-store";
-import { ClientPersonalDetailsContextTypes } from "./client-personal-details.types";
-import { NotAuthenticatedError } from "../../utils";
+import { useI18n } from "../system-localisation";
+import {
+  DEBOUNCE_DELAY,
+  contextValue,
+  stateMatches,
+  stopService,
+  DetailedError,
+  ErrorOrigin,
+  responseCodes,
+  NotAuthenticatedError
+} from "../../utils";
+import { debounce, get, isEmpty, isEqual } from "lodash-es";
 import type {
-  ClientPersonalDetailsRecordQuery,
-  ClientPersonalDetailsServices
+  ClientPersonalDetailsServices,
+  ProfileModel
 } from "./client-personal-details.types";
-import type { ScopeContext } from "../scope";
+import type { UseActor } from "../../utils";
+import type { ScopeActorTypes } from "../scope/scope.types";
 // -----------------------------------------------------------------------------
 /**
  * @module client-personal-details/usePersonalDetails.actions
- * @description Read actions — bounded, error-settling readiness (mirrors
- * `useClientCustomFields.actions.ts`'s AC-6 pattern; no unmanaged async
- * executor, no swallowed rejection — AC-42), refresh and lifecycle.
+ * @description Manager actions — form input, save, revert and lifecycle.
+ * Sends events to the shared `dataManagerMachine` and awaits the settled
+ * state; never reaches into `state.context` to mutate anything, and never
+ * raises feedback. A failure rejects with a `DetailedError` for the CALLER
+ * to render, while the machine keeps its own copy in context for
+ * `usePersonalDetails.context.ts` to expose.
  *
- * @doctrine clause 2 (fresh modules start armless) — this factory returns
- * ONLY shared members; no `usePersonalDetails.actions.{actor}.ts` exists.
+ * @doctrine clause 2 (fresh modules start armless).
  */
 export function createPersonalDetailsActions(
   _actorScope: ScopeActorTypes,
+  actor: UseActor,
   service: ClientPersonalDetailsServices,
-  query: ClientPersonalDetailsRecordQuery,
-  scopeKey: string,
-  scopeContext?: ScopeContext
+  scopeKey: string
 ) {
-  const { isAvailable: isSessionInitialised, isLoading: isSessionSettling } =
-    useActiveSession().useMeta();
+  const { state, send, service: machineService } = actor;
+  const { t } = useI18n();
 
   /**
-   * A's own collection scope for THIS profile — identical resolution to
-   * `usePersonalDetails.context.ts`'s own `customFieldsScope` (see that
-   * file's `@decision`): `.for('client', id)` only when THIS module's own
-   * scope was explicitly retargeted, otherwise a bare `.as(CLIENT)` that
-   * falls through to A's own session-client fallback.
+   * Gates the editor on the SESSION, not only the machine (AC-42): with no
+   * client session the shared `dataManagerMachine`'s `hasSubscription` guard
+   * holds it in `subscribing` forever, so `isReady()`/`update()` would only
+   * settle on their `waitFor` timeouts. Awaits the session-store's OWN
+   * readiness (`session.useActions().isReady()`) rather than a hand-built
+   * watcher, then reports this scope's addressability.
    */
-  const customFieldsScope =
-    scopeContext?.type === ClientPersonalDetailsContextTypes.CLIENT &&
-    scopeContext.id
-      ? useClientCustomFields()
-          .as(ScopeActorTypes.CLIENT)
-          .for(ClientCustomFieldsContextTypes.CLIENT, scopeContext.id)
-      : useClientCustomFields().as(ScopeActorTypes.CLIENT);
-  const { isReady: isCustomFieldsReady } = customFieldsScope.useActions();
-
-  /**
-   * This scope's settled ADDRESSABILITY outcome, or `undefined` while the
-   * session is still settling — the same three-branch shape
-   * `useClientCustomFields.actions.ts`'s `addressableOutcome` uses.
-   */
-  function addressableOutcome(): boolean | undefined {
-    if (service.isAvailable.value) return true;
-    if (isSessionInitialised.value || !isSessionSettling.value) return false;
-    return undefined;
-  }
-
-  /** Resolves the addressability outcome; self-stopping. */
-  function whenSessionSettles(): Promise<boolean> {
-    const settled = addressableOutcome();
-    if (settled !== undefined) return Promise.resolve(settled);
-
-    return new Promise<boolean>(resolve => {
-      const stop = watch(
-        [service.isAvailable, isSessionInitialised, isSessionSettling],
-        () => {
-          const outcome = addressableOutcome();
-          if (outcome === undefined) return;
-          stop();
-          resolve(outcome);
-        }
-      );
-    });
-  }
-
-  /** Resolves once the read query has completed its first fetch. */
-  function whenFetched(): Promise<boolean> {
-    if (query.isFetched.value) {
-      return Promise.resolve(!query.error.value);
-    }
-
-    return new Promise<boolean>(resolve => {
-      const stop = watch(query.isFetched, fetched => {
-        if (!fetched) return;
-        stop();
-        resolve(!query.error.value);
-      });
-    });
+  async function whenSessionSettles(): Promise<boolean> {
+    await useActiveSession().useActions().isReady();
+    return service.isAvailable.value;
   }
 
   /**
-   * Resolves once the profile is ready to read — AC-63's contract, not only
-   * B's own fetch: the joined display list also needs A's own definitions
-   * collection SETTLED (loaded or errored), or a consumer that renders on
-   * this readiness sees natives first and custom-field rows pop in ~0.5-1s
-   * later (the flicker AC-63 makes part of the read surface's contract).
-   * Legacy's own `customFields.vue` emits `@loaded` for the SAME reason
-   * (`clientCustomFieldsForm.vue`'s `customFieldsCount`/`@loaded` gate).
-   *
-   * @decision fold A's readiness into B's OWN `isReady()`, awaited alongside
-   * (never gating) B's own fetch outcome.
-   * what:    `Promise.all([whenFetched(), isCustomFieldsReady()])` — both
-   *          must SETTLE before this resolves, but the returned boolean is
-   *          `whenFetched()`'s own outcome only; A's outcome is discarded
-   *          here (it is separately reachable via `useContext().error`,
-   *          which already folds `definitionsError` in).
-   * why:     it is safe to await A's readiness NOW because A's own
-   *          `isReady()` is bounded and error-settling (self-stopping
-   *          watches, `enabled` gates on `brand.isSettled` rather than
-   *          `!!brand.brandId.value`, and a brand-read failure still flips
-   *          `isSettled` so `guard` converts it into the query's own
-   *          rejection instead of a permanently-disabled entry —
-   *          `client-custom-fields.services.ts`'s own `loadList`/`enabled`
-   *          comment and `useClientCustomFields.actions.ts`'s own AC-6
-   *          comment). Gating the RETURNED boolean on A's outcome too would
-   *          regress AC-40/AC-41/AC-42 (a definitions failure must degrade —
-   *          natives still render — never flip B's own readiness to
-   *          false/never-resolve).
-   * rejected: leaving `isReady()` as B's fetch alone (the pre-fix shape) —
-   *          rejected, that is the flicker this decision closes: AC-63 makes
-   *          "renders a row per definition" part of the read contract, so a
-   *          readiness that claims ready before the join has settled is
-   *          `isReady()` lying.
-   * @returns true once the first fetch has settled without error, false if
-   * the session settles unaddressable OR the fetch errors. Never hangs — A's
-   * own readiness is bounded (see why, above), so awaiting it cannot
-   * reintroduce the unbounded wait AC-6 already closed on A's side.
+   * @decision a REAL, bounded timeout — never `Infinity` (AC-40).
+   * what:    `isReady()` waits at most 30s for `available`.
+   * why:     `useClientEmailManager.actions.ts`'s own `isReady()` uses
+   *          `timeout: Infinity`; B diverges deliberately because AC-40
+   *          names this file's unbounded wait directly, and a failed
+   *          `loadLookups` (a dead client id, or A's collection erroring)
+   *          must let this settle `false` rather than hang the caller
+   *          forever.
+   * rejected: matching `client-email`'s `Infinity` — rejected, it is the
+   *          exact defect AC-40 exists to close.
    */
   async function isReady(): Promise<boolean> {
     if (!(await whenSessionSettles())) return false;
 
-    const [fetched] = await Promise.all([whenFetched(), isCustomFieldsReady()]);
-    return fetched;
+    return waitFor(machineService, s => stateMatches(s, "available"), {
+      timeout: 30_000
+    })
+      .then(s => !stateMatches(s, "error"))
+      .catch(() => false);
   }
 
-  /** Forces a re-read of the profile. @throws {NotAuthenticatedError} */
-  async function refresh(): Promise<void> {
-    if (!service.isAvailable.value) throw new NotAuthenticatedError();
-
-    const { error } = await query.refetch();
-    if (error instanceof NotAuthenticatedError) throw error;
+  /** Resolves once the manager has completed a save. */
+  async function onDone(): Promise<boolean> {
+    return waitFor(
+      machineService,
+      s => stateMatches(s, ["processed", "complete"]),
+      { timeout: 60_000 }
+    )
+      .then(() => true)
+      .catch(() => false);
   }
 
-  /** Destroys this scoped instance — removes it from the registry. */
-  function destroy(): void {
+  /**
+   * Inputs a model and resolves the parsed/validated model. Debounced on the
+   * way out — the raw function stays private so `update`/`revert` can flush
+   * it.
+   */
+  async function input(
+    model: ProfileModel | Record<string, unknown>
+  ): Promise<ProfileModel> {
+    send({ type: "SET", data: model });
+
+    return waitFor(machineService, s =>
+      stateMatches(s, ["available.valid", "available.invalid"])
+    )
+      .then(s => get(s, "context.model") as ProfileModel)
+      .catch(() =>
+        Promise.reject(
+          new DetailedError(
+            t("error.input_not_available"),
+            responseCodes.Forbidden,
+            ErrorOrigin.Headless
+          )
+        )
+      );
+  }
+
+  const debouncedInput = debounce(input, DEBOUNCE_DELAY);
+
+  /** Saves the current (or provided) model and resolves the persisted one. */
+  async function update(
+    value?: ProfileModel | Record<string, unknown>
+  ): Promise<ProfileModel> {
+    // No client session → the machine is held in `subscribing` and can never
+    // process a save; reject with the module's own typed error rather than
+    // hang on the 60s `waitFor` below (AC-42).
+    if (!(await whenSessionSettles())) {
+      return Promise.reject(new NotAuthenticatedError());
+    }
+
+    await debouncedInput.flush()?.catch(() => undefined);
+
+    const model = contextValue<ProfileModel>(state, "model");
+
+    if (!isEmpty(value) && !isEqual(value, model)) {
+      send({ type: "SET", data: value, update: true });
+    } else {
+      send({ type: "UPDATE" });
+    }
+
+    return waitFor(
+      machineService,
+      s =>
+        stateMatches(s, ["processed", "available.error", "available.invalid"]),
+      { timeout: 60_000 }
+    )
+      .then(s => {
+        if (stateMatches(s, ["available.error", "available.invalid"]))
+          throw s.context.error;
+        return s.context.model as ProfileModel;
+      })
+      .catch(error =>
+        Promise.reject(
+          new DetailedError(
+            t("error.client_personal_details_update_failed"),
+            error?.status ?? responseCodes.Timeout,
+            ErrorOrigin.Headless,
+            { error, state: state.value }
+          )
+        )
+      );
+  }
+
+  /**
+   * Restores the base model without a machine change (AC-50, G-12 / R6).
+   * `dataManagerMachine` has no `REVERT` event; this is a `SET` carrying
+   * `baseModel` through the SAME `input()` pathway, re-entering
+   * `available.checking` and re-validating — legacy's own
+   * `this.form = _.cloneDeep(this.initialForm)`.
+   */
+  async function revert(): Promise<ProfileModel> {
+    await debouncedInput.flush()?.catch(() => undefined);
+    const baseModel = contextValue<ProfileModel>(state, "baseModel") ?? {};
+    return input(baseModel);
+  }
+
+  /** Clears the current form context. */
+  async function clear(): Promise<void> {
+    await debouncedInput.flush()?.catch(() => undefined);
+    send({ type: "CLEAR" });
+  }
+
+  /**
+   * Retargets which fields this editor narrows to — the scope-factory-level
+   * equivalent of the pre-scope `usePersonalDetails({ filterFields })`
+   * option (design.md §8). Sends a REFRESH the shared machine already
+   * defines (`data-manager.machine.ts`'s top-level `on.REFRESH`); no machine
+   * edit. Re-enters `loading`, which rebuilds the schema/uischema against
+   * the new narrowing — call this once, right after construction, before
+   * `await isReady()`.
+   */
+  async function filterFields(fields: string[]): Promise<void> {
+    await debouncedInput.flush()?.catch(() => undefined);
+    send({ type: "REFRESH", data: { filterFields: fields } });
+  }
+
+  /**
+   * Re-reads the profile — the read half's `refresh` (AC-52). Sends the
+   * shared machine's top-level `REFRESH`, which re-enters `loading` and
+   * re-runs `loadLookups`, then awaits the settled read.
+   */
+  async function refresh(): Promise<boolean> {
+    await debouncedInput.flush()?.catch(() => undefined);
+    send({ type: "REFRESH" });
+    return isReady();
+  }
+
+  /**
+   * Drops this scope's record cache entry and re-drives the machine through
+   * its top-level `REFRESH` (`loading` → `loadLookups`), so the form asks
+   * again through whatever transport answers — the redial the labs force
+   * handle needs (`useForcedState`: "the preset is only visible because the
+   * page asks again"). `refresh()` alone cannot serve this: the record read
+   * is `staleTime: DAY`, so `REFRESH` re-reads the still-fresh cached success
+   * and the armed transport is never requested. `reset`, not `invalidate`:
+   * an entry removed redraws from `loading`; one invalidated keeps stale rows.
+   *
+   * `CLEAR` precedes `REFRESH` so the re-read starts from an empty record.
+   * `REFRESH` alone re-enters `loading` keeping the last `model` in context, so
+   * a failed re-read settles `unavailable` still holding the previous live
+   * record and the surface draws it. `CLEAR` drops that model first; a
+   * successful load's `setContext` repopulates it, a failed one shows none.
+   */
+  async function reset(): Promise<void> {
+    await debouncedInput.flush()?.catch(() => undefined);
+    await service.reset();
+    send({ type: "CLEAR" });
+    send({ type: "REFRESH" });
+  }
+
+  /** Stops the underlying machine, leaving the registry entry in place. */
+  async function stop(): Promise<void> {
+    await debouncedInput.flush()?.catch(() => undefined);
+    stopService(machineService);
+  }
+
+  /**
+   * Destroys this scoped instance — stops the machine AND removes it from
+   * the registry.
+   */
+  async function destroy(): Promise<void> {
+    await debouncedInput.flush()?.catch(() => undefined);
+    stopService(machineService);
     removeFromRegistry(scopeKey);
   }
 
   // --- actor-specific actions: none earned yet (clause 2).
 
   return {
-    /** Destroys this scoped instance — removes it from the registry. */
+    /** Clears the current form context. */
+    clear,
+
+    /** Destroys this scoped instance — stops the machine and deregisters it. */
     destroy,
 
-    /** Resolves true when the profile is ready to read. */
+    /** Retargets which fields this editor narrows to (design.md §8). */
+    filterFields,
+
+    /** Inputs a model (debounced), resolving the parsed/validated model. */
+    input: debouncedInput,
+
+    /** Marks this scope's record read stale so the next read refetches, keeping the rows. */
+    invalidate: service.invalidate,
+
+    /** Resolves true when the manager is ready, false on error or timeout. */
     isReady,
 
-    /** Refetches the profile from the server; rejects if it cannot address one. */
+    /** Resolves true once a save has completed. */
+    onDone,
+
+    /** Re-reads the profile — re-enters loading and re-runs the record read (AC-52). */
     refresh,
 
-    /**
-     * Drops this module's cached record so the next read starts from loading.
-     * Keyed on the module's own base prefix, which is what also clears the
-     * joined definitions this profile renders beside its natives.
-     */
-    reset: resetQueryByKey(service.queryKey)
+    /** Drops the record cache and re-drives the machine — the force handle's redial. */
+    reset,
+
+    /** Restores the base model — AC-50. */
+    revert,
+
+    /** Stops the underlying machine. */
+    stop,
+
+    /** Saves the current (or provided) model, resolving the persisted model. */
+    update
 
     // The arm merges in HERE, last.
     // ...actorActions

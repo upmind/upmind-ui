@@ -19,6 +19,8 @@
     { "path": "../../design-system/packages/ui/tsconfig.build.json" },
     { "path": "../../packages/client-vue/tsconfig.build.json" },
     { "path": "../../packages/modules-foundation/tsconfig.build.json" },
-    { "path": "../../packages/modules-auth/tsconfig.build.json" }
+    { "path": "../../packages/modules-auth/tsconfig.build.json" },
+    { "path": "../../packages/modules-payment/tsconfig.build.json" },
+    { "path": "../../packages/modules-product/tsconfig.build.json" }
   ]
 }

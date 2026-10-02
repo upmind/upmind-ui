@@ -880,13 +880,13 @@ function report(error: unknown): void {
 async function run(work: () => Promise<unknown>): Promise<void> {
   pending.value = true;
   actionError.value = undefined;
-  try {
-    await work();
-  } catch (error) {
-    report(error);
-  } finally {
-    pending.value = false;
-  }
+  return work()
+    .catch(error => {
+      report(error);
+    })
+    .finally(() => {
+      pending.value = false;
+    });
 }
 
 function openProduct(): void {

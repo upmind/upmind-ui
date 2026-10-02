@@ -63,9 +63,7 @@ import type {
   IBrandTicketDepartment,
   IContractProduct,
   IHookLog,
-  IStatus,
   ITicket,
-  ITicketDepartment,
   ITicketMessage,
   TicketStatusCodes
 } from "@upmind-automation/types";
@@ -567,23 +565,22 @@ async function postReply(
   payload: Record<string, unknown>
 ): Promise<TicketMessage | undefined> {
   const { post, useUrl } = useQuery();
-  try {
-    const raw = await post<ITicketMessage>({
-      mutationKey: [...queryKey, "ticket", ticketId, "reply"],
-      url: useUrl(`tickets/${ticketId}/replies`),
-      data: payload,
-      withAccessToken: true
+  return post<ITicketMessage>({
+    mutationKey: [...queryKey, "ticket", ticketId, "reply"],
+    url: useUrl(`tickets/${ticketId}/replies`),
+    data: payload,
+    withAccessToken: true
+  })
+    .then(raw => mapTicketMessage(raw))
+    .catch(error => {
+      if (
+        error instanceof DetailedError &&
+        error.apiCode === "ticket_has_more_recent_reply"
+      ) {
+        return undefined;
+      }
+      throw error;
     });
-    return mapTicketMessage(raw);
-  } catch (error) {
-    if (
-      error instanceof DetailedError &&
-      error.apiCode === "ticket_has_more_recent_reply"
-    ) {
-      return undefined;
-    }
-    throw error;
-  }
 }
 
 async function editReply(
@@ -759,7 +756,8 @@ async function uploadFile(file: File): Promise<TicketAttachmentRef> {
 }
 
 // -----------------------------------------------------------------------------
-// DEPARTMENT + STATUS LOOKUPS (R3 — owned by `tickets`, never `system`)
+// BRAND DESK LOOKUP — the brand-public desk list for the create form.
+// The all-desks and ticket-status reads live in `system` (useSystem).
 
 async function loadBrandDepartments(): Promise<IBrandTicketDepartment[]> {
   const { get: getRequest, useUrl } = useQuery();
@@ -769,36 +767,6 @@ async function loadBrandDepartments(): Promise<IBrandTicketDepartment[]> {
     withAccessToken: true,
     staleTime: useTime().DAY
   });
-}
-
-async function loadDepartments(): Promise<ITicketDepartment[]> {
-  const { get: getRequest, useUrl } = useQuery();
-  return getRequest<ITicketDepartment[]>({
-    queryKey: [...queryKey, "departments"],
-    url: useUrl("tickets/departments", {
-      limit: 0,
-      with: "brand_ticket_departments"
-    }),
-    withAccessToken: true,
-    staleTime: useTime().DAY
-  });
-}
-
-async function loadTicketStatuses(): Promise<
-  { code: TicketStatusCodes; name: string }[]
-> {
-  const { get: getRequest, useUrl } = useQuery();
-  const raw = await getRequest<IStatus[]>({
-    queryKey: [...queryKey, "statuses"],
-    url: useUrl("statuses", { "filter[object_type]": "ticket" }),
-    withAccessToken: true,
-    staleTime: useTime().DAY
-  });
-
-  return raw.map(status => ({
-    code: status.code as unknown as TicketStatusCodes,
-    name: status.name
-  }));
 }
 
 // -----------------------------------------------------------------------------
@@ -918,8 +886,6 @@ export const createTicketsServices = (
     uploadFile,
 
     loadBrandDepartments,
-    loadDepartments,
-    loadTicketStatuses,
 
     saveSupportPrefs: prefs => {
       if (!clientId.value) throw new NotAuthenticatedError();

@@ -1,5 +1,6 @@
 import { computed } from "vue";
 import { useActiveSession } from "../session-store";
+import { canChangePaymentCurrency } from "./invoice.utils";
 import {
   machineMatches,
   stateMatches,
@@ -8,7 +9,7 @@ import {
   useContextActor
 } from "../../utils";
 import { isEmpty, some } from "lodash-es";
-import type { Invoice } from "./invoices.types";
+import type { Invoice, InvoiceBrandConfig } from "./invoices.types";
 import type { ResponseError, UseActor } from "../../utils";
 import type { ScopeActorTypes } from "../scope/scope.types";
 import type { Ref } from "vue";
@@ -28,6 +29,11 @@ export function createInvoiceMeta(
 
   const invoice = useContext<Invoice | undefined>(state, "invoice");
   const errors = useContext<ResponseError | undefined>(state, "error");
+  const conversionError = useContext<ResponseError | undefined>(
+    state,
+    "conversionError"
+  );
+  const config = useContext<InvoiceBrandConfig | undefined>(state, "config");
   const paymentDetailActor = useContextActor(state, "paymentDetailActor");
   const payment = useChildActor(state, "payment");
 
@@ -45,8 +51,20 @@ export function createInvoiceMeta(
   const unpaidAmount = computed(() => invoice.value?.summary.unpaidAmount ?? 0);
 
   return {
-    /** True while an error or a failed attempt sits on an available invoice. */
-    hasError: computed(() => isAvailable.value && isFailed.value),
+    /** True while an error, a failed attempt or a failed pay-currency change
+     * sits on an available invoice. */
+    hasError: computed(
+      () =>
+        isAvailable.value && (isFailed.value || !isEmpty(conversionError.value))
+    ),
+
+    /** True when the brand allows a different pay currency and nothing of the
+     * invoice is paid yet — the gate `useActions().setCurrency()` obeys. */
+    hasPaymentCurrencyChoice: computed(
+      () =>
+        isAvailable.value &&
+        canChangePaymentCurrency(config.value, invoice.value)
+    ),
 
     /** True when the reading session is authenticated. */
     isAuthenticated: computed(() => isAuthenticated.value),
@@ -86,12 +104,20 @@ export function createInvoiceMeta(
     /** True while a payment is in flight (pending settlement). */
     isPending: computed(() => isAvailable.value && hasPendingPayment.value),
 
-    /** True while a payment or refresh is processing. */
+    /** True while a payment, refresh or pay-currency conversion is processing. */
     isProcessing: computed(
       () =>
-        stateMatches(state, ["available.paying", "available.refreshing"]) ||
-        machineMatches(paymentDetailActor, ["processing", "finalising"])
+        stateMatches(state, [
+          "available.converting",
+          "available.paying",
+          "available.refreshing"
+        ]) || machineMatches(paymentDetailActor, ["processing", "finalising"])
     ),
+
+    /** True during the post-payment balance re-fetch — the machine enters this
+     * refresh only after a payment captures, so it is the "a payment landed"
+     * signal (full or partial). */
+    isSettling: computed(() => stateMatches(state, ["available.refreshing"])),
 
     /** True while an inline 3DS challenge awaits approval. */
     needsApproval: computed(() => machineMatches(payment, ["challenging"])),

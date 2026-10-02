@@ -2,7 +2,7 @@
   "version": 3,
   "request": {
     "method": "POST",
-    "path": "/api/tickets/d085e69d-5623-7197-44da-218e940d4237/replies?case=with-file",
+    "path": "/api/tickets/89857426-4897-0120-8e7f-21e325d0ed36/replies?case=with-file",
     "headers": {
       "Content-Type": "application/json",
       "Accept": "application/json",
@@ -13,7 +13,7 @@
       "body": "Recorded reply with an attachment for FE-3226.",
       "files": [
         {
-          "id": "5952098d-3de4-0917-e48c-31578626e347"
+          "id": "5d085e69-d562-3719-e26f-218e940d4237"
         }
       ]
     }
@@ -24,14 +24,14 @@
       "access-control-allow-origin": "http://qa-automation.local:5173",
       "cache-control": "no-cache, private",
       "cf-cache-status": "DYNAMIC",
-      "cf-ray": "a42917ca9dd2b281-DUR",
+      "cf-ray": "a43345e5ac4b93d1-JNB",
       "connection": "keep-alive",
       "content-encoding": "br",
       "content-type": "application/json",
-      "date": "Tue, 29 Sep 2026 06:57:19 GMT",
+      "date": "Wed, 30 Sep 2026 12:36:25 GMT",
       "impersonation": "0",
       "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
-      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=GkjU7A8JLXKzHzr22kwNNlDCDEIactwhlO1Nn9gG5IJ9ndNyzJz2Rl5zcsEM6YLIuL36ejXvzhTFsmM3qWXCKFppLKtayh2sZKvN%2B4scxwzMN5CgKVp%2BGlBaBD%2BkfwkhM%2FGDf3Nzsg%3D%3D\"}]}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=RM95Mdf8nBWppqcXb1Km7d0Ny0Nn%2Bcd5CEiFlLN8%2BN3jmix9CKnXyCPZTHNDOLbaCKr2%2BGHFhNaiP5tSuGNe6ixWIww1J%2FjRm90L8f%2BGvcbxmt46Yg66kR4dkT%2BSkSHO70u3%2B6%2F%2Fkg%3D%3D\"}]}",
       "server": "cloudflare",
       "transfer-encoding": "chunked",
       "vary": "Accept-Encoding",
@@ -40,18 +40,18 @@
     "body": {
       "status": "ok",
       "data": {
-        "id": "20e43579-5e78-d187-703f-31643202d986",
+        "id": "d0367942-4d0e-7102-2d3b-3153698d582e",
         "import_id": null,
         "staged_import": false,
         "external_id": null,
-        "ticket_id": "d085e69d-5623-7197-44da-218e940d4237",
+        "ticket_id": "89857426-4897-0120-8e7f-21e325d0ed36",
         "client_id": "25d96e76-3ed0-913d-d52c-417482528340",
         "lead_id": null,
         "user_id": null,
         "is_private": false,
         "body": "Recorded reply with an attachment for FE-3226.",
-        "created_at": "2026-09-29 06:57:18",
-        "updated_at": "2026-09-29 06:57:18",
+        "created_at": "2026-09-30 12:36:24",
+        "updated_at": "2026-09-30 12:36:24",
         "deleted_at": null,
         "template_id": null,
         "object_type": null,
@@ -75,11 +75,11 @@
         "is_author": true,
         "can_manage": true,
         "ticket": {
-          "id": "d085e69d-5623-7197-44da-218e940d4237",
+          "id": "89857426-4897-0120-8e7f-21e325d0ed36",
           "import_id": null,
           "staged_import": false,
           "external_id": null,
-          "reference": "IGZ-675-77593",
+          "reference": "CXH-389-75532",
           "subject": "Fixture write-cycle ticket",
           "client_id": "25d96e76-3ed0-913d-d52c-417482528340",
           "lead_id": null,
@@ -89,12 +89,12 @@
           "org_id": "5d085e69-d562-3719-e46c-218e940d4237",
           "user_id": null,
           "status_id": "3825d96e-763e-d091-3dc4-174825283406",
-          "created_at": "2026-09-29 06:57:10",
-          "updated_at": "2026-09-29 06:57:18",
-          "replied_at": "2026-09-29 06:57:18",
+          "created_at": "2026-09-30 12:36:16",
+          "updated_at": "2026-09-30 12:36:24",
+          "replied_at": "2026-09-30 12:36:24",
           "invoice_id": null,
-          "calculated_notify_close_date": "2026-10-19 00:00:00",
-          "calculated_close_date": "2026-10-29 00:00:00",
+          "calculated_notify_close_date": "2026-10-20 00:00:00",
+          "calculated_close_date": "2026-10-30 00:00:00",
           "ticket_department_id": "8d632507-9806-5d1e-33eb-8174e234e98d",
           "priority_id": "3825d96e-763e-d091-3dc4-174825283406",
           "object_type": null,
@@ -110,31 +110,31 @@
         },
         "files": [
           {
-            "id": "5952098d-3de4-0917-e48c-31578626e347",
+            "id": "5d085e69-d562-3719-e26f-218e940d4237",
             "type": "text",
             "mime_type": "text/plain",
             "object_type": "ticket_message",
             "object_class": "App\\Models\\TicketMessage",
-            "object_id": "20e43579-5e78-d187-703f-31643202d986",
-            "name": "temp_239.txt",
+            "object_id": "d0367942-4d0e-7102-2d3b-3153698d582e",
+            "name": "temp_246.txt",
             "original_name": "fe-3226-fixture-attachment.txt",
             "size": 36,
             "scan_status": "new",
             "failed_scanning_attempts": null,
             "scan_status_reason": null,
-            "hash": "jBOuCY6H4m3pqWNQlr5ffOPkz822cpRV",
+            "hash": "ZD1kOdFxFuRNmPWW2sC6qlQY3bE7evEg",
             "default": false,
             "image_category_id": null,
             "resized": false,
             "order": 1,
-            "created_at": "2026-09-29 06:57:18",
-            "updated_at": "2026-09-29 06:57:18",
+            "created_at": "2026-09-30 12:36:24",
+            "updated_at": "2026-09-30 12:36:24",
             "deleted_at": null,
             "temp_token_id": "mock-temp_token_id",
             "system": "s3",
             "brand_id": "2785d26e-9678-3d16-999f-314502e70439",
-            "url": "https://api.staging.upmind.io/api/ticket_message/files/jBOuCY6H4m3pqWNQlr5ffOPkz822cpRV/view",
-            "print_url": "https://api.staging.upmind.io/api/ticket_message/files/jBOuCY6H4m3pqWNQlr5ffOPkz822cpRV/download",
+            "url": "https://api.staging.upmind.io/api/ticket_message/files/ZD1kOdFxFuRNmPWW2sC6qlQY3bE7evEg/view",
+            "print_url": "https://api.staging.upmind.io/api/ticket_message/files/ZD1kOdFxFuRNmPWW2sC6qlQY3bE7evEg/download",
             "size_formatted": "36.00 B"
           }
         ]
@@ -146,7 +146,7 @@
       "meta": null
     }
   },
-  "captured_at": "2026-09-29T06:57:19.291Z",
+  "captured_at": "2026-09-30T12:36:25.379Z",
   "brand_domain": "qa-automation.local",
   "source": "case",
   "provenance": {

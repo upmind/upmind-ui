@@ -144,6 +144,10 @@ export default defineNuxtConfig({
       __dirname,
       "../../packages/modules-foundation/src/index.ts"
     ),
+    "@upmind-automation/product/styles": resolve(
+      __dirname,
+      "../../packages/modules-product/src/styles.css"
+    ),
     "@upmind-automation/product": resolve(
       __dirname,
       "../../packages/modules-product/src/index.ts"
@@ -168,13 +172,25 @@ export default defineNuxtConfig({
       __dirname,
       "../../packages/modules-auth/src/index.ts"
     ),
+    "@upmind-automation/client/styles": resolve(
+      __dirname,
+      "../../packages/modules-client/src/styles.css"
+    ),
     "@upmind-automation/client": resolve(
       __dirname,
       "../../packages/modules-client/src/index.ts"
     ),
+    "@upmind-automation/payment/styles": resolve(
+      __dirname,
+      "../../packages/modules-payment/src/styles.css"
+    ),
     "@upmind-automation/payment": resolve(
       __dirname,
       "../../packages/modules-payment/src/index.ts"
+    ),
+    "@upmind-automation/invoice/styles": resolve(
+      __dirname,
+      "../../packages/modules-invoice/src/styles.css"
     ),
     "@upmind-automation/invoice": resolve(
       __dirname,

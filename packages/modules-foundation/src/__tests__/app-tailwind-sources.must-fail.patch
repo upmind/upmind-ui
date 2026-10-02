@@ -14,6 +14,6 @@ diff --git a/apps/cart/src/main.css b/apps/cart/src/main.css
  @import "@upmind-automation/client-vue/styles";
  
 -@import "@upmind-automation/auth/styles";
+ @import "@upmind-automation/client/styles";
  @import "@upmind-automation/foundation/styles";
- 
- @source './**/*.{html,vue,js,tsx,ts}';
+ @import "@upmind-automation/invoice/styles";

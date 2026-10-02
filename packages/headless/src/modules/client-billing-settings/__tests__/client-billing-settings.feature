@@ -139,7 +139,10 @@ Feature: A client reads and manages their own invoice-consolidation preference
     Then the save is refused
     And no request to save anything is made
 
-  @AC-13 @manager @layer-e2e
+  # `@held-write` tells the replay to hold this scenario's recorded write answers
+  # (`scenarioTiming`), so the step can observe the save in progress before it
+  # lands. A replay-time timing concern, not a recorded value.
+  @AC-13 @manager @layer-e2e @held-write
   Scenario: While my save is in progress, every control is unavailable, and recovers once the save settles
     Given I have started saving a change to my consolidation preference
     When the save is still in progress
@@ -168,10 +171,11 @@ Feature: A client reads and manages their own invoice-consolidation preference
 
   @AC-20 @read @currency-gate @layer-e2e
   Scenario: I can see the currency my account bills in, and my preferred payment currency if I have one
-    Given I hold a real account with a billing currency, addressed as my own
+    Given I hold a real account billing in a currency my brand no longer offers, addressed as my own
     When I read my account's currencies
     Then I see the currency my account actually bills in
     And I see my preferred payment currency exactly when one is actually set, never a substitute for it
+    And the currencies I can choose from still include the currency my account bills in, even when my brand no longer offers it
 
   # === CHANGING MY ACCOUNT'S CURRENCIES =========================================
 

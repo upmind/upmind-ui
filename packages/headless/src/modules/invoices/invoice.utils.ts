@@ -1,6 +1,12 @@
 import { spawn } from "xstate";
+import { BrandConfigKeys, InvoiceStatusGroups } from "@upmind-automation/types";
 import { paymentDetailsMachine as paymentDetailMachine } from "../payment-details";
-import type { LastPaymentModel } from "./invoices.types";
+import { get, includes } from "lodash-es";
+import type {
+  Invoice,
+  InvoiceBrandConfig,
+  LastPaymentModel
+} from "./invoices.types";
 import type { PaymentDetailsContext } from "../payment-details/payment-details.types";
 import type { IInvoice } from "@upmind-automation/types";
 
@@ -27,7 +33,7 @@ export function spawnInvoicePaymentDetail(
       isInvoked: true,
       orderId: rawInvoice?.id,
       orderStatus: rawInvoice?.status.code,
-      currency: rawInvoice?.currency,
+      currency: rawInvoice?.payment_currency ?? rawInvoice?.currency,
       address: rawInvoice?.address,
       client: rawInvoice?.client,
       amount: rawInvoice?.unpaid_amount_converted || 0.0,
@@ -41,5 +47,23 @@ export function spawnInvoicePaymentDetail(
         : {}
     } as PaymentDetailsContext),
     { name: "orderPaymentDetail", sync: true }
+  );
+}
+
+/**
+ * True when the brand allows a different pay currency and the invoice owes its
+ * whole amount — not paid, not free, no partial payment
+ * (`invoicePaymentModal.vue:176-183`).
+ */
+export function canChangePaymentCurrency(
+  config?: InvoiceBrandConfig,
+  invoice?: Invoice
+): boolean {
+  return (
+    !!get(config, BrandConfigKeys.BILLING_DIFFERENT_CURRENCY_PAYMENT_ENABLED) &&
+    !!invoice &&
+    !includes(InvoiceStatusGroups.PAID, invoice.status) &&
+    (invoice.summary.paidAmount ?? 0) === 0 &&
+    (invoice.summary.unpaidAmount ?? 0) > 0
   );
 }

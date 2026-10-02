@@ -8,12 +8,66 @@
  */
 
 import type {
+  DaysOfWeekTypes,
+  InvoiceConsolidationRuleTypes,
+  InvoiceConsolidationTypes
+} from "@upmind-automation/types";
+import type {
   IAccount,
   IClient,
   ICurrency,
   IPricelist
 } from "@upmind-automation/types";
 // -----------------------------------------------------------------------------
+
+/**
+ * The client record view-model produced by the one mapper, `mapClientRecord`.
+ * Each sibling client module owns its own `clients/{id}` request and passes
+ * the raw record through this one mapper, then reads only its own fields:
+ * `client-billing-settings` requests `with=accounts,accounts.currency` and
+ * reads `account`; `client-personal-details` requests
+ * `with=custom_fields,custom_fields.field` and reads `customFieldValues`.
+ * The mapper maps `account` from the first of `raw.accounts` (`null` when
+ * absent, never `undefined`) and `customFieldValues` from `raw.custom_fields`
+ * (an empty array when absent). A field a module does not request is absent
+ * from the mapped record — the module reads only the slice its request loads.
+ */
+export type ClientRecord = {
+  /** Unique identifier of the client. */
+  id: IClient["id"];
+  /** The client's brand id. */
+  brandId: IClient["brand_id"];
+  /** Client's first name. */
+  firstName: IClient["firstname"];
+  /** Client's last name. */
+  lastName: IClient["lastname"];
+  /** Client's public name. */
+  publicName: IClient["public_name"];
+  /** Interface language id (the model's identity for the language field). */
+  language: IClient["interface_language_id"];
+  /** Interface language code (e.g. "en-GB"). */
+  interfaceLanguageCode: IClient["interface_language_code"];
+  /** `true`/`false` from the products-exclude-delegates UI meta, or `undefined` when unset. */
+  excludeDelegatedProducts?: boolean;
+  /** The client's own custom-field values, verbatim off the record. */
+  customFieldValues: NonNullable<IClient["custom_fields"]>;
+  /** Invoice-consolidation switch. */
+  enabled: InvoiceConsolidationTypes;
+  /** Consolidation base rule, or `null` to follow the brand. */
+  baseRule: InvoiceConsolidationRuleTypes | null;
+  /** Weekly consolidation day, or `null` to follow the brand. */
+  dayOfWeek: DaysOfWeekTypes | null;
+  /** Monthly consolidation day, or `null` to follow the brand. */
+  dateOfMonthDay: number | null;
+  /** Consolidated-invoice due-date day, or `null` to follow the brand. */
+  dueDateDay: number | null;
+  /** The client's `never_suspend` flag. */
+  neverSuspend: boolean;
+  /** The raw UI meta bag — a profile save must merge the other keys back in. */
+  meta: IClient["meta"];
+  /** The client's primary account (with `currency`), or `null` when the client has none. */
+  account: Account | null;
+};
 
 // -----------------------------------------------------------------------------
 // Client / Account types — relocated from session/types.ts (M7, FE-2826).

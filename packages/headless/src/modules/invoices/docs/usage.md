@@ -132,9 +132,10 @@ const invoice = useInvoice().withId(invoiceId);
 // Explicitly as a guest checkout
 const guestInvoice = useInvoice().as(ScopeActorTypes.GUEST).withId(invoiceId);
 
-const { model, error, unpaidAmount } = invoice.useContext();
+const { model, error } = invoice.useContext();
 const {
   hasError,
+  hasPaymentCurrencyChoice,
   isAuthenticated,
   isAvailable,
   isComplete,
@@ -147,6 +148,7 @@ const {
   isProcessing,
   needsApproval,
   isRenderingChallenge,
+  isSettling,
   isUnavailable
 } = invoice.useMeta();
 const {
@@ -254,28 +256,26 @@ declare const invoiceId: string;
 
 const invoice = useInvoice().withId(invoiceId);
 
-// Pass the target currency by code (or by id).
-await invoice.useActions().setCurrency({ code: ISO_4217_CURRENCY_CODE.EUR }); // re-reads unpaidAmount in the new currency
+// Pass the target brand currency by code. Ignored unless
+// `useMeta().hasPaymentCurrencyChoice` is true.
+invoice.useActions().setCurrency(ISO_4217_CURRENCY_CODE.EUR);
+
+// The pay currency and the converted amount ride on the invoice model.
+const { model } = invoice.useContext();
+model.value?.currencyPayment; // Currency | undefined — the pay currency
+model.value?.summary.unpaidAmountConverted; // number — unpaid amount in the pay currency
+model.value?.summary.unpaidAmountFormatted; // string — same amount, formatted
 ```
 
-### Re-reading the live unpaid amount
+`setCurrency(code)` is synchronous and returns nothing. The invoice machine converts the unpaid amount (`GET invoices/unpaid_amount/{id}?currency_code={code}`), stores the result on the invoice model, and restarts the payment form in the new currency. While it converts, `useMeta().isProcessing` is true. A code that is not a brand currency, or a failed request, leaves the invoice unchanged and sets `useMeta().hasError`. A later successful switch clears that error. The basket is never touched.
 
-`unpaidAmount` re-reads automatically when `setCurrency()` saves a currency change; there is no separate `refreshUnpaidAmount()` action on this composable.
-
-```typescript
-import { useInvoice } from "@upmind-automation/headless";
-
-declare const invoiceId: string;
-
-const invoice = useInvoice().withId(invoiceId);
-const { unpaidAmount } = invoice.useContext();
-```
+`pay()` sends the pay currency as `currency_code` on the payment request. With no pay currency set, it sends the invoice currency.
 
 ### Single-invoice meta flags
 
 | Flag                    | True when                                                                |
 | ------------------------ | ------------------------------------------------------------------------ |
-| `hasError`               | An error or a failed attempt sits on an available invoice                |
+| `hasError`               | An error, a failed attempt or a failed pay-currency change sits on an available invoice |
 | `isAuthenticated`        | The reading session is authenticated                                     |
 | `isAvailable`            | The invoice has loaded and the pay flow is active                        |
 | `isComplete`             | The pay flow has completed — paid in full or free                        |
@@ -285,7 +285,9 @@ const { unpaidAmount } = invoice.useContext();
 | `isPartial`              | Some, but not all, of the invoice has been paid                          |
 | `isPaymentDue`           | Payment is due and nothing is settled or pending                         |
 | `isPending`               | A payment is in flight, awaiting settlement                              |
-| `isProcessing`           | A payment or refresh is currently processing                             |
+| `hasPaymentCurrencyChoice` | The brand allows another pay currency and nothing is paid yet — the gate `setCurrency()` obeys |
+| `isProcessing`           | A payment, refresh or pay-currency conversion is currently processing    |
+| `isSettling`             | The post-payment balance re-fetch is running — a payment has landed      |
 | `needsApproval`          | An inline 3DS challenge is awaiting the customer                         |
 | `isRenderingChallenge`   | An inline challenge is rendering into its container                      |
 | `isUnavailable`          | The invoice could not be loaded                                          |
@@ -358,6 +360,26 @@ await forParent.useActions().isReady();
 ```
 
 Each context's id is seeded onto its own filter column when the scope mints, and stays durable across every published criteria write — including `filterCreditNotes()`, whose own preset carries no relationship id. A `.for('contract', id)` scope that then calls `filterCreditNotes()` still keeps `contracts.id` on the next request. The column is declared `readOnly` in the query schema — it is not drawn as a filter-bar control — because it is the scope's own context slot, not a free filter a caller picks.
+
+## Finding one invoice — `schemas.invoicePicker`
+
+The collection publishes a second form pair beside `schemas.lookups`: `schemas.invoicePicker`, one searchable invoice lookup with its control already bound to this scope's invoice lookup service. A surface renders the pair and reaches no service of its own.
+
+```ts
+import { ScopeActorTypes, useInvoices } from "@upmind-automation/headless";
+
+const invoices = useInvoices().as(ScopeActorTypes.SELF);
+const { schemas } = invoices.useContext();
+
+// schemas.invoicePicker.schema   — the model's JSON Schema
+// schemas.invoicePicker.uischema — one Lookup control, service pre-bound
+```
+
+- **Model:** `{ invoice?: string | null }`. The value is an invoice id, the same id `useInvoice().withId(id)` loads by. The schema allows no other property.
+- **Control:** a single `Lookup` at `#/properties/invoice`, label key `form.invoice_picker`, searching `filters.number.like` (the invoice number). Each option is labelled with the invoice number and shows the formatted total beneath.
+- **Not a retarget:** it finds ONE invoice to open. It does not narrow the list and does not replace `schemas.lookups`, the `.for()` picker's pair, whose invoice control picks a credited parent invoice for `.for('invoice', id)`. The picker carries no client, contract or contract-product control.
+- **Its own lookup service:** the control binds a dedicated invoice-picker lookup, not the one behind `schemas.lookups`. It lists every invoice the scope's client owns, credited or not (`GET invoices?client_id=…`, no credited-amount filter). The `schemas.lookups` invoice control still lists only credited parent invoices. The two lookups use separate cache keys and never share rows. The picker's lookup mints on first use, so a scope that never renders it never fetches.
+- **Scope:** the lookup reads the scope's own client, so a `.for('client', id)` scope searches that client's invoices.
 
 ## Assigning the payment method
 
