@@ -1,6 +1,8 @@
 export * from "./brand";
 export * from "./renderers";
 
+export * from "./announcements";
+
 // --- The shared presentation glue
 
 export * from "./icon";

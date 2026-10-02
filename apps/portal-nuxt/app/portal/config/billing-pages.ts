@@ -452,13 +452,10 @@ export function billingPages(): Partial<Record<PageKey, ContentConfig>> {
       "UpmOrder",
       "orders"
     ),
-    // Legacy's order areas (summary · items · dates · invoices · credit notes),
-    // one page, with its own Cancel control in the summary's header.
-    [PAGE_KEY.BILLING_ORDER_DETAIL]: clientVuePage(
+    [PAGE_KEY.BILLING_ORDER_DETAIL]: page(
       "Order",
       "What you ordered, and the invoices it raised.",
-      "UpmOrder",
-      "orders"
+      []
     ),
     [PAGE_KEY.BILLING_CREDIT_NOTES]: page(
       "Credit notes",

@@ -16,4 +16,4 @@ diff --git a/apps/cart/src/main.css b/apps/cart/src/main.css
 -@import "@upmind-automation/auth/styles";
  @import "@upmind-automation/client/styles";
  @import "@upmind-automation/foundation/styles";
- @import "@upmind-automation/payment/styles";
+ @import "@upmind-automation/invoice/styles";

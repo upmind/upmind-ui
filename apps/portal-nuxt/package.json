@@ -63,6 +63,7 @@
     "@upmind-automation/product": "workspace:*",
     "@upmind-automation/headless": "workspace:*",
     "@upmind-automation/foundation": "workspace:*",
+    "@upmind-automation/invoice": "workspace:*",
     "@upmind-automation/i18n": "workspace:*",
     "@upmind-automation/types": "workspace:*",
     "@upmind/tokens": "workspace:*",

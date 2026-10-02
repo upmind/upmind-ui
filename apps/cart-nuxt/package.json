@@ -56,6 +56,7 @@
     "@upmind-automation/client": "workspace:*",
     "@upmind-automation/client-vue": "workspace:*",
     "@upmind-automation/foundation": "workspace:*",
+    "@upmind-automation/invoice": "workspace:*",
     "@upmind-automation/i18n": "workspace:*",
     "@upmind-automation/payment": "workspace:*",
     "@upmind-automation/product": "workspace:*",

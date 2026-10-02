@@ -50,6 +50,10 @@ Deciding rule: *does `ui`'s own primitives need it → `ui`; does it know about 
 
 > **Admission rule** — a thing earns a place in `foundation` only if **≥2 domain packages depend on it AND it knows no single domain**. Domain-specific things register *into* foundation via the socket (§7); they don't live there. *(A second route — admission on genericness alone — was proposed by [Amendment 4](#amendment-4-2026-09-15--genericness-admits-to-foundation-not-only-the-count) and withdrawn on 2026-09-17 by [Amendment 7](#amendment-7-2026-09-17--basket-may-read-client): the grant matrix that stranded its instance was the thing to change. The rule above is the only route.)*
 >
+> **Admitted below the count, 2026-09-14 — the announcer port.** `foundation`'s announcement port serves ONE domain package (`invoice`), not two. Ruled in by the operator, on the grounds that message banners are a general capability other boxes are expected to need. Recorded here rather than left to be re-argued.
+>
+> The supporting observation, which the ruling does not turn on: the count is a sensible test for a **kit** — code that could simply be copied into two packages. It reads oddly against a **port**, which is a single seam everything must meet at; two of them is not a duplicate, it is a broken connection. `foundation` already owns three ports that never met a count: the renderer registry, the routing socket and the shell socket. Whether ports are exempt *as a class* is NOT settled by this ruling and remains open.
+>
 > **Registry-ownership** — renderer/route/flow **entries** live in the contributing package's `feature.ts` (§8); `foundation` owns only the **empty typed registries + the inject API**. If entries lived in `foundation`, then `foundation → {product, domain}` — and since every domain imports `foundation`, that is a real typed cycle. This invariant is what keeps the socket pattern (§7) acyclic.
 
 ### 3. Roster & dependency graph

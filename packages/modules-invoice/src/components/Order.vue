@@ -1,5 +1,7 @@
 <template>
-  <component :is="templateVariant">
+  <LayoutProvider>
+    <slot :template="template" />
+
     <template #order-summary>
       <Hero
         v-show="!orderMeta.isProcessing"
@@ -188,7 +190,7 @@
         />
       </Section>
     </template>
-  </component>
+  </LayoutProvider>
 
   <UpmPaymentProcessing v-if="orderMeta.isProcessing" />
 </template>
@@ -204,6 +206,8 @@ import { UpmAuth as Auth } from "@upmind-automation/auth";
 import { Hero } from "@upmind-automation/foundation";
 import { Section } from "@upmind-automation/foundation";
 import { Icon } from "@upmind-automation/foundation";
+import { useAnnouncement } from "@upmind-automation/foundation";
+import { LayoutProvider } from "@upmind-automation/foundation";
 import {
   useAccount,
   useTransfer,
@@ -217,19 +221,9 @@ import {
   type InvoicePaymentChallenge
 } from "@upmind-automation/headless";
 import { useConfig } from "@upmind-automation/headless";
-import {
-  UpmPaymentDetails,
-  UpmPaymentProcessing
-} from "@upmind-automation/payment";
-import { useAnnouncement } from "../../components/announcement/useAnnouncement";
-import { useThemes } from "../theming";
-import OrderProducts from "./components/OrderProducts.vue";
-import OrderEnclosedTemplate from "./templates/OrderEnclosed.template.vue";
-import OrderFullTemplate from "./templates/OrderFull.template.vue";
-import OrderInsetTemplate from "./templates/OrderInset.template.vue";
-import OrderLTRTemplate from "./templates/OrderLTR.template.vue";
-import OrderRTLTemplate from "./templates/OrderRTL.template.vue";
-import { ORDER_TEMPLATE } from "./types";
+import { UpmPaymentDetails } from "@upmind-automation/payment";
+import { UpmPaymentProcessing } from "@upmind-automation/payment";
+import { ORDER_TEMPLATE } from "../types";
 import {
   detailsTotalRootVariants,
   detailsTotalLabelVariants,
@@ -238,25 +232,16 @@ import {
   detailsSkeletonRowVariants,
   detailsSkeletonTotalRowVariants,
   detailsSkeletonItemVariants
-} from "./variants";
-import { capitalize, first, get, omit } from "lodash-es";
-import type { OrderProps } from "./types";
+} from "../variants";
+import OrderProducts from "./OrderProducts.vue";
+import { capitalize, first, omit } from "lodash-es";
+import type { OrderProps } from "../types";
 
 interface OrderItem {
   term?: string;
   description: string;
   dataAttrs?: Record<string, string>;
 }
-
-//  --- templates
-
-const supportedTemplates = {
-  [ORDER_TEMPLATE.FULL]: OrderFullTemplate,
-  [ORDER_TEMPLATE.TWO_COLUMN_LTR]: OrderLTRTemplate,
-  [ORDER_TEMPLATE.TWO_COLUMN_RTL]: OrderRTLTemplate,
-  [ORDER_TEMPLATE.ENCLOSED]: OrderEnclosedTemplate,
-  [ORDER_TEMPLATE.INSET]: OrderInsetTemplate
-};
 
 const props = defineProps<OrderProps>();
 
@@ -266,14 +251,6 @@ const { t } = useI18n();
 const route = useRoute();
 const router = useRouter();
 const orderId = route.params?.[QUERY_PARAMS.ORDER_ID]?.toString();
-
-const { set } = useThemes();
-
-const { ui } = useConfig({
-  context: UIContext.CONFIRMATION
-});
-
-set(ui.theme.value);
 
 // -----------------------------------------------------------------------------
 
@@ -345,8 +322,6 @@ const template = computed(() =>
     ORDER_TEMPLATE.TWO_COLUMN_RTL
   )
 );
-
-const templateVariant = computed(() => get(supportedTemplates, template.value));
 
 const badge = computed<Badge>(() => {
   if (orderMeta.value.isComplete)
