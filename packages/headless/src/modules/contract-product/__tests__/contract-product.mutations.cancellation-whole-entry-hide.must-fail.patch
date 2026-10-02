@@ -11,14 +11,14 @@
 # Apply with:  git apply <this file>   (run from repo root)
 # Revert with: git apply -R <this file>
 diff --git a/packages/headless/src/modules/contract-product/contract-product.utils.ts b/packages/headless/src/modules/contract-product/contract-product.utils.ts
-index e58e01dfb..1de67c68e 100644
 --- a/packages/headless/src/modules/contract-product/contract-product.utils.ts
 +++ b/packages/headless/src/modules/contract-product/contract-product.utils.ts
-@@ -175,7 +175,6 @@ export function cancellationOptions(
+@@ -127,7 +127,7 @@
    if (!product.isSubscription) return options;
    if (hasAutoExpireEnabled(product)) return options;
    if (hasHardCancellationRequest(product)) return options;
 -  if (product.hasScheduledFutureCancellation) return options;
- 
-   const isPending = product.contractStatus === ContractStatusCodes.PENDING;
- 
++
+   // Legacy cProdProvider.vue cancelOption: a pending pro-rata invoice, or a
+   // client the platform does not allow to cancel, disables cancelling.
+   if (product.proRataPending) return options;

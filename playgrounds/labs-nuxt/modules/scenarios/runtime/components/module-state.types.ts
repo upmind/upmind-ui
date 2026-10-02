@@ -24,12 +24,18 @@
  * `stateMatches(state, "available")`, false for every booting form), so reading
  * it here would call a loading editor unavailable. Disambiguating it is
  * protected-core work, the split `R-D1` recorded for `hasError`/`hasErrors`.
+ *
+ * `isUnavailable` is a single record's "the read could not land" flag
+ * (`useInvoice.meta.ts`, the machine's `unavailable` state), read by the
+ * record surface alone (`resolveRecordState`): other modules publish the same
+ * name for a different idea (`usePaymentDetail`: no gateway resolved YET).
  */
 export const MODULE_STATE_META_FLAG = {
   SERVED: "isServed",
   LOADING: "isLoading",
   HAS_ERROR: "hasError",
-  HAS_ERRORS: "hasErrors"
+  HAS_ERRORS: "hasErrors",
+  UNAVAILABLE: "isUnavailable"
 } as const;
 
 /**

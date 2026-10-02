@@ -182,6 +182,13 @@ export type RequestParams = QueryProps & {
    */
   withBasket?: boolean;
   /**
+   * `true` to read no basket composable when `list()` or `listInfinite()` is
+   * minted: the setup boots no basket, and the query key carries no basket
+   * currency or id. Without it both boot the basket, whatever `withCurrency`
+   * and `withBasket` say.
+   */
+  withoutBasket?: boolean;
+  /**
    * `true` to automatically include the access token in the request headers,
    * or a string representing the token itself, or `null`/`false` to omit.
    */

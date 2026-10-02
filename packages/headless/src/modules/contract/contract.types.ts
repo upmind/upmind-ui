@@ -2,6 +2,7 @@ import { AccessRoleTypes } from "@upmind-automation/types";
 import { SortDirection } from "../query";
 import { ScopeActorTypes } from "../scope/scope.types";
 import type { FormattedDate, ResponseError } from "../../utils";
+import type { ContractProductEmbedded } from "../contract-product";
 import type { LookupItem } from "../lookup";
 import type { PaymentDetail } from "../payment-details";
 import type { ListQuery } from "../query";
@@ -12,8 +13,6 @@ import type {
   ContractStatusCodes,
   IContract,
   IContractCancellationRequest,
-  IContractProduct,
-  IProduct,
   IStatus
 } from "@upmind-automation/types";
 import type { ComputedRef } from "vue";
@@ -154,19 +153,11 @@ export type ContractCancellationRequest = {
   meta?: ContractCancellationRequestMeta;
 };
 
-/**
- * One of a contract's products as R34 shapes it: its id, plus what the list
- * row names — its own `name` and its catalogue product's `name`. NOT a full
- * `ContractProduct` view model; each product loads itself through
- * `useContractProduct` (R34).
- */
-export type ContractProductListItem = {
-  id: IContractProduct["id"];
-  name: IContractProduct["name"];
-  product?: Pick<IProduct, "name">;
-  /** The product is delegated to this client, not owned — legacy withholds settings changes on it. */
-  isDelegatedObject: IContractProduct["is_delegated_object"];
-};
+/** A `ContractProduct` as the contract read embeds it. The embedded shape now
+ * lives on the contract-product module as {@link ContractProductEmbedded}, which
+ * owns the product view model it narrows; this alias keeps the contract module's
+ * own name stable for its `products` relation and its consumers. */
+export type ContractEmbeddedProduct = ContractProductEmbedded;
 
 /** The view model `contract.mappers.ts` maps `IContract` into — only the fields this module reads. */
 export type Contract = {
@@ -177,8 +168,10 @@ export type Contract = {
   cancellationRequest?: ContractCancellationRequest;
   /** The stored method that pays the contract today — the no-op refusal of `setPaymentMethod` reads it (AC8, R31). */
   paymentDetailsId: IContract["payment_details_id"];
-  /** This contract's products as ids plus what the list row names (R34) — NOT full `ContractProduct` view models. */
-  products: ContractProductListItem[];
+  /** The stored method as a labelled reading a surface shows — legacy's `payment_details.name` (`cProdPaymentMethodComp.vue:64`), via `useTranslateName`, the same name helper `payment-details` maps its `title` with (FE-3206). Absent when the contract has no stored method. */
+  paymentMethod?: { id: IContract["payment_details_id"]; label: string };
+  /** This contract's products, each mapped through `mapContractProduct`. The contract read carries no `allowed_migrations` and no `products.contract`, so the members that read them are left off the type; read those through `useContractProduct`. */
+  products: ContractEmbeddedProduct[];
   /** What a client recognises the contract by (R38 item 8) — legacy's own title. */
   name: IContract["name"];
   /** The display title — `name`, else `#main_invoice_number` (R38 item 8). */

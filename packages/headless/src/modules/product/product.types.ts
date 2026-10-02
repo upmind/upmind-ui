@@ -948,3 +948,12 @@ export type ProductConfigContext = {
   /** A function to parse a {@link BasketProduct} for comparison with a partial {@link ProductModel}. */
   parseBasketProductComparison?: (item: BasketProduct) => Partial<ProductModel>;
 };
+
+/**
+ * The context the product `load` service reads. `promotions: false` omits
+ * promotions from the load (`omit_promotions=1`, no `promotions`) and is part
+ * of its cache key. An array behaves as it does for every other caller.
+ */
+export type ProductLoadContext = Omit<ProductConfigContext, "promotions"> & {
+  promotions?: IBasketPromotion[] | false;
+};

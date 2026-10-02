@@ -65,14 +65,14 @@
 # Apply with:  git apply <this file>   (run from repo root)
 # Revert with: git apply -R <this file>
 diff --git a/packages/headless/src/modules/contract-product/contract-product.utils.ts b/packages/headless/src/modules/contract-product/contract-product.utils.ts
-index 34fab8669..d3dcc2a75 100644
 --- a/packages/headless/src/modules/contract-product/contract-product.utils.ts
 +++ b/packages/headless/src/modules/contract-product/contract-product.utils.ts
-@@ -110,7 +110,6 @@ export function resolveExcludeDelegated(
+@@ -202,7 +202,7 @@
  ): 0 | 1 {
    if (scopeContext?.type === ContractProductsContextTypes.DELEGATED) return 0;
-   if (preference === true) return 1;
--  if (preference === false) return 0;
-   return hasDelegatedProducts ? 1 : 0;
+   if (!hasDelegatedProducts) return 1;
+-  return preference === true ? 1 : 0;
++  return hasDelegatedProducts ? 1 : 0;
  }
-
+ 
+ /** Resolves once the stored show-delegated preference has settled — held, or known absent. */

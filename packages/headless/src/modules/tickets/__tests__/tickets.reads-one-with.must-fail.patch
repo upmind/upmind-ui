@@ -1,0 +1,24 @@
+Negative control for the tickets single-read `with` set (FE-3206).
+
+FE-3206 widened `ONE_WITH` to the full `contract_product.*` member set so the
+single read supplies every relation the full `mapContractProduct` reads. Rule
+home: the `@decision` block above `ONE_WITH` in `tickets.services.ts`.
+
+The mutation drops `contract_product.status` from `ONE_WITH`, so the single
+read no longer asks the API for the linked product's status. The guard
+"sends exactly the widened ONE_WITH, full contract_product.* included" goes
+RED, because the observed `with` set no longer equals the recorded set.
+Spec: packages/headless/src/modules/tickets/__tests__/tickets.reads.int.test.ts
+
+diff --git a/packages/headless/src/modules/tickets/tickets.services.ts b/packages/headless/src/modules/tickets/tickets.services.ts
+index 0647902334..c9cd98c59a 100644
+--- a/packages/headless/src/modules/tickets/tickets.services.ts
++++ b/packages/headless/src/modules/tickets/tickets.services.ts
+@@ -159,7 +159,6 @@ const ONE_WITH = [
+   "contract_product.clients",
+   "contract_product.clients.image",
+   "contract_product.clients.brand",
+-  "contract_product.status",
+   "contract_product.product.image",
+   "contract_product.brand.currency",
+   "contract_product.product.provision_blueprint",

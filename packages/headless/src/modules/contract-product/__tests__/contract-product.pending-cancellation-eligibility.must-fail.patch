@@ -22,12 +22,11 @@
 # Apply with:  git apply <this file>   (run from repo root)
 # Revert with: git apply -R <this file>
 diff --git a/packages/headless/src/modules/contract-product/contract-product.utils.ts b/packages/headless/src/modules/contract-product/contract-product.utils.ts
-index e58e01dfb..6d2e07c8c 100644
 --- a/packages/headless/src/modules/contract-product/contract-product.utils.ts
 +++ b/packages/headless/src/modules/contract-product/contract-product.utils.ts
-@@ -184,7 +184,7 @@ export function cancellationOptions(
-   // HARD — request immediate cancellation; needs `can_cancel` (ADR-25, ADR-27).
-   if (product.canCancel) options.push(ContractProductCancelOption.HARD);
+@@ -140,7 +140,7 @@
+   // HARD — request immediate cancellation (ADR-25, ADR-27).
+   options.push(ContractProductCancelOption.HARD);
    // SCHEDULE_FUTURE — needs a live subscription and an anniversary anchor.
 -  if (!isPending && !!anniversaryAnchor(product)) {
 +  if (!!anniversaryAnchor(product)) {

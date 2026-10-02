@@ -46,6 +46,7 @@ See [usage.md](./usage.md) for the full walkthrough, including what a generated 
 - Only the actors a module actually supports are offered on the scope switch.
 - A transport bar that plays a module's own written scenarios: play / pause / step / scrub / jump-to-scene.
 - On-demand forcing of loading / empty / one-action-failing / whole-collection-failing states, from genuinely recorded data.
+- A single-record page (the record archetype) with a header, declared sections, footer actions, one shared form dialog, and a skeleton boot — see [record.md](./record.md).
 - Debug, Code, and Scenario panes for inspecting exactly what a page is doing and why.
 
 ## Key Concepts
@@ -70,6 +71,7 @@ A row's own action can open a read-only overlay on that record instead of callin
 
 - [foundation.md](./foundation.md) — what this module is, its core concepts, and what it can do, in one place.
 - [usage.md](./usage.md) — the walkthrough: from "I have a scoped composable" to "I have a working page," and how to change one afterwards.
+- [record.md](./record.md) — the record archetype: one managed record (contract, contract product, ticket) drawn from one declaration — layout conventions, sections, shared summaries.
 - [architecture.md](./architecture.md) — how a page comes to exist, and how the runtime pipeline fits together end to end.
 - [gotchas.md](./gotchas.md) — traps worth knowing before you touch a declaration or a presentation file.
 - [CHANGELOG.md](./CHANGELOG.md) — what changed, and when.

@@ -2,7 +2,7 @@
   "version": 3,
   "request": {
     "method": "PATCH",
-    "path": "/api/orders/4038696e-5472-1d57-2066-f518d9305e7d/provision_fields/values/check",
+    "path": "/api/orders/85d26e96-783d-1670-3578-f314502e7043/provision_fields/values/check",
     "headers": {
       "accept": "application/json",
       "authorization": "Bearer <REDACTED>",
@@ -93,7 +93,7 @@
       "meta": null
     }
   },
-  "captured_at": "2026-09-25T12:04:19.517Z",
+  "captured_at": "2026-10-02T12:20:03.840Z",
   "brand_domain": "qa-automation.local",
   "source": "journey",
   "provenance": {

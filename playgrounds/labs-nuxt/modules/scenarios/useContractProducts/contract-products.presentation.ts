@@ -91,6 +91,24 @@ const STATUS_BADGES = [
   }
 ];
 
+/**
+ * Delegation is a STATUS, not a glyph: one more badge in the status set, read
+ * off the record's own `isDelegatedObject` flag (the row, not `meta`) via the
+ * badge's own `scope`. The detail overlay folds the record under
+ * `contractProduct`, so it points the badge at that nested scope.
+ */
+const DELEGATED_BADGE = {
+  flag: "isDelegatedObject",
+  scope: "#/properties/isDelegatedObject",
+  i18n: "text.delegated_label",
+  color: "info" as const
+};
+
+const DELEGATED_BADGE_DETAIL = {
+  ...DELEGATED_BADGE,
+  scope: "#/properties/contractProduct/properties/isDelegatedObject"
+};
+
 export const tableUischema: TableUischema = {
   type: "TableLayout",
   elements: [
@@ -104,7 +122,10 @@ export const tableUischema: TableUischema = {
       type: "TableCellBadges",
       scope: "#/properties/meta",
       i18n: "text.status",
-      options: { badges: STATUS_BADGES }
+      options: {
+        badges: [...STATUS_BADGES, DELEGATED_BADGE],
+        width: TableColumnWidthTypes.QUARTER
+      }
     },
     {
       type: "TableCellDate",
@@ -125,12 +146,6 @@ export const tableUischema: TableUischema = {
       type: "TableCellText",
       scope: "#/properties/priceFormatted",
       i18n: "text.price"
-    },
-    {
-      type: "TableCellIcon",
-      scope: "#/properties/isDelegatedObject",
-      i18n: "text.delegated_label",
-      options: { icon: "users-01" }
     }
   ]
 };
@@ -152,13 +167,10 @@ export const cardUischema: CardUischema = {
       type: "TableCellBadges",
       scope: "#/properties/meta",
       i18n: "text.status",
-      options: { badges: STATUS_BADGES, slot: CardSlotTypes.SUBTITLE }
-    },
-    {
-      type: "TableCellIcon",
-      scope: "#/properties/isDelegatedObject",
-      i18n: "text.delegated_label",
-      options: { icon: "users-01", slot: CardSlotTypes.SUBTITLE }
+      options: {
+        badges: [...STATUS_BADGES, DELEGATED_BADGE],
+        slot: CardSlotTypes.SUBTITLE
+      }
     },
     {
       type: "TableCellDate",
@@ -194,7 +206,7 @@ export const detailUischema: DetailUischema = {
       type: "TableCellBadges",
       scope: "#/properties/contractProduct/properties/meta",
       i18n: "text.status",
-      options: { badges: STATUS_BADGES }
+      options: { badges: [...STATUS_BADGES, DELEGATED_BADGE_DETAIL] }
     },
     {
       type: "TableCellDate",
@@ -210,12 +222,6 @@ export const detailUischema: DetailUischema = {
       type: "TableCellDate",
       scope: "#/properties/contractProduct/properties/dateCalculatedCancel",
       i18n: "text.calculated_cancel_date"
-    },
-    {
-      type: "TableCellIcon",
-      scope: "#/properties/contractProduct/properties/isDelegatedObject",
-      i18n: "text.delegated_label",
-      options: { icon: "users-01" }
     }
   ]
 };

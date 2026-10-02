@@ -57,6 +57,7 @@ import type { LookupItem } from "../lookup";
 import type { PaymentDetailData, PaymentDetailModel } from "../payment-details";
 import type { InfiniteListQuery, ListQuery } from "../query";
 import type { ScopeContext } from "../scope";
+import type { JsonSchema7, UISchemaElement } from "@jsonforms/core";
 import type { QueryKey } from "@tanstack/vue-query";
 // IInvoice added for InvoicesListQuery/InvoiceItemQuery's wire-type argument
 // (S1) — already imported and used elsewhere in this module's own services
@@ -330,13 +331,15 @@ export type Invoice = {
   id: string;
   locked: boolean;
   status: InvoiceStatus;
+  /** The platform's translated name for {@link Invoice.status} (`"Paid"`); `""` on an unsaved dry run. */
+  statusName: string;
   number: string;
   client: Client;
   address?: Address;
   currency: Currency;
   /** The pay currency the platform holds for this invoice, when it has one. */
   currencyPayment?: Currency;
-  products: BasketProduct[];
+  products: InvoiceLineItem[];
   /**
    * A list-shaped read of {@link Invoice.products} for a text cell —
    * "`<title> x<quantity>`" per line item. Not a source of truth: re-derive
@@ -450,6 +453,15 @@ export type Invoice = {
 };
 
 /**
+ * One line item — the mapped {@link BasketProduct} plus the subscription it
+ * bills (`contracts_product_id`, `contract_id`), `null` on an un-linked line.
+ */
+export type InvoiceLineItem = BasketProduct & {
+  contractId: string | null;
+  contractsProductId: string | null;
+};
+
+/**
  * One group of an invoice's bundled line items, grouped by originating
  * subscription (AC5). Grouped on `contracts_product_id`
  * (`packages/types/src/models/baskets.ts:157`), falling back to
@@ -471,6 +483,12 @@ export type Payment = {
   };
   cardType: string | null;
   cardLast4: string | null;
+  /**
+   * The paying method as the client knows it — the payment detail's own
+   * `name` (`"Visa ending 4242"`), else `"<Card type> •••• <last4>"`
+   * (`invoicePaymentItem.vue`); `""` when the payment carries no detail.
+   */
+  label: string;
   amountFormatted: string;
   createdAt: string;
   /**
@@ -502,6 +520,17 @@ export type InvoiceCurrencyConversion = {
  */
 export type InvoicePaymentDetailsModel = {
   payment_details_id: string | null;
+};
+
+/**
+ * One single-invoice write form — `useContext().paymentMethod` (with the
+ * staged {@link InvoicePaymentDetailsModel}) or `useContext().currency` (no
+ * model: the caller holds the pick).
+ */
+export type InvoiceForm = {
+  schema?: JsonSchema7;
+  uischema?: UISchemaElement;
+  model?: InvoicePaymentDetailsModel;
 };
 
 // -----------------------------------------------------------------------------

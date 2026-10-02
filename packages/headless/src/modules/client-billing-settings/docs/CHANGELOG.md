@@ -6,15 +6,16 @@ All notable changes to the `client-billing-settings` module are documented here.
 
 ### Added
 
-- **A new sibling module** covering a client's own invoice-consolidation preference — the read view (`useBillingSettings`) and the editor (`useBillingSettingsManager`), sharing one scope matrix and one identity-resolution seam.
+- **A new sibling module** covering a client's own invoice-consolidation preference — one composable (`useBillingSettings`) that edits the preference, with one scope matrix and one identity-resolution seam.
 - **A diff-only save** across five persisted fields, with correct clear semantics: the on/off/follow switch survives an explicit off (`0`) all the way to the outbound request; the other four fields survive an explicit clear as a literal `null`. Both are present in the body, never omitted, and a field is only ever sent when it actually changed.
-- **A visibility gate that defaults to hidden** — the preference surface is shown to a client only when the brand has explicitly opted in; an absent key, an explicit non-opt-in, or a failed fetch of the gate all fail toward hidden, on both the read view and the editor. The same gate also decides whether the editor's `isAvailable` ever settles `true`: a brand that has not opted clients into managing consolidation leaves the editor permanently unavailable, and a consolidation save is refused locally before any request.
+- **A visibility gate that defaults to hidden** — the preference surface is shown to a client only when the brand has explicitly opted in; an absent key, an explicit non-opt-in, or a failed fetch of the gate all fail toward hidden,  The same gate also decides whether the editor's `isAvailable` ever settles `true`: a brand that has not opted clients into managing consolidation leaves the editor permanently unavailable, and a consolidation save is refused locally before any request.
 - **Account currency fields, saved alongside the consolidation preference.** `update()` also diffs and persists the account's own billing currency and preferred payment currency, through a separate `PUT accounts/{accountId}` request issued independently of the consolidation write. The preferred-payment-currency field is offered, and writable, only when the brand has separately opted clients into paying in a different currency.
 - **`revert()`** — restores the model to its last-saved values, safe even when a debounced form input is still pending.
 - **A bounded editor readiness** — `isReady()` times out rather than waiting forever on a failed lookup.
-- **The manager is callable with no argument** — `useBillingSettingsManager().as(ScopeActorTypes.CLIENT)` constructs and settles.
+- **The manager is callable with no argument** — `useBillingSettings().as(ScopeActorTypes.CLIENT)` constructs and settles.
 - **The barrel is the module's only public surface** — curated named exports only; the services, mappers, schemas, and machine-config file each carry an internal marker.
-- **A shared cache key with a sibling module** (`client-personal-details`) — reading the same underlying client record under the same key, safely, because this module's own reads use the reactive query primitive rather than a one-shot selecting read.
+- **A separate read-only composable was folded into `useBillingSettings`.** The module ships one composable under one internal name; the standalone `data`, `error`, `accountId`, `currencyId` and `preferredPaymentCurrencyId` read context members and the `hasVisibilityError` flag are gone — read the values from `useContext().model` and the gate from `useMeta().isVisible`. The `BillingSettingsRecord` type is no longer exported.
+- **The preference read has its own cache entry**, separate from `client-personal-details`, which reads a different slice of the same client record. A page mounting both issues one request per module.
 
 ### Changed
 
@@ -82,15 +83,14 @@ const settings = useBillingSettings()
 
 ### Reading a client's own consolidation preference
 
+**Breaking change:** the separate read-only context (`data`) is gone; the persisted values are on the model.
+
 ```ts
-import {
-  ScopeActorTypes,
-  useBillingSettings
-} from "@upmind-automation/headless";
+import { ScopeActorTypes, useBillingSettings } from "@upmind-automation/headless";
 
 const settings = useBillingSettings().as(ScopeActorTypes.CLIENT);
-const { data } = settings.useContext();
 await settings.useActions().isReady();
+const { baseModel } = settings.useContext(); // the last-saved values
 ```
 
 ### Turning consolidation off
@@ -98,18 +98,18 @@ await settings.useActions().isReady();
 ```ts
 import {
   ScopeActorTypes,
-  useBillingSettingsManager
+  useBillingSettings
 } from "@upmind-automation/headless";
 
-const manager = useBillingSettingsManager().as(ScopeActorTypes.CLIENT);
+const manager = useBillingSettings().as(ScopeActorTypes.CLIENT);
 await manager.useActions().update({ enabled: 0 }); // → { "invoice_consolidation_enabled": 0 }
 ```
 
 ### Clearing a field back to "follow the brand"
 
 ```ts
-import type { UseBillingSettingsManager } from "@upmind-automation/headless";
-declare const manager: ReturnType<UseBillingSettingsManager["fresh"]>;
+import type { UseBillingSettings } from "@upmind-automation/headless";
+declare const manager: ReturnType<UseBillingSettings["fresh"]>;
 
 await manager.useActions().update({ baseRule: null }); // → { "invoice_consolidation_base_rule": null }
 ```

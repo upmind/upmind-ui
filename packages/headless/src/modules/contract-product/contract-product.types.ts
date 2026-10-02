@@ -3,7 +3,10 @@ import { ScopeActorTypes } from "../scope/scope.types";
 import { selector } from "../scope/scope.utils";
 import type { FormattedDate, ResponseError } from "../../utils";
 import type { CustomField, CustomFieldModel } from "../client-custom-fields";
+import type { Invoice } from "../invoices";
 import type { LookupItem } from "../lookup";
+import type { Product, ProductModel, UseProductConfig } from "../product";
+import type { UseProductCatalogue } from "../product-catalogue";
 import type { ListQuery } from "../query";
 import type { JsonSchema7, UISchemaElement } from "@jsonforms/core";
 import type { QueryKey } from "@tanstack/vue-query";
@@ -21,13 +24,15 @@ import type {
   InvoiceConsolidationTypes,
   IProduct,
   IProductCategory,
+  IProductMigration,
   IScheduledAction,
   IStatus,
   ITag,
+  ProductTypes,
   TrialEndActionTypes
 } from "@upmind-automation/types";
-import type { ComputedRef } from "vue";
-import type { ActorRef, AnyEventObject } from "xstate";
+import type { ComputedRef, ShallowRef } from "vue";
+import type { ActorRef, AnyEventObject, InvokeCallback } from "xstate";
 // -----------------------------------------------------------------------------
 /**
  * @module contract-product/contract-product.types
@@ -154,7 +159,14 @@ export type ContractProductCatalogueProduct = Pick<
   | "image"
   | "provision_blueprint"
   | "invoice_consolidation_enabled"
+  | "product_type"
 >;
+
+/** One option line of the contract product: the option product and what it sells for now. */
+export type ContractProductOption = {
+  productId: IProduct["id"];
+  sellingPrice: IContractProduct["selling_price"];
+};
 
 /** The `brand` relation this module reads — `brand.currency` (design 8.1). */
 export type ContractProductBrand = Pick<IBrand, "id" | "name" | "currency">;
@@ -233,8 +245,26 @@ export type ContractProduct = {
   /** The display name — the shared product title over this contract product: "Starter Hosting (testdomain.com)". */
   title: string;
   canCancel: IContractProduct["can_cancel"];
-  /** A pro-rata invoice from a product change is still unpaid; cancelling is held back. */
+  /** A pro-rata invoice from a product change is still unpaid; cancelling and changing plan are held back. */
   proRataPending: IContractProduct["pro_rata_pending"];
+  /** The platform lets the client modify the product (`can_modify`); a change of plan needs it. */
+  canModify: boolean;
+  /** `product.product_type` — a change of plan is offered for a single product only. */
+  productType?: ProductTypes;
+  /** The plans the product's plan allows a change to (`allowed_migrations`). */
+  allowedMigrations: IProductMigration[];
+  /** The contract's own option lines, for the option price rule of a change of plan. */
+  currentOptions: ContractProductOption[];
+  /** The contract currency id — a change of plan loads and prices in it. */
+  contractCurrencyId?: IContract["currency_id"];
+  /** The contract currency code. */
+  contractCurrencyCode?: string;
+  /** The contract account id — the plan reads are scoped to it. */
+  contractAccountId?: IContract["account_id"];
+  /** The contract tax type, for the option editors of a change of plan. */
+  contractTaxType?: IContract["tax_type"];
+  /** The owning contract's translated billing-cycle label (`contract.billing_cycle_months`) — the product record's "Contract billing cycle" (FE-3206). `undefined` when the contract relation is absent. */
+  contractBillingCycleLabel?: string;
   isDelegatedObject: IContractProduct["is_delegated_object"];
   autoCreateRenewInvoice: IContractProduct["auto_create_renew_invoice"];
   unpaidRecurringInvoices: UnpaidInvoice[];
@@ -260,6 +290,17 @@ export type ContractProduct = {
   /** The wire record this view model was mapped from (AC24, R19). */
   raw: IContractProduct;
 };
+
+/** A `ContractProduct` as a read that embeds it carries it — without the members that need `allowed_migrations` or the parent `contract` relation, which such a read never supplies. The `contract` read and the `tickets` single read both embed a product this way. */
+export type ContractProductEmbedded = Omit<
+  ContractProduct,
+  | "allowedMigrations"
+  | "clientInvoiceConsolidationEnabled"
+  | "contractBillingCycleLabel"
+  | "contractCurrencyId"
+  | "contractStatus"
+  | "contractTaxType"
+>;
 
 // -----------------------------------------------------------------------------
 // MACHINE — `contract-product.machine.ts` (flow.md §3, §4; R20, R24)
@@ -327,6 +368,12 @@ export type ContractProductContext = {
 
   /** The open consolidation form. */
   consolidation?: ContractProductForm;
+
+  /** The open change of plan. */
+  migration?: ContractProductMigration;
+
+  /** The invoice the last committed change of plan raised; outside the form slot, so the re-read keeps it. */
+  migrationResult?: MigrationResult | null;
 };
 
 /** The two write forms, each a parallel region of `available`. */
@@ -341,6 +388,151 @@ export type ContractProductForm = {
   uischema?: UISchemaElement;
   model?: Partial<ContractProductWriteModel>;
 };
+
+// -----------------------------------------------------------------------------
+// MIGRATION — the `migrating` region (FE-3206)
+// -----------------------------------------------------------------------------
+
+/** The chosen plan: its id and its row of the plan list. */
+export type MigrationTarget = {
+  id: IProduct["id"];
+  product: Product;
+};
+
+/** The model the configurator child sends with each change and with the commit. */
+export type MigrationChange = {
+  model: ProductModel;
+  rawProduct?: IProduct;
+};
+
+/** One open change of plan: the chosen plan, its configurator and what was last priced. */
+export type ContractProductMigration = {
+  target?: MigrationTarget;
+  /** The spawned configurator child. */
+  ref?: ActorRef<AnyEventObject>;
+  /** The last child model that went to a request. */
+  model?: ProductModel;
+  /** The raw plan of that model, for the option price rule. */
+  rawProduct?: IProduct;
+  /** The dry run of `model`. */
+  preview?: MigrationPreview;
+};
+
+/** The pro-rata cost a dry run gave. */
+export type MigrationPreview = {
+  /** A dry-run invoice is unsaved, so its `status` is absent. */
+  invoice: Omit<Invoice, "status"> & { status?: Invoice["status"] };
+  /** `total_amount_formatted` of the dry-run invoice. */
+  total: string;
+  /** True when the converted total is zero. */
+  isFree: boolean;
+};
+
+/** What a committed change of plan gave. */
+export type MigrationResult = {
+  invoiceId?: IInvoice["id"];
+  unpaidAmount: number;
+  /** True when `unpaid_amount` is not zero. */
+  requiresPayment: boolean;
+  invoice?: Invoice;
+};
+
+/** `PUT contracts/{c}/products/{p}/change` body. */
+export type ChangeProductBody = {
+  contract_id: IContract["id"];
+  contracts_product_id: IContractProduct["id"];
+  product: {
+    product_id: IProduct["id"];
+    billing_cycle_months?: number;
+  };
+  options: {
+    product_id: IProduct["id"];
+    billing_cycle_months: number;
+    unit_quantity: number;
+    price?: number;
+  }[];
+  attributes: { product_id: IProduct["id"] }[];
+  dry_run?: boolean;
+};
+
+/** The inputs of `buildChangeProductBody`. */
+export type ChangeProductInput = {
+  contractId: IContract["id"];
+  contractProductId: IContractProduct["id"];
+  targetId: IProduct["id"];
+  model: ProductModel;
+  rawProduct?: IProduct;
+  currentOptions?: ContractProductOption[];
+  currencyId?: IContract["currency_id"];
+  /** A numeric custom price wins. The client path sets none [o24]. */
+  customPrice?: number;
+};
+
+/**
+ * The configurator of the chosen plan: a subset of `useProductConfig` over the
+ * child. It has no `service`, no term setter, no quantity member, no provision
+ * member and no trial setter, so a commit cannot skip `migrate()`. Its
+ * `setConfig` drops `startTrial` and `provisionFields`. Its `schema` and
+ * `uischema` hold no provision field and no `startTrial`. It has no `id` and no
+ * `state`, so the child's own state stays out of reach.
+ */
+export type MigrationConfig = Omit<
+  UseProductConfig,
+  | "id"
+  | "state"
+  | "service"
+  | "onDone"
+  | "updateTerm"
+  | "isSelectedTerm"
+  | "updateQuantity"
+  | "incrementQuantity"
+  | "decrementQuantity"
+  | "provisionFields"
+  | "provisionFieldsSchema"
+  | "setProvisioningFields"
+  | "getProvisioningField"
+  | "setTrial"
+>;
+
+/** The built `migrationConfig` and the reactive read of whether its child can take a commit. */
+export type MigrationConfigHolder = {
+  config: MigrationConfig;
+  /** The child matches `available`; false while it reloads or processes. */
+  isReady: ComputedRef<boolean>;
+};
+
+/**
+ * The three scoped holders of one manager. Each is `null` until its inputs are
+ * resolved. Each builds inside its own effect scope, which stops on a rebuild,
+ * when the inputs go incomplete, and on `dispose`.
+ */
+export type MigrationHolders = {
+  /** The count of the plans the product's plan allows. */
+  count: ShallowRef<UseProductCatalogue | null>;
+  /** The paged list of those plans on the current term. */
+  list: ShallowRef<UseProductCatalogue | null>;
+  /** The configurator of the chosen plan. */
+  config: ShallowRef<MigrationConfigHolder | null>;
+  /** The child matches `available`; false when no child is spawned. */
+  isMigrationTargetReady: ComputedRef<boolean>;
+  /** Stops each holder scope. */
+  dispose: () => void;
+};
+
+/** The facts `canMigrateProduct` reads. */
+export type MigrationGateFacts = Pick<
+  ContractProduct,
+  | "allowedMigrations"
+  | "calculatedCancelDate"
+  | "canModify"
+  | "contractRequest"
+  | "isSubscription"
+  | "productType"
+  | "proRataPending"
+  | "renew"
+  | "stagedImport"
+  | "status"
+>;
 
 // -----------------------------------------------------------------------------
 // LOOKUPS & WRITE FORMS — machine-owned form inputs (R33; auth form shape)
@@ -596,4 +788,10 @@ export type ContractProductMachineServices = {
   revokeScheduledCancellation: (
     context: ContractProductContext
   ) => Promise<IContractProduct | undefined>;
+  /** `available.migrating.configuring.previewing` — the dry run of `migration.model`. */
+  previewMigration: (context: ContractProductContext) => Promise<IInvoice>;
+  /** `available.migrating.configuring.processing.sending` — the commit of `migration.model`. */
+  migrate: (context: ContractProductContext) => Promise<IInvoice | undefined>;
+  /** `available.migrating.configuring` — reports the configurator child failing. */
+  watchMigrationTarget: (context: ContractProductContext) => InvokeCallback;
 };

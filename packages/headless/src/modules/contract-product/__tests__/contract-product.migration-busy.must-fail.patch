@@ -1,0 +1,23 @@
+# Negative-control mutant 24 — busy (FE-3206)
+#
+# Mutation: leave the commit out of `isProcessing`.
+# Spec it must turn red: "Change my subscription ...".
+#
+# Authored by the developer seat against the landed production source. The
+# prover applies it blind (tasks.md T41): apply, run the named spec, revert.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+diff --git a/packages/headless/src/modules/contract-product/useContractProduct.meta.ts b/packages/headless/src/modules/contract-product/useContractProduct.meta.ts
+--- a/packages/headless/src/modules/contract-product/useContractProduct.meta.ts
++++ b/packages/headless/src/modules/contract-product/useContractProduct.meta.ts
+@@ -349,8 +349,7 @@
+     isProcessing: useStateMatches(state, [
+       "processing",
+       "available.cancelling.processing",
+-      "available.consolidating.processing",
+-      "available.migrating.configuring.processing"
++      "available.consolidating.processing"
+     ]),
+ 
+     /** True on `available.setup.incomplete`. */

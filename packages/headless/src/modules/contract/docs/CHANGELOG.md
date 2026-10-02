@@ -6,8 +6,10 @@ All notable changes to the contract module.
 
 ### Changed
 
+- **`contract.products[]` is now `ContractProductEmbedded[]`, not an id/name stub.** Each embedded product maps through the contract-product module's mapper (status, tags, brand currency, cancellation and future-cancellation facts, successor product, delegated clients). The single-contract read's with-list widens to the `products.*` relations that mapper reads, plus `payment_details`. `ContractProductEmbedded` is `ContractProduct` without `allowedMigrations`, `clientInvoiceConsolidationEnabled`, `contractBillingCycleLabel`, `contractCurrencyId`, `contractStatus` and `contractTaxType`, because the contract read carries no allowed migrations and no owning-contract relation. The type is exported from the contract barrel. A list row still carries `products: []`.
+- **`Contract` gains `paymentMethod?: { id, label }`**, present when the read carries the stored method; `paymentDetailsId` is unchanged.
 - **The settled read places the status node directly.** The load's completion is one ordered list of guarded transitions over the record it returned; a record with no known status lands on `error`.
-- **The payment-method form is offered only for a subscription the client owns** — never a one-off contract, never a contract holding a product delegated to the client. Each `products[]` stub now carries `isDelegatedObject`.
+- **The payment-method form is offered only for a subscription the client owns** — never a one-off contract, never a contract holding a product delegated to the client. Each `products[]` row carries `isDelegatedObject`.
 - **Paging forward keeps the split total**, and the count read waits on the list's own addressability check.
 
 ### Added
@@ -21,7 +23,7 @@ All notable changes to the contract module.
 - **Every cancellation write (soft, hard, and scheduled) lives on the sibling `contract-product` module, not here.** A contract only groups the ids of the products it holds; changing what happens to one product is addressed at that product directly. The contract manager keeps exactly one write: the payment-method form.
 - **The payment-method form is a parallel region of BOTH `available` and `unavailable`** (guarded to exclude `fraud` on the latter), so opening it never moves the contract off its current status node, and it stays reachable on a cancelled or lapsed contract.
 - **The contracts list carries the full criteria surface** — filters, sort and pagination, in one query model, exactly like every other collection in this codebase.
-- **The single-contract read carries each product as a list-row stub, not a full record.** `contract.products` is an id, the product's own `name`, and its catalogue product's `name` — nothing else, and never its status, tags, brand currency, or cancellation state — a caller needing any of that loads that one product directly through `useContractProduct`.
+- **The single-contract read carries each product as a full product view model.** Members that depend on the product's allowed migrations or owning-contract relation stay unfilled on an embedded row; a caller needing them loads that one product directly through `useContractProduct`.
 
 ---
 

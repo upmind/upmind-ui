@@ -197,6 +197,82 @@ try {
 
 An open form never moves the product off its current status node — a client can be mid-cancellation-form on a product still reporting `isActive`, right up until the write actually settles.
 
+#### Change of plan
+
+A client can move a recurring single product to another plan its own plan allows. The flow has four steps: open the plan list, choose a plan, configure it (the dry-run cost updates as options change), commit.
+
+| Action | Does | Returns |
+|--------|------|---------|
+| `openMigration()` | Opens the plan list; the list starts to load | `true` once open; `false` when `canMigrate` is false |
+| `selectMigrationTarget(id)` | Chooses a plan of the loaded list; its configurator starts to load | `false`, with nothing sent, when the loaded list holds no plan of that id |
+| `loadMoreMigrationTargets()` | Loads the next page of the plan list (four plans a page) | `Promise<void>` |
+| `reloadMigrationTarget()` | Loads the chosen plan again from the start, after it failed to load | `void` |
+| `cancelMigration()` | Closes the change of plan; the chosen plan's configurator stops | `void` |
+| `migrate()` | Commits the change | `MigrationResult`; `false` when the commit is not offered now (no configurator ready, or no dry run or refused state); throws `DetailedError` when the platform refuses the change |
+
+```typescript
+import { ScopeActorTypes, useContractProduct } from "@upmind-automation/headless";
+import { until } from "@vueuse/core";
+
+declare const productId: string;
+
+async function changePlan() {
+const product = useContractProduct().as(ScopeActorTypes.CLIENT).withId(productId);
+const actions = product.useActions();
+const {
+  canMigrate,
+  canCommitMigration,
+  isChoosingMigrationTarget,
+  isMigrationTargetsLoading,
+  isMigrationTargetLoading,
+  isMigrationPreviewing,
+  hasMigrationTargetsError,
+  hasMoreMigrationTargets
+} = product.useMeta();
+const { migrationsCount, migrationTargets, migrationPreview } = product.useContext();
+
+await actions.isReady();
+
+// 1. Offer the entry point only when the product can change plan.
+if (canMigrate.value && migrationsCount.value > 0) {
+  // 2. Open the list. `openMigration()` only starts the list query; wait for
+  //    the first page before reading `migrationTargets`.
+  if (actions.openMigration()) {
+    await until(
+      () =>
+        isChoosingMigrationTarget.value &&
+        (!isMigrationTargetsLoading.value || hasMigrationTargetsError.value)
+    ).toBe(true);
+    if (hasMigrationTargetsError.value) return;
+    if (hasMoreMigrationTargets.value) await actions.loadMoreMigrationTargets();
+
+    // 3. Choose a plan. Its configurator starts to load, and the first dry
+    //    run follows. `migrate()` returns `false` while the plan still loads.
+    const target = migrationTargets.value[0];
+    if (target?.id && (await actions.selectMigrationTarget(target.id))) {
+      // 4. Wait for the dry run to settle, then commit — or
+      //    `actions.cancelMigration()` to leave without changing. A dry run
+      //    that fails settles with no `migrationPreview`, and the commit stays
+      //    offered, so gate on `canCommitMigration`, never on the preview.
+      await until(
+        () => !isMigrationTargetLoading.value && !isMigrationPreviewing.value
+      ).toBe(true);
+      console.log("Change costs", migrationPreview.value?.total);
+
+      if (canCommitMigration.value) {
+        const result = await actions.migrate();
+        if (result && result.requiresPayment) {
+          console.log("Pay invoice", result.invoiceId, result.unpaidAmount);
+        }
+      }
+    }
+  }
+}
+}
+```
+
+`migrationConfig` is the configurator of the chosen plan (`null` when none is chosen). It is a subset of the product configurator: it carries the plan's schema, uischema and option setters, but no provision fields and no trial choice, and it has no way to commit; only `migrate()` commits.
+
 ## Meta (State Flags)
 
 All return Vue `ComputedRef<boolean>`.
@@ -238,6 +314,28 @@ All return Vue `ComputedRef<boolean>`.
 | `hasError` | The machine captured an error |
 | `isEmpty` | No product loaded |
 
+**Change-of-plan flags**
+
+| Flag | Description |
+|------|-------------|
+| `canMigrate` | The product may start a change of plan: a recurring single product, active or suspended, the platform allows a modification, plans are allowed, no hard cancellation request, no auto-expire, not a staged import, no unpaid pro-rata invoice |
+| `canCommitMigration` | The open change can be committed: no dry run in flight and the configurator can take the commit. Local validation does not gate it |
+| `hasPendingProRata` | The pro-rata invoice of an earlier change is still unpaid |
+| `isMigrationOpen` | The plan list or a chosen plan is open |
+| `isChoosingMigrationTarget` | The plan list is open and no plan is chosen |
+| `isMigrationTargetsLoading` | The plan list is loading its **first page** only |
+| `isMigrationTargetsLoadingMore` | The plan list is loading a further page |
+| `hasMigrationTargetsError` | The plan list failed to load |
+| `hasNoMigrationTargets` | The plan list loaded and is empty |
+| `hasMoreMigrationTargets` | The plan list has another page |
+| `isMigrationTargetLoading` | The chosen plan is loading |
+| `isMigrationTargetUnavailable` | The chosen plan failed to load; `reloadMigrationTarget()` retries |
+| `isMigrationPreviewing` | The dry run is in flight |
+| `isMigrationPreviewed` | The dry run returned a cost |
+| `isMigrationFree` | The dry run's converted total is zero |
+| `isMigrationProcessing` | The commit is in flight |
+| `requiresPayment` | The committed change left an amount to pay |
+
 ## Context (Computed Values)
 
 ### `useContractProducts().useContext()`
@@ -259,6 +357,8 @@ const {
 
 Each `ContractProduct` in `data` carries a display `title` (the shared product title, e.g. "Starter Hosting (testdomain.com)") and a `priceTermSummary` (the price and, for a subscription, its lower-cased cycle — "£4 monthly", "£60"). The picker's options read the same title.
 
+A `ContractProduct` also carries `contractBillingCycleLabel`, the owning contract's translated billing-cycle label (the product record's "Contract billing cycle"; "One time" for a one-off contract). It is `undefined` when the read carries no contract relation, and it is absent from the type of a product embedded in a contract read (`ContractProductEmbedded`). It is distinct from the product's own `billingCycle`.
+
 ### `useContractProduct().useContext()`
 
 ```typescript
@@ -279,12 +379,20 @@ const {
   errors,                    // ComputedRef<ResponseError["message"] | undefined> — the machine-captured error message
   lookups,                   // reference data the machine's `load` service resolved (the CANCEL_REQUEST custom fields)
   minFutureCancellationDate, // instance-bound earliest selectable date, or null
+  migrationConfig,           // the chosen plan's configurator (no provision fields, no trial), or null
+  migrationPreview,          // MigrationPreview | undefined — the cost the last dry run gave
+  migrationResult,           // MigrationResult | null — the invoice the last commit raised; null before a commit and after openMigration
+  migrationTarget,           // MigrationTarget | undefined — the chosen plan: { id, product }
+  migrationTargets,          // ComputedRef — the plans of the pages loaded so far
+  migrationsCount,           // ComputedRef<number> — how many plans the platform counted; 0 until the count lands
   rawContractProduct,        // the raw wire record beside the view model
   scheduledActions,          // ComputedRef<ScheduledAction[]> — [] until the read carries them (see hasFetchedScheduledActions)
   title,                     // ComputedRef<string | undefined> — the product's own name (the view model's `title` is the display title)
   validationErrors           // ErrorObject[] — field-level validation errors (AJV), read, never raised
 } = product.useContext();
 ```
+
+`MigrationPreview` is `{ invoice, total, isFree }` (`total` is the dry-run invoice's formatted total). `MigrationResult` is `{ invoiceId?, unpaidAmount, requiresPayment, invoice? }`. The types `MigrationConfig`, `MigrationPreview`, `MigrationResult` and `MigrationTarget` are exported from the package root.
 
 `cancellation` and `consolidation` are `undefined` until their `open*` action runs; each becomes `{ schema, uischema, model }` for the lifetime of that form and clears again on `cancelForm()` or on a successful submit (which re-reads the product and returns to `#loading`).
 

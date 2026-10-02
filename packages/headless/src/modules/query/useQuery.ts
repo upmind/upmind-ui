@@ -173,7 +173,11 @@ export const useQuery = () => {
       }
 
       // set "currency" parameter
-      if (withCurrency) {
+      if (
+        withCurrency &&
+        !url.searchParams.has("currency_id") &&
+        !url.searchParams.has("currency_code")
+      ) {
         const { currencyCode } = useBasketCurrency();
         if (!isEmpty(currencyCode?.value))
           url.searchParams.set("currency_code", currencyCode.value as string);
@@ -385,6 +389,7 @@ export const useQuery = () => {
     queryKey,
     withCurrency,
     withBasket,
+    withoutBasket,
     withoutLocale,
     withAccessToken,
     withSplitCount,
@@ -400,8 +405,10 @@ export const useQuery = () => {
     const currentScope = getCurrentScope();
     const scope = currentScope?.active ? currentScope : effectScope(true);
 
-    const { currencyCode } = useBasketCurrency();
-    const { basketId } = useBasket();
+    const currencyCode = withoutBasket
+      ? undefined
+      : useBasketCurrency().currencyCode;
+    const basketId = withoutBasket ? undefined : useBasket().basketId;
 
     // Constructed here, never handed in: a module declares a schema and passes
     // it, so it cannot wire the pipeline wrongly. Undeclared still yields a
@@ -708,6 +715,7 @@ export const useQuery = () => {
     queryKey,
     withCurrency,
     withBasket,
+    withoutBasket,
     withoutLocale,
     withAccessToken,
     withSplitCount,
@@ -720,8 +728,10 @@ export const useQuery = () => {
     const currentScope = getCurrentScope();
     const scope = currentScope?.active ? currentScope : effectScope(true);
 
-    const { currencyCode } = useBasketCurrency();
-    const { basketId } = useBasket();
+    const currencyCode = withoutBasket
+      ? undefined
+      : useBasketCurrency().currencyCode;
+    const basketId = withoutBasket ? undefined : useBasket().basketId;
 
     const criteria = useQueryCriteria<TModel>(withPageWindow(declaration));
 

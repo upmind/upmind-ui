@@ -44,6 +44,7 @@ import {
 import type {
   ProductModel,
   ProductConfigContext,
+  ProductLoadContext,
   ProductProps
 } from "./product.types";
 import type { ErrorObject } from "ajv";
@@ -139,7 +140,7 @@ async function load(
     promotions: basketPromotions,
     basketId,
     rawBasketProduct
-  }: ProductConfigContext,
+  }: ProductLoadContext,
   _event: AnyEventObject
 ) {
   const { t } = useI18n();
@@ -180,13 +181,14 @@ async function load(
   ]);
 
   // lets ensure we parse our promotions correctly
-  const promotions = coupons?.join();
+  const omitPromotions = basketPromotions === false;
+  const promotions = omitPromotions ? undefined : coupons?.join();
   // ---
   const { get: getRequest, useUrl } = useQuery();
 
   const params = {
     currency_id: currency?.id,
-    promotions,
+    ...(omitPromotions ? { omit_promotions: "1" } : { promotions }),
     with: [
       "image",
       "images",
@@ -219,7 +221,9 @@ async function load(
         basketId,
         currency_id: currency?.id,
         promotions,
-        basketPromotions: map(basketPromotions, "promotion_id")
+        basketPromotions: omitPromotions
+          ? false
+          : map(basketPromotions, "promotion_id")
       }
     ],
     staleTime: useTime()?.DAY, // product data is not updated often, so we can cache for a day

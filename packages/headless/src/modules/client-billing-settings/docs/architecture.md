@@ -2,41 +2,23 @@
 
 ## Overview
 
-The module ships **two** scoped composables over one shared services factory:
+The module ships **one** scoped composable, `useBillingSettings`, over one services factory. It is backed by the platform's shared form-editor machine, one interpreter per resolved `(actor, context)` scope, and it serves the form editor and its read surface from that one instance. Only `client` resolves; `self`, `staff`, and `guest` are all `null as never` in the scope matrix, making `.as('self')`, `.as('staff')`, and `.as('guest')` compile-time errors rather than advertised-but-absent capabilities.
 
-- **`useBillingSettings`** — the read view. Query-backed, no state machine. One reactive record query per resolved `(actor, context)` scope, minted at construction.
-- **`useBillingSettingsManager`** — the editor. Backed by the platform's shared form-editor machine, one interpreter per resolved scope.
+A client's preference has only one member in its context enum, so `.as(ScopeActorTypes.CLIENT)` with no further argument is the _normal_ call and always resolves to the same registry entry. The composable is registered under a single internal name.
 
-Both share the **same** scope matrix and context enum — a client has exactly one consolidation preference, so both composables scope on the identical entity. Only `client` resolves; `self`, `staff`, and `guest` are all `null as never` in the shared matrix, making `.as('self')`, `.as('staff')`, and `.as('guest')` compile-time errors rather than advertised-but-absent capabilities.
-
-Because a client's preference has only one member in its context enum, `.as(ScopeActorTypes.CLIENT)` with no further argument is the _normal_ call for both halves — sharing one registry name would give the read view and the editor the identical scope key, and the registry would hand one consumer the other's instance. **This module registers the two composables under two different internal names** for exactly that reason, mirroring the sibling `client-personal-details` module's own precedent.
-
-The single most important property of this module is that **every request resolves its target client from the scope**, never from a direct session read — one identity-resolution function, shared by both halves, branching on the resolved context rather than on which actor is calling. That single seam is what makes a read and a write always agree on the same target client.
+The single most important property of this module is that **every request resolves its target client from the scope**, never from a direct session read — one identity-resolution function, branching on the resolved context rather than on which actor is calling. That single seam is what makes a read and a write always agree on the same target client.
 
 ## Data Flow
 
-### Instantiation — the read view
+### Instantiation
 
 ```mermaid
 flowchart TD
   call["useBillingSettings().as(ScopeActorTypes.CLIENT)"] --> resolve["resolveClientId resolves the target client from the scope"]
-  resolve --> mint["mint a reactive single-record query, keyed to this client, ONCE for this scope"]
-  mint --> visibility["kick off the brand visibility-gate fetch, independently, in parallel"]
-  mint --> ready["return the four sub-composable factories, all closed over the same query"]
-  visibility --> ready
-```
-
-The reactive read shares its cache key and its URL with two sibling modules (`client-personal-details`, `client-custom-fields`) — deliberately, so a page that mounts more than one of the three dedupes onto one request instead of three. See "The shared cache key" below.
-
-### Instantiation — the editor
-
-```mermaid
-flowchart TD
-  call["useBillingSettingsManager().as(ScopeActorTypes.CLIENT)"] --> resolve["resolveClientId resolves the target client from the scope"]
   resolve --> interpret["interpret the shared form-editor machine, seeded with the resolved client id"]
   interpret --> gate{"client id<br/>resolved yet?"}
   gate -- no --> wait["hold in 'subscribing' — no request issued"]
-  gate -- yes --> load["load the preference (one-shot) + the brand visibility gate, seed BOTH the model and the base model"]
+  gate -- yes --> load["load the preference + the brand visibility gate, seed BOTH the model and the base model"]
   wait --> load
   load --> ready["return the four sub-composable factories"]
 ```
@@ -83,24 +65,23 @@ Constraints the caller has to plan around: this restoration only re-instates wha
 
 ## Sub-composables
 
-| Sub-composable | Read view | Editor |
-| --- | --- | --- |
-| `useActions()` | readiness, refresh, lifecycle | input, save, revert, clear, lifecycle |
-| `useContext()` | the preference, account currency fields, captured error | the full context object, model, base model, schema pair, id, title, visibility, currency options, errors |
-| `useMeta()` | state flags, including visibility and payment-currency-choice | state flags, including visibility and payment-currency-choice |
-| `useInternals()` | 2 — actor scope, raw query | 4 — actor scope, raw sender, raw service, raw state |
+| Sub-composable | Members |
+| --- | --- |
+| `useActions()` | input, save, revert, clear, readiness, lifecycle |
+| `useContext()` | the full context object, model, base model, schema pair, id, title, currency options, errors |
+| `useMeta()` | state flags, including visibility and payment-currency-choice |
+| `useInternals()` | 4 — actor scope, raw sender, raw service, raw state |
 
 ## Services
 
-One services file serves both halves:
+One services file serves the composable:
 
 | Concern | Where it lives |
 | --- | --- |
-| Target-client resolution | one function, consumed by both the read view and the editor |
-| Addressability predicate | one function; its reactive form is what `isAvailable` exposes on both composables |
-| The reactive preference read | a reactive query sharing its cache key and URL with a sibling module |
-| A one-shot preference read | used by the editor's own lookups; deliberately bypasses the shared reactive cache entirely — see "The shared cache key" below |
-| The visibility-gate read | resolved once per scope, shared between the readiness wait and the synchronous flag reads so neither can observe a still-in-flight fetch |
+| Target-client resolution | one function, consumed by every request in the module |
+| Addressability predicate | one function; its reactive form feeds `isAvailable` |
+| The preference read | the module's own one-shot read of `clients/{id}`, account slice, under this module's own cache entry — never shared with `client-personal-details` |
+| The visibility-gate read | resolved once per scope during the loading phase |
 | The diff-only update bodies | pure, no side effects beyond the request itself; compares each field by identity, never by truthiness — one body for the consolidation fields, a separate one for the account's currency fields |
 | The machine-services adapter | takes the already-scoped services instance as an argument, so the machine inherits the same resolved client as the rest of the module |
 
@@ -112,10 +93,10 @@ Errors are **state**, not events. Nothing in this module raises a toast or notif
 
 | Surface | Where a failure lands |
 | --- | --- |
-| Read view's own query | the query's own error → `useContext().error`, `useMeta().hasErrors` |
-| Visibility-gate fetch | a dedicated recoverable flag → `useMeta().hasVisibilityError` on the read view; fails closed (hidden) on both halves regardless |
-| Editor save | the machine's context error → `useContext().errors`, `useMeta().hasErrors`; the action also rejects with a detailed error |
-| Editor field validation | the validation errors → `useContext().validationErrors`, `useMeta().isValid` |
+| Preference read | the machine's context error → `useContext().errors`, `useMeta().hasErrors` |
+| Visibility-gate fetch | fails closed: `useMeta().isVisible` stays `false` |
+| Save | the machine's context error → `useContext().errors`, `useMeta().hasErrors`; the action also rejects with a detailed error |
+| Field validation | the validation errors → `useContext().validationErrors`, `useMeta().isValid` |
 
 ## Dependencies
 
@@ -125,7 +106,7 @@ Errors are **state**, not events. Nothing in this module raises a toast or notif
 | --- | --- |
 | Active client session | the acting client's identity when no other context is supplied; whether the session is authenticated |
 | Brand configuration | the single visibility-gate key |
-| The shared request layer | the reactive preference read, the one-shot lookup read, the diff-only PUT, URL building, cache invalidation |
+| The shared request layer | the one-shot preference read, the diff-only PUT, URL building, cache invalidation |
 | Localisation | translated caller-facing text on rejected reads and saves |
 | The shared form-editor machine | interpreted, never redefined |
 
@@ -133,14 +114,12 @@ Errors are **state**, not events. Nothing in this module raises a toast or notif
 
 None yet — this is a newly introduced module. Its own scope is deliberately narrower than the wider client-billing surface the legacy application groups it with; a second, not-yet-built capability is expected to become its first consumer once it lands.
 
-## The shared cache key
+## The preference cache entry
 
-This module and `client-personal-details` both read the **identical** `clients/{id}?with=custom_fields,custom_fields.field` resource, under the **identical** cache key — deliberately, so a page mounting both dedupes onto a single request rather than issuing one each.
-
-This is safe because the reactive read primitive this module uses applies its own field-selection **per observer**, in isolation — a second reactive observer on the same key gets its own independent projection at zero extra requests, and cannot change what the other observer sees. `client-custom-fields` reads a different endpoint entirely (`custom_fields`, scoped by access token) and does not touch this shared key.
+This module reads `clients/{id}?with=accounts,accounts.currency` under its own cache entry. `client-personal-details` reads the same client record with a different slice under its own entry, so the two entries never collide and a page mounting both issues one request per module. See [gotchas.md](./gotchas.md#4-the-preference-read-has-its-own-cache-entry--it-is-not-shared-with-client-personal-details).
 
 ## Module boundary
 
-The barrel is the module's only public surface: two composables and their own type, one scope-matrix constant and its matching type, one context enum, four model types, and eight sub-composable types (four per composable). Curated named re-exports only — no `export *`.
+The barrel is the module's only public surface: one composable and its type, one scope-matrix constant and its matching type, one context enum, four model types, and four sub-composable types. Curated named re-exports only — no `export *`.
 
 Everything else is internal and carries a file-level internal marker: the services, the mappers, the schemas, and the machine-config file. The machine-config file is **not** a machine definition — it is a configuration payload for the platform's shared, unmodified form-editor machine.

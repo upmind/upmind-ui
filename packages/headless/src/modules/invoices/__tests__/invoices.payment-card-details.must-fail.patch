@@ -17,9 +17,10 @@
 # green either way, since `undefined` also satisfies its assertion.
 # git apply --check is clean against invoices.mappers.ts as landed by this
 # dispatch.
+diff --git a/packages/headless/src/modules/invoices/invoices.mappers.ts b/packages/headless/src/modules/invoices/invoices.mappers.ts
 --- a/packages/headless/src/modules/invoices/invoices.mappers.ts
 +++ b/packages/headless/src/modules/invoices/invoices.mappers.ts
-@@ -195,10 +195,10 @@
+@@ -216,8 +216,8 @@
          isPending: !!payment.pending,
          isSuccessful: !payment.pending && payment.captured > 0
        },
@@ -27,8 +28,6 @@
 -      cardLast4: details?.card_last4,
 +      cardType: undefined,
 +      cardLast4: undefined,
+       label: mapPaymentLabel(details),
        amountFormatted: payment.amount_formatted,
        createdAt: payment.created_at,
-       // Frozen at MAP time, not live — a page left open does not age this
-       // value; re-derive from `createdAt` for a live "how old now" read.
-       attemptAgeAtFetchMs: Date.now() - new Date(payment.created_at).getTime(),

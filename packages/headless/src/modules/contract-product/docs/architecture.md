@@ -60,7 +60,7 @@ stateDiagram-v2
     error --> loading: REFRESH
 ```
 
-`available` is `type: "parallel"` over five regions — `status`, `setup`, `trial`, `cancelling`, `consolidating` — evaluated simultaneously off one read. `unavailable` (staged/cancelled/lapsed/fraud) has no transition that leaves it; the only way out is a fresh `loading` cycle from `REFRESH` or re-subscription.
+`available` is `type: "parallel"` over six regions — `status`, `setup`, `trial`, `cancelling`, `consolidating`, `migrating` — evaluated simultaneously off one read. `unavailable` (staged/cancelled/lapsed/fraud) has no transition that leaves it; the only way out is a fresh `loading` cycle from `REFRESH` or re-subscription.
 
 The `loading` state's `onDone` is an ordered list of guarded transitions over the record the settled read returned (the event, never the previous context). The order is staged → cancelled → lapsed → fraud → cancelling → expiring → pending → inactive → active → suspended, so that, e.g., a staged-import record is never routed into a status-code branch at all. Each guard is a one-line check on a raw wire field. A record that matches none takes the last entry, records a status error and lands on `error`.
 
@@ -98,6 +98,8 @@ The `loading` state's `onDone` is an ordered list of guarded transitions over th
 | `useMeta()` | `isAvailable`, `isLoading`, `isEmpty`, `isFiltered`, `hasPages`, `hasError` | the thirteen status/setup/trial node flags, the `isAvailable`/`isLoading`/`isProcessing` state-derived flags, `canRequestCancellation`/`canRequestEndOfTerm`/`canScheduleFutureCancellation`, plus the other record-fact flags (see usage.md) |
 | `useInternals()` | raw query access | raw machine-state access |
 
+`migrating` is the change-of-plan region. `MIGRATION` (guarded by `canMigrate`) moves it from `idle` to `choosing`, where the plan list loads. `MIGRATION.SELECT` (guarded to a plan the product allows) spawns a configurator child and moves to `configuring`, which holds `loading`, `unavailable`, `previewing`, `previewed`, `unpreviewed`, `error` and `processing`. A new child model re-runs the dry run (`previewing`); a failed dry run lands on `unpreviewed` and clears the cost. `MIGRATE` sends a forced update to the child, which answers with the commit model; `processing` then sends the write and returns to `#loading`. The plan count, the plan list and the configurator are three scoped holders built when their inputs resolve and stopped on a rebuild or `destroy`. The count and list are catalogue instances scoped to the contract's currency and account, with the allowed plan ids carried in the catalogue query schema.
+
 ## Services
 
 The collection (`useContractProducts`) resolves its requests through `createContractProductServices`. The manager (`useContractProduct`) does not call that factory — it interprets `contract-product.machine.ts`, whose services import `contractProductMachineServices` directly. Both sides come from the one services file, `contract-product.services.ts`; there is no per-actor split — the parity table carries the one cell `client×self`.
@@ -113,6 +115,7 @@ The collection (`useContractProducts`) resolves its requests through `createCont
 | Consolidation | `setConsolidation` | `PUT contracts/{c}/products/{p}/properties` |
 | Schedule cancel | `scheduleCancellation` | `PUT contracts/{c}/products/{p}/schedule-cancel` |
 | Revoke schedule | `revokeScheduledCancellation` | `PUT contracts/{c}/products/{p}/schedule-cancel-revoke` |
+| Change of plan: dry run / commit | `previewMigration` / `migrate` | `PUT contracts/{c}/products/{p}/change` (`dry_run: true` for the preview) |
 | Cancellation form validation | `validateCancellation` | none (local — rejects with a 422 on an invalid model) |
 | Consolidation form validation | `validateConsolidation` | none (local — rejects with a 422 on an invalid model) |
 
@@ -125,6 +128,11 @@ The collection (`useContractProducts`) resolves its requests through `createCont
 | `session-store` | `resolveClientId`, `useActiveSession`, `authSubscription` — identity resolution and the auth-lifecycle actor the machine spawns |
 | `client-personal-details` | The show-delegated-products preference, read via a fresh scoped instance the collection owns and destroys |
 | `client-custom-fields` | The brand's CANCEL_REQUEST field catalogue, reused as the cancellation form's `customFields`, settled alongside the manager's read |
+| `product` | `productMachine` and `useProductConfig` — the configurator child a change of plan spawns for the chosen plan |
+| `product-catalogue` | `useProductCatalogue` — the change-of-plan count and the paged plan list |
+| `invoices` | `mapInvoice` — maps the dry-run invoice of a change of plan |
+| `brand` | `useBrand` — the portal brand's tax type (formatted price) and one-off-purchases visibility setting (forced hide) |
+| `lookup` | `LookupItem` type only — the shape of the status, tag and currency lookups the product view model carries |
 | `query` | `useQuery`, `translateQuery`, cache invalidation — the whole HTTP/query layer |
 | `system-localisation` | `useI18n` — write-failure messages |
 | `scope` | `createScopedComposable`, `ScopeActorTypes`, `ScopeContext`, the scope registry |
@@ -133,7 +141,8 @@ The collection (`useContractProducts`) resolves its requests through `createCont
 
 | Module | Usage |
 |--------|-------|
-| `contract` | Imports `mapContractProduct` and the `ContractProduct` type (via the barrel) to map and type a contract's embedded `products` relation |
+| `contract` | Imports `mapContractProduct` and the `ContractProduct` type (via the barrel) to map and type a contract's embedded `products` relation; the embedded row's type, `ContractProductEmbedded`, omits `allowedMigrations`, `clientInvoiceConsolidationEnabled`, `contractBillingCycleLabel`, `contractCurrencyId`, `contractStatus` and `contractTaxType` |
+| `tickets` | Imports `mapContractProductEmbedded` and the `ContractProductEmbedded` type (via the barrel) in `tickets.mappers.ts` and `tickets.types.ts` to map and type the single read's linked `contract_product`; the row is the same embedded shape the contract read carries, without the `allowed_migrations` and parent-contract members that read does not supply |
 
 ## Integration Points
 

@@ -36,12 +36,6 @@
 # project); as more packages grow a unit project they join automatically with no
 # CI change. The HTTP layer is fully stubbed in unit tests, so this job needs no
 # staging network and no submodules beyond what `dependencies` already provides.
-#
-# `packages/scenario-harness`'s own `test:unit` chain additionally runs
-# `scripts/verify-negative-controls.mjs` (FE-2976 review cluster 7): it applies
-# each `src/__tests__/known-bad/*.must-fail.patch`, lints the package(s) that
-# patch touches, asserts RED naming the patch's banned specifier, reverts, and
-# asserts GREEN. A patch that no longer applies against HEAD fails this job.
 #------------------------------------------------------------------------------
 unit:test:
   extends: .pnpm
@@ -106,3 +100,4 @@ bdd:test:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
   script:
     - pnpm run test:bdd
+

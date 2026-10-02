@@ -743,7 +743,13 @@ export const invoicesSteps = defineSteps(({ Given, When, Then }) => {
 
   Then(
     "I am told the load failed rather than given a guessed payment state",
-    world => settles(() => world.expectMeta({ isUnavailable: true }))
+    world =>
+      settles(() =>
+        world.expectMeta({
+          isUnavailable: true,
+          canUpdatePaymentMethod: false
+        })
+      )
   );
 
   // === AC-7: LABEL A CONSOLIDATION CREDIT NOTE AS A CONSOLIDATION =============
@@ -793,6 +799,7 @@ export const invoicesSteps = defineSteps(({ Given, When, Then }) => {
   );
 
   When("I assign a payment method to it", async world => {
+    await settles(() => world.expectMeta({ canUpdatePaymentMethod: true }));
     await world.fire("input", { payment_details_id: AC4_ASSIGNED_METHOD_ID });
     await world.fire("updatePaymentDetails");
   });

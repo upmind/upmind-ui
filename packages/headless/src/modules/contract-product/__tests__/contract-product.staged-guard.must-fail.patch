@@ -1,17 +1,19 @@
 # Negative-control mutant — contract-product staged-import guard (AC-11)
 #
+# RE-TARGETED (this pass): the guard moved out of the deleted `selectStatusNode`
+#   util and now lives in the machine's `loading.invoke.onDone` entry order, as
+#   the first arm `{ target: STAGED, cond: "isStaged" }`. The mutation and the
+#   break are unchanged; only the site moved.
+#
 # Scenario it must flip: contract-product.feature >
 #   "A product still being imported cannot be changed"
 # Test that goes red: contract-product.mutations.int.test.ts >
 #   "AC-11 a staged product refuses stopRenewing and setConsolidation, sending no request to either endpoint"
-#   (a staged row now lands on `available.status.active`, so STOP_RENEWING and
-#   SET_CONSOLIDATION enter `processing` and a request is observed against
-#   `.../modify_renew` and `.../properties`; both `toEqual([])` flip).
-# Mutation: `selectStatusNode` drops the `stagedImport` arm, so a staged
-#   import is placed by its raw `status.code` alone — the protection is gone.
-# Collateral: contract-product.utils.test.ts >
-#   "a staged import reads as STAGED regardless of its status.code" goes red
-#   too — both tests guard this one line.
+#   (a staged row now lands on its raw `status.code` node — `available.status.active`
+#   — so STOP_RENEWING and SET_CONSOLIDATION enter `processing` and a request is
+#   observed against `.../modify_renew` and `.../properties`; both `toEqual([])` flip).
+# Mutation: `loading.invoke.onDone` drops its `isStaged` arm, so a staged import
+#   is placed by its raw `status.code` alone — the protection is gone.
 #
 # THE SECOND MUTATION THAT COMMENT NAMES — DISCLOSED, NOT DROPPED.
 #   `contract-product.feature`'s AC-11 mutant comment names TWO mutations:
@@ -29,15 +31,18 @@
 #
 # Apply with:  git apply <this file>   (run from repo root)
 # Revert with: git apply -R <this file>
-diff --git a/packages/headless/src/modules/contract-product/contract-product.utils.ts b/packages/headless/src/modules/contract-product/contract-product.utils.ts
-index 34fab8669..937e5bc96 100644
---- a/packages/headless/src/modules/contract-product/contract-product.utils.ts
-+++ b/packages/headless/src/modules/contract-product/contract-product.utils.ts
-@@ -40,7 +40,6 @@ export function selectStatusNode(
- ): ContractProductState | undefined {
-   const code = product.status?.code;
-
--  if (product.stagedImport) return ContractProductState.STAGED;
-   if (code === ContractStatusCodes.CANCELLED)
-     return ContractProductState.CANCELLED;
-   if (code === ContractStatusCodes.CLOSED) return ContractProductState.LAPSED;
+diff --git a/packages/headless/src/modules/contract-product/contract-product.machine.ts b/packages/headless/src/modules/contract-product/contract-product.machine.ts
+--- a/packages/headless/src/modules/contract-product/contract-product.machine.ts
++++ b/packages/headless/src/modules/contract-product/contract-product.machine.ts
+@@ -95,11 +95,6 @@
+           // record THIS read returned (the event), never the previous one.
+           onDone: [
+             {
+-              target: ContractProductState.STAGED,
+-              cond: "isStaged",
+-              actions: ["setContractProduct", "setLookups"]
+-            },
+-            {
+               target: ContractProductState.CANCELLED,
+               cond: "isCancelled",
+               actions: ["setContractProduct", "setLookups"]

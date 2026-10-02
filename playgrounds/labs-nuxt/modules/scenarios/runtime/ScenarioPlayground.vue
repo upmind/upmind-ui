@@ -25,7 +25,20 @@
              archetype surface it renders — which is what keeps the dispatcher
              free of any one surface's channels. -->
         <div :class="scenarioPlayground.stage()">
-          <Card size="sm">
+          <template v-if="recordUischema">
+            <RecordSurface
+              v-if="record?.subjectId.value"
+              :uischema="recordUischema"
+              :port="port"
+              :locked="isLocked"
+            />
+            <RecordLookup
+              v-else-if="recordUischema.picker"
+              :picker="recordUischema.picker"
+              :route="scenario.route"
+            />
+          </template>
+          <Card v-else size="sm">
             <ModuleRenderer
               :descriptor="descriptor"
               :port="port"
@@ -93,14 +106,16 @@
 
 import { Card, Page } from "@upmind/ui";
 import { useI18n } from "vue-i18n";
-import { ScopeActorTypes } from "@upmind-automation/headless";
+import { resolveSelfActor, ScopeActorTypes } from "@upmind-automation/headless";
 import { ARCHETYPE, createHarness } from "@upmind-automation/scenario-harness";
 import { ModuleRenderer } from "./components";
 import ForcedCanvas from "./components/ForcedCanvas.vue";
 import PageHeader from "./components/PageHeader.vue";
 import ScenarioBar from "./components/ScenarioBar.vue";
+import { RecordLookup, RecordSurface } from "./components/surfaces";
 import { useCriteriaUrlSync } from "./composables/useCriteriaUrlSync";
 import { useModulePort } from "./composables/useModulePort";
+import { useRecordTransport } from "./composables/useRecordTransport";
 import { useScenarioTransport } from "./composables/useScenarioTransport";
 import {
   scenarioRegistry,
@@ -109,6 +124,7 @@ import {
   scenarioSources
 } from "./registry";
 import { ActionPlacementTypes, DEFAULT_ROW_IDENTIFIER } from "./scenario.types";
+import { paramNameOf } from "./scenario.utils";
 import { scenarioPlayground } from "./ScenarioPlayground.styles";
 import {
   get,
@@ -126,10 +142,8 @@ import type {
   ResolvedDetail,
   ResolvedHandoff
 } from "./scenario.types";
-import type {
-  Archetype,
-  ScopeActor
-} from "@upmind-automation/scenario-harness";
+import type { Archetype } from "@upmind-automation/scenario-harness";
+import type { ScopeActor } from "@upmind-automation/scenario-harness";
 import type { ScopeContextForm } from "~/components/scope";
 import { useContextScopeSelector } from "~/components/scope";
 import { usePlaygroundSheet } from "~/components/sheets/usePlaygroundSheet";
@@ -152,7 +166,17 @@ definePageMeta({
   // identity the cell boots on (`.withId(token)`), so a change of token must
   // remount to re-address — the criteria params, which the rest of the query
   // carries, never do.
-  key: route => `${route.path}::token=${route.query.token ?? ""}`
+  //
+  // An overlay child (`/upgrade/`, `/payment/`, `/session/`) is NOT the page's
+  // path: keying on it remounted the page beneath every overlay, and that
+  // unmount destroyed the very cell the overlay was drawing.
+  key: route => {
+    const path = route.path.replace(/\/$/, "");
+    const page = route.meta.overlayId
+      ? path.replace(new RegExp(`/${route.meta.overlayId}$`), "")
+      : path;
+    return `${page}::token=${route.query.token ?? ""}`;
+  }
   // NO `name`/`path` here: `augmentPages` assigns an extracted macro name onto
   // every route sharing this file, so one declared here would collapse all
   // sixty scenario routes onto a single name.
@@ -216,17 +240,42 @@ const detail = computed<ResolvedDetail | undefined>(() =>
     : undefined
 );
 
+// A manager addressed by a declared route param (`/useContractProduct/:id`)
+// boots one cell per record, the url's or the one a replay's recording names.
+const recordParam = scenario.useManage
+  ? paramNameOf(scenario.params?.[0])
+  : undefined;
+const rawRecordId = recordParam ? route.params[recordParam] : undefined;
+const recordId =
+  (isArray(rawRecordId) ? rawRecordId[0] : rawRecordId) || undefined;
+
+const record =
+  recordParam && scenario.useManage
+    ? useRecordTransport({
+        key: scenarioKey,
+        composable: scenario.useManage,
+        id: recordId ?? linkToken,
+        actor: actorScope.value,
+        offeredActors: scenario.actors
+      })
+    : undefined;
+
+// The RECORD archetype: a manager that declares how its one record draws.
+const recordUischema = record ? scenario.presentation.record : undefined;
+
 // The collection where the module publishes one, else its editor — the pair the
 // binding's own union guarantees at least one of.
-const port = useModulePort((scenario.useList ?? scenario.useMutate)!, {
-  actor: actorScope.value,
-  context: contextScope.value,
-  id: actorScope.value === ScopeActorTypes.CLIENT ? linkToken : undefined,
-  // The actors this declaration offers beyond SELF. Identity comes from the
-  // session store — `switchScope` activates the matching session as it pushes
-  // the url — so nothing else is needed to serve them.
-  offeredActors: scenario.actors
-});
+const port =
+  record?.port ??
+  useModulePort((scenario.useList ?? scenario.useMutate)!, {
+    actor: actorScope.value,
+    context: contextScope.value,
+    id: actorScope.value === ScopeActorTypes.CLIENT ? linkToken : undefined,
+    // The actors this declaration offers beyond SELF. Identity comes from the
+    // session store — `switchScope` activates the matching session as it pushes
+    // the url — so nothing else is needed to serve them.
+    offeredActors: scenario.actors
+  });
 
 // --- Request state ⇄ url, when the scenario opts in
 useCriteriaUrlSync(port.criteria, { enabled: scenario.persistCriteria });
@@ -303,8 +352,16 @@ const {
 } = useScenarioTransport({
   module: scenario.tracks,
   criteria: port.criteria,
-  reset: get(port.actions, "reset") as ForceReset | undefined
+  reset: record
+    ? () => (get(port.actions, "reset") as ForceReset | undefined)?.()
+    : (get(port.actions, "reset") as ForceReset | undefined),
+  world: record?.world,
+  scope: record
+    ? () => ({ actor: resolveSelfActor(actorScope.value) as ScopeActor })
+    : undefined
 });
+
+record?.follow(player);
 
 // --- Labs page actions: HEADER actions the declaration backs with its own
 // composables rather than the cell's port (`pageActions`). Each factory is
@@ -399,6 +456,7 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
+  if (record) return;
   const destroy = get(port.actions, "destroy");
   if (destroy) destroy();
 });

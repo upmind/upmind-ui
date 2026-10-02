@@ -1,0 +1,21 @@
+# Negative-control mutant 10 — start-staged (FE-3206)
+#
+# Mutation: drop the staged clause.
+# Spec it must turn red: "... cannot start while my product is still being imported" (check 12), and the AC-26 unit spec, the change rule.
+#
+# Authored by the developer seat against the landed production source. The
+# prover applies it blind (tasks.md T41): apply, run the named spec, revert.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+diff --git a/packages/headless/src/modules/contract-product/contract-product.utils.ts b/packages/headless/src/modules/contract-product/contract-product.utils.ts
+--- a/packages/headless/src/modules/contract-product/contract-product.utils.ts
++++ b/packages/headless/src/modules/contract-product/contract-product.utils.ts
+@@ -409,7 +409,6 @@
+       [ContractStatusCodes.ACTIVE, ContractStatusCodes.SUSPENDED],
+       code
+     ) &&
+-    !product.stagedImport &&
+     !product.proRataPending
+   );
+ }

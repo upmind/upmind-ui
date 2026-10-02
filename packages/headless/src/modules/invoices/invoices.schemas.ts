@@ -4,19 +4,30 @@ import {
   InvoiceCategoryCode,
   InvoiceStatus
 } from "@upmind-automation/types";
+import {
+  useStoredPaymentMethodsSchema,
+  useStoredPaymentMethodsUischema
+} from "../payment-details";
 import { SortDirection } from "../query/query.types";
 import { PAGINATION } from "../query/query.utils";
 import { INVOICE_DEFAULT_SORT, InvoicesContextTypes } from "./invoices.types";
-import { values } from "lodash-es";
-import type { InvoicesScopeLookups } from "./invoices.types";
+import { map, values } from "lodash-es";
+import type { PaymentDetail } from "../payment-details";
+import type { Invoice, InvoicesScopeLookups } from "./invoices.types";
 import type { QuerySchema } from "../query/query.types";
-import type { ControlElement, UISchemaElement } from "@jsonforms/core";
+import type {
+  ControlElement,
+  JsonSchema7,
+  UISchemaElement
+} from "@jsonforms/core";
+import type { ICurrency } from "@upmind-automation/types";
 // -----------------------------------------------------------------------------
 /**
  * @module invoices/invoices.schemas
  * @description The invoices list's query schema and its filter-bar and sort
- * uischemas, the two query schemas the relationship lookups read, and the
- * scope picker's lookups pair.
+ * uischemas, the two query schemas the relationship lookups read, the
+ * scope picker's lookups pair, and the single invoice's two write forms (its
+ * payment method and its pay currency).
  */
 // -----------------------------------------------------------------------------
 
@@ -430,6 +441,78 @@ export function useInvoicePickerUischema(
           },
           optionalText: ""
         }
+      }
+    ]
+  } as UISchemaElement;
+}
+
+/**
+ * The invoice's payment-method form — one pick over the client's stored cards,
+ * written as `InvoicePaymentDetailsModel`. `null` clears the assignment.
+ */
+export function useInvoicePaymentMethodSchema(
+  storedPaymentMethods: PaymentDetail[],
+  paymentDetailsId: Invoice["paymentMethod"]["id"]
+): JsonSchema7 {
+  return {
+    $schema: "http://json-schema.org/draft-07/schema#",
+    type: "object",
+    additionalProperties: false,
+    properties: {
+      payment_details_id: {
+        ...useStoredPaymentMethodsSchema(storedPaymentMethods),
+        default: paymentDetailsId ?? undefined
+      }
+    }
+  } as JsonSchema7;
+}
+
+export function useInvoicePaymentMethodUischema(): UISchemaElement {
+  return {
+    type: "VerticalLayout",
+    elements: [
+      useStoredPaymentMethodsUischema(
+        "#/properties/payment_details_id",
+        "form.invoice_payment_method"
+      )
+    ]
+  } as UISchemaElement;
+}
+
+/**
+ * The invoice's pay-currency form — one pick over the brand's currencies, its
+ * `code` the argument `useActions().setCurrency()` takes.
+ */
+export function useInvoiceCurrencySchema(
+  currencies: ICurrency[],
+  code?: string
+): JsonSchema7 {
+  return {
+    $schema: "http://json-schema.org/draft-07/schema#",
+    type: "object",
+    additionalProperties: false,
+    required: ["code"],
+    properties: {
+      code: {
+        type: "string",
+        default: code,
+        oneOf: map(currencies, currency => ({
+          const: currency.code,
+          title: `${currency.prefix || currency.suffix} ${currency.code}`
+        }))
+      }
+    }
+  } as JsonSchema7;
+}
+
+export function useInvoiceCurrencyUischema(): UISchemaElement {
+  return {
+    type: "VerticalLayout",
+    elements: [
+      {
+        type: "Control",
+        scope: "#/properties/code",
+        i18n: "form.invoice_currency"
       }
     ]
   } as UISchemaElement;

@@ -2,7 +2,7 @@
   "version": 3,
   "request": {
     "method": "GET",
-    "path": "/api/contracts/0e435795-e78d-1847-728a-31643202d986?with=products.product.image,products.product.brand.currency,cancellation_request,products.status,products.tags,client.image,status,cancellation_request.status&with_staged_imports=1&lang=en",
+    "path": "/api/contracts/98574264-8970-1202-de0b-21e325d0ed36?with=products.clients,products.clients.image,products.clients.brand,products.status,products.product.image,products.product.brand.currency,products.brand.currency,products.product.provision_blueprint,products.product.provision_blueprint.category,products.contract_request,products.future_cancellation_request,products.moved_to_contract_product,products.moved_to_contract_product.clients,products.tags,cancellation_request,client.image,status,cancellation_request.status,payment_details&with_staged_imports=1&lang=en",
     "headers": {
       "Content-Type": "application/json",
       "Accept": "application/json",
@@ -17,14 +17,14 @@
       "access-control-allow-origin": "http://qa-automation.local:5173",
       "cache-control": "no-cache, private",
       "cf-cache-status": "DYNAMIC",
-      "cf-ray": "a42b15af28dfb169-JNB",
+      "cf-ray": "a43bdd9f7bfb90cf-JNB",
       "connection": "keep-alive",
       "content-encoding": "br",
       "content-type": "application/json",
-      "date": "Tue, 29 Sep 2026 12:45:24 GMT",
+      "date": "Thu, 01 Oct 2026 13:38:05 GMT",
       "impersonation": "0",
       "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
-      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=a5475afr0%2ByeeFHz%2FD1wSYvPhu25a0GqVrSPtdXki8Wd2XXHTuWjU3dTcUTorMWn9GFOwlnz2CUghD3TY0RyGkRV9vJWGCRU4WFJInzXm29YkyLFUIqupBjcwC7LMBeA6%2FXu0%2FPvBg%3D%3D\"}]}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=f0kKpCmv4OlBqOpx8QUsT6u6JvhSJBp6rAY1mbOw7fh5msfAAxwR3m3P3i2f5EzaD8L4eKjjIBGL7QB%2BqYCKsyR%2B3NYvbtz9D1Bk8NKT9FveUCndPXYgIHhkRUEMLTGATkqFbEpRUA%3D%3D\"}]}",
       "server": "cloudflare",
       "transfer-encoding": "chunked",
       "vary": "Accept-Encoding",
@@ -33,20 +33,20 @@
     "body": {
       "status": "ok",
       "data": {
-        "id": "0e435795-e78d-1847-728a-31643202d986",
+        "id": "98574264-8970-1202-de0b-21e325d0ed36",
         "import_id": null,
         "staged_import": false,
         "finished_staged_import": null,
         "external_id": null,
         "name": null,
         "notes": null,
-        "start_date": "2026-09-29",
+        "start_date": "2026-10-01",
         "end_date": "0000-00-00",
-        "next_due_date": "2026-10-29",
-        "next_invoice_date": "2026-10-29",
+        "next_due_date": "2026-11-01",
+        "next_invoice_date": "2026-11-01",
         "cancellation_date": null,
         "cancellation_reason": null,
-        "activation_date": "2026-09-29",
+        "activation_date": "2026-10-01",
         "status_id": "4d036794-24d0-e710-94a3-153698d582e8",
         "total_recurrent_amount": 4.8,
         "total_amount": 4.8,
@@ -58,20 +58,20 @@
         "address_id": "d6325079-8065-d1e3-dd8b-8174e234e98d",
         "billing_cycle_months": 1,
         "currency_id": "3825d96e-763e-d091-3dc4-174825283406",
-        "main_invoice_id": "e78642de-5397-145d-8960-a21208469530",
-        "main_invoice_number": "QA-INV-25309",
+        "main_invoice_id": "52098d3d-e409-17e0-d330-a31578626e34",
+        "main_invoice_number": "QA-INV-25848",
         "gateway_id": null,
         "payment_details_id": null,
         "promotion_id": null,
         "promotion_code": null,
-        "created_at": "2026-09-29 12:45:17",
-        "updated_at": "2026-09-29 12:45:22",
+        "created_at": "2026-10-01 13:37:59",
+        "updated_at": "2026-10-01 13:38:04",
         "reseller_account_id": null,
         "client_id": "25d96e76-3ed0-913d-d52c-417482528340",
         "pricelist_id": "825d96e7-63ed-0913-d66c-417482528340",
         "fraud_status": 1,
         "currency_exchange_rate": "1.000000",
-        "locked": "4695fc9f-db7f-4089-a75a-88441784c986",
+        "locked": "f365375b-0458-473d-b6b8-b974727d1c68",
         "billing_cycle_days": 30,
         "reconciliation_strict": 0,
         "tax_type": 0,
@@ -81,7 +81,7 @@
         "partially_moved": false,
         "products": [
           {
-            "id": "0e435795-e78d-1842-209b-31643202d986",
+            "id": "4038696e-5472-1d50-374c-518d9305e7d2",
             "import_id": null,
             "staged_import": false,
             "external_id": null,
@@ -89,7 +89,7 @@
             "brand_id": "2785d26e-9678-3d16-999f-314502e70439",
             "client_id": "25d96e76-3ed0-913d-d52c-417482528340",
             "account_id": "d0367942-4d0e-7109-92eb-3153698d582e",
-            "contract_id": "0e435795-e78d-1847-728a-31643202d986",
+            "contract_id": "98574264-8970-1202-de0b-21e325d0ed36",
             "product_id": "3de78642-de53-9714-76df-21208469530d",
             "name": " Starter Hosting",
             "service_identifier": null,
@@ -109,19 +109,19 @@
             "billing_cycle_months": 1,
             "product_set_id": null,
             "product_group_id": null,
-            "created_at": "2026-09-29 12:45:17",
-            "updated_at": "2026-09-29 12:45:22",
+            "created_at": "2026-10-01 13:37:59",
+            "updated_at": "2026-10-01 13:38:04",
             "deleted_at": null,
             "status_id": "4d036794-24d0-e710-94a3-153698d582e8",
-            "start_date": "2026-09-29",
+            "start_date": "2026-10-01",
             "end_date": null,
             "amount": 4.8,
-            "invoice_id": "e78642de-5397-145d-8960-a21208469530",
-            "invoice_product_id": "5d96e763-ed09-1386-5d3b-417482528340",
-            "next_invoice_date": "2026-10-29",
-            "next_due_date": "2026-10-29",
+            "invoice_id": "52098d3d-e409-17e0-d330-a31578626e34",
+            "invoice_product_id": "0e435795-e78d-1880-446b-31643202d986",
+            "next_invoice_date": "2026-11-01",
+            "next_due_date": "2026-11-01",
             "discount_amount": 0,
-            "last_invoice_id": "e78642de-5397-145d-8960-a21208469530",
+            "last_invoice_id": "52098d3d-e409-17e0-d330-a31578626e34",
             "provision_provider_id": null,
             "provision_configuration_id": null,
             "provision_setup_fields_confirmed": true,
@@ -129,9 +129,9 @@
             "provision_center_id": null,
             "main_contracts_product_id": null,
             "provision_lock": 0,
-            "calculated_suspend_date": "2026-11-28",
-            "calculated_cancel_date": "2026-12-13",
-            "calculated_close_date": "2026-12-28",
+            "calculated_suspend_date": "2026-12-01",
+            "calculated_cancel_date": "2026-12-16",
+            "calculated_close_date": "2026-12-31",
             "suspend_interval": 30,
             "cancel_interval": 45,
             "close_interval": 60,
@@ -147,7 +147,7 @@
             "total_amount": 4.8,
             "total_discount_amount": 0,
             "is_provisioned": true,
-            "activation_date": "2026-09-29",
+            "activation_date": "2026-10-01",
             "billing_cycle_days": 30,
             "suspended_date": null,
             "cancelled_date": null,
@@ -158,13 +158,13 @@
             "next_invoice_date_archive": null,
             "original_product_id": null,
             "price_type": "pricelist",
-            "main_invoice_id": "e78642de-5397-145d-8960-a21208469530",
-            "main_invoice_number": "QA-INV-25309",
+            "main_invoice_id": "52098d3d-e409-17e0-d330-a31578626e34",
+            "main_invoice_number": "QA-INV-25848",
             "manual_status": false,
             "auto_create_renew_invoice": true,
             "payment_days_term": 0,
             "create_invoice_term": 0,
-            "expire_notice_date": "2026-10-15",
+            "expire_notice_date": "2026-10-18",
             "accounting_revenue_recognition": 0,
             "moved_from_contract_product_id": null,
             "moved_to_contract_product_id": null,
@@ -241,7 +241,7 @@
             },
             "recommended_money_back_period": 45,
             "active_for_months": 0,
-            "due_in_days": 30,
+            "due_in_days": 31,
             "tax_entity_details": {
               "company_name": "Spencer, Aufderhar and Willms",
               "company_tax_number": "",
@@ -255,7 +255,7 @@
               "address_2": ""
             },
             "tax_entity_hash": "a7f50f05d5f8519b0e1e4afa43f38740",
-            "calculated_next_invoice_due_date": "2026-10-29",
+            "calculated_next_invoice_due_date": "2026-11-01",
             "promotion_codes": null,
             "is_parent": null,
             "is_delegated_object": false,
@@ -480,7 +480,7 @@
                 "id": "2785d26e-9678-3d16-999f-314502e70439",
                 "name": "QA Automation Testing",
                 "created_at": "2025-05-07 08:38:43",
-                "updated_at": "2026-09-29 12:45:12",
+                "updated_at": "2026-10-01 13:35:11",
                 "code": "kn6x1dzbtcgb",
                 "brand_type": 1,
                 "reseller_account_id": null,
@@ -541,11 +541,629 @@
                   "id": "68d63250-7980-65d1-e6f8-174e234e98d2",
                   "name": "product_image"
                 }
+              },
+              "provision_blueprint": {
+                "id": "3825d96e-763e-d091-3dc4-174825283406",
+                "code": "shared-hosting",
+                "org_id": "sys",
+                "default": true,
+                "parent_id": null,
+                "category_id": "85d085e6-9d56-2371-9ea2-18e940d42370",
+                "provider_id": null,
+                "activation_mode": "function",
+                "name": "Web Hosting",
+                "service_name": "web hosting",
+                "description": "This blueprint enables basic provisioning/management of web hosting accounts",
+                "enabled": true,
+                "service_identifier_template": null,
+                "unique_service_identifier": null,
+                "created_at": "2020-07-23 00:57:15",
+                "updated_at": "2022-11-11 12:58:35",
+                "deleted_at": null,
+                "service_name_code": "shared-hosting",
+                "service_name_translated": "web hosting",
+                "name_translated": "Web Hosting",
+                "description_translated": "This blueprint enables basic provisioning/management of web hosting accounts",
+                "translations": [
+                  {
+                    "id": "20403869-6e54-721d-57eb-518d9305e7d2",
+                    "language_id": "825d96e7-63ed-0913-ddf4-174825283406",
+                    "language_code": "az",
+                    "translated_fields": {
+                      "service_name": "Veb Hostinq"
+                    },
+                    "created_at": "2026-09-29 07:48:32",
+                    "updated_at": "2026-09-29 07:48:32",
+                    "deleted_at": null,
+                    "object_type": "provision_blueprint",
+                    "object_id": "3825d96e-763e-d091-3dc4-174825283406",
+                    "service_name": "Veb Hostinq"
+                  },
+                  {
+                    "id": "47d73824-8507-9315-3d2c-81e642d59e06",
+                    "language_id": "57898574-2648-9701-25c2-1e325d0ed369",
+                    "language_code": "bg",
+                    "translated_fields": {
+                      "service_name": "уеб хостинг"
+                    },
+                    "created_at": "2026-09-29 07:48:32",
+                    "updated_at": "2026-09-29 07:48:32",
+                    "deleted_at": null,
+                    "object_type": "provision_blueprint",
+                    "object_id": "3825d96e-763e-d091-3dc4-174825283406",
+                    "service_name": "уеб хостинг"
+                  },
+                  {
+                    "id": "78985742-6489-7012-004a-21e325d0ed36",
+                    "language_id": "3de78642-de53-9714-7ec2-1208469530d0",
+                    "language_code": "cs",
+                    "translated_fields": {
+                      "service_name": "Webhosting"
+                    },
+                    "created_at": "2026-09-29 07:48:32",
+                    "updated_at": "2026-09-29 07:48:32",
+                    "deleted_at": null,
+                    "object_type": "provision_blueprint",
+                    "object_id": "3825d96e-763e-d091-3dc4-174825283406",
+                    "service_name": "Webhosting"
+                  },
+                  {
+                    "id": "78985742-6489-7012-44f2-1e325d0ed369",
+                    "language_id": "85d085e6-9d56-2371-9ea2-18e940d42370",
+                    "language_code": "da",
+                    "translated_fields": {
+                      "service_name": "Webhosting"
+                    },
+                    "created_at": "2026-09-29 07:48:31",
+                    "updated_at": "2026-09-29 07:48:31",
+                    "deleted_at": null,
+                    "object_type": "provision_blueprint",
+                    "object_id": "3825d96e-763e-d091-3dc4-174825283406",
+                    "service_name": "Webhosting"
+                  },
+                  {
+                    "id": "8d632507-9806-5d1e-37ef-8174e234e98d",
+                    "language_id": "73de7864-2de5-3971-4ef2-1208469530d0",
+                    "language_code": "de",
+                    "translated_fields": {
+                      "service_name": "Web-Hosting"
+                    },
+                    "created_at": "2026-09-29 07:48:31",
+                    "updated_at": "2026-09-29 07:48:31",
+                    "deleted_at": null,
+                    "object_type": "provision_blueprint",
+                    "object_id": "3825d96e-763e-d091-3dc4-174825283406",
+                    "service_name": "Web-Hosting"
+                  },
+                  {
+                    "id": "5952098d-3de4-0917-e05b-31578626e347",
+                    "language_id": "9320e435-795e-78d1-88a3-1643202d9860",
+                    "language_code": "el",
+                    "translated_fields": {
+                      "service_name": "web hosting"
+                    },
+                    "created_at": "2026-09-29 07:48:32",
+                    "updated_at": "2026-09-29 07:48:32",
+                    "deleted_at": null,
+                    "object_type": "provision_blueprint",
+                    "object_id": "3825d96e-763e-d091-3dc4-174825283406",
+                    "service_name": "web hosting"
+                  },
+                  {
+                    "id": "3de78642-de53-9714-32c2-1208469530d0",
+                    "language_id": "3825d96e-763e-d091-3dc4-174825283406",
+                    "language_code": "en",
+                    "translated_fields": {
+                      "service_name": "web hosting",
+                      "name": "Web Hosting",
+                      "description": "This blueprint enables basic provisioning/management of web hosting accounts"
+                    },
+                    "created_at": "2026-09-29 07:48:31",
+                    "updated_at": "2026-09-29 07:48:31",
+                    "deleted_at": null,
+                    "object_type": "provision_blueprint",
+                    "object_id": "3825d96e-763e-d091-3dc4-174825283406",
+                    "service_name": "web hosting",
+                    "name": "Web Hosting",
+                    "description": "This blueprint enables basic provisioning/management of web hosting accounts"
+                  },
+                  {
+                    "id": "8d632507-9806-5d1e-33eb-8174e234e98d",
+                    "language_id": "5d085e69-d562-3719-4eb2-18e940d42370",
+                    "language_code": "en-US",
+                    "translated_fields": {
+                      "service_name": "web hosting"
+                    },
+                    "created_at": "2026-09-29 07:48:32",
+                    "updated_at": "2026-09-29 07:48:32",
+                    "deleted_at": null,
+                    "object_type": "provision_blueprint",
+                    "object_id": "3825d96e-763e-d091-3dc4-174825283406",
+                    "service_name": "web hosting"
+                  },
+                  {
+                    "id": "825d96e7-63ed-0913-d36b-417482528340",
+                    "language_id": "e47d7382-4850-7931-56c8-1e642d59e063",
+                    "language_code": "es",
+                    "translated_fields": {
+                      "service_name": "alojamiento web"
+                    },
+                    "created_at": "2026-09-29 07:48:31",
+                    "updated_at": "2026-09-29 07:48:31",
+                    "deleted_at": null,
+                    "object_type": "provision_blueprint",
+                    "object_id": "3825d96e-763e-d091-3dc4-174825283406",
+                    "service_name": "alojamiento web"
+                  },
+                  {
+                    "id": "20403869-6e54-721d-55ea-518d9305e7d2",
+                    "language_id": "47d73824-8507-9315-76a8-1e642d59e063",
+                    "language_code": "es-419",
+                    "translated_fields": {
+                      "service_name": "web hosting"
+                    },
+                    "created_at": "2026-09-29 07:48:32",
+                    "updated_at": "2026-09-29 07:48:32",
+                    "deleted_at": null,
+                    "object_type": "provision_blueprint",
+                    "object_id": "3825d96e-763e-d091-3dc4-174825283406",
+                    "service_name": "web hosting"
+                  },
+                  {
+                    "id": "2785d26e-9678-3d16-707f-314502e70439",
+                    "language_id": "68d63250-7980-65d1-e6f8-174e234e98d2",
+                    "language_code": "fr",
+                    "translated_fields": {
+                      "service_name": "hébergement Web"
+                    },
+                    "created_at": "2026-09-29 07:48:31",
+                    "updated_at": "2026-09-29 07:48:31",
+                    "deleted_at": null,
+                    "object_type": "provision_blueprint",
+                    "object_id": "3825d96e-763e-d091-3dc4-174825283406",
+                    "service_name": "hébergement Web"
+                  },
+                  {
+                    "id": "47d73824-8507-9315-332f-81e642d59e06",
+                    "language_id": "4d036794-24d0-e710-44f3-153698d582e8",
+                    "language_code": "fr-CA",
+                    "translated_fields": {
+                      "service_name": "hébergement Web"
+                    },
+                    "created_at": "2026-09-29 07:48:32",
+                    "updated_at": "2026-09-29 07:48:32",
+                    "deleted_at": null,
+                    "object_type": "provision_blueprint",
+                    "object_id": "3825d96e-763e-d091-3dc4-174825283406",
+                    "service_name": "hébergement Web"
+                  },
+                  {
+                    "id": "5d085e69-d562-3719-7e4f-218e940d4237",
+                    "language_id": "825d96e7-63ed-0913-5dc4-174825283406",
+                    "language_code": "hu",
+                    "translated_fields": {
+                      "service_name": "Webtárhely"
+                    },
+                    "created_at": "2026-09-29 07:48:32",
+                    "updated_at": "2026-09-29 07:48:32",
+                    "deleted_at": null,
+                    "object_type": "provision_blueprint",
+                    "object_id": "3825d96e-763e-d091-3dc4-174825283406",
+                    "service_name": "Webtárhely"
+                  },
+                  {
+                    "id": "78985742-6489-7012-064b-21e325d0ed36",
+                    "language_id": "47d73824-8507-9315-36f8-1e642d59e063",
+                    "language_code": "id",
+                    "translated_fields": {
+                      "service_name": "Hosting Web"
+                    },
+                    "created_at": "2026-09-29 07:48:32",
+                    "updated_at": "2026-09-29 07:48:32",
+                    "deleted_at": null,
+                    "object_type": "provision_blueprint",
+                    "object_id": "3825d96e-763e-d091-3dc4-174825283406",
+                    "service_name": "Hosting Web"
+                  },
+                  {
+                    "id": "4d036794-24d0-e710-937b-3153698d582e",
+                    "language_id": "72040386-96e5-4721-d9b5-18d9305e7d23",
+                    "language_code": "it",
+                    "translated_fields": {
+                      "service_name": "Web hosting"
+                    },
+                    "created_at": "2026-09-29 07:48:31",
+                    "updated_at": "2026-09-29 07:48:31",
+                    "deleted_at": null,
+                    "object_type": "provision_blueprint",
+                    "object_id": "3825d96e-763e-d091-3dc4-174825283406",
+                    "service_name": "Web hosting"
+                  },
+                  {
+                    "id": "320e4357-95e7-8d18-44ef-31643202d986",
+                    "language_id": "20403869-6e54-721d-59a5-18d9305e7d23",
+                    "language_code": "nb",
+                    "translated_fields": {
+                      "service_name": "Webhotell"
+                    },
+                    "created_at": "2026-09-29 07:48:32",
+                    "updated_at": "2026-09-29 07:48:32",
+                    "deleted_at": null,
+                    "object_type": "provision_blueprint",
+                    "object_id": "3825d96e-763e-d091-3dc4-174825283406",
+                    "service_name": "Webhotell"
+                  },
+                  {
+                    "id": "3de78642-de53-9714-5d2f-21208469530d",
+                    "language_id": "8d632507-9806-5d1e-36b8-174e234e98d2",
+                    "language_code": "nl",
+                    "translated_fields": {
+                      "service_name": "web hosting"
+                    },
+                    "created_at": "2026-09-29 07:48:32",
+                    "updated_at": "2026-09-29 07:48:32",
+                    "deleted_at": null,
+                    "object_type": "provision_blueprint",
+                    "object_id": "3825d96e-763e-d091-3dc4-174825283406",
+                    "service_name": "web hosting"
+                  },
+                  {
+                    "id": "320e4357-95e7-8d18-4eec-31643202d986",
+                    "language_id": "24d03679-424d-0e71-04b3-153698d582e8",
+                    "language_code": "pl",
+                    "translated_fields": {
+                      "service_name": "hosting"
+                    },
+                    "created_at": "2026-09-29 07:48:31",
+                    "updated_at": "2026-09-29 07:48:31",
+                    "deleted_at": null,
+                    "object_type": "provision_blueprint",
+                    "object_id": "3825d96e-763e-d091-3dc4-174825283406",
+                    "service_name": "hosting"
+                  },
+                  {
+                    "id": "5d085e69-d562-3719-724a-218e940d4237",
+                    "language_id": "45952098-d3de-4091-76a3-1578626e347e",
+                    "language_code": "pt",
+                    "translated_fields": {
+                      "service_name": "Hospedagem de sites"
+                    },
+                    "created_at": "2026-09-29 07:48:31",
+                    "updated_at": "2026-09-29 07:48:31",
+                    "deleted_at": null,
+                    "object_type": "provision_blueprint",
+                    "object_id": "3825d96e-763e-d091-3dc4-174825283406",
+                    "service_name": "Hospedagem de sites"
+                  },
+                  {
+                    "id": "2785d26e-9678-3d16-7e7a-314502e70439",
+                    "language_id": "320e4357-95e7-8d18-08b3-1643202d9860",
+                    "language_code": "pt-BR",
+                    "translated_fields": {
+                      "service_name": "Hospedagem de sites"
+                    },
+                    "created_at": "2026-09-29 07:48:32",
+                    "updated_at": "2026-09-29 07:48:32",
+                    "deleted_at": null,
+                    "object_type": "provision_blueprint",
+                    "object_id": "3825d96e-763e-d091-3dc4-174825283406",
+                    "service_name": "Hospedagem de sites"
+                  },
+                  {
+                    "id": "3de78642-de53-9714-552b-21208469530d",
+                    "language_id": "20403869-6e54-721d-29f5-18d9305e7d23",
+                    "language_code": "ro",
+                    "translated_fields": {
+                      "service_name": "Gazduire web"
+                    },
+                    "created_at": "2026-09-29 07:48:32",
+                    "updated_at": "2026-09-29 07:48:32",
+                    "deleted_at": null,
+                    "object_type": "provision_blueprint",
+                    "object_id": "3825d96e-763e-d091-3dc4-174825283406",
+                    "service_name": "Gazduire web"
+                  },
+                  {
+                    "id": "4d036794-24d0-e710-997a-3153698d582e",
+                    "language_id": "2785d26e-9678-3d16-e0a3-14502e70439d",
+                    "language_code": "ru",
+                    "translated_fields": {
+                      "service_name": "Веб хостинг"
+                    },
+                    "created_at": "2026-09-29 07:48:32",
+                    "updated_at": "2026-09-29 07:48:32",
+                    "deleted_at": null,
+                    "object_type": "provision_blueprint",
+                    "object_id": "3825d96e-763e-d091-3dc4-174825283406",
+                    "service_name": "Веб хостинг"
+                  },
+                  {
+                    "id": "320e4357-95e7-8d18-47eb-31643202d986",
+                    "language_id": "78985742-6489-7012-85a2-1e325d0ed369",
+                    "language_code": "sk",
+                    "translated_fields": {
+                      "service_name": "Webhosting"
+                    },
+                    "created_at": "2026-09-29 07:48:32",
+                    "updated_at": "2026-09-29 07:48:32",
+                    "deleted_at": null,
+                    "object_type": "provision_blueprint",
+                    "object_id": "3825d96e-763e-d091-3dc4-174825283406",
+                    "service_name": "Webhosting"
+                  },
+                  {
+                    "id": "825d96e7-63ed-0913-d66c-417482528340",
+                    "language_id": "2785d26e-9678-3d16-40f3-14502e70439d",
+                    "language_code": "sv",
+                    "translated_fields": {
+                      "service_name": "Webbhotell"
+                    },
+                    "created_at": "2026-09-29 07:48:32",
+                    "updated_at": "2026-09-29 07:48:32",
+                    "deleted_at": null,
+                    "object_type": "provision_blueprint",
+                    "object_id": "3825d96e-763e-d091-3dc4-174825283406",
+                    "service_name": "Webbhotell"
+                  },
+                  {
+                    "id": "2785d26e-9678-3d16-777b-314502e70439",
+                    "language_id": "3de78642-de53-9714-5eb2-1208469530d0",
+                    "language_code": "tr",
+                    "translated_fields": {
+                      "service_name": "web barındırma"
+                    },
+                    "created_at": "2026-09-29 07:48:32",
+                    "updated_at": "2026-09-29 07:48:32",
+                    "deleted_at": null,
+                    "object_type": "provision_blueprint",
+                    "object_id": "3825d96e-763e-d091-3dc4-174825283406",
+                    "service_name": "web barındırma"
+                  },
+                  {
+                    "id": "825d96e7-63ed-0913-dd6a-417482528340",
+                    "language_id": "78985742-6489-7012-05f2-1e325d0ed369",
+                    "language_code": "uk",
+                    "translated_fields": {
+                      "service_name": "веб хостинг"
+                    },
+                    "created_at": "2026-09-29 07:48:32",
+                    "updated_at": "2026-09-29 07:48:32",
+                    "deleted_at": null,
+                    "object_type": "provision_blueprint",
+                    "object_id": "3825d96e-763e-d091-3dc4-174825283406",
+                    "service_name": "веб хостинг"
+                  },
+                  {
+                    "id": "5d085e69-d562-3719-774c-218e940d4237",
+                    "language_id": "320e4357-95e7-8d18-48c3-1643202d9860",
+                    "language_code": "ur",
+                    "translated_fields": {
+                      "service_name": "ویب ہوسٹنگ"
+                    },
+                    "created_at": "2026-09-29 07:48:32",
+                    "updated_at": "2026-09-29 07:48:32",
+                    "deleted_at": null,
+                    "object_type": "provision_blueprint",
+                    "object_id": "3825d96e-763e-d091-3dc4-174825283406",
+                    "service_name": "ویب ہوسٹنگ"
+                  },
+                  {
+                    "id": "5952098d-3de4-0917-ee5a-31578626e347",
+                    "language_id": "8d632507-9806-5d1e-d6c8-174e234e98d2",
+                    "language_code": "zh-TW",
+                    "translated_fields": {
+                      "service_name": "虛擬主機"
+                    },
+                    "created_at": "2026-09-29 07:48:32",
+                    "updated_at": "2026-09-29 07:48:32",
+                    "deleted_at": null,
+                    "object_type": "provision_blueprint",
+                    "object_id": "3825d96e-763e-d091-3dc4-174825283406",
+                    "service_name": "虛擬主機"
+                  }
+                ],
+                "category": {
+                  "id": "85d085e6-9d56-2371-9ea2-18e940d42370",
+                  "code": "shared-hosting",
+                  "name": "Web Hosting",
+                  "description": "Provision and manage accounts on common web hosting platforms such as cPanel/WHM and Plesk",
+                  "enabled": true,
+                  "private": false,
+                  "order": 0,
+                  "created_at": "2020-07-23 00:57:13",
+                  "updated_at": "2022-03-02 16:44:06",
+                  "deleted_at": null
+                }
               }
             },
+            "clients": [
+              {
+                "id": "25d96e76-3ed0-913d-d52c-417482528340",
+                "import_id": null,
+                "staged_import": false,
+                "external_id": null,
+                "support_pin": null,
+                "support_pin_expiry_datetime": null,
+                "firstname": "Checkout",
+                "lastname": "Test",
+                "public_name": "Checkout T.",
+                "has_login": true,
+                "email": "mock-email-2@example.com",
+                "username": "mock-email-2@example.com",
+                "location_source": "default_address",
+                "location_town": "London",
+                "location_country_code": "IS",
+                "location_ip": null,
+                "user_id": "sys",
+                "created_at": "2025-06-02 16:00:34",
+                "updated_at": "2026-10-01 13:36:48",
+                "reseller_account_id": null,
+                "interface_language_id": "3825d96e-763e-d091-3dc4-174825283406",
+                "document_language_id": "3825d96e-763e-d091-3dc4-174825283406",
+                "deleted_at": null,
+                "verified": true,
+                "apply_credit": 0,
+                "credit": null,
+                "consolidate_invoice": 0,
+                "consolidation_day": null,
+                "bf_id": "none",
+                "ip_address": null,
+                "enabled_2fa": false,
+                "provider_2fa_id": "85d085e6-9d56-2371-9ea2-18e940d42370",
+                "org_id": "5d085e69-d562-3719-e46c-218e940d4237",
+                "picture": 0,
+                "brand_id": "2785d26e-9678-3d16-999f-314502e70439",
+                "last_login": "2026-10-01 13:36:48",
+                "last_password_change_at": "mock-last_password_change_at",
+                "fraud_policy": 3,
+                "fraud_status": 1,
+                "failed_login_attempts": 0,
+                "failed_2fa_attempts": 0,
+                "is_guest": false,
+                "notifications_disabled": false,
+                "meta": {
+                  "ui/support/submitWithShortcut": true,
+                  "ui/support/newLineKey": "mock-ui/support/newLineKey",
+                  "ui/support/limit": 25
+                },
+                "order_template_code": null,
+                "invoice_consolidation_enabled": 1,
+                "invoice_consolidation_base_rule": "date_of_month",
+                "invoice_consolidation_base_rule_date_of_month_day": 1,
+                "invoice_consolidation_base_rule_day_of_week": null,
+                "invoice_consolidation_due_date_day": null,
+                "block_new_tickets_from_email": false,
+                "tax_type": 0,
+                "tax_exempt_code": null,
+                "tax_exempt_number": null,
+                "before_due_date_charge_interval": null,
+                "before_due_date_charge_interval_dd": null,
+                "never_suspend": true,
+                "never_cancel": false,
+                "never_close": false,
+                "status_id": "825d96e7-63ed-0913-0dc4-174825283406",
+                "number": null,
+                "allow_cancellation_with_overdue": false,
+                "interface_language_code": "en",
+                "document_language_code": "en",
+                "fullname": "Checkout Test",
+                "secret_2fa_exists": true,
+                "image_url": "https://www.gravatar.com/avatar/b1669c49335e93cf10e18f3e6d448714?d=blank&s=200",
+                "topup_enabled": null,
+                "upmind_package_limits": [],
+                "has_legacy_invoices": false,
+                "settings": [],
+                "pivot": {
+                  "account_id": "d0367942-4d0e-7109-92eb-3153698d582e",
+                  "client_id": "25d96e76-3ed0-913d-d52c-417482528340"
+                },
+                "default_email": {
+                  "id": "20e43579-5e78-d184-430c-31643202d986",
+                  "import_id": null,
+                  "staged_import": false,
+                  "external_id": null,
+                  "client_id": "25d96e76-3ed0-913d-d52c-417482528340",
+                  "user_id": "sys",
+                  "type": 1,
+                  "default": true,
+                  "verified": true,
+                  "email": "mock-email-2@example.com",
+                  "receive_emails": false,
+                  "bounced": false,
+                  "created_at": "2025-06-02 16:00:35",
+                  "updated_at": "2026-09-25 17:57:52",
+                  "bounced_at": null,
+                  "can_delete": false
+                },
+                "parent_client_config": null,
+                "image": null,
+                "brand": {
+                  "id": "2785d26e-9678-3d16-999f-314502e70439",
+                  "name": "QA Automation Testing",
+                  "created_at": "2025-05-07 08:38:43",
+                  "updated_at": "2026-10-01 13:35:11",
+                  "code": "kn6x1dzbtcgb",
+                  "brand_type": 1,
+                  "reseller_account_id": null,
+                  "currency_id": "3825d96e-763e-d091-3dc4-174825283406",
+                  "pricelist_id": "825d96e7-63ed-0913-d66c-417482528340",
+                  "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+                  "company_name": "QA Automation Testing",
+                  "vat_number": "GB12345678",
+                  "company_address": "123",
+                  "company_phone": "",
+                  "company_email": "mock-email-1@example.com",
+                  "tax_type": 0,
+                  "language_id": "3825d96e-763e-d091-3dc4-174825283406",
+                  "prefix": "kn6x1dzbtcgb",
+                  "autoapply": 1,
+                  "payment_days_term": 0,
+                  "create_invoice_term": 0,
+                  "user_id": "sys",
+                  "deleted_at": null,
+                  "org_id": "5d085e69-d562-3719-e46c-218e940d4237",
+                  "vat_exempt": 0,
+                  "non_recurring_due_interval": 0,
+                  "notifications_disabled": false,
+                  "wipe_data": false,
+                  "demo_data_import_id": null,
+                  "region_id": null,
+                  "domain": "kn6x1dzbtcgb.staging.upmind.dev",
+                  "has_demo_data": false
+                }
+              }
+            ],
+            "brand": {
+              "id": "2785d26e-9678-3d16-999f-314502e70439",
+              "name": "QA Automation Testing",
+              "created_at": "2025-05-07 08:38:43",
+              "updated_at": "2026-10-01 13:35:11",
+              "code": "kn6x1dzbtcgb",
+              "brand_type": 1,
+              "reseller_account_id": null,
+              "currency_id": "3825d96e-763e-d091-3dc4-174825283406",
+              "pricelist_id": "825d96e7-63ed-0913-d66c-417482528340",
+              "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+              "company_name": "QA Automation Testing",
+              "vat_number": "GB12345678",
+              "company_address": "123",
+              "company_phone": "",
+              "company_email": "mock-email-1@example.com",
+              "tax_type": 0,
+              "language_id": "3825d96e-763e-d091-3dc4-174825283406",
+              "prefix": "kn6x1dzbtcgb",
+              "autoapply": 1,
+              "payment_days_term": 0,
+              "create_invoice_term": 0,
+              "user_id": "sys",
+              "deleted_at": null,
+              "org_id": "5d085e69-d562-3719-e46c-218e940d4237",
+              "vat_exempt": 0,
+              "non_recurring_due_interval": 0,
+              "notifications_disabled": false,
+              "wipe_data": false,
+              "demo_data_import_id": null,
+              "region_id": null,
+              "domain": "kn6x1dzbtcgb.staging.upmind.dev",
+              "has_demo_data": false,
+              "currency": {
+                "id": "3825d96e-763e-d091-3dc4-174825283406",
+                "name": "British Pound",
+                "prefix": "£",
+                "suffix": "",
+                "code": "GBP",
+                "created_at": "2017-10-18 14:16:22",
+                "updated_at": "2026-09-28 11:08:14",
+                "base": true,
+                "decimals": true,
+                "manual": 0
+              }
+            },
+            "contract_request": null,
+            "future_cancellation_request": null,
+            "moved_to_contract_product": null,
             "tags": [],
-            "unpaid_recurring_invoices": [],
-            "contract_request": null
+            "unpaid_recurring_invoices": []
           }
         ],
         "total_recurrent_amount_formatted": "£4.80",
@@ -582,7 +1200,7 @@
           "location_ip": null,
           "user_id": "sys",
           "created_at": "2025-06-02 16:00:34",
-          "updated_at": "2026-09-29 12:44:12",
+          "updated_at": "2026-10-01 13:36:48",
           "reseller_account_id": null,
           "interface_language_id": "3825d96e-763e-d091-3dc4-174825283406",
           "document_language_id": "3825d96e-763e-d091-3dc4-174825283406",
@@ -599,7 +1217,7 @@
           "org_id": "5d085e69-d562-3719-e46c-218e940d4237",
           "picture": 0,
           "brand_id": "2785d26e-9678-3d16-999f-314502e70439",
-          "last_login": "2026-09-29 12:44:12",
+          "last_login": "2026-10-01 13:36:48",
           "last_password_change_at": "mock-last_password_change_at",
           "fraud_policy": 3,
           "fraud_status": 1,
@@ -666,7 +1284,8 @@
           "code": "contract_active",
           "order": 3,
           "name": "Active"
-        }
+        },
+        "payment_details": null
       },
       "related": null,
       "total": null,
@@ -675,7 +1294,7 @@
       "meta": null
     }
   },
-  "captured_at": "2026-09-29T12:45:24.302Z",
+  "captured_at": "2026-10-01T13:38:05.831Z",
   "brand_domain": "qa-automation.local",
   "source": "case",
   "provenance": {

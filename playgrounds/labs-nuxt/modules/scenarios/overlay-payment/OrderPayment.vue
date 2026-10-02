@@ -20,7 +20,7 @@
       v-show="!meta.isProcessing"
       :label="t('action.pay_now')"
       :processing="meta.isProcessing"
-      @resolve="order.pay"
+      @resolve="pay"
     />
 
     <slot :meta="meta" />
@@ -70,7 +70,7 @@ await order.useActions().isReady();
 
 const { model: invoice } = order.useContext();
 const invoiceMeta = order.useMeta();
-const { renderChallenge, cancelChallenge } = order.useActions();
+const { cancelChallenge, pay, renderChallenge } = order.useActions();
 const { paymentDetail } = order.useInternals();
 const { currencies } = useBrand();
 

@@ -56,7 +56,22 @@
           "default_value": null,
           "defer_mode": "none",
           "label_translated": "Domain (SLD)",
-          "translations": []
+          "translations": [
+            {
+              "id": "320e4357-95e7-8d18-484f-31643202d986",
+              "language_id": "3825d96e-763e-d091-3dc4-174825283406",
+              "language_code": "en",
+              "translated_fields": {
+                "label": "Domain (SLD)"
+              },
+              "created_at": "2026-09-29 07:48:36",
+              "updated_at": "2026-09-29 07:48:36",
+              "deleted_at": null,
+              "object_type": "provision_blueprint_field",
+              "object_id": "78985742-6489-7012-05f2-1e325d0ed369",
+              "label": "Domain (SLD)"
+            }
+          ]
         },
         {
           "id": "78985742-6489-7012-85a2-1e325d0ed369",
@@ -92,7 +107,22 @@
           "default_value": null,
           "defer_mode": "none",
           "label_translated": "Registrant Name",
-          "translations": []
+          "translations": [
+            {
+              "id": "78985742-6489-7012-286c-21e325d0ed36",
+              "language_id": "3825d96e-763e-d091-3dc4-174825283406",
+              "language_code": "en",
+              "translated_fields": {
+                "label": "Registrant Name"
+              },
+              "created_at": "2026-09-29 07:48:37",
+              "updated_at": "2026-09-29 07:48:37",
+              "deleted_at": null,
+              "object_type": "provision_blueprint_field",
+              "object_id": "78985742-6489-7012-85a2-1e325d0ed369",
+              "label": "Registrant Name"
+            }
+          ]
         },
         {
           "id": "320e4357-95e7-8d18-08b3-1643202d9860",
@@ -128,7 +158,22 @@
           "default_value": null,
           "defer_mode": "none",
           "label_translated": "Registrant Organisation",
-          "translations": []
+          "translations": [
+            {
+              "id": "320e4357-95e7-8d18-704c-31643202d986",
+              "language_id": "3825d96e-763e-d091-3dc4-174825283406",
+              "language_code": "en",
+              "translated_fields": {
+                "label": "Registrant Organisation"
+              },
+              "created_at": "2026-09-29 07:48:37",
+              "updated_at": "2026-09-29 07:48:37",
+              "deleted_at": null,
+              "object_type": "provision_blueprint_field",
+              "object_id": "320e4357-95e7-8d18-08b3-1643202d9860",
+              "label": "Registrant Organisation"
+            }
+          ]
         },
         {
           "id": "2785d26e-9678-3d16-40f3-14502e70439d",
@@ -160,7 +205,22 @@
           "default_value": null,
           "defer_mode": "none",
           "label_translated": "Registrant Email",
-          "translations": []
+          "translations": [
+            {
+              "id": "2785d26e-9678-3d16-e9eb-314502e70439",
+              "language_id": "3825d96e-763e-d091-3dc4-174825283406",
+              "language_code": "en",
+              "translated_fields": {
+                "label": "Registrant Email"
+              },
+              "created_at": "2026-09-29 07:48:37",
+              "updated_at": "2026-09-29 07:48:37",
+              "deleted_at": null,
+              "object_type": "provision_blueprint_field",
+              "object_id": "2785d26e-9678-3d16-40f3-14502e70439d",
+              "label": "Registrant Email"
+            }
+          ]
         },
         {
           "id": "825d96e7-63ed-0913-5dc4-174825283406",
@@ -192,7 +252,22 @@
           "default_value": null,
           "defer_mode": "none",
           "label_translated": "Registrant Phone",
-          "translations": []
+          "translations": [
+            {
+              "id": "825d96e7-63ed-0913-677f-417482528340",
+              "language_id": "3825d96e-763e-d091-3dc4-174825283406",
+              "language_code": "en",
+              "translated_fields": {
+                "label": "Registrant Phone"
+              },
+              "created_at": "2026-09-29 07:48:37",
+              "updated_at": "2026-09-29 07:48:37",
+              "deleted_at": null,
+              "object_type": "provision_blueprint_field",
+              "object_id": "825d96e7-63ed-0913-5dc4-174825283406",
+              "label": "Registrant Phone"
+            }
+          ]
         },
         {
           "id": "5d085e69-d562-3719-6ea2-18e940d42370",
@@ -224,7 +299,22 @@
           "default_value": null,
           "defer_mode": "none",
           "label_translated": "Registrant Address 1",
-          "translations": []
+          "translations": [
+            {
+              "id": "5d085e69-d562-3719-e46c-218e940d4237",
+              "language_id": "3825d96e-763e-d091-3dc4-174825283406",
+              "language_code": "en",
+              "translated_fields": {
+                "label": "Registrant Address 1"
+              },
+              "created_at": "2026-09-29 07:48:37",
+              "updated_at": "2026-09-29 07:48:37",
+              "deleted_at": null,
+              "object_type": "provision_blueprint_field",
+              "object_id": "5d085e69-d562-3719-6ea2-18e940d42370",
+              "label": "Registrant Address 1"
+            }
+          ]
         },
         {
           "id": "4d036794-24d0-e710-74b3-153698d582e8",
@@ -256,7 +346,22 @@
           "default_value": null,
           "defer_mode": "none",
           "label_translated": "Registrant City",
-          "translations": []
+          "translations": [
+            {
+              "id": "4d036794-24d0-e710-245a-3153698d582e",
+              "language_id": "3825d96e-763e-d091-3dc4-174825283406",
+              "language_code": "en",
+              "translated_fields": {
+                "label": "Registrant City"
+              },
+              "created_at": "2026-09-29 07:48:37",
+              "updated_at": "2026-09-29 07:48:37",
+              "deleted_at": null,
+              "object_type": "provision_blueprint_field",
+              "object_id": "4d036794-24d0-e710-74b3-153698d582e8",
+              "label": "Registrant City"
+            }
+          ]
         },
         {
           "id": "3de78642-de53-9714-32c2-1208469530d0",
@@ -288,7 +393,22 @@
           "default_value": null,
           "defer_mode": "none",
           "label_translated": "Registrant State",
-          "translations": []
+          "translations": [
+            {
+              "id": "8d632507-9806-5d1e-5d2f-8174e234e98d",
+              "language_id": "3825d96e-763e-d091-3dc4-174825283406",
+              "language_code": "en",
+              "translated_fields": {
+                "label": "Registrant State"
+              },
+              "created_at": "2026-09-29 07:48:37",
+              "updated_at": "2026-09-29 07:48:37",
+              "deleted_at": null,
+              "object_type": "provision_blueprint_field",
+              "object_id": "3de78642-de53-9714-32c2-1208469530d0",
+              "label": "Registrant State"
+            }
+          ]
         },
         {
           "id": "8d632507-9806-5d1e-66f8-174e234e98d2",
@@ -320,7 +440,22 @@
           "default_value": null,
           "defer_mode": "none",
           "label_translated": "Registrant Postcode",
-          "translations": []
+          "translations": [
+            {
+              "id": "47d73824-8507-9315-e75f-81e642d59e06",
+              "language_id": "3825d96e-763e-d091-3dc4-174825283406",
+              "language_code": "en",
+              "translated_fields": {
+                "label": "Registrant Postcode"
+              },
+              "created_at": "2026-09-29 07:48:37",
+              "updated_at": "2026-09-29 07:48:37",
+              "deleted_at": null,
+              "object_type": "provision_blueprint_field",
+              "object_id": "8d632507-9806-5d1e-66f8-174e234e98d2",
+              "label": "Registrant Postcode"
+            }
+          ]
         },
         {
           "id": "47d73824-8507-9315-96c8-1e642d59e063",
@@ -1349,7 +1484,22 @@
           "default_value": null,
           "defer_mode": "none",
           "label_translated": "Registrant Country",
-          "translations": []
+          "translations": [
+            {
+              "id": "5952098d-3de4-0917-978b-31578626e347",
+              "language_id": "3825d96e-763e-d091-3dc4-174825283406",
+              "language_code": "en",
+              "translated_fields": {
+                "label": "Registrant Country"
+              },
+              "created_at": "2026-09-29 07:48:37",
+              "updated_at": "2026-09-29 07:48:37",
+              "deleted_at": null,
+              "object_type": "provision_blueprint_field",
+              "object_id": "47d73824-8507-9315-96c8-1e642d59e063",
+              "label": "Registrant Country"
+            }
+          ]
         }
       ],
       "related": null,
@@ -1359,7 +1509,7 @@
       "meta": null
     }
   },
-  "captured_at": "2026-09-25T12:04:20.430Z",
+  "captured_at": "2026-10-02T12:20:04.422Z",
   "brand_domain": "qa-automation.local",
   "source": "journey",
   "provenance": {

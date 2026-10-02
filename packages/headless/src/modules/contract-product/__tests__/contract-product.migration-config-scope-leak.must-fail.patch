@@ -1,0 +1,21 @@
+# Negative-control mutant 48 — config-scope-leak (FE-3206)
+#
+# Mutation: rebuild a holder with no `stop()` of the old `effectScope`.
+# Spec it must turn red: the AC-34 unit spec, one change of plan at a time (the rebuild case).
+#
+# Authored by the developer seat against the landed production source. The
+# prover applies it blind (tasks.md T41): apply, run the named spec, revert.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+diff --git a/packages/headless/src/modules/contract-product/useContractProduct.ts b/packages/headless/src/modules/contract-product/useContractProduct.ts
+--- a/packages/headless/src/modules/contract-product/useContractProduct.ts
++++ b/packages/headless/src/modules/contract-product/useContractProduct.ts
+@@ -71,7 +71,6 @@
+   let last: TInputs | null | undefined;
+ 
+   function stop() {
+-    scope?.stop();
+     scope = undefined;
+     holder.value = null;
+   }

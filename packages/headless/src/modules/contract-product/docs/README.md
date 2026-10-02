@@ -7,7 +7,7 @@ Every cancellation write — soft (stop/resume renewal), hard (immediate request
 ## What Is This? (ELI5)
 
 - **`useContractProducts`** = the list view: "show me all my contract products, filtered and sorted".
-- **`useContractProduct`** = the detail view: "load this one contract product and let me act on it" — one combined cancellation form offering stop/resume renewal, request/withdraw an immediate cancellation, or book/revoke a scheduled one (whichever of those the product currently allows), plus a separate consolidation form.
+- **`useContractProduct`** = the detail view: "load this one contract product and let me act on it" — one combined cancellation form offering stop/resume renewal, request/withdraw an immediate cancellation, or book/revoke a scheduled one (whichever of those the product currently allows), plus a separate consolidation form, and a change of plan to another plan the product allows.
 
 > **🧪 For Testers:** See [gotchas.md](./gotchas.md) for the future-cancellation anniversary rules and the subscription-only write guards.
 
@@ -38,6 +38,7 @@ See [Usage](./usage.md) for the complete API reference.
 | List / filter / sort the client's own contract products | ✅ | `useContractProducts` |
 | Include/exclude delegated products | ✅ | `exclude_delegated` is always `1` when nothing is delegated to the client. Otherwise it follows the held choice, which defaults to `0` (included). Forced OFF (included) on the `DELEGATED` selector context, which does not narrow to delegated-only |
 | Hide one-off purchases for a brand | ✅ | When the brand's portal setting `@context.oneTimePurchases` is `"hidden"`, the list always excludes one-off purchases and the filter bar does not offer them |
+| Owning contract's billing-cycle label | ✅ | `contractBillingCycleLabel` — undefined when the read carries no contract relation |
 | Display title and price summary per row | ✅ | `title` (the shared product title) and `priceTermSummary` ("£4 monthly", "£60") on every mapped product |
 | Dashboard grouped counts | ✅ | `loadGroupedCounts` |
 | Purchased-category read | ✅ | `loadPurchasedCategories` |
@@ -47,6 +48,7 @@ See [Usage](./usage.md) for the complete API reference.
 | Request / withdraw an immediate cancellation (hard cancellation) | ✅ | `requestCancellation` / `withdrawCancellation` — moved here from the contract module (a contract only groups product ids) |
 | Book / revoke a scheduled (future-dated) cancellation | ✅ | `scheduleCancellation` / `revokeScheduledCancellation`. The module sends whatever date it is given — it does not validate the date itself. Anniversary validation is a separate helper the caller must call and check before booking |
 | Consolidation form | ✅ | `openConsolidation`, `set`, `submitConsolidation` (or `setConsolidation` directly) — offered only to a live, non-staged subscription whose client preference and catalogue product both allow it. A choice equal to the current value is not sent |
+| Change of plan (upgrade / downgrade) | ✅ | `openMigration`, `selectMigrationTarget`, `migrate` — offered only to a recurring single product that is active or suspended and has plans its own plan allows. The cost is previewed by a dry run before the commit. See [usage.md](./usage.md) |
 | Unpaid-invoice due/cancellable predicates | ✅ | Pure functions over `unpaidRecurringInvoices` |
 
 ## Key Concepts

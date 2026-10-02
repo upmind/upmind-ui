@@ -13,12 +13,12 @@
 diff --git a/packages/headless/src/modules/contract-product/contract-product.mappers.ts b/packages/headless/src/modules/contract-product/contract-product.mappers.ts
 --- a/packages/headless/src/modules/contract-product/contract-product.mappers.ts
 +++ b/packages/headless/src/modules/contract-product/contract-product.mappers.ts
-@@ -149,7 +149,7 @@ function toContractProduct(
+@@ -256,7 +256,7 @@
      renew: raw.renew,
      billingCycleMonths: raw.billing_cycle_months,
      billingCycle: mapContractProductBillingCycle(raw.billing_cycle_months),
 -    createdAt: raw.created_at,
 +    createdAt: raw.updated_at,
      priceFormatted: mapContractProductPrice(raw, taxType),
+     priceTermSummary: mapContractProductPriceTermSummary(raw, taxType),
      calculatedCancelDate: raw.calculated_cancel_date,
-     provisionSetupFieldsConfirmed: raw.provision_setup_fields_confirmed,

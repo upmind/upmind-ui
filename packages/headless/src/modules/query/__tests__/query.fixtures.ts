@@ -95,6 +95,19 @@ describe("Query API Fixtures Generator", () => {
     }
   });
 
+  it("captures GET /api/brand/settings?currency_code=GBP (withCurrency carries the basket currency — AC-29 R11)", async () => {
+    // R11 (useQuery withCurrency) adds the basket currency_code to a request
+    // carrying no currency of its own. develop 122719bac3 dropped currency_code
+    // from EXCLUDE_PARAMS, so it is now part of fixture identity — this capture
+    // keys on currency_code=GBP and answers the with-currency-explicit probe.
+    const { status } = await generator.get(
+      "/api/brand/settings?currency_code=GBP"
+    );
+    if (status !== 200) {
+      throw new Error(`brand/settings returned ${status}`);
+    }
+  });
+
   it("captures POST /oauth/access_token with bad credentials (401)", async () => {
     await generator.post(
       "/oauth/access_token",

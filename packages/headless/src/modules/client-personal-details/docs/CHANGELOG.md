@@ -7,7 +7,7 @@ All notable changes to the `client-personal-details` module are documented here.
 ### Added
 
 - **A real, dedicated read of a client's own profile.** Previously, a client's custom field values could not be read at all through the path a consumer actually used — the source they projected from was never populated, so every value rendered as the literal string `"undefined"`, and the editor's starting model for custom fields was always empty. The read is now a genuine query against the client's own record, with its own settled and error states.
-- **`usePersonalDetailsManager`'s `filterFields()`** — retargets which fields the editor exposes without a full reconstruction, rebuilding the schema/form definition against the new narrowing.
+- **`usePersonalDetails`'s `filterFields()`** — retargets which fields the editor exposes without a full reconstruction, rebuilding the schema/form definition against the new narrowing.
 - **A bounded editor readiness.** `isReady()` now times out rather than waiting forever on a failed lookup.
 - **`revert()`** — restores the model to its persisted base model.
 - **A diff-only update body** (`firstname`, `lastname`, `public_name`, `interface_language_id`, `document_language_id`, `custom_fields` — nothing else) with correct clear semantics: a cleared native field survives as `""`; a cleared custom field survives as `null`; both are present in the body, never omitted.
@@ -17,13 +17,13 @@ All notable changes to the `client-personal-details` module are documented here.
 - **An unknown "current" language survives as a disabled option**, labelled by its resolved name rather than disappearing or rendering a raw id.
 - **Typed validation** — a rejected save now carries the schema error list keyed to the field's own schema path, rather than an untyped rejection.
 - **Scoped cache invalidation** — a successful save now refetches only this module's own cache key, rather than an over-broad invalidation that also refetched unrelated queries.
-- **The manager is callable with no argument** — `usePersonalDetailsManager().as(ScopeActorTypes.SELF)` constructs and settles.
+- **The manager is callable with no argument** — `usePersonalDetails().as(ScopeActorTypes.SELF)` constructs and settles.
 - **The barrel is now the module's only public surface** — curated named exports only; the services, mappers, schemas, and machine-config file each carry an internal marker.
 
 ### Changed
 
 - **Custom field value semantics (definitions, per-type coercion, schema/form generation, and the image-flush step) are consumed from the sibling `client-custom-fields` module rather than re-implemented here.**
-- **The two composables are registered under two distinct internal names**, despite sharing one scope matrix — a deliberate departure from some other converted modules in this codebase, required because this module's single-member context makes the "no `.for()` supplied" call identical for both halves.
+- **The separate read composable is folded into `usePersonalDetails`.** The module now ships one composable, registered under one internal name. The display list (`data`, `findOne`, `getOne`, `error`) is served from the same context as the form model; the standalone read-only `useMeta` flags (`hasError`, `isEmpty`) and the raw `customFields` read are gone — use `useMeta().hasErrors`, `useContext().model.customFields` and `useContext().fields` instead. The `ProfileRecord` type is no longer exported.
 - **The shared context member is renamed from `PROFILE` to `CLIENT`**, matching every sibling client module (`ClientPhonesContextTypes.CLIENT`, `ClientNotesContextTypes.CLIENT`). The former name described the RESOURCE being edited (the profile) while the id it carried was the CLIENT's own — a mismatch a since-reversed change misread as `.for()` itself being wrong, briefly dropping the context entirely in favour of a bare `.withId()`. `ClientPersonalDetailsContextTypes` and `PERSONAL_DETAILS_SCOPE_MATRIX` are exported from the module barrel (and the package root) as before. `client` is the only actor the matrix grants the context to; `self`, `staff` and `guest` remain `null as never`. See [gotchas.md](./gotchas.md#8-the-trap-was-the-contexts-name-not-for-itself--a-resource-named-member-carrying-the-clients-own-id).
 - **Documentation refreshed against the shipped surface**, including a correction to a sibling module's own foundation doc, which previously described this pair's update-request shape for custom field values as an array of `{field_id, value}` pairs — it is, and always was, an object keyed by field code.
 
@@ -35,7 +35,7 @@ All notable changes to the `client-personal-details` module are documented here.
 ### Known limitations
 
 - **A staff-acting-for-a-client surface for reading or writing another client's profile is not built.** The shared matrix pins `staff` and `guest` to `null as never`, so `.as(ScopeActorTypes.STAFF).for(...)` is a compile-time error while the bare `.as(ScopeActorTypes.STAFF)` still type-checks and is refused at runtime — a designed boundary. See [dropped-capabilities.md](./dropped-capabilities.md#the-refusal-and-where-it-is-enforced). A number of admin-only capabilities that exist in the legacy application (an aggregate save/revert across multiple panels, several admin-only fields, permission-gated read/write, a staged-import lock, an unverified-client banner, a cross-brand redirect guard, and a per-client brand-settings language list for a multi-brand staff context) are all out of scope for this module — none of them are client-surface capabilities to begin with. Recorded as out-of-scope, with follow-up issues pending filing.
-- **This module's own read shares one cache key with `client-billing-settings`**, deliberately, so a page mounting both dedupes onto a single request. A sibling `client-custom-fields` module previously read the same resource through an unsafe one-shot primitive; it no longer reads this resource at all, so that hazard is retired — see [gotchas.md](./gotchas.md#3-a-shared-cache-key-with-client-billing-settings--safe-because-both-sides-read-reactively).
+- **This module's profile read has its own cache entry**, separate from `client-billing-settings`, which reads a different slice of the same client record. A page mounting both issues one request per module — see [gotchas.md](./gotchas.md#3-the-profile-record-read-has-its-own-cache-entry--it-is-not-shared-with-client-billing-settings).
 - **The "unknown current language survives as a disabled option" capability is proven against a labelled CONSTRUCTED language id**, not a recorded one — this staging environment's own brand language list is exhaustive, so an id genuinely absent from it cannot be recorded by definition. The constructed id is validated against the real recorded list (confirmed absent from it) rather than invented freely. This mirrors the sibling custom-fields module's own disclosure: a real environment with only a NUMBER and an IMAGE definition means several of that module's value-semantics proofs also rest on constructed inputs layered over real recorded shapes, never on a fresh hand-authored fixture — see that module's own [CHANGELOG.md](../../client-custom-fields/docs/CHANGELOG.md) for the full account.
 
 ### Recorded fixtures
@@ -83,13 +83,10 @@ const profile = usePersonalDetails()
 
 ### Reading a client's custom field values
 
-**Breaking change:** the source that used to (never successfully) carry these values is gone; the values now arrive through this module's own read.
+**Breaking change:** the source that used to (never successfully) carry these values is gone; the values now arrive through this module's own record read, projected on `useContext().data` for display and held on `useContext().model.customFields` as form values.
 
 ```ts
-import {
-  usePersonalDetails,
-  ScopeActorTypes
-} from "@upmind-automation/headless";
+import { usePersonalDetails, ScopeActorTypes } from "@upmind-automation/headless";
 
 /** The removed session projection, as consumers used to reach for it. */
 declare const someSessionProjection: {
@@ -101,18 +98,18 @@ const value = someSessionProjection.customFields?.age;
 
 // After
 const profile = usePersonalDetails().as(ScopeActorTypes.SELF);
-const { customFields } = profile.useContext();
+const { data, model } = profile.useContext();
 ```
 
 ### Clearing a value
 
 ```ts
 import {
-  usePersonalDetailsManager,
+  usePersonalDetails,
   ScopeActorTypes
 } from "@upmind-automation/headless";
 
-const manager = usePersonalDetailsManager().as(ScopeActorTypes.SELF);
+const manager = usePersonalDetails().as(ScopeActorTypes.SELF);
 
 // Native field
 await manager.useActions().update({ publicName: "" }); // → { "public_name": "" }
@@ -123,17 +120,11 @@ await manager.useActions().update({ customFields: { age: "" } }); // → { "cust
 
 ### Building the manager without an argument
 
+The composable takes no construction options. Narrow the form after construction instead.
+
 ```ts
-import {
-  usePersonalDetailsManager,
-  ScopeActorTypes
-} from "@upmind-automation/headless";
+import { usePersonalDetails, ScopeActorTypes } from "@upmind-automation/headless";
 
-// Before — required an options argument
-// @ts-expect-error — TS2554: the composable now takes no arguments at all
-usePersonalDetailsManager({ filterFields: ["firstName", "lastName"] });
-
-// After — callable bare; narrow after construction instead
-const manager = usePersonalDetailsManager().as(ScopeActorTypes.SELF);
+const manager = usePersonalDetails().as(ScopeActorTypes.SELF);
 manager.useActions().filterFields(["firstName", "lastName"]);
 ```

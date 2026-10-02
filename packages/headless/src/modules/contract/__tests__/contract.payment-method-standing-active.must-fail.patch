@@ -1,7 +1,10 @@
-# STALE (FE-3145): `git apply --check` rejects this mutant against the
-#   current source; it needs re-authoring before it can prove anything.
-#
 # Negative-control mutant — the payment-method form on an active contract (AC-8, R13)
+#
+# RE-CUT (FE-3206): the `available.changingPaymentMethod.idle` `PAYMENT_METHOD`
+#   transition now already carries `cond: "canChangePaymentMethod"`. The mutation
+#   keeps its effect — it re-gates that transition to `isCancelling`, so an active
+#   (non-cancelling) contract refuses the form. (Replaces the prior "add
+#   isCancelling" form since the transition is no longer condless.)
 #
 # Scenario it must flip: contract.feature:380 "I change how my contract is paid
 #   for through the payment-method form, whatever its standing", Examples row
@@ -18,15 +21,15 @@
 # Apply with:  git apply <this file>   (run from repo root)
 # Revert with: git apply -R <this file>
 diff --git a/packages/headless/src/modules/contract/contract.machine.ts b/packages/headless/src/modules/contract/contract.machine.ts
-index 3e102716a..e48be0104 100644
 --- a/packages/headless/src/modules/contract/contract.machine.ts
 +++ b/packages/headless/src/modules/contract/contract.machine.ts
-@@ -110,7 +110,8 @@ export default createMachine(
+@@ -140,9 +140,9 @@ export default createMachine(
+               idle: {
                  on: {
                    PAYMENT_METHOD: {
                      target: "available",
--                    actions: "setPaymentMethodSchemas"
-+                    actions: "setPaymentMethodSchemas",
+                     actions: "setPaymentMethodSchemas",
+-                    cond: "canChangePaymentMethod"
 +                    cond: "isCancelling"
                    }
                  }

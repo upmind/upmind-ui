@@ -1,15 +1,24 @@
 # must-fail: 11-active-list-status-neq
 # Target assertion: AC1 "active ticket list" — asserts the request carries filter[status.code|neq]=ticket_closed
-diff --git a/packages/headless/src/modules/tickets/tickets.schemas.ts b/packages/headless/src/modules/tickets/tickets.schemas.ts
-index 6c80c445d..320a72972 100644
---- a/packages/headless/src/modules/tickets/tickets.schemas.ts
-+++ b/packages/headless/src/modules/tickets/tickets.schemas.ts
-@@ -55,7 +55,7 @@ export function useQuerySchema(): TicketsQuerySchema {
-             additionalProperties: false,
-             properties: {
-               eq: { type: ["string", "null"] },
--              neq: { type: ["string", "null"] }
-+              neq: { type: "boolean" }
-             }
-           },
-           created_at: {
+#
+# Re-rolled 2026-10-02 (developer): R9 moved the status.code|neq spelling off
+# the schema leaf (the old mutation target, now gone) onto the module's own
+# edge. `applyStatusCodeFilter` (tickets.utils.ts) re-spells the tri-state
+# `isClosed` boolean onto the wire: `false` -> filter[status.code|neq], `true`
+# -> filter[status.code]. Same break, new site.
+#
+# Mutation: the active branch (`isClosed === false`) sets filter[status.code]
+# instead of filter[status.code|neq]. The active-list request no longer carries
+# filter[status.code|neq]=ticket_closed, so the replay meets a request its
+# recording does not hold and the scenario fails by name. The closed branch is
+# untouched, so the closed-list scenario stays green.
+diff --git a/packages/headless/src/modules/tickets/tickets.utils.ts b/packages/headless/src/modules/tickets/tickets.utils.ts
+--- a/packages/headless/src/modules/tickets/tickets.utils.ts
++++ b/packages/headless/src/modules/tickets/tickets.utils.ts
+@@ -30,5 +30,5 @@ export function applyStatusCodeFilter(
+   if (isClosed === true)
+     url.searchParams.set("filter[status.code]", TicketStatusCodes.CLOSED);
+   else if (isClosed === false)
+-    url.searchParams.set("filter[status.code|neq]", TicketStatusCodes.CLOSED);
++    url.searchParams.set("filter[status.code]", TicketStatusCodes.CLOSED);
+ }

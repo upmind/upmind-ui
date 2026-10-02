@@ -1,0 +1,22 @@
+# Negative-control mutant 36 — price-equal-model (FE-3206)
+#
+# Mutation: price a model equal to `migration.model`.
+# Spec it must turn red: the AC-30 unit spec, an equal configuration.
+#
+# Authored by the developer seat against the landed production source. The
+# prover applies it blind (tasks.md T41): apply, run the named spec, revert.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+diff --git a/packages/headless/src/modules/contract-product/contract-product.machine.ts b/packages/headless/src/modules/contract-product/contract-product.machine.ts
+--- a/packages/headless/src/modules/contract-product/contract-product.machine.ts
++++ b/packages/headless/src/modules/contract-product/contract-product.machine.ts
+@@ -896,7 +896,7 @@
+       isNewMigrationModel: (
+         { migration }: ContractProductContext,
+         { data }: AnyEventObject
+-      ) => !isEqual((data as MigrationChange)?.model, migration?.model),
++      ) => !!(data as MigrationChange) && !!migration,
+ 
+       isMigrationTargetReady: ({ migration }: ContractProductContext) =>
+         stateMatches(migration?.ref, ["available"]),
