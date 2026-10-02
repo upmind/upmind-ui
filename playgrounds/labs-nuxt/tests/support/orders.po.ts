@@ -16,7 +16,16 @@ import type { Locator, Page, Request } from "@playwright/test";
 
 // -----------------------------------------------------------------------------
 
-/** The members of `useOrder` that design 8.6 publishes. */
+/**
+ * The `useOrder` members the playground page draws, each reachable by its
+ * `order-<member>` test key (design 8.6 / 8.12).
+ *
+ * Operator ruling 2026-10-02 (commit 4793b7a16): the page no longer draws the
+ * refresh, invalidate, reset, destroy, isReady and cancel controls, so this lane
+ * drops them from the reachability check. Their behaviour home is the headless
+ * orders int suite — refresh, isReady and cancel each have a proving test there;
+ * invalidate, reset and destroy have none (surfaced to the operator).
+ */
 export const MANAGER_MEMBERS = [
   "data",
   "detail",
@@ -41,13 +50,7 @@ export const MANAGER_MEMBERS = [
   "isLoading",
   "isProcessing",
   "hasError",
-  "refresh",
-  "invalidate",
-  "reset",
-  "destroy",
-  "isReady",
-  "usePayment",
-  "cancel"
+  "usePayment"
 ] as const;
 
 /** Whether a request is the collection read `GET api/invoices`. */

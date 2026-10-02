@@ -8,8 +8,10 @@
  * twin): a hand sees the recorded rows, the filter bar's search and status
  * multi-select, the sort toolbar and the pager each send the `GET api/invoices`
  * keys and window the design names, and a row's open control reaches the
- * MANAGER view. The MANAGER stays self-drawn: every published member is
- * reachable by its test key. The order opens on mount (an id in the route needs
+ * MANAGER view. The MANAGER stays self-drawn: every member the page draws is
+ * reachable by its test key (operator ruling 2026-10-02 dropped the refresh,
+ * invalidate, reset, destroy, isReady and cancel controls from the page). The
+ * order opens on mount (an id in the route needs
  * no button press, operator ruling 2026-10-01), so the manager single read fires
  * once on load; each re-enter after a leave reads it again, counting `N + 1`.
  *
