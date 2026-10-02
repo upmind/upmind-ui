@@ -69,7 +69,7 @@
 import { Button } from "@upmind/ui";
 import { useI18n } from "vue-i18n";
 import { Icon } from "@upmind-automation/foundation";
-import { isMobile } from "../../../composables/isMobile";
+import { isMobile } from "@upmind-automation/foundation";
 import DomainDrawer from "../templates/DomainDrawer.template.vue";
 import { DOMAIN_TEMPLATE } from "../types";
 import DomainCards from "./DomainCards.vue";

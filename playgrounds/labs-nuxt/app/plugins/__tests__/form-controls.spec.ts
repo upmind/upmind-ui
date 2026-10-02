@@ -12,9 +12,23 @@
  * engine's notice on a field no control claims.
  */
 
+import { createRequire, findPackageJSON } from "node:module";
 import { beforeAll, describe, expect, it, vi } from "vitest";
 import { clone, differenceWith, flatten, isEqual, map } from "lodash-es";
 import type { FormRendererEntry } from "@upmind-automation/foundation";
+
+// The playground declares these packages only through client-vue, so each is
+// resolved from client-vue's package, the way client-vue's entry imports it.
+const importThroughClientVue = async (specifier: string) => {
+  const manifest = findPackageJSON(
+    "@upmind-automation/client-vue",
+    import.meta.url
+  );
+
+  if (!manifest) throw new Error("The playground has no client-vue package.");
+
+  return import(/* @vite-ignore */ createRequire(manifest).resolve(specifier));
+};
 
 const PACKAGES = [
   {
@@ -26,6 +40,12 @@ const PACKAGES = [
     name: "payment",
     controls: async () =>
       (await import("@upmind-automation/payment")).paymentRenderers
+  },
+  {
+    name: "product",
+    controls: async () =>
+      (await importThroughClientVue("@upmind-automation/product"))
+        .productRenderers
   }
 ];
 

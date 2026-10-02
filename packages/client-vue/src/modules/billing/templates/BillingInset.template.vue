@@ -20,6 +20,7 @@
 
 <script lang="ts" setup>
 // --- components
+import { isMobile } from "@upmind-automation/foundation";
 import InsetLayout from "../../../components/layout/layouts/Inset.layout.vue";
 import CheckoutPricing from "../../checkout/components/CheckoutPricing.vue";
 
@@ -27,7 +28,6 @@ import CheckoutPricing from "../../checkout/components/CheckoutPricing.vue";
 import { useSection } from "@upmind-automation/foundation";
 
 // --- utils
-import { isMobile } from "../../../composables/isMobile";
 
 defineOptions({
   inheritAttrs: false

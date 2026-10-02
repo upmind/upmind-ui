@@ -43,7 +43,8 @@
 <script lang="ts" setup>
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
-import { isMobile } from "../../../../../composables/isMobile";
+import { isMobile } from "@upmind-automation/foundation";
+import { Promotion } from "@upmind-automation/product";
 import {
   productOptionDetailsVariants,
   productOptionTitleVariants,
@@ -52,7 +53,6 @@ import {
   productSummaryCategoryTextVariants,
   productSummaryTitleTextVariants
 } from "../basketProduct.variants";
-import Promotion from "./Promotion.vue";
 import type { BasketProductSummaryProps } from "../types";
 // -----------------------------------------------------------------------------
 

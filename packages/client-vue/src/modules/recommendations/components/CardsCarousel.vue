@@ -63,10 +63,7 @@ import {
 import { vResizeObserver } from "@vueuse/components";
 import { ref, watch, computed } from "vue";
 import { useI18n } from "vue-i18n";
-import {
-  ProductCard,
-  ProductCardSkeleton
-} from "../../product/components/card";
+import { ProductCard, ProductCardSkeleton } from "@upmind-automation/product";
 import { carouselNavigationVariants, carouselItemVariants } from "../variants";
 import { forEach, some } from "lodash-es";
 import type { RecommendationsProps } from "./types";

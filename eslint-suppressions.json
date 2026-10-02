@@ -1192,6 +1192,11 @@
       "count": 2
     }
   },
+  "packages/modules-foundation/src/navigation/useBreadcrumbs.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 3
+    }
+  },
   "packages/headless/src/modules/account/account.types.ts": {
     "file-responsibility/consistent-type-definitions": {
       "count": 2
@@ -2309,6 +2314,26 @@
       "count": 1
     },
     "vue/return-in-computed-property": {
+      "count": 1
+    }
+  },
+  "packages/modules-product/src/components/Configure.vue": {
+    "vue/no-expose-after-await": {
+      "count": 1
+    }
+  },
+  "packages/modules-product/src/components/card/ProductBenefits.vue": {
+    "vue/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "packages/modules-product/src/renderers/SubProductRenderer.vue": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "packages/modules-product/src/renderers/TermsRenderer.vue": {
+    "@typescript-eslint/no-explicit-any": {
       "count": 1
     }
   },

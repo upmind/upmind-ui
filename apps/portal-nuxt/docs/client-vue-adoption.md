@@ -22,6 +22,8 @@ Ruled 2026-09-07: "we don't need to mock the client-vue components, as they are 
 | invoice Pay (document control, list row, `?init=pay`)                | `PaymentDetails`, `PaymentAmount`, `AccountCredit`, `PaymentGateways`                        | `payment`, `invoices`                                              | `MOCK_ACTION.PAY_INVOICE` → prose     |
 | product settings — payment method                                    | `StoredPaymentMethods`                                                                       | `payment-details`                                                  | `config/product-pages.ts`             |
 | `/billing/orders`, `/billing/orders/[id]`                            | `UpmOrder` (`Order`, `OrderProducts`)                                                        | `orders`                                                           | `config/billing-pages.ts`             |
+| product `setup` area                                                 | **mocked** — `UpmProductSetup` is basket-only and never served this page (see below)        | `product-setup`                                                    | `config/product-pages.ts`             |
+| billing entity — "Add company" door                                  | `UpmBilling` company form                                                                    | `client-company`                                                   | `MOCK_ACTION.CLIENT_VUE_STUB` → prose |
 
 The two token-addressed logged-out pages (`/preferences`, `/preferences/email/opt-ins`)
 and the delegate-invite acceptance page have no client-vue counterpart and stay mocked.
@@ -120,10 +122,20 @@ are pages of their own (`config/auth-pages.ts`, `mock/contracts/auth.schemas.{re
 
 ### Product setup
 
-Mocked since 11 September 2026 (operator ruling: mock where no surface component exists).
-`UpmProductSetup` is the basket funnel's repair step and never served this page (FE-3219).
+**There is no component to adopt here.** `UpmProductSetup` renders a different surface with
+the same name: the basket-funnel step that repairs invalid or deferred products on the way
+to checkout. Its route is `BASKET_PRODUCTS_SETUP`, headless `useProductSetup` is a selector
+over `useBasket`/`useBasketProducts`, and `ApplyToOthers` acts across the basket. This page
+is post-purchase, for a product the client already owns, with no basket anywhere. Ruled in
+ADR 023 Amendment 3 (2026-09-11); the module itself moves into `basket` in that epic's
+Phase 9.
+
+Mocked since 11 September 2026, per the ruling that a surface with no component is mocked.
 The mock renders the provider's blueprint as one form whose Confirm is the setup step
 (`mock/contracts/contract-product-provisioning.schemas.ts`, `tests/product-setup-form.test.ts`).
+
+- The provider's blueprint as a form; a blueprint that asks nothing still renders and
+  its Confirm is the setup step; outstanding fields named on the product's notice.
 
 ## Stand-in schema modules removed
 

@@ -7,7 +7,7 @@
 #     "'apps/cart' > reaches packages/modules-auth's sources"
 
 diff --git a/apps/cart/src/main.css b/apps/cart/src/main.css
-index c98aa90cf1..579b84304c 100644
+index 415c004abb..8a8ca2656b 100644
 --- a/apps/cart/src/main.css
 +++ b/apps/cart/src/main.css
 @@ -7,7 +7,6 @@
@@ -17,4 +17,4 @@ index c98aa90cf1..579b84304c 100644
 -@import "@upmind-automation/auth/styles";
  @import "@upmind-automation/foundation/styles";
  @import "@upmind-automation/payment/styles";
- 
+ @import "@upmind-automation/product/styles";

@@ -27,11 +27,6 @@ import ManageRenderer from "./ManageRenderer.vue";
 import { tester as manageTest } from "./ManageRenderer.vue";
 import SLDRenderer from "./SLDRenderer.vue";
 import { tester as sldTest } from "./SLDRenderer.vue";
-import SubProductRenderer from "./SubProductRenderer.vue";
-import { tester as subProductTest } from "./SubProductRenderer.vue";
-import TermsRenderer from "./TermsRenderer.vue";
-// -----------------------------------------------------------------------------
-import { tester as termsTest } from "./TermsRenderer.vue";
 
 // -----------------------------------------------------------------------------
 
@@ -42,8 +37,6 @@ export const formRenderers = [
   registerEntry(ImageRenderer, imageTest),
   registerEntry(LookupRenderer, lookupTest),
   registerEntry(ManageRenderer, manageTest),
-  registerEntry(TermsRenderer, termsTest),
-  registerEntry(SubProductRenderer, subProductTest),
   registerEntry(FilterButtonGroupRenderer, filterButtonGroupTest),
   registerEntry(
     FilterExclusiveToggleGroupRenderer,

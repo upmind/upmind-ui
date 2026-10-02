@@ -2,6 +2,7 @@
 
 // --- Export Views
 export { default as UpmRecommendations } from "./Recommendations.vue";
+export { default as UpmProductRecommendations } from "./ProductRecommendations.vue";
 
 // --- Export Components
 

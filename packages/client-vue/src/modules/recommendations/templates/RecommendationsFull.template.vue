@@ -18,12 +18,12 @@
 
 <script lang="ts" setup>
 import { onMounted } from "vue";
+import { isMobile } from "@upmind-automation/foundation";
 import { useFooter } from "../../../components/footer/useFooter";
 import { useConfig } from "@upmind-automation/headless";
 import { useHeader } from "../../../components/header/useHeader";
 import { useLayout } from "../../../components/layout/useLayout";
 import { useSection } from "@upmind-automation/foundation";
-import { isMobile } from "../../../composables/isMobile";
 import Layout from "../../../components/layout/Layout.vue";
 import {
   LAYOUT_VARIANTS,

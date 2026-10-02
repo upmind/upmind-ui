@@ -34,7 +34,7 @@ import { Card } from "@upmind/ui";
 import { useSection } from "@upmind-automation/foundation";
 
 // --- utils
-import { isMobile } from "../../../composables/isMobile";
+import { isMobile } from "@upmind-automation/foundation";
 
 defineOptions({
   inheritAttrs: false

@@ -69,7 +69,7 @@
 import { useSlots } from "@upmind/ui";
 import { useElementSize } from "@vueuse/core";
 import { ref, computed } from "vue";
-import { isMobile } from "../../../composables/isMobile";
+import { isMobile } from "@upmind-automation/foundation";
 import { isEmptySlot } from "../../../utils/isEmptySlot";
 import { COLUMN_BACKGROUND, COLUMN_WIDTH } from "../components/column";
 import Column from "../components/column/Column.vue";
