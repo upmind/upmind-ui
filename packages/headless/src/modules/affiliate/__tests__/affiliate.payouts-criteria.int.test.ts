@@ -8,10 +8,11 @@
  * ## Job To Be Done
  * Protect that `useAffiliatePayouts().setCriteria(...)` puts the declared
  * filter and sort branch on the wire (design.md §8.3), including `amount` as
- * a real sortable field the schema declares alongside `created_at`. Only one
- * real capture exists for this route, so a filter or sort write cannot
- * change WHICH rows come back — this spec reads the outbound request, not a
- * changed response (design.md §8.9).
+ * a real sortable field the schema declares alongside `created_at`. Under
+ * ADR-035 strict replay each filter query string is served its OWN verbatim
+ * recording (no base-capture fallback); this account carries a single payout,
+ * so a filter or sort write cannot reorder the result, and the discriminating
+ * proof is the outbound-request observer, not a changed response.
  *
  * ## What Breaks If These Fail
  * A client narrowing or reordering their payout history by date or amount
@@ -37,13 +38,13 @@ import type { SortDirection } from "../../query/query.types";
 
 type PayoutsBody = { data?: { id?: string }[] };
 
-function recordedPayoutId(): string {
-  const id = recorded<PayoutsBody>(
-    "get-accounts-id-affiliate-payouts-with-staged-imports-1"
-  ).data?.[0]?.id;
+function recordedPayoutId(
+  capture = "get-accounts-id-affiliate-payouts-with-staged-imports-1"
+): string {
+  const id = recorded<PayoutsBody>(capture).data?.[0]?.id;
   if (!id)
     throw new Error(
-      "[affiliate.payouts-criteria] recorded payouts capture carries no row id."
+      `[affiliate.payouts-criteria] recorded payouts capture "${capture}" carries no row id.`
     );
   return id;
 }
@@ -86,16 +87,20 @@ describe("affiliate.payouts-criteria — a filter or a sort write reaches the wi
       "1_days"
     ]);
 
-    // Characterisation, not a discriminating control: only one real row
-    // exists for this route, and the replay pool serves it for any
-    // unmatched query string (design.md §8.9), so this pins that the row
-    // read still resolves after the write — it cannot tell a fresh
-    // filtered response apart from the stale first-load response. A
-    // discriminating row check needs a second real row this account does
-    // not have.
+    // Characterisation, not a discriminating control: the row id is read from
+    // THIS filtered request's OWN recording (ADR-035 strict replay — each query
+    // string is served its own verbatim capture, no base fallback). This
+    // account's one payout is older than a day, so the filtered recording holds
+    // exactly that one row; the pin proves the filtered row flows through to
+    // context, while the request-observer assertion above pins the filter
+    // branch itself.
     const rows = payouts.useContext().data.value;
     expect(rows).toHaveLength(1);
-    expect(rows[0].id).toBe(recordedPayoutId());
+    expect(rows[0].id).toBe(
+      recordedPayoutId(
+        "get-accounts-id-affiliate-payouts-filter-created-at-before-1-days-with-staged-imports-1"
+      )
+    );
   });
 
   it("an amount sort write carries the declared field and direction on the wire, and the recorded row still comes back", async () => {
@@ -125,10 +130,11 @@ describe("affiliate.payouts-criteria — a filter or a sort write reaches the wi
     // `order=amount`, so only the `-` prefix pins the direction itself.
     expect(seen[0].searchParams.getAll("order")).toEqual(["-amount"]);
 
-    // Characterisation, not a discriminating control — see the filter case
-    // above: one real row, served for any query string, so this pins that
-    // the row read still resolves after the write, not that the sort
-    // actually reordered a second row this account does not have.
+    // Characterisation, not a discriminating control: `order` is not part of
+    // the replay identity (fixture-handlers.ts), so a sort write is served the
+    // base list capture — this pins the row read still resolves after the
+    // write, not that the sort reordered a second row this account does not
+    // have.
     const rows = payouts.useContext().data.value;
     expect(rows).toHaveLength(1);
     expect(rows[0].id).toBe(recordedPayoutId());

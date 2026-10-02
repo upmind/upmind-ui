@@ -7,13 +7,12 @@
  * ## Job To Be Done
  * Protect that `useAffiliateLinks().setCriteria(...)` puts the declared
  * filter and sort branch on the wire (design.md §8.3), against this unit's
- * one real recorded link — a filter or sort write cannot change WHICH rows
- * the replay pool serves (only one capture exists for this route, and the
- * replay pool falls back to it for any unmatched query string, design.md
- * §8.9 "Unmatched query strings"), so this spec reads the outbound request,
- * not a changed response, exactly as design.md §8.9 requires ("A spec that
- * asserts a filter key reads the outbound-request observer, not a
- * response").
+ * one real recorded link. Under ADR-035 strict replay each filter query
+ * string is served its OWN verbatim recording (no base-capture fallback);
+ * this account carries a single link, so a filter or sort write cannot
+ * reorder the result, and the discriminating proof is the outbound-request
+ * observer, not a changed response ("A spec that asserts a filter key reads
+ * the outbound-request observer, not a response").
  *
  * ## What Breaks If These Fail
  * A client narrowing or reordering their referral links would see the
@@ -40,13 +39,13 @@ import type { SortDirection } from "../../query/query.types";
 
 type LinksBody = { data?: { id?: string }[] };
 
-function recordedLinkId(): string {
-  const id = recorded<LinksBody>(
-    "get-accounts-id-affiliate-links-with-staged-imports-1"
-  ).data?.[0]?.id;
+function recordedLinkId(
+  capture = "get-accounts-id-affiliate-links-with-staged-imports-1"
+): string {
+  const id = recorded<LinksBody>(capture).data?.[0]?.id;
   if (!id)
     throw new Error(
-      "[affiliate.links-criteria] recorded links capture carries no row id."
+      `[affiliate.links-criteria] recorded links capture "${capture}" carries no row id.`
     );
   return id;
 }
@@ -89,16 +88,20 @@ describe("affiliate.links-criteria — a filter or a sort write reaches the wire
       "Affiliate Starter Hosting"
     ]);
 
-    // Characterisation, not a discriminating control: only one real row
-    // exists for this route, and the replay pool serves it for any
-    // unmatched query string (design.md §8.9), so this pins that the row
-    // read still resolves after the write — it cannot tell a fresh
-    // filtered response apart from the stale first-load response. A
-    // discriminating row check needs a second real row this account does
-    // not have.
+    // Characterisation, not a discriminating control: the row id is read from
+    // THIS filtered request's OWN recording (ADR-035 strict replay — each query
+    // string is served its own verbatim capture, no base fallback). This
+    // account carries a single link whose name equals the filter, so the
+    // filtered recording holds exactly that one row; the pin proves the
+    // filtered row flows through to context, while the request-observer
+    // assertion above pins the filter branch itself.
     const rows = links.useContext().data.value;
     expect(rows).toHaveLength(1);
-    expect(rows[0].id).toBe(recordedLinkId());
+    expect(rows[0].id).toBe(
+      recordedLinkId(
+        "get-accounts-id-affiliate-links-filter-name-eq-affiliate-starter-hosting-with-staged-imports-1"
+      )
+    );
   });
 
   it("a sort write carries the declared field and direction on the wire, and the recorded row still comes back", async () => {
@@ -126,10 +129,11 @@ describe("affiliate.links-criteria — a filter or a sort write reaches the wire
     // `order=visit_count`, so only the `-` prefix pins the direction itself.
     expect(seen[0].searchParams.getAll("order")).toEqual(["-visit_count"]);
 
-    // Characterisation, not a discriminating control — see the filter case
-    // above: one real row, served for any query string, so this pins that
-    // the row read still resolves after the write, not that the sort
-    // actually reordered a second row this account does not have.
+    // Characterisation, not a discriminating control: `order` is not part of
+    // the replay identity (fixture-handlers.ts), so a sort write is served the
+    // base list capture — this pins that the row read still resolves after the
+    // write, not that the sort reordered a second row this account does not
+    // have.
     const rows = links.useContext().data.value;
     expect(rows).toHaveLength(1);
     expect(rows[0].id).toBe(recordedLinkId());
@@ -198,8 +202,9 @@ describe("affiliate.links-criteria — a filter or a sort write reaches the wire
     // mutant that drops the offset write (see the file header above).
     expect(seen[0].searchParams.getAll("offset")).toEqual(["0"]);
 
-    // Characterisation, not a discriminating control — see the filter case
-    // above.
+    // Characterisation, not a discriminating control — `limit`/`offset` are
+    // not part of the replay identity, so this write is served the base list
+    // capture (see the sort case above).
     const rows = links.useContext().data.value;
     expect(rows).toHaveLength(1);
     expect(rows[0].id).toBe(recordedLinkId());

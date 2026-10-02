@@ -37,6 +37,10 @@ const OWED_CAPTURES = [
   "get-accounts-id-affiliate-balance-with-staged-imports-1",
   // §8.1 links read (AC7-AC9)
   "get-accounts-id-affiliate-links-with-staged-imports-1",
+  // §8.3 links name-equals filter read (AC8) — under ADR-035 strict replay
+  // (FE-3145, develop merge 29eb45f69b) the filtered query string is served
+  // its own verbatim recording, not a base-capture fallback.
+  "get-accounts-id-affiliate-links-filter-name-eq-affiliate-starter-hosting-with-staged-imports-1",
   // §8.1 one-link read (AC11)
   "get-accounts-id-affiliate-links-id",
   // §8.2 link create, success + 422 (AC10)
@@ -59,10 +63,21 @@ const OWED_CAPTURES = [
   "post-accounts-id-affiliate-withdraw",
   // §8.1 referrals read (AC14, AC15)
   "get-accounts-id-affiliate-referrals",
+  // §8.3 referrals dotted affiliate_link.name filter read (AC15) — its own
+  // verbatim recording under ADR-035 strict replay (FE-3145). This account's
+  // referrals match no such link, so the real filtered recording holds zero
+  // rows.
+  "get-accounts-id-affiliate-referrals-filter-affiliate-link-name-eq-affiliate-starter-hosting",
   // §8.1 pending commissions read (AC16, AC17)
   "get-accounts-id-affiliate-pending-commissions-with-staged-imports-1",
+  // §8.3 commissions created_at|after filter read (AC17) — its own verbatim
+  // recording under ADR-035 strict replay (FE-3145).
+  "get-accounts-id-affiliate-pending-commissions-filter-created-at-after-1-months-with-staged-imports-1",
   // §8.1 payouts read (AC20, AC21)
   "get-accounts-id-affiliate-payouts-with-staged-imports-1",
+  // §8.3 payouts created_at|before filter read (AC21) — its own verbatim
+  // recording under ADR-035 strict replay (FE-3145).
+  "get-accounts-id-affiliate-payouts-filter-created-at-before-1-days-with-staged-imports-1",
   // §8.1 payout destinations read (AC22)
   "get-brands-id-affiliate-payout-destination",
   // §8.1 PayPal emails read (AC23)

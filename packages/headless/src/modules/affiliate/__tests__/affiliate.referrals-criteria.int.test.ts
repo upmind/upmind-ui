@@ -9,10 +9,11 @@
  * Protect that `useAffiliateReferrals().setCriteria(...)` puts the declared
  * filter and sort branch on the wire, including the dotted `affiliate_link.*`
  * schema keys, which stay LITERAL on the wire and are never split into a
- * nested path (design.md §8.3, §8.9 "Unmatched query strings", audit DI-6).
- * Only one real capture exists for this route, so a filter or sort write
- * cannot change WHICH rows come back — this spec reads the outbound request,
- * not a changed response (design.md §8.9).
+ * nested path (design.md §8.3, audit DI-6). Under ADR-035 strict replay each
+ * filter query string is served its OWN verbatim recording (no base-capture
+ * fallback); the discriminating proof is the outbound-request observer, and
+ * the row read checks the composable surfaces exactly that filtered
+ * recording's rows.
  *
  * ## What Breaks If These Fail
  * A client narrowing or reordering their referrals would see the request
@@ -42,10 +43,10 @@ import type { SortDirection } from "../../query/query.types";
 
 type ReferralsBody = { data?: { id?: string }[] };
 
-function recordedReferralIds(): (string | undefined)[] {
-  return (
-    recorded<ReferralsBody>("get-accounts-id-affiliate-referrals").data ?? []
-  ).map(r => r.id);
+function recordedReferralIds(
+  capture = "get-accounts-id-affiliate-referrals"
+): (string | undefined)[] {
+  return (recorded<ReferralsBody>(capture).data ?? []).map(r => r.id);
 }
 
 describe("affiliate.referrals-criteria — a filter or a sort write reaches the wire", () => {
@@ -88,12 +89,19 @@ describe("affiliate.referrals-criteria — a filter or a sort write reaches the 
       seen[0].searchParams.getAll("filter[affiliate_link.name|eq]")
     ).toEqual(["Affiliate Starter Hosting"]);
 
-    // Every row's id pinned, not only rows[0] — the replay pool serves the
-    // SAME capture regardless of the filter written, so this half proves data
-    // came back, never that the filter changed which rows did (characterisation,
-    // per the request-observer assertion above, which is the discriminating half).
+    // Row ids read from THIS filtered request's OWN recording (ADR-035 strict
+    // replay — each query string is served its own verbatim capture, no base
+    // fallback). None of this account's referrals came through a link named
+    // "Affiliate Starter Hosting", so the real filtered recording holds zero
+    // rows: this pins that the composable surfaces exactly the filtered
+    // result — the empty set here — through to context, while the
+    // request-observer assertion above pins the dotted-filter branch itself.
     const rows = referrals.useContext().data.value;
-    expect(rows.map(r => r.id)).toEqual(recordedReferralIds());
+    expect(rows.map(r => r.id)).toEqual(
+      recordedReferralIds(
+        "get-accounts-id-affiliate-referrals-filter-affiliate-link-name-eq-affiliate-starter-hosting"
+      )
+    );
   });
 
   it("a sort write carries the declared field and direction on the wire, and the recorded rows still come back", async () => {
@@ -129,8 +137,10 @@ describe("affiliate.referrals-criteria — a filter or a sort write reaches the 
     );
     expect(seen[0].searchParams.getAll("order")).toEqual(["created_at"]);
 
-    // Characterisation, not a discriminating control — see the filter case
-    // above.
+    // Characterisation, not a discriminating control: `order` is not part of
+    // the replay identity (fixture-handlers.ts), so a sort write is served the
+    // base list capture — this pins the row read still resolves after the
+    // write, not that the sort reordered the rows.
     const rows = referrals.useContext().data.value;
     expect(rows.map(r => r.id)).toEqual(recordedReferralIds());
   });

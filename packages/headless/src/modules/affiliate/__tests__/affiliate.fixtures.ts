@@ -1143,6 +1143,78 @@ describe.runIf(RUN)("affiliate fixtures (record mode)", () => {
     expect(generator.getCapturedFixtures().size).toBe(2);
   }, 30000);
 
+  // --- FE-3145 strict-replay follow-up (develop merge 29eb45f69b). The shared
+  // replay (ADR-035) no longer falls back to a base list capture for an
+  // unmatched query string — each filtered list request the four
+  // `*-criteria.int.test.ts` specs assert now needs its OWN verbatim
+  // recording, matched by identity (tests/fixtures/fixture-handlers.ts). These
+  // are READ-ONLY GETs of the `client` credential's enrolled single account —
+  // the EXACT filter query string each criteria spec's row-asserting case
+  // sends, no more. No write, enrol or withdraw. Each response status is
+  // checked BEFORE `save()`, so a non-200 never overwrites or adds a capture.
+  it("captures the exact filter query strings the criteria specs send (read-only GETs)", async () => {
+    if (!BASE_URL) {
+      throw new Error(
+        "[affiliate.fixtures] VITE_API_URL is not set — packages/headless/.env.recording is required."
+      );
+    }
+
+    const token = await passwordLogin(
+      API_CREDENTIALS.client.username,
+      API_CREDENTIALS.client.password,
+      "criteria-filters"
+    );
+    const rawSelf = (await rawGet(token, "/api/self?with=accounts")) as {
+      data?: { accounts?: { id?: string }[] };
+    };
+    const accountId = rawSelf.data?.accounts?.[0]?.id;
+    if (!accountId) {
+      throw new Error(
+        "[affiliate.fixtures] criteria-filters: the self read carries no account id. G3: escalate to the operator."
+      );
+    }
+
+    const generator = createGenerator(BASE_URL, {
+      recordingsDir: new URL("./fixtures", import.meta.url).pathname,
+      origin: ORIGIN,
+      source: "case",
+      name: "affiliate"
+    });
+    generator.setBearerToken(token);
+
+    const base = `/api/accounts/${accountId}/affiliate`;
+    const commissions = await generator.get(
+      `${base}/pending_commissions?with_staged_imports=1&with=invoice,invoice.client&filter[created_at|after]=-1_months`
+    );
+    const links = await generator.get(
+      `${base}/links?with_staged_imports=1&filter[name|eq]=Affiliate Starter Hosting`
+    );
+    const payouts = await generator.get(
+      `${base}/payouts?with_staged_imports=1&with=affiliate_payout_destination,payment_log&filter[created_at|before]=1_days`
+    );
+    const referrals = await generator.get(
+      `${base}/referrals?with=affiliate_account,affiliate_link,client,client.image&filter[affiliate_link.name|eq]=Affiliate Starter Hosting`
+    );
+
+    for (const [label, response] of [
+      ["commissions created_at|after", commissions],
+      ["links name|eq", links],
+      ["payouts created_at|before", payouts],
+      ["referrals affiliate_link.name|eq", referrals]
+    ] as const) {
+      if (response.status !== 200) {
+        throw new Error(
+          `[affiliate.fixtures] criteria-filters: the ${label} filter read returned ${response.status}. ` +
+            "Nothing was saved. G3: escalate to the operator, do not hand-author a filtered capture."
+        );
+      }
+    }
+
+    generator.save();
+
+    expect(generator.getCapturedFixtures().size).toBe(4);
+  }, 30000);
+
   // --- R-ENROL (review-notes.md, 2026-09-30) — SPENT, permanently disabled.
   // `otherClient` (tests/fixtures/credentials.ts) was enrolled in the
   // affiliate programme on 2026-10-01 under this ruling's one-time grant.

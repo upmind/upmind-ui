@@ -9,9 +9,11 @@
  * Protect that `useAffiliateCommissions().setCriteria(...)` puts the
  * declared filter and sort branch on the wire (design.md §8.3), including
  * `amount` as a real sortable field the schema declares alongside
- * `created_at`. Only one real capture exists for this route, so a filter or
- * sort write cannot change WHICH rows come back — this spec reads the
- * outbound request, not a changed response (design.md §8.9).
+ * `created_at`. Under ADR-035 strict replay each filter query string is
+ * served its OWN verbatim recording (no base-capture fallback); this account
+ * carries too few rows for a filter or sort write to reorder the result, so
+ * the discriminating proof is the outbound-request observer, not a changed
+ * response.
  *
  * ## What Breaks If These Fail
  * A client narrowing or reordering their commission history by date or
@@ -37,12 +39,10 @@ import type { SortDirection } from "../../query/query.types";
 
 type CommissionsBody = { data?: { id?: string }[] };
 
-function recordedCommissionIds(): (string | undefined)[] {
-  return (
-    recorded<CommissionsBody>(
-      "get-accounts-id-affiliate-pending-commissions-with-staged-imports-1"
-    ).data ?? []
-  ).map(r => r.id);
+function recordedCommissionIds(
+  capture = "get-accounts-id-affiliate-pending-commissions-with-staged-imports-1"
+): (string | undefined)[] {
+  return (recorded<CommissionsBody>(capture).data ?? []).map(r => r.id);
 }
 
 describe("affiliate.commissions-criteria — a filter or a sort write reaches the wire", () => {
@@ -84,12 +84,17 @@ describe("affiliate.commissions-criteria — a filter or a sort write reaches th
       "-1_months"
     ]);
 
-    // Every row's id pinned, not only rows[0] — the replay pool serves the
-    // SAME capture regardless of the filter written, so this half proves data
-    // came back, never that the filter changed which rows did (characterisation,
-    // per the request-observer assertion above, which is the discriminating half).
+    // Row ids read from THIS filtered request's OWN recording (ADR-035 strict
+    // replay — each query string is served its own verbatim capture, no base
+    // fallback). Characterisation, not the discriminating half: it proves the
+    // filtered rows flow through to context, while the request-observer
+    // assertion above is what pins the filter branch itself.
     const rows = commissions.useContext().data.value;
-    expect(rows.map(r => r.id)).toEqual(recordedCommissionIds());
+    expect(rows.map(r => r.id)).toEqual(
+      recordedCommissionIds(
+        "get-accounts-id-affiliate-pending-commissions-filter-created-at-after-1-months-with-staged-imports-1"
+      )
+    );
   });
 
   it("an amount sort write carries the declared field and direction on the wire, and the recorded rows still come back", async () => {
@@ -118,8 +123,10 @@ describe("affiliate.commissions-criteria — a filter or a sort write reaches th
     );
     expect(seen[0].searchParams.getAll("order")).toEqual(["-amount"]);
 
-    // Characterisation, not a discriminating control — see the filter case
-    // above.
+    // Characterisation, not a discriminating control: `order` is not part of
+    // the replay identity (fixture-handlers.ts), so a sort write is served the
+    // base list capture — this pins the row read still resolves after the
+    // write, not that the sort reordered the rows.
     const rows = commissions.useContext().data.value;
     expect(rows.map(r => r.id)).toEqual(recordedCommissionIds());
   });
