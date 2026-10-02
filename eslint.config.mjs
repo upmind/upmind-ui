@@ -1381,6 +1381,7 @@ export default [
     files: [
       "packages/headless/src/modules/**/*.{ts,tsx,mts,cts,vue}",
       "packages/client-vue/src/**/*.{ts,tsx,mts,cts,vue}",
+      "packages/modules-*/src/**/*.{ts,tsx,mts,cts,vue}",
       "apps/**/*.{ts,tsx,mts,cts,vue}",
       "playgrounds/**/*.{ts,tsx,mts,cts,vue}"
     ],
@@ -1409,6 +1410,7 @@ export default [
     files: [
       "packages/headless/src/**/*.{ts,tsx,mts,cts,vue}",
       "packages/client-vue/src/**/*.{ts,tsx,mts,cts,vue}",
+      "packages/modules-*/src/**/*.{ts,tsx,mts,cts,vue}",
       "apps/**/*.{ts,tsx,mts,cts,vue}",
       "playgrounds/**/*.{ts,tsx,mts,cts,vue}"
     ],
