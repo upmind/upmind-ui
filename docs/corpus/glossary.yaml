@@ -341,3 +341,41 @@ phone:
   referents:
     - { type: symbol, id: "@upmind-automation/headless!useClientPhones" }
     - { type: symbol, id: "@upmind-automation/headless!useClientPhoneManager" }
+
+affiliate:
+  term: affiliate
+  kind: domain
+  aliases: [affiliate programme, referral programme]
+  definition: >-
+    A client's own participation in a brand's referral programme — the
+    affiliate account attached to the client's account, its balance, referral
+    links, referrals, pending commissions, payouts and payout destination.
+    Read, enrolled, withdrawn and edited through the client's own (self) scope
+    only; the active account is the session's own account, with no account
+    switching. A visitor who opens a referral link is recorded separately by a
+    guest visit that writes the attribution cookie. Acting on behalf of
+    another client is not part of this module.
+  referents:
+    - { type: symbol, id: "@upmind-automation/headless!useClientAffiliate" }
+    - { type: symbol, id: "@upmind-automation/headless!useAffiliateLinks" }
+    - { type: symbol, id: "@upmind-automation/headless!useAffiliateLinkManager" }
+    - { type: symbol, id: "@upmind-automation/headless!useAffiliatePayoutDestinationManager" }
+    - { type: symbol, id: "@upmind-automation/headless!useAffiliateReferrals" }
+    - { type: symbol, id: "@upmind-automation/headless!useAffiliateCommissions" }
+    - { type: symbol, id: "@upmind-automation/headless!useAffiliatePayouts" }
+    - { type: symbol, id: "@upmind-automation/headless!useAffiliateLinkVisit" }
+
+affiliate-active-account:
+  term: affiliate active account
+  kind: domain
+  aliases: [affiliate account]
+  definition: >-
+    The one account every affiliate read and write addresses: the account id
+    the session's own record names when it is one of the client's accounts,
+    else the client's only account. A client with several accounts and no
+    matching id has no affiliate active account, so the affiliate composables report
+    no account rather than guessing. It is resolved from the session, shared by
+    every affiliate composable, and cleared on sign-out. There is no chooser
+    and no way to switch it.
+  referents:
+    - { type: symbol, id: "@upmind-automation/headless!useAffiliateActiveAccount" }

@@ -1,8 +1,9 @@
 # ADR 032: The Schema Family for Scoped Collection Composables — Query, Actions, Row
 
 **Date:** 2026-08-06
-**Status:** Accepted 2026-08-06. **Decision only — nothing recorded here is built.** Ratified by operator sign-off in the walkthrough of the design-council record below; that walkthrough supersedes the council wherever the two conflict, and the supersessions are recorded in *Alternatives considered*.
-**Amended 2026-08-06** (same day, operator walkthrough of the legacy filter inventory): decision **13** collapses the separate filter and sort schemas into one schema over the request state, and *Gap resolutions from the legacy filter inventory* adds nine rulings. The amendment certifies no capability either — the status above is unchanged.
+**Status:** Accepted 2026-08-06. **Decision, partly built (amended 2026-10-02).** The translator and the query schema are built; the actions schema, the row schema and the registry contract are not. See [Amendment 3](#amendment-3--the-criteria-pipeline-is-built-in-the-query-core-2026-10-02) and *Implementation status*. Ratified by operator sign-off in the walkthrough of the design-council record below; that walkthrough supersedes the council wherever the two conflict, and the supersessions are recorded in *Alternatives considered*.
+**Amended 2026-08-06** (same day, operator walkthrough of the legacy filter inventory): decision **13** collapses the separate filter and sort schemas into one schema over the request state, and *Gap resolutions from the legacy filter inventory* adds nine rulings. The amendment certifies no capability either — the status was unchanged by it.
+**Amended 2026-10-02** — see [Amendments](#amendments). Decision 4's translation seam is superseded: the criteria pipeline is built in the query core. The status above is otherwise narrowed, not reversed; see *Implementation status*.
 **Authors:** Dominic da Costa
 
 **Related:**
@@ -114,6 +115,7 @@ Consequences that make this the shape rather than a shape:
 - A disallowed operator is **unspellable**, not merely rejected — the inner gate is structural, and the validation error names the column that owns it.
 - **Two predicates on one column** (a `created_at` from/to range) are expressible. A flat `col|op` key cannot hold them.
 - A **dotted relation column** stays real nesting, which is what the live idiom already uses (`product-catalogue.services.ts:34`).
+  ⚠️ SUPERSEDED by [Amendment 3](#amendment-3--the-criteria-pipeline-is-built-in-the-query-core-2026-10-02) (2026-10-02) — a dotted relation column such as `"affiliate_link.name"` is one literal schema key, not a nested path. The criteria pipeline rejects a nested path for it as an extra property.
 - Error paths remain mappable to a control, so a validation failure can be shown on the field that caused it.
 
 The compile-time half of the operator gate needs one `as const` source plus `satisfies JsonSchema7`. Every schema factory in the tree today annotates `: JsonSchema7`, which erases the literal types, so this is a deliberate deviation from the established idiom and owes an adjacent `@decision` block.
@@ -138,6 +140,8 @@ Action availability is a **validation result over the row**, not a user-edited i
 - **An actor is not a schema condition.** An actor does not appear in the row model, so actor-varying availability belongs to the scope matrix (ADR-001), not to a predicate. Two mechanisms for one fact loses the variance law.
 
 ### 4. Translation happens in each module's **service**, at query instantiation. `modules/query/**` is not touched
+
+⚠️ SUPERSEDED by [Amendment 3](#amendment-3--the-criteria-pipeline-is-built-in-the-query-core-2026-10-02) (2026-10-02) — translation is not in each module's service and `modules/query/**` was extended. The translator is `translateQuery` in `modules/query/query.utils.ts`, called by `useQueryCriteria`. A module declares its query schema and passes `list({ criteria: { schema } })`. The emission rules below (one key per declared filter, non-empty strings, a fresh object per call) are not amended here.
 
 The service already builds the URL and already owns its filter and sort parameters. The hand-written literal at `product-catalogue.services.ts:34-35` becomes translator output — **one** `translateQuery(schema, model)` per decision 13, returning the `QueryProps` the query layer already accepts (`query.types.ts:113-129`).
 
@@ -257,13 +261,13 @@ So this is not a new grouping. The declaration is a schema **over the shape the 
 
 One schema, **one model**, one uischema. A search box and two filter controls are therefore a **single JSONForms form** over one model rather than three forms over three models, and the persisted (URL) state is one object rather than three.
 
-**The two translators collapse into one.** `translateFilters` / `translateSort` become `translateQuery(schema, model)`, returning `QueryProps` — which is what makes "near-identity" literal rather than rhetorical. Everything decision 4 established is kept: one key per **declared** filter (inactive as `""`, so `useQuery`'s `isEmpty → searchParams.delete` clears the stale parameter), every value a non-empty string, a **fresh object** every call, and the pipeline order prune → validate → translate. It is still called in the module's **service** at query instantiation, and `modules/query/**` is still not touched (decision 4 stands whole).
+**The two translators collapse into one.** `translateFilters` / `translateSort` become `translateQuery(schema, model)`, returning `QueryProps` — which is what makes "near-identity" literal rather than rhetorical. Everything decision 4 established is kept: one key per **declared** filter (inactive as `""`, so `useQuery`'s `isEmpty → searchParams.delete` clears the stale parameter), every value a non-empty string, a **fresh object** every call, and the pipeline order prune → validate → translate. It is still called in the module's **service** at query instantiation, and `modules/query/**` is still not touched (decision 4 stands whole). ⚠️ SUPERSEDED by [Amendment 3](#amendment-3--the-criteria-pipeline-is-built-in-the-query-core-2026-10-02) (2026-10-02) — `translateQuery` is called by `useQueryCriteria` inside `list()` / `listInfinite()`, not by the module's service, and decision 4 does not stand whole.
 
 One narrowing of decision 4's seam follows from the return type, and it is load-bearing rather than cosmetic: the translated `filter[…]` bag rides **`QueryProps.filters`**, not the `useUrl(...)` parameter bag. `useUrl` `set`s every key it is given, empty string included (`packages/headless/src/utils/useUrl.ts:30-34`), and an empty filter value means *"match empty"* and returns zero rows — so an inactive-as-`""` key spread into `useUrl` would empty the list on first load, while the same key handed to `QueryProps.filters` reaches the `isEmpty → delete` branch on **every** fetch including the first (`useQuery.ts:372-374` seeds the internal ref from `options.filters`; `:399-406` passes it to `request` each time). `sort` and `pagination` must ride their own `QueryProps` members for the mirror-image reason: `useQuery` **unconditionally deletes** `order` and `offset` when its own members are empty (`useQuery.ts:117`, `:131`), so an `order=` written directly into `useUrl` is wiped at fetch time. The service's own non-`filter[]` sidecars stay in the `useUrl` bag where they already are (gap resolution S-D11).
 
 **`query` is honest here specifically because it is not honoured on client-emails.** `query=` / `q=` / `search=` all return the unfiltered collection on `GET /clients/{id}/emails` (probed under A-D5; `docs/sdd/FE-2977 ✅/evidence/brief-schema-family.md:188`). So the canary's search box maps to `filters.email.like`, and `query` is declared **only** where the endpoint actually supports it. A `query` property on a schema whose endpoint ignores it would reproduce the exact live defect this story fixes — a search box that does nothing.
 
-**`pagination` joining the schema is what gives `TableIntent.paginate` a sink**, which the council recorded it as lacking. Stated without overclaiming: what changes is that the *model* now has somewhere to hold `{ limit, offset }` and to seed the query from. `ListQuery` still exposes no page or page-size setter — only `fetchNextPage` / `fetchPreviousPage` (`query.types.ts:286-289`) — and `limit` is captured `const` at construction (`useQuery.ts:367-368`), so a later model change to `limit` cannot reach the wire without a new query instance.
+**`pagination` joining the schema is what gives `TableIntent.paginate` a sink**, which the council recorded it as lacking. Stated without overclaiming: what changes is that the *model* now has somewhere to hold `{ limit, offset }` and to seed the query from. `ListQuery` still exposes no page or page-size setter — only `fetchNextPage` / `fetchPreviousPage` (`query.types.ts:286-289`) — and `limit` is captured `const` at construction (`useQuery.ts:367-368`), so a later model change to `limit` cannot reach the wire without a new query instance. ⚠️ SUPERSEDED by [Amendment 3](#amendment-3--the-criteria-pipeline-is-built-in-the-query-core-2026-10-02) (2026-10-02) — `list()` reads a reactive `limit` derived from the criteria (`useQuery.ts:417-419`), so a later model change to `limit` re-keys the query and reaches the wire.
 
 **What stays out of the query schema.** The **row schema** (it describes a record, not a request) and the **actions schema** (rules only, no model — decision 3). The family is therefore: one query schema · one actions schema · one row schema · the module's existing form schema.
 
@@ -316,6 +320,8 @@ What survives of that analysis, and is why the alternative was serious rather th
 Also considered and rejected within that alternative: **`Manager`-on-a-collection.** Its `scope` is a foreign key on a parent form model (`client-company.schemas.ts:136`, `scope: "#/properties/addressId"`); a bare collection has no parent property, so the scope would be vestigial. Adopting a shape and dropping its load-bearing member is the failure this whole exercise exists to avoid.
 
 ### A generic translator in `modules/query/**`
+
+⚠️ SUPERSEDED by [Amendment 3](#amendment-3--the-criteria-pipeline-is-built-in-the-query-core-2026-10-02) (2026-10-02) — this alternative was adopted. The translator was built in the query core as `translateQuery`, and the rejection below no longer holds.
 
 The council ruled for a new barrel-exported translator file inside the query module. Rejected in favour of decision 4: the service **already** builds the URL and **already** owns its filter and sort parameters, so the seam exists and needs no new host. This also removes the escalation the council raised — there is no protected-core write, because `modules/query/**` is not touched at all.
 
@@ -385,6 +391,38 @@ Recorded here as needing amendment; amending ADR-027 is not part of this record.
 
 ### Implementation status
 
-**Not built.** This record fixes the shape so it can be built once; it certifies no delivered capability. The receipts above are all of existing code — the seam, the serialiser, the shipped precedents and the two blocking defects. The schema shapes, the translators and the registry contract are decided and unwritten.
+**Partly built (amended 2026-10-02).** The query-core criteria pipeline and the query schema are built; the actions schema, the row schema and the registry contract are not. The paragraph below is the original status, kept as history, and is superseded by [Amendment 3](#amendment-3--the-criteria-pipeline-is-built-in-the-query-core-2026-10-02) for the translator and the query schema.
 
-**Exception: decision 10's sort uischema is built.** The 2026-08-18 amendment's `useSortUischema()` mechanism ships on `client-email` (`client-email.schemas.ts`) and `client-email-history` (`client-email-history.schemas.ts`), published on each module's own list context (`sortUischema`) beside the query schema. The rest of this record's "not built" status is otherwise unchanged.
+~~**Not built.**~~ ⚠️ SUPERSEDED by Amendment 3 (2026-10-02) for the translator and the query schema. This record fixes the shape so it can be built once. The receipts above are all of existing code — the seam, the serialiser, the shipped precedents and the two blocking defects. The actions schema, the row schema and the registry contract are decided and unwritten.
+
+**Exception: decision 10's sort uischema is built.** The 2026-08-18 amendment's `useSortUischema()` mechanism ships on `client-email` (`client-email.schemas.ts`) and `client-email-history` (`client-email-history.schemas.ts`), published on each module's own list context (`sortUischema`) beside the query schema. The rest of this record's "not built" status is otherwise unchanged by that exception.
+
+---
+
+## Amendments
+
+Amendments 1 and 2 are folded in above (decision 13 and the gap resolutions of 2026-08-06; the sort uischema of 2026-08-18). Each amendment supersedes the original text where the two conflict; the superseded clause carries an inline marker.
+
+### Amendment 3 — the criteria pipeline is built in the query core (2026-10-02)
+
+**Ratified by:** operator ruling G8, option (a) — amend decision 4 and keep the story's spec — and G8-DOCS, which makes this wording its own docs task. Both are recorded in the story rulings for the affiliate module.
+
+**What changed.** Decision 4 placed translation in each module's service and left `modules/query/**` untouched. That is not what was built. The criteria pipeline lives in the query core:
+
+- `translateQuery(schema, model)` is exported from `modules/query/query.utils.ts` and returns the `QueryProps` the query layer accepts.
+- `useQueryCriteria` (`modules/query/useQueryCriteria.ts`) runs the pipeline — intent, parse, validate, translate — and calls `translateQuery`.
+- `list({ criteria: { schema } })` and `listInfinite({ criteria: { schema } })` construct `useQueryCriteria` from the declared criteria. Since FE-2977 that is the one pipeline: a module declares its schema and passes it, and does not call a translator or write raw `sort` or `filters` beside it.
+- The decision-13 query schema ships per module as `useQuerySchema()`, for example `modules/client-company/client-company.schemas.ts`. The affiliate module declares one per collection in `affiliate.schemas.ts` and passes it through `list({ criteria: { schema } })`.
+
+**What stands.** Decision 13's one-schema shape, the nested filter shape for a column that holds several predicates, and the emission rules (one key per declared filter, non-empty string values, a fresh object per call) are unchanged. The amendment moves where the translator lives and who calls it; it does not change what it emits.
+
+**Two corrections to the decision text.**
+
+- **Dotted relation keys (decision 1).** A dotted relation column such as `"affiliate_link.name"` is one literal schema key. It is not nested. A nested path for it is rejected as an extra property. Decision 1's line "A dotted relation column stays real nesting" is superseded.
+- **`limit` is reactive (decision 13).** Decision 13 says `list()` captures `limit` as a `const` at construction. `list()` reads a reactive `limit` derived from the criteria (`modules/query/useQuery.ts:417-419`). A change to the model's page size re-keys the query and reaches the wire.
+
+**Superseded clauses.** Decision 1's dotted-column line; decision 4 (translation in each module's service, `modules/query/**` untouched); the restatement in decision 13, "`modules/query/**` is still not touched (decision 4 stands whole)"; the rejection of "A generic translator in `modules/query/**`", which was adopted; and decision 13's `const` capture of `limit`. Each carries an inline marker above.
+
+**Implementation status after this amendment.** Built: the translator, `useQueryCriteria`, the criteria option on `list` and `listInfinite`, and per-module query schemas. Still unwritten: the actions schema, the row schema and the registry contract.
+
+**Related.** FE-2977, FE-3227.

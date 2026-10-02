@@ -13,6 +13,58 @@
         ],
         "term": "account"
       },
+      "affiliate": {
+        "aliases": ["affiliate programme", "referral programme"],
+        "definition": "A client's own participation in a brand's referral programme — the affiliate account attached to the client's account, its balance, referral links, referrals, pending commissions, payouts and payout destination. Read, enrolled, withdrawn and edited through the client's own (self) scope only; the active account is the session's own account, with no account switching. A visitor who opens a referral link is recorded separately by a guest visit that writes the attribution cookie. Acting on behalf of another client is not part of this module.",
+        "kind": "domain",
+        "referents": [
+          {
+            "id": "@upmind-automation/headless!useClientAffiliate",
+            "type": "symbol"
+          },
+          {
+            "id": "@upmind-automation/headless!useAffiliateLinks",
+            "type": "symbol"
+          },
+          {
+            "id": "@upmind-automation/headless!useAffiliateLinkManager",
+            "type": "symbol"
+          },
+          {
+            "id": "@upmind-automation/headless!useAffiliatePayoutDestinationManager",
+            "type": "symbol"
+          },
+          {
+            "id": "@upmind-automation/headless!useAffiliateReferrals",
+            "type": "symbol"
+          },
+          {
+            "id": "@upmind-automation/headless!useAffiliateCommissions",
+            "type": "symbol"
+          },
+          {
+            "id": "@upmind-automation/headless!useAffiliatePayouts",
+            "type": "symbol"
+          },
+          {
+            "id": "@upmind-automation/headless!useAffiliateLinkVisit",
+            "type": "symbol"
+          }
+        ],
+        "term": "affiliate"
+      },
+      "affiliate-active-account": {
+        "aliases": ["affiliate account"],
+        "definition": "The one account every affiliate read and write addresses: the account id the session's own record names when it is one of the client's accounts, else the client's only account. A client with several accounts and no matching id has no affiliate active account, so the affiliate composables report no account rather than guessing. It is resolved from the session, shared by every affiliate composable, and cleared on sign-out. There is no chooser and no way to switch it.",
+        "kind": "domain",
+        "referents": [
+          {
+            "id": "@upmind-automation/headless!useAffiliateActiveAccount",
+            "type": "symbol"
+          }
+        ],
+        "term": "affiliate active account"
+      },
       "auth": {
         "aliases": ["authentication", "login"],
         "definition": "Unified authentication for guest, client, and staff actors — login, registration, and session establishment, handled by the auth composable.",
@@ -474,6 +526,54 @@
       "path": "packages/headless/src/modules/account/useAccount.ts",
       "title": "useAccount"
     },
+    "@upmind-automation/headless!useAffiliateActiveAccount": {
+      "kind": "symbol",
+      "module": "affiliate",
+      "path": "packages/headless/src/modules/affiliate/useAffiliateActiveAccount.ts",
+      "title": "useAffiliateActiveAccount"
+    },
+    "@upmind-automation/headless!useAffiliateCommissions": {
+      "kind": "symbol",
+      "module": "affiliate",
+      "path": "packages/headless/src/modules/affiliate/useAffiliateCommissions.ts",
+      "title": "useAffiliateCommissions"
+    },
+    "@upmind-automation/headless!useAffiliateLinkManager": {
+      "kind": "symbol",
+      "module": "affiliate",
+      "path": "packages/headless/src/modules/affiliate/useAffiliateLinkManager.ts",
+      "title": "useAffiliateLinkManager"
+    },
+    "@upmind-automation/headless!useAffiliateLinkVisit": {
+      "kind": "symbol",
+      "module": "affiliate",
+      "path": "packages/headless/src/modules/affiliate/useAffiliateLinkVisit.ts",
+      "title": "useAffiliateLinkVisit"
+    },
+    "@upmind-automation/headless!useAffiliateLinks": {
+      "kind": "symbol",
+      "module": "affiliate",
+      "path": "packages/headless/src/modules/affiliate/useAffiliateLinks.ts",
+      "title": "useAffiliateLinks"
+    },
+    "@upmind-automation/headless!useAffiliatePayoutDestinationManager": {
+      "kind": "symbol",
+      "module": "affiliate",
+      "path": "packages/headless/src/modules/affiliate/useAffiliatePayoutDestinationManager.ts",
+      "title": "useAffiliatePayoutDestinationManager"
+    },
+    "@upmind-automation/headless!useAffiliatePayouts": {
+      "kind": "symbol",
+      "module": "affiliate",
+      "path": "packages/headless/src/modules/affiliate/useAffiliatePayouts.ts",
+      "title": "useAffiliatePayouts"
+    },
+    "@upmind-automation/headless!useAffiliateReferrals": {
+      "kind": "symbol",
+      "module": "affiliate",
+      "path": "packages/headless/src/modules/affiliate/useAffiliateReferrals.ts",
+      "title": "useAffiliateReferrals"
+    },
     "@upmind-automation/headless!useAuth": {
       "kind": "symbol",
       "module": "auth",
@@ -509,6 +609,12 @@
       "module": "brand",
       "path": "packages/headless/src/modules/brand/useBrand.ts",
       "title": "useBrand"
+    },
+    "@upmind-automation/headless!useClientAffiliate": {
+      "kind": "symbol",
+      "module": "affiliate",
+      "path": "packages/headless/src/modules/affiliate/useClientAffiliate.ts",
+      "title": "useClientAffiliate"
     },
     "@upmind-automation/headless!useClientCustomFieldImage": {
       "kind": "symbol",
