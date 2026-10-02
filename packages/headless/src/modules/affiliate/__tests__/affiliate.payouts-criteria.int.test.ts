@@ -12,11 +12,14 @@
  * ADR-035 strict replay each filter query string is served its OWN verbatim
  * recording (no base-capture fallback); this account carries a single payout,
  * so a filter or sort write cannot reorder the result, and the discriminating
- * proof is the outbound-request observer, not a changed response.
+ * proof is the outbound-request observer, not a changed response. The
+ * listing also publishes a criteria uischema whose controls address its own
+ * criteria schema, including the `created_at` filter.
  *
  * ## What Breaks If These Fail
  * A client narrowing or reordering their payout history by date or amount
- * would see the request silently drop the filter or sort branch.
+ * would see the request silently drop the filter or sort branch, or a filter
+ * bar would have no control to draw.
  *
  * ## Capture gap (G3, honestly disclosed)
  * Pagination (AC21) stays `@todo` in `affiliate.feature` — this account
@@ -31,6 +34,11 @@ import { ScopeActorTypes } from "../../scope/scope.types";
 import { useAffiliateActiveAccount } from "../useAffiliateActiveAccount";
 import { useAffiliatePayouts } from "../useAffiliatePayouts";
 import { recordedAccountId, seedRealClient } from "./affiliate.int-helpers";
+import {
+  controlScopePaths,
+  resolvesInSchema,
+  type UischemaNode
+} from "./affiliate.uischema-helpers";
 import { recorded, server } from "./setup.integration";
 import type { SortDirection } from "../../query/query.types";
 
@@ -215,5 +223,22 @@ describe("affiliate.payouts-criteria — a filter or a sort write reaches the wi
     const rows = payouts.useContext().data.value;
     expect(rows).toHaveLength(1);
     expect(rows[0].id).toBe(recordedPayoutId());
+  });
+
+  it("the payout history publishes a criteria form that filters by creation date over its own criteria", async () => {
+    const payouts = useAffiliatePayouts().as(ScopeActorTypes.CLIENT);
+    await payouts.useActions().isReady();
+
+    const { schema, uischema } = payouts.useContext().schemas.query;
+    const paths = controlScopePaths(uischema as UischemaNode);
+
+    expect(paths.length).toBeGreaterThan(0);
+    for (const path of paths) {
+      expect(resolvesInSchema(schema, path), path.join(".")).toBe(true);
+    }
+    expect(
+      paths.some(path => path[0] === "filters" && path[1] === "created_at"),
+      paths.map(path => path.join(".")).join(" | ")
+    ).toBe(true);
   });
 });

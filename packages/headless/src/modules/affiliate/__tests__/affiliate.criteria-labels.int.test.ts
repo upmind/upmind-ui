@@ -191,6 +191,29 @@ describe("affiliate.criteria-labels — each criteria control label resolves", (
     }
   );
 
+  it.each([
+    ["commissions", () => useAffiliateCommissions().as(ScopeActorTypes.CLIENT)],
+    ["payouts", () => useAffiliatePayouts().as(ScopeActorTypes.CLIENT)]
+  ] as const)(
+    "every control the %s listing's REAL published criteria uischema declares resolves in form-en.json",
+    async (_, getListing) => {
+      const listing = getListing();
+      await listing.useActions().isReady();
+      const uischema = listing.useContext().schemas.query
+        .uischema as UischemaNode;
+
+      const keys = collectI18nKeys(uischema).map(stripFormPrefix);
+      expect(keys.length).toBeGreaterThan(0);
+      for (const key of keys) {
+        expect(hasKey(key), key).toBe(true);
+        const entry = FORM[key];
+        expect(entry.label !== null || entry.placeholder !== null, key).toBe(
+          true
+        );
+      }
+    }
+  );
+
   it("declares no sort option key for a field outside its own sortable-field set", async () => {
     const links = useAffiliateLinks().as(ScopeActorTypes.CLIENT);
     await links.useActions().isReady();

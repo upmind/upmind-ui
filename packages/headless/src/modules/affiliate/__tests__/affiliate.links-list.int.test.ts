@@ -9,11 +9,13 @@
  * ## Job To Be Done
  * Protect that `useAffiliateLinks` reads the active account's own referral
  * links, with `with_staged_imports=1` on the wire, and reports the read
- * failure honestly (design.md §8.1, §8.2 Failure surface, AC7 row).
+ * failure honestly (design.md §8.1, §8.2 Failure surface, AC7 row). Each row
+ * carries its shareable `referral_url`, `{referralOrigin}/aff/{hash}`.
  *
  * ## What Breaks If These Fail
  * A client would see no referral link at all (or someone else's), or a
- * transient API failure would look like "you have never created a link".
+ * transient API failure would look like "you have never created a link", or
+ * a listed link would carry no URL the client can share.
  *
  * Stated omissions (ADR-021, design.md §8.2): this spec's failure case is the
  * documented 500-only 4xx/5xx surface for the four listing reads — no other
@@ -21,6 +23,7 @@
  */
 import { beforeEach, describe, expect, it } from "vitest";
 import { ScopeActorTypes } from "../../scope/scope.types";
+import { referralOrigin } from "../affiliate.utils";
 import { useAffiliateActiveAccount } from "../useAffiliateActiveAccount";
 import { useAffiliateLinks } from "../useAffiliateLinks";
 import {
@@ -33,6 +36,7 @@ import {
   recorded,
   server
 } from "./setup.integration";
+import type { IBrand } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
 
@@ -124,6 +128,37 @@ describe("affiliate.links-list — the links read for the active account", () =>
     expect(seen).toHaveLength(1);
     expect(links.useMeta().hasError.value).toBe(false);
     expect(links.useContext().data.value).toHaveLength(1);
+  });
+
+  it("each listed referral link carries its shareable referral URL", async () => {
+    await useAffiliateActiveAccount()
+      .as(ScopeActorTypes.CLIENT)
+      .useActions()
+      .isReady();
+
+    const links = useAffiliateLinks().as(ScopeActorTypes.CLIENT);
+    await links.useActions().isReady();
+
+    const accountBrand = recorded<{ data?: { account?: { brand?: IBrand } } }>(
+      "get-accounts-id-affiliate-with-staged-imports-1"
+    ).data?.account?.brand;
+    const defaultClientOrigin = accountBrand?.oauth_clients?.find(
+      client => client.default
+    )?.origin;
+    const origin = referralOrigin(accountBrand);
+    expect(defaultClientOrigin).toBeTruthy();
+    expect(origin).toContain(defaultClientOrigin);
+
+    const rawLinks = recorded<{ data?: { id?: string; hash?: string }[] }>(
+      "get-accounts-id-affiliate-links-with-staged-imports-1"
+    ).data;
+    const hash = rawLinks?.[0]?.hash;
+    expect(hash).toBeTruthy();
+
+    await expect
+      .poll(() => links.useContext().data.value[0]?.referral_url)
+      .toBe(`${origin}/aff/${hash}`);
+    expect(links.useContext().data.value[0]?.id).toBe(rawLinks?.[0]?.id);
   });
 });
 

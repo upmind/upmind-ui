@@ -412,6 +412,14 @@ Feature: The client self-service affiliate data layer and the guest link visit
     When the client lists their referral links
     Then the client can filter, sort and paginate the list and see each link's referral URL
 
+  @AC7 @AC13 @client
+  # Proof: affiliate.links-list.int.test.ts, over the recorded links read and
+  # the recorded account's own brand. Control: affiliate.links-list.no-referral-url.
+  Scenario: Each listed referral link carries its shareable referral URL
+    Given an enrolled client with referral links on a brand with a default portal origin
+    When the client lists their referral links
+    Then each link carries the referral URL built from the brand's referral origin and that link's own hash
+
   @AC10 @AC11 @client
   # JTBD STATUS: DELIVERED (pseudo-Nathan review, cardinal call 3). The real
   # create → read → edit → delete cycle IS captured (throwaway link, cleaned
@@ -509,6 +517,15 @@ Feature: The client self-service affiliate data layer and the guest link visit
     When the client lists their commission history
     Then the client can filter, sort and paginate the list
 
+  @AC17 @client
+  # Proof: affiliate.commissions-criteria.int.test.ts (the controls address the
+  # listing's own criteria) and affiliate.criteria-labels.int.test.ts (the
+  # labels resolve). Control: affiliate.commissions-criteria.no-uischema.
+  Scenario: The commission history publishes a criteria form that filters by creation date over its own criteria
+    Given an enrolled client with commissions
+    When the client asks for the commission history's criteria form
+    Then the form can filter by creation date, and every control of it addresses the commission criteria
+
   @AC20 @AC21 @client @todo
   # The base payouts read IS captured (1 real row, matching the operator
   # brief's one withdrawn payout), with a read+failure spec
@@ -527,6 +544,23 @@ Feature: The client self-service affiliate data layer and the guest link visit
     Given an enrolled client with payouts
     When the client lists their payout history
     Then the client can filter, sort and paginate the list
+
+  @AC21 @client
+  # Proof: affiliate.payouts-criteria.int.test.ts (the controls address the
+  # listing's own criteria) and affiliate.criteria-labels.int.test.ts (the
+  # labels resolve). Control: affiliate.payouts-criteria.no-uischema.
+  Scenario: The payout history publishes a criteria form that filters by creation date over its own criteria
+    Given an enrolled client with payouts
+    When the client asks for the payout history's criteria form
+    Then the form can filter by creation date, and every control of it addresses the payout criteria
+
+  @AC23 @client
+  # Proof: affiliate.destinations.int.test.ts, over the recorded destinations
+  # and emails reads. Control: affiliate.destinations.free-string-ids.
+  Scenario: The payout destination editor offers the brand's destinations and the client's own emails as its only choices
+    Given an enrolled client whose brand carries payout destinations and who has emails
+    When the client opens the payout destination editor
+    Then the destination is chosen only from the brand's destinations, and the PayPal email only from the client's own emails
 
   @AC22 @client
   # Proof: affiliate.destinations.int.test.ts (the account's real destination
@@ -768,6 +802,30 @@ Feature: The client self-service affiliate data layer and the guest link visit
     Given a visitor following a referral link
     When recording the visit fails
     Then the visitor is still sent on to the referral origin
+
+  @AC24 @guest
+  # Proof: affiliate.link-visit.int.test.ts, the recorded visit held open.
+  # Control: affiliate.link-visit.never-loading.
+  Scenario: A visit reports that it is in progress until the visit answers
+    Given a visitor following a referral link whose visit is slow to answer
+    When the visitor follows the referral link
+    Then the visit reads as in progress until it answers, and not after
+
+  @AC24 @guest
+  # Proof: affiliate.link-visit.int.test.ts (network-failure control, then the
+  # recorded visit). Control: affiliate.link-visit.no-failure-flag.
+  Scenario: A visit whose attribution cannot be recorded reports the failure, and a recorded visit reports none
+    Given a visitor following a referral link
+    When recording the visit fails
+    Then the visit reports the failure, and a later recorded visit reports none
+
+  @AC24 @guest
+  # Proof: affiliate.link-visit.int.test.ts (network-failure control).
+  # Control: affiliate.link-visit.reset-noop.
+  Scenario: A reset clears the last visit's failure and outcome, re-arming the visit
+    Given a visitor whose visit could not record the attribution
+    When the visit is reset
+    Then no failure and no visit outcome remain
 
   # ---------------------------------------------------------------------------
   # Access denial — every actor other than the resolved self gets nothing

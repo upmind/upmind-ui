@@ -13,11 +13,13 @@
  * served its OWN verbatim recording (no base-capture fallback); this account
  * carries too few rows for a filter or sort write to reorder the result, so
  * the discriminating proof is the outbound-request observer, not a changed
- * response.
+ * response. The listing also publishes a criteria uischema whose controls
+ * address its own criteria schema, including the `created_at` filter.
  *
  * ## What Breaks If These Fail
  * A client narrowing or reordering their commission history by date or
- * amount would see the request silently drop the filter or sort branch.
+ * amount would see the request silently drop the filter or sort branch, or a
+ * filter bar would have no control to draw.
  *
  * ## Capture gap (G3, honestly disclosed)
  * Pagination (AC17) stays `@todo` in `affiliate.feature` — this account
@@ -32,6 +34,11 @@ import { ScopeActorTypes } from "../../scope/scope.types";
 import { useAffiliateActiveAccount } from "../useAffiliateActiveAccount";
 import { useAffiliateCommissions } from "../useAffiliateCommissions";
 import { recordedAccountId, seedRealClient } from "./affiliate.int-helpers";
+import {
+  controlScopePaths,
+  resolvesInSchema,
+  type UischemaNode
+} from "./affiliate.uischema-helpers";
 import { recorded, server } from "./setup.integration";
 import type { SortDirection } from "../../query/query.types";
 
@@ -167,5 +174,22 @@ describe("affiliate.commissions-criteria — a filter or a sort write reaches th
 
     const rows = commissions.useContext().data.value;
     expect(rows.map(r => r.id)).toEqual(recordedCommissionIds());
+  });
+
+  it("the commission history publishes a criteria form that filters by creation date over its own criteria", async () => {
+    const commissions = useAffiliateCommissions().as(ScopeActorTypes.CLIENT);
+    await commissions.useActions().isReady();
+
+    const { schema, uischema } = commissions.useContext().schemas.query;
+    const paths = controlScopePaths(uischema as UischemaNode);
+
+    expect(paths.length).toBeGreaterThan(0);
+    for (const path of paths) {
+      expect(resolvesInSchema(schema, path), path.join(".")).toBe(true);
+    }
+    expect(
+      paths.some(path => path[0] === "filters" && path[1] === "created_at"),
+      paths.map(path => path.join(".")).join(" | ")
+    ).toBe(true);
   });
 });

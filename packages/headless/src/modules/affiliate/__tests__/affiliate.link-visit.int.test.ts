@@ -12,6 +12,8 @@
  * completes (status zero) still redirects, to the referral origin rather
  * than being stuck with no target (design.md §8.12 "Visit fails, status
  * zero, empty body: the origin"; §10.1 P76 "Status zero is a fix, DV10").
+ * The visit also reports itself in flight, reports a failed attribution, and
+ * re-arms on `reset()`.
  *
  * ## What Breaks If These Fail
  * A guest following a real referral link would get no credit for the
@@ -105,11 +107,19 @@
  * branch is the declared status-zero override; the 4xx/401 surface does not
  * apply to the guest visit (no session, no token, design.md §8.2 note 1).
  */
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { ScopeActorTypes } from "../../scope/scope.types";
 import { useAffiliateLinkVisit } from "../useAffiliateLinkVisit";
-import { serveCapture, serveFailure } from "./affiliate.int-helpers";
-import { recorded, server } from "./setup.integration";
+import {
+  holdCapture,
+  serveCapture,
+  serveFailure
+} from "./affiliate.int-helpers";
+import {
+  installGuestTokenLangTolerance,
+  recorded,
+  server
+} from "./setup.integration";
 
 // -----------------------------------------------------------------------------
 
@@ -386,5 +396,66 @@ describe("affiliate.link-visit — the guest link visit: attribution + redirect,
     // composable's own result.
     expect(seenPosts).toHaveLength(1);
     expect(target).toBe(window.location.origin);
+  });
+
+  it("a visit reports that it is in progress until the visit answers", async () => {
+    window.happyDOM?.setURL?.(
+      "https://qa-automation.local/aff/f55dc9bd547b9c9dc54ab91ce979ceee69ebb677"
+    );
+    const held = holdCapture("post", VISIT_ROUTE, "post-affiliate-link-visit");
+
+    const sent: string[] = [];
+    server?.events.on("request:start", ({ request }) => {
+      if (new URL(request.url).pathname.endsWith("/affiliate_link/visit")) {
+        sent.push(request.method);
+      }
+    });
+
+    const visit = useAffiliateLinkVisit().as(ScopeActorTypes.GUEST);
+    const pending = visit.useActions().visit();
+
+    await vi.waitFor(() => expect(sent).toHaveLength(1));
+    expect(visit.useMeta().isLoading.value).toBe(true);
+
+    held.release();
+    await pending;
+
+    expect(visit.useMeta().isLoading.value).toBe(false);
+  });
+
+  it("a visit whose attribution cannot be recorded reports the failure, and a recorded visit reports none", async () => {
+    window.happyDOM?.setURL?.(
+      "https://qa-automation.local/aff/f55dc9bd547b9c9dc54ab91ce979ceee69ebb677"
+    );
+
+    serveFailure("post", VISIT_ROUTE, "network");
+    const failed = useAffiliateLinkVisit().as(ScopeActorTypes.GUEST);
+    await failed.useActions().visit();
+    expect(failed.useMeta().hasError.value).toBe(true);
+
+    server?.resetHandlers();
+    installGuestTokenLangTolerance();
+    serveCapture("post", VISIT_ROUTE, "post-affiliate-link-visit");
+    const recordedVisit = useAffiliateLinkVisit().as(ScopeActorTypes.GUEST);
+    await recordedVisit.useActions().visit();
+    expect(recordedVisit.useMeta().hasError.value).toBe(false);
+  });
+
+  it("a reset clears the last visit's failure and outcome, re-arming the visit", async () => {
+    window.happyDOM?.setURL?.(
+      "https://qa-automation.local/aff/f55dc9bd547b9c9dc54ab91ce979ceee69ebb677"
+    );
+    serveFailure("post", VISIT_ROUTE, "network");
+
+    const visit = useAffiliateLinkVisit().as(ScopeActorTypes.GUEST);
+    await visit.useActions().visit();
+    expect(visit.useMeta().hasError.value).toBe(true);
+    expect(visit.useMeta().hasVisited.value).toBe(true);
+
+    visit.useActions().reset();
+
+    expect(visit.useMeta().hasError.value).toBe(false);
+    expect(visit.useMeta().hasVisited.value).toBe(false);
+    expect(visit.useContext().target.value).toBeUndefined();
   });
 });

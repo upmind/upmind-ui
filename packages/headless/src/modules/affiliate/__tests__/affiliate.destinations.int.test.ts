@@ -8,11 +8,13 @@
  * Protect that the payout destination manager reads the account brand's
  * destinations with the documented window/order (design.md §8.1) and
  * publishes the real `default` entry and the account's own `isPaypal`
- * verdict correctly.
+ * verdict correctly. The editor's form schema offers the read destinations
+ * and the client's own emails as closed choices, never free strings.
  *
  * ## What Breaks If These Fail
  * A client would see the wrong (or no) default payout destination, or a
- * PayPal destination could wrongly fail to gate the PayPal email field on.
+ * PayPal destination could wrongly fail to gate the PayPal email field on, or
+ * the editor would make the client type a raw destination or email id.
  *
  * ## Operator brief, 2026-09-30 — staging state changed, retitled
  * The brand now carries a real PayPal destination (`code: "paypal"`),
@@ -29,7 +31,7 @@
  * (brand-flag) override is authored — the account-seeded PayPal case below
  * is the real, achievable proof instead.
  */
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, onTestFinished } from "vitest";
 import { ScopeActorTypes } from "../../scope/scope.types";
 import { useAffiliatePayoutDestinationManager } from "../useAffiliatePayoutDestinationManager";
 import {
@@ -37,7 +39,9 @@ import {
   seedRealClient,
   serveFailure
 } from "./affiliate.int-helpers";
+import { choiceValues } from "./affiliate.uischema-helpers";
 import { recorded, server } from "./setup.integration";
+import type { JsonSchema } from "@jsonforms/core";
 
 // -----------------------------------------------------------------------------
 
@@ -184,6 +188,36 @@ describe("affiliate.destinations — the destinations read for the account brand
     } finally {
       manager.useActions().destroy();
     }
+  });
+
+  it("the payout destination editor offers the brand's destinations and the client's own emails as its only choices", async () => {
+    const manager = useAffiliatePayoutDestinationManager()
+      .as(ScopeActorTypes.CLIENT)
+      .fresh();
+    onTestFinished(() => manager.useActions().destroy());
+    await manager.useActions().isReady();
+
+    const destinationIds = (
+      recorded<DestinationsBody>("get-brands-id-affiliate-payout-destination")
+        .data ?? []
+    ).map(d => d.id);
+    const emailIds = (
+      recorded<EmailsBody>("get-clients-id-emails-with-staged-imports-1")
+        .data ?? []
+    ).map(e => e.id);
+    expect(destinationIds.length).toBeGreaterThan(0);
+    expect(emailIds.length).toBeGreaterThan(0);
+
+    const properties = manager.useContext().schema.value?.properties as
+      | Record<string, JsonSchema>
+      | undefined;
+
+    expect([...choiceValues(properties?.payoutDestinationId)].sort()).toEqual(
+      [...destinationIds].sort()
+    );
+    expect([...choiceValues(properties?.paypalEmailId)].sort()).toEqual(
+      [...emailIds].sort()
+    );
   });
 
   it("a failed destinations read leaves the lookup empty, and the seed still runs from the account", async () => {

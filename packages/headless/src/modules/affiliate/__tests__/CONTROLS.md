@@ -304,6 +304,16 @@ reverted every one of the 54 patches with no side effect left behind.
 | 85 | `affiliate.destination-save.add-email-keeps-list` | `affiliate.destination-save.int.test.ts` "A client adds a PayPal email and keeps the unsaved destination choice" | RED (pass 30, blind) | the replaced-list assertion `emails` ids `toEqual(emailsAfter ids)` at line 420: `expected [ Array(1) ] to deeply equal [ …(2) ]`, the new id `085e69d5-…` missing. 1 of 7 flips. Reverted: forward-clean. The spec needed no fix. |
 | 86 | `affiliate.link-create.wrong-default-key` | `affiliate.link-create.int.test.ts`, `affiliate.link-create-seed.int.test.ts`, `affiliate.error-reload.int.test.ts` | RED (pass 32, blind; author not recorded; adopted as a control after a blind RED run by the prover and the verifier) | The patch reads the wrong settings key as the brand default. Four tests flip, each on its own default-redirect assertion: `a new link starts from the brand's default redirect` (`expected true to be 'https://kn6x1dzbtcgb.staging.upmind.d…'`), `… when the settings answer late` (same), the no-default seed case (`expected true to be ''`) and the gate-failure case of `affiliate.error-reload` (`expected true to be 'https://kn6x1dzbtcgb.staging.upmind.d…'`). The received value `true` is the `withdraw_request` value, so the flips come from the wrong-key read. 4 of 140. Reverted: forward-clean. |
 
+| 87 | `affiliate.commissions-criteria.no-uischema` | `affiliate.commissions-criteria.int.test.ts`, `affiliate.criteria-labels.int.test.ts` | RED (pass 33, blind, G1) | Own assertion: "the commission history publishes a criteria form that filters by creation date over its own criteria" flips. Collateral: the commissions row of "every control the %s listing's REAL published criteria uischema declares resolves". Reverted: GREEN. |
+| 88 | `affiliate.payouts-criteria.no-uischema` | `affiliate.payouts-criteria.int.test.ts`, `affiliate.criteria-labels.int.test.ts` | RED (pass 33, blind, G2) | Own assertion: "the payout history publishes a criteria form that filters by creation date over its own criteria" flips. Collateral: the payouts row of the published-uischema labels test. Reverted: GREEN. |
+| 89 | `affiliate.links-list.no-referral-url` | `affiliate.links-list.int.test.ts` | RED (pass 33, blind, G3) | Only "each listed referral link carries its shareable referral URL" flips (1 of 3). Reverted: GREEN. |
+| 90 | `affiliate.destinations.free-string-ids` | `affiliate.destinations.int.test.ts` | RED (pass 33, blind, G4) | Only "the payout destination editor offers the brand's destinations and the client's own emails as its only choices" flips (1 of 4). Reverted: GREEN. |
+| 91 | `affiliate.link-visit.never-loading` | `affiliate.link-visit.int.test.ts` | RED (pass 33, blind, G5) | Only "a visit reports that it is in progress until the visit answers" flips (1 of 9). Reverted: GREEN. |
+| 92 | `affiliate.link-visit.no-failure-flag` | `affiliate.link-visit.int.test.ts` | RED (pass 33, blind, G5) | Own assertion: "a visit whose attribution cannot be recorded reports the failure, and a recorded visit reports none" flips. Collateral: the reset test's failure precondition (2 of 9). Reverted: GREEN. |
+| 93 | `affiliate.link-visit.reset-noop` | `affiliate.link-visit.int.test.ts` | RED (pass 33, blind, G5) | Only "a reset clears the last visit's failure and outcome, re-arming the visit" flips (1 of 9). Reverted: GREEN. |
+
+Pass 33 re-ran the two rebased patches blind: row 8 (`affiliate.commissions-criteria.no-amount-sort`) flips only the amount-sort test, and row 47 (`useAffiliateLinkVisit.zero-redirects`) flips only the status-zero test. Both reverted GREEN. The G1-G5 scenarios are in `affiliate.feature`. Full suite after the pass: 53 files, 149 tests, exit 0.
+
 Rows 15 and 16 (`affiliate.enrol.no-guard`, `affiliate.enrol.reload-on-failure`) each flip only their own test (`expected 1 to be +0`). The AC4 happy-path test stays green under both and reddens under row 72.
 
 ## Finding, pass 22 (CLOSED in pass 23 for `isDirty`; contract versus build, for the developer seat)
@@ -312,7 +322,14 @@ Pass 23: the build now reports `isDirty` true on open, as the contract says, and
 
 design.md §8.6 "Create" says a create editor seeds `model` to `{ name: "", redirectUrl: defaultRedirectUrl }` with `baseModel` `{}`, so `isDirty` is true on open (bdd.md AC10: "`isDirty` true on open"). A probe on the built module, with the recorded area captures, reads `model` `{}`, `isDirty` false and `isNew` true after `isReady()` resolves, and still after 500 ms. No spec in this module asserts the create seed or `isDirty` on open, so nothing here is red. The probe was scratch and is not committed. Either the contract or the build is wrong. The prover does not decide which.
 
-## Evidence block (current state, pass 32)
+## Evidence block (current state, pass 33)
+
+- **Patches on disk:** 86 — the 79 of pass 32 plus the seven G1-G5 patches (rows 87-93).
+- **Active ledger rows:** 87 — the 80 of pass 32 plus rows 87-93. Rows 80 and 81 still share one file.
+- **RED, assertion flipped:** every active row. Rows 87-93 are new this pass; rows 8 and 47 are re-confirmed after their rebase.
+- **UNPROVEN, NAMED:** none.
+
+## Evidence block (historic, pass 32)
 
 - **Patches on disk:** 79 `*.must-fail.patch` files under `packages/headless/src/modules/affiliate/` (`find packages/headless/src/modules/affiliate -name '*.must-fail.patch' | wc -l`).
 - **Active ledger rows:** 80 — rows 1-86 less the six struck rows 7, 27, 43, 48 (R-NO-SWITCH), 66, 67 (split into 68-71).
