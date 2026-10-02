@@ -258,9 +258,9 @@ Feature: Order history — the client self-service capability
   @AC-22 @FE-3237 @client
   Scenario: A hand drives the two composables
     Given the operator opens the playground
-    When a hand drives the collection and the manager
-    Then every published member is reachable on the page
-    And each enter of the order view reads the order again
+    When a hand drives the collection and the record
+    Then the opened order draws whole on the shared record surface
+    And paying a payable order opens the shared payment overlay
 
   @AC-23 @FE-3237 @client
   Scenario: The cell stays the client self cell

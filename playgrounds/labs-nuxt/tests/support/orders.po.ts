@@ -7,59 +7,29 @@
  * locators are the renderer's own structural keys — the `filters` bar, each
  * `row`, the `pagination-region`, the `filter-multi-select` status control and
  * its `option-tile` choices (keyed by the wire status value), and the row's
- * `open-order`/`view` actions. The MANAGER (`/useOrder`) stays self-drawn,
- * keyed `order-<member>` by the design 8.12 rule.
+ * `open-order`/`view` actions.
+ *
+ * The RECORD (`/useOrder/:oid`) now renders on the SHARED record renderer
+ * (`RecordSurface`), the twin of `/useInvoice` (operator ruling 2026-10-02,
+ * commit 3ff03fc3d): it opens on load and draws the order whole — `record-title`
+ * from the header, the `record-status` badge, one `record-section-<key>` per
+ * declared section, each `record-field-<kebab(i18n)>`, and the `record-footer`.
+ * Its Pay now is the header action keyed by the kebab of its label; pressing it
+ * opens the shared `?init=pay` overlay. The former self-drawn manager keys
+ * (`order-<member>`, `order-enter`, `order-leave`) are gone.
  */
 
-import { kebabCase, map } from "lodash-es";
 import type { Locator, Page, Request } from "@playwright/test";
 
 // -----------------------------------------------------------------------------
-
-/**
- * The `useOrder` members the playground page draws, each reachable by its
- * `order-<member>` test key (design 8.6 / 8.12).
- *
- * Operator ruling 2026-10-02 (commit 4793b7a16): the page no longer draws the
- * refresh, invalidate, reset, destroy, isReady and cancel controls, so this lane
- * drops them from the reachability check. Their behaviour home is the headless
- * orders int suite — refresh, isReady and cancel each have a proving test there;
- * invalidate, reset and destroy have none (surfaced to the operator).
- */
-export const MANAGER_MEMBERS = [
-  "data",
-  "detail",
-  "products",
-  "error",
-  "contractId",
-  "isDue",
-  "isPayable",
-  "isCancellable",
-  "isOverdue",
-  "isPaid",
-  "isCancelled",
-  "isPartiallyPaid",
-  "canPay",
-  "canCancel",
-  "hasPendingPayment",
-  "isDelegated",
-  "hasOnlineGateways",
-  "isAvailable",
-  "isComplete",
-  "isEmpty",
-  "isLoading",
-  "isProcessing",
-  "hasError",
-  "usePayment"
-] as const;
 
 /** Whether a request is the collection read `GET api/invoices`. */
 export const isListRead = (request: Request): boolean =>
   request.method() === "GET" &&
   new URL(request.url()).pathname.endsWith("/api/invoices");
 
-/** Whether a request is the manager single read (`with_staged_imports=1`). */
-export const isManagerRead = (request: Request): boolean => {
+/** Whether a request is the record single read (`with_staged_imports=1`). */
+export const isRecordRead = (request: Request): boolean => {
   const url = new URL(request.url());
   return (
     request.method() === "GET" &&
@@ -144,26 +114,45 @@ export class OrderPage {
 
   async open(orderId: string): Promise<void> {
     await this.page.goto(`/useOrder/${orderId}`);
-    await this.page.getByTestId("order-page").waitFor({ timeout: 150000 });
+    await this.surface().waitFor({ timeout: 150000 });
   }
 
-  member(member: string): Locator {
-    return this.page.getByTestId(memberKey("order", member)).first();
+  surface(): Locator {
+    return this.page.getByTestId("record-surface");
   }
 
-  async enter(): Promise<void> {
-    await this.page.getByTestId("order-enter").click();
+  title(): Locator {
+    return this.page.getByTestId("record-title");
   }
 
-  async leave(): Promise<void> {
-    await this.page.getByTestId("order-leave").click();
+  status(): Locator {
+    return this.page.getByTestId("record-status");
   }
 
-  detailNumber(): Locator {
-    return this.page.getByTestId("order-detail-number");
+  footer(): Locator {
+    return this.page.getByTestId("record-footer");
+  }
+
+  section(key: string): Locator {
+    return this.page.getByTestId(`record-section-${key}`);
+  }
+
+  field(key: string): Locator {
+    return this.page.getByTestId(`record-field-${key}`);
+  }
+
+  payNow(): Locator {
+    return this.page
+      .getByTestId("record-header-actions")
+      .locator('[data-test-value="pay-now"]');
+  }
+
+  /** The shared payment overlay Pay now opens (the `?init=pay` intent routes here). */
+  paymentOverlay(): Locator {
+    return this.page.getByTestId("order-payment-overlay");
+  }
+
+  async pay(): Promise<void> {
+    await this.payNow().click();
   }
 }
-
-/** `schemas.query` → `schemas-query`, `hasNextPage` → `has-next-page`. */
-const memberKey = (prefix: string, member: string): string =>
-  `${prefix}-${map(member.split("."), kebabCase).join("-")}`;

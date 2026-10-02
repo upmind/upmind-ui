@@ -8,17 +8,20 @@
  * twin): a hand sees the recorded rows, the filter bar's search and status
  * multi-select, the sort toolbar and the pager each send the `GET api/invoices`
  * keys and window the design names, and a row's open control reaches the
- * MANAGER view. The MANAGER stays self-drawn: every member the page draws is
- * reachable by its test key (operator ruling 2026-10-02 dropped the refresh,
- * invalidate, reset, destroy, isReady and cancel controls from the page). The
- * order opens on mount (an id in the route needs
- * no button press, operator ruling 2026-10-01), so the manager single read fires
- * once on load; each re-enter after a leave reads it again, counting `N + 1`.
+ * RECORD view.
+ *
+ * The RECORD (`/useOrder/:oid`) now renders on the SHARED record renderer (the
+ * `/useInvoice` twin — operator ruling 2026-10-02, commit 3ff03fc3d). The order
+ * opens on mount (an id in the route needs no button press), so its single read
+ * fires once on load. The record draws the opened order whole: its number as
+ * the title, the status badge, the details, the items and the summary from the
+ * recorded order. Pay now is drawn while the order can pay; its `?init=pay`
+ * intent routes to the shared payment overlay (`/useOrder/:oid/payment`).
  *
  * The `bdd` project drives the six collection scenarios of the same feature;
  * `orders.driven.jq` holds that run to exactly those six. This lane
  * holds what the World seam cannot express: the rendered surface, the outbound
- * requests and the re-reads. No assertion counts served rows (design 8.12,
+ * requests and the single read. No assertion counts served rows (design 8.12,
  * replay limits).
  *
  * The filter-bar status control (former known gap, operator ruling 2026-09-29)
@@ -27,8 +30,8 @@
  *
  * ## What Breaks If These Fail
  * A hand on the playground cannot reach the orders, a control writes criteria
- * the wire never carries, or the order view shows a stale order after the
- * client comes back to it.
+ * the wire never carries, the record draws the wrong order or no Pay now on a
+ * payable order, or the order view reads the order more than once on load.
  */
 
 import { expect, test } from "@playwright/test";
@@ -36,9 +39,8 @@ import { getFixture } from "@upmind-automation/test-fixtures";
 import {
   OrderPage,
   OrdersPage,
-  MANAGER_MEMBERS,
   isListRead,
-  isManagerRead
+  isRecordRead
 } from "../support/orders.po";
 import { ORDERS_PINS } from "./catalogs.pins";
 import {
@@ -46,14 +48,27 @@ import {
   moduleRecordings,
   seedRecordedClientSession
 } from "./recorded-corpus";
-import { filter } from "lodash-es";
 import type { Request } from "@playwright/test";
 
 // -----------------------------------------------------------------------------
 
-const recordedOrder = getFixture("get-invoices-id-case-order-unpaid", {
+const recordedBody = getFixture("get-invoices-id-case-order-unpaid", {
   recordingsDir: moduleRecordings("orders")
-}).response.body as { data: { id: string; number: string } };
+}).response.body as {
+  data: {
+    id: string;
+    number: string;
+    status: { name: string };
+    current_data: { content: { products: { name: string }[] } };
+  };
+};
+
+const recordedOrder = {
+  id: recordedBody.data.id,
+  number: recordedBody.data.number,
+  statusName: recordedBody.data.status.name,
+  itemName: recordedBody.data.current_data.content.products[0].name.trim()
+};
 
 const params = (request: Request) => new URL(request.url()).searchParams;
 
@@ -87,10 +102,10 @@ test("@FE-3237 AC-22 A hand drives the two composables — a search sends filter
     request => isListRead(request) && params(request).has("filter[number|eq]"),
     { timeout: 30000 }
   );
-  await orders.search(recordedOrder.data.number);
+  await orders.search(recordedOrder.number);
   const query = params(await searched);
 
-  expect(query.get("filter[number|eq]")).toBe(recordedOrder.data.number);
+  expect(query.get("filter[number|eq]")).toBe(recordedOrder.number);
   expect(query.getAll("filter[category.slug]")).toEqual(["new_contract"]);
   expect(query.get("offset")).toBe("0");
   expect(query.get("limit")).toBe("10");
@@ -141,7 +156,7 @@ test("@FE-3237 AC-22 A hand drives the two composables — the sort toolbar writ
   expect(pageTwo.getAll("filter[category.slug]")).toEqual(["new_contract"]);
 });
 
-test("@FE-3237 AC-22 A hand drives the two composables — a row's open control reaches the order's manager view", async ({
+test("@FE-3237 AC-22 A hand drives the two composables — a row's open control reaches the order's record view", async ({
   page
 }) => {
   const orders = new OrdersPage(page);
@@ -151,46 +166,52 @@ test("@FE-3237 AC-22 A hand drives the two composables — a row's open control 
   await expect(page).toHaveURL(/\/useOrder\/[^/]+/);
 });
 
-test("@FE-3237 AC-22 A hand drives the two composables — every published member of the manager is reachable in the order view", async ({
+test("@FE-3237 AC-22 A hand drives the two composables — the record draws the opened order whole on the shared surface", async ({
   page
 }) => {
   const order = new OrderPage(page);
-  await order.open(recordedOrder.data.id);
-  await expect(order.detailNumber()).toHaveText(recordedOrder.data.number);
+  await order.open(recordedOrder.id);
 
-  const unreachable: string[] = [];
-  for (const member of MANAGER_MEMBERS) {
-    if (!(await order.member(member).isVisible())) unreachable.push(member);
-  }
-
-  expect(unreachable).toEqual([]);
+  await expect(order.title()).toContainText(recordedOrder.number);
+  await expect(order.status()).toContainText(recordedOrder.statusName);
+  await expect(order.section("details")).toBeVisible();
+  await expect(order.section("line-items")).toContainText(
+    recordedOrder.itemName
+  );
+  await expect(order.section("summary")).toBeVisible();
+  await expect(order.footer()).toBeVisible();
 });
 
-test("@FE-3237 AC-22 A hand drives the two composables — each enter of the order view reads the order again", async ({
+test("@FE-3237 AC-22 A hand drives the two composables — Pay now shows on a payable order and opens the pay overlay", async ({
+  page
+}) => {
+  const order = new OrderPage(page);
+  await order.open(recordedOrder.id);
+
+  await expect(order.payNow()).toBeVisible();
+  await order.pay();
+
+  await expect(order.paymentOverlay()).toBeVisible();
+  await expect(page).toHaveURL(/\/useOrder\/[^/]+\/payment/);
+});
+
+test("@FE-3237 AC-22 A hand drives the two composables — the record reads the order once on load", async ({
   page
 }) => {
   const reads: Request[] = [];
   page.on("request", request => {
-    if (isManagerRead(request)) reads.push(request);
+    if (isRecordRead(request)) reads.push(request);
   });
 
   const order = new OrderPage(page);
-  await order.open(recordedOrder.data.id);
-
-  await expect(order.detailNumber()).toHaveText(recordedOrder.data.number);
+  await order.open(recordedOrder.id);
+  await expect(order.title()).toContainText(recordedOrder.number);
   await page.waitForLoadState("networkidle");
-  const settled = reads.length;
 
-  await order.leave();
-  await order.enter();
-  await expect(order.detailNumber()).toHaveText(recordedOrder.data.number);
-
-  await expect.poll(() => reads.length).toBe(settled + 1);
-  await page.waitForLoadState("networkidle");
-  expect(reads.length).toBe(settled + 1);
+  expect(reads).toHaveLength(1);
   expect(
-    filter(reads, read =>
-      read.url().includes(`/api/invoices/${recordedOrder.data.id}`)
+    new URL(reads[0].url()).pathname.endsWith(
+      `/api/invoices/${recordedOrder.id}`
     )
-  ).toHaveLength(reads.length);
+  ).toBe(true);
 });
