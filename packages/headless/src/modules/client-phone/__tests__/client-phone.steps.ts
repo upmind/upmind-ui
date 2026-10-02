@@ -138,13 +138,6 @@ const RECORDED = {
   ac23SavedPhone: ac23SavedRecording.response.body.data.phone as string
 } as const;
 
-/**
- * Set by the replay arrange before an `@errored` scenario's steps run. That
- * scenario keeps the signed-in Background, but its list read is a recorded 5xx,
- * so the boot settles on `hasError` rather than the loaded-list assertion.
- */
-export const arrangeState = { errored: false };
-
 /** A uuid the guard refuses before any request — its value never reaches the wire. */
 const GUARDED_TARGET_ID = "11111111-1111-1111-1111-111111111111";
 
@@ -246,12 +239,15 @@ const listSavedModel = () => ({
 // -----------------------------------------------------------------------------
 
 export const clientPhonesSteps = defineSteps(({ Given, When, Then }) => {
+  Given(
+    "I am an authenticated client whose phone list cannot be read",
+    openErrored
+  );
+
   // --- collection ----------------------------------------------------------
 
   Given("I am an authenticated client managing my own phone numbers", world =>
-    arrangeState.errored
-      ? openErrored(world)
-      : openCollection(world, { actor: ScopeActorTypes.CLIENT })
+    openCollection(world, { actor: ScopeActorTypes.CLIENT })
   );
 
   Given(

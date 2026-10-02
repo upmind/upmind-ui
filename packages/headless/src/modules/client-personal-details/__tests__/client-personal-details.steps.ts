@@ -102,13 +102,6 @@ async function openManager(world: World): Promise<void> {
   await settles(() => world.expectMeta({ isAvailable: true }));
 }
 
-/**
- * Set by the replay arrange before an `@errored` scenario's steps run: that
- * scenario keeps the signed-in Background, but its profile read is a recorded
- * 500, so the composable settles on `hasErrors` rather than the loaded assertion.
- */
-export const arrangeState = { errored: false };
-
 /** Boots the composable whose profile read the recording forces to a 500. */
 async function openReadHalfErrored(world: World): Promise<void> {
   await world.boot(CLIENT_PERSONAL_DETAILS_SCENARIO, {
@@ -133,8 +126,11 @@ async function openReadHalfSignedOut(world: World): Promise<void> {
 
 export const clientPersonalDetailsSteps = defineSteps(
   ({ Given, When, Then }) => {
-    Given("I am an authenticated client with my own profile", world =>
-      arrangeState.errored ? openReadHalfErrored(world) : openReadHalf(world)
+    Given("I am an authenticated client with my own profile", openReadHalf);
+
+    Given(
+      "I am an authenticated client whose profile fails to load",
+      openReadHalfErrored
     );
 
     // AC-30 — the read half

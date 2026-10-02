@@ -338,6 +338,8 @@ const feature = readFileSync(
 
 /** The Background step every scenario opens with — it reads the collection. */
 const OPEN = "I am an authenticated client managing my own account";
+const ERRORED_OPEN =
+  "I am an authenticated client whose email collection cannot be read";
 
 describe("Client-Email scenario recordings", () => {
   let clientToken: IToken;
@@ -641,8 +643,8 @@ describe("Client-Email scenario recordings", () => {
     const scenario =
       "When my list cannot be read, the collection tells me it errored";
 
-    it(OPEN, () =>
-      recordStep(scenario, OPEN, generator =>
+    it(ERRORED_OPEN, () =>
+      recordStep(scenario, ERRORED_OPEN, generator =>
         generator.get(
           emails(),
           undefined,

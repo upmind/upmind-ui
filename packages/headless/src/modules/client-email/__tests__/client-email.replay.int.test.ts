@@ -43,7 +43,6 @@ import {
   seedGuestSession
 } from "./client-email.int-helpers";
 import {
-  arrangeState,
   CLIENT_EMAILS_SCENARIO,
   CLIENT_EMAIL_MANAGER_SCENARIO,
   clientEmailsSteps
@@ -68,7 +67,6 @@ let replay: ReturnType<typeof startScenarioReplay> | undefined;
 
 async function arrangeScenario(scenario: FeatureScenario): Promise<void> {
   const signedOut = includes(scenario.tags, "@signed-out");
-  arrangeState.errored = includes(scenario.tags, "@errored");
   if (
     !signedOut &&
     !existsSync(scenarioDir(import.meta.dirname, scenario.name))

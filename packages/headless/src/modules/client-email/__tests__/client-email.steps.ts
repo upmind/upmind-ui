@@ -138,13 +138,6 @@ async function open(world: World, scope: Parameters<World["boot"]>[1]) {
  * boots the collection either way; a signed-out boot settles on unavailable
  * rather than asserting the signed-in list loaded.
  */
-/**
- * Set by the replay arrange before an `@errored` scenario's steps run. That
- * scenario keeps the signed-in Background, but its list read is a recorded 500,
- * so the boot settles on `hasError` rather than the loaded-list assertion.
- */
-export const arrangeState = { errored: false };
-
 /** Boots the collection under a signed-out session — it settles unavailable. */
 async function openSignedOut(world: World): Promise<void> {
   await world.boot(CLIENT_EMAILS_SCENARIO, { actor: ScopeActorTypes.CLIENT });
@@ -195,18 +188,18 @@ async function openExistingEditor(world: World, id: string): Promise<void> {
 // -----------------------------------------------------------------------------
 
 export const clientEmailsSteps = defineSteps(({ Given, When, Then }) => {
+  Given(
+    "I am an authenticated client whose email collection cannot be read",
+    openErrored
+  );
+
   Given("I am an authenticated client managing my own account", world =>
-    arrangeState.errored
-      ? openErrored(world)
-      : open(world, { actor: ScopeActorTypes.CLIENT })
+    open(world, { actor: ScopeActorTypes.CLIENT })
   );
 
   Given(
     "every request I make is addressed to my own email collection as that client",
-    world =>
-      arrangeState.errored
-        ? Promise.resolve()
-        : world.expectMeta({ isAvailable: true })
+    world => world.expectMeta({ isAvailable: true })
   );
 
   When("the client adds the address {string}", (world, email) =>

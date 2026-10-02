@@ -424,6 +424,8 @@ const feature = readFileSync(
 
 /** The Background step every scenario opens with — it boots the collection read. */
 const OPEN = "I am an authenticated client reading my own account";
+const ERRORED_OPEN =
+  "I am an authenticated client whose email history cannot be read";
 
 /** The collection's boot list read — default order, one page. */
 const LIST = `/api/self/email_history?${WITH_PARAM}&order=-created_at&limit=10`;
@@ -600,12 +602,12 @@ describe("Client-Email-History scenario recordings", () => {
 
   describe("Know when my email history has errored", () => {
     const scenario = "Know when my email history has errored";
-    it(OPEN, () => recordStep(scenario, OPEN, readListForced));
+    it(ERRORED_OPEN, () => recordStep(scenario, ERRORED_OPEN, readListForced));
   });
 
   describe("A problem with my history is shown to me where I read it, not thrown", () => {
     const scenario =
       "A problem with my history is shown to me where I read it, not thrown";
-    it(OPEN, () => recordStep(scenario, OPEN, readListForced));
+    it(ERRORED_OPEN, () => recordStep(scenario, ERRORED_OPEN, readListForced));
   });
 });

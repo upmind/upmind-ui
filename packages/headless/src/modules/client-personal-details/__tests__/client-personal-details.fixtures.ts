@@ -410,7 +410,8 @@ describe("Client-Personal-Details scenario recordings", () => {
       );
       await generator.get(definitionsPath());
     };
-    it(BG, () => recordStep(scenario, BG, bootReadForced));
+    const given = "I am an authenticated client whose profile fails to load";
+    it(given, () => recordStep(scenario, given, bootReadForced));
   });
 
   // AC-35 — CREATED each run: staff sets the client's language to one the brand
