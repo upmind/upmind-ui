@@ -38,6 +38,11 @@ export function referralOrigin(brand?: IBrand | null): string {
   return client?.origin ?? "";
 }
 
+/** `{origin}/aff/{hash}`, `""` when the origin is unknown — no path without a host (D-31). */
+export function referralUrl(origin: string, hash: string): string {
+  return origin ? `${origin}/aff/${hash}` : "";
+}
+
 /** Every client composable refuses any resolved actor other than CLIENT (design.md D-21). */
 export function isClientScopeActor(actorScope: ScopeActorTypes): boolean {
   return actorScope === ScopeActorTypes.CLIENT;

@@ -1,0 +1,13 @@
+diff --git a/packages/headless/src/modules/affiliate/useAffiliatePayoutDestinationManager.machine.ts b/packages/headless/src/modules/affiliate/useAffiliatePayoutDestinationManager.machine.ts
+index f0355567f0..f5fb308eac 100644
+--- a/packages/headless/src/modules/affiliate/useAffiliatePayoutDestinationManager.machine.ts
++++ b/packages/headless/src/modules/affiliate/useAffiliatePayoutDestinationManager.machine.ts
+@@ -94,7 +94,7 @@ export function createAffiliatePayoutDestinationManagerMachineConfig(
+           destinations,
+           emails
+         }: AffiliatePayoutDestinationManagerContext) =>
+-          usePayoutDestinationSchema({ destinations, emails }),
++          usePayoutDestinationSchema(),
+         uischema: () => usePayoutDestinationUischema()
+       }),
+ 

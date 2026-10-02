@@ -9,12 +9,20 @@ import type { Ref } from "vue";
 export function createAffiliateLinkVisitMeta(
   _actorScope: ScopeActorTypes,
   deps: {
+    hasFailed: Ref<boolean>;
+    isVisiting: Ref<boolean>;
     lastResponse: Ref<{ target: string } | undefined>;
   }
 ) {
   return {
+    /** `true` when the last `visit()` could not record the attribution. */
+    hasError: computed(() => deps.hasFailed.value),
+
     /** `true` once a `visit()` call has resolved. */
-    hasVisited: computed(() => !!deps.lastResponse.value)
+    hasVisited: computed(() => !!deps.lastResponse.value),
+
+    /** `true` while a `visit()` request is in flight. */
+    isLoading: computed(() => deps.isVisiting.value)
   };
 }
 

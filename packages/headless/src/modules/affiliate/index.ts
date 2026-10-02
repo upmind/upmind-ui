@@ -50,6 +50,7 @@ export type {
   AffiliateWithdrawalFormModel,
   AffiliateLinkFormModel,
   AffiliatePayoutDestinationFormModel,
+  AffiliateLinkRow,
   AffiliatePayoutRow,
   AffiliateLinksQueryModel,
   AffiliateReferralsQueryModel,

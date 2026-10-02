@@ -1,0 +1,13 @@
+diff --git a/packages/headless/src/modules/affiliate/useAffiliateLinks.ts b/packages/headless/src/modules/affiliate/useAffiliateLinks.ts
+index f6239da16e..621a03f117 100644
+--- a/packages/headless/src/modules/affiliate/useAffiliateLinks.ts
++++ b/packages/headless/src/modules/affiliate/useAffiliateLinks.ts
+@@ -99,7 +99,7 @@ function createAffiliateLinksForScope(config: ScopeConfig, scopeKey: ScopeKey) {
+   const rows = computed<AffiliateLinkRow[]>(() =>
+     map(query.data.value ?? [], link => ({
+       ...link,
+-      referral_url: referralUrl(origin.value, link.hash)
++      referral_url: ""
+     }))
+   );
+ 

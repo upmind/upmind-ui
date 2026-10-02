@@ -60,6 +60,13 @@ function buildTarget(redirectUrl: string, referrerUrl: string): string {
 function createAffiliateLinkVisitForScope(config: ScopeConfig) {
   const actorScope = config.actor as ScopeActorTypes;
   const lastResponse = ref<{ target: string } | undefined>(undefined);
+  const isVisiting = ref(false);
+  const hasFailed = ref(false);
+
+  function reset(): void {
+    lastResponse.value = undefined;
+    hasFailed.value = false;
+  }
 
   async function visit(
     overrides?: Partial<AffiliateLinkVisitModel>
@@ -70,13 +77,18 @@ function createAffiliateLinkVisitForScope(config: ScopeConfig) {
       identityDecoder
     ) as string | undefined;
 
+    isVisiting.value = true;
+    hasFailed.value = false;
     let response;
     try {
       response = await visitAffiliateLink(model, referralCookie ?? undefined);
     } catch {
       const origin = window.location.origin;
+      hasFailed.value = true;
       lastResponse.value = { target: origin };
       return origin;
+    } finally {
+      isVisiting.value = false;
     }
 
     if (response.referralCookie) {
@@ -105,12 +117,18 @@ function createAffiliateLinkVisitForScope(config: ScopeConfig) {
 
   return {
     // --- sub-composables
-    useActions: () => createAffiliateLinkVisitActions(actorScope, { visit }),
+    useActions: () =>
+      createAffiliateLinkVisitActions(actorScope, { reset, visit }),
     useContext: () =>
       createAffiliateLinkVisitContext(actorScope, { lastResponse }),
     useInternals: () =>
       createAffiliateLinkVisitInternals(actorScope, { lastResponse }),
-    useMeta: () => createAffiliateLinkVisitMeta(actorScope, { lastResponse })
+    useMeta: () =>
+      createAffiliateLinkVisitMeta(actorScope, {
+        hasFailed,
+        isVisiting,
+        lastResponse
+      })
   };
 }
 

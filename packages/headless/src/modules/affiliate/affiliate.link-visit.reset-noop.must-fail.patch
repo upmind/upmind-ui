@@ -1,0 +1,13 @@
+diff --git a/packages/headless/src/modules/affiliate/useAffiliateLinkVisit.ts b/packages/headless/src/modules/affiliate/useAffiliateLinkVisit.ts
+index 4a504d9def..de291546f8 100644
+--- a/packages/headless/src/modules/affiliate/useAffiliateLinkVisit.ts
++++ b/packages/headless/src/modules/affiliate/useAffiliateLinkVisit.ts
+@@ -64,8 +64,6 @@ function createAffiliateLinkVisitForScope(config: ScopeConfig) {
+   const hasFailed = ref(false);
+ 
+   function reset(): void {
+-    lastResponse.value = undefined;
+-    hasFailed.value = false;
+   }
+ 
+   async function visit(

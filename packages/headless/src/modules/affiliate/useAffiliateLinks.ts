@@ -2,22 +2,28 @@ import { computed, ref, watch } from "vue";
 import { createScopedComposable } from "../scope";
 import { ScopeActorTypes } from "../scope/scope.types";
 import {
+  loadAffiliateAccountQuery,
   loadAffiliateLinksList,
+  loadSelfBrand,
   removeAffiliateLink
 } from "./affiliate.services";
 import { AFFILIATE_DEFAULT_SORT } from "./affiliate.types";
 import {
   accountBoundPlaceholderData,
-  isClientScopeActor
+  isClientScopeActor,
+  referralOrigin,
+  referralUrl
 } from "./affiliate.utils";
 import { useAffiliateActiveAccount } from "./useAffiliateActiveAccount";
 import { createAffiliateLinksActions } from "./useAffiliateLinks.actions";
 import { createAffiliateLinksContext } from "./useAffiliateLinks.context";
 import { createAffiliateLinksInternals } from "./useAffiliateLinks.internals";
 import { createAffiliateLinksMeta } from "./useAffiliateLinks.meta";
-import type { AffiliateScopeMatrix } from "./affiliate.types";
+import { map } from "lodash-es";
+import type { AffiliateLinkRow, AffiliateScopeMatrix } from "./affiliate.types";
 import type { ResponseError } from "../../utils";
 import type { ScopeConfig, ScopeKey } from "../scope";
+import type { IBrand } from "@upmind-automation/types";
 // -----------------------------------------------------------------------------
 /**
  * @module affiliate/useAffiliateLinks
@@ -64,6 +70,40 @@ function createAffiliateLinksForScope(config: ScopeConfig, scopeKey: ScopeKey) {
     accountBoundPlaceholderData(keyAccountId)
   );
 
+  const accountQuery = loadAffiliateAccountQuery(
+    computed(() => keyAccountId.value)
+  );
+  const selfBrand = ref<IBrand | undefined>(undefined);
+
+  watch(
+    () =>
+      accountQuery.isFetched.value && !accountQuery.data.value?.account?.brand,
+    needsFallback => {
+      if (!needsFallback || selfBrand.value) return;
+      void loadSelfBrand()
+        .then(self => {
+          selfBrand.value = (
+            self?.actor as { brand?: IBrand } | undefined
+          )?.brand;
+        })
+        .catch(() => {
+          selfBrand.value = undefined;
+        });
+    },
+    { immediate: true }
+  );
+
+  const origin = computed(() =>
+    referralOrigin(accountQuery.data.value?.account?.brand ?? selfBrand.value)
+  );
+
+  const rows = computed<AffiliateLinkRow[]>(() =>
+    map(query.data.value ?? [], link => ({
+      ...link,
+      referral_url: referralUrl(origin.value, link.hash)
+    }))
+  );
+
   function resetCriteria(): void {
     query.setCriteria({
       filters: {},
@@ -104,7 +144,7 @@ function createAffiliateLinksForScope(config: ScopeConfig, scopeKey: ScopeKey) {
     // --- sub-composables
     useActions: () => actions,
     useContext: () =>
-      createAffiliateLinksContext(actorScope, query, writeError),
+      createAffiliateLinksContext(actorScope, query, writeError, rows),
     useInternals: () => createAffiliateLinksInternals(actorScope, query),
     useMeta: () =>
       createAffiliateLinksMeta(actorScope, query, keyAccountId, writeError)

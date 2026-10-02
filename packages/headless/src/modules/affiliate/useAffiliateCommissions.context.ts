@@ -1,6 +1,7 @@
 import { computed } from "vue";
 import {
   useCommissionsQuerySchema,
+  useCommissionsQueryUischema,
   useCommissionsSortUischema
 } from "./affiliate.schemas";
 import { mapToHeadlessError } from "../../utils";
@@ -17,6 +18,7 @@ import type { ScopeActorTypes } from "../scope/scope.types";
  */
 
 const QUERY_SCHEMA = useCommissionsQuerySchema();
+const QUERY_UISCHEMA = useCommissionsQueryUischema();
 const SORT_UISCHEMA = useCommissionsSortUischema();
 
 export function createAffiliateCommissionsContext(
@@ -37,6 +39,7 @@ export function createAffiliateCommissionsContext(
     schemas: {
       query: {
         schema: QUERY_SCHEMA,
+        uischema: QUERY_UISCHEMA,
         sortUischema: SORT_UISCHEMA
       }
     }

@@ -1,6 +1,7 @@
 import { computed } from "vue";
 import {
   usePayoutsQuerySchema,
+  usePayoutsQueryUischema,
   usePayoutsSortUischema
 } from "./affiliate.schemas";
 import { mapToHeadlessError } from "../../utils";
@@ -16,6 +17,7 @@ import type { ScopeActorTypes } from "../scope/scope.types";
  */
 
 const QUERY_SCHEMA = usePayoutsQuerySchema();
+const QUERY_UISCHEMA = usePayoutsQueryUischema();
 const SORT_UISCHEMA = usePayoutsSortUischema();
 
 export function createAffiliatePayoutsContext(
@@ -36,6 +38,7 @@ export function createAffiliatePayoutsContext(
     schemas: {
       query: {
         schema: QUERY_SCHEMA,
+        uischema: QUERY_UISCHEMA,
         sortUischema: SORT_UISCHEMA
       }
     }

@@ -255,6 +255,12 @@ export type AccountBoundPlaceholderData<T> = (
   previousQuery: unknown
 ) => T | undefined;
 
+/**
+ * A links row as the collection publishes it: the raw wire link plus its
+ * shareable URL, `{referralOrigin}/aff/{hash}`, `""` while no origin is known.
+ */
+export type AffiliateLinkRow = IAffiliateLink & { referral_url: string };
+
 /** The four collections' reactive list queries — raw wire rows, no mapper (design.md §5.1). */
 export type AffiliateLinksListQuery = ListQuery<
   IAffiliateLink[],
@@ -359,6 +365,12 @@ export type AffiliatePayoutDestinationFormModel = {
 };
 
 /** The payout destination manager's machine context (design.md §8.6). */
+/** The choosable destinations and emails the payout destination schema draws its options from. */
+export type PayoutDestinationLookups = {
+  destinations?: IAffiliateBrandPayoutDestination[];
+  emails?: IEmail[];
+};
+
 export type AffiliatePayoutDestinationManagerContext = DataManagerContext<
   AffiliatePayoutDestinationFormModel,
   AffiliatePayoutDestinationFormModel

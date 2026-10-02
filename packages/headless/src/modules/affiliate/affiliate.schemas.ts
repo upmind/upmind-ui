@@ -3,7 +3,11 @@ import { SortDirection } from "../query/query.types";
 import { PAGINATION } from "../query/query.utils";
 import { useI18n } from "../system-localisation";
 import { AFFILIATE_DEFAULT_SORT } from "./affiliate.types";
-import type { AffiliateWithdrawalFormModel } from "./affiliate.types";
+import { compact, isEmpty, map } from "lodash-es";
+import type {
+  AffiliateWithdrawalFormModel,
+  PayoutDestinationLookups
+} from "./affiliate.types";
 import type {
   ControlElement,
   JsonSchema7,
@@ -280,6 +284,20 @@ export function useCommissionsQuerySchema(): JsonSchema7 {
   } satisfies JsonSchema7;
 }
 
+export function useCommissionsQueryUischema(): UISchemaElement {
+  return {
+    type: "FilterBar",
+    elements: [
+      {
+        type: "Control",
+        scope: "#/properties/filters/properties/created_at",
+        i18n: "form.affiliate_commissions_created_filter",
+        options: { format: "range", optionalText: "" }
+      }
+    ]
+  } as UISchemaElement;
+}
+
 export function useCommissionsSortUischema(): ControlElement {
   return {
     type: "Control",
@@ -320,6 +338,20 @@ export function usePayoutsQuerySchema(): JsonSchema7 {
       pagination: paginationSchema(10)
     }
   } satisfies JsonSchema7;
+}
+
+export function usePayoutsQueryUischema(): UISchemaElement {
+  return {
+    type: "FilterBar",
+    elements: [
+      {
+        type: "Control",
+        scope: "#/properties/filters/properties/created_at",
+        i18n: "form.affiliate_payouts_created_filter",
+        options: { format: "range", optionalText: "" }
+      }
+    ]
+  } as UISchemaElement;
 }
 
 export function usePayoutsSortUischema(): ControlElement {
@@ -365,12 +397,27 @@ export function useLinkUischema(): UISchemaElement {
 // -----------------------------------------------------------------------------
 // Payout destination form (design.md §8.6, §8.10)
 
-export function usePayoutDestinationSchema(): JsonSchema7 {
+export function usePayoutDestinationSchema(
+  lookups: PayoutDestinationLookups = {}
+): JsonSchema7 {
+  const destinations = compact(
+    map(lookups.destinations, d =>
+      d.id ? { const: d.id, title: d.name } : undefined
+    )
+  );
+  const emails = map(lookups.emails, e => ({ const: e.id, title: e.email }));
+
   return {
     type: "object",
     properties: {
-      payoutDestinationId: { type: ["string", "null"] },
-      paypalEmailId: { type: ["string", "null"] }
+      payoutDestinationId: {
+        type: ["string", "null"],
+        ...(isEmpty(destinations) ? {} : { oneOf: destinations })
+      },
+      paypalEmailId: {
+        type: ["string", "null"],
+        ...(isEmpty(emails) ? {} : { oneOf: emails })
+      }
     }
   } satisfies JsonSchema7;
 }

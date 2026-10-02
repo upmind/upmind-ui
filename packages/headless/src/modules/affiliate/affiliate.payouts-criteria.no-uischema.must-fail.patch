@@ -1,0 +1,12 @@
+diff --git a/packages/headless/src/modules/affiliate/useAffiliatePayouts.context.ts b/packages/headless/src/modules/affiliate/useAffiliatePayouts.context.ts
+index 2db0c5137a..fab00792f7 100644
+--- a/packages/headless/src/modules/affiliate/useAffiliatePayouts.context.ts
++++ b/packages/headless/src/modules/affiliate/useAffiliatePayouts.context.ts
+@@ -38,7 +38,6 @@ export function createAffiliatePayoutsContext(
+     schemas: {
+       query: {
+         schema: QUERY_SCHEMA,
+-        uischema: QUERY_UISCHEMA,
+         sortUischema: SORT_UISCHEMA
+       }
+     }

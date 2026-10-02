@@ -90,7 +90,11 @@ export function createAffiliatePayoutDestinationManagerMachineConfig(
       }),
 
       setSchemas: assign({
-        schema: () => usePayoutDestinationSchema(),
+        schema: ({
+          destinations,
+          emails
+        }: AffiliatePayoutDestinationManagerContext) =>
+          usePayoutDestinationSchema({ destinations, emails }),
         uischema: () => usePayoutDestinationUischema()
       }),
 

@@ -1,0 +1,12 @@
+diff --git a/packages/headless/src/modules/affiliate/useAffiliateCommissions.context.ts b/packages/headless/src/modules/affiliate/useAffiliateCommissions.context.ts
+index 28e32c246c..6bcd33e7b4 100644
+--- a/packages/headless/src/modules/affiliate/useAffiliateCommissions.context.ts
++++ b/packages/headless/src/modules/affiliate/useAffiliateCommissions.context.ts
+@@ -39,7 +39,6 @@ export function createAffiliateCommissionsContext(
+     schemas: {
+       query: {
+         schema: QUERY_SCHEMA,
+-        uischema: QUERY_UISCHEMA,
+         sortUischema: SORT_UISCHEMA
+       }
+     }

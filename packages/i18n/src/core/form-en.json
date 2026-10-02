@@ -25,6 +25,11 @@
     "name": "Address name",
     "created_at": "Date added"
   },
+  "affiliate_commissions_created_filter": {
+    "description": null,
+    "label": "Date",
+    "placeholder": null
+  },
   "affiliate_commissions_sort": {
     "description": null,
     "label": "Sort",
@@ -63,6 +68,11 @@
   "affiliate_payout_paypal_email": {
     "description": null,
     "label": "PayPal email",
+    "placeholder": null
+  },
+  "affiliate_payouts_created_filter": {
+    "description": null,
+    "label": "Date",
     "placeholder": null
   },
   "affiliate_payouts_sort": {

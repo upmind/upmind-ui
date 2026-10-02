@@ -5,15 +5,19 @@ import {
   useLinksSortUischema
 } from "./affiliate.schemas";
 import { mapToHeadlessError } from "../../utils";
-import type { AffiliateLinksListQuery } from "./affiliate.types";
+import type {
+  AffiliateLinkRow,
+  AffiliateLinksListQuery
+} from "./affiliate.types";
 import type { ResponseError } from "../../utils";
 import type { ScopeActorTypes } from "../scope/scope.types";
-import type { Ref } from "vue";
+import type { ComputedRef, Ref } from "vue";
 // -----------------------------------------------------------------------------
 /**
  * @module affiliate/useAffiliateLinks.context
  * @description Collection context — the reactive list and its criteria surface.
- * Row shape is `IAffiliateLink` (raw wire, no mapper — design.md §5.1).
+ * Row shape is `AffiliateLinkRow`: the raw `IAffiliateLink` wire row plus its
+ * joined `referral_url`.
  */
 
 const QUERY_SCHEMA = useLinksQuerySchema();
@@ -23,7 +27,8 @@ const SORT_UISCHEMA = useLinksSortUischema();
 export function createAffiliateLinksContext(
   _actorScope: ScopeActorTypes,
   query: AffiliateLinksListQuery,
-  writeError: Ref<ResponseError | undefined>
+  writeError: Ref<ResponseError | undefined>,
+  rows: ComputedRef<AffiliateLinkRow[]>
 ) {
   const error = computed<ResponseError | undefined>(
     () =>
@@ -33,8 +38,8 @@ export function createAffiliateLinksContext(
   );
 
   return {
-    /** The reactive list of this scope's links (always an array). */
-    data: query.data,
+    /** The reactive list of this scope's links, each with its referral URL (always an array). */
+    data: rows,
 
     /** The scope's captured error — read, never raised. */
     error,
