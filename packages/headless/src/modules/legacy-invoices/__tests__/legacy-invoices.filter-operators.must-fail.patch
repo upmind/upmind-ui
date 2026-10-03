@@ -1,0 +1,47 @@
+# Must-fail mutant for legacy-invoices.filter-operators.int.test.ts (AC-2,
+# AC-11, AC-14, T48). Paired specification: the `number` column's declared
+# `like` operator (AC-2), the contains-only shortfall (AC-11), and the
+# divergence specification's ONE assertion that carries a module-side
+# mutation point (AC-14, design.md §8.11's partial exemption — the other two
+# divergence rows, first-page-return and last-page-landing, are EXEMPT: the
+# query core owns both, and ruling OD5 puts that core off limits).
+#
+# Mutates `legacy-invoices.schemas.ts` — drops the `number` column's
+# declared `like` operator branch outright (`translateQuery`,
+# `query.utils.ts:539-560`, walks the SCHEMA's declared branches, not the
+# model's keys — a branch the schema does not declare is never emitted, no
+# query-core change needed).
+#
+# Reds:
+#  - "@AC-2 number.like reaches the wire as filter[number|%s]"
+#    (`legacy-invoices.filter-operators.int.test.ts`)
+#  - "@AC-11 @AC-14 a like narrowing reaches the wire wrapped on both sides,
+#    matching anywhere in the number" (same file — this IS the divergence
+#    specification's one non-exempt row, per that file's own header: "the
+#    invoice-number contains-only shortfall … is proven in
+#    legacy-invoices.filter-operators.int.test.ts, which owns AC-11 and
+#    AC-14 together for that row")
+#  - "@AC-14 no request ever carries a starts-with or ends-with shaped value
+#    for the number column" (same file, same describe block)
+#
+# Declared collateral: the schemas UNIT specification also reddens — "@AC-2
+# the number column accepts eq, neq and like, and no other operator"
+# (`legacy-invoices.schemas.test.ts`) — its `like`-acceptance assertion flips
+# false, since the schema no longer declares that key. Verified: no OTHER
+# integration file (collection, single-read, download, order, divergences)
+# and no other unit file (mappers, types, traceability) reddens.
+#
+# Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+--- a/packages/headless/src/modules/legacy-invoices/legacy-invoices.schemas.ts
++++ b/packages/headless/src/modules/legacy-invoices/legacy-invoices.schemas.ts
+@@ -51,9 +51,8 @@
+           number: {
+             type: "object",
+             additionalProperties: false,
+             properties: {
+               eq: { type: ["string", "null"] },
+-              neq: { type: ["string", "null"] },
+-              like: { type: ["string", "null"], minLength: 1 }
++              neq: { type: ["string", "null"] }
+             }
+           },

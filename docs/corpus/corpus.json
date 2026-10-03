@@ -1258,6 +1258,28 @@
         ],
         "term": "feedback"
       },
+      "imported-invoice": {
+        "aliases": [
+          "legacy invoice"
+        ],
+        "definition": "A bill originally issued by a predecessor billing system and carried into the platform as a read-only archived record, distinct from an invoice the platform itself raises. The record's own top-level fields (number, total, dates) support listing, filtering and sorting; its original document is preserved whole rather than reshaped. Read-only, self scope only — no pay, cancel, refund, share or edit capability exists.",
+        "kind": "domain",
+        "referents": [
+          {
+            "id": "@upmind-automation/headless!useLegacyInvoices",
+            "type": "symbol"
+          },
+          {
+            "id": "@upmind-automation/headless!useLegacyInvoice",
+            "type": "symbol"
+          },
+          {
+            "id": "@upmind-automation/headless!LegacyInvoice",
+            "type": "symbol"
+          }
+        ],
+        "term": "imported invoice"
+      },
       "invoice": {
         "aliases": [
           "bill"
@@ -4472,6 +4494,123 @@
       "path": "packages/headless/src/modules/invoices/docs/usage.md",
       "title": "Invoices Usage & API"
     },
+    "guide:packages/headless/src/modules/legacy-invoices/docs/CHANGELOG": {
+      "crossRefs": [],
+      "headings": [
+        "Legacy Invoices Changelog",
+        "[Unreleased]",
+        "Added",
+        "Known, accepted divergences from the legacy application (see `gotchas.md`)",
+        "Known limitation"
+      ],
+      "id": "guide:packages/headless/src/modules/legacy-invoices/docs/CHANGELOG",
+      "path": "packages/headless/src/modules/legacy-invoices/docs/CHANGELOG.md",
+      "title": "Legacy Invoices Changelog"
+    },
+    "guide:packages/headless/src/modules/legacy-invoices/docs/README": {
+      "crossRefs": [],
+      "headings": [
+        "Legacy Invoices Module",
+        "What Is This? (ELI5)",
+        "Quick Start",
+        "Features",
+        "Key Concepts",
+        "Two composables, one services factory",
+        "Client-only, no retarget",
+        "The preserved document is kept whole",
+        "Three accepted divergences from the source application",
+        "Documentation"
+      ],
+      "id": "guide:packages/headless/src/modules/legacy-invoices/docs/README",
+      "path": "packages/headless/src/modules/legacy-invoices/docs/README.md",
+      "title": "Legacy Invoices Module"
+    },
+    "guide:packages/headless/src/modules/legacy-invoices/docs/architecture": {
+      "crossRefs": [],
+      "headings": [
+        "Legacy Invoices Architecture",
+        "Overview",
+        "Data Flow",
+        "Sub-Composables",
+        "Services",
+        "Dependencies",
+        "`legacy-invoices` Depends On",
+        "Modules That Depend On `legacy-invoices`",
+        "Integration Points"
+      ],
+      "id": "guide:packages/headless/src/modules/legacy-invoices/docs/architecture",
+      "path": "packages/headless/src/modules/legacy-invoices/docs/architecture.md",
+      "title": "Legacy Invoices Architecture"
+    },
+    "guide:packages/headless/src/modules/legacy-invoices/docs/foundation": {
+      "crossRefs": [],
+      "headings": [
+        "Module: legacy-invoices",
+        "What it is",
+        "Core concepts",
+        "Operations",
+        "Data shape",
+        "Dependencies",
+        "Dependants — modules that read from this one",
+        "This module's own dependencies",
+        "API endpoints",
+        "`GET /import_invoice_data`",
+        "`GET /import_invoice_data/{id}`",
+        "`GET /import_invoice_data/{id}/download_pdf`",
+        "Failure modes",
+        "Flows",
+        "Browse the archive, then open and download one record",
+        "Lessons (hard-won)"
+      ],
+      "id": "guide:packages/headless/src/modules/legacy-invoices/docs/foundation",
+      "path": "packages/headless/src/modules/legacy-invoices/docs/foundation.md",
+      "title": "Module: legacy-invoices"
+    },
+    "guide:packages/headless/src/modules/legacy-invoices/docs/gotchas": {
+      "crossRefs": [],
+      "headings": [
+        "Legacy Invoices Gotchas",
+        "A filter or sort write always returns the list to the first page 🧪",
+        "An over-shot page recovers onto the LAST page, not the first 🧪",
+        "The `number` column's `like` filter is CONTAINS only 🧪",
+        "The exact-date filters (`create_datetime.eq`/`.gt`/`.lt`) send a bare date, not a datetime 🧪",
+        "The multi-page proof replays one static list body across every page 🧪",
+        "`hasLegacyInvoices` — CLOSED by ruling E3-R",
+        "`content` is a whole, loosely-typed passthrough",
+        "`downloadPdf()` throws a typed error on a 404 🧪",
+        "Common Mistakes",
+        "Reaching for `.for(entity, id)`",
+        "Reading the manager's `reset`",
+        "Reading `isProforma`'s true branch as observed on a raw document",
+        "Edge Cases",
+        "Lifecycle Considerations",
+        "Destroy the instance when done",
+        "Wait for ready state"
+      ],
+      "id": "guide:packages/headless/src/modules/legacy-invoices/docs/gotchas",
+      "path": "packages/headless/src/modules/legacy-invoices/docs/gotchas.md",
+      "title": "Legacy Invoices Gotchas"
+    },
+    "guide:packages/headless/src/modules/legacy-invoices/docs/usage": {
+      "crossRefs": [],
+      "headings": [
+        "Legacy Invoices Usage & API",
+        "Reading the archive — the collection",
+        "Readiness (read this first)",
+        "Filtering",
+        "Sorting",
+        "Paginating",
+        "Dropping cached pages",
+        "Reading one record — the manager",
+        "The five derived conditions",
+        "Downloading the PDF",
+        "Vue component integration",
+        "Schema-driven filter bar"
+      ],
+      "id": "guide:packages/headless/src/modules/legacy-invoices/docs/usage",
+      "path": "packages/headless/src/modules/legacy-invoices/docs/usage.md",
+      "title": "Legacy Invoices Usage & API"
+    },
     "guide:packages/headless/src/modules/payment-details/docs/CHANGELOG": {
       "crossRefs": [],
       "headings": [
@@ -5016,6 +5155,7 @@
         "`isSorted` does not exist, deliberately",
         "Returning to a combination already fetched costs nothing — ever",
         "`list()` bridges the gap between combinations; `listInfinite()` has none to bridge",
+        "Binary downloads",
         "Where it fits",
         "Types",
         "A filter's wire column can differ from its model property",
@@ -5705,7 +5845,7 @@
         "Sub-composables",
         "Services",
         "Cache keys",
-        "Two documented divergences from the shared request layer",
+        "Two documented behaviours worth knowing",
         "Errors",
         "Dependencies",
         "This module reads from",
@@ -5800,7 +5940,7 @@
         "16. `loadRecentTickets` exists in the services layer and is wired to nothing",
         "17. The manager's action docblock undercounts its own surface",
         "18. Cache keys are shared, and invalidation is targeted",
-        "19. Attachment download bypasses the shared request layer — deliberately",
+        "19. Attachment download is a binary call, not a cached query",
         "20. Mappers are total on purpose",
         "21. The recorded wire carries **no** `status` relation and **no** `settings` key",
         "22. `PUT api/tickets/{id}/status` returns no ticket body"
@@ -5967,6 +6107,12 @@
       "module": "affiliate",
       "path": "packages/headless/src/modules/affiliate/affiliate.types.ts",
       "title": "AffiliateLinkFormModel"
+    },
+    "@upmind-automation/headless!AffiliateLinkRow": {
+      "kind": "symbol",
+      "module": "affiliate",
+      "path": "packages/headless/src/modules/affiliate/affiliate.types.ts",
+      "title": "AffiliateLinkRow"
     },
     "@upmind-automation/headless!AffiliateLinkVisitModel": {
       "kind": "symbol",
@@ -7401,6 +7547,60 @@
       "module": "config",
       "path": "packages/headless/src/modules/config/schema/types.ts",
       "title": "LabelContent"
+    },
+    "@upmind-automation/headless!LegacyInvoice": {
+      "kind": "symbol",
+      "module": "legacy-invoices",
+      "path": "packages/headless/src/modules/legacy-invoices/legacy-invoices.types.ts",
+      "title": "LegacyInvoice"
+    },
+    "@upmind-automation/headless!LegacyInvoiceDocumentNotReadyError": {
+      "kind": "symbol",
+      "module": "legacy-invoices",
+      "path": "packages/headless/src/modules/legacy-invoices/legacy-invoices.types.ts",
+      "title": "LegacyInvoiceDocumentNotReadyError"
+    },
+    "@upmind-automation/headless!LegacyInvoiceFilterModel": {
+      "kind": "symbol",
+      "module": "legacy-invoices",
+      "path": "packages/headless/src/modules/legacy-invoices/legacy-invoices.types.ts",
+      "title": "LegacyInvoiceFilterModel"
+    },
+    "@upmind-automation/headless!LegacyInvoiceQueryModel": {
+      "kind": "symbol",
+      "module": "legacy-invoices",
+      "path": "packages/headless/src/modules/legacy-invoices/legacy-invoices.types.ts",
+      "title": "LegacyInvoiceQueryModel"
+    },
+    "@upmind-automation/headless!LegacyInvoiceScopeMatrix": {
+      "kind": "symbol",
+      "module": "legacy-invoices",
+      "path": "packages/headless/src/modules/legacy-invoices/legacy-invoices.types.ts",
+      "title": "LegacyInvoiceScopeMatrix"
+    },
+    "@upmind-automation/headless!LegacyInvoiceSortEntry": {
+      "kind": "symbol",
+      "module": "legacy-invoices",
+      "path": "packages/headless/src/modules/legacy-invoices/legacy-invoices.types.ts",
+      "title": "LegacyInvoiceSortEntry"
+    },
+    "@upmind-automation/headless!LegacyInvoiceSortModel": {
+      "kind": "symbol",
+      "module": "legacy-invoices",
+      "path": "packages/headless/src/modules/legacy-invoices/legacy-invoices.types.ts",
+      "title": "LegacyInvoiceSortModel"
+    },
+    "@upmind-automation/headless!LegacyInvoiceSortableField": {
+      "kind": "symbol",
+      "module": "legacy-invoices",
+      "path": "packages/headless/src/modules/legacy-invoices/legacy-invoices.types.ts",
+      "title": "LegacyInvoiceSortableField"
+    },
+    "@upmind-automation/headless!LegacyInvoicesScopeMatrix": {
+      "kind": "symbol",
+      "module": "legacy-invoices",
+      "path": "packages/headless/src/modules/legacy-invoices/legacy-invoices.types.ts",
+      "title": "LegacyInvoicesScopeMatrix"
     },
     "@upmind-automation/headless!ListQuery": {
       "kind": "symbol",
@@ -9910,6 +10110,66 @@
       "path": "packages/headless/src/modules/invoices/useInvoices.meta.ts",
       "title": "UseInvoicesMeta"
     },
+    "@upmind-automation/headless!UseLegacyInvoice": {
+      "kind": "symbol",
+      "module": "legacy-invoices",
+      "path": "packages/headless/src/modules/legacy-invoices/useLegacyInvoice.ts",
+      "title": "UseLegacyInvoice"
+    },
+    "@upmind-automation/headless!UseLegacyInvoiceActions": {
+      "kind": "symbol",
+      "module": "legacy-invoices",
+      "path": "packages/headless/src/modules/legacy-invoices/useLegacyInvoice.actions.ts",
+      "title": "UseLegacyInvoiceActions"
+    },
+    "@upmind-automation/headless!UseLegacyInvoiceContext": {
+      "kind": "symbol",
+      "module": "legacy-invoices",
+      "path": "packages/headless/src/modules/legacy-invoices/useLegacyInvoice.context.ts",
+      "title": "UseLegacyInvoiceContext"
+    },
+    "@upmind-automation/headless!UseLegacyInvoiceInternals": {
+      "kind": "symbol",
+      "module": "legacy-invoices",
+      "path": "packages/headless/src/modules/legacy-invoices/useLegacyInvoice.internals.ts",
+      "title": "UseLegacyInvoiceInternals"
+    },
+    "@upmind-automation/headless!UseLegacyInvoiceMeta": {
+      "kind": "symbol",
+      "module": "legacy-invoices",
+      "path": "packages/headless/src/modules/legacy-invoices/useLegacyInvoice.meta.ts",
+      "title": "UseLegacyInvoiceMeta"
+    },
+    "@upmind-automation/headless!UseLegacyInvoices": {
+      "kind": "symbol",
+      "module": "legacy-invoices",
+      "path": "packages/headless/src/modules/legacy-invoices/useLegacyInvoices.ts",
+      "title": "UseLegacyInvoices"
+    },
+    "@upmind-automation/headless!UseLegacyInvoicesActions": {
+      "kind": "symbol",
+      "module": "legacy-invoices",
+      "path": "packages/headless/src/modules/legacy-invoices/useLegacyInvoices.actions.ts",
+      "title": "UseLegacyInvoicesActions"
+    },
+    "@upmind-automation/headless!UseLegacyInvoicesContext": {
+      "kind": "symbol",
+      "module": "legacy-invoices",
+      "path": "packages/headless/src/modules/legacy-invoices/useLegacyInvoices.context.ts",
+      "title": "UseLegacyInvoicesContext"
+    },
+    "@upmind-automation/headless!UseLegacyInvoicesInternals": {
+      "kind": "symbol",
+      "module": "legacy-invoices",
+      "path": "packages/headless/src/modules/legacy-invoices/useLegacyInvoices.internals.ts",
+      "title": "UseLegacyInvoicesInternals"
+    },
+    "@upmind-automation/headless!UseLegacyInvoicesMeta": {
+      "kind": "symbol",
+      "module": "legacy-invoices",
+      "path": "packages/headless/src/modules/legacy-invoices/useLegacyInvoices.meta.ts",
+      "title": "UseLegacyInvoicesMeta"
+    },
     "@upmind-automation/headless!UseLocale": {
       "kind": "symbol",
       "module": "system-localisation",
@@ -11355,6 +11615,18 @@
       "module": "invoices",
       "path": "packages/headless/src/modules/invoices/useInvoices.ts",
       "title": "useInvoices"
+    },
+    "@upmind-automation/headless!useLegacyInvoice": {
+      "kind": "symbol",
+      "module": "legacy-invoices",
+      "path": "packages/headless/src/modules/legacy-invoices/useLegacyInvoice.ts",
+      "title": "useLegacyInvoice"
+    },
+    "@upmind-automation/headless!useLegacyInvoices": {
+      "kind": "symbol",
+      "module": "legacy-invoices",
+      "path": "packages/headless/src/modules/legacy-invoices/useLegacyInvoices.ts",
+      "title": "useLegacyInvoices"
     },
     "@upmind-automation/headless!useLocale": {
       "kind": "symbol",
@@ -18052,6 +18324,42 @@
       "path": "packages/headless/src/modules/invoices/docs/usage.md",
       "title": "Invoices Usage & API"
     },
+    "guide:packages/headless/src/modules/legacy-invoices/docs/CHANGELOG": {
+      "kind": "guide",
+      "module": "",
+      "path": "packages/headless/src/modules/legacy-invoices/docs/CHANGELOG.md",
+      "title": "Legacy Invoices Changelog"
+    },
+    "guide:packages/headless/src/modules/legacy-invoices/docs/README": {
+      "kind": "guide",
+      "module": "",
+      "path": "packages/headless/src/modules/legacy-invoices/docs/README.md",
+      "title": "Legacy Invoices Module"
+    },
+    "guide:packages/headless/src/modules/legacy-invoices/docs/architecture": {
+      "kind": "guide",
+      "module": "",
+      "path": "packages/headless/src/modules/legacy-invoices/docs/architecture.md",
+      "title": "Legacy Invoices Architecture"
+    },
+    "guide:packages/headless/src/modules/legacy-invoices/docs/foundation": {
+      "kind": "guide",
+      "module": "",
+      "path": "packages/headless/src/modules/legacy-invoices/docs/foundation.md",
+      "title": "Module: legacy-invoices"
+    },
+    "guide:packages/headless/src/modules/legacy-invoices/docs/gotchas": {
+      "kind": "guide",
+      "module": "",
+      "path": "packages/headless/src/modules/legacy-invoices/docs/gotchas.md",
+      "title": "Legacy Invoices Gotchas"
+    },
+    "guide:packages/headless/src/modules/legacy-invoices/docs/usage": {
+      "kind": "guide",
+      "module": "",
+      "path": "packages/headless/src/modules/legacy-invoices/docs/usage.md",
+      "title": "Legacy Invoices Usage & API"
+    },
     "guide:packages/headless/src/modules/payment-details/docs/CHANGELOG": {
       "kind": "guide",
       "module": "",
@@ -18376,6 +18684,12 @@
       "path": "packages/headless/src/modules/tickets/docs/usage.md",
       "title": "tickets — Usage"
     },
+    "imported-invoice": {
+      "kind": "term",
+      "module": "",
+      "path": "docs/corpus/glossary.yaml",
+      "title": "imported invoice"
+    },
     "invoice": {
       "kind": "term",
       "module": "",
@@ -18468,21 +18782,21 @@
     }
   },
   "meta": {
-    "built_at": "2026-10-02T20:42:23.745Z",
-    "corpus_version": "1+ac981e413382",
+    "built_at": "2026-10-03T10:23:46.202Z",
+    "corpus_version": "1+872903bf6f4b",
     "counts": {
       "adrs": 35,
       "changelogSymbols": 0,
       "examples": 0,
-      "glossaryTerms": 28,
-      "guides": 179,
-      "indexEntries": 2104,
+      "glossaryTerms": 29,
+      "guides": 185,
+      "indexEntries": 2133,
       "relationEdges": 5310,
       "relationsPruned": 2227,
-      "symbols": 962
+      "symbols": 984
     },
     "relationsSha256": "9a6f85296b647222228f20f54141377046925e9862437ca4617d3a6a8b87e391",
-    "source_commit": "2ea3265dc525cc70e9bd9611ba0c0180d3e7ca14"
+    "source_commit": "a2db567750ae9c13ec1f65a4fde8d4463c2b1ca1"
   },
   "relations": {
     "edges": [
@@ -60968,7 +61282,7 @@
       }
     ],
     "prunedCount": 2227,
-    "sourcedAt": ""
+    "sourcedAt": "2026-10-01"
   },
   "symbols": {
     "@upmind-automation/headless!ACCOUNT_SCOPE_MATRIX": {
@@ -61199,8 +61513,19 @@
       "name": "AffiliateLinkFormModel",
       "signature": "Symbol AffiliateLinkFormModel",
       "sourceFile": "packages/headless/src/modules/affiliate/affiliate.types.ts",
-      "sourceLine": 323,
+      "sourceLine": 329,
       "tsdoc": null
+    },
+    "@upmind-automation/headless!AffiliateLinkRow": {
+      "id": "@upmind-automation/headless!AffiliateLinkRow",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "affiliate",
+      "name": "AffiliateLinkRow",
+      "signature": "Symbol AffiliateLinkRow",
+      "sourceFile": "packages/headless/src/modules/affiliate/affiliate.types.ts",
+      "sourceLine": 262,
+      "tsdoc": "A links row as the collection publishes it: the raw wire link plus its\nshareable URL, `{referralOrigin}/aff/{hash}`, `\"\"` while no origin is known."
     },
     "@upmind-automation/headless!AffiliateLinkVisitModel": {
       "id": "@upmind-automation/headless!AffiliateLinkVisitModel",
@@ -61254,7 +61579,7 @@
       "name": "AffiliatePayoutDestinationFormModel",
       "signature": "Symbol AffiliatePayoutDestinationFormModel",
       "sourceFile": "packages/headless/src/modules/affiliate/affiliate.types.ts",
-      "sourceLine": 356,
+      "sourceLine": 362,
       "tsdoc": null
     },
     "@upmind-automation/headless!AffiliatePayoutRow": {
@@ -61265,7 +61590,7 @@
       "name": "AffiliatePayoutRow",
       "signature": "Symbol AffiliatePayoutRow",
       "sourceFile": "packages/headless/src/modules/affiliate/affiliate.types.ts",
-      "sourceLine": 298,
+      "sourceLine": 304,
       "tsdoc": "The mapped payout row, camelCase. `mapAffiliatePayout` (`affiliate.mappers.ts`)\nbuilds this from the wire `IAffiliatePayout` (`packages/types`, T38)."
     },
     "@upmind-automation/headless!AffiliatePayoutsQueryModel": {
@@ -61419,7 +61744,7 @@
       "name": "AuthEventType",
       "signature": "Symbol AuthEventType",
       "sourceFile": "packages/headless/src/modules/session-store/session-store.types.ts",
-      "sourceLine": 329,
+      "sourceLine": 336,
       "tsdoc": null
     },
     "@upmind-automation/headless!AuthEvents": {
@@ -61430,7 +61755,7 @@
       "name": "AuthEvents",
       "signature": "AuthEvents: object",
       "sourceFile": "packages/headless/src/modules/session-store/session-store.types.ts",
-      "sourceLine": 321,
+      "sourceLine": 328,
       "tsdoc": "Interactive auth action that minted a token. Passed through `add()` /\n`persistTokenToStorage` to drive the login/sign_up dataLayer event and the\nsubsequent-login `/self` cache-bust."
     },
     "@upmind-automation/headless!AuthFlowTypes": {
@@ -62970,7 +63295,7 @@
       "name": "DelegatableRecord",
       "signature": "Symbol DelegatableRecord",
       "sourceFile": "packages/headless/src/modules/session-store/session-store.types.ts",
-      "sourceLine": 192,
+      "sourceLine": 199,
       "tsdoc": "Record types the server can mark as delegated to the active client\n(graphify-out/ — `graphify query \"IOrder IInvoice alias delegatable record\norder delegate_related\"` confirms `IOrder` carries no node of its own).\n\nORDERS ARE COVERED, via `IInvoice`. `IOrder` is a straight alias of\n`IInvoice` (`types/src/models/orders.ts:3`), so an order both satisfies this\nunion and takes the invoice arm of `isDelegated` — child-account exclusion\nand all. That matches the oracle: the legacy orders module maps\n`belongsToDelegate` onto the invoices getter verbatim\n(`vue-app src/store/modules/data/orders/index.ts:65-68`, commented \"Map to\nidentical INVOICES getter\"), and orders render the same delegated badge\n(`orderRowItem.vue:99`). Naming `IOrder` here would be a no-op alias in the\nunion, not extra coverage."
     },
     "@upmind-automation/headless!Delegate": {
@@ -63003,7 +63328,7 @@
       "name": "DelegatedRecordOwner",
       "signature": "Symbol DelegatedRecordOwner",
       "sourceFile": "packages/headless/src/modules/session-store/session-store.types.ts",
-      "sourceLine": 198,
+      "sourceLine": 205,
       "tsdoc": "The owning client of a delegated record, read off the record's own embedded\n`client` relation. Every field optional because every source field is."
     },
     "@upmind-automation/headless!DescriptionDisplay": {
@@ -63831,6 +64156,105 @@
       "sourceLine": 224,
       "tsdoc": "Minimal labelled-content shape: a label, optionally annotated with an icon."
     },
+    "@upmind-automation/headless!LegacyInvoice": {
+      "id": "@upmind-automation/headless!LegacyInvoice",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "legacy-invoices",
+      "name": "LegacyInvoice",
+      "signature": "Symbol LegacyInvoice",
+      "sourceFile": "packages/headless/src/modules/legacy-invoices/legacy-invoices.types.ts",
+      "sourceLine": 190,
+      "tsdoc": "The mapped record. Keeps the wire's own top-level field names, and the\npreserved bill WHOLE under `content` (D-16, ruling PROJ-1) — no flattened\nprojection is minted; `design.md` 8.13 enumerates every path a consumer\nreads off `content`, and FE-1902 owns projecting it for render. `content`\nis loosely typed on the wire [w3] and is kept that way here on purpose: a\ntyped shape would claim a guarantee the wire does not carry."
+    },
+    "@upmind-automation/headless!LegacyInvoiceDocumentNotReadyError": {
+      "id": "@upmind-automation/headless!LegacyInvoiceDocumentNotReadyError",
+      "kind": "Class",
+      "lessons": [],
+      "module": "legacy-invoices",
+      "name": "LegacyInvoiceDocumentNotReadyError",
+      "signature": "Class LegacyInvoiceDocumentNotReadyError",
+      "sourceFile": "packages/headless/src/modules/legacy-invoices/legacy-invoices.types.ts",
+      "sourceLine": 279,
+      "tsdoc": "OD2's typed condition — thrown by `downloadPdf` on a 404, so a page can\nrender the oracle's \"file generating\" meaning without a toast layer, which\nheadless owns none of. Distinguished from the ordinary download failure by\ntype (`instanceof`), never by message string (design.md 8.10, AC12)."
+    },
+    "@upmind-automation/headless!LegacyInvoiceFilterModel": {
+      "id": "@upmind-automation/headless!LegacyInvoiceFilterModel",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "legacy-invoices",
+      "name": "LegacyInvoiceFilterModel",
+      "signature": "Symbol LegacyInvoiceFilterModel",
+      "sourceFile": "packages/headless/src/modules/legacy-invoices/legacy-invoices.types.ts",
+      "sourceLine": 169,
+      "tsdoc": "The nested filter model — the `filters` branch of LegacyInvoiceQueryModel."
+    },
+    "@upmind-automation/headless!LegacyInvoiceQueryModel": {
+      "id": "@upmind-automation/headless!LegacyInvoiceQueryModel",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "legacy-invoices",
+      "name": "LegacyInvoiceQueryModel",
+      "signature": "Symbol LegacyInvoiceQueryModel",
+      "sourceFile": "packages/headless/src/modules/legacy-invoices/legacy-invoices.types.ts",
+      "sourceLine": 155,
+      "tsdoc": "The whole request state as one model — `filters`, `sort` (ordered,\nprecedence = position) and `pagination`. The instance is validated against\n`useQuerySchema()`; `list()`'s translator maps it to the wire triple. Every\ncolumn here is named in `design.md` 8.3 with its declared operator branch —\nno column or operator here is invented."
+    },
+    "@upmind-automation/headless!LegacyInvoiceScopeMatrix": {
+      "id": "@upmind-automation/headless!LegacyInvoiceScopeMatrix",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "legacy-invoices",
+      "name": "LegacyInvoiceScopeMatrix",
+      "signature": "Symbol LegacyInvoiceScopeMatrix",
+      "sourceFile": "packages/headless/src/modules/legacy-invoices/legacy-invoices.types.ts",
+      "sourceLine": 96,
+      "tsdoc": "Scope matrix type for `useLegacyInvoice` (derived from the runtime const)."
+    },
+    "@upmind-automation/headless!LegacyInvoiceSortEntry": {
+      "id": "@upmind-automation/headless!LegacyInvoiceSortEntry",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "legacy-invoices",
+      "name": "LegacyInvoiceSortEntry",
+      "signature": "Symbol LegacyInvoiceSortEntry",
+      "sourceFile": "packages/headless/src/modules/legacy-invoices/legacy-invoices.types.ts",
+      "sourceLine": 106,
+      "tsdoc": "One sort entry — the MODEL's ordered form; precedence is position."
+    },
+    "@upmind-automation/headless!LegacyInvoiceSortModel": {
+      "id": "@upmind-automation/headless!LegacyInvoiceSortModel",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "legacy-invoices",
+      "name": "LegacyInvoiceSortModel",
+      "signature": "Symbol LegacyInvoiceSortModel",
+      "sourceFile": "packages/headless/src/modules/legacy-invoices/legacy-invoices.types.ts",
+      "sourceLine": 174,
+      "tsdoc": "The ordered sort model — the `sort` branch of LegacyInvoiceQueryModel."
+    },
+    "@upmind-automation/headless!LegacyInvoiceSortableField": {
+      "id": "@upmind-automation/headless!LegacyInvoiceSortableField",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "legacy-invoices",
+      "name": "LegacyInvoiceSortableField",
+      "signature": "Symbol LegacyInvoiceSortableField",
+      "sourceFile": "packages/headless/src/modules/legacy-invoices/legacy-invoices.types.ts",
+      "sourceLine": 103,
+      "tsdoc": "The whole vocabulary of sortable columns (design.md 8.3) — nothing else is offered."
+    },
+    "@upmind-automation/headless!LegacyInvoicesScopeMatrix": {
+      "id": "@upmind-automation/headless!LegacyInvoicesScopeMatrix",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "legacy-invoices",
+      "name": "LegacyInvoicesScopeMatrix",
+      "signature": "Symbol LegacyInvoicesScopeMatrix",
+      "sourceFile": "packages/headless/src/modules/legacy-invoices/legacy-invoices.types.ts",
+      "sourceLine": 79,
+      "tsdoc": "Scope matrix type for `useLegacyInvoices` (derived from the runtime const)."
+    },
     "@upmind-automation/headless!ListQuery": {
       "id": "@upmind-automation/headless!ListQuery",
       "kind": "2097152",
@@ -63861,7 +64285,7 @@
       "name": "LoadedSessionUsers",
       "signature": "Symbol LoadedSessionUsers",
       "sourceFile": "packages/headless/src/modules/session-store/session-store.types.ts",
-      "sourceLine": 222,
+      "sourceLine": 229,
       "tsdoc": "Result of loading `/self` for every session during boot resolution.\n`users` holds the profiles that loaded; `invalidSessionIds` names the\nsessions whose token returned `401` (dead token) and must be dropped so boot\nfalls through to the guest floor. A non-401 failure is a soft degrade and\nappears in neither list."
     },
     "@upmind-automation/headless!Locale": {
@@ -64543,7 +64967,7 @@
       "name": "PersistedSessionState",
       "signature": "Symbol PersistedSessionState",
       "sourceFile": "packages/headless/src/modules/session-store/session-store.types.ts",
-      "sourceLine": 295,
+      "sourceLine": 302,
       "tsdoc": "Shape persisted to sessionStorage.\nContains all session data needed to fully restore the store on page reload.\nExcludes transient flags (`initialised`, `loading`) which reset on each load."
     },
     "@upmind-automation/headless!PersonalDetailsScopeMatrix": {
@@ -65896,7 +66320,7 @@
       "name": "SessionEntry",
       "signature": "Symbol SessionEntry",
       "sourceFile": "packages/headless/src/modules/session-store/session-store.types.ts",
-      "sourceLine": 209,
+      "sourceLine": 216,
       "tsdoc": "A session entry pairs a token with optional user profile data.\nUsed in clientSessions and staffSessions records."
     },
     "@upmind-automation/headless!SessionEventType": {
@@ -65907,7 +66331,7 @@
       "name": "SessionEventType",
       "signature": "Symbol SessionEventType",
       "sourceFile": "packages/headless/src/modules/session-store/session-store.types.ts",
-      "sourceLine": 313,
+      "sourceLine": 320,
       "tsdoc": null
     },
     "@upmind-automation/headless!SessionEvents": {
@@ -65918,7 +66342,7 @@
       "name": "SessionEvents",
       "signature": "SessionEvents: object",
       "sourceFile": "packages/headless/src/modules/session-store/session-store.types.ts",
-      "sourceLine": 304,
+      "sourceLine": 311,
       "tsdoc": "Shared session event names used by both the authSubscription helper\n(XState callback actor) and BroadcastChannel cross-tab sync."
     },
     "@upmind-automation/headless!SessionScopeMatrix": {
@@ -65940,7 +66364,7 @@
       "name": "SessionState",
       "signature": "Symbol SessionState",
       "sourceFile": "packages/headless/src/modules/session-store/session-store.types.ts",
-      "sourceLine": 230,
+      "sourceLine": 237,
       "tsdoc": "Store state for managing multiple actor sessions."
     },
     "@upmind-automation/headless!SessionStoreConfig": {
@@ -65962,7 +66386,7 @@
       "name": "SessionSyncMessage",
       "signature": "Symbol SessionSyncMessage",
       "sourceFile": "packages/headless/src/modules/session-store/session-store.types.ts",
-      "sourceLine": 334,
+      "sourceLine": 341,
       "tsdoc": "Message format for BroadcastChannel session sync."
     },
     "@upmind-automation/headless!SessionTransfer": {
@@ -66842,7 +67266,7 @@
       "name": "UseAffiliateLinkVisit",
       "signature": "Symbol UseAffiliateLinkVisit",
       "sourceFile": "packages/headless/src/modules/affiliate/useAffiliateLinkVisit.ts",
-      "sourceLine": 132,
+      "sourceLine": 154,
       "tsdoc": null
     },
     "@upmind-automation/headless!UseAffiliateLinkVisitActions": {
@@ -66853,7 +67277,7 @@
       "name": "UseAffiliateLinkVisitActions",
       "signature": "Symbol UseAffiliateLinkVisitActions",
       "sourceFile": "packages/headless/src/modules/affiliate/useAffiliateLinkVisit.actions.ts",
-      "sourceLine": 24,
+      "sourceLine": 28,
       "tsdoc": null
     },
     "@upmind-automation/headless!UseAffiliateLinkVisitContext": {
@@ -66886,7 +67310,7 @@
       "name": "UseAffiliateLinkVisitMeta",
       "signature": "Symbol UseAffiliateLinkVisitMeta",
       "sourceFile": "packages/headless/src/modules/affiliate/useAffiliateLinkVisit.meta.ts",
-      "sourceLine": 21,
+      "sourceLine": 29,
       "tsdoc": null
     },
     "@upmind-automation/headless!UseAffiliatePayoutDestinationManager": {
@@ -67282,7 +67706,7 @@
       "name": "UseClientAffiliate",
       "signature": "Symbol UseClientAffiliate",
       "sourceFile": "packages/headless/src/modules/affiliate/useClientAffiliate.ts",
-      "sourceLine": 363,
+      "sourceLine": 367,
       "tsdoc": null
     },
     "@upmind-automation/headless!UseClientCompanies": {
@@ -67788,7 +68212,7 @@
       "name": "UseClientNotificationsManager",
       "signature": "Symbol UseClientNotificationsManager",
       "sourceFile": "packages/headless/src/modules/client-notifications/useClientNotificationsManager.ts",
-      "sourceLine": 234,
+      "sourceLine": 236,
       "tsdoc": null
     },
     "@upmind-automation/headless!UseClientNotificationsManagerActions": {
@@ -67799,7 +68223,7 @@
       "name": "UseClientNotificationsManagerActions",
       "signature": "Symbol UseClientNotificationsManagerActions",
       "sourceFile": "packages/headless/src/modules/client-notifications/useClientNotificationsManager.actions.ts",
-      "sourceLine": 572,
+      "sourceLine": 578,
       "tsdoc": null
     },
     "@upmind-automation/headless!UseClientNotificationsManagerContext": {
@@ -68327,7 +68751,7 @@
       "name": "UseInvoice",
       "signature": "Symbol UseInvoice",
       "sourceFile": "packages/headless/src/modules/invoices/useInvoice.ts",
-      "sourceLine": 166,
+      "sourceLine": 168,
       "tsdoc": null
     },
     "@upmind-automation/headless!UseInvoiceActions": {
@@ -68338,7 +68762,7 @@
       "name": "UseInvoiceActions",
       "signature": "Symbol UseInvoiceActions",
       "sourceFile": "packages/headless/src/modules/invoices/useInvoice.actions.ts",
-      "sourceLine": 192,
+      "sourceLine": 194,
       "tsdoc": null
     },
     "@upmind-automation/headless!UseInvoiceContext": {
@@ -68427,6 +68851,116 @@
       "signature": "Symbol UseInvoicesMeta",
       "sourceFile": "packages/headless/src/modules/invoices/useInvoices.meta.ts",
       "sourceLine": 124,
+      "tsdoc": null
+    },
+    "@upmind-automation/headless!UseLegacyInvoice": {
+      "id": "@upmind-automation/headless!UseLegacyInvoice",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "legacy-invoices",
+      "name": "UseLegacyInvoice",
+      "signature": "Symbol UseLegacyInvoice",
+      "sourceFile": "packages/headless/src/modules/legacy-invoices/useLegacyInvoice.ts",
+      "sourceLine": 101,
+      "tsdoc": null
+    },
+    "@upmind-automation/headless!UseLegacyInvoiceActions": {
+      "id": "@upmind-automation/headless!UseLegacyInvoiceActions",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "legacy-invoices",
+      "name": "UseLegacyInvoiceActions",
+      "signature": "Symbol UseLegacyInvoiceActions",
+      "sourceFile": "packages/headless/src/modules/legacy-invoices/useLegacyInvoice.actions.ts",
+      "sourceLine": 190,
+      "tsdoc": null
+    },
+    "@upmind-automation/headless!UseLegacyInvoiceContext": {
+      "id": "@upmind-automation/headless!UseLegacyInvoiceContext",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "legacy-invoices",
+      "name": "UseLegacyInvoiceContext",
+      "signature": "Symbol UseLegacyInvoiceContext",
+      "sourceFile": "packages/headless/src/modules/legacy-invoices/useLegacyInvoice.context.ts",
+      "sourceLine": 57,
+      "tsdoc": null
+    },
+    "@upmind-automation/headless!UseLegacyInvoiceInternals": {
+      "id": "@upmind-automation/headless!UseLegacyInvoiceInternals",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "legacy-invoices",
+      "name": "UseLegacyInvoiceInternals",
+      "signature": "Symbol UseLegacyInvoiceInternals",
+      "sourceFile": "packages/headless/src/modules/legacy-invoices/useLegacyInvoice.internals.ts",
+      "sourceLine": 31,
+      "tsdoc": null
+    },
+    "@upmind-automation/headless!UseLegacyInvoiceMeta": {
+      "id": "@upmind-automation/headless!UseLegacyInvoiceMeta",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "legacy-invoices",
+      "name": "UseLegacyInvoiceMeta",
+      "signature": "Symbol UseLegacyInvoiceMeta",
+      "sourceFile": "packages/headless/src/modules/legacy-invoices/useLegacyInvoice.meta.ts",
+      "sourceLine": 114,
+      "tsdoc": null
+    },
+    "@upmind-automation/headless!UseLegacyInvoices": {
+      "id": "@upmind-automation/headless!UseLegacyInvoices",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "legacy-invoices",
+      "name": "UseLegacyInvoices",
+      "signature": "Symbol UseLegacyInvoices",
+      "sourceFile": "packages/headless/src/modules/legacy-invoices/useLegacyInvoices.ts",
+      "sourceLine": 84,
+      "tsdoc": null
+    },
+    "@upmind-automation/headless!UseLegacyInvoicesActions": {
+      "id": "@upmind-automation/headless!UseLegacyInvoicesActions",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "legacy-invoices",
+      "name": "UseLegacyInvoicesActions",
+      "signature": "Symbol UseLegacyInvoicesActions",
+      "sourceFile": "packages/headless/src/modules/legacy-invoices/useLegacyInvoices.actions.ts",
+      "sourceLine": 182,
+      "tsdoc": null
+    },
+    "@upmind-automation/headless!UseLegacyInvoicesContext": {
+      "id": "@upmind-automation/headless!UseLegacyInvoicesContext",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "legacy-invoices",
+      "name": "UseLegacyInvoicesContext",
+      "signature": "Symbol UseLegacyInvoicesContext",
+      "sourceFile": "packages/headless/src/modules/legacy-invoices/useLegacyInvoices.context.ts",
+      "sourceLine": 105,
+      "tsdoc": null
+    },
+    "@upmind-automation/headless!UseLegacyInvoicesInternals": {
+      "id": "@upmind-automation/headless!UseLegacyInvoicesInternals",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "legacy-invoices",
+      "name": "UseLegacyInvoicesInternals",
+      "signature": "Symbol UseLegacyInvoicesInternals",
+      "sourceFile": "packages/headless/src/modules/legacy-invoices/useLegacyInvoices.internals.ts",
+      "sourceLine": 35,
+      "tsdoc": null
+    },
+    "@upmind-automation/headless!UseLegacyInvoicesMeta": {
+      "id": "@upmind-automation/headless!UseLegacyInvoicesMeta",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "legacy-invoices",
+      "name": "UseLegacyInvoicesMeta",
+      "signature": "Symbol UseLegacyInvoicesMeta",
+      "sourceFile": "packages/headless/src/modules/legacy-invoices/useLegacyInvoices.meta.ts",
+      "sourceLine": 82,
       "tsdoc": null
     },
     "@upmind-automation/headless!UseLocale": {
@@ -68745,7 +69279,7 @@
       "name": "UseTicketActions",
       "signature": "Symbol UseTicketActions",
       "sourceFile": "packages/headless/src/modules/tickets/useTicket.actions.ts",
-      "sourceLine": 440,
+      "sourceLine": 442,
       "tsdoc": null
     },
     "@upmind-automation/headless!UseTicketContext": {
@@ -69185,7 +69719,7 @@
       "name": "basketProductServices",
       "signature": "basketProductServices: object",
       "sourceFile": "packages/headless/src/modules/basket-product/basket-product.services.ts",
-      "sourceLine": 915,
+      "sourceLine": 916,
       "tsdoc": null
     },
     "@upmind-automation/headless!billingMachine": {
@@ -69251,7 +69785,7 @@
       "name": "commissionSummaryStatus",
       "signature": "commissionSummaryStatus(commission: IAffiliatePendingCommission): CommissionStatus",
       "sourceFile": "packages/headless/src/modules/affiliate/affiliate.utils.ts",
-      "sourceLine": 164,
+      "sourceLine": 169,
       "tsdoc": "The summary order (`commissionSummary.vue:64-163`, audit DI-3)."
     },
     "@upmind-automation/headless!commissionTagStatus": {
@@ -69262,7 +69796,7 @@
       "name": "commissionTagStatus",
       "signature": "commissionTagStatus(commission: IAffiliatePendingCommission): CommissionStatus",
       "sourceFile": "packages/headless/src/modules/affiliate/affiliate.utils.ts",
-      "sourceLine": 152,
+      "sourceLine": 157,
       "tsdoc": "The tag order (`commissionAmountTag.vue:47-59`, audit DI-3)."
     },
     "@upmind-automation/headless!createDataProxy": {
@@ -69361,7 +69895,7 @@
       "name": "defaultPayoutDestination",
       "signature": "defaultPayoutDestination(destinations: IAffiliateBrandPayoutDestination[]): IAffiliateBrandPayoutDestination | undefined",
       "sourceFile": "packages/headless/src/modules/affiliate/affiliate.utils.ts",
-      "sourceLine": 121,
+      "sourceLine": 126,
       "tsdoc": "The destinations page's own default entry, if any."
     },
     "@upmind-automation/headless!dumpTokenFromStorage": {
@@ -69724,7 +70258,7 @@
       "name": "isPaypalDestination",
       "signature": "isPaypalDestination(destinationId: string | null | undefined, destinations: IAffiliateBrandPayoutDestination[]): boolean",
       "sourceFile": "packages/headless/src/modules/affiliate/affiliate.utils.ts",
-      "sourceLine": 110,
+      "sourceLine": 115,
       "tsdoc": "True when `destinationId` is the PayPal destination. A `null`/`undefined`\nid inherits the default destination's code (audit DI-5)."
     },
     "@upmind-automation/headless!isSelectableFutureCancellationDate": {
@@ -70439,7 +70973,7 @@
       "name": "useAffiliateLinkVisit",
       "signature": "useAffiliateLinkVisit: ScopedComposable<object, object>",
       "sourceFile": "packages/headless/src/modules/affiliate/useAffiliateLinkVisit.ts",
-      "sourceLine": 127,
+      "sourceLine": 149,
       "tsdoc": "A visitor's referral-link visit — one action, no context matrix\n(design.md D-13)."
     },
     "@upmind-automation/headless!useAffiliateLinks": {
@@ -70450,7 +70984,7 @@
       "name": "useAffiliateLinks",
       "signature": "useAffiliateLinks: ScopedComposable<object, object>",
       "sourceFile": "packages/headless/src/modules/affiliate/useAffiliateLinks.ts",
-      "sourceLine": 124,
+      "sourceLine": 164,
       "tsdoc": "The client's own referral links."
     },
     "@upmind-automation/headless!useAffiliatePayoutDestinationManager": {
@@ -70681,7 +71215,7 @@
       "name": "useClientAffiliate",
       "signature": "useClientAffiliate: ScopedComposable<object, object>",
       "sourceFile": "packages/headless/src/modules/affiliate/useClientAffiliate.ts",
-      "sourceLine": 358,
+      "sourceLine": 362,
       "tsdoc": "The client's own affiliate account."
     },
     "@upmind-automation/headless!useClientCompanies": {
@@ -70791,7 +71325,7 @@
       "name": "useClientNotificationsManager",
       "signature": "useClientNotificationsManager: ScopedComposable<object, object>",
       "sourceFile": "packages/headless/src/modules/client-notifications/useClientNotificationsManager.ts",
-      "sourceLine": 224,
+      "sourceLine": 226,
       "tsdoc": "The editable preference draft."
     },
     "@upmind-automation/headless!useClientPhoneManager": {
@@ -71066,7 +71600,7 @@
       "name": "useInvoice",
       "signature": "useInvoice: ScopedComposable<object, object>",
       "sourceFile": "packages/headless/src/modules/invoices/useInvoice.ts",
-      "sourceLine": 160,
+      "sourceLine": 162,
       "tsdoc": "Scoped composable for one invoice, read and paid."
     },
     "@upmind-automation/headless!useInvoices": {
@@ -71079,6 +71613,28 @@
       "sourceFile": "packages/headless/src/modules/invoices/useInvoices.ts",
       "sourceLine": 120,
       "tsdoc": "Scoped composable for a client's invoices."
+    },
+    "@upmind-automation/headless!useLegacyInvoice": {
+      "id": "@upmind-automation/headless!useLegacyInvoice",
+      "kind": "Variable",
+      "lessons": [],
+      "module": "legacy-invoices",
+      "name": "useLegacyInvoice",
+      "signature": "useLegacyInvoice: ScopedComposable<object, object>",
+      "sourceFile": "packages/headless/src/modules/legacy-invoices/useLegacyInvoice.ts",
+      "sourceLine": 95,
+      "tsdoc": "Scoped composable for one imported invoice, read in full."
+    },
+    "@upmind-automation/headless!useLegacyInvoices": {
+      "id": "@upmind-automation/headless!useLegacyInvoices",
+      "kind": "Variable",
+      "lessons": [],
+      "module": "legacy-invoices",
+      "name": "useLegacyInvoices",
+      "signature": "useLegacyInvoices: ScopedComposable<object, object>",
+      "sourceFile": "packages/headless/src/modules/legacy-invoices/useLegacyInvoices.ts",
+      "sourceLine": 78,
+      "tsdoc": "Scoped composable for a client's imported-invoice archive."
     },
     "@upmind-automation/headless!useLocale": {
       "id": "@upmind-automation/headless!useLocale",

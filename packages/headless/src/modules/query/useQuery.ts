@@ -13,7 +13,7 @@ import { useActiveSession } from "../session-store";
 import { getTokenFromStorage } from "../session-store";
 import { useI18n, useLocale } from "../system-localisation";
 import { queryClient } from "./client";
-import { doFetch, refreshToken } from "./query.services";
+import { doDownload, doFetch, refreshToken } from "./query.services";
 import {
   parseData,
   PAGINATION,
@@ -233,6 +233,53 @@ export const useQuery = () => {
       // let the original error propagate
       throw error;
     });
+  }
+
+  /**
+   * Fetches a binary resource (e.g. a PDF or an attachment) as a `Blob`,
+   * reusing the same url, locale `lang` and access-token seams as
+   * {@link request}. On a non-OK response it rejects with a `DetailedError`
+   * carrying the HTTP status as its `code`, so callers can branch (e.g. a 404).
+   * Callers that need an `ArrayBuffer` convert via `Blob.arrayBuffer()`.
+   *
+   * @param url The URL to send the request to.
+   * @param init The request options (e.g. an abort `signal`).
+   * @param withAccessToken The access token to use for the request. It can be a string or a boolean.
+   * @param withoutLocale Whether to exclude the locale from the request.
+   * @returns {Promise<Blob>} A promise that resolves to the binary response body.
+   * @throws {DetailedError} when the response is not OK.
+   */
+  async function download({
+    url,
+    init,
+    withAccessToken,
+    withoutLocale
+  }: RequestParams): Promise<Blob> {
+    init ??= {};
+
+    // set "lang" parameter
+    if (
+      !withoutLocale &&
+      !isEmpty(locale.value) &&
+      !url.searchParams.has("lang")
+    ) {
+      url.searchParams.set("lang", locale.value as string);
+    }
+
+    // Enforce Authorization header, if required
+    if (withAccessToken) {
+      const token = isString(withAccessToken)
+        ? withAccessToken
+        : await useActiveSession()
+            .useActions()
+            .isReady()
+            .then(
+              () => useActiveSession().useContext().session.value?.access_token
+            );
+      if (token) set(init, `headers.Authorization`, `Bearer ${token}`);
+    }
+
+    return doDownload({ url, init });
   }
 
   // --- TanStack Query methods
@@ -1423,6 +1470,8 @@ export const useQuery = () => {
     queryClient,
     // --- utils
     useUrl,
+    // --- binary download (Blob body; callers convert to ArrayBuffer as needed)
+    download,
     // --- tanstack query methods
     query,
     list,

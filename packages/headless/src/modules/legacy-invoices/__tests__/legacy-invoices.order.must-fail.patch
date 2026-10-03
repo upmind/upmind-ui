@@ -1,0 +1,29 @@
+# Must-fail mutant for legacy-invoices.order.int.test.ts's AC-3
+# specification (T48). Paired describe: "legacy-invoices collection — the
+# default order (AC-3)" / "legacy-invoices collection — ordering by issue
+# date or total amount (AC-3)".
+#
+# Mutates `LEGACY_INVOICE_DEFAULT_SORT` — flips the boot order's direction
+# from `DESC` (newest first, design.md §8.3) to `ASC`.
+#
+# Reds: "@AC-3 before I set an order, the archive is ordered by issue date,
+# newest first" directly (`order` reads `create_datetime`, not
+# `-create_datetime`). Also reds "@AC-3 ordering by issue date reaches the
+# wire as order=create_datetime / order=-create_datetime" — an explicit
+# `dir: "asc"` write now equals the (mutated) boot default, so the query
+# core treats it as a no-op and emits no further request. Both assertions
+# belong to THIS spec's own file; neither is cross-spec collateral.
+#
+# Declared collateral: NONE outside `legacy-invoices.order.int.test.ts`
+# (verified — every other integration file and the full unit suite stay
+# green).
+#
+# Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+--- a/packages/headless/src/modules/legacy-invoices/legacy-invoices.types.ts
++++ b/packages/headless/src/modules/legacy-invoices/legacy-invoices.types.ts
+@@ -110,4 +110,4 @@
+ /** The BOOT order — issue date, newest first (design.md 8.3) (`oracle: legacyInvoicesProvider.vue:66-69`). */
+ export const LEGACY_INVOICE_DEFAULT_SORT: LegacyInvoiceSortEntry[] = [
+-  { field: "create_datetime", dir: SortDirection.DESC }
++  { field: "create_datetime", dir: SortDirection.ASC }
+ ];

@@ -102,13 +102,26 @@ function scopeRegistry() {
     return cell;
   };
 
+  // A composable with no matrix declares no context, so each one declares the
+  // `client` context the world boots at, for both actors.
+  const withClientContext = (key: string) =>
+    Object.assign(
+      () => ({ as: (actor: string) => cellFor(`${key}/${actor}`) }),
+      {
+        scopeMatrix: {
+          [ScopeActorTypes.CLIENT]: "client",
+          [ScopeActorTypes.STAFF]: "client"
+        }
+      }
+    );
+
   const bindings: Record<ScenarioKey, ScenarioBinding> = {
     [COLLECTION]: {
-      useList: () => ({ as: actor => cellFor(`${COLLECTION}/${actor}`) }),
+      useList: withClientContext(COLLECTION),
       scope: { actor: ScopeActorTypes.CLIENT, contextType: "client" }
     },
     [EDITOR]: {
-      useList: () => ({ as: actor => cellFor(`${EDITOR}/${actor}`) }),
+      useList: withClientContext(EDITOR),
       scope: { actor: ScopeActorTypes.CLIENT, contextType: "client" }
     }
   } as unknown as Record<ScenarioKey, ScenarioBinding>;

@@ -28,6 +28,7 @@ export * from "./delegates";
 export * from "./domain";
 export * from "./feedback";
 export * from "./invoices";
+export * from "./legacy-invoices";
 export * from "./lookup";
 export * from "./payment";
 export * from "./payment-details";

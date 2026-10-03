@@ -1,0 +1,26 @@
+# Must-fail mutant for legacy-invoices.collection.int.test.ts's AC-5
+# specification (T48). Paired describe: "legacy-invoices collection —
+# availability and an empty archive (AC-5)".
+#
+# Mutates `useLegacyInvoices.meta.ts`'s `hasLegacyInvoices` — misreads
+# `activeUser.value?.staged_import` instead of
+# `activeUser.value?.has_legacy_invoices` (ruling UQ1/UQ1-C).
+#
+# Reds: "@AC-5 reports itself available when the client record carries an
+# imported-invoice history" (the derived true record's `has_legacy_invoices`
+# is no longer read).
+#
+# Declared collateral: NONE (verified — full headless integration and unit
+# suites stay green with this patch applied, aside from the named
+# assertion; the two other AC-5 scenarios both read the FALSE default on
+# `staged_import` too, coincidentally staying green, so this patch is
+# distinguishing on the TRUE-record scenario alone).
+#
+# Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+--- a/packages/headless/src/modules/legacy-invoices/useLegacyInvoices.meta.ts
++++ b/packages/headless/src/modules/legacy-invoices/useLegacyInvoices.meta.ts
+@@ -43,3 +43,3 @@
+   const hasLegacyInvoices = computed(
+-    () => !!activeUser.value?.has_legacy_invoices
++    () => !!activeUser.value?.staged_import
+   );

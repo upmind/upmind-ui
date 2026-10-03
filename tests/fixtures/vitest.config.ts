@@ -16,7 +16,7 @@ export default defineConfig({
     ...workerPool("node"),
     root: fileURLToPath(new URL("./", import.meta.url)),
     environment: "node",
-    include: ["*.test.ts"]
+    include: ["*.test.ts", "imports/*.test.ts"]
   },
   resolve: { alias }
 });

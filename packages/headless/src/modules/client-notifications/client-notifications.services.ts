@@ -260,9 +260,10 @@ export default createClientNotificationsServices;
  * `service.update` silently.
  */
 function requireModel(context: NotificationsContext): NotificationsModel {
+  const { t } = useI18n();
   if (isEmpty(context.model)) {
     throw new DetailedError(
-      "Notification preferences not available",
+      t("error.client_notifications_not_available"),
       responseCodes.No_Content,
       ErrorOrigin.Headless,
       { model: context.model }

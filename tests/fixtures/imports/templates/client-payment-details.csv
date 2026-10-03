@@ -1,0 +1,2 @@
+id,client_id,payment_method_name,gateway_provider_code,is_default,allow_auto_payment,imported_address_id,card_type,card_last4,card_expire_date,payment_method_token,customer_reference,stripe_setup_intent,stripe_payment_method_type,address_1,address_2,country_code,region_code,postcode
+pd1,,Fixture payment_method_name pd1,,,,,,,,tok_fixture_pd1,,,,,,,,

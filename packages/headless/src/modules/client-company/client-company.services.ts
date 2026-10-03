@@ -489,6 +489,7 @@ async function loadLookups(
   { id, model }: CompanyContext,
   scopeContext?: ScopeContext
 ): Promise<Partial<CompanyContext>> {
+  const { t } = useI18n();
   const clientId = resolveClientId(scopeContext);
 
   if (!isAddressable(clientId.value)) {
@@ -542,7 +543,7 @@ async function loadLookups(
   if (isEmpty(countries)) {
     return Promise.reject(
       new DetailedError(
-        "Failed to load countries and regions",
+        t("error.lookup_load_failed"),
         responseCodes.Service_Unavailable,
         ErrorOrigin.Headless
       )

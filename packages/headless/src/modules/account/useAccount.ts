@@ -58,7 +58,7 @@ function createAccountForScope(config: ScopeConfig, scopeKey: ScopeKey) {
   const actorRef = createActor(service);
   if (!actorRef) {
     throw new DetailedError(
-      t("errors.auth.unavailable"),
+      t("error.account_not_available"),
       responseCodes.Service_Unavailable,
       ErrorOrigin.Headless,
       { scope: config }

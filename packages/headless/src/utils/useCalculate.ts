@@ -27,6 +27,8 @@
 
 import { AsyncDebouncer } from "@tanstack/pacer";
 import { useQuery } from "../modules/query";
+import { useI18n } from "../modules/system-localisation";
+import { DetailedError, ErrorOrigin, responseCodes } from "./useError";
 import { useTime } from "./useTime";
 import {
   filter,
@@ -174,6 +176,8 @@ export function useCalculate() {
     currencyId: string,
     input: T
   ): Promise<CalculateResult<T>> {
+    const { t } = useI18n();
+
     // DD-5: nil whole-input → empty result
     if (isNil(input)) return "" as CalculateResult<T>;
 
@@ -207,7 +211,11 @@ export function useCalculate() {
       >;
     }
 
-    throw new Error("calculate: invalid input shape");
+    throw new DetailedError(
+      t("error.calculate_input_not_valid"),
+      responseCodes.Unprocessable_Entity,
+      ErrorOrigin.Headless
+    );
   }
 
   // --- Public API: pushPrice helper ------------------------------------------

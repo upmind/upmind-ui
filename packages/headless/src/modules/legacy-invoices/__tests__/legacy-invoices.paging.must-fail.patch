@@ -1,0 +1,35 @@
+# Must-fail mutant for legacy-invoices.collection.int.test.ts's AC-4
+# specification (T48). Paired describe: "legacy-invoices collection — the
+# page window and the server total (AC-4)".
+#
+# Mutates `useLegacyInvoices.actions.ts` — swaps the `nextPage` / `prevPage`
+# handles, so a caller pressing "next" runs the query core's
+# `fetchPreviousPage` and vice versa.
+#
+# Reds: "@AC-4 the next-page move reaches the wire with the next window,
+# and the previous-page move returns the already-fetched first page from
+# cache" (the swapped `nextPage` throws `text.page_previous_not_available`
+# instead of reaching offset=10).
+#
+# Declared collateral: the AC-14 divergence specification's "narrowing while
+# on a later page re-keys the read back to offset=0" scenario ALSO reddens —
+# it calls `nextPage()` to reach page two before narrowing, the same swapped
+# handle. Verified: the divergence spec's OTHER scenario ("an over-shot page
+# recovers onto the last page") does not use `nextPage`/`prevPage` at all
+# (it writes `pagination` directly) and stays green, and no unit
+# specification reddens.
+#
+# Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+--- a/packages/headless/src/modules/legacy-invoices/useLegacyInvoices.actions.ts
++++ b/packages/headless/src/modules/legacy-invoices/useLegacyInvoices.actions.ts
+@@ -145,8 +145,8 @@
+
+     /** Advances the list one page forward. */
+-    nextPage: query.fetchNextPage,
++    nextPage: query.fetchPreviousPage,
+
+     /** Steps the list one page back. */
+-    prevPage: query.fetchPreviousPage,
++    prevPage: query.fetchNextPage,
+
+     /** Refetches the list from the server; rejects if it cannot address one. */

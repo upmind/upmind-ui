@@ -78,6 +78,13 @@ function observedEditor() {
     };
   }) as FourLayerComposable;
 
+  // servesContext now refuses every context a composable declares no matrix for
+  // (a546a3ded). The fake delegates to the real builder, so it carries the real
+  // builder's own matrix — which serves the EDIT context the .for() boots at.
+  useMutate.scopeMatrix = (
+    clientEmails.useMutate as FourLayerComposable
+  ).scopeMatrix;
+
   return {
     steps,
     taken: () => map(steps, "step"),

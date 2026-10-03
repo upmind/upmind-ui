@@ -21,6 +21,7 @@
   "in_basket": "In basket",
   "in_basket_msg": "Already in your basket — click to add another",
   "in_use": "In use",
+  "legacy_invoices_refreshed": "Invoices refreshed successfully",
   "notification_preferences_link_ready": "Preferences link ready — opening the preferences page",
   "notification_preferences_saved": "Notification preferences saved successfully",
   "notifications_refreshed": "Notification preferences refreshed successfully",
