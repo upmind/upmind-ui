@@ -81,14 +81,21 @@ filters.status(undefined);
 `setCriteria` applies a `filters` / `sort` / `pagination` intent as one write, branch by branch — a `filters` intent you pass **replaces** the whole filters branch, the same way the named setters above do, and re-asserts the forced `category.slug` leaf on the copy it writes:
 
 ```ts
-import { ScopeActorTypes, useOrders } from "@upmind-automation/headless";
+import {
+  OrdersSortableColumn,
+  ScopeActorTypes,
+  SortDirection,
+  useOrders
+} from "@upmind-automation/headless";
 
 const orders = useOrders().as(ScopeActorTypes.SELF);
 const { setCriteria } = orders.useActions();
 
 setCriteria({
   filters: { total_amount: { gte: 50 } },
-  sort: [{ field: "total_amount", dir: "desc" }]
+  sort: [
+    { field: OrdersSortableColumn.TOTAL_AMOUNT, dir: SortDirection.DESC }
+  ]
 });
 ```
 
@@ -299,14 +306,21 @@ orders.useActions().destroy();
 </template>
 
 <script setup lang="ts">
-import { ScopeActorTypes, useOrder } from "@upmind-automation/headless";
+import {
+  ScopeActorTypes,
+  useOrder,
+  type PaymentDetailData
+} from "@upmind-automation/headless";
 
-const props = defineProps<{ orderId: string }>();
+const props = defineProps<{
+  orderId: string;
+  paymentDetail: PaymentDetailData;
+}>();
 const order = useOrder().as(ScopeActorTypes.SELF).withId(props.orderId);
 const { error } = order.useContext();
 const { canCancel, canPay, hasError, isLoading, isProcessing } =
   order.useMeta();
 const { cancel } = order.useActions();
-const { pay } = order.useActions().usePayment();
+const { pay } = order.useActions().usePayment(props.paymentDetail);
 </script>
 ```

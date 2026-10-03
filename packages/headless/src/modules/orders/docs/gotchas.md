@@ -65,6 +65,16 @@ The legacy application exposes a single `pay` control that opens a payment dialo
 
 // ✅ Call the payment delegate from inside the payment component's own
 // setup, only while the order is payable — pass the chosen paymentDetail
+import {
+  ScopeActorTypes,
+  useOrder,
+  type PaymentDetailData
+} from "@upmind-automation/headless";
+
+declare const orderId: string;
+declare const paymentDetail: PaymentDetailData;
+
+const order = useOrder().as(ScopeActorTypes.SELF).withId(orderId);
 const { pay } = order.useActions().usePayment(paymentDetail);
 ```
 
@@ -77,8 +87,15 @@ const { pay } = order.useActions().usePayment(paymentDetail);
 The history list has no Delegated column. The raw order row carries a single `delegate_related` boolean, and no table cell shape can read it off the row root: scoping a cell at the row root yields an empty data path, which gives the column an empty id and crashes the table's header model — the list renders zero rows. The manager publishes the marker instead, as `meta.isDelegated`, mapped through the invoices capability's attribution logic.
 
 ```ts
+import { ScopeActorTypes, useOrder, useOrders } from "@upmind-automation/headless";
+
+declare const orderId: string;
+
 // ❌ Looking for a delegated flag on the history context
-const delegatedRows = orders.useContext().data.value.filter(o => o.delegate_related);
+const orders = useOrders().as(ScopeActorTypes.SELF);
+const delegatedRows = orders
+  .useContext()
+  .data.value.filter(o => "delegate_related" in o && o.delegate_related);
 
 // ✅ Read the marker from the single-order manager
 const order = useOrder().as(ScopeActorTypes.SELF).withId(orderId);
@@ -94,8 +111,15 @@ const isDelegated = order.useMeta().isDelegated;
 `findOne` on the history's context matches rows by a **strict** comparison against the partial object you pass it — it does not match a nested field inside a partial the way you might expect a "loose" partial match to. A lookup keyed on a nested field (for example, matching on a value inside `status` rather than on the row's own top-level fields) can silently miss a row that is genuinely on the page.
 
 ```ts
+import { ScopeActorTypes, useOrders } from "@upmind-automation/headless";
+
+declare const orderId: string;
+
+const orders = useOrders().as(ScopeActorTypes.SELF);
+const { data, getOne } = orders.useContext();
+
 // ❌ A nested-partial match can silently miss a row that is on the page
-const row = data.value.find(o => o.status?.code === "invoice_paid");
+const nestedMatch = data.value.find(o => o.status?.code === "invoice_paid");
 
 // ✅ Prefer getOne by id, or match on the row's own top-level fields
 const row = getOne(orderId);
