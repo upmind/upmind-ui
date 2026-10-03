@@ -4958,6 +4958,7 @@
         "Returning to a combination already fetched costs nothing — ever",
         "`list()` bridges the gap between combinations; `listInfinite()` has none to bridge",
         "Binary downloads",
+        "Counts with `query()`",
         "Where it fits",
         "Types",
         "A filter's wire column can differ from its model property",
@@ -18430,8 +18431,8 @@
     }
   },
   "meta": {
-    "built_at": "2026-10-03T12:04:34.211Z",
-    "corpus_version": "1+77d2eee08f1d",
+    "built_at": "2026-10-03T14:30:58.918Z",
+    "corpus_version": "1+b0e14dd04272",
     "counts": {
       "adrs": 35,
       "changelogSymbols": 0,
@@ -18444,7 +18445,7 @@
       "symbols": 940
     },
     "relationsSha256": "9a6f85296b647222228f20f54141377046925e9862437ca4617d3a6a8b87e391",
-    "source_commit": "6f02077dc84c824230f290796001494595763b1c"
+    "source_commit": "fa9cba1a1b416baf35fa5749953bd90f333b2390"
   },
   "relations": {
     "edges": [
@@ -60930,7 +60931,7 @@
       }
     ],
     "prunedCount": 2227,
-    "sourcedAt": "2026-10-03"
+    "sourcedAt": ""
   },
   "symbols": {
     "@upmind-automation/headless!ACCOUNT_SCOPE_MATRIX": {
@@ -62459,7 +62460,7 @@
       "name": "CriteriaInput",
       "signature": "Symbol CriteriaInput",
       "sourceFile": "packages/headless/src/modules/query/query.types.ts",
-      "sourceLine": 415,
+      "sourceLine": 423,
       "tsdoc": "The ONE way a collection says what it asks for: it DECLARES the request\nbranches, so spelling any of them raw beside the declaration is a compile\nerror rather than a second source of truth. A collection with no filters,\nsort or pagination at all declares no criteria — that stays legal, and it\nsimply has nothing to write.\n\nIntersected with an entry point's own params, NOT folded into\nRequestParams: the one-shot promise helpers (`getRequest`,\n`listRequest`, `countRequest`) still take the branches as plain params."
     },
     "@upmind-automation/headless!CustomField": {
@@ -63394,7 +63395,7 @@
       "name": "InfiniteListQuery",
       "signature": "Symbol InfiniteListQuery",
       "sourceFile": "packages/headless/src/modules/query/query.types.ts",
-      "sourceLine": 485,
+      "sourceLine": 493,
       "tsdoc": "The `listInfinite()` query's return shape (`useQuery.ts`). Extracted from\n`listInfinite`'s own inline return-statement cast for the same reason as\nListQuery.\n\n`data` is the accumulated pages FLATTENED — the same flat rows\nListQuery publishes, so a surface can consume either arm."
     },
     "@upmind-automation/headless!InfiniteQueryPage": {
@@ -63680,7 +63681,7 @@
       "name": "ListQuery",
       "signature": "Symbol ListQuery",
       "sourceFile": "packages/headless/src/modules/query/query.types.ts",
-      "sourceLine": 310,
+      "sourceLine": 318,
       "tsdoc": "The `list()` query's return shape (`useQuery.ts`), parameterised by the raw\nfetch type, the (optionally `select`-mapped) data type and the collection's\nquery model — mirrors `list`'s own generic order/defaults. Extracted from\n`list`'s own inline return-statement cast so a scoped module can express its\nlist-query return type without deriving `ReturnType<typeof localFn>` from its\nown already-instantiated service function (graphify-out/ citation above — no\nprior node for this type).\n\nONE shape: sort, filters and pagination are the criteria's, so there are no\n`sort()`/`filter()` setters beside QueryCriteriaHandle.setCriteria."
     },
     "@upmind-automation/headless!ListStyle": {
@@ -63889,7 +63890,7 @@
       "name": "MutationParams",
       "signature": "Symbol MutationParams",
       "sourceFile": "packages/headless/src/modules/query/query.types.ts",
-      "sourceLine": 283,
+      "sourceLine": 291,
       "tsdoc": "Type alias defining parameters for TanStack Query's `useMutation` hook,\nextending RequestParams with `MutationObserverOptions` and omitting `mutationFn`,\nwhich is handled internally."
     },
     "@upmind-automation/headless!MutationResult": {
@@ -63900,7 +63901,7 @@
       "name": "MutationResult",
       "signature": "Symbol MutationResult",
       "sourceFile": "packages/headless/src/modules/query/query.types.ts",
-      "sourceLine": 511,
+      "sourceLine": 519,
       "tsdoc": "The `mutate()` mutation's return shape (`useQuery.ts`), parameterised by\nits resolved data type. Extracted from `mutate`'s own inline return-\nstatement cast for the same reason as ListQuery."
     },
     "@upmind-automation/headless!NotificationChannel": {
@@ -64263,7 +64264,7 @@
       "name": "PaginationInfo",
       "signature": "Symbol PaginationInfo",
       "sourceFile": "packages/headless/src/modules/query/query.types.ts",
-      "sourceLine": 619,
+      "sourceLine": 627,
       "tsdoc": "Interface representing comprehensive pagination information, typically returned\nby an API to describe the current state of paginated results."
     },
     "@upmind-automation/headless!Payment": {
@@ -64989,7 +64990,7 @@
       "name": "QueryCriteria",
       "signature": "Symbol QueryCriteria",
       "sourceFile": "packages/headless/src/modules/query/query.types.ts",
-      "sourceLine": 373,
+      "sourceLine": 381,
       "tsdoc": "A collection's REQUEST STATE as a schema-governed model: intent → parse →\nvalidate → translate. Knows nothing about fetching, urls, vue-query or scope,\nso it can be exercised with no HTTP at all. Constructed by `list()` from\nQueryCriteriaOptions — a module never mints one, and so cannot mint\none wrongly."
     },
     "@upmind-automation/headless!QueryCriteriaHandle": {
@@ -65000,7 +65001,7 @@
       "name": "QueryCriteriaHandle",
       "signature": "Symbol QueryCriteriaHandle",
       "sourceFile": "packages/headless/src/modules/query/query.types.ts",
-      "sourceLine": 427,
+      "sourceLine": 435,
       "tsdoc": "What every list handle publishes about its request state, so each layer reads\nONE source and no consumer needs a shadow copy."
     },
     "@upmind-automation/headless!QueryCriteriaOptions": {
@@ -65011,7 +65012,7 @@
       "name": "QueryCriteriaOptions",
       "signature": "Symbol QueryCriteriaOptions",
       "sourceFile": "packages/headless/src/modules/query/query.types.ts",
-      "sourceLine": 346,
+      "sourceLine": 354,
       "tsdoc": null
     },
     "@upmind-automation/headless!QueryParams": {
@@ -65022,8 +65023,8 @@
       "name": "QueryParams",
       "signature": "Symbol QueryParams",
       "sourceFile": "packages/headless/src/modules/query/query.types.ts",
-      "sourceLine": 215,
-      "tsdoc": "Type alias defining parameters for TanStack Query's `useQuery` hook,\nextending RequestParams with `QueryObserverOptions` and omitting\n`queryFn` and `initialData`, which are handled internally."
+      "sourceLine": 218,
+      "tsdoc": "Type alias defining parameters for TanStack Query's `useQuery` hook,\nextending RequestParams with `QueryObserverOptions` and omitting\n`queryFn` and `initialData`, which are handled internally.\n\n`select` receives the response `data` and, second, the whole response\nenvelope, so a read can map off envelope fields such as `total`."
     },
     "@upmind-automation/headless!QueryProps": {
       "id": "@upmind-automation/headless!QueryProps",
@@ -65066,7 +65067,7 @@
       "name": "QuerySchema",
       "signature": "Symbol QuerySchema",
       "sourceFile": "packages/headless/src/modules/query/query.types.ts",
-      "sourceLine": 344,
+      "sourceLine": 352,
       "tsdoc": "A collection's declared query schema — filters · sort · pagination as ONE\nDraft-07 schema. The translator and the validators walk it at runtime, so\nthe type stays the general Draft-07 shape, never a module literal."
     },
     "@upmind-automation/headless!QuerySortEntry": {
@@ -65077,7 +65078,7 @@
       "name": "QuerySortEntry",
       "signature": "Symbol QuerySortEntry",
       "sourceFile": "packages/headless/src/modules/query/query.types.ts",
-      "sourceLine": 556,
+      "sourceLine": 564,
       "tsdoc": "One entry in a query model's `sort` branch — precedence is position. The\nMODEL's ordered form; QueryProps.sort's `[direction, property]`\ntuple is its wire form."
     },
     "@upmind-automation/headless!RECEIVED_EMAILS_SCOPE_MATRIX": {
@@ -65132,7 +65133,7 @@
       "name": "ReactiveQueryKeys",
       "signature": "Symbol ReactiveQueryKeys",
       "sourceFile": "packages/headless/src/modules/query/query.types.ts",
-      "sourceLine": 228,
+      "sourceLine": 236,
       "tsdoc": "Type alias for reactive query keys used to create dynamic query keys for TanStack Query.\nThis allows query keys to automatically update based on reactive sources."
     },
     "@upmind-automation/headless!RecaptchaContext": {
@@ -65308,7 +65309,7 @@
       "name": "RequestFilterOperator",
       "signature": "Enum RequestFilterOperator",
       "sourceFile": "packages/headless/src/modules/query/query.types.ts",
-      "sourceLine": 581,
+      "sourceLine": 589,
       "tsdoc": "The filter operators the API accepts, as the `filter[column|operator]` key's\noperator half. ONE vocabulary for all three consumers: the criteria's\ntranslator, a query schema's declared operator leaves, and the filter\nrenderer's dispatch.\n\nGrounded on the legacy app's own `ApiOperators` enum\n(`vue-app/src/data/table.ts:4-17`) — the parity oracle, not this module's\ncurrent usage. Two deliberate omissions: its `DEFAULT = \"\"` member is the\nsuffix-LESS form (`filter[column]`), not an operator a schema can name; and\n`any` / `none` are UI-level members of its sibling `FilterOperators` enum\nwith no `ApiOperators` counterpart, so they are not wire vocabulary.\n\nA schema keeps PLAIN STRING KEYS so it stays a liftable JSON literal — a\ncomputed key would break that. This enum names the operator in CODE; the two\nare kept in step by the schema being walked at runtime, where an operator no\ncolumn declares is unspellable."
     },
     "@upmind-automation/headless!RequestFilters": {
@@ -65319,7 +65320,7 @@
       "name": "RequestFilters",
       "signature": "Symbol RequestFilters",
       "sourceFile": "packages/headless/src/modules/query/query.types.ts",
-      "sourceLine": 599,
+      "sourceLine": 607,
       "tsdoc": "Interface representing a collection of filter parameters for a request.\nIt's a record where keys are filter names and values are the filter criteria."
     },
     "@upmind-automation/headless!RequestPagination": {
@@ -65330,7 +65331,7 @@
       "name": "RequestPagination",
       "signature": "Symbol RequestPagination",
       "sourceFile": "packages/headless/src/modules/query/query.types.ts",
-      "sourceLine": 604,
+      "sourceLine": 612,
       "tsdoc": "Interface representing pagination parameters for a request."
     },
     "@upmind-automation/headless!RequestParams": {
@@ -65352,7 +65353,7 @@
       "name": "RequestSortDirection",
       "signature": "Enum RequestSortDirection",
       "sourceFile": "packages/headless/src/modules/query/query.types.ts",
-      "sourceLine": 527,
+      "sourceLine": 535,
       "tsdoc": "Enumeration defining the direction for sorting query results."
     },
     "@upmind-automation/headless!RouteQueryParams": {
@@ -65891,7 +65892,7 @@
       "name": "SimpleQuery",
       "signature": "Symbol SimpleQuery",
       "sourceFile": "packages/headless/src/modules/query/query.types.ts",
-      "sourceLine": 463,
+      "sourceLine": 471,
       "tsdoc": "The `query()` query's return shape (`useQuery.ts`), parameterised by the raw\nfetch type, the (optionally `select`-mapped) data type and the collection's\nquery model. Extracted from `query`'s own inline return-statement cast for\nthe same reason as ListQuery.\n\nONE shape: sort and filters are the criteria's, so there are no\n`sort()`/`filter()` setters beside QueryCriteriaHandle.setCriteria.\nA plain GET has no page window, so the model's `pagination` branch — if the\ncollection declares one — is honoured in the model and never reaches the\nwire; a collection that pages is a ListQuery."
     },
     "@upmind-automation/headless!SoftCancelModel": {
@@ -65913,7 +65914,7 @@
       "name": "SortDirection",
       "signature": "Enum SortDirection",
       "sourceFile": "packages/headless/src/modules/query/query.types.ts",
-      "sourceLine": 546,
+      "sourceLine": 554,
       "tsdoc": "A sort direction as the MODEL spells it — what a query schema's `dir` enum\ndeclares and a consumer writes. RequestSortDirection is the same fact\nin its wire form; the criteria's translator is the one place that maps\nbetween them."
     },
     "@upmind-automation/headless!StatType": {
