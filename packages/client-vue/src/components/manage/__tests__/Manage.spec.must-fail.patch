@@ -1,0 +1,17 @@
+# AC: Manage emit (risk, no AC) - FE-3274 Testing case 1
+# Spec: Manage.spec.ts
+# Mutation: Manage.doResolve emits resolve(add) without the resolved id.
+
+diff --git a/packages/client-vue/src/components/manage/Manage.vue b/packages/client-vue/src/components/manage/Manage.vue
+index 3f2ad67467..03923714d5 100644
+--- a/packages/client-vue/src/components/manage/Manage.vue
++++ b/packages/client-vue/src/components/manage/Manage.vue
+@@ -143,7 +143,7 @@ function doResolve(value?: any) {
+     safeOpen.value = false;
+   }
+   editId.value = "";
+-  emits("resolve", add, id);
++  emits("resolve", add);
+ }
+ 
+ function doAdd() {

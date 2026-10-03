@@ -19,6 +19,7 @@ export class Registration {
   readonly passwordStrengthBars: Locator;
   readonly passwordGenerator: Locator;
   readonly passwordToggle: Locator;
+  readonly phone: Locator;
 
   constructor(page: Page, context: BrowserContext) {
     this.page = page;
@@ -35,6 +36,7 @@ export class Registration {
       .locator("> div");
     this.passwordGenerator = this.passwordItem.getByTestId("password-generate");
     this.passwordToggle = this.passwordItem.getByTestId("password-toggle");
+    this.phone = page.getByTestId("form-item-phone").getByTestId("input-tel");
   }
 
   getValidationError(field: string) {
@@ -43,14 +45,24 @@ export class Registration {
   }
 
   async inputRegistration() {
+    await this.submitRegistration();
+    await this.page.waitForLoadState("networkidle");
+  }
+
+  /**
+   * Fills and submits the register form without waiting for the next page.
+   * @param phone - national number for the phone field; pass it only when
+   * the brand requires a phone on registration.
+   */
+  async submitRegistration(phone?: string) {
     await this.firstName.fill(`${faker.person.firstName()}`);
     await this.lastName.fill(`${faker.person.lastName()}`);
     await this.email.fill(
       `nathan.robinson+${faker.string.alpha({ length: 10 })}@upmind.com`
     );
     await this.password.fill(STRONG_PASSWORD);
+    if (phone !== undefined) await this.phone.fill(phone);
     await this.page.getByTestId("button-continue").click();
-    await this.page.waitForLoadState("networkidle");
   }
 
   async getCookie(tokenType: string) {
