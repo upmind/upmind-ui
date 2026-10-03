@@ -9,14 +9,76 @@
  * hand-authored, ADR-025 §A1.3), and no capture leaks a live `Bearer` token
  * (design.md §8.9 "The generator", §8.11 `bearer-capture` control).
  *
+ * It also REPLAYS the co-located `affiliate.feature` through the module's own
+ * `affiliate.steps.ts` against the real composables — ONE scenario, ONE
+ * recording (ADR 035). Each scenario plays its own `scenarios/<scenario>/<NN>/`
+ * fixtures, step by step, on top of the boot reads the session-store, brand,
+ * system and basket modules recorded. A request no step of the scenario
+ * recorded fails the scenario by name; a scenario no step drives is skipped by
+ * name (spec-only, ADR-020 Am.5).
+ *
  * ## What Breaks If These Fail
  * A hand-authored or PII-leaking fixture would certify something false about
- * every spec that replays it — green built on fiction.
+ * every spec that replays it — green built on fiction. On the replay side: a
+ * fake step, a flag a panel's composable does not publish, an action it does
+ * not expose, or a module that now asks the API something its scenario never
+ * recorded.
  */
-import { readdirSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { describe, expect, it } from "vitest";
-import { recordingsDir } from "./setup.integration";
+import { http, HttpResponse } from "msw";
+import { describe, expect, it, vi } from "vitest";
+import {
+  createStepMatcher,
+  parseFeatureScenarios
+} from "@upmind-automation/scenario-harness";
+import { getFixture, getFixtureBody } from "@upmind-automation/test-fixtures";
+import {
+  replayStep,
+  startScenarioReplay
+} from "@upmind-automation/test-fixtures/replay-server";
+import { AccessRoleTypes } from "@upmind-automation/types";
+import {
+  useAffiliateCommissions,
+  useAffiliateLinkManager,
+  useAffiliateLinks,
+  useAffiliateLinkVisit,
+  useAffiliatePayoutDestinationManager,
+  useAffiliatePayouts,
+  useAffiliateReferrals,
+  useClientAffiliate
+} from "..";
+import { replayFeature } from "../../../testing/replay-feature";
+import {
+  scenarioDir,
+  stepDirDrift,
+  stepFixturesDir
+} from "../../../testing/scenario-fixtures";
+import { seedSessionFor } from "../../../testing/session-seed";
+import { queryClient } from "../../query";
+import { clearAll as clearScopeRegistry } from "../../scope/scope.registry";
+import {
+  mapSessionUser,
+  useActiveSession,
+  useSessionStore
+} from "../../session-store";
+import {
+  AFFILIATE_ACCOUNT_SCENARIO,
+  AFFILIATE_COMMISSIONS_SCENARIO,
+  AFFILIATE_LINK_EDITOR_SCENARIO,
+  AFFILIATE_LINK_VISIT_SCENARIO,
+  AFFILIATE_LINKS_SCENARIO,
+  AFFILIATE_PAYOUT_DESTINATION_SCENARIO,
+  AFFILIATE_PAYOUTS_SCENARIO,
+  AFFILIATE_REFERRALS_SCENARIO,
+  AFFILIATE_WITHDRAWAL_SCENARIO,
+  affiliateSteps
+} from "./affiliate.steps";
+import { recordingsDir, server } from "./setup.integration";
+import { forEach, includes, reject } from "lodash-es";
+import type { NodeComposable } from "../../../testing";
+import type { FeatureScenario } from "@upmind-automation/scenario-harness";
+import type { IToken } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
 
@@ -197,4 +259,178 @@ describe("affiliate.replay — each capture is a scrubbed staging recording", ()
       expect(Number.isNaN(Date.parse(fixture.captured_at)), file).toBe(false);
     }
   });
+});
+
+// -----------------------------------------------------------------------------
+// The feature, replayed scenario by scenario
+// -----------------------------------------------------------------------------
+
+const feature = readFileSync(
+  join(import.meta.dirname, "affiliate.feature"),
+  "utf-8"
+);
+
+const ownerRecordings = (module: string): string =>
+  join(import.meta.dirname, `../../${module}/__tests__/fixtures`);
+
+const SESSION_STORE_RECORDINGS = ownerRecordings("session-store");
+
+/**
+ * The boot reads a signed-in session makes beside the module — the brand's
+ * settings and config, the system and basket reference data, the session's own
+ * `/self` — answered by the recordings of the modules that own them.
+ */
+function armOwnerRecordings(): void {
+  replayStep(server, ownerRecordings("brand"));
+  replayStep(server, ownerRecordings("system"));
+  replayStep(server, ownerRecordings("basket"));
+  replayStep(server, SESSION_STORE_RECORDINGS);
+
+  // Every token grant shares one url and differs only by its body, so the
+  // grant a boot mints — the guest's — is named last, to answer first.
+  const guest = getFixture("post-oauth-access-token-guest", {
+    recordingsDir: SESSION_STORE_RECORDINGS
+  });
+  server?.use(
+    http.post("*/oauth/access_token", () =>
+      HttpResponse.json(guest.response.body as object, {
+        status: guest.response.status
+      })
+    )
+  );
+}
+
+function resetAffiliateScopes(): void {
+  clearScopeRegistry();
+  queryClient.clear();
+}
+
+/** Seeds the recorded `client` session, whose own account the scenarios read. */
+async function seedClientSession(): Promise<void> {
+  resetAffiliateScopes();
+  armOwnerRecordings();
+
+  const token = getFixtureBody<IToken>("post-oauth-access-token-client", {
+    recordingsDir: SESSION_STORE_RECORDINGS
+  });
+  const self = getFixtureBody<{ data: never }>("get-self", {
+    recordingsDir: SESSION_STORE_RECORDINGS
+  });
+
+  await useSessionStore().initStore();
+  await useSessionStore()
+    .useActions()
+    .add(token, true, mapSessionUser(self.data));
+
+  await vi.waitFor(() => {
+    expect(useActiveSession().useMeta().isAuthenticated.value).toBe(true);
+  });
+}
+
+/** Settles on the guest floor a `@signed-out` scenario boots against. */
+async function seedGuestSession(): Promise<void> {
+  resetAffiliateScopes();
+  armOwnerRecordings();
+
+  await useSessionStore().initStore();
+  // A client session an earlier scenario signed in may still be held.
+  await Promise.resolve(useSessionStore().useActions().logout()).catch(
+    () => undefined
+  );
+  resetAffiliateScopes();
+  await vi.waitFor(() => {
+    expect(useActiveSession().useMeta().isAuthenticated.value).toBe(false);
+    expect(
+      useSessionStore().useActions().get(AccessRoleTypes.GUEST)
+    ).toBeTruthy();
+  });
+}
+
+let replay: ReturnType<typeof startScenarioReplay> | undefined;
+let playing = "";
+
+async function arrangeScenario(scenario: FeatureScenario): Promise<void> {
+  playing = scenario.name;
+  if (!existsSync(scenarioDir(import.meta.dirname, scenario.name)))
+    throw new Error(
+      `"${scenario.name}" has no recording — record it with pnpm fixtures:generate affiliate --scenario "Affiliate scenario recordings"`
+    );
+
+  replay = startScenarioReplay(server);
+  await seedSessionFor(scenario, seedClientSession, seedGuestSession);
+}
+
+/** Arms the answers THIS step recorded, in front of every step before it. */
+function armStep(scenario: FeatureScenario, index: number): void {
+  const dir = stepFixturesDir(import.meta.dirname, scenario, index);
+  if (existsSync(dir)) replayStep(server, dir);
+}
+
+/**
+ * Fails the scenario by its first capture gap, whatever else it failed on: a
+ * request the recording lacks is the cause, the check it broke the symptom.
+ */
+function cleanupScenario(): void {
+  resetAffiliateScopes();
+
+  const [gap] = replay?.gaps() ?? [];
+  replay = undefined;
+
+  if (gap) throw new Error(`"${playing}" — ${gap}`);
+}
+
+describe("affiliate — each recording reads one for one as its scenario", () => {
+  const matcher = createStepMatcher(affiliateSteps);
+  const recorded = reject(
+    parseFeatureScenarios(feature),
+    ({ name, tags }) =>
+      includes(tags, "@todo") ||
+      !existsSync(scenarioDir(import.meta.dirname, name))
+  );
+
+  it("records at least one scenario", () => {
+    expect(recorded).not.toHaveLength(0);
+  });
+
+  forEach(recorded, scenario => {
+    it(`${scenario.name} — one folder per step`, () => {
+      expect(stepDirDrift(import.meta.dirname, scenario)).toStrictEqual({
+        missing: [],
+        extra: []
+      });
+      expect(matcher.malformedStepDefs).toStrictEqual([]);
+    });
+  });
+});
+
+replayFeature({
+  moduleName: "affiliate",
+  feature,
+  catalog: affiliateSteps,
+  composables: {
+    // The scope builder types `.as()` narrowly to each module's own matrix;
+    // `NodeComposable` is the erased shape the World boots — one widening cast
+    // at the seam per key.
+    [AFFILIATE_ACCOUNT_SCENARIO]:
+      useClientAffiliate as unknown as NodeComposable,
+    [AFFILIATE_WITHDRAWAL_SCENARIO]:
+      useClientAffiliate as unknown as NodeComposable,
+    [AFFILIATE_LINKS_SCENARIO]: useAffiliateLinks as unknown as NodeComposable,
+    [AFFILIATE_LINK_EDITOR_SCENARIO]:
+      useAffiliateLinkManager as unknown as NodeComposable,
+    [AFFILIATE_REFERRALS_SCENARIO]:
+      useAffiliateReferrals as unknown as NodeComposable,
+    [AFFILIATE_COMMISSIONS_SCENARIO]:
+      useAffiliateCommissions as unknown as NodeComposable,
+    [AFFILIATE_PAYOUT_DESTINATION_SCENARIO]:
+      useAffiliatePayoutDestinationManager as unknown as NodeComposable,
+    [AFFILIATE_PAYOUTS_SCENARIO]:
+      useAffiliatePayouts as unknown as NodeComposable,
+    [AFFILIATE_LINK_VISIT_SCENARIO]:
+      useAffiliateLinkVisit as unknown as NodeComposable
+  },
+  arrange: arrangeScenario,
+  beforeStep: armStep,
+  cleanup: cleanupScenario,
+  timeoutMs: 60000
 });

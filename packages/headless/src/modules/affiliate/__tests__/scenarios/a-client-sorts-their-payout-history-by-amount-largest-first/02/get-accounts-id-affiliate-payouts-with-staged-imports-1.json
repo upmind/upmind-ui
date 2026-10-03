@@ -1,0 +1,138 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/accounts/d0367942-4d0e-7109-92eb-3153698d582e/affiliate/payouts?with_staged_imports=1&with=affiliate_payout_destination,payment_log&order=-amount&limit=10&offset=0",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a44782139c4a1ed8-LHR",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json",
+      "date": "Fri, 02 Oct 2026 23:32:44 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=9%2B4uHnxmn1qYCxxi2NiRcd0mT8i42O9jf5eFAJKXXPGgcQZKSL%2FPPG2Gk5KdP3jPSucvSLClCZzTlX8UCRZTnyELYX%2FMKaxTbINmKY7WDDnpRAKEjCy4BxE9yXqa28cBXa9ysoU9qg%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-frame-options": "SAMEORIGIN",
+      "x-total-count": "1"
+    },
+    "body": {
+      "status": "ok",
+      "data": [
+        {
+          "id": "3825d96e-763e-d091-3dc4-174825283406",
+          "affiliate_account_id": "68d63250-7980-65d1-e6f8-174e234e98d2",
+          "brand_id": "2785d26e-9678-3d16-999f-314502e70439",
+          "currency_id": "3825d96e-763e-d091-3dc4-174825283406",
+          "payment_log_id": null,
+          "amount": 5,
+          "currency_exchange_rate": "1.000000",
+          "created_at": "2026-09-29 18:30:04",
+          "updated_at": "2026-09-29 18:30:04",
+          "affiliate_payout_destination_id": "72040386-96e5-4721-d9b5-18d9305e7d23",
+          "success": true,
+          "amount_formatted": "£5.00",
+          "amount_converted": 5,
+          "amount_converted_formatted": "£5.00",
+          "affiliate_payout_destination": {
+            "id": "72040386-96e5-4721-d9b5-18d9305e7d23",
+            "code": "wallet",
+            "name": "Wallet",
+            "brand_id": "2785d26e-9678-3d16-999f-314502e70439",
+            "meta": [],
+            "deleted_at": null,
+            "created_at": "2026-09-29 18:15:06",
+            "updated_at": "2026-10-02 07:13:08",
+            "default": false,
+            "visible_for_clients": true,
+            "name_translated": "Wallet"
+          },
+          "brand": {
+            "id": "2785d26e-9678-3d16-999f-314502e70439",
+            "name": "QA Automation Testing",
+            "created_at": "2025-05-07 08:38:43",
+            "updated_at": "2026-10-02 23:30:13",
+            "code": "kn6x1dzbtcgb",
+            "brand_type": 1,
+            "reseller_account_id": null,
+            "currency_id": "3825d96e-763e-d091-3dc4-174825283406",
+            "pricelist_id": "825d96e7-63ed-0913-d66c-417482528340",
+            "country_id": "320e4357-95e7-8d18-484f-31643202d986",
+            "company_name": "QA Automation Testing",
+            "vat_number": "GB12345678",
+            "company_address": "123",
+            "company_phone": "",
+            "company_email": "mock-email-1@example.com",
+            "tax_type": 0,
+            "language_id": "3825d96e-763e-d091-3dc4-174825283406",
+            "prefix": "kn6x1dzbtcgb",
+            "autoapply": 1,
+            "payment_days_term": 0,
+            "create_invoice_term": 0,
+            "user_id": "sys",
+            "deleted_at": null,
+            "org_id": "5d085e69-d562-3719-e46c-218e940d4237",
+            "vat_exempt": 0,
+            "non_recurring_due_interval": 0,
+            "notifications_disabled": false,
+            "wipe_data": false,
+            "demo_data_import_id": null,
+            "region_id": null,
+            "domain": "kn6x1dzbtcgb.staging.upmind.dev",
+            "has_demo_data": false,
+            "currency": {
+              "id": "3825d96e-763e-d091-3dc4-174825283406",
+              "name": "British Pound",
+              "prefix": "£",
+              "suffix": "",
+              "code": "GBP",
+              "created_at": "2017-10-18 14:16:22",
+              "updated_at": "2026-09-28 11:08:14",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          },
+          "currency": {
+            "id": "3825d96e-763e-d091-3dc4-174825283406",
+            "name": "British Pound",
+            "prefix": "£",
+            "suffix": "",
+            "code": "GBP",
+            "created_at": "2017-10-18 14:16:22",
+            "updated_at": "2026-09-28 11:08:14",
+            "base": true,
+            "decimals": true,
+            "manual": 0
+          }
+        }
+      ],
+      "related": null,
+      "total": 1,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-10-02T23:32:44.928Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "a-client-sorts-their-payout-history-by-amount-largest-first"
+  }
+}

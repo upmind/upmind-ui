@@ -1,0 +1,87 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/accounts/d0367942-4d0e-7109-92eb-3153698d582e/affiliate/links?with_staged_imports=1&order=-created_at&limit=10&offset=0",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a44781bdbc2c1ed8-LHR",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json",
+      "date": "Fri, 02 Oct 2026 23:32:31 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=lqKk6ku68akOoDfikRO6lYDWuJV3cQd5114W%2FIEcoRuVR%2BJGt0XKR7l%2BZks4lxuZXa1b3r6Sh5AoAEWEZxTXHdBCBtXjye7OaGlPDNW9S6x%2BBe3qVZkq3WFDQRJLfDS0eKdI480J6g%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-frame-options": "SAMEORIGIN",
+      "x-total-count": "3"
+    },
+    "body": {
+      "status": "ok",
+      "data": [
+        {
+          "id": "2785d26e-9678-3d16-e0a3-14502e70439d",
+          "name": "Affiliate Labs Alpha",
+          "affiliate_account_id": "68d63250-7980-65d1-e6f8-174e234e98d2",
+          "hash": "7f0c3b64aecfb609aae47a01b7b4fd917095f2fb",
+          "redirect_url": "https://kn6x1dzbtcgb.staging.upmind.dev/order/",
+          "visit_count": 0,
+          "referral_count": 0,
+          "created_at": "2026-10-02 23:32:30",
+          "updated_at": "2026-10-02 23:32:30",
+          "deleted_at": null
+        },
+        {
+          "id": "825d96e7-63ed-0913-6db4-174825283406",
+          "name": "Affiliate Labs Beta",
+          "affiliate_account_id": "68d63250-7980-65d1-e6f8-174e234e98d2",
+          "hash": "d6132b99b8b1fcc10d72fc1338d1b4519df03605",
+          "redirect_url": "https://kn6x1dzbtcgb.staging.upmind.dev/order/",
+          "visit_count": 0,
+          "referral_count": 0,
+          "created_at": "2026-10-02 23:32:30",
+          "updated_at": "2026-10-02 23:32:30",
+          "deleted_at": null
+        },
+        {
+          "id": "24d03679-424d-0e71-04b3-153698d582e8",
+          "name": "Affiliate Starter Hosting",
+          "affiliate_account_id": "68d63250-7980-65d1-e6f8-174e234e98d2",
+          "hash": "f55dc9bd547b9c9dc54ab91ce979ceee69ebb677",
+          "redirect_url": "http://kn6x1dzbtcgb.staging.upmind.dev/order/product?pid=3de78642-de53-9714-76df-21208469530d",
+          "visit_count": 17,
+          "referral_count": 0,
+          "created_at": "2026-09-29 18:21:46",
+          "updated_at": "2026-09-29 18:21:46",
+          "deleted_at": null
+        }
+      ],
+      "related": null,
+      "total": 3,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-10-02T23:32:31.153Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "a-client-narrows-their-referral-links-to-one-name"
+  }
+}

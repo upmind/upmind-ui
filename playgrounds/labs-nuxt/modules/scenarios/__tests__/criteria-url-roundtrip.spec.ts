@@ -21,15 +21,20 @@
  * of requests, a wedged tab, and a notice reporting a count that never settles.
  */
 
+import { mount } from "@vue/test-utils";
 import { describe, expect, it } from "vitest";
+import { defineComponent, h, provide } from "vue";
 import { useInvoices } from "@upmind-automation/headless";
 import { InvoiceCategoryCode, InvoiceStatus } from "@upmind-automation/types";
+import { usePlaygroundUrlState } from "../../../app/composables/usePlaygroundUrlState";
+import { PLAYGROUND_URL_NAMESPACE } from "../../../app/composables/usePlaygroundUrlState.types";
 import {
   criteriaToParams,
   declaredPairs,
   paramsToCriteria
 } from "../runtime/composables/useCriteriaUrlSync.utils";
 import { filter, map, size } from "lodash-es";
+import type { PlaygroundUrlState } from "../../../app/composables/usePlaygroundUrlState.types";
 
 // -----------------------------------------------------------------------------
 
@@ -90,5 +95,44 @@ describe("criteria ⇄ url — every declared column survives the round-trip", (
 
     expect(params["filter.is_consolidation"]).toBe("false");
     expect(paramsToCriteria(schema(), params)).toMatchObject(model);
+  });
+});
+
+describe("criteria ⇄ url — an area's panels never share a param", () => {
+  it("keeps each panel of an area on its own criteria and surface params", () => {
+    const views: Record<string, PlaygroundUrlState> = {};
+    const reader = (key: string) =>
+      defineComponent({
+        setup: () => {
+          views[key] = usePlaygroundUrlState();
+          return () => h("i");
+        }
+      });
+    const panel = (key: string) =>
+      defineComponent({
+        setup: () => {
+          provide(PLAYGROUND_URL_NAMESPACE, key);
+          return () => h(reader(key));
+        }
+      });
+    const wrapper = mount(
+      defineComponent({
+        setup: () => () => h("div", [h(panel("links")), h(panel("referrals"))])
+      })
+    );
+
+    views.links.write({ "filter.name.like": "alpha", limit: "1" });
+    views.links.track.value = "a-client-reads-their-referral-links";
+
+    expect(views.links.params.value["filter.name.like"]).toBe("alpha");
+    expect(views.links.params.value.limit).toBe("1");
+    expect(views.links.track.value).toBe("a-client-reads-their-referral-links");
+    expect(views.referrals.params.value["filter.name.like"]).toBeUndefined();
+    expect(views.referrals.params.value.limit).toBeUndefined();
+    expect(views.referrals.track.value).toBeUndefined();
+
+    views.links.write({ "filter.name.like": undefined, limit: undefined });
+    views.links.track.value = undefined;
+    wrapper.unmount();
   });
 });

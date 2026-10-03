@@ -12,22 +12,42 @@
  * AC-only pairing is too coarse — several scenarios share one `@ACn` tag
  * (for example six `@AC26` scenarios), so an AC-only check is satisfied by
  * one test proving any one of them while the other five stay silently
- * unproven. The `.feature` is non-executable (ADR-020); this test is the
- * whole of its enforcement.
+ * unproven. A scenario the module's step catalog drives end to end is
+ * proven by `affiliate.replay.int.test.ts`, which plays it by name.
+ *
+ * It is also the spec-to-catalog drift gate for `affiliate.steps.ts`: a
+ * scenario whose steps the catalog matches only in part, a step definition
+ * nothing calls, a pattern that does not compile, a pattern another module's
+ * catalog already claims, and an action id declared covered that no step
+ * fires each fail it. A scenario nothing matches is spec, not a hole.
  *
  * ## What Breaks If These Fail
  * A capability silently loses its proof — the feature promises it, no test
- * pins it, and nothing here would say so.
+ * pins it, and nothing here would say so — or the labs page plays a track
+ * that no longer drives what it claims to.
  */
 
 import { readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+import { createTraceabilityCheck } from "@upmind-automation/scenario-harness";
+import { stepCatalogs } from "../../../testing";
+import { affiliateSteps, coveredActionIds } from "./affiliate.steps";
+import { includes, map, reject } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 
 const TEST_DIR = import.meta.dirname;
 const COLOCATED_FEATURE = join(TEST_DIR, "affiliate.feature");
+
+const catalogCheck = createTraceabilityCheck(
+  readFileSync(COLOCATED_FEATURE, "utf-8"),
+  affiliateSteps,
+  stepCatalogs
+);
+
+/** The scenarios the replay spec plays by name — proven by playing them. */
+const replayed = map(catalogCheck.driveable, "name");
 
 type FeatureScenario = { tags: string[]; title: string; isTodo: boolean };
 
@@ -132,7 +152,9 @@ describe("affiliate traceability — co-located feature vs proving tests", () =>
 
     const unproven = scenarios
       .filter(
-        scenario => !specs.some(spec => titlesPair(scenario.title, spec.title))
+        scenario =>
+          !includes(replayed, scenario.title) &&
+          !specs.some(spec => titlesPair(scenario.title, spec.title))
       )
       .map(scenario => `${scenario.tags.join(" ")} "${scenario.title}"`);
 
@@ -164,6 +186,62 @@ describe("affiliate traceability — co-located feature vs proving tests", () =>
       orphaned,
       "Test(s) name an AC with no scenario of that AC whose title pairs with the test " +
         `title (the feature gains the scenario — coverage never falls): ${orphaned.join("; ")}`
+    ).toEqual([]);
+  });
+});
+
+describe("affiliate traceability — the feature against its ONE step catalog", () => {
+  const catalogSource = readFileSync(
+    join(TEST_DIR, "affiliate.steps.ts"),
+    "utf-8"
+  );
+
+  it(`drives ${catalogCheck.driveable.length} of ${catalogCheck.scenarios.length} scenarios`, () => {
+    expect(map(catalogCheck.partial, "name"), "Half-matched scenarios").toEqual(
+      []
+    );
+    expect(
+      map(catalogCheck.orphanStepDefs, "pattern"),
+      "Step definitions nothing calls"
+    ).toEqual([]);
+    expect(
+      map(catalogCheck.malformedStepDefs, "pattern"),
+      "Patterns that do not compile"
+    ).toEqual([]);
+    expect(
+      catalogCheck.duplicatedPatterns,
+      "Patterns another catalog already claims"
+    ).toEqual([]);
+    expect(
+      reject(coveredActionIds, id =>
+        includes(catalogSource, `AFFILIATE_COVERED_ACTIONS.${id}`)
+      ),
+      "Declared covered but fired by no step"
+    ).toEqual([]);
+  });
+
+  it("every driven scenario is tagged with the one labs panel or page that plays it", () => {
+    const panelTags = [
+      "@account",
+      "@links",
+      "@referrals",
+      "@withdrawal",
+      "@commissions",
+      "@payout-destination",
+      "@payouts",
+      "@visit"
+    ];
+
+    expect(
+      map(
+        reject(
+          catalogCheck.driveable,
+          ({ tags }) =>
+            reject(panelTags, tag => !includes(tags, tag)).length === 1
+        ),
+        "name"
+      ),
+      "Driven scenarios with no panel tag, or more than one"
     ).toEqual([]);
   });
 });

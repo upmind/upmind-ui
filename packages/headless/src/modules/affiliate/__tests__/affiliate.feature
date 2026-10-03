@@ -893,3 +893,147 @@ Feature: The client self-service affiliate data layer and the guest link visit
     Given the portal mock contract map
     When each member that sends a request is driven by its module name
     Then its outbound request matches the mapped module member
+
+  # ---------------------------------------------------------------------------
+  # The labs affiliate area — the page stories its panels play (R-PAGES)
+  #
+  # One area, three tabs: Overview (the account, the links, the referrals),
+  # Commissions (the withdrawal, the commission history) and Payouts (the
+  # payout destination, the payout history), plus the guest's link-visit page.
+  # Each scenario carries the tag of the ONE panel that plays it
+  # (`affiliate.scenario.ts`, `tracks.without`). Each is recorded as its own
+  # sequence (ADR 035) by `affiliate.fixtures.ts`'s "Affiliate scenario
+  # recordings" block and replayed by `affiliate.replay.int.test.ts`. The
+  # links a scenario names are arranged by that block and removed after it.
+  # ---------------------------------------------------------------------------
+
+  @FE-3227 @account @client
+  Scenario: A client opens the Overview tab and reads their affiliate account and its stats
+    Given the client's affiliate account panel is open
+    Then the client reads their enrolled affiliate account with its visits, referrals and balances
+
+  @FE-3227 @account @client
+  Scenario: A client reloads their affiliate account on the Overview tab
+    Given the client's affiliate account panel is open
+    When the client reloads their affiliate account
+    Then the client reads their enrolled affiliate account with its visits, referrals and balances
+
+  @FE-3227 @links @client
+  Scenario: A client reads their referral links, each with its shareable referral URL
+    Given the client's referral links panel is open
+    Then the client reads each of their referral links with its shareable referral URL
+
+  @FE-3227 @links @client
+  Scenario: A client narrows their referral links to one name
+    Given the client's referral links panel is open
+    When the client narrows their referral links to the name "Affiliate Labs Alpha"
+    Then the referral link named "Affiliate Labs Alpha" is the only one listed
+
+  @FE-3227 @links @client
+  Scenario: A client sorts their referral links by visits, most visited first
+    Given the client's referral links panel is open
+    When the client sorts their referral links by visits, most visited first
+    Then the client's referral links are ordered by visits, most visited first
+
+  @FE-3227 @links @client
+  Scenario: A client turns to the second page of their referral links, one link per page
+    Given the client's referral links panel is open
+    When the client turns to the second page of their referral links, one per page
+    Then the second page's referral link is listed in place of the first page's
+
+  @FE-3227 @links @client
+  Scenario: A client creates a referral link that sends visitors to the brand's default destination
+    Given the client's referral links panel is open
+    When the client creates the referral link "Affiliate Labs Created"
+    Then the referral link "Affiliate Labs Created" is among the client's referral links
+
+  @FE-3227 @links @client
+  Scenario: A client renames one of their referral links
+    Given the client's referral links panel is open
+    When the client renames their referral link "Affiliate Labs Rename Me" to "Affiliate Labs Renamed"
+    Then the referral link "Affiliate Labs Renamed" is among the client's referral links
+
+  @FE-3227 @links @client
+  Scenario: A client deletes one of their referral links
+    Given the client's referral links panel is open
+    When the client deletes their referral link "Affiliate Labs Delete Me"
+    Then the referral link "Affiliate Labs Delete Me" is no longer among the client's referral links
+
+  @FE-3227 @referrals @client
+  Scenario: A client reads who their referral links brought in
+    Given the client's referrals panel is open
+    Then the client reads each of their referrals
+
+  @FE-3227 @referrals @client
+  Scenario: A client narrows their referrals to those referred after a moment
+    Given the client's referrals panel is open
+    When the client narrows their referrals to those created after "2026-09-29 18:30:00"
+    Then only the client's referrals created after that moment are listed
+
+  @FE-3227 @referrals @client
+  Scenario: A client sorts their referrals oldest first
+    Given the client's referrals panel is open
+    When the client sorts their referrals oldest first
+    Then the client's referrals are ordered oldest first
+
+  @FE-3227 @referrals @client
+  Scenario: A client turns to the second page of their referrals, one referral per page
+    Given the client's referrals panel is open
+    When the client turns to the second page of their referrals, one per page
+    Then the second page's referral is listed in place of the first page's
+
+  @FE-3227 @withdrawal @client
+  Scenario: A client with a payable balance is offered a withdrawal on the Commissions tab
+    Given the client's withdrawal panel is open
+    Then the client is offered a withdrawal of their available balance
+
+  @FE-3227 @commissions @client
+  Scenario: A client reads their commission history
+    Given the client's commission history panel is open
+    Then the client reads each of their commissions
+
+  @FE-3227 @commissions @client
+  Scenario: A client narrows their commission history to commissions earned after a moment
+    Given the client's commission history panel is open
+    When the client narrows their commission history to those created after "2026-09-29 18:30:00"
+    Then only the client's commissions created after that moment are listed
+
+  @FE-3227 @commissions @client
+  Scenario: A client sorts their commission history oldest first
+    Given the client's commission history panel is open
+    When the client sorts their commission history oldest first
+    Then the client's commission history is ordered oldest first
+
+  @FE-3227 @commissions @client
+  Scenario: A client turns to the second page of their commission history, one commission per page
+    Given the client's commission history panel is open
+    When the client turns to the second page of their commission history, one per page
+    Then the second page's commission is listed in place of the first page's
+
+  @FE-3227 @payout-destination @client
+  Scenario: A client opens their payout destination with the saved destination and PayPal email chosen
+    Given the client's payout destination panel is open
+    Then the payout destination editor holds the saved destination and PayPal email, chosen from the brand's destinations and the client's emails
+
+  @FE-3227 @payouts @client
+  Scenario: A client reads their payout history
+    Given the client's payout history panel is open
+    Then the client reads each of their payouts
+
+  @FE-3227 @payouts @client
+  Scenario: A client narrows their payout history to payouts made after a moment
+    Given the client's payout history panel is open
+    When the client narrows their payout history to those created after "2026-09-29 00:00:00"
+    Then only the client's payouts created after that moment are listed
+
+  @FE-3227 @payouts @client
+  Scenario: A client sorts their payout history by amount, largest first
+    Given the client's payout history panel is open
+    When the client sorts their payout history by amount, largest first
+    Then the client's payout history is ordered by amount, largest first
+
+  @FE-3227 @visit @guest @signed-out
+  Scenario: A visitor who arrives on a referral link has the visit recorded and is sent on
+    Given a visitor has arrived on an affiliate referral link
+    When the visitor's referral link visit is sent
+    Then the visit is recorded and the visitor has a destination to be sent on to

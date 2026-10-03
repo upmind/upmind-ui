@@ -29,6 +29,7 @@
 import { flushPromises, mount } from "@vue/test-utils";
 import { describe, expect, it, vi } from "vitest";
 import { defineComponent, h, ref } from "vue";
+import { ScopeActorTypes } from "@upmind-automation/headless";
 import { defaultRow, unverifiedRow } from "../../../../testing/recorded-emails";
 import clientEmails from "../../../../useClientEmails/client-email.scenario";
 import { CONTROL_TEST_VALUE } from "../../__tests__/control-test-values";
@@ -41,7 +42,10 @@ import PageHeader from "../../PageHeader.vue";
 import { ListSurface } from "../index";
 import { getRow } from "./table-geometry";
 import { get, keys, values } from "lodash-es";
-import type { ResolvedHandoff } from "../../../scenario.types";
+import type {
+  FourLayerComposable,
+  ResolvedHandoff
+} from "../../../scenario.types";
 import type { ActionSlotItem } from "../../ActionSlots.types";
 import type { SurfaceActions } from "../surface.types";
 
@@ -270,6 +274,22 @@ describe("@AC3 edit — the row carries its own id to the editor (C1)", () => {
     for (const call of values(actions)) {
       expect(call).not.toHaveBeenCalled();
     }
+  });
+
+  it("opens a leaf record's editor on that row's own record id, with no context", async () => {
+    const wrapper = mountList({
+      ...handoffsFor("add"),
+      edit: {
+        useMutate: clientEmails.useMutate as FourLayerComposable,
+        actor: ScopeActorTypes.CLIENT,
+        record: { from: "/id" }
+      }
+    });
+
+    await openRow(wrapper, 1);
+
+    expect(editors(wrapper)[0].props("recordId")).toBe(unverifiedRow.id);
+    expect(editors(wrapper)[0].props("context")).toBeUndefined();
   });
 
   it("is withheld when its target is unregistered, exactly as add is", () => {

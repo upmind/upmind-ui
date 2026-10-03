@@ -15,17 +15,22 @@
  *
  * The hazard that buys is obvious: an additive member on a shared registry can
  * quietly move every other declaration that was excluded by the same filter.
- * Eight directories draw their own page; FOUR of them opt in (`useTicket`,
- * `useContract`, `useContractProduct`, `useInvoice`). The other four —
- * `usePaymentDetailAdd`, `overlay-pay`, `overlay-payment` and `overlay-upgrade`
- * — must be untouched in all three respects: out of the registry the harness
- * boots from, unbootable through the world, and still declaring no `tracks`. A
- * page that opts in owes the converse: a playlist the corpus seam reaches, every
- * track of it armable.
+ * Nine directories draw their own page; FIVE of them opt in (`useTicket`,
+ * `useContract`, `useContractProduct`, `useInvoice`, `useAffiliateLinkVisit`).
+ * The other four — `usePaymentDetailAdd`, `overlay-pay`, `overlay-payment` and
+ * `overlay-upgrade` — must be untouched in all three respects: out of the
+ * registry the harness boots from, unbootable through the world, and still
+ * declaring no `tracks`. A page that opts in owes the converse: a playlist the
+ * corpus seam reaches, every track of it armable.
  *
- * So this reads the LIVE registry rather than a list: a ninth self-drawn page
+ * So this reads the LIVE registry rather than a list: a tenth self-drawn page
  * landing tomorrow is inside this verdict the moment it lands, and the named set
- * below is the assertion that today's four are exactly today's four.
+ * below is the assertion that today's five are exactly today's five.
+ *
+ * An AREA binds nothing itself; each of its panels binds its own surface and
+ * is booted by the harness as `<area>.<panel>` (`scenario.types.ts`,
+ * `ScenarioPanel`). So every panel key is bootable and the area's own key is
+ * not.
  *
  * ## What Breaks If These Fail
  * Either the opt-in does not work (the manager's bar has nothing to boot and
@@ -40,12 +45,17 @@ import { useScenarioWorld } from "../runtime/composables/useScenarioWorld";
 import { featureTracksFor } from "../runtime/force/corpus.source";
 import { registry, scenarioRegistry } from "../runtime/registry";
 import { excludedTagsOf, trackedModuleOf } from "../runtime/scenario.utils";
+import { AFFILIATE_LINK_VISIT_SCENARIO } from "../useAffiliateLinkVisit/affiliate-link-visit.scenario";
+import affiliateArea, {
+  AFFILIATE_SCENARIO
+} from "../useClientAffiliate/affiliate.scenario";
 import { CONTRACT_SCENARIO } from "../useContract/contract.scenario";
 import { CONTRACT_PRODUCT_SCENARIO } from "../useContractProduct/contract-product.scenario";
 import { INVOICE_SCENARIO } from "../useInvoice/invoice.scenario";
 import { TICKET_SCENARIO } from "../useTicket/ticket.scenario";
 import {
   every,
+  flatMap,
   filter,
   includes,
   isEmpty,
@@ -100,15 +110,31 @@ describe("a self-drawn page binds nothing — unless it says otherwise", () => {
     expect(scenarioRegistry[TICKET_SCENARIO]).toBeTypeOf("function");
   });
 
-  it("finds the four that opted in, by key", () => {
+  it("finds the five that opted in, by key", () => {
     expect(sortBy(boundSelfDrawnKeys())).toStrictEqual(
       sortBy([
         TICKET_SCENARIO,
         CONTRACT_SCENARIO,
         CONTRACT_PRODUCT_SCENARIO,
-        INVOICE_SCENARIO
+        INVOICE_SCENARIO,
+        AFFILIATE_LINK_VISIT_SCENARIO
       ])
     );
+  });
+
+  it("builds a boot thunk for every panel of an area, and none for the area itself", () => {
+    const panelKeys = flatMap(affiliateArea.tabs, tab =>
+      map(tab.panels, panel => `${AFFILIATE_SCENARIO}.${panel.key}`)
+    );
+
+    expect(panelKeys).not.toHaveLength(0);
+    expect(
+      reject(
+        panelKeys,
+        key => typeof scenarioRegistry[key as ScenarioKey] === "function"
+      )
+    ).toStrictEqual([]);
+    expect(includes(keys(scenarioRegistry), AFFILIATE_SCENARIO)).toBe(false);
   });
 
   it("leaves every other self-drawn page exactly where it was — the four, by name", () => {

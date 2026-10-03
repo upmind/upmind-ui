@@ -67,6 +67,11 @@ function observedEditor() {
             const scoped = cell.for?.(type, id) as ScenarioScopedCell;
             steps.push({ step: `for:${type}:${id}`, cell: scoped });
             return scoped;
+          },
+          withId: (id: string) => {
+            const scoped = cell.withId?.(id) as ScenarioScopedCell;
+            steps.push({ step: `withId:${id}`, cell: scoped });
+            return scoped;
           }
         };
       }
@@ -87,10 +92,14 @@ function observedEditor() {
 /** The handoff's own declared template — the type it boots at, and where the id comes from. */
 const EDIT = clientEmails.handoff.edit.context;
 
-const mountEditor = (handoff: ResolvedHandoff, context?: ScopeContext) =>
+const mountEditor = (
+  handoff: ResolvedHandoff,
+  context?: ScopeContext,
+  recordId?: string
+) =>
   mount(ManageDialog, {
     attachTo: document.body,
-    props: { handoff, context }
+    props: { handoff, context, recordId }
   });
 
 /**
@@ -181,6 +190,26 @@ describe("@AC3 the editor boots .for() the record the row named", () => {
     });
 
     expect(observed.taken()).not.toContain("fresh");
+  });
+});
+
+describe("the editor boots .withId() the leaf record the row named (R-EDIT-HANDOFF)", () => {
+  it("takes the withId() step with the row's own id, never fresh() and never for()", () => {
+    const observed = observedEditor();
+
+    mountEditor(observed.handoff(), undefined, unverifiedRow.id);
+
+    expect(observed.taken()).toEqual([`withId:${unverifiedRow.id}`]);
+  });
+
+  it("opens on that record, so its save updates rather than creates", () => {
+    const observed = observedEditor();
+
+    mountEditor(observed.handoff(), undefined, unverifiedRow.id);
+
+    const cell = observed.steps[0]?.cell as ScenarioScopedCell;
+    expect(cell.useContext().id.value).toBe(unverifiedRow.id);
+    expect(cell.useMeta().isNew.value).toBe(false);
   });
 });
 

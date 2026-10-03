@@ -15,14 +15,18 @@
  * the one nobody named — because the key was ignored.
  */
 
-import { describe, expect, it } from "vitest";
-import { computed, ref } from "vue";
+import { mount } from "@vue/test-utils";
+import { afterEach, describe, expect, it } from "vitest";
+import { computed, defineComponent, h, provide, ref } from "vue";
 import { ScopeActorTypes } from "@upmind-automation/headless";
+import { PLAYGROUND_URL_NAMESPACE } from "../../../../../app/composables/usePlaygroundUrlState.types";
+import { clearScenarioStage, useScenarioStage } from "../useScenarioStage";
 import { useScenarioWorld } from "../useScenarioWorld";
 import { mapValues } from "lodash-es";
 import type { ScenarioBinding, ScenarioKey } from "../../scenario.types";
 import type { ScenarioScopedCell } from "../../scenario.types";
 import type { LiveMeta } from "../useCompositionPort.types";
+import type { ScenarioStage, StageCollection } from "../useScenarioStage.types";
 import type { WorldScope } from "@upmind-automation/scenario-harness";
 
 // -----------------------------------------------------------------------------
@@ -264,5 +268,51 @@ describe("the optional key addresses one of the held cells", () => {
     await expect(
       world.expectMeta({ isEmpty: false }, "useNeverBooted")
     ).rejects.toThrow();
+  });
+});
+
+describe("each panel of an area holds its own stage", () => {
+  const stageUnder = (namespace: string): ScenarioStage => {
+    let stage: ScenarioStage | undefined;
+    const reader = defineComponent({
+      setup: () => {
+        stage = useScenarioStage();
+        return () => h("i");
+      }
+    });
+    mount(
+      defineComponent({
+        setup: () => {
+          provide(PLAYGROUND_URL_NAMESPACE, namespace);
+          return () => h(reader);
+        }
+      })
+    );
+    return stage as ScenarioStage;
+  };
+
+  const collection = (pressed: string[], name: string): StageCollection => ({
+    press: async action => {
+      pressed.push(`${name}:${action}`);
+    },
+    offers: () => true
+  });
+
+  afterEach(() => {
+    clearScenarioStage(undefined, "links");
+    clearScenarioStage(undefined, "referrals");
+  });
+
+  it("presses the collection of the panel the step speaks to, never its neighbour's", async () => {
+    const pressed: string[] = [];
+    const links = stageUnder("links");
+    const referrals = stageUnder("referrals");
+
+    links.registerCollection(collection(pressed, "links"));
+    referrals.registerCollection(collection(pressed, "referrals"));
+    await links.press("remove");
+
+    expect(pressed).toStrictEqual(["links:remove"]);
+    expect(referrals.isStaged()).toBe(true);
   });
 });

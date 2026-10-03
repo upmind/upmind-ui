@@ -1,0 +1,63 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/accounts/d0367942-4d0e-7109-92eb-3153698d582e/affiliate/links?with_staged_imports=1&order=-created_at&limit=10&offset=0&filter[name|eq]=Affiliate Labs Alpha",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a44781bedef01ed8-LHR",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json",
+      "date": "Fri, 02 Oct 2026 23:32:31 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=7fwD4P7jxRsD8bZJ2VBzVcgMGv7s8gqSrvddEphl8X7%2FOSx5htc8L5T7fmSUQOvx1mrIHlSO8%2Bs40xJj6K%2F6KFwD%2BMRbyW%2FZQxPYECq8qTJZWPrfKahYJJuCU55Bgh6RQ14o2wu9lw%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-frame-options": "SAMEORIGIN",
+      "x-total-count": "1"
+    },
+    "body": {
+      "status": "ok",
+      "data": [
+        {
+          "id": "2785d26e-9678-3d16-e0a3-14502e70439d",
+          "name": "Affiliate Labs Alpha",
+          "affiliate_account_id": "68d63250-7980-65d1-e6f8-174e234e98d2",
+          "hash": "7f0c3b64aecfb609aae47a01b7b4fd917095f2fb",
+          "redirect_url": "https://kn6x1dzbtcgb.staging.upmind.dev/order/",
+          "visit_count": 0,
+          "referral_count": 0,
+          "created_at": "2026-10-02 23:32:30",
+          "updated_at": "2026-10-02 23:32:30",
+          "deleted_at": null
+        }
+      ],
+      "related": null,
+      "total": 1,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-10-02T23:32:31.348Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "a-client-narrows-their-referral-links-to-one-name"
+  }
+}

@@ -1,0 +1,63 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/accounts/d0367942-4d0e-7109-92eb-3153698d582e/affiliate/links?with_staged_imports=1&order=-created_at&limit=10&offset=0",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a44781b86b141ed8-LHR",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json",
+      "date": "Fri, 02 Oct 2026 23:32:30 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=nLj%2F4%2FrjTSswmeHhJ8uantsjTAH0PH5%2FLFXgDxQq3WvK17XTID%2BkwlAvcO1bUGPzuWvTzNB1XhxXOWFFL4l2Bv4zbLb1%2Bl%2BEcz6Cy%2F%2BkrrUc1JHiDdDaJW06YRtmu4%2Beuj8n4gZwJA%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-frame-options": "SAMEORIGIN",
+      "x-total-count": "1"
+    },
+    "body": {
+      "status": "ok",
+      "data": [
+        {
+          "id": "24d03679-424d-0e71-04b3-153698d582e8",
+          "name": "Affiliate Starter Hosting",
+          "affiliate_account_id": "68d63250-7980-65d1-e6f8-174e234e98d2",
+          "hash": "f55dc9bd547b9c9dc54ab91ce979ceee69ebb677",
+          "redirect_url": "http://kn6x1dzbtcgb.staging.upmind.dev/order/product?pid=3de78642-de53-9714-76df-21208469530d",
+          "visit_count": 17,
+          "referral_count": 0,
+          "created_at": "2026-09-29 18:21:46",
+          "updated_at": "2026-09-29 18:21:46",
+          "deleted_at": null
+        }
+      ],
+      "related": null,
+      "total": 1,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-10-02T23:32:30.293Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "a-client-reads-their-referral-links-each-with-its-shareable-referral-url"
+  }
+}

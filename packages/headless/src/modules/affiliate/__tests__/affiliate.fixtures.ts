@@ -50,10 +50,22 @@
  */
 
 import { existsSync, readFileSync, readdirSync } from "node:fs";
-import { describe, it, expect } from "vitest";
+import { join } from "node:path";
+import { afterAll, beforeAll, describe, it, expect } from "vitest";
 import { API_CREDENTIALS } from "@upmind-automation/test-fixtures/credentials";
-import { createGenerator } from "@upmind-automation/test-fixtures/generator";
+import {
+  Generator,
+  createGenerator
+} from "@upmind-automation/test-fixtures/generator";
 import { BrandConfigKeys } from "@upmind-automation/types";
+import {
+  prepareScenarioDirs,
+  recordedStepDir
+} from "../../../testing/scenario-fixtures";
+// eslint-disable-next-line @internal/no-cross-module-imports -- token minting is auth-domain and auth owns the only copy; this is the recording lane, not the runtime module graph the Visibility Law protects.
+import { mintClientToken } from "../../auth/__tests__/auth.tokens";
+import { filter, find, first, includes, kebabCase, map } from "lodash-es";
+import type { IToken } from "@upmind-automation/types";
 
 const GATE_CONFIG_KEYS = [
   BrandConfigKeys.UPMIND_AFFILIATES_ENABLED,
@@ -1362,6 +1374,655 @@ describe.runIf(RUN)("affiliate fixtures (record mode)", () => {
 
     expect(generator.getCapturedFixtures().size).toBe(1);
   }, 30000);
+});
+
+// -----------------------------------------------------------------------------
+// SCENARIOS (ADR 035) — one recording per labs page story of
+// `affiliate.feature`, one fixtures folder per step, named from the feature by
+// `recordedStepDir`. Each scenario arranges the links it names on staging with
+// uncaptured calls, records the requests its steps make, in their order, and
+// removes every link it added. No enrol and no withdrawal is sent.
+// Record them all with:
+//   pnpm fixtures:generate affiliate --scenario "Affiliate scenario recordings"
+// -----------------------------------------------------------------------------
+
+const SCENARIO_FEATURE = readFileSync(
+  join(import.meta.dirname, "affiliate.feature"),
+  "utf-8"
+);
+
+const ACCOUNT_OPEN = "the client's affiliate account panel is open";
+const LINKS_OPEN = "the client's referral links panel is open";
+const REFERRALS_OPEN = "the client's referrals panel is open";
+const WITHDRAWAL_OPEN = "the client's withdrawal panel is open";
+const COMMISSIONS_OPEN = "the client's commission history panel is open";
+const DESTINATION_OPEN = "the client's payout destination panel is open";
+const PAYOUTS_OPEN = "the client's payout history panel is open";
+const VISIT_ARRIVED = "a visitor has arrived on an affiliate referral link";
+
+const AFTER_REFERRALS = "2026-09-29 18:30:00";
+const AFTER_COMMISSIONS = "2026-09-29 18:30:00";
+const AFTER_PAYOUTS = "2026-09-29 00:00:00";
+
+const REFERRALS_WITH =
+  "with=affiliate_account,affiliate_link,client,client.image";
+const COMMISSIONS_WITH = "with_staged_imports=1&with=invoice,invoice.client";
+const PAYOUTS_WITH =
+  "with_staged_imports=1&with=affiliate_payout_destination,payment_log";
+
+type WireLink = { id: string; name: string; hash: string };
+
+describe.runIf(RUN)("Affiliate scenario recordings", () => {
+  let token: IToken;
+  let clientId = "";
+  let accountId = "";
+  let brandId = "";
+  let brandDomain = "";
+  let defaultRedirect = "";
+  let originalLinkIds: string[] = [];
+  const prepared = new Set<string>();
+
+  const api = (): string => (BASE_URL ?? "").replace(/\/$/, "");
+  const affiliate = (): string => `/api/accounts/${accountId}/affiliate`;
+  const links = (): string => `${affiliate()}/links`;
+
+  async function call(
+    method: string,
+    path: string,
+    body?: unknown
+  ): Promise<{ status: number; body: unknown }> {
+    const response = await fetch(`${api()}${path}`, {
+      method,
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        ...(ORIGIN ? { Origin: ORIGIN } : {}),
+        Authorization: `Bearer ${token.access_token}`
+      },
+      body: body == null ? undefined : JSON.stringify(body)
+    });
+    return {
+      status: response.status,
+      body: await response.json().catch(() => null)
+    };
+  }
+
+  async function liveLinks(): Promise<WireLink[]> {
+    const { body } = await call(
+      "GET",
+      `${links()}?with_staged_imports=1&limit=0`
+    );
+    return (body as { data: WireLink[] }).data;
+  }
+
+  async function arrangeLink(name: string): Promise<string> {
+    const { status, body } = await call("POST", links(), {
+      name,
+      redirect_url: defaultRedirect
+    });
+    if (status >= 400)
+      throw new Error(`Arranging the link "${name}" returned ${status}.`);
+    return (body as { data: { id: string } }).data.id;
+  }
+
+  /** Staging back as it was found: only the links that were there before. */
+  async function restoreLinks(): Promise<void> {
+    const added = filter(
+      await liveLinks(),
+      ({ id }) => !includes(originalLinkIds, id)
+    );
+    for (const { id } of added) await call("DELETE", `${links()}/${id}`);
+  }
+
+  async function recordStep(
+    scenario: string,
+    step: string,
+    requests: (generator: Generator) => Promise<unknown>,
+    bearer = true
+  ): Promise<void> {
+    if (!prepared.has(scenario)) {
+      prepareScenarioDirs(import.meta.dirname, SCENARIO_FEATURE, scenario);
+      prepared.add(scenario);
+    }
+
+    const generator = new Generator(api(), {
+      recordingsDir: recordedStepDir(
+        import.meta.dirname,
+        SCENARIO_FEATURE,
+        scenario,
+        step
+      ),
+      origin: ORIGIN,
+      source: "case",
+      name: kebabCase(scenario)
+    });
+    if (bearer) generator.setBearerToken(token.access_token);
+    await requests(generator);
+    generator.save();
+  }
+
+  /** A step that sends nothing still owns its numbered folder. */
+  const noRequest = (): Promise<void> => Promise.resolve();
+
+  async function readAccount(generator: Generator): Promise<void> {
+    await generator.get(ACCOUNT_PATH(accountId));
+    await generator.get(`${affiliate()}/balance?with_staged_imports=1`);
+    await generator.get(`/api/config/brand/values?keys=${GATE_CONFIG_KEYS}`);
+    await generator.get(
+      `/api/config/brand/values?keys=${AREA_CONFIG_KEYS}&brand_id=${brandId}`
+    );
+  }
+
+  const linksQuery = (criteria = "&order=-created_at&limit=10&offset=0") =>
+    `${links()}?with_staged_imports=1${criteria}`;
+
+  async function readLinks(generator: Generator): Promise<void> {
+    await generator.get(ACCOUNT_PATH(accountId));
+    await generator.get(linksQuery());
+  }
+
+  const referralsQuery = (criteria = "&order=-created_at&limit=5&offset=0") =>
+    `${affiliate()}/referrals?${REFERRALS_WITH}${criteria}`;
+  const commissionsQuery = (
+    criteria = "&order=-created_at&limit=10&offset=0"
+  ) => `${affiliate()}/pending_commissions?${COMMISSIONS_WITH}${criteria}`;
+  const payoutsQuery = (criteria = "&order=-created_at&limit=10&offset=0") =>
+    `${affiliate()}/payouts?${PAYOUTS_WITH}${criteria}`;
+
+  /** A scenario over one collection: its open read, then each later step's read. */
+  function recordCollection(
+    scenario: string,
+    open: string,
+    query: (criteria?: string) => string,
+    steps: [string, string | undefined][]
+  ): void {
+    it(open, () =>
+      recordStep(scenario, open, generator => generator.get(query()))
+    );
+    for (const [step, criteria] of steps)
+      it(step, () =>
+        recordStep(scenario, step, generator =>
+          criteria === undefined ? noRequest() : generator.get(query(criteria))
+        )
+      );
+  }
+
+  beforeAll(async () => {
+    token = await mintClientToken();
+
+    const self = (await call("GET", SELF_PATH)).body as {
+      data: { actor_id: string; accounts?: { id: string }[] };
+    };
+    clientId = self.data.actor_id;
+    accountId = first(self.data.accounts)?.id ?? "";
+
+    const account = (await call("GET", ACCOUNT_PATH(accountId))).body as {
+      data: { account: { brand_id: string; brand: { domain: string } } };
+    };
+    brandId = account.data.account.brand_id;
+    brandDomain = account.data.account.brand.domain;
+
+    const area = (
+      await call(
+        "GET",
+        `/api/config/brand/values?keys=${AREA_CONFIG_KEYS}&brand_id=${brandId}`
+      )
+    ).body as { data: Record<string, string> };
+    defaultRedirect =
+      area.data[BrandConfigKeys.AFFILIATES_DEFAULT_REDIRECT_LINK] ?? "";
+
+    originalLinkIds = map(await liveLinks(), "id");
+  }, 60000);
+
+  afterAll(restoreLinks, 60000);
+
+  // --- the account and the withdrawal ------------------------------------
+
+  describe("A client opens the Overview tab and reads their affiliate account and its stats", () => {
+    const scenario =
+      "A client opens the Overview tab and reads their affiliate account and its stats";
+
+    it(ACCOUNT_OPEN, () => recordStep(scenario, ACCOUNT_OPEN, readAccount));
+    it("the account is read", () =>
+      recordStep(
+        scenario,
+        "the client reads their enrolled affiliate account with its visits, referrals and balances",
+        noRequest
+      ));
+  });
+
+  describe("A client reloads their affiliate account on the Overview tab", () => {
+    const scenario =
+      "A client reloads their affiliate account on the Overview tab";
+
+    it(ACCOUNT_OPEN, () => recordStep(scenario, ACCOUNT_OPEN, readAccount));
+    it("the account is reloaded", () =>
+      recordStep(
+        scenario,
+        "the client reloads their affiliate account",
+        readAccount
+      ));
+    it("the account is read", () =>
+      recordStep(
+        scenario,
+        "the client reads their enrolled affiliate account with its visits, referrals and balances",
+        noRequest
+      ));
+  });
+
+  describe("A client with a payable balance is offered a withdrawal on the Commissions tab", () => {
+    const scenario =
+      "A client with a payable balance is offered a withdrawal on the Commissions tab";
+
+    it(WITHDRAWAL_OPEN, () =>
+      recordStep(scenario, WITHDRAWAL_OPEN, readAccount)
+    );
+    it("the withdrawal is offered", () =>
+      recordStep(
+        scenario,
+        "the client is offered a withdrawal of their available balance",
+        noRequest
+      ));
+  });
+
+  // --- the referral links ------------------------------------------------
+
+  describe("A client reads their referral links, each with its shareable referral URL", () => {
+    const scenario =
+      "A client reads their referral links, each with its shareable referral URL";
+
+    it(LINKS_OPEN, () => recordStep(scenario, LINKS_OPEN, readLinks));
+    it("the links are read", () =>
+      recordStep(
+        scenario,
+        "the client reads each of their referral links with its shareable referral URL",
+        noRequest
+      ));
+  });
+
+  describe("A client narrows their referral links to one name", () => {
+    const scenario = "A client narrows their referral links to one name";
+
+    beforeAll(async () => {
+      await arrangeLink("Affiliate Labs Alpha");
+      await arrangeLink("Affiliate Labs Beta");
+    }, 30000);
+    afterAll(restoreLinks, 30000);
+
+    it(LINKS_OPEN, () => recordStep(scenario, LINKS_OPEN, readLinks));
+    it("the links are narrowed", () =>
+      recordStep(
+        scenario,
+        'the client narrows their referral links to the name "Affiliate Labs Alpha"',
+        generator =>
+          generator.get(
+            linksQuery(
+              "&order=-created_at&limit=10&offset=0&filter[name|eq]=Affiliate Labs Alpha"
+            )
+          )
+      ));
+    it("the one link is listed", () =>
+      recordStep(
+        scenario,
+        'the referral link named "Affiliate Labs Alpha" is the only one listed',
+        noRequest
+      ));
+  });
+
+  describe("A client sorts their referral links by visits, most visited first", () => {
+    const scenario =
+      "A client sorts their referral links by visits, most visited first";
+
+    beforeAll(() => arrangeLink("Affiliate Labs Alpha"), 30000);
+    afterAll(restoreLinks, 30000);
+
+    it(LINKS_OPEN, () => recordStep(scenario, LINKS_OPEN, readLinks));
+    it("the links are sorted", () =>
+      recordStep(
+        scenario,
+        "the client sorts their referral links by visits, most visited first",
+        generator =>
+          generator.get(linksQuery("&order=-visit_count&limit=10&offset=0"))
+      ));
+    it("the links are ordered", () =>
+      recordStep(
+        scenario,
+        "the client's referral links are ordered by visits, most visited first",
+        noRequest
+      ));
+  });
+
+  describe("A client turns to the second page of their referral links, one link per page", () => {
+    const scenario =
+      "A client turns to the second page of their referral links, one link per page";
+
+    beforeAll(() => arrangeLink("Affiliate Labs Alpha"), 30000);
+    afterAll(restoreLinks, 30000);
+
+    it(LINKS_OPEN, () => recordStep(scenario, LINKS_OPEN, readLinks));
+    it("the second page is read", () =>
+      recordStep(
+        scenario,
+        "the client turns to the second page of their referral links, one per page",
+        generator =>
+          generator.get(linksQuery("&order=-created_at&limit=1&offset=1"))
+      ));
+    it("the second page is listed", () =>
+      recordStep(
+        scenario,
+        "the second page's referral link is listed in place of the first page's",
+        noRequest
+      ));
+  });
+
+  describe("A client creates a referral link that sends visitors to the brand's default destination", () => {
+    const scenario =
+      "A client creates a referral link that sends visitors to the brand's default destination";
+
+    afterAll(restoreLinks, 30000);
+
+    it(LINKS_OPEN, () => recordStep(scenario, LINKS_OPEN, readLinks));
+    it("the link is created", () =>
+      recordStep(
+        scenario,
+        'the client creates the referral link "Affiliate Labs Created"',
+        async generator => {
+          await readAccount(generator);
+          await generator.post(links(), {
+            name: "Affiliate Labs Created",
+            redirect_url: defaultRedirect
+          });
+          await generator.get(linksQuery());
+        }
+      ));
+    it("the link is listed", () =>
+      recordStep(
+        scenario,
+        'the referral link "Affiliate Labs Created" is among the client\'s referral links',
+        noRequest
+      ));
+  });
+
+  describe("A client renames one of their referral links", () => {
+    const scenario = "A client renames one of their referral links";
+    let linkId = "";
+
+    beforeAll(async () => {
+      linkId = await arrangeLink("Affiliate Labs Rename Me");
+    }, 30000);
+    afterAll(restoreLinks, 30000);
+
+    it(LINKS_OPEN, () => recordStep(scenario, LINKS_OPEN, readLinks));
+    it("the link is renamed", () =>
+      recordStep(
+        scenario,
+        'the client renames their referral link "Affiliate Labs Rename Me" to "Affiliate Labs Renamed"',
+        async generator => {
+          await generator.get(`${links()}/${linkId}`);
+          await generator.put(`${links()}/${linkId}`, {
+            name: "Affiliate Labs Renamed",
+            redirect_url: defaultRedirect
+          });
+          await generator.get(linksQuery());
+        }
+      ));
+    it("the renamed link is listed", () =>
+      recordStep(
+        scenario,
+        'the referral link "Affiliate Labs Renamed" is among the client\'s referral links',
+        noRequest
+      ));
+  });
+
+  describe("A client deletes one of their referral links", () => {
+    const scenario = "A client deletes one of their referral links";
+    let linkId = "";
+
+    beforeAll(async () => {
+      linkId = await arrangeLink("Affiliate Labs Delete Me");
+    }, 30000);
+    afterAll(restoreLinks, 30000);
+
+    it(LINKS_OPEN, () => recordStep(scenario, LINKS_OPEN, readLinks));
+    it("the link is deleted", () =>
+      recordStep(
+        scenario,
+        'the client deletes their referral link "Affiliate Labs Delete Me"',
+        async generator => {
+          await generator.delete(`${links()}/${linkId}`);
+          await generator.get(linksQuery());
+        }
+      ));
+    it("the deleted link is gone", () =>
+      recordStep(
+        scenario,
+        'the referral link "Affiliate Labs Delete Me" is no longer among the client\'s referral links',
+        noRequest
+      ));
+  });
+
+  // --- the referrals, the commissions and the payouts ---------------------
+
+  describe("A client reads who their referral links brought in", () => {
+    recordCollection(
+      "A client reads who their referral links brought in",
+      REFERRALS_OPEN,
+      referralsQuery,
+      [["the client reads each of their referrals", undefined]]
+    );
+  });
+
+  describe("A client narrows their referrals to those referred after a moment", () => {
+    recordCollection(
+      "A client narrows their referrals to those referred after a moment",
+      REFERRALS_OPEN,
+      referralsQuery,
+      [
+        [
+          `the client narrows their referrals to those created after "${AFTER_REFERRALS}"`,
+          `&order=-created_at&limit=5&offset=0&filter[created_at|after]=${AFTER_REFERRALS}`
+        ],
+        [
+          "only the client's referrals created after that moment are listed",
+          undefined
+        ]
+      ]
+    );
+  });
+
+  describe("A client sorts their referrals oldest first", () => {
+    recordCollection(
+      "A client sorts their referrals oldest first",
+      REFERRALS_OPEN,
+      referralsQuery,
+      [
+        [
+          "the client sorts their referrals oldest first",
+          "&order=created_at&limit=5&offset=0"
+        ],
+        ["the client's referrals are ordered oldest first", undefined]
+      ]
+    );
+  });
+
+  describe("A client turns to the second page of their referrals, one referral per page", () => {
+    recordCollection(
+      "A client turns to the second page of their referrals, one referral per page",
+      REFERRALS_OPEN,
+      referralsQuery,
+      [
+        [
+          "the client turns to the second page of their referrals, one per page",
+          "&order=-created_at&limit=1&offset=1"
+        ],
+        [
+          "the second page's referral is listed in place of the first page's",
+          undefined
+        ]
+      ]
+    );
+  });
+
+  describe("A client reads their commission history", () => {
+    recordCollection(
+      "A client reads their commission history",
+      COMMISSIONS_OPEN,
+      commissionsQuery,
+      [["the client reads each of their commissions", undefined]]
+    );
+  });
+
+  describe("A client narrows their commission history to commissions earned after a moment", () => {
+    recordCollection(
+      "A client narrows their commission history to commissions earned after a moment",
+      COMMISSIONS_OPEN,
+      commissionsQuery,
+      [
+        [
+          `the client narrows their commission history to those created after "${AFTER_COMMISSIONS}"`,
+          `&order=-created_at&limit=10&offset=0&filter[created_at|after]=${AFTER_COMMISSIONS}`
+        ],
+        [
+          "only the client's commissions created after that moment are listed",
+          undefined
+        ]
+      ]
+    );
+  });
+
+  describe("A client sorts their commission history oldest first", () => {
+    recordCollection(
+      "A client sorts their commission history oldest first",
+      COMMISSIONS_OPEN,
+      commissionsQuery,
+      [
+        [
+          "the client sorts their commission history oldest first",
+          "&order=created_at&limit=10&offset=0"
+        ],
+        ["the client's commission history is ordered oldest first", undefined]
+      ]
+    );
+  });
+
+  describe("A client turns to the second page of their commission history, one commission per page", () => {
+    recordCollection(
+      "A client turns to the second page of their commission history, one commission per page",
+      COMMISSIONS_OPEN,
+      commissionsQuery,
+      [
+        [
+          "the client turns to the second page of their commission history, one per page",
+          "&order=-created_at&limit=1&offset=1"
+        ],
+        [
+          "the second page's commission is listed in place of the first page's",
+          undefined
+        ]
+      ]
+    );
+  });
+
+  describe("A client opens their payout destination with the saved destination and PayPal email chosen", () => {
+    const scenario =
+      "A client opens their payout destination with the saved destination and PayPal email chosen";
+
+    it(DESTINATION_OPEN, () =>
+      recordStep(scenario, DESTINATION_OPEN, async generator => {
+        await generator.get(ACCOUNT_PATH(accountId));
+        await generator.get(
+          `/api/brands/${brandId}/affiliate_payout_destination?order=-created_at&limit=10&offset=0`
+        );
+        await generator.get(
+          `/api/clients/${clientId}/emails?with_staged_imports=1&order=-default,-id&limit=0&offset=0`
+        );
+      })
+    );
+    it("the saved choice is held", () =>
+      recordStep(
+        scenario,
+        "the payout destination editor holds the saved destination and PayPal email, chosen from the brand's destinations and the client's emails",
+        noRequest
+      ));
+  });
+
+  describe("A client reads their payout history", () => {
+    recordCollection(
+      "A client reads their payout history",
+      PAYOUTS_OPEN,
+      payoutsQuery,
+      [["the client reads each of their payouts", undefined]]
+    );
+  });
+
+  describe("A client narrows their payout history to payouts made after a moment", () => {
+    recordCollection(
+      "A client narrows their payout history to payouts made after a moment",
+      PAYOUTS_OPEN,
+      payoutsQuery,
+      [
+        [
+          `the client narrows their payout history to those created after "${AFTER_PAYOUTS}"`,
+          `&order=-created_at&limit=10&offset=0&filter[created_at|after]=${AFTER_PAYOUTS}`
+        ],
+        [
+          "only the client's payouts created after that moment are listed",
+          undefined
+        ]
+      ]
+    );
+  });
+
+  describe("A client sorts their payout history by amount, largest first", () => {
+    recordCollection(
+      "A client sorts their payout history by amount, largest first",
+      PAYOUTS_OPEN,
+      payoutsQuery,
+      [
+        [
+          "the client sorts their payout history by amount, largest first",
+          "&order=-amount&limit=10&offset=0"
+        ],
+        [
+          "the client's payout history is ordered by amount, largest first",
+          undefined
+        ]
+      ]
+    );
+  });
+
+  // --- the guest's link visit --------------------------------------------
+
+  describe("A visitor who arrives on a referral link has the visit recorded and is sent on", () => {
+    const scenario =
+      "A visitor who arrives on a referral link has the visit recorded and is sent on";
+
+    it(VISIT_ARRIVED, () => recordStep(scenario, VISIT_ARRIVED, noRequest));
+    it("the visit is sent", async () => {
+      const link = find(await liveLinks(), ({ id }) =>
+        includes(originalLinkIds, id)
+      );
+      if (!link) throw new Error("The client holds no referral link to visit.");
+
+      await recordStep(
+        scenario,
+        "the visitor's referral link visit is sent",
+        generator =>
+          generator.post("/api/affiliate_link/visit", {
+            visit_url: `http://${brandDomain}/aff/${link.hash}`,
+            referrer_url: "",
+            user_agent: "Mozilla/5.0 (FE-3227 labs scenario recording)"
+          }),
+        false
+      );
+    });
+    it("the visitor is sent on", () =>
+      recordStep(
+        scenario,
+        "the visit is recorded and the visitor has a destination to be sent on to",
+        noRequest
+      ));
+  });
 });
 
 // Vitest requires at least one test per file even when FIXTURE_MODE isn't

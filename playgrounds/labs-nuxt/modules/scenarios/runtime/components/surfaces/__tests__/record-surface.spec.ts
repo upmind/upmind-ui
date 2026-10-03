@@ -368,6 +368,73 @@ describe("RecordSurface — a form opens the one shared drawer over its context 
     expect(actions.saveEdit).toHaveBeenCalledTimes(1);
     expect(inBody("record-form-dialog")).toBe(null);
   });
+
+  it("seeds the drawer from the slot's defaults when the slot publishes no model", async () => {
+    const { port } = makePort({
+      context: {
+        balances: { balance: "£5.00" },
+        withdrawal: {
+          schema: { type: "object" },
+          uischema: {},
+          defaults: { message: "Please withdraw my balance" }
+        }
+      },
+      actions: { requestWithdrawal: () => undefined }
+    });
+    const wrapper = await mountRecord(
+      {
+        type: "RecordLayout",
+        record: "balances",
+        header: baseHeader,
+        sections: [],
+        actions: [
+          action({
+            name: "requestWithdrawal",
+            i18n: "action.edit",
+            form: {
+              context: "withdrawal",
+              submit: "requestWithdrawal",
+              args: ["#"]
+            }
+          })
+        ]
+      },
+      port,
+      makeRouter()
+    );
+    open = wrapper;
+    await control(wrapper, "edit").trigger("click");
+    await settle();
+
+    expect(wrapper.findComponent(Form).props("modelValue")).toEqual({
+      message: "Please withdraw my balance"
+    });
+  });
+});
+
+describe("RecordSurface — a record with nothing to fetch draws as soon as it is served", () => {
+  const visitUischema = (drawsEmpty?: boolean): RecordUischema => ({
+    type: "RecordLayout",
+    record: "target",
+    header: { titleI18n: "labs.affiliate_link_visit" },
+    sections: [],
+    actions: [action({ name: "visit", i18n: "action.edit", run: "visit" })],
+    ...(drawsEmpty === undefined ? {} : { drawsEmpty })
+  });
+
+  it("draws its controls over an empty record when it draws empty", async () => {
+    const { port } = makePort({ actions: { visit: () => undefined } });
+    const wrapper = await mountRecord(visitUischema(true), port, makeRouter());
+
+    expect(control(wrapper, "edit").exists()).toBe(true);
+  });
+
+  it("reads an empty record as still loading when it does not", async () => {
+    const { port } = makePort({ actions: { visit: () => undefined } });
+    const wrapper = await mountRecord(visitUischema(), port, makeRouter());
+
+    expect(control(wrapper, "edit").exists()).toBe(false);
+  });
 });
 
 describe("RecordSurface — a navigation carries the page's scope suffix", () => {

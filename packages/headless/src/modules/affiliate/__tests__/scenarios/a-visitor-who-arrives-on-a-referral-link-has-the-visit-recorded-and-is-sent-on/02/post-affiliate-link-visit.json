@@ -1,0 +1,56 @@
+{
+  "version": 3,
+  "request": {
+    "method": "POST",
+    "path": "/api/affiliate_link/visit",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173"
+    },
+    "body": {
+      "visit_url": "http://kn6x1dzbtcgb.staging.upmind.dev/aff/f55dc9bd547b9c9dc54ab91ce979ceee69ebb677",
+      "referrer_url": "",
+      "user_agent": "Mozilla/5.0 (FE-3227 labs scenario recording)"
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a4478215e8cf1ed8-LHR",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json",
+      "date": "Fri, 02 Oct 2026 23:32:45 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=GRrqh9NiPykF%2B7bNz9FxKa5ZS8zD4y94%2FIrut%2FNSzHX5s8jbsgKnxEomc9l%2F1K5R%2FJB3e%2FbgnVvjuDKWFLmn%2FqhZL882ZcVxb9HanXWEoTWLVe6xL84vX1aR74B7z8T1norA2dmKzA%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-frame-options": "SAMEORIGIN"
+    },
+    "body": {
+      "status": "ok",
+      "data": {
+        "redirect_url": "http://kn6x1dzbtcgb.staging.upmind.dev/order/product?pid=3de78642-de53-9714-76df-21208469530d",
+        "referral_cookie": "mock-referral_cookie",
+        "referral_cookie_max_age": 2591999
+      },
+      "related": null,
+      "total": null,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-10-02T23:32:45.342Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "a-visitor-who-arrives-on-a-referral-link-has-the-visit-recorded-and-is-sent-on"
+  }
+}
