@@ -707,6 +707,7 @@
         "Amendment 7 (2026-09-17) — `basket` may read `client`",
         "Amendment 9 (2026-09-21) — the feature contract is retired; the app owns its list, its routes and its names",
         "Amendment 11 (2026-09-24) — Phase 0 holds only what Phase 0 needs",
+        "Amendment 12 (2026-09-25) — the lookup control lives in `foundation`'s form",
         "Amendment 13 (2026-09-25) — a domain package holds only UI concerns; the rest lives in `headless`",
         "Amendment 14 (2026-09-28) — the theme belongs to the app; `useAnnouncement` lives in `foundation`; both ports are removed",
         "Amendment 15 (2026-09-28) — a page takes its templates from the page that mounts it; `catalogue` imports `domain` when a category needs it; `headless` stays as `develop` has it; the shell socket and the DAC port are removed",
@@ -18389,8 +18390,8 @@
     }
   },
   "meta": {
-    "built_at": "2026-10-03T15:49:04.793Z",
-    "corpus_version": "1+7f25090b1141",
+    "built_at": "2026-10-03T16:41:31.041Z",
+    "corpus_version": "1+0064fa33c020",
     "counts": {
       "adrs": 35,
       "changelogSymbols": 0,
@@ -18403,7 +18404,7 @@
       "symbols": 940
     },
     "relationsSha256": "9a6f85296b647222228f20f54141377046925e9862437ca4617d3a6a8b87e391",
-    "source_commit": "048f6fae1f9bfdc7f23824024d637918f5a0cfda"
+    "source_commit": "dca8cc2499a62ab97ebce2a3e57688513197614f"
   },
   "relations": {
     "edges": [
