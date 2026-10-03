@@ -26,8 +26,10 @@
 #   pnpm exec playwright test tests/Playwright/e2e/e2e-tests/basket/summary-breakdown.spec.ts
 #   git apply -R <this file>                       # revert — must return to green
 #
---- a/packages/client-vue/src/modules/basket/components/Summary.vue
-+++ b/packages/client-vue/src/modules/basket/components/Summary.vue
+diff --git a/packages/modules-basket/src/components/Summary.vue b/packages/modules-basket/src/components/Summary.vue
+index ab8fcd2..3b70cca 100644
+--- a/packages/modules-basket/src/components/Summary.vue
++++ b/packages/modules-basket/src/components/Summary.vue
 @@ -4,7 +4,7 @@
           priced from the saved server basket. Taxes read as calculating while a
           refresh is in flight — the basket carries none until it returns. -->

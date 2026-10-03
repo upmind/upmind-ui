@@ -42,13 +42,15 @@
 #   pnpm exec playwright test tests/Playwright/e2e/e2e-tests/checkout/summary-promotion-field.spec.ts
 #   git apply -R <this file>                       # revert — must return to green
 #
---- a/packages/client-vue/src/modules/basket/components/Summary.vue
-+++ b/packages/client-vue/src/modules/basket/components/Summary.vue
+diff --git a/packages/modules-basket/src/components/Summary.vue b/packages/modules-basket/src/components/Summary.vue
+index ab8fcd2..549b6d2 100644
+--- a/packages/modules-basket/src/components/Summary.vue
++++ b/packages/modules-basket/src/components/Summary.vue
 @@ -187,7 +187,6 @@
-
+ 
        <!-- the promotions form and any trailing content sit inside the summary's
             own sections so they share their spacing -->
 -      <BasketPromotions v-if="props.showPromotions" />
        <slot />
      </div>
-
+ 

@@ -4,12 +4,16 @@
     :edit-route="{ name: ROUTE.BASKET_PRODUCT_EDIT }"
     :fields-route="{ name: ROUTE.BASKET }"
     :billing-route="{ name: ROUTE.BILLING }"
-  />
+    v-slot="{ template }"
+  >
+    <component :is="CHECKOUT_TEMPLATES[template]" />
+  </UpmCheckout>
 </template>
 
 <script lang="ts" setup>
 import { useI18n } from "vue-i18n";
-import { UpmCheckout } from "@upmind-automation/client-vue";
+import { UpmCheckout } from "@upmind-automation/basket";
+import { CHECKOUT_TEMPLATES } from "@upmind-automation/client-vue";
 import { useStorefrontRoute } from "~/composables/useStorefrontRoute";
 import { ROUTE } from "~/funnels/types";
 

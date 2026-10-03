@@ -138,5 +138,5 @@
 </template>
 
 <script lang="ts" setup>
-import { UpmCurrency } from "@upmind-automation/client-vue";
+import { UpmCurrency } from "@upmind-automation/basket";
 </script>

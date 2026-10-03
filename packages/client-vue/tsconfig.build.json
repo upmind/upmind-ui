@@ -11,6 +11,7 @@
     "tsBuildInfoFile": "dist/tsconfig.build.tsbuildinfo",
     "paths": {
       "@upmind-automation/auth": ["../modules-auth/src/index.ts"],
+      "@upmind-automation/basket": ["../modules-basket/src/index.ts"],
       "@upmind-automation/catalogue": ["../modules-catalogue/src/index.ts"],
       "@upmind-automation/client": ["../modules-client/src/index.ts"],
       "@upmind-automation/domain": ["../modules-domain/src/index.ts"],
@@ -39,6 +40,7 @@
     { "path": "../headless/tsconfig.build.json" },
     { "path": "../modules-foundation/tsconfig.build.json" },
     { "path": "../modules-auth/tsconfig.build.json" },
+    { "path": "../modules-basket/tsconfig.build.json" },
     { "path": "../modules-catalogue/tsconfig.build.json" },
     { "path": "../modules-client/tsconfig.build.json" },
     { "path": "../modules-domain/tsconfig.build.json" },

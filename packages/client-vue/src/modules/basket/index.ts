@@ -1,14 +1,14 @@
 // -----------------------------------------------------------------------------
+/**
+ * @module modules/basket
+ * @description The header's basket action, and the templates this package hands the `@upmind-automation/basket` organisms.
+ */
 
-// --- Export Views
-export { default as UpmBasket } from "./Basket.vue";
-
-// --- Export Components
+// --- Export Header Action
 export { default as UpmBasketAction } from "./components/BasketAction.vue";
-export { default as UpmBasketUnavailable } from "./components/BasketUnavailable.vue";
-export { default as UpmCurrency } from "./components/CurrencySwitcher.vue";
-export { default as UpmCurrencySelect } from "./components/CurrencySelect.vue";
-export { default as UpmBasketSummary } from "./components/Summary.vue";
+
+// --- Export Templates
+export { BASKET_TEMPLATES } from "./shell";
 
 // --- Export Types
-export { BASKET_TEMPLATE } from "./types";
+export type { BasketActionProps } from "./components/types";
