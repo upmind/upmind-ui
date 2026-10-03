@@ -50,6 +50,7 @@
     "@tanstack/vue-query": "^5.83.1",
     "@tanstack/vue-table": "^8.21.3",
     "@upmind-automation/auth": "workspace:*",
+    "@upmind-automation/basket": "workspace:*",
     "@upmind-automation/client-vue": "workspace:*",
     "@upmind-automation/domain": "workspace:*",
     "@upmind-automation/foundation": "workspace:*",

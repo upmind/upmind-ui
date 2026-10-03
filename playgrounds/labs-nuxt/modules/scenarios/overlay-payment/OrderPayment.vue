@@ -48,7 +48,7 @@
 
 import { computed, onMounted, provide, watch } from "vue";
 import { useI18n } from "vue-i18n";
-import { UpmCurrencySelect } from "@upmind-automation/client-vue";
+import { UpmCurrencySelect } from "@upmind-automation/basket";
 import { Section } from "@upmind-automation/foundation";
 import { useBrand, useInvoice } from "@upmind-automation/headless";
 import { UpmPaymentDetails } from "@upmind-automation/payment";

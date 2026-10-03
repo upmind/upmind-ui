@@ -1,0 +1,26 @@
+# Negative control — the basket page mounts its organism bare, so the basket
+# loses the route transition its organism held on develop.
+#
+# Intended RED:
+#   apps/cart/tests/basket-page-transition.test.ts
+#     "the cart's 'Basket.vue' > has the route transition as its one root"
+#     "the cart's 'Basket.vue' > puts the organism, and only the organism, inside it"
+
+diff --git a/apps/cart/src/pages/Basket.vue b/apps/cart/src/pages/Basket.vue
+index 8892935..71b0996 100644
+--- a/apps/cart/src/pages/Basket.vue
++++ b/apps/cart/src/pages/Basket.vue
+@@ -1,5 +1,4 @@
+ <template>
+-  <UpmTransition>
+     <UpmBasket
+       :storefront-route="storefrontRoute"
+       :basket-route="{ name: ROUTE.BASKET }"
+@@ -8,7 +7,6 @@
+     >
+       <component :is="BASKET_TEMPLATES[template]" />
+     </UpmBasket>
+-  </UpmTransition>
+ </template>
+ 
+ <script lang="ts" setup>

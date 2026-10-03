@@ -208,6 +208,10 @@ export default defineNuxtConfig({
       __dirname,
       "../../packages/modules-invoice/src/index.ts"
     ),
+    "@upmind-automation/basket/styles": resolve(
+      __dirname,
+      "../../packages/modules-basket/src/styles.css"
+    ),
     "@upmind-automation/basket": resolve(
       __dirname,
       "../../packages/modules-basket/src/index.ts"

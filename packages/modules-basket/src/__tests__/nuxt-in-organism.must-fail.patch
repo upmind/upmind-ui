@@ -1,0 +1,12 @@
+diff --git a/packages/modules-basket/src/billing/Billing.vue b/packages/modules-basket/src/billing/Billing.vue
+index 02dcc092a4..2dea2560d7 100644
+--- a/packages/modules-basket/src/billing/Billing.vue
++++ b/packages/modules-basket/src/billing/Billing.vue
+@@ -83,6 +83,7 @@
+ </template>
+ 
+ <script lang="ts" setup>
++import { useRuntimeConfig } from "#app";
+ import { useTestAttrs } from "@upmind/ui";
+ import { Markdown } from "@upmind/ui";
+ import { computed } from "vue";

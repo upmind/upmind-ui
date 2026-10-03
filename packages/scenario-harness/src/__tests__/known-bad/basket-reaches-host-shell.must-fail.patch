@@ -1,0 +1,20 @@
+diff --git a/packages/modules-basket/src/components/Basket.vue b/packages/modules-basket/src/components/Basket.vue
+index 7dcfd8c..35b7220 100644
+--- a/packages/modules-basket/src/components/Basket.vue
++++ b/packages/modules-basket/src/components/Basket.vue
+@@ -1,6 +1,6 @@
+ <template>
+   <LayoutProvider>
+-    <slot :template="template" />
++    <slot :template="template" :layout="BASKET_TEMPLATES[template]" />
+ 
+     <template v-if="!isSlotHidden('summary')" #summary>
+       <slot name="summary">
+@@ -105,6 +105,7 @@ import { Markdown } from "@upmind/ui";
+ import { Alert } from "@upmind/ui";
+ import { ref, computed } from "vue";
+ import { useI18n } from "vue-i18n";
++import { BASKET_TEMPLATES } from "@upmind-automation/client-vue";
+ import { Back } from "@upmind-automation/foundation";
+ import { Icon } from "@upmind-automation/foundation";
+ import { LayoutProvider } from "@upmind-automation/foundation";
