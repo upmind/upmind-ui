@@ -52,6 +52,7 @@
     "@upmind-automation/invoice": "workspace:*",
     "@upmind-automation/payment": "workspace:*",
     "@upmind-automation/product": "workspace:*",
+    "@upmind-automation/recommendations": "workspace:*",
     "@upmind-automation/types": "workspace:*",
     "@upmind/tokens": "workspace:*",
     "@upmind/ui": "workspace:*",

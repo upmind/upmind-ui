@@ -13,6 +13,7 @@
 @import "@upmind-automation/invoice/styles";
 @import "@upmind-automation/payment/styles";
 @import "@upmind-automation/product/styles";
+@import "@upmind-automation/recommendations/styles";
 
 @source './**/*.{html,vue,js,tsx,ts}';
 

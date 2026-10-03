@@ -98,6 +98,10 @@ export default defineConfig(({ mode, command }) => {
           __dirname,
           "../../packages/modules-product/src/index.ts"
         ),
+        "@upmind-automation/recommendations/styles": resolve(
+          __dirname,
+          "../../packages/modules-recommendations/src/styles.css"
+        ),
         "@upmind-automation/recommendations": resolve(
           __dirname,
           "../../packages/modules-recommendations/src/index.ts"

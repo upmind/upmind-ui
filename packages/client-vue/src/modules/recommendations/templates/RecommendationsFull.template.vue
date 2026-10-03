@@ -1,19 +1,21 @@
 <template>
-  <Layout>
-    <template #content-header>
-      <slot name="hero" />
-    </template>
+  <Transitions>
+    <Layout>
+      <template #content-header>
+        <slot name="hero" />
+      </template>
 
-    <template #content>
-      <slot name="cards" />
-      <slot name="configure" />
-      <slot v-if="isMobile" name="footer" />
-    </template>
+      <template #content>
+        <slot name="cards" />
+        <slot name="configure" />
+        <slot v-if="isMobile" name="footer" />
+      </template>
 
-    <template v-if="!isMobile" #content-footer>
-      <slot name="footer" />
-    </template>
-  </Layout>
+      <template v-if="!isMobile" #content-footer>
+        <slot name="footer" />
+      </template>
+    </Layout>
+  </Transitions>
 </template>
 
 <script lang="ts" setup>
@@ -25,6 +27,7 @@ import { useHeader } from "../../../components/header/useHeader";
 import { useLayout } from "../../../components/layout/useLayout";
 import { useSection } from "@upmind-automation/foundation";
 import Layout from "../../../components/layout/Layout.vue";
+import Transitions from "../../../components/layout/components/transition/Transition.vue";
 import {
   LAYOUT_VARIANTS,
   LAYOUT_OVERFLOW
