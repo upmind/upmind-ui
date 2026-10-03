@@ -1,7 +1,9 @@
 diff --git a/packages/modules-foundation/src/renderers/index.ts b/packages/modules-foundation/src/renderers/index.ts
+index d172471..fb5262a 100644
 --- a/packages/modules-foundation/src/renderers/index.ts
 +++ b/packages/modules-foundation/src/renderers/index.ts
-@@ -1,2 +1,3 @@
+@@ -1,3 +1,4 @@
 +import "../../../modules-product/src";
- export type { FormRendererEntry } from "./types";
- export * from "./useFormRenderers";
+ import { registerEntry } from "@upmind/ui";
+ import LookupRenderer from "./LookupRenderer.vue";
+ import { tester as lookupTester } from "./LookupRenderer.vue";

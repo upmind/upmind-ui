@@ -1,10 +1,12 @@
 // -----------------------------------------------------------------------------
 /**
- * @fileoverview The registry forms read survives the client extraction.
+ * @fileoverview The registry forms read survives each extraction.
  *
  * ## Job To Be Done
  * Once client-vue and client have registered, the moved `Address` and `Manage`
- * entries claim their elements alone, at the rank consumers read.
+ * entries claim their elements alone, at the rank consumers read, the filter
+ * and image controls stay registered here, and the lookup control arrives
+ * once, through foundation's own list.
  *
  * ## What Breaks If These Fail
  * An address field renders as bare text inputs, or a collection panel never renders.
@@ -14,10 +16,13 @@ import { readdirSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 import { clientRenderers } from "@upmind-automation/client";
-import { useFormRenderers } from "@upmind-automation/foundation";
+import {
+  foundationRenderers,
+  useFormRenderers
+} from "@upmind-automation/foundation";
 import { formRenderers } from "../index";
 import "../../../../index";
-import { concat, filter, map } from "lodash-es";
+import { concat, filter, get, map, size } from "lodash-es";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
 // -----------------------------------------------------------------------------
@@ -29,7 +34,19 @@ const MANAGE_RANK = 4;
 
 const UNCLAIMED_RANK = 0;
 
-const MOVED_FILES = ["AddressRenderer.vue", "ManageRenderer.vue"];
+const KEPT_HERE = [
+  "FilterBarRenderer",
+  "FilterButtonGroupRenderer",
+  "FilterToggleGroupRenderer",
+  "FilterSearchRenderer",
+  "FilterMultiSelectRenderer",
+  "FilterRangeRenderer",
+  "ImageRenderer"
+];
+
+const MOVED_TO_FOUNDATION = ["LookupRenderer"];
+
+const MOVED_EARLIER = ["AddressRenderer", "ManageRenderer"];
 
 const SCHEMA: JsonSchema = {
   type: "object",
@@ -46,6 +63,12 @@ function claimants(uischema: UISchemaElement) {
       rank: entry.tester(uischema, SCHEMA, { rootSchema: SCHEMA, config: {} })
     })),
     scored => scored.rank > UNCLAIMED_RANK
+  );
+}
+
+function registeredNames() {
+  return map(useFormRenderers().renderers.value, entry =>
+    get(entry.renderer, "__name")
   );
 }
 
@@ -71,6 +94,35 @@ describe("the form registry after the client renderers moved out", () => {
     }
   });
 
+  it.each(KEPT_HERE)("still registers %s, as develop does", name => {
+    expect(registeredNames()).toContain(name);
+  });
+
+  it.each(MOVED_TO_FOUNDATION)(
+    "registers %s once, through foundation's list",
+    name => {
+      expect(
+        filter(registeredNames(), registered => registered === name)
+      ).toEqual([name]);
+    }
+  );
+
+  it.each(
+    map(foundationRenderers, entry => ({
+      entry,
+      name: get(entry.renderer, "__name")
+    }))
+  )("registers foundation's own $name entry, once", ({ entry }) => {
+    expect(
+      size(
+        filter(
+          useFormRenderers().renderers.value,
+          registered => registered === entry
+        )
+      )
+    ).toBe(1);
+  });
+
   it("hands the address block to one client entry alone, at the rank it always had", () => {
     const [claim, ...others] = claimants(ADDRESS_BLOCK);
 
@@ -92,15 +144,19 @@ describe("the form registry after the client renderers moved out", () => {
 
     expect(claim?.rank).toBeGreaterThan(3);
   });
+});
 
-  it.each(MOVED_FILES)(
-    "leaves no %s behind to drift from the moved one",
-    file => {
-      const left = readdirSync(RENDERERS_DIR).filter(entry => entry === file);
+describe("a move, not a copy", () => {
+  it.each(concat(MOVED_EARLIER, MOVED_TO_FOUNDATION))(
+    "leaves no %s.vue behind to drift from the moved one",
+    name => {
+      const left = readdirSync(RENDERERS_DIR).filter(
+        entry => entry === `${name}.vue`
+      );
 
       expect(
         left,
-        `a second copy of this renderer still ships from the package it moved out of`
+        "a second copy of this renderer still ships from the package it moved out of"
       ).toEqual([]);
     }
   );
