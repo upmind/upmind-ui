@@ -3,6 +3,7 @@ import { interpret } from "xstate";
 import { usePaymentDetail, usePaymentGateway } from "../payment-details";
 import { useQueryParams } from "../routing/useQueryParams";
 import { createScopedComposable } from "../scope";
+import { useI18n } from "../system-localisation";
 import invoiceMachine from "./invoice.machine";
 import { INVOICE_SCOPE_MATRIX } from "./invoices.types";
 import { createInvoiceActions } from "./useInvoice.actions";
@@ -47,6 +48,7 @@ import type { ScopeConfig, ScopeKey } from "../scope/scope.types";
 function createInvoiceForScope(config: ScopeConfig, scopeKey: ScopeKey) {
   const actorScope = config.actor as ScopeActorTypes;
   const invoiceId = config.id as string;
+  const { t } = useI18n();
   const { getParam, setParam } = useQueryParams();
 
   // Seeded from an offsite gateway return (`?payment_success=false`); mirrored
@@ -63,7 +65,7 @@ function createInvoiceForScope(config: ScopeConfig, scopeKey: ScopeKey) {
   const actor = createActor(service);
   if (!actor) {
     throw new DetailedError(
-      "Invoice unavailable",
+      t("error.invoice_not_available"),
       responseCodes.Service_Unavailable,
       ErrorOrigin.Headless,
       { scope: config }

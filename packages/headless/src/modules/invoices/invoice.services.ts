@@ -3,7 +3,7 @@ import { BrandConfigKeys } from "@upmind-automation/types";
 import { useBrand } from "../brand";
 import { invalidateQueryByKey, useQuery } from "../query";
 import { useActiveSession } from "../session-store";
-import { useLocale } from "../system-localisation";
+import { useI18n } from "../system-localisation";
 import {
   DetailedError,
   ErrorOrigin,
@@ -91,6 +91,7 @@ async function convertCurrency(
   { invoiceId }: InvoicePayContext,
   { data }: AnyEventObject
 ): Promise<InvoiceCurrencyConversion> {
+  const { t } = useI18n();
   const { isAuthenticated } = useActiveSession().useMeta();
   const { activeUser } = useActiveSession().useContext();
   const { get, useUrl } = useQuery();
@@ -102,7 +103,7 @@ async function convertCurrency(
   const currency = find(useBrand().currencies.value, ["code", data?.code]);
   if (!currency) {
     throw new DetailedError(
-      "Currency not available",
+      t("error.currency_not_available"),
       responseCodes.Unprocessable_Entity,
       ErrorOrigin.Headless,
       { code: data?.code }
@@ -155,52 +156,20 @@ export function updatePaymentDetails(
  * invoices with a different `category` and ride the SAME reader (no branch).
  * The caller (`useInvoice.ts`) derives the save filename from the already-loaded
  * invoice's `number`.
- *
- * @decision
- * what: a hand-rolled `fetch`, not `useQuery().request()`.
- * why: `request()` -> `doFetch` (`query.services.ts:50-61`) unconditionally
- * calls `response.json()` — there is no blob/arraybuffer arm, and
- * `packages/headless/src/modules/query/**` is untouchable (operator ruling
- * 2026-09-08, verbatim "do not chnage any query stuff"). The URL (`useUrl`),
- * the locale param, and the session's own access token are the SAME seam
- * `request()` itself reads, consumed directly rather than re-derived — only the
- * response-body branch a binary payload needs is new.
- * rejected: adding a `responseType` option to `request()`/`doFetch` — the exact
- * query-core change the 2026-09-08 ruling withdraws.
  */
 export async function downloadPdf(invoiceId: Invoice["id"]): Promise<Blob> {
   const { isAuthenticated } = useActiveSession().useMeta();
   const { activeUser } = useActiveSession().useContext();
-  const { useUrl } = useQuery();
-  const { locale } = useLocale();
+  const { download, useUrl } = useQuery();
 
   if (!isAuthenticated.value || !activeUser.value?.id) {
     throw new NotAuthenticatedError();
   }
 
-  const url = useUrl(`invoices/${invoiceId}/download`);
-  if (locale.value) url.searchParams.set("lang", locale.value as string);
-
-  const token = await useActiveSession()
-    .useActions()
-    .isReady()
-    .then(() => useActiveSession().useContext().session.value?.access_token);
-
-  const response = await fetch(url.toString(), {
-    headers: token ? { Authorization: `Bearer ${token}` } : {}
+  return download({
+    url: useUrl(`invoices/${invoiceId}/download`),
+    withAccessToken: true
   });
-
-  if (!response.ok) {
-    const body = await response.json().catch(() => undefined);
-    throw new DetailedError(
-      body?.error?.message ?? response.statusText,
-      response.status,
-      ErrorOrigin.Headless,
-      body?.error?.data
-    );
-  }
-
-  return response.blob();
 }
 
 /**

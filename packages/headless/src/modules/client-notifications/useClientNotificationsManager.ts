@@ -12,6 +12,7 @@ import { watch } from "vue";
 import { interpret } from "xstate";
 import { dataManagerMachine } from "../data-manager";
 import { createScopedComposable } from "../scope";
+import { useI18n } from "../system-localisation";
 import createClientNotificationsServices from "./client-notifications.services";
 import {
   CLIENT_NOTIFICATIONS_MANAGER_SCOPE_MATRIX,
@@ -44,6 +45,7 @@ function createClientNotificationsManagerForScope(
   config: ScopeConfig,
   scopeKey: ScopeKey
 ) {
+  const { t } = useI18n();
   const actorScope = config.actor as ScopeActorTypes;
 
   /**
@@ -122,7 +124,7 @@ function createClientNotificationsManagerForScope(
     // `config.id` carries the link token, and thrown error `data` is the
     // value most likely to be logged, serialised to monitoring, and rendered.
     throw new DetailedError(
-      "Client notifications manager not available",
+      t("error.client_notifications_manager_not_available"),
       responseCodes.Service_Unavailable,
       ErrorOrigin.Headless,
       { scope: scopeKey }

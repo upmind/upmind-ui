@@ -1,0 +1,25 @@
+# Must-fail mutant for legacy-invoices.types.test.ts (AC-13, T48).
+#
+# Mutates one scope-matrix cell of `LEGACY_INVOICES_SCOPE_MATRIX` from `never`
+# to a real context (design.md §8.11's declared mutation point for the types
+# unit specification) — the collection's `CLIENT` cell loses its `as never`
+# fence, so `.for(entity, id)` compiles for that actor.
+#
+# Reds: legacy-invoices.types.test.ts — "@AC-13 useLegacyInvoices().as(...).
+# for(...) never compiles, while the control call stays clean" (the retarget
+# probe's diagnostic line disappears).
+#
+# Declared collateral: NONE. `LEGACY_INVOICE_SCOPE_MATRIX` (the single read's
+# own matrix) is untouched, so the sibling single-read probe stays green.
+#
+# Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+--- a/packages/headless/src/modules/legacy-invoices/legacy-invoices.types.ts
++++ b/packages/headless/src/modules/legacy-invoices/legacy-invoices.types.ts
+@@ -68,6 +68,6 @@
+ export const LEGACY_INVOICES_SCOPE_MATRIX = {
+   [ScopeActorTypes.SELF]: null as never,
+   [ScopeActorTypes.STAFF]: null as never,
+-  [ScopeActorTypes.CLIENT]: null as never,
++  [ScopeActorTypes.CLIENT]: "client" as string,
+   [ScopeActorTypes.GUEST]: null as never
+ } as const;

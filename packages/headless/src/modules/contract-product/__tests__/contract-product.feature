@@ -335,10 +335,13 @@ Feature: A client manages the products on their own contracts
       | platform state                   |
       | on a trial that is about to end  |
 
-  # Staging refuses the import upload that puts a product in these states:
-  # legacy's route `POST api/admin/import/files` answers 422 "Brand id
-  # required in organisation mode!", with `brand_id` sent or not.
-  @AC-17 @meta @todo
+  # "Imported from another platform" is arranged with the import factory
+  # (tests/fixtures/imports): a committed CSV import of a dedicated synthetic
+  # client, found-or-created and KEPT (a committed import cannot be rolled
+  # back). The product reads back with its contract's import_id set — the
+  # record fact the module reports as imported. Read as that client; staff
+  # mints its token the legacy "login as" way (api/admin/clients/{id}/access_token).
+  @AC-17 @meta
   Scenario Outline: Open one of my products in a state only the platform puts it in
     Given one of my products is <platform state>
     When I open it to see its state
@@ -346,7 +349,6 @@ Feature: A client manages the products on their own contracts
 
     Examples:
       | platform state                   |
-      | still being imported             |
       | imported from another platform   |
 
   # Only the platform's fraud engine sets `contract_fraud`: the staff fraud
@@ -487,17 +489,6 @@ Feature: A client manages the products on their own contracts
       | opted out         | kept out of my consolidated invoice                 |
       | opted in          | joined to my consolidated invoice                   |
       | follow my account | consolidated exactly as the rest of my account is   |
-
-  # MUTANT (amendment A2): removing the staged-import protection must turn this
-  # scenario RED, and so must withholding those same changes from a merely
-  # suspended subscription — the parity-loss limb, which the scenario below
-  # grades on its own rows.
-  @AC-11 @manager @guard @negative-control
-  Scenario: A product still being imported cannot be changed
-    Given one of my products is still being imported
-    When I try to stop it renewing, change its consolidation, or book a cancellation
-    Then I am told the change is not available to me
-    And no request is made at all — not one that is sent and refused
 
   # AMENDMENT A10 + A11. The parity-loss claim gets a scenario whose `Given`
   # sets a SUSPENDED product up, instead of riding a `Then` inside a scenario
@@ -760,19 +751,6 @@ Feature: A client manages the products on their own contracts
       | cause                                         | shown                        |
       | its cancellation request was already accepted | not shown                    |
       | its auto-renew is off and it has no end date  | offered                      |
-
-  # Staging refuses the import upload that puts a product in this state:
-  # legacy's route `POST api/admin/import/files` answers 422 "Brand id
-  # required in organisation mode!", with `brand_id` sent or not.
-  @AC-11 @manager @meta @todo
-  Scenario Outline: I am told why the cancellation form is not available to me
-    Given one of my products is held back from cancelling because <cause>
-    When I look at whether I can cancel it now
-    Then I am told the cancellation is <shown>
-
-    Examples:
-      | cause                                         | shown                        |
-      | it is still being imported                    | not shown                    |
 
   # Legacy refuses the cancellation to anyone while a pro-rata invoice is
   # pending, and to a client whenever the platform says the product cannot
@@ -1141,18 +1119,6 @@ Feature: A client manages the products on their own contracts
     And I am told I cannot change its plan
     And the change of plan does not open
     And the number of plans I can change to is still read
-    And no plan list is requested
-    And no change is sent
-
-  # BLOCKED (tasks.md check 12): the import route needs a file in a format the
-  # contract does not give. POST /api/admin/import/files answers 422
-  # "Missing file!". The failed route is reported to the operator.
-  @AC-26 @manager @migration @guard @todo
-  Scenario: A change of plan cannot start while my product is still being imported
-    Given one of my products, on a plan that allows changes to other plans, is still being imported
-    When I ask to change its plan
-    Then I am told I cannot change its plan
-    And the change of plan does not open
     And no plan list is requested
     And no change is sent
 

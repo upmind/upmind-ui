@@ -1,0 +1,33 @@
+# Must-fail mutant for legacy-invoices.single-read.int.test.ts's AC-7 detail
+# specification (T48). Paired describe: "legacy-invoices single read — the
+# preserved bill and its five conditions (AC-7)".
+#
+# Mutates `useLegacyInvoice.meta.ts`'s `isCredited` — misspells the lodash
+# `get()` PATH string from `content.partial_amount_credited_converted` to
+# `content.partial_amount_creditedx_converted` (design.md §8.13's own
+# instruction: "The must-fail patch of the detail specification must bite a
+# PATH assertion of section 8.13, never a condition assertion" — this is a
+# PATH mutation, not a condition-logic mutation).
+#
+# **Reddens — confirmed against the TRUE case added over the derived
+# get-import-invoice-data-id-case-credited capture**
+# (legacy-invoices.single-read.int.test.ts's
+# "@AC-7 isCredited reads true when content.partial_amount_credited_converted
+# is positive"): with this patch applied, that one specification fails
+# (`isCredited` reads `false` instead of the asserted `true`), while the
+# remaining nine tests in the file stay green — a narrow, single-assertion
+# bite, not a broad-red control. Re-verified applied-and-reverted.
+#
+# Declared collateral: NONE (verified — full headless integration and unit
+# suites stay green with this patch applied; it touches no other assertion).
+#
+# Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+--- a/packages/headless/src/modules/legacy-invoices/useLegacyInvoice.meta.ts
++++ b/packages/headless/src/modules/legacy-invoices/useLegacyInvoice.meta.ts
+@@ -53,5 +53,5 @@
+   /** design.md 8.13 — read as a truthiness off `content.partial_amount_credited_converted` (`oracle: legacyInvoiceProvider.vue:145-147`). */
+   const isCredited = computed(
+-    () => !!get(query.data.value, "content.partial_amount_credited_converted")
++    () => !!get(query.data.value, "content.partial_amount_creditedx_converted")
+   );
+ 

@@ -1,0 +1,44 @@
+# Must-fail mutant for the session-store availability specification (T48,
+# task T12's own patch, design.md §8.11).
+#
+# **Finding, surfaced rather than silently worked around: T12's own paired
+# specification does not exist in this tree.** T12 (prover) was scoped to
+# write "the session-store availability specification" — a spec asserting
+# `has_legacy_invoices` on the recorded FALSE self capture and on the
+# derived TRUE record installed via `overrideSelf("get-self-case-has-
+# legacy-invoices")`. `grep -rln has_legacy_invoices
+# packages/headless/src/modules/session-store/__tests__/` finds only the
+# fixture file — no spec in the session-store test folder asserts the field
+# at all. This patch is authored anyway, per the developer-seat law that
+# mutants are authored ahead of the proof that exercises them — grade it
+# once T12 lands. It is filed in the session-store test folder because
+# that is where its (missing) paired spec belongs, not beside a file that
+# does not exist.
+#
+# Mutates `mapSessionUser` in `session-store.mappers.ts` — the one D-15
+# passthrough line — to read `client.staged_import` instead of
+# `client.has_legacy_invoices`.
+#
+# Reds: this control is LIVE, not dead — it bites in the legacy-invoices
+# module, not in session-store's own suite. Within `pnpm --filter
+# @upmind-automation/headless test:integration session-store` alone it reds
+# NOTHING (74/74 stay green, verified) because the gap above still holds:
+# no session-store spec asserts `has_legacy_invoices`. But the same mutant
+# reddens `legacy-invoices.collection.int.test.ts`'s AC-5 specification —
+# "@AC-5 reports itself available when the client record carries an
+# imported-invoice history" (`hasLegacyInvoices` at line 119) — exactly as
+# design.md §8.11 predicts, because the module's `hasLegacyInvoices` reads
+# the session record's passthrough field, which this patch corrupts
+# upstream. Verified: no OTHER legacy-invoices integration or unit
+# specification reddens.
+#
+# Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+--- a/packages/headless/src/modules/session-store/session-store.mappers.ts
++++ b/packages/headless/src/modules/session-store/session-store.mappers.ts
+@@ -78,5 +78,5 @@
+     id: actor.id,
+     isGuest: !!client.is_guest,
+     staged_import: !!client.staged_import,
+-    has_legacy_invoices: !!client.has_legacy_invoices,
++    has_legacy_invoices: !!client.staged_import,
+     language: actor.interface_language_id,

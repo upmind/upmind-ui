@@ -202,7 +202,7 @@ async function pay({ model, sdk, amount, paymentUses3DS }: BraintreeContext) {
 
   if (!sdk?.braintree || !sdk?.authorization) {
     throw new DetailedError(
-      t("error.braintree_instance_not_found"),
+      t("error.payment_gateway_not_available"),
       responseCodes.Not_Found,
       ErrorOrigin.Headless
     );
@@ -221,7 +221,7 @@ async function pay({ model, sdk, amount, paymentUses3DS }: BraintreeContext) {
       if (isCard && paymentUses3DS && !payload.liabilityShifted) {
         sdk?.braintree?.clearSelectedPaymentMethod();
         throw new DetailedError(
-          "3D Secure challenge failed.",
+          t("error.payment_process_failed"),
           responseCodes.Unprocessable_Entity,
           ErrorOrigin.External
         );
@@ -249,7 +249,7 @@ async function add(context: BraintreeContext) {
 
   if (!sdk?.braintree || !sdk?.authorization) {
     throw new DetailedError(
-      t("error.braintree_instance_not_found"),
+      t("error.payment_gateway_not_available"),
       responseCodes.Not_Found,
       ErrorOrigin.Headless
     );
@@ -281,7 +281,7 @@ async function add(context: BraintreeContext) {
       if (isCard && paymentUses3DS && !payload.liabilityShifted) {
         sdk.braintree?.clearSelectedPaymentMethod();
         throw new DetailedError(
-          "3D Secure challenge failed.",
+          t("error.payment_process_failed"),
           responseCodes.Unprocessable_Entity,
           ErrorOrigin.External
         );

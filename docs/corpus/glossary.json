@@ -157,6 +157,26 @@
         ],
         "term": "feedback"
       },
+      "imported-invoice": {
+        "aliases": ["legacy invoice"],
+        "definition": "A bill originally issued by a predecessor billing system and carried into the platform as a read-only archived record, distinct from an invoice the platform itself raises. The record's own top-level fields (number, total, dates) support listing, filtering and sorting; its original document is preserved whole rather than reshaped. Read-only, self scope only — no pay, cancel, refund, share or edit capability exists.",
+        "kind": "domain",
+        "referents": [
+          {
+            "id": "@upmind-automation/headless!useLegacyInvoices",
+            "type": "symbol"
+          },
+          {
+            "id": "@upmind-automation/headless!useLegacyInvoice",
+            "type": "symbol"
+          },
+          {
+            "id": "@upmind-automation/headless!LegacyInvoice",
+            "type": "symbol"
+          }
+        ],
+        "term": "imported invoice"
+      },
       "invoice": {
         "aliases": ["bill"],
         "definition": "The billable document raised for an order — client, currency, line items, payment history, and the paid/unpaid amount summary. Invoice data is loaded and invalidated by the invoice composable.",
@@ -434,6 +454,12 @@
       "path": "packages/headless/src/modules/invoices/invoices.types.ts",
       "title": "Invoice"
     },
+    "@upmind-automation/headless!LegacyInvoice": {
+      "kind": "symbol",
+      "module": "legacy-invoices",
+      "path": "packages/headless/src/modules/legacy-invoices/legacy-invoices.types.ts",
+      "title": "LegacyInvoice"
+    },
     "@upmind-automation/headless!PaymentContext": {
       "kind": "symbol",
       "module": "payment",
@@ -547,6 +573,18 @@
       "module": "invoices",
       "path": "packages/headless/src/modules/invoices/useInvoice.ts",
       "title": "useInvoice"
+    },
+    "@upmind-automation/headless!useLegacyInvoice": {
+      "kind": "symbol",
+      "module": "legacy-invoices",
+      "path": "packages/headless/src/modules/legacy-invoices/useLegacyInvoice.ts",
+      "title": "useLegacyInvoice"
+    },
+    "@upmind-automation/headless!useLegacyInvoices": {
+      "kind": "symbol",
+      "module": "legacy-invoices",
+      "path": "packages/headless/src/modules/legacy-invoices/useLegacyInvoices.ts",
+      "title": "useLegacyInvoices"
     },
     "@upmind-automation/headless!usePayment": {
       "kind": "symbol",

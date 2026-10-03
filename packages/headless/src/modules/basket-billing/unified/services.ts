@@ -36,6 +36,8 @@ async function loadLookups({
   schema,
   type
 }: UnifiedContext): Promise<UnifiedContext> {
+  const { t } = useI18n();
+
   const clientPhones = useClientPhones().as(ScopeActorTypes.SELF);
   const { isReady: getPhones } = clientPhones.useActions();
   const { default: defaultPhone, data: phones } = clientPhones.useContext();
@@ -79,7 +81,13 @@ async function loadLookups({
   const regions = await fetchRegions(model?.address?.countryId || country?.id);
 
   if (isEmpty(countries) || isEmpty(regions)) {
-    return Promise.reject("Failed to load countries and regions");
+    return Promise.reject(
+      new DetailedError(
+        t("error.lookup_load_failed"),
+        responseCodes.Service_Unavailable,
+        ErrorOrigin.Headless
+      )
+    );
   }
 
   const baseModel: UnifiedModel = {
@@ -302,7 +310,15 @@ export const useUnifiedServices = () => {
   return {
     loadLookups,
     add: async ({ type, model }: UnifiedContext) => {
-      if (isEmpty(model)) return Promise.reject("No address model provided");
+      const { t } = useI18n();
+      if (isEmpty(model))
+        return Promise.reject(
+          new DetailedError(
+            t("error.input_not_available"),
+            responseCodes.Forbidden,
+            ErrorOrigin.Headless
+          )
+        );
       return add(type, model);
     },
 

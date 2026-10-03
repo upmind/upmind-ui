@@ -1,6 +1,7 @@
 import { waitFor } from "xstate/lib/waitFor";
 import { usePaymentDetails } from "../payment-details";
 import { remove as removeFromRegistry } from "../scope";
+import { useI18n } from "../system-localisation";
 import {
   downloadPdf as downloadInvoicePdf,
   updatePaymentDetails as updateInvoicePaymentDetails
@@ -38,6 +39,7 @@ export function createInvoiceActions(
   paymentDetailsModel: Ref<InvoicePaymentDetailsModel>,
   storedPaymentMethods: Ref<PaymentDetail[] | undefined>
 ) {
+  const { t } = useI18n();
   const { state, send, service } = actor;
   const invoice = useContext<Invoice | undefined>(state, "invoice");
   const payment = useChildActor(state, "payment");
@@ -94,7 +96,7 @@ export function createInvoiceActions(
     const loaded = invoice.value;
     if (!loaded?.id) {
       throw new DetailedError(
-        "Invoice not available",
+        t("error.invoice_not_available"),
         responseCodes.Not_Found,
         ErrorOrigin.Headless
       );

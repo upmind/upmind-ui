@@ -88,15 +88,16 @@ export function servesActor(
  * cell that boots is a concrete one, and only the members THAT actor declares
  * can be served.
  *
- * A composable registered without a matrix declares no refusal, and a url that
- * names no context has nothing to refuse.
+ * A url that names no context has nothing to refuse. A composable registered
+ * without a matrix declares no context, so every context a url names is refused.
  */
 export function servesContext(
   matrix: ActorContextMatrix | undefined,
   actor: ScopeActorTypes,
   context: ScopeContext | undefined
 ): boolean {
-  if (!matrix || !context) return true;
+  if (!context) return true;
+  if (!matrix) return false;
 
   return some(
     resolveMatrixContexts(get(matrix, resolveSelfActor(actor))),

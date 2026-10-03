@@ -141,6 +141,7 @@ import expiringStateRecording from "./scenarios/open-one-of-my-products-and-see-
 import lapsedStateRecording from "./scenarios/open-one-of-my-products-and-see-what-state-it-is-in-lapsed/02/get-contract-products-id.json";
 import pendingStateRecording from "./scenarios/open-one-of-my-products-and-see-what-state-it-is-in-pending/02/get-contract-products-id.json";
 import suspendedStateRecording from "./scenarios/open-one-of-my-products-and-see-what-state-it-is-in-suspended/02/get-contract-products-id.json";
+import importedStateRecording from "./scenarios/open-one-of-my-products-in-a-state-only-the-platform-puts-it-in-imported-from-another-platform/02/get-contract-products-id.json";
 import endingTrialRecording from "./scenarios/open-one-of-my-products-in-a-state-only-the-platform-puts-it-in-on-a-trial-that-is-about-to-end/02/get-contract-products-id.json";
 import onTrialStateRecording from "./scenarios/open-one-of-my-products-while-it-is-on-trial/02/get-contract-products-id.json";
 import managerProductRecording from "./scenarios/open-one-of-my-products-with-what-its-detail-view-needs/02/get-contract-products-id.json";
@@ -1709,6 +1710,13 @@ export const contractProductSteps = defineSteps(({ Given, When, Then }) => {
     })
   );
 
+  Given("one of my products is imported from another platform", world =>
+    openManager(world, productOf(importedStateRecording).id)
+  );
+  Then("I am told it is imported from another platform", world =>
+    settles(() => world.expectMeta({ isImported: true, isStaged: false }))
+  );
+
   // === AC-15 · WHAT IS SCHEDULED TO HAPPEN TO ONE OF MY PRODUCTS ===========
 
   Given("one of my products has billing actions scheduled against it", world =>
@@ -3056,8 +3064,7 @@ export const contractProductSteps = defineSteps(({ Given, When, Then }) => {
     "one of my subscriptions is active, on a plan that allows no changes to other plans",
     "one of my subscriptions is active, on a plan that allows changes to five or more plans",
     "one of my subscriptions is active, on a plan whose allowed plans are none I can order on its billing term",
-    "one of my subscriptions is a bundle of products",
-    "one of my products, on a plan that allows changes to other plans, is still being imported"
+    "one of my subscriptions is a bundle of products"
   ])
     Given(given, openMigrationScenario);
 

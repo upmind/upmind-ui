@@ -209,6 +209,8 @@ export function mapToHeadlessError(
   error: unknown,
   fallbackCode: number | responseCodes = responseCodes.Unknown
 ): ResponseError | undefined {
+  const { t } = useI18n();
+
   if (error instanceof DetailedError) {
     return {
       code: error.code,
@@ -257,7 +259,7 @@ export function mapToHeadlessError(
 
     return {
       code: partial?.code ?? fallbackCode,
-      message: partial?.message ?? "An unknown error occurred.",
+      message: partial?.message ?? t("error.something_went_wrong"),
       status: partial?.status ?? fallbackCode,
       data: partial?.data ?? null,
       origin: partial?.origin ?? discernOrigin(partial?.code ?? partial?.status)
@@ -268,7 +270,7 @@ export function mapToHeadlessError(
   return {
     code: fallbackCode,
     data: null,
-    message: "An unknown error occurred.",
+    message: t("error.something_went_wrong"),
     origin: ErrorOrigin.Headless,
     status: fallbackCode
   };
