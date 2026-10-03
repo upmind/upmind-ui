@@ -14001,42 +14001,6 @@
       "path": "packages/client-vue/src/modules/product/templates/ProductRTL.template.vue",
       "title": "ProductRTL.template.vue"
     },
-    "file:packages/client-vue/src/modules/recommendations/Recommendations.vue": {
-      "kind": "file",
-      "module": "recommendations",
-      "path": "packages/client-vue/src/modules/recommendations/Recommendations.vue",
-      "title": "Recommendations.vue"
-    },
-    "file:packages/client-vue/src/modules/recommendations/components/Benefit.vue": {
-      "kind": "file",
-      "module": "recommendations",
-      "path": "packages/client-vue/src/modules/recommendations/components/Benefit.vue",
-      "title": "Benefit.vue"
-    },
-    "file:packages/client-vue/src/modules/recommendations/components/CardsCarousel.vue": {
-      "kind": "file",
-      "module": "recommendations",
-      "path": "packages/client-vue/src/modules/recommendations/components/CardsCarousel.vue",
-      "title": "CardsCarousel.vue"
-    },
-    "file:packages/client-vue/src/modules/recommendations/components/Configure.vue": {
-      "kind": "file",
-      "module": "recommendations",
-      "path": "packages/client-vue/src/modules/recommendations/components/Configure.vue",
-      "title": "Configure.vue"
-    },
-    "file:packages/client-vue/src/modules/recommendations/components/Footer.vue": {
-      "kind": "file",
-      "module": "recommendations",
-      "path": "packages/client-vue/src/modules/recommendations/components/Footer.vue",
-      "title": "Footer.vue"
-    },
-    "file:packages/client-vue/src/modules/recommendations/components/types.ts": {
-      "kind": "file",
-      "module": "recommendations",
-      "path": "packages/client-vue/src/modules/recommendations/components/types.ts",
-      "title": "types.ts"
-    },
     "file:packages/client-vue/src/modules/recommendations/index.ts": {
       "kind": "file",
       "module": "recommendations",
@@ -14048,12 +14012,6 @@
       "module": "recommendations",
       "path": "packages/client-vue/src/modules/recommendations/templates/RecommendationsFull.template.vue",
       "title": "RecommendationsFull.template.vue"
-    },
-    "file:packages/client-vue/src/modules/recommendations/types.ts": {
-      "kind": "file",
-      "module": "recommendations",
-      "path": "packages/client-vue/src/modules/recommendations/types.ts",
-      "title": "types.ts"
     },
     "file:packages/client-vue/src/modules/session/index.ts": {
       "kind": "file",
@@ -18431,21 +18389,21 @@
     }
   },
   "meta": {
-    "built_at": "2026-10-03T14:30:58.918Z",
-    "corpus_version": "1+b0e14dd04272",
+    "built_at": "2026-10-03T15:49:04.793Z",
+    "corpus_version": "1+7f25090b1141",
     "counts": {
       "adrs": 35,
       "changelogSymbols": 0,
       "examples": 0,
       "glossaryTerms": 27,
       "guides": 186,
-      "indexEntries": 2088,
-      "relationEdges": 5310,
-      "relationsPruned": 2227,
+      "indexEntries": 2081,
+      "relationEdges": 5279,
+      "relationsPruned": 2258,
       "symbols": 940
     },
     "relationsSha256": "9a6f85296b647222228f20f54141377046925e9862437ca4617d3a6a8b87e391",
-    "source_commit": "fa9cba1a1b416baf35fa5749953bd90f333b2390"
+    "source_commit": "048f6fae1f9bfdc7f23824024d637918f5a0cfda"
   },
   "relations": {
     "edges": [
@@ -30120,254 +30078,6 @@
         "relation": "imports_from",
         "sourceFile": "packages/client-vue/src/modules/product/templates/ProductRTL.template.vue",
         "to": "file:packages/client-vue/src/components/layout/types.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/recommendations/Recommendations.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/recommendations/Recommendations.vue",
-        "to": "file:packages/client-vue/src/components/layout/components/transition/Transition.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/recommendations/Recommendations.vue",
-        "granularity": "file",
-        "relation": "contains",
-        "sourceFile": "packages/client-vue/src/modules/recommendations/Recommendations.vue",
-        "to": "file:packages/client-vue/src/modules/recommendations/Recommendations.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/recommendations/Recommendations.vue",
-        "granularity": "file",
-        "relation": "contains",
-        "sourceFile": "packages/client-vue/src/modules/recommendations/Recommendations.vue",
-        "to": "file:packages/client-vue/src/modules/recommendations/Recommendations.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/recommendations/Recommendations.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/recommendations/Recommendations.vue",
-        "to": "file:packages/client-vue/src/modules/recommendations/components/CardsCarousel.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/recommendations/Recommendations.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/recommendations/Recommendations.vue",
-        "to": "file:packages/client-vue/src/modules/recommendations/components/Configure.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/recommendations/Recommendations.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/recommendations/Recommendations.vue",
-        "to": "file:packages/client-vue/src/modules/recommendations/components/Footer.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/recommendations/Recommendations.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/recommendations/Recommendations.vue",
-        "to": "file:packages/client-vue/src/modules/recommendations/templates/RecommendationsFull.template.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/recommendations/Recommendations.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/recommendations/Recommendations.vue",
-        "to": "file:packages/client-vue/src/modules/recommendations/types.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/recommendations/Recommendations.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/recommendations/Recommendations.vue",
-        "to": "file:packages/headless/src/modules/config/schema/types.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/recommendations/Recommendations.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/recommendations/Recommendations.vue",
-        "to": "file:packages/headless/src/modules/config/useConfig.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/recommendations/Recommendations.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/recommendations/Recommendations.vue",
-        "to": "file:packages/headless/src/modules/recommendations/useRecommendations.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/recommendations/Recommendations.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/recommendations/Recommendations.vue",
-        "to": "file:packages/headless/src/modules/routing/useRoutingEngine.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/recommendations/Recommendations.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/recommendations/Recommendations.vue",
-        "to": "file:packages/headless/src/utils/validateTemplate.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/recommendations/components/Benefit.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/recommendations/components/Benefit.vue",
-        "to": "file:packages/client-vue/src/modules/recommendations/components/types.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/recommendations/components/CardsCarousel.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/recommendations/components/CardsCarousel.vue",
-        "to": "file:packages/client-vue/src/modules/recommendations/components/types.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/recommendations/components/CardsCarousel.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/recommendations/components/CardsCarousel.vue",
-        "to": "file:packages/headless/src/modules/product/product.types.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/recommendations/components/Configure.vue",
-        "granularity": "file",
-        "relation": "contains",
-        "sourceFile": "packages/client-vue/src/modules/recommendations/components/Configure.vue",
-        "to": "file:packages/client-vue/src/modules/recommendations/components/Configure.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/recommendations/components/Configure.vue",
-        "granularity": "file",
-        "relation": "contains",
-        "sourceFile": "packages/client-vue/src/modules/recommendations/components/Configure.vue",
-        "to": "file:packages/client-vue/src/modules/recommendations/components/Configure.vue"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/recommendations/components/Configure.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/recommendations/components/Configure.vue",
-        "to": "file:packages/client-vue/src/modules/recommendations/components/types.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/recommendations/components/Configure.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/recommendations/components/Configure.vue",
-        "to": "file:packages/headless/src/modules/basket-product/useBasketProductsPending.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/recommendations/components/Configure.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/recommendations/components/Configure.vue",
-        "to": "file:packages/headless/src/modules/config/schema/types.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/recommendations/components/Configure.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/recommendations/components/Configure.vue",
-        "to": "file:packages/headless/src/modules/config/useConfig.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/recommendations/components/Configure.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/recommendations/components/Configure.vue",
-        "to": "file:packages/headless/src/modules/product/useProductConfig.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/recommendations/components/Configure.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/recommendations/components/Configure.vue",
-        "to": "file:packages/headless/src/modules/recommendations/useRecommendations.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/recommendations/components/Configure.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/recommendations/components/Configure.vue",
-        "to": "file:packages/headless/src/utils/useError.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/recommendations/components/Footer.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/recommendations/components/Footer.vue",
-        "to": "file:packages/headless/src/modules/basket/useBasket.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/recommendations/components/Footer.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/recommendations/components/Footer.vue",
-        "to": "file:packages/headless/src/modules/config/useConfig.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/recommendations/components/Footer.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/recommendations/components/Footer.vue",
-        "to": "file:packages/headless/src/modules/routing/useRoutingEngine.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/recommendations/components/Footer.vue",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/recommendations/components/Footer.vue",
-        "to": "file:packages/headless/src/utils/useMoney.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/recommendations/components/types.ts",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/recommendations/components/types.ts",
-        "to": "file:packages/headless/src/modules/product/product.types.ts"
-      },
-      {
-        "confidence": 1,
-        "from": "file:packages/client-vue/src/modules/recommendations/components/types.ts",
-        "granularity": "file",
-        "relation": "imports_from",
-        "sourceFile": "packages/client-vue/src/modules/recommendations/components/types.ts",
-        "to": "file:packages/headless/src/modules/recommendations/recommendations.types.ts"
       },
       {
         "confidence": 1,
@@ -60930,7 +60640,7 @@
         "to": "file:packages/types/src/models/images.ts"
       }
     ],
-    "prunedCount": 2227,
+    "prunedCount": 2258,
     "sourcedAt": ""
   },
   "symbols": {
