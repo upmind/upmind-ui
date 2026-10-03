@@ -1,21 +1,12 @@
 /** @internal */
-import {
-  keepPreviousData,
-  useQuery as useVueQuery,
-  type QueryKey
-} from "@tanstack/vue-query";
+import { keepPreviousData, type QueryKey } from "@tanstack/vue-query";
 import { computed, toValue } from "vue";
 import {
   ProvisionCategoryCodes,
   type IProduct
 } from "@upmind-automation/types";
 import { useBasketCurrency, useBasketPromotions } from "../basket";
-import {
-  queryClient,
-  toPaginationInfo,
-  useQuery,
-  useQueryCriteria
-} from "../query";
+import { toPaginationInfo, useQuery } from "../query";
 import { parseProduct } from "./product-catalogue.mappers";
 import { useQuerySchema } from "./product-catalogue.schemas";
 import { scopeQueryKey } from "./product-catalogue.utils";
@@ -27,7 +18,6 @@ import type {
   ProductCountQuery,
   ProductQueryModel
 } from "./product-catalogue.types";
-import type { RequestPagination } from "../query";
 
 // -----------------------------------------------------------------------------
 // QUERIES
@@ -130,48 +120,39 @@ function loadInfinite(
 
 /**
  * The count of the matches of a scope. `list()` always passes the schema
- * `limit`, which is an integer, so it cannot ask for `limit=count`. This runs
- * ONE query whose function calls `request` with `limit: "count"`, sends the
- * translated `filters` and `sort` of the criteria, and reads the envelope
- * `total`. The handle carries the number on `pagination.total` and no rows.
+ * `limit`, which is an integer, so it cannot ask for `limit=count`. The query
+ * module's `count()` runs the `limit=count` read and resolves the envelope
+ * `total`; this wraps that number as a rows-less list handle, carrying it on
+ * `pagination.total` with no page to move.
  */
 function loadCount(
   model: Partial<ProductQueryModel>,
   scope: ProductCatalogueScope
 ): ProductCountQuery {
-  const { request } = useQuery();
+  const { query } = useQuery();
 
-  const criteria = useQueryCriteria<ProductQueryModel>({
-    schema: useQuerySchema(scope),
-    model
-  });
-  const filters = computed(() => criteria.props.value.filters);
-  const sort = computed(() => criteria.props.value.sort);
   const url = catalogueUrl(scope);
+  url.searchParams.set("limit", "count");
 
-  const response = useVueQuery<number>(
-    {
-      queryKey: [...scopeQueryKey(queryKey, scope), "count", { filters, sort }],
-      queryFn: ({ signal }) =>
-        request<IProduct[]>({
-          url,
-          filters: filters.value,
-          sort: sort.value,
-          pagination: { limit: "count" } as unknown as RequestPagination,
-          withAccessToken: true,
-          init: { signal }
-        }).then(result => result.total ?? 0),
-      staleTime: useTime().HOUR,
-      enabled: () => toValue(scope.enabled) ?? true
-    },
-    queryClient
-  );
+  const response = query<IProduct[], number, ProductQueryModel>({
+    criteria: { schema: useQuerySchema(scope), model },
+    queryKey: [...scopeQueryKey(queryKey, scope), "count"],
+    url,
+    select: (_data, envelope) => envelope.total ?? 0,
+    withAccessToken: true,
+    staleTime: useTime().HOUR,
+    enabled: () => toValue(scope.enabled) ?? true
+  });
 
   return {
     ...response,
     data: computed(() => null),
     pagination: computed(() =>
-      toPaginationInfo(response.data.value ?? 0, 0, 1)
+      toPaginationInfo(
+        typeof response.data.value === "number" ? response.data.value : 0,
+        0,
+        1
+      )
     ),
     meta: computed(() => ({
       hasNextPage: false,
@@ -179,12 +160,7 @@ function loadCount(
       hasPages: false
     })),
     fetchNextPage: () => undefined,
-    fetchPreviousPage: () => undefined,
-    criteria: criteria.model,
-    schema: criteria.schema,
-    isFiltered: criteria.isFiltered,
-    criteriaError: criteria.error,
-    setCriteria: criteria.set
+    fetchPreviousPage: () => undefined
   } as unknown as ProductCountQuery;
 }
 

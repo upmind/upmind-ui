@@ -1,0 +1,470 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/stats?type=contracts&date_to=2026-10-03&currency_code=ALL",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a44a6633a81eaf0f-JNB",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json",
+      "date": "Sat, 03 Oct 2026 07:58:01 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=qXM5WQRKXp%2FcCS6hwgwutExv3TteJNwpfIVvB%2BEBIvQICWlXRm73PPSwPIRrR6PneuWy1oAxdTBKbZGRLyfV42KRMaFjXrIN4Dlevc67DMRnbua0ahn150gLPPtHFWxG%2BeVV6rY2Wg%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-frame-options": "SAMEORIGIN"
+    },
+    "body": {
+      "status": "ok",
+      "data": {
+        "total": {
+          "date": {
+            "first_date": "2025-06-04 09:06:13",
+            "last_date": "2026-10-01 13:38:11"
+          },
+          "result": {
+            "GBP": [
+              {
+                "currency_id": "3825d96e-763e-d091-3dc4-174825283406",
+                "count": 1383,
+                "total_amount": 1399101.1992,
+                "total_recurrent_amount_raw": "45104.3658",
+                "total_amount_raw": "108200.0621",
+                "currency": {
+                  "id": "3825d96e-763e-d091-3dc4-174825283406",
+                  "name": "British Pound",
+                  "prefix": "£",
+                  "suffix": "",
+                  "code": "GBP",
+                  "created_at": "2017-10-18 14:16:22",
+                  "updated_at": "2026-07-23 13:41:01",
+                  "base": true,
+                  "decimals": true,
+                  "manual": 0
+                },
+                "sor": 0,
+                "total_amount_formatted": "£1,399,101.20"
+              }
+            ],
+            "ALL": [
+              {
+                "total_amount": 108200.06,
+                "total_amount_formatted": "£108,200.06",
+                "count": 1383,
+                "currency": {
+                  "id": "3825d96e-763e-d091-3dc4-174825283406",
+                  "name": "British Pound",
+                  "prefix": "£",
+                  "suffix": "",
+                  "code": "GBP",
+                  "created_at": "2017-10-18 14:16:22",
+                  "updated_at": "2026-09-28 11:08:14",
+                  "base": true,
+                  "decimals": true,
+                  "manual": 0
+                },
+                "sor": 0
+              }
+            ]
+          }
+        },
+        "active": {
+          "date": {
+            "first_date": "2025-06-04 12:28:46",
+            "last_date": "2026-10-01 10:05:39"
+          },
+          "result": {
+            "GBP": [
+              {
+                "currency_id": "3825d96e-763e-d091-3dc4-174825283406",
+                "count": 1027,
+                "total_amount": 1015330.9318,
+                "total_recurrent_amount_raw": "41023.9658",
+                "total_amount_raw": "96972.0605",
+                "currency": {
+                  "id": "3825d96e-763e-d091-3dc4-174825283406",
+                  "name": "British Pound",
+                  "prefix": "£",
+                  "suffix": "",
+                  "code": "GBP",
+                  "created_at": "2017-10-18 14:16:22",
+                  "updated_at": "2026-07-23 13:41:01",
+                  "base": true,
+                  "decimals": true,
+                  "manual": 0
+                },
+                "sor": 0,
+                "total_amount_formatted": "£1,015,330.93"
+              }
+            ],
+            "ALL": [
+              {
+                "total_amount": 96972.06,
+                "total_amount_formatted": "£96,972.06",
+                "count": 1027,
+                "currency": {
+                  "id": "3825d96e-763e-d091-3dc4-174825283406",
+                  "name": "British Pound",
+                  "prefix": "£",
+                  "suffix": "",
+                  "code": "GBP",
+                  "created_at": "2017-10-18 14:16:22",
+                  "updated_at": "2026-09-28 11:08:14",
+                  "base": true,
+                  "decimals": true,
+                  "manual": 0
+                },
+                "sor": 0
+              }
+            ]
+          }
+        },
+        "awaiting_activation": {
+          "date": {
+            "first_date": "2025-06-04 12:43:27",
+            "last_date": "2025-07-16 08:10:27"
+          },
+          "result": {
+            "GBP": [
+              {
+                "currency_id": "3825d96e-763e-d091-3dc4-174825283406",
+                "count": 17,
+                "total_amount": 1977,
+                "total_recurrent_amount_raw": "1977.0000",
+                "total_amount_raw": "1977.0000",
+                "currency": {
+                  "id": "3825d96e-763e-d091-3dc4-174825283406",
+                  "name": "British Pound",
+                  "prefix": "£",
+                  "suffix": "",
+                  "code": "GBP",
+                  "created_at": "2017-10-18 14:16:22",
+                  "updated_at": "2026-07-23 13:41:01",
+                  "base": true,
+                  "decimals": true,
+                  "manual": 0
+                },
+                "sor": 0,
+                "total_amount_formatted": "£1,977.00"
+              }
+            ],
+            "ALL": [
+              {
+                "total_amount": 1977,
+                "total_amount_formatted": "£1,977.00",
+                "count": 17,
+                "currency": {
+                  "id": "3825d96e-763e-d091-3dc4-174825283406",
+                  "name": "British Pound",
+                  "prefix": "£",
+                  "suffix": "",
+                  "code": "GBP",
+                  "created_at": "2017-10-18 14:16:22",
+                  "updated_at": "2026-09-28 11:08:14",
+                  "base": true,
+                  "decimals": true,
+                  "manual": 0
+                },
+                "sor": 0
+              }
+            ]
+          }
+        },
+        "cancellation_request": {
+          "date": {
+            "first_date": "",
+            "last_date": ""
+          },
+          "result": []
+        },
+        "cancelled": {
+          "date": {
+            "first_date": "2026-09-26 07:56:55",
+            "last_date": "2026-10-01 09:44:41"
+          },
+          "result": {
+            "GBP": [
+              {
+                "currency_id": "3825d96e-763e-d091-3dc4-174825283406",
+                "count": 13,
+                "total_amount": 136.8,
+                "total_recurrent_amount_raw": "0.0000",
+                "total_amount_raw": "136.8000",
+                "currency": {
+                  "id": "3825d96e-763e-d091-3dc4-174825283406",
+                  "name": "British Pound",
+                  "prefix": "£",
+                  "suffix": "",
+                  "code": "GBP",
+                  "created_at": "2017-10-18 14:16:22",
+                  "updated_at": "2026-07-23 13:41:01",
+                  "base": true,
+                  "decimals": true,
+                  "manual": 0
+                },
+                "sor": 0,
+                "total_amount_formatted": "£136.80"
+              }
+            ],
+            "ALL": [
+              {
+                "total_amount": 136.8,
+                "total_amount_formatted": "£136.80",
+                "count": 13,
+                "currency": {
+                  "id": "3825d96e-763e-d091-3dc4-174825283406",
+                  "name": "British Pound",
+                  "prefix": "£",
+                  "suffix": "",
+                  "code": "GBP",
+                  "created_at": "2017-10-18 14:16:22",
+                  "updated_at": "2026-09-28 11:08:14",
+                  "base": true,
+                  "decimals": true,
+                  "manual": 0
+                },
+                "sor": 0
+              }
+            ]
+          }
+        },
+        "closed": {
+          "date": {
+            "first_date": "2025-06-04 09:06:13",
+            "last_date": "2026-10-01 13:38:11"
+          },
+          "result": {
+            "GBP": [
+              {
+                "currency_id": "3825d96e-763e-d091-3dc4-174825283406",
+                "count": 298,
+                "total_amount": 4800.2016,
+                "total_recurrent_amount_raw": "2098.6000",
+                "total_amount_raw": "4800.2016",
+                "currency": {
+                  "id": "3825d96e-763e-d091-3dc4-174825283406",
+                  "name": "British Pound",
+                  "prefix": "£",
+                  "suffix": "",
+                  "code": "GBP",
+                  "created_at": "2017-10-18 14:16:22",
+                  "updated_at": "2026-07-23 13:41:01",
+                  "base": true,
+                  "decimals": true,
+                  "manual": 0
+                },
+                "sor": 0,
+                "total_amount_formatted": "£4,800.20"
+              }
+            ],
+            "ALL": [
+              {
+                "total_amount": 4800.2,
+                "total_amount_formatted": "£4,800.20",
+                "count": 298,
+                "currency": {
+                  "id": "3825d96e-763e-d091-3dc4-174825283406",
+                  "name": "British Pound",
+                  "prefix": "£",
+                  "suffix": "",
+                  "code": "GBP",
+                  "created_at": "2017-10-18 14:16:22",
+                  "updated_at": "2026-09-28 11:08:14",
+                  "base": true,
+                  "decimals": true,
+                  "manual": 0
+                },
+                "sor": 0
+              }
+            ]
+          }
+        },
+        "fraud": {
+          "date": {
+            "first_date": "",
+            "last_date": ""
+          },
+          "result": []
+        },
+        "missing_status": {
+          "date": {
+            "first_date": "",
+            "last_date": ""
+          },
+          "result": []
+        },
+        "pending": {
+          "date": {
+            "first_date": "2025-06-05 15:03:06",
+            "last_date": "2026-09-21 21:43:55"
+          },
+          "result": {
+            "GBP": [
+              {
+                "currency_id": "3825d96e-763e-d091-3dc4-174825283406",
+                "count": 40,
+                "total_amount": 376988.2658,
+                "total_recurrent_amount_raw": "0.0000",
+                "total_amount_raw": "4446.0000",
+                "currency": {
+                  "id": "3825d96e-763e-d091-3dc4-174825283406",
+                  "name": "British Pound",
+                  "prefix": "£",
+                  "suffix": "",
+                  "code": "GBP",
+                  "created_at": "2017-10-18 14:16:22",
+                  "updated_at": "2026-07-23 13:41:01",
+                  "base": true,
+                  "decimals": true,
+                  "manual": 0
+                },
+                "sor": 0,
+                "total_amount_formatted": "£376,988.27"
+              }
+            ],
+            "ALL": [
+              {
+                "total_amount": 4446,
+                "total_amount_formatted": "£4,446.00",
+                "count": 40,
+                "currency": {
+                  "id": "3825d96e-763e-d091-3dc4-174825283406",
+                  "name": "British Pound",
+                  "prefix": "£",
+                  "suffix": "",
+                  "code": "GBP",
+                  "created_at": "2017-10-18 14:16:22",
+                  "updated_at": "2026-09-28 11:08:14",
+                  "base": true,
+                  "decimals": true,
+                  "manual": 0
+                },
+                "sor": 0
+              }
+            ]
+          }
+        },
+        "product_scheduled_action_cancelled": {
+          "date": {
+            "first_date": "",
+            "last_date": ""
+          },
+          "result": []
+        },
+        "product_scheduled_action_executed": {
+          "date": {
+            "first_date": "",
+            "last_date": ""
+          },
+          "result": []
+        },
+        "product_scheduled_action_failed": {
+          "date": {
+            "first_date": "",
+            "last_date": ""
+          },
+          "result": []
+        },
+        "product_scheduled_action_overridden": {
+          "date": {
+            "first_date": "",
+            "last_date": ""
+          },
+          "result": []
+        },
+        "product_scheduled_action_reverted": {
+          "date": {
+            "first_date": "",
+            "last_date": ""
+          },
+          "result": []
+        },
+        "product_scheduled_action_scheduled": {
+          "date": {
+            "first_date": "",
+            "last_date": ""
+          },
+          "result": []
+        },
+        "suspended": {
+          "date": {
+            "first_date": "2026-09-30 19:57:16",
+            "last_date": "2026-09-30 19:57:16"
+          },
+          "result": {
+            "GBP": [
+              {
+                "currency_id": "3825d96e-763e-d091-3dc4-174825283406",
+                "count": 1,
+                "total_amount": 4.8,
+                "total_recurrent_amount_raw": "4.8000",
+                "total_amount_raw": "4.8000",
+                "currency": {
+                  "id": "3825d96e-763e-d091-3dc4-174825283406",
+                  "name": "British Pound",
+                  "prefix": "£",
+                  "suffix": "",
+                  "code": "GBP",
+                  "created_at": "2017-10-18 14:16:22",
+                  "updated_at": "2026-07-23 13:41:01",
+                  "base": true,
+                  "decimals": true,
+                  "manual": 0
+                },
+                "sor": 0,
+                "total_amount_formatted": "£4.80"
+              }
+            ],
+            "ALL": [
+              {
+                "total_amount": 4.8,
+                "total_amount_formatted": "£4.80",
+                "count": 1,
+                "currency": {
+                  "id": "3825d96e-763e-d091-3dc4-174825283406",
+                  "name": "British Pound",
+                  "prefix": "£",
+                  "suffix": "",
+                  "code": "GBP",
+                  "created_at": "2017-10-18 14:16:22",
+                  "updated_at": "2026-09-28 11:08:14",
+                  "base": true,
+                  "decimals": true,
+                  "manual": 0
+                },
+                "sor": 0
+              }
+            ]
+          }
+        }
+      },
+      "related": null,
+      "total": null,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-10-03T07:58:00.996Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "stats"
+  }
+}

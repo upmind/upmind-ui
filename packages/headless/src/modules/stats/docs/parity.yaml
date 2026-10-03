@@ -1,0 +1,119 @@
+# parity.yaml — FE-3229 stats (formerly client-stats)
+# The machine-readable form of design.md section 10.1.
+# One cell for each actor x context pair that requirements.md declares.
+# Member-level dispositions live in design.md 10.1. This file carries the cells.
+#
+# A git-tracked copy lives at packages/headless/src/modules/stats/docs/parity.yaml.
+# .gitignore:95 ignores docs/sdd, so that copy is the record that survives a
+# worktree cleanup. T07 writes it, and SC-008 carries the requirement.
+#
+# THIS IS THAT TRACKED COPY. Synced from docs/sdd/FE-3229-client-stats/parity.yaml
+# on 2026-09-21 (ruling R19.1, task T57). The sync is a copy, never an edit: the
+# bundle copy is the source, and this file takes its text whole.
+#
+# NAME SYNC, 2026-09-22. The module directory moved from client-stats/ to stats/
+# and its TWO composables merged into ONE scoped composable, useStats, SELF
+# context only. The tile half (was useClientStats) and the usage half (was
+# useUpmindUsage) are now distinct MEMBERS of that one composable, and every
+# path is stats.* / modules/stats. The rows below already carry the new names.
+# NO CELL, NO DISPOSITION, NO REASON AND NO TOKEN MOVES. The merge is a rename
+# and a member-naming change; it drops no capability and claims none.
+#
+# R19.1 CAUSE CORRECTION, 2026-09-22. The usage SUCCESS path remains the signed
+# drop R19.1 signs. Its cause was stated half wrong. It is NOT that staging
+# "always answered 409" as a host accident alone, and NOT merely that "no
+# Upmind-context staging account exists". Two facts hold together: (a) the
+# earlier calls came from a non-Upmind host, now fixed by the landed
+# isUpmindContext() gate (stats.utils.ts, mirroring vue-app store/index.ts:66-69);
+# and (b) the 409 "This client is not an Upmind client!" is a refusal on the
+# CLIENT record, not the host, so no staging client in the credential set can
+# answer 200 even from an Upmind host. The drop is correct on cause (b) alone.
+# It is never "not implemented", and never a met capability. The 409 refusal
+# path remains in scope and proven.
+#
+# Each refused cell below names its proof. AC19 proves the addressability guard
+# (a driven, recorded scenario), and AC20 is tagged @moved: the scope module
+# proves that the identity does not move when a consumer names another actor. Design 8.9 holds the surface.
+#
+# Ruling R11 of 2026-09-18 signed design rows 32 and 35, and it retargeted the
+# tracker field of each refused cell. A story cannot own what it drops, so no
+# tracker field names FE-3229 any more.
+#
+# WHERE THE AUTHORISING TEXT LIVES. Each sign-off token below names a ruling.
+# The text of every ruling this file cites is readable in
+# docs/sdd/FE-3229-client-stats/review-notes.md:
+#   R2, R3, R4, R7, R9 and R10 — the section "RESTORED — operator rulings R1 to
+#     R10, verbatim". The planner seat of 2026-09-18 cleared that text, and the
+#     spec-review pre-gate of 2026-09-19 blocked the bundle for it. The seat
+#     restored it word for word from Linear FE-3229 comment
+#     395b9bb4-0d66-4f53-b71d-39796efe5259.
+#   R11 and R11.1 — the section "R11 — Plan gate, pass 2".
+#   R12.1 — the section "R12 — Plan gate, pass 3".
+#   R13 — the section "R13 — Plan gate, pass 4".
+#   R14 — the section "R14 — Tests gate". It also lives on the tracker, as
+#     Linear FE-3229 comment 0fb296cd-6756-4727-a12c-020c5bd3c9e6.
+#   R19.1 — the section "R19.1 — OPERATOR RULING (Dom, 2026-09-21)". It is the
+#     NEWEST ruling, and it overrides anything earlier that disagrees with it.
+#     It scopes the Upmind-usage SUCCESS path out of FE-3229 as a signed drop.
+#     It keeps the 409 refusal path in scope and proven.
+# A signature with no readable authorisation is not a signature (R11).
+#
+# NO CELL AND NO MEMBER MOVES UNDER R14. The ruling rejects the authored test
+# surface, forbids a re-run of the Code stage, withdraws the @spec-only tag and
+# names three test defects. Every disposition, reason and token of this file is
+# unchanged by it. The proof lines below still hold, because the criteria that
+# prove the refused cells are unchanged: AC19 and AC20.
+#
+# The operator confirmed the restoration on 2026-09-19, in ruling R13.1, and
+# read it verbatim and correct. R13.1 forbids clearing either copy: this bundle
+# and the FE-3229 tracker each hold the ruling text, and the tracker copy is the
+# one that survives a worktree cleanup.
+#
+# WHERE THE OUT OF SCOPE LIST LIVES (ruling R13.3). Six member drops below and
+# in design 10.1 rest on the FE-3229 Out of Scope list. It is filed verbatim at
+# docs/sdd/FE-3229-client-stats/out-of-scope.md, with a table mapping each
+# signed row to the line it rests on, and again in design.md 10.3. Read either.
+#
+# Ruling R12.1 of 2026-09-18 signed the whole remaining block of member drops:
+# design 10.1 rows 9, 12, 15, 17 to 30, 37, 40 and 42 to 46. Twenty-four rows.
+# They fall in four groups: dead in the oracle, presentation that FE-1875 owns,
+# out of scope by the FE-3229 issue list, and architectural. Design 10.2 prints
+# the group of each row. Every Dropped row and every Not-supported row of the
+# design now carries a reason and an operator token, so SC-004 states the truth.
+
+cells:
+  - actor: client
+    context: self
+    disposition: Direct
+    legacy: "vue-app: store/modules/data/stats/index.ts:25-35 (client path :17) + store/modules/data/upmind/index.ts:22-32 (client path :14) + components/app/global/stats/**"
+    proof: "Driven in __tests__/stats.feature and replayed from verbatim staging recordings by stats.replay.int.test.ts: AC-1 to AC-4 (the four counts), AC-6 (absent count; real zero), AC-7 (ticket count hidden when the brand turns support off), AC-13 and AC-14 (usage refusal), AC-19 (signed-out guard), AC-23 (a real zero is not empty). Tagged @moved to the query, session-store and scope modules, which prove them once for every module: AC-8 (per-count loading), AC-10 (abort on destroy), AC-16 (usage refetch), AC-18 (session package limits), AC-20 (scope self-resolution), AC-21 and AC-22 (readiness, refetch and drop). AC-5 is cut."
+    notes: "The four stat counts are Direct. The Upmind usage read is Direct on the request and on the 409 refusal path only. **Its SUCCESS path is a SIGNED DROP under ruling R19.1 of 2026-09-21**, and FE-1875 carries it. The cause is that no Upmind-context staging account exists in the repo credential set. The cause is NOT 'not implemented': the landed usage read and its four layers stay exactly as they are, and the drop is about the PROOF. A JTBD read-back shows this row as a signed drop, and never as a met capability. R19.1 also settles the isEmpty question for the usage half: do not add a member whose only reachable state is the refusal. Three earlier member-level drops sit inside this cell, and each carries the operator sign-off below: design 10.1 row 41, the host-list gate, dropped by ruling R9, with the landed isAddressable predicate as the only gate that ships; row 33, packageLimits on the usage data, deferred by R7 and R10, with the bag landing on the session as AC18; row 34, the quota-key map, deferred by R10. Design 10.2 carries both closed gates. No gate is open, and Phase 4 of tasks.md is unblocked."
+    member_signoffs: "row 41, the Upmind-context host gate, ruling R9, signoff: op:dom@upmind.com:2026-09-18. row 33, packageLimits on the usage data, rulings R7 and R10, signoff: op:dom@upmind.com:2026-09-18. row 34, the quota-key map of the grid, ruling R10, signoff: op:dom@upmind.com:2026-09-18. row 32, the eleven usage numbers, ruling R11.1 on the authority of R7, signoff: op:dom@upmind.com:2026-09-18. row 35, the grid comparison of usage against quota, ruling R11.1 on the authority of R7, signoff: op:dom@upmind.com:2026-09-18. rows 9, 12, 15, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 37, 40, 42, 43, 44, 45 and 46, the remaining twenty-four member drops, ruling R12.1, signoff: op:dom@upmind.com:2026-09-18. THE UPMIND-USAGE SUCCESS PATH, the whole success half of the usage read, ruling R19.1, signoff: op:dom@upmind.com:2026-09-21. row 49, isEmpty on the usage half, ruling R19.1, signoff: op:dom@upmind.com:2026-09-21. Rows 47 and 48, reset and isEmpty on the tile half, are LANDED MEMBERS and not drops, so neither carries a token and neither owes one."
+    member_signoff_authority: "Each token above names its ruling, and the text of every ruling is readable in review-notes.md. R7, R9 and R10 sit in the restored R1 to R10 archive, which the planner seat put back on 2026-09-19 from Linear comment 395b9bb4-0d66-4f53-b71d-39796efe5259. R11.1 sits in the R11 section. R12.1 sits in the R12 section. No token of this file rests on a text that a reader cannot open."
+    member_signoff_groups: "Ruling R12.1 grouped the twenty-four. Dead in the oracle: rows 15, 17, 18, 19, 20, 21, 22, 23, 26. Presentation, tracker FE-1875: rows 9, 28, 29, 37, 40. Out of scope by the FE-3229 issue list: rows 24, 25, 27, 30. Architectural, a component mounts and a composable does not: rows 12, 42, 43, 44, 45, 46. Row 15, the permission gate, moved from architectural to dead in the oracle on 2026-09-19: its reason is that the client context never enters the functionality check, which is the dead-in-the-oracle definition. The disposition, the reason and the token do not move, and no cell changes. Where the landed shape substitutes a member, that member is a net add and AC19 or AC21 grades it."
+    member_net_adds: "TWO lane-template members were absent with NO disposition, and audit.md blockers B3 and B4 held the module at grade M2 for it. The parity law admits a landed member or a signed row, and this bundle had neither. THE PLAN LANDS BOTH, because landing needs no operator token and dropping one does. Design 10.1 row 47, `reset`, lands on useStats.actions.ts as `reset` (tiles) and `resetUsage` (usage), in the bare template form that nine landed files use. AC22 grades it. Design 10.1 row 48, `isEmpty`, lands on useStats.meta.ts for the TILES alone. AC23 grades the two clauses the recorded corpus reaches, under design DA59: the flag reads false while a count holds a number, including a real zero, and false on a failed read. Its TRUE state is reachable and NOT recordable today, because no recorded answer omits the tickets `open` key (design 8.3), so no spec of this story asserts it. THAT LIMIT IS ON THE PROOF AND NEVER ON THE MEMBER. The member lands in full, no capability drops, and no sign-off token is claimed or owed. FE-1875 inherits the limit with the first recorded all-empty client. Neither is a drop, so NO sign-off token is claimed and none is owed. Design 10.1 row 49 is the one drop of the pair: `isEmpty` on the usage half, dropped under ruling R19.1, because with the success path out of scope its only reachable state is the refusal. That row carries the R19.1 token below."
+    member_drop_cost: "The usage success path is the largest drop of the story, and ruling R19.1 signs it. GET api/clients/upmind_usage answers 409 'This client is not an Upmind client!' for BOTH staging clients of the credential set, records U01 client and U01 otherClient. No Upmind-context staging account exists, so the success path has no recordable fixture and therefore no executable read-back. Out-of-scope item 6 forbids a hand-authored fixture, and R19.1 does not widen the R4 exemption. Row 32, the eleven usage numbers, and the Upmind-context predicate field of open blocker 8 both ride this one drop. The 409 refusal path stays in scope and stays proven: the AC-13 and AC-14 scenarios of stats.feature replay the recorded 409. The module docs state this cost plainly (tasks.md T33), and FE-1875 carries it. A later story re-opens the success path when an Upmind-context staging account exists."
+
+  - actor: client
+    context: on-behalf-of-client
+    disposition: NOT-SUPPORTED-IN-LEGACY-with-reason
+    reason: "The legacy app exposes no client-acting-for-another-client stats path. The stats store selects only a client path and an admin path (vue-app store/modules/data/stats/index.ts:13-21). ADR-001 and the FE-3229 Out of Scope list forbid .for('client', id) on this story."
+    proof: "AC-20, tagged @moved in stats.feature: the scope module proves that self resolves to the signed-in client whoever is named. The stats scope matrix (STATS_SCOPE_MATRIX) makes .for(type, id) a compile error."
+    tracker: "none. The legacy app never exposed this cell, so there is nothing to carry forward and no card can own it. Ruling R11, W7."
+    signoff: "op:dom@upmind.com:2026-09-18"
+
+  - actor: staff
+    context: self
+    disposition: Dropped-with-Linear-issue
+    reason: "The legacy app does support this cell through GET api/admin/stats (vue-app store/modules/data/stats/index.ts:16, selected at :18-19) and the roughly 45 admin-only stat components. The FE-3229 Out of Scope list removes every admin stat surface from this story. No headless owner is claimed here."
+    proof: "AC-20, tagged @moved in stats.feature: the scope module proves the scope resolves self to the signed-in client. The stats scope matrix is SELF-only, and every read in stats.services.ts calls the client path (api/stats, api/clients/upmind_usage), never api/admin."
+    tracker: "none. The admin stats surface has no tracked owner: the Client Portal 2.0 epic FE-3028 scopes the client portal, and the workspace holds no admin-stats card. The planner seat files no card (ruling R11, W7). The operator owns the choice to open one."
+    signoff: "op:dom@upmind.com:2026-09-18"
+
+  - actor: staff
+    context: on-behalf-of-client
+    disposition: Dropped-with-Linear-issue
+    reason: "The legacy app does support this cell through GET api/admin/stats with account_id (vue-app _fetchStatsMixin.ts:101-106) and GET api/admin/clients/{clientId}/upmind_usage (vue-app store/modules/data/upmind/index.ts:13, selected at :15-16). The FE-3229 Out of Scope list names both admin paths as out of scope, and the story forbids .as('staff')."
+    proof: "AC-20, tagged @moved in stats.feature, covers both halves of the one composable. No admin path exists in the module, and no account id reaches a bag."
+    tracker: "none, for the cause of the staff self cell above. Ruling R11, W7."
+    signoff: "op:dom@upmind.com:2026-09-18"

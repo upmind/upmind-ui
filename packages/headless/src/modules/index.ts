@@ -42,6 +42,7 @@ export * from "./routing";
 export * from "./scope";
 export * from "./session-store";
 export * from "./session-transfer";
+export * from "./stats";
 export * from "./system";
 export * from "./system-analytics";
 export * from "./system-client-area";

@@ -127,6 +127,32 @@ On a non-OK response it rejects with a `DetailedError` whose `code` is the HTTP 
 
 A download is a plain one-shot call: it is not cached, not retried and has no query state. Invoices, legacy invoices and tickets all download through it.
 
+## Counts with `query()`
+
+A count is a plain `query()`. Put `limit=count` on the url, and read the response's `total` in `select`. `select` receives the response `data` first and the whole response envelope second, so it can map off envelope fields such as `total`. The endpoint then sends the number of matches and no rows. Use it where a number is all the screen needs (a badge, a "N results" label). A collection that needs rows and a total pages through `list()` instead.
+
+<!-- corpus-example: skip — a fragment from the product catalogue module: scope, scopeQueryKey, catalogueUrl and ProductQueryModel are that module's own internals, not exported -->
+```ts
+const { query } = useQuery();
+
+const url = catalogueUrl(scope);
+url.searchParams.set("limit", "count");
+
+const response = query<IProduct[], number, ProductQueryModel>({
+  criteria: { schema: useQuerySchema(scope), model },
+  queryKey: [...scopeQueryKey(queryKey, scope), "count"],
+  url,
+  select: (_data, envelope) => envelope.total ?? 0,
+  withAccessToken: true,
+  staleTime: useTime().HOUR,
+  enabled: () => toValue(scope.enabled) ?? true
+});
+```
+
+This is how the product catalogue's `loadCount` reads its totals.
+
+> **Rule:** never call a TanStack hook outside `modules/query`. A value import of `useQuery`, `useQueries`, `useInfiniteQuery`, `useMutation`, `useQueryClient`, `QueryClient` or `queryOptions` from `@tanstack/vue-query` (or `@tanstack/query-core`) in any other module is a lint error (`endpoint-ownership/no-direct-tanstack-query`). A module that needs data goes through `query()` or `download()` (or `list()` / `listInfinite()` for pages), so caching, auth and criteria behave the same everywhere. Type-only imports are allowed, and the two helpers modules import in practice are `type QueryKey` and `keepPreviousData`.
+
 ## Where it fits
 
 ```text

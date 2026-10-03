@@ -381,7 +381,8 @@ export const useQuery = () => {
                 },
                 withAccessToken
               }).then(response => {
-                if (isFunction(select)) return select(response.data!) as TData;
+                if (isFunction(select))
+                  return select(response.data!, response) as TData;
                 return response.data as TQueryFnData;
               });
             });
@@ -567,7 +568,7 @@ export const useQuery = () => {
                     if (isFunction(select)) {
                       return {
                         ...response,
-                        data: select(response.data!)
+                        data: select(response.data!, response)
                       };
                     }
                     return response;
@@ -849,7 +850,7 @@ export const useQuery = () => {
                 total.value = response.total || 0; // Set the total items count
 
                 const data = isFunction(select)
-                  ? select(response.data!)
+                  ? select(response.data!, response)
                   : response.data;
 
                 return {
@@ -1255,7 +1256,7 @@ export const useQuery = () => {
               if (isFunction(select)) {
                 return {
                   ...response,
-                  data: select(response.data!)
+                  data: select(response.data!, response)
                 };
               }
               return response;
