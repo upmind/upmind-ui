@@ -1,5 +1,6 @@
 import { Store } from "@tanstack/vue-store";
 import { computed } from "vue";
+import { useI18n } from "../modules/system-localisation";
 import { DetailedError, ErrorOrigin, responseCodes } from "./useError";
 import { first, has, isFunction, omit, set } from "lodash-es";
 
@@ -34,6 +35,7 @@ export const useScripts = () => {
       prepend?: boolean;
     } = { async: true }
   ) {
+    const { t } = useI18n();
     const loading = loadingStore.state;
     const errored = erroredStore.state;
     const loaded = loadedStore.state;
@@ -42,7 +44,7 @@ export const useScripts = () => {
     if (has(errored, key))
       return Promise.reject(
         new DetailedError(
-          "Script failed to load",
+          t("error.script_load_failed"),
           responseCodes.Unprocessable_Entity,
           ErrorOrigin.Headless,
           { script: key }
@@ -65,7 +67,7 @@ export const useScripts = () => {
         if (isFunction(onError)) await onError();
         return reject(
           new DetailedError(
-            "Script failed to load",
+            t("error.script_load_failed"),
             responseCodes.Unprocessable_Entity,
             ErrorOrigin.Headless,
             { script: key }

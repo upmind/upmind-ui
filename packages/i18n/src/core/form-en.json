@@ -740,5 +740,82 @@
     "true": "Verified",
     "false": "Unverified",
     "null": "All"
+  },
+  "legacy_invoice_number_filter": {
+    "description": null,
+    "label": "Invoice number",
+    "placeholder": "Search invoice number"
+  },
+  "legacy_invoice_total_filter": {
+    "description": null,
+    "label": "Total",
+    "placeholder": null
+  },
+  "legacy_invoice_created_filter": {
+    "description": null,
+    "label": "Created",
+    "placeholder": null
+  },
+  "legacy_invoice_sort": {
+    "description": null,
+    "label": "Sort",
+    "placeholder": null,
+    "create_datetime": "Created",
+    "total_amount": "Total"
+  },
+  "legacy_invoice_number_eq_filter": {
+    "description": null,
+    "label": "Number is",
+    "placeholder": null
+  },
+  "legacy_invoice_number_neq_filter": {
+    "description": null,
+    "label": "Number is not",
+    "placeholder": null
+  },
+  "legacy_invoice_total_eq_filter": {
+    "description": null,
+    "label": "Total is",
+    "placeholder": null
+  },
+  "legacy_invoice_total_neq_filter": {
+    "description": null,
+    "label": "Total is not",
+    "placeholder": null
+  },
+  "legacy_invoice_total_gt_filter": {
+    "description": null,
+    "label": "Total greater than",
+    "placeholder": null
+  },
+  "legacy_invoice_total_lt_filter": {
+    "description": null,
+    "label": "Total less than",
+    "placeholder": null
+  },
+  "legacy_invoice_created_eq_filter": {
+    "description": null,
+    "label": "Created on",
+    "placeholder": null
+  },
+  "legacy_invoice_created_gt_filter": {
+    "description": null,
+    "label": "Created after",
+    "placeholder": null
+  },
+  "legacy_invoice_created_lt_filter": {
+    "description": null,
+    "label": "Created before",
+    "placeholder": null
+  },
+  "legacy_invoice_created_after_filter": {
+    "description": "A relative time expression, like -1_months for within the last month.",
+    "label": "Created after (relative)",
+    "placeholder": "e.g. -1_months"
+  },
+  "legacy_invoice_created_before_filter": {
+    "description": "A relative time expression, like -1_months for before one month ago.",
+    "label": "Created before (relative)",
+    "placeholder": "e.g. -1_months"
   }
 }

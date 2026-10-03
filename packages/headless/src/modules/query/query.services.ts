@@ -75,6 +75,52 @@ async function doFetch<T = any>({
     });
 }
 
+/**
+ * The binary sibling of {@link doFetch}: fetches a URL and resolves the raw
+ * response body as a `Blob`, for payloads a JSON reader cannot carry (PDFs,
+ * attachments). Shares `doFetch`'s seams — the same abort handling, and the
+ * same {@link DetailedError} shape on a non-OK response, carrying the HTTP
+ * status as its `code` so callers can branch (e.g. a 404).
+ *
+ * @throws {DetailedError} on a non-OK response — the status as `code`, and the
+ * API error body's message/data when present.
+ */
+async function doDownload({ url, init }: RequestParams): Promise<Blob> {
+  init ??= {};
+  const { t } = useI18n();
+
+  if (!url)
+    return Promise.reject(
+      new DetailedError(
+        t("error.url_not_available"),
+        responseCodes.Unprocessable_Entity,
+        ErrorOrigin.Headless
+      )
+    );
+
+  return fetch(url.toString(), init)
+    .then(async response => {
+      const { ok, status } = response;
+
+      if (!ok) {
+        const body = await response.json().catch(() => undefined);
+        throw new DetailedError(
+          body?.error?.message ?? response.statusText,
+          status,
+          ErrorOrigin.Headless,
+          body?.error?.data
+        );
+      }
+
+      return response.blob();
+    })
+    .catch(error => {
+      // Aborted requests reject with no value, matching doFetch
+      if (isAbortError(error)) return Promise.reject();
+      throw error;
+    });
+}
+
 async function refreshToken() {
   const { logout } = useActiveSession().useActions();
   const { post, useUrl } = useQuery();
@@ -129,4 +175,4 @@ async function refreshToken() {
 
 // -----------------------------------------------------------------------------
 
-export { doFetch, refreshToken };
+export { doDownload, doFetch, refreshToken };

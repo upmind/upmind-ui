@@ -346,13 +346,13 @@ Both halves share the base key `["client", "tickets"]`, partitioned by resolved 
 
 ---
 
-## 19. Attachment download bypasses the shared request layer — deliberately
+## 19. Attachment download is a binary call, not a cached query
 
-`downloadAttachment()` uses a plain `fetch()` with the session's bearer token, not `useQuery()`.
+`downloadAttachment()` calls `useQuery().download()`, the binary sibling of `request()`, with the session's access token enabled.
 
-The shared `doFetch` unconditionally calls `response.json()`, and a binary attachment is not JSON — carrying it through the shared path would mean editing a headless-core file every module depends on. The download stays module-local instead: same bearer-token seam, same base URL, `ArrayBuffer` back, un-mapped.
+A binary attachment is not JSON, so it cannot travel through the JSON request path. `download()` shares that path's base URL, locale and bearer-token handling and resolves a `Blob`; the service converts it to an `ArrayBuffer`, un-mapped.
 
-The practical consequence: it is **not cached, not retried, and not visible to `useMeta()`**. A failed download throws a `DetailedError` carrying the HTTP status; it never lands in `useContext().error`.
+The practical consequence: it is **not cached, not retried, and not visible to `useMeta()`**. A failed download throws a `DetailedError` carrying the HTTP status (a status-less failure carries 503) and the localised message `error.ticket_attachment_download_failed`; it never lands in `useContext().error`.
 
 ---
 

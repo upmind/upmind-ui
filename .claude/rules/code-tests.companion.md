@@ -33,5 +33,6 @@ A test never fakes an answer. It serves no body it wrote, filters or merges no r
 - Assertions check the business outcome from the recorded rows and totals, never a computed count, a masked literal name or only the request state.
 - Boot reads a signed-in test makes are answered by the recordings of the modules that own them (`brand`, `system`, `basket`, `session-store`).
 - A state staging does not hold (a verified address, a forbidding brand setting) is ARRANGED by the generator with the staff account, recorded, then reset to its original value (operator ruling 2026-09-24). Never flip a value inside a recording.
+- A state that only an import makes (imported invoices with chosen numbers, dates, statuses) is arranged with `tests/fixtures/imports/` (see its README).
 
 Canary: `packages/headless/src/modules/client-email/__tests__/`.

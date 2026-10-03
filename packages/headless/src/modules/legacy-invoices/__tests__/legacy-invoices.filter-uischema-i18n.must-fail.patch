@@ -1,0 +1,33 @@
+# Must-fail mutant for legacy-invoices.filter-uischema.test.ts (FE-3230 F1-R,
+# unit; paired describe "legacy-invoices filter uischema — one control per OD4
+# operator leaf (F1-R)").
+#
+# Mutates `legacy-invoices.schemas.ts`'s `useQueryUischema` — gives the
+# `number.eq` control an `i18n` key (`form.legacy_invoice_number_eq_absent_filter`)
+# that matches the `form.legacy_invoice_*_filter` shape but is ABSENT from
+# `packages/i18n/src/core/form-en.json`, exactly what a control that renders its
+# raw key on screen looks like.
+#
+# Reds: "@AC-2 @AC-10 labels each new control with a form.legacy_invoice_*_filter
+# key that resolves in form-en.json" — `catalogue[key]?.label` is undefined for
+# `number.eq`, so the `toBeTruthy()` assertion fails. The regex assertion still
+# passes (the key matches the shape), isolating this to the resolves-in-catalogue
+# assertion.
+#
+# Declared collateral: NONE — the "draws exactly one control per leaf" test still
+# passes (the control still exists), and no other spec reads this control's i18n.
+#
+# Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+diff --git a/packages/headless/src/modules/legacy-invoices/legacy-invoices.schemas.ts b/packages/headless/src/modules/legacy-invoices/legacy-invoices.schemas.ts
+index 6175c37127..1ba80a02fd 100644
+--- a/packages/headless/src/modules/legacy-invoices/legacy-invoices.schemas.ts
++++ b/packages/headless/src/modules/legacy-invoices/legacy-invoices.schemas.ts
+@@ -146,7 +146,7 @@ export function useQueryUischema(): UISchemaElement {
+       {
+         type: "Control",
+         scope: "#/properties/filters/properties/number/properties/eq",
+-        i18n: "form.legacy_invoice_number_eq_filter",
++        i18n: "form.legacy_invoice_number_eq_absent_filter",
+         options: { optionalText: "" }
+       },
+       {

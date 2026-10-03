@@ -679,38 +679,21 @@ async function deleteFile(
   });
 }
 
-/**
- * @decision
- * what:     Downloads the raw file with a plain `fetch()`, bypassing
- *           `useQuery()`.
- * why:      `doFetch` (`query/query.services.ts`) unconditionally calls
- *           `response.json()`; a binary attachment is not JSON, so the shared
- *           request path cannot carry it without changing that shared file —
- *           a headless-core edit this story does not authorise. This stays
- *           entirely module-local: same bearer-token seam, same base URL.
- * rejected: Editing `doFetch` to add a `responseType` branch — the shared
- *           request pipeline every module depends on, out of this story's
- *           scope and not asked for by any AC.
- */
 async function downloadFile(fileId: string): Promise<ArrayBuffer> {
-  const { useUrl } = useQuery();
-  const url = useUrl(`ticket_messages/files/${fileId}/download`);
-  const { session } = useActiveSession().useContext();
-  const token = session.value?.access_token;
+  const { download, useUrl } = useQuery();
 
-  const response = await fetch(url.toString(), {
-    headers: token ? { Authorization: `Bearer ${token}` } : undefined
-  });
-
-  if (!response.ok) {
-    throw new DetailedError(
-      "Failed to download attachment",
-      response.status,
-      ErrorOrigin.Upmind
-    );
-  }
-
-  return response.arrayBuffer();
+  return download({
+    url: useUrl(`ticket_messages/files/${fileId}/download`),
+    withAccessToken: true
+  })
+    .then(blob => blob.arrayBuffer())
+    .catch(error => {
+      throw new DetailedError(
+        useI18n().t("error.ticket_attachment_download_failed"),
+        error?.code ?? responseCodes.Service_Unavailable,
+        ErrorOrigin.Upmind
+      );
+    });
 }
 
 // -----------------------------------------------------------------------------
@@ -756,10 +739,11 @@ async function uploadFile(file: File): Promise<TicketAttachmentRef> {
   const { post, useUrl } = useQuery();
   const { ensureConfig } = useBrand();
   const { activeUser } = useActiveSession().useContext();
+  const { t } = useI18n();
 
   if (file.size > TICKET_ATTACHMENT_MAX_BYTES) {
     throw new DetailedError(
-      "File is too large to upload",
+      t("error.ticket_attachment_size_not_valid"),
       responseCodes.Unprocessable_Entity,
       ErrorOrigin.Headless,
       { size: file.size }
@@ -772,7 +756,7 @@ async function uploadFile(file: File): Promise<TicketAttachmentRef> {
 
   if (!isEmpty(allowedTypes) && !includes(allowedTypes, file.type)) {
     throw new DetailedError(
-      "File type is not allowed",
+      t("error.upload_file_type_not_valid"),
       responseCodes.Unprocessable_Entity,
       ErrorOrigin.Headless,
       { type: file.type }

@@ -1,0 +1,53 @@
+# Must-fail mutant for legacy-invoices.schemas.test.ts (AC-2/AC-9, T48).
+#
+# Mutates the declared `pagination.offset` default (design.md §8.11's
+# declared mutation point for the schemas unit specification, D-24) — drops
+# the `default` key outright, so ajv's `useDefaults` leaves it unset.
+#
+# Reds: legacy-invoices.schemas.test.ts — "@AC-9 declares its OWN limit
+# default of 10 and offset default of 0" (`model.pagination?.offset` reads
+# `undefined`, not `0`).
+#
+# Declared collateral: NONE, empirically verified against design.md §8.11's
+# own prediction. Design.md §8.11 predicts this patch also reddens the AC-9
+# page-window-write INTEGRATION specification's offset-fallback half, on the
+# claim that "the offset zero comes from the module's own declaration, never
+# the query core" (D-24). That claim does not hold at runtime: the actual
+# fallback the integration specification observes is
+# `packages/headless/src/modules/query/useQuery.ts:421`'s own
+# `criteria.props.value.pagination?.offset ?? PAGINATION.offset` —
+# `PAGINATION.offset` is `query.utils.ts`'s own hard-coded constant, read
+# independently of this module's schema declaration. Verified two ways: (1)
+# dropping the schema's declared default outright, as this patch does, still
+# leaves `pnpm --filter @upmind-automation/headless test:integration
+# legacy-invoices.collection` fully green (14/14) — the integration
+# fallback is unaffected; (2) CHANGING the declared default's VALUE (tried
+# and discarded: `default: 5`) does NOT redden the AC-9 integration
+# assertion either, and instead reddens an UNDECLARED, unrelated
+# specification — "@AC-4 the next-page move ... the previous-page move
+# returns the already-fetched first page from cache" — because ajv's
+# `useDefaults` fill leaks the mutated value into an intermediate
+# `setCriteria` merge during page navigation, producing a spurious cache
+# miss. That value-mutation was REJECTED for exactly the reason a broadly-
+# or wrongly-red mutant is a broken control; this drop-the-default mutation
+# is the one shipped, because it reddens ONLY its own named assertion.
+# **This is a finding for the operator, not a fix applied here**: design.md
+# §8.11's and ruling AC9-FIX's premise that "AC9's fallback anchor stays on
+# this module's own declaration, never on the query core" does not match the
+# shipped wiring for the OFFSET default — the query core's own constant is
+# the true anchor, regardless of what this schema declares.
+#
+# Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+--- a/packages/headless/src/modules/legacy-invoices/legacy-invoices.schemas.ts
++++ b/packages/headless/src/modules/legacy-invoices/legacy-invoices.schemas.ts
+@@ -103,9 +103,9 @@
+       pagination: {
+         type: "object",
+         additionalProperties: false,
+         properties: {
+           limit: { type: "integer", minimum: 0, default: PAGINATION.limit },
+-          offset: { type: "integer", minimum: 0, default: PAGINATION.offset }
++          offset: { type: "integer", minimum: 0 }
+         }
+       }
+     }

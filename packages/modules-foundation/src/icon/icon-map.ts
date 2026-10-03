@@ -44,6 +44,7 @@
  *           an existing glyph on a different meaning.
  */
 import {
+  Archive,
   ArrowLeft,
   ArrowLeftRight,
   ArrowRight,
@@ -149,11 +150,18 @@ import type { Component } from "vue";
  * - `receipt` → Receipt — the labs invoice module's declared name, matching
  *   that playground's navigation table so one name draws one glyph in the
  *   sidebar and on the page alike.
+ * - `archive` → Archive — the legacy-invoices labs scenario's declared name;
+ *   an exact lucide glyph for the concept, not a judgement call.
+ * - `clock-refresh` → RefreshCw — the legacy-invoices labs scenario's staged
+ *   import indicator; lucide has no clock+refresh compound, so it maps to the
+ *   glyph `refresh-cw-01` already uses, matching the "still processing" sense
+ *   the name and the cell both carry.
  */
 export const ICON_MAP: Record<string, Component> = {
   "alert-octagon": OctagonAlert,
   "alert-triangle": TriangleAlert,
   "alert-circle": CircleAlert,
+  archive: Archive,
   "arrow-down": ArrowDown,
   "arrow-left": ArrowLeft,
   "arrow-right": ArrowRight,
@@ -172,6 +180,7 @@ export const ICON_MAP: Record<string, Component> = {
   "chevron-right": ChevronRight,
   clock: Clock,
   "clock-fast-forward": Clock,
+  "clock-refresh": RefreshCw,
   "clock-stopwatch": Timer,
   "columns-03": Columns3,
   "credit-card-01": CreditCard,

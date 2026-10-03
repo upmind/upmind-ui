@@ -1,0 +1,2 @@
+id,name,product_type,order_type,unit_quantity,product_billing_type,available_for_sales,clients_can_order,price_price,price_billing_cycle_months,price_currency_code,provision_configuration_id
+p1,Fixture name p1,,,,,,,,,GBP,

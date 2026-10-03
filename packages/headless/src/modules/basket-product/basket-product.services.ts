@@ -57,6 +57,7 @@ const queue = new AsyncQueuer<{
   reject?: (error?: Error) => void;
 }>(
   async ({ type, data }) => {
+    const { t } = useI18n();
     switch (type) {
       case "UPDATE_MANY":
         return updateMany(data);
@@ -72,7 +73,7 @@ const queue = new AsyncQueuer<{
 
       default:
         throw new DetailedError(
-          `Unsupported task type: ${type}`,
+          t("error.basket_product_task_type_not_valid", { type }),
           responseCodes.Bad_Request,
           ErrorOrigin.Headless
         );
@@ -695,7 +696,7 @@ async function remove({
   const { del, useUrl } = useQuery();
   if (!bpid)
     throw new DetailedError(
-      t("error.basket_product_not_available"),
+      t("error.basket_product_not_found"),
       responseCodes.Not_Found,
       ErrorOrigin.Headless
     ); // we don't need to make a request as there is no id, must be a new product

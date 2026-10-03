@@ -244,6 +244,8 @@ await invoice.useActions().isReady();
 await invoice.useActions().downloadPdf(); // saves locally as `${number}.pdf`
 ```
 
+The PDF body is fetched with `useQuery().download()` and saved locally. A non-OK response rejects with a `DetailedError` carrying the HTTP status as its `code`.
+
 A credit note is read through the same downloader — there is no separate credit-note PDF endpoint.
 
 ### Switching the pay currency

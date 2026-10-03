@@ -1,0 +1,34 @@
+# Must-fail mutant for legacy-invoices.download.int.test.ts's AC-12
+# specification (T48). Paired describe: "legacy-invoices single read — a
+# document not built yet reports its preparation state (AC-12, OD2)" /
+# "legacy-invoices single read — a document read that fails reports a
+# failure, never a preparation state (AC-12, D-33)".
+#
+# Mutates `downloadPdf` in `legacy-invoices.services.ts` — checks
+# `response.status === responseCodes.Internal_Server_Error` (500) instead of
+# `responseCodes.Not_Found` (404), inverting which failure raises OD2's
+# typed condition.
+#
+# Reds both AC-12 assertions of the same file (design.md §8.10, D-33 — the
+# pair is ONE contrast, not two independent claims):
+#  - "@AC-12 throws the typed LegacyInvoiceDocumentNotReadyError on a 404"
+#    (a 404 now raises the ORDINARY failure instead)
+#  - "@AC-12 does NOT throw the typed condition on a 500" (a 500 now raises
+#    the TYPED condition instead)
+#
+# Declared collateral: NONE outside this file's own AC-12 pair (verified —
+# the sibling AC-8 download spec in the same file, every other integration
+# file, and the full unit suite all stay green).
+#
+# Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+--- a/packages/headless/src/modules/legacy-invoices/legacy-invoices.services.ts
++++ b/packages/headless/src/modules/legacy-invoices/legacy-invoices.services.ts
+@@ -156,7 +156,7 @@
+   });
+ 
+   // oracle: pdfs.ts:70-73 — 404 means the file is still generating.
+-  if (response.status === responseCodes.Not_Found) {
++  if (response.status === responseCodes.Internal_Server_Error) {
+     throw new LegacyInvoiceDocumentNotReadyError();
+   }
+ 

@@ -47,8 +47,10 @@ describe("the alert section draws only when one of its alerts' gates is open", (
     const { isBlank } = alertEntry();
 
     expect(
-      isBlank!(alertSection([{ name: "failed", gate: "hasError" }]), {}, () =>
-        false
+      isBlank!(
+        alertSection([{ name: "failed", gate: "hasError" }]),
+        {},
+        () => false
       )
     ).toBe(true);
   });

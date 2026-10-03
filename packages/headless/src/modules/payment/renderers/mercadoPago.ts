@@ -1,3 +1,5 @@
+import { useI18n } from "../../system-localisation";
+import { DetailedError, ErrorOrigin, responseCodes } from "../../../utils";
 import type { PaymentContext } from "../payment.types";
 import type { ChallengeRenderResult } from "./types";
 import type { AnyEventObject } from "xstate";
@@ -16,6 +18,8 @@ export async function render(
   context: PaymentContext,
   event: AnyEventObject
 ): Promise<ChallengeRenderResult> {
+  const { t } = useI18n();
+
   const { payment } = context;
   const container = event.data?.container as HTMLElement | undefined;
   const onComplete = event.data?.onComplete as
@@ -23,12 +27,20 @@ export async function render(
     | undefined;
 
   if (!container) {
-    throw new Error("Container element is required for MercadoPago challenge");
+    throw new DetailedError(
+      t("error.payment_challenge_container_required"),
+      responseCodes.Bad_Request,
+      ErrorOrigin.Headless
+    );
   }
 
   const approval_url = payment?.approval_url;
   if (!approval_url) {
-    throw new Error("Approval URL is required for MercadoPago challenge");
+    throw new DetailedError(
+      t("error.payment_challenge_approval_url_required"),
+      responseCodes.Bad_Request,
+      ErrorOrigin.Headless
+    );
   }
 
   const challengeUrl = approval_url.fields?.external_resource_url as string;
@@ -37,7 +49,11 @@ export async function render(
   const creq = approval_url.fields?.creq as string;
 
   if (!challengeUrl) {
-    throw new Error("Challenge URL (external_resource_url) is required");
+    throw new DetailedError(
+      t("error.payment_challenge_url_required"),
+      responseCodes.Bad_Request,
+      ErrorOrigin.Headless
+    );
   }
 
   // --- Create iframe
@@ -90,7 +106,11 @@ export async function render(
   const iframeDoc = iframe.contentWindow?.document;
   if (!iframeDoc) {
     cleanup();
-    throw new Error("Cannot access iframe document");
+    throw new DetailedError(
+      t("error.payment_challenge_iframe_not_available"),
+      responseCodes.Service_Unavailable,
+      ErrorOrigin.Headless
+    );
   }
 
   const challengeForm = iframeDoc.createElement("form");

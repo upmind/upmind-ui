@@ -24,6 +24,10 @@ import { describe, it, beforeAll, afterAll } from "vitest";
 import { API_CREDENTIALS } from "@upmind-automation/test-fixtures/credentials";
 import { Generator } from "@upmind-automation/test-fixtures/generator";
 import {
+  buildImportSet,
+  importToStaging
+} from "@upmind-automation/test-fixtures/imports/import-factory";
+import {
   GrantTypes,
   OrderTypes,
   PaymentType,
@@ -170,6 +174,155 @@ async function control(
     status: response.status,
     body: await response.json().catch(() => null)
   };
+}
+
+// -----------------------------------------------------------------------------
+
+/** The recording client's own brand (QA Automation Testing). */
+const BRAND_ID = "2785d26e-9678-3d16-999f-314502e70439";
+
+/** The dedicated synthetic client the imported-product scenario reads as. */
+const IMPORTED_CLIENT_EMAIL = "cp-3230-imported-client@example.com";
+
+/** A staff call carrying the admin `Run-As: user` header the import routes need. */
+async function admin(
+  method: string,
+  path: string,
+  token: string,
+  body?: unknown
+): Promise<{ status: number; body: unknown }> {
+  const response = await fetch(`${API_URL}${path}`, {
+    method,
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+      Origin: ORIGIN,
+      Authorization: `Bearer ${token}`,
+      "Run-As": "user"
+    },
+    body: body == null ? undefined : JSON.stringify(body)
+  });
+  return {
+    status: response.status,
+    body: await response.json().catch(() => null)
+  };
+}
+
+/**
+ * Find-or-create the imported product the `imported from another platform`
+ * scenario reads. A committed CSV import of a dedicated synthetic client, kept
+ * on staging (a committed import cannot be rolled back). Returns the imported
+ * contract-product id and a token for its client (staff mints it the legacy
+ * "login as" way). The product reads back with its contract's `import_id` set.
+ */
+async function ensureImportedProduct(): Promise<{
+  cpId: string;
+  importedToken: string;
+}> {
+  const staff = await mintStaffToken();
+  const config = { apiUrl: API_URL, origin: ORIGIN, token: staff.access_token };
+  await admin("POST", "/api/admin/brands/select", staff.access_token, {
+    brand_id: BRAND_ID
+  });
+
+  const findClient = async (): Promise<string | undefined> =>
+    (
+      (
+        await admin(
+          "GET",
+          `/api/admin/clients?brand_id=${BRAND_ID}&filter[emails.email]=${encodeURIComponent(IMPORTED_CLIENT_EMAIL)}&limit=2`,
+          staff.access_token
+        )
+      ).body as { data?: { id: string }[] }
+    )?.data?.[0]?.id;
+
+  let clientId = await findClient();
+  if (!clientId) {
+    await importToStaging(
+      buildImportSet({
+        brandId: BRAND_ID,
+        name: "FE-3230-cp-imported",
+        staged: false,
+        clients: [
+          {
+            id: "c1",
+            email: IMPORTED_CLIENT_EMAIL,
+            has_login: "1",
+            verified: "1",
+            first_name: "Imp",
+            last_name: "Tester"
+          }
+        ],
+        products: [
+          {
+            id: "p1",
+            name: "CP3230 Imported",
+            product_type: "1",
+            order_type: "1",
+            available_for_sales: "0",
+            clients_can_order: "0",
+            product_billing_type: "subscription",
+            price_billing_cycle_months: "1",
+            price_price: "10.00"
+          }
+        ],
+        contracts: [
+          {
+            id: "ct1",
+            status: "active",
+            contract_product_status: "active",
+            contract_product_billing_cycle_months: "1",
+            contract_product_quantity: "1",
+            contract_product_unit_quantity: "1",
+            contract_product_price: "10.00",
+            contract_product_amount: "10.00",
+            contract_product_total_amount: "10.00",
+            contract_product_renew: "1"
+          }
+        ]
+      }),
+      config
+    );
+    clientId = await findClient();
+  }
+  if (!clientId)
+    throw new Error("Could not find-or-create the imported staging client.");
+
+  const tokenResp = await admin(
+    "POST",
+    `/api/admin/clients/${clientId}/access_token`,
+    staff.access_token,
+    {}
+  );
+  const importedToken =
+    (
+      tokenResp.body as {
+        access_token?: string;
+        data?: { access_token?: string };
+      }
+    )?.access_token ??
+    (tokenResp.body as { data?: { access_token?: string } })?.data
+      ?.access_token;
+  if (!importedToken)
+    throw new Error(
+      `Minting the imported client's token answered ${tokenResp.status}.`
+    );
+
+  const products = ((
+    (
+      await control(
+        "GET",
+        "/api/contracts_products?with=status&limit=25",
+        importedToken
+      )
+    ).body as { data?: { id: string; status?: { code: string } }[] }
+  )?.data ?? []) as { id: string; status?: { code: string } }[];
+  const cpId =
+    products.find(product => product.status?.code === "contract_active")?.id ??
+    products[0]?.id;
+  if (!cpId) throw new Error("The imported client has no contract-product.");
+
+  return { cpId, importedToken };
 }
 
 // -----------------------------------------------------------------------------
@@ -1256,6 +1409,39 @@ describe("Contract-Product scenario recordings", () => {
     ],
     orderEndingTrial
   );
+
+  // A product imported from another platform: a committed CSV import of a
+  // dedicated synthetic client (find-or-create, KEPT), read as that client.
+  // Its detail read is recorded with the imported client's own token, so the
+  // product arrives with its contract's `import_id` set.
+  {
+    const scenario =
+      "Open one of my products in a state only the platform puts it in — imported from another platform";
+    const given = "one of my products is imported from another platform";
+    describe(scenario, () => {
+      it(MANAGER_BG, () => recordStep(scenario, MANAGER_BG, noRequest));
+      it(given, async () => {
+        const { cpId, importedToken } = await ensureImportedProduct();
+        await recordStep(scenario, given, async generator => {
+          generator.setBearerToken(importedToken);
+          await generator.get(
+            `/api/contract_products/${cpId}?with=${PRODUCT_WITH}`
+          );
+          await generator.get(
+            "/api/custom_fields?filter[object_type]=contract_request&order=order&limit=0&offset=0"
+          );
+        });
+      });
+      it("I open it to see its state", () =>
+        recordStep(scenario, "I open it to see its state", noRequest));
+      it("I am told it is imported from another platform", () =>
+        recordStep(
+          scenario,
+          "I am told it is imported from another platform",
+          noRequest
+        ));
+    });
+  }
 
   // === AC-15 · WHAT IS SCHEDULED TO HAPPEN TO ONE OF MY PRODUCTS ============
   // Staff schedule a price change on a fresh subscription of mine; the action
