@@ -44,6 +44,12 @@ interface ConfigOverrides {
    * `interceptCheckoutFlow`) this yields a brand with NO configured flow.
    */
   checkoutFlow?: string | null;
+  /**
+   * Makes registration ask for a phone. Maps to brand config key
+   * `ui.client_registration.require_phone`
+   * (`BrandConfigKeys.REQUIRE_PHONE_ON_REGISTRATION`).
+   */
+  requirePhoneOnRegistration?: boolean;
 }
 
 /**
@@ -107,7 +113,7 @@ export async function interceptConfigValues(
   overrides: ConfigOverrides
 ) {
   await page.route(
-    "**/api/config/brand/values?**",
+    /\/api\/config\/brand\/values(\?|$)/,
     async (route: Route, request: Request) => {
       // When a bearerToken is provided, force it (legacy behaviour). When it's
       // null/false, replay with the request's own auth and strip cache-validation
@@ -168,6 +174,10 @@ export async function interceptConfigValues(
       }
       if (overrides.checkoutFlow !== undefined) {
         json.data["ui.checkout.checkout_flow"] = overrides.checkoutFlow;
+      }
+      if (overrides.requirePhoneOnRegistration !== undefined) {
+        json.data["ui.client_registration.require_phone"] =
+          overrides.requirePhoneOnRegistration;
       }
       const updatedResponseBody = {
         ...json

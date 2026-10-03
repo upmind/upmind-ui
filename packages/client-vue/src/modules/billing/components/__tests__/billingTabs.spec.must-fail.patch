@@ -1,0 +1,49 @@
+# AC: AC1, AC3, phone handler (risk, no AC) - FE-3274 Testing cases 2 to 6
+# Spec: billingTabs.spec.ts
+# Mutation: every billing tab Manage @resolve reverts to the inline formResolve emit;
+# the address, company and phone handlers no longer write the resolved id.
+
+diff --git a/packages/client-vue/src/modules/billing/components/TabBusiness.vue b/packages/client-vue/src/modules/billing/components/TabBusiness.vue
+index 4e49018701..461e1cf230 100644
+--- a/packages/client-vue/src/modules/billing/components/TabBusiness.vue
++++ b/packages/client-vue/src/modules/billing/components/TabBusiness.vue
+@@ -23,7 +23,7 @@
+         :readonly="readonly"
+         :force-open="props.expand"
+         @processing="wait"
+-        @resolve="doResolveCompany"
++        @resolve="() => emit('formResolve')"
+         v-model:touched="touched"
+       >
+         <template #item="{ item, readonly, doEdit, doRemove }">
+@@ -47,7 +47,7 @@
+             :show-label="!!selectedPhone"
+             :readonly="readonly"
+             @processing="wait"
+-            @resolve="doResolvePhone"
++            @resolve="() => emit('formResolve')"
+             v-model:touched="touched"
+           >
+             <template #item="{ item, readonly, doEdit, doRemove }">
+diff --git a/packages/client-vue/src/modules/billing/components/TabPersonal.vue b/packages/client-vue/src/modules/billing/components/TabPersonal.vue
+index d67e0ec957..0bc9630359 100644
+--- a/packages/client-vue/src/modules/billing/components/TabPersonal.vue
++++ b/packages/client-vue/src/modules/billing/components/TabPersonal.vue
+@@ -28,7 +28,7 @@
+         :readonly="readonly"
+         :force-open="props.expand"
+         @processing="wait"
+-        @resolve="doResolveAddress"
++        @resolve="() => emit('formResolve')"
+         v-model:touched="touched"
+       >
+         <template #item="{ item, readonly, doEdit, doRemove }">
+@@ -53,7 +53,7 @@
+         :show-label="!!selectedPhone"
+         :readonly="readonly"
+         @processing="wait"
+-        @resolve="doResolvePhone"
++        @resolve="() => emit('formResolve')"
+         v-model:touched="touched"
+       >
+         <template #item="{ item, readonly, doEdit, doRemove }">
