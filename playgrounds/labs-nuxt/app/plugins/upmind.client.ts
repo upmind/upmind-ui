@@ -3,6 +3,7 @@ import UpmindClient, {
   registerOverlayRoutes,
   useTheme
 } from "@upmind-automation/client-vue";
+import "@upmind-automation/domain";
 import { AccessRoleTypes } from "@upmind-automation/types";
 import { forEach } from "lodash-es";
 import type { I18n } from "vue-i18n";

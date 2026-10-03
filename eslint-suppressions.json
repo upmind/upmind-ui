@@ -945,6 +945,16 @@
       "count": 1
     }
   },
+  "packages/modules-catalogue/src/components/Catalogue.vue": {
+    "vue/return-in-computed-property": {
+      "count": 2
+    }
+  },
+  "packages/modules-catalogue/src/products/WidgetGrid.vue": {
+    "vue/no-use-v-if-with-v-for": {
+      "count": 1
+    }
+  },
   "packages/client-vue/src/components/emailHistory/EmailHistoryListing.vue": {
     "@typescript-eslint/no-explicit-any": {
       "count": 1
@@ -1179,6 +1189,21 @@
   },
   "packages/client-vue/src/modules/system/Error.vue": {
     "no-fallthrough": {
+      "count": 1
+    }
+  },
+  "packages/modules-domain/src/components/DomainType.vue": {
+    "vue/no-dupe-keys": {
+      "count": 4
+    }
+  },
+  "packages/modules-domain/src/renderers/DomainRenderer.vue": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "packages/modules-domain/src/renderers/SLDRenderer.vue": {
+    "@typescript-eslint/no-explicit-any": {
       "count": 1
     }
   },

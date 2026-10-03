@@ -61,6 +61,11 @@ const PACKAGES = [
     name: "client",
     controls: async () =>
       (await import("@upmind-automation/client")).clientRenderers
+  },
+  {
+    name: "domain",
+    controls: async () =>
+      (await import("@upmind-automation/domain")).domainRenderers
   }
 ];
 
