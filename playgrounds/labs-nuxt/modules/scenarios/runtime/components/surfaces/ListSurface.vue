@@ -351,6 +351,7 @@
       :key="manageKey"
       :handoff="manage.handoff"
       :context="manage.context"
+      :record-id="manage.recordId"
       :field-scope="manage.fieldScope"
       @close="manage = undefined"
     />
