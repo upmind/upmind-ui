@@ -1,0 +1,143 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/stats?type=invoices_category&report=%5B%22total%22%5D&invoice_status=%5B%22invoice_unpaid%22%2C%22invoice_overdue%22%5D&date_to=2026-10-03&currency_code=ALL",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a44a8ae3eae893cf-JNB",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json",
+      "date": "Sat, 03 Oct 2026 08:23:03 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=EvWM0C6x9k0y0Gzn2E8A%2Fz4%2B3GHh47qO%2FOzBvDkPZfdFYutN6fbB1RZVpJygKInXVbqz6YG1Ppdu2dPhtedAXPQkmoLO6SlVaV74DXDRBaD3BCCi5fTi%2B%2FjQL7W5YznSkdoafnqA3w%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-frame-options": "SAMEORIGIN"
+    },
+    "body": {
+      "status": "ok",
+      "data": {
+        "total": {
+          "date": {
+            "first_date": "2025-07-09 19:00:14",
+            "last_date": "2026-10-01 09:48:13"
+          },
+          "result": {
+            "GBP": [
+              {
+                "currency_id": "3825d96e-763e-d091-3dc4-174825283406",
+                "count": 59,
+                "net_amount": 536,
+                "tax_amount": 107.2,
+                "total_amount": 643.2,
+                "paid_amount": 0,
+                "net_amount_raw": "536.0000",
+                "tax_amount_raw": "107.2000",
+                "total_amount_raw": "643.2000",
+                "paid_amount_raw": "0.0000",
+                "overpaid_amount": 0,
+                "overpaid_amount_converted_formatted": "£0.00",
+                "display_status": "Unknown",
+                "net_discount_amount_formatted": "£0.00",
+                "net_discount_amount": 0,
+                "net_amount_converted": 0,
+                "tax_amount_converted": 0,
+                "total_amount_converted": 0,
+                "paid_amount_converted": 0,
+                "balance": 643.2,
+                "unpaid_amount": 643.2,
+                "unpaid_amount_formatted": "£0.00",
+                "unpaid_amount_converted": 0,
+                "partial_amount_to_credit_formatted": "£0.00",
+                "partial_amount_to_credit_converted": 0,
+                "partial_amount_credited_formatted": "£0.00",
+                "partial_amount_credited_converted": 0,
+                "allow_product_credit": true,
+                "delegate_related": true,
+                "grouped_taxes": null,
+                "pending_payment_method": false,
+                "object_meta": [],
+                "currency": {
+                  "id": "3825d96e-763e-d091-3dc4-174825283406",
+                  "name": "British Pound",
+                  "prefix": "£",
+                  "suffix": "",
+                  "code": "GBP",
+                  "created_at": "2017-10-18 14:16:22",
+                  "updated_at": "2026-07-23 13:41:01",
+                  "base": true,
+                  "decimals": true,
+                  "manual": 0
+                },
+                "category": null,
+                "payment_currency": null,
+                "object_meta_data": null,
+                "sor": 0,
+                "total_amount_formatted": "£643.20",
+                "paid_amount_formatted": "£0.00",
+                "net_amount_formatted": "£536.00",
+                "tax_amount_formatted": "£107.20",
+                "balance_formatted": "£643.20"
+              }
+            ],
+            "ALL": [
+              {
+                "total_amount": 643.2,
+                "paid_amount": 0,
+                "net_amount": 536,
+                "tax_amount": 107.2,
+                "balance": 643.2,
+                "tax_amount_formatted": "£107.20",
+                "net_amount_formatted": "£536.00",
+                "paid_amount_formatted": "£0.00",
+                "total_amount_formatted": "£643.20",
+                "balance_formatted": "£643.20",
+                "count": 59,
+                "currency": {
+                  "id": "3825d96e-763e-d091-3dc4-174825283406",
+                  "name": "British Pound",
+                  "prefix": "£",
+                  "suffix": "",
+                  "code": "GBP",
+                  "created_at": "2017-10-18 14:16:22",
+                  "updated_at": "2026-09-28 11:08:14",
+                  "base": true,
+                  "decimals": true,
+                  "manual": 0
+                },
+                "sor": 0
+              }
+            ]
+          }
+        }
+      },
+      "related": null,
+      "total": null,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-10-03T08:23:03.372Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "stats"
+  }
+}

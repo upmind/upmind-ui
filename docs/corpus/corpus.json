@@ -4958,6 +4958,7 @@
         "Returning to a combination already fetched costs nothing — ever",
         "`list()` bridges the gap between combinations; `listInfinite()` has none to bridge",
         "Binary downloads",
+        "Counts with `query()`",
         "Where it fits",
         "Types",
         "A filter's wire column can differ from its model property",
@@ -5427,6 +5428,122 @@
       "id": "guide:packages/headless/src/modules/session-store/docs/usage",
       "path": "packages/headless/src/modules/session-store/docs/usage.md",
       "title": "Session Store — Usage"
+    },
+    "guide:packages/headless/src/modules/stats/docs/CHANGELOG": {
+      "crossRefs": [],
+      "headings": [
+        "stats Changelog",
+        "[Unreleased]",
+        "Added",
+        "Changed",
+        "Known limitations",
+        "Migration Guide",
+        "From v1.x to v2.x"
+      ],
+      "id": "guide:packages/headless/src/modules/stats/docs/CHANGELOG",
+      "path": "packages/headless/src/modules/stats/docs/CHANGELOG.md",
+      "title": "stats Changelog"
+    },
+    "guide:packages/headless/src/modules/stats/docs/README": {
+      "crossRefs": [],
+      "headings": [
+        "stats",
+        "What Is This?",
+        "Quick Start",
+        "Features",
+        "Key Concepts",
+        "One composable, one identity seam, two gates",
+        "Every count is either a number or absent — never a promoted zero",
+        "Actor Types",
+        "Documentation",
+        "How it is proven",
+        "Playground"
+      ],
+      "id": "guide:packages/headless/src/modules/stats/docs/README",
+      "path": "packages/headless/src/modules/stats/docs/README.md",
+      "title": "stats"
+    },
+    "guide:packages/headless/src/modules/stats/docs/architecture": {
+      "crossRefs": [],
+      "headings": [
+        "stats Architecture",
+        "Overview",
+        "Data Flow",
+        "Sub-Composables",
+        "Services",
+        "Dependencies",
+        "stats Depends On",
+        "Modules That Depend On stats",
+        "Integration Points"
+      ],
+      "id": "guide:packages/headless/src/modules/stats/docs/architecture",
+      "path": "packages/headless/src/modules/stats/docs/architecture.md",
+      "title": "stats Architecture"
+    },
+    "guide:packages/headless/src/modules/stats/docs/foundation": {
+      "crossRefs": [],
+      "headings": [
+        "Module: stats",
+        "What it is",
+        "Core concepts",
+        "Operations",
+        "Data shape",
+        "Dependencies",
+        "Dependants — modules that read from this one",
+        "This module's own dependencies",
+        "API endpoints",
+        "GET /stats",
+        "GET /clients/upmind_usage",
+        "Failure modes",
+        "`GET /stats` — a report window can hold nothing, two different ways",
+        "`GET /stats` — array-style query parameters answer with a server error, not a validation error",
+        "`GET /clients/upmind_usage` — the only observed outcome is a hard refusal",
+        "No addressable client → no request at all",
+        "Lessons (hard-won)"
+      ],
+      "id": "guide:packages/headless/src/modules/stats/docs/foundation",
+      "path": "packages/headless/src/modules/stats/docs/foundation.md",
+      "title": "Module: stats"
+    },
+    "guide:packages/headless/src/modules/stats/docs/gotchas": {
+      "crossRefs": [],
+      "headings": [
+        "stats Gotchas",
+        "1. The Upmind-usage panel has no proven success state 🧪",
+        "2. A tile's `null` is not a zero, and a zero is not a `null` 🧪",
+        "3. Naming `report` or `invoice_status` as an array crashes the request, not just this module",
+        "4. The usage flags are NOT the tiles' flags 🧪",
+        "5. `isEmpty` is \"none of the four holds a number\", not \"the account has nothing\"",
+        "6. The active-tickets tile fails OPEN, not closed",
+        "Common Mistakes",
+        "Assuming the usage panel's data shape from the legacy admin dashboard",
+        "Reaching for `.for('client', someOtherId)`",
+        "Sending a currency code on the tickets read",
+        "Edge Cases",
+        "Lifecycle Considerations",
+        "Destroy the Instance When Done",
+        "Wait for Ready State",
+        "`reset()` drops cached data — it does not refetch"
+      ],
+      "id": "guide:packages/headless/src/modules/stats/docs/gotchas",
+      "path": "packages/headless/src/modules/stats/docs/gotchas.md",
+      "title": "stats Gotchas"
+    },
+    "guide:packages/headless/src/modules/stats/docs/usage": {
+      "crossRefs": [],
+      "headings": [
+        "stats Usage & API",
+        "Composable Structure",
+        "Context",
+        "Meta",
+        "Actions",
+        "Internals",
+        "Vue Component Integration",
+        "Lifecycle"
+      ],
+      "id": "guide:packages/headless/src/modules/stats/docs/usage",
+      "path": "packages/headless/src/modules/stats/docs/usage.md",
+      "title": "stats Usage & API"
     },
     "guide:packages/headless/src/modules/system/docs/CHANGELOG": {
       "crossRefs": [],
@@ -7584,6 +7701,12 @@
       "path": "packages/headless/src/modules/config/schema/types.ts",
       "title": "PRODUCT_STYLE"
     },
+    "@upmind-automation/headless!PackageLimits": {
+      "kind": "symbol",
+      "module": "stats",
+      "path": "packages/headless/src/modules/stats/stats.types.ts",
+      "title": "PackageLimits"
+    },
     "@upmind-automation/headless!PageRoute": {
       "kind": "symbol",
       "module": "routing",
@@ -8226,6 +8349,12 @@
       "path": "packages/headless/src/modules/session-store/session-store.types.ts",
       "title": "SESSION_SCOPE_MATRIX"
     },
+    "@upmind-automation/headless!STATS_SCOPE_MATRIX": {
+      "kind": "symbol",
+      "module": "stats",
+      "path": "packages/headless/src/modules/stats/stats.types.ts",
+      "title": "STATS_SCOPE_MATRIX"
+    },
     "@upmind-automation/headless!ScalarOperator": {
       "kind": "symbol",
       "module": "config",
@@ -8489,6 +8618,24 @@
       "module": "query",
       "path": "packages/headless/src/modules/query/query.types.ts",
       "title": "SortDirection"
+    },
+    "@upmind-automation/headless!StatType": {
+      "kind": "symbol",
+      "module": "stats",
+      "path": "packages/headless/src/modules/stats/stats.types.ts",
+      "title": "StatType"
+    },
+    "@upmind-automation/headless!StatsData": {
+      "kind": "symbol",
+      "module": "stats",
+      "path": "packages/headless/src/modules/stats/stats.types.ts",
+      "title": "StatsData"
+    },
+    "@upmind-automation/headless!StatsScopeMatrix": {
+      "kind": "symbol",
+      "module": "stats",
+      "path": "packages/headless/src/modules/stats/stats.types.ts",
+      "title": "StatsScopeMatrix"
     },
     "@upmind-automation/headless!StoredOperation": {
       "kind": "symbol",
@@ -8819,6 +8966,12 @@
       "module": "",
       "path": "packages/headless/src/useUpmind.ts",
       "title": "UpmindStatus"
+    },
+    "@upmind-automation/headless!UpmindUsageData": {
+      "kind": "symbol",
+      "module": "stats",
+      "path": "packages/headless/src/modules/stats/stats.types.ts",
+      "title": "UpmindUsageData"
     },
     "@upmind-automation/headless!UseAccount": {
       "kind": "symbol",
@@ -9869,6 +10022,36 @@
       "module": "session-store",
       "path": "packages/headless/src/modules/session-store/useSessionStore.ts",
       "title": "UseSessionStore"
+    },
+    "@upmind-automation/headless!UseStats": {
+      "kind": "symbol",
+      "module": "stats",
+      "path": "packages/headless/src/modules/stats/useStats.ts",
+      "title": "UseStats"
+    },
+    "@upmind-automation/headless!UseStatsActions": {
+      "kind": "symbol",
+      "module": "stats",
+      "path": "packages/headless/src/modules/stats/useStats.actions.ts",
+      "title": "UseStatsActions"
+    },
+    "@upmind-automation/headless!UseStatsContext": {
+      "kind": "symbol",
+      "module": "stats",
+      "path": "packages/headless/src/modules/stats/useStats.context.ts",
+      "title": "UseStatsContext"
+    },
+    "@upmind-automation/headless!UseStatsInternals": {
+      "kind": "symbol",
+      "module": "stats",
+      "path": "packages/headless/src/modules/stats/useStats.internals.ts",
+      "title": "UseStatsInternals"
+    },
+    "@upmind-automation/headless!UseStatsMeta": {
+      "kind": "symbol",
+      "module": "stats",
+      "path": "packages/headless/src/modules/stats/useStats.meta.ts",
+      "title": "UseStatsMeta"
     },
     "@upmind-automation/headless!UseSystem": {
       "kind": "symbol",
@@ -11267,6 +11450,12 @@
       "module": "session-store",
       "path": "packages/headless/src/modules/session-store/useSessionStore.ts",
       "title": "useSessionStore"
+    },
+    "@upmind-automation/headless!useStats": {
+      "kind": "symbol",
+      "module": "stats",
+      "path": "packages/headless/src/modules/stats/useStats.ts",
+      "title": "useStats"
     },
     "@upmind-automation/headless!useStoredPaymentMethodsSchema": {
       "kind": "symbol",
@@ -18030,6 +18219,42 @@
       "path": "packages/headless/src/modules/session-store/docs/usage.md",
       "title": "Session Store — Usage"
     },
+    "guide:packages/headless/src/modules/stats/docs/CHANGELOG": {
+      "kind": "guide",
+      "module": "",
+      "path": "packages/headless/src/modules/stats/docs/CHANGELOG.md",
+      "title": "stats Changelog"
+    },
+    "guide:packages/headless/src/modules/stats/docs/README": {
+      "kind": "guide",
+      "module": "",
+      "path": "packages/headless/src/modules/stats/docs/README.md",
+      "title": "stats"
+    },
+    "guide:packages/headless/src/modules/stats/docs/architecture": {
+      "kind": "guide",
+      "module": "",
+      "path": "packages/headless/src/modules/stats/docs/architecture.md",
+      "title": "stats Architecture"
+    },
+    "guide:packages/headless/src/modules/stats/docs/foundation": {
+      "kind": "guide",
+      "module": "",
+      "path": "packages/headless/src/modules/stats/docs/foundation.md",
+      "title": "Module: stats"
+    },
+    "guide:packages/headless/src/modules/stats/docs/gotchas": {
+      "kind": "guide",
+      "module": "",
+      "path": "packages/headless/src/modules/stats/docs/gotchas.md",
+      "title": "stats Gotchas"
+    },
+    "guide:packages/headless/src/modules/stats/docs/usage": {
+      "kind": "guide",
+      "module": "",
+      "path": "packages/headless/src/modules/stats/docs/usage.md",
+      "title": "stats Usage & API"
+    },
     "guide:packages/headless/src/modules/system/docs/CHANGELOG": {
       "kind": "guide",
       "module": "",
@@ -18206,21 +18431,21 @@
     }
   },
   "meta": {
-    "built_at": "2026-10-03T07:09:17.593Z",
-    "corpus_version": "1+43567826efae",
+    "built_at": "2026-10-03T14:30:58.918Z",
+    "corpus_version": "1+b0e14dd04272",
     "counts": {
       "adrs": 35,
       "changelogSymbols": 0,
       "examples": 0,
       "glossaryTerms": 27,
-      "guides": 180,
-      "indexEntries": 2070,
+      "guides": 186,
+      "indexEntries": 2088,
       "relationEdges": 5310,
       "relationsPruned": 2227,
-      "symbols": 928
+      "symbols": 940
     },
     "relationsSha256": "9a6f85296b647222228f20f54141377046925e9862437ca4617d3a6a8b87e391",
-    "source_commit": "a5793a8a6810ef2a8adef91874105bd24c0745c2"
+    "source_commit": "fa9cba1a1b416baf35fa5749953bd90f333b2390"
   },
   "relations": {
     "edges": [
@@ -60959,7 +61184,7 @@
       "name": "AuthEventType",
       "signature": "Symbol AuthEventType",
       "sourceFile": "packages/headless/src/modules/session-store/session-store.types.ts",
-      "sourceLine": 336,
+      "sourceLine": 344,
       "tsdoc": null
     },
     "@upmind-automation/headless!AuthEvents": {
@@ -60970,7 +61195,7 @@
       "name": "AuthEvents",
       "signature": "AuthEvents: object",
       "sourceFile": "packages/headless/src/modules/session-store/session-store.types.ts",
-      "sourceLine": 328,
+      "sourceLine": 336,
       "tsdoc": "Interactive auth action that minted a token. Passed through `add()` /\n`persistTokenToStorage` to drive the login/sign_up dataLayer event and the\nsubsequent-login `/self` cache-bust."
     },
     "@upmind-automation/headless!AuthFlowTypes": {
@@ -62235,7 +62460,7 @@
       "name": "CriteriaInput",
       "signature": "Symbol CriteriaInput",
       "sourceFile": "packages/headless/src/modules/query/query.types.ts",
-      "sourceLine": 415,
+      "sourceLine": 423,
       "tsdoc": "The ONE way a collection says what it asks for: it DECLARES the request\nbranches, so spelling any of them raw beside the declaration is a compile\nerror rather than a second source of truth. A collection with no filters,\nsort or pagination at all declares no criteria — that stays legal, and it\nsimply has nothing to write.\n\nIntersected with an entry point's own params, NOT folded into\nRequestParams: the one-shot promise helpers (`getRequest`,\n`listRequest`, `countRequest`) still take the branches as plain params."
     },
     "@upmind-automation/headless!CustomField": {
@@ -62488,7 +62713,7 @@
       "name": "DelegatableRecord",
       "signature": "Symbol DelegatableRecord",
       "sourceFile": "packages/headless/src/modules/session-store/session-store.types.ts",
-      "sourceLine": 199,
+      "sourceLine": 207,
       "tsdoc": "Record types the server can mark as delegated to the active client\n(graphify-out/ — `graphify query \"IOrder IInvoice alias delegatable record\norder delegate_related\"` confirms `IOrder` carries no node of its own).\n\nORDERS ARE COVERED, via `IInvoice`. `IOrder` is a straight alias of\n`IInvoice` (`types/src/models/orders.ts:3`), so an order both satisfies this\nunion and takes the invoice arm of `isDelegated` — child-account exclusion\nand all. That matches the oracle: the legacy orders module maps\n`belongsToDelegate` onto the invoices getter verbatim\n(`vue-app src/store/modules/data/orders/index.ts:65-68`, commented \"Map to\nidentical INVOICES getter\"), and orders render the same delegated badge\n(`orderRowItem.vue:99`). Naming `IOrder` here would be a no-op alias in the\nunion, not extra coverage."
     },
     "@upmind-automation/headless!Delegate": {
@@ -62521,7 +62746,7 @@
       "name": "DelegatedRecordOwner",
       "signature": "Symbol DelegatedRecordOwner",
       "sourceFile": "packages/headless/src/modules/session-store/session-store.types.ts",
-      "sourceLine": 205,
+      "sourceLine": 213,
       "tsdoc": "The owning client of a delegated record, read off the record's own embedded\n`client` relation. Every field optional because every source field is."
     },
     "@upmind-automation/headless!DescriptionDisplay": {
@@ -63170,7 +63395,7 @@
       "name": "InfiniteListQuery",
       "signature": "Symbol InfiniteListQuery",
       "sourceFile": "packages/headless/src/modules/query/query.types.ts",
-      "sourceLine": 485,
+      "sourceLine": 493,
       "tsdoc": "The `listInfinite()` query's return shape (`useQuery.ts`). Extracted from\n`listInfinite`'s own inline return-statement cast for the same reason as\nListQuery.\n\n`data` is the accumulated pages FLATTENED — the same flat rows\nListQuery publishes, so a surface can consume either arm."
     },
     "@upmind-automation/headless!InfiniteQueryPage": {
@@ -63456,7 +63681,7 @@
       "name": "ListQuery",
       "signature": "Symbol ListQuery",
       "sourceFile": "packages/headless/src/modules/query/query.types.ts",
-      "sourceLine": 310,
+      "sourceLine": 318,
       "tsdoc": "The `list()` query's return shape (`useQuery.ts`), parameterised by the raw\nfetch type, the (optionally `select`-mapped) data type and the collection's\nquery model — mirrors `list`'s own generic order/defaults. Extracted from\n`list`'s own inline return-statement cast so a scoped module can express its\nlist-query return type without deriving `ReturnType<typeof localFn>` from its\nown already-instantiated service function (graphify-out/ citation above — no\nprior node for this type).\n\nONE shape: sort, filters and pagination are the criteria's, so there are no\n`sort()`/`filter()` setters beside QueryCriteriaHandle.setCriteria."
     },
     "@upmind-automation/headless!ListStyle": {
@@ -63478,7 +63703,7 @@
       "name": "LoadedSessionUsers",
       "signature": "Symbol LoadedSessionUsers",
       "sourceFile": "packages/headless/src/modules/session-store/session-store.types.ts",
-      "sourceLine": 229,
+      "sourceLine": 237,
       "tsdoc": "Result of loading `/self` for every session during boot resolution.\n`users` holds the profiles that loaded; `invalidSessionIds` names the\nsessions whose token returned `401` (dead token) and must be dropped so boot\nfalls through to the guest floor. A non-401 failure is a soft degrade and\nappears in neither list."
     },
     "@upmind-automation/headless!Locale": {
@@ -63665,7 +63890,7 @@
       "name": "MutationParams",
       "signature": "Symbol MutationParams",
       "sourceFile": "packages/headless/src/modules/query/query.types.ts",
-      "sourceLine": 283,
+      "sourceLine": 291,
       "tsdoc": "Type alias defining parameters for TanStack Query's `useMutation` hook,\nextending RequestParams with `MutationObserverOptions` and omitting `mutationFn`,\nwhich is handled internally."
     },
     "@upmind-automation/headless!MutationResult": {
@@ -63676,7 +63901,7 @@
       "name": "MutationResult",
       "signature": "Symbol MutationResult",
       "sourceFile": "packages/headless/src/modules/query/query.types.ts",
-      "sourceLine": 511,
+      "sourceLine": 519,
       "tsdoc": "The `mutate()` mutation's return shape (`useQuery.ts`), parameterised by\nits resolved data type. Extracted from `mutate`'s own inline return-\nstatement cast for the same reason as ListQuery."
     },
     "@upmind-automation/headless!NotificationChannel": {
@@ -64009,6 +64234,17 @@
       "sourceLine": 120,
       "tsdoc": null
     },
+    "@upmind-automation/headless!PackageLimits": {
+      "id": "@upmind-automation/headless!PackageLimits",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "stats",
+      "name": "PackageLimits",
+      "signature": "Symbol PackageLimits",
+      "sourceFile": "packages/headless/src/modules/stats/stats.types.ts",
+      "sourceLine": 159,
+      "tsdoc": "The quota bag of the client record (AC18), as the wire actually carries\nit. Declared for read-back clarity; no composable of this module reads it\n— the bag lands on the session alone (ruling R2, design DA12)."
+    },
     "@upmind-automation/headless!PageRoute": {
       "id": "@upmind-automation/headless!PageRoute",
       "kind": "2097152",
@@ -64028,7 +64264,7 @@
       "name": "PaginationInfo",
       "signature": "Symbol PaginationInfo",
       "sourceFile": "packages/headless/src/modules/query/query.types.ts",
-      "sourceLine": 619,
+      "sourceLine": 627,
       "tsdoc": "Interface representing comprehensive pagination information, typically returned\nby an API to describe the current state of paginated results."
     },
     "@upmind-automation/headless!Payment": {
@@ -64160,7 +64396,7 @@
       "name": "PersistedSessionState",
       "signature": "Symbol PersistedSessionState",
       "sourceFile": "packages/headless/src/modules/session-store/session-store.types.ts",
-      "sourceLine": 302,
+      "sourceLine": 310,
       "tsdoc": "Shape persisted to sessionStorage.\nContains all session data needed to fully restore the store on page reload.\nExcludes transient flags (`initialised`, `loading`) which reset on each load."
     },
     "@upmind-automation/headless!PersonalDetailsScopeMatrix": {
@@ -64754,7 +64990,7 @@
       "name": "QueryCriteria",
       "signature": "Symbol QueryCriteria",
       "sourceFile": "packages/headless/src/modules/query/query.types.ts",
-      "sourceLine": 373,
+      "sourceLine": 381,
       "tsdoc": "A collection's REQUEST STATE as a schema-governed model: intent → parse →\nvalidate → translate. Knows nothing about fetching, urls, vue-query or scope,\nso it can be exercised with no HTTP at all. Constructed by `list()` from\nQueryCriteriaOptions — a module never mints one, and so cannot mint\none wrongly."
     },
     "@upmind-automation/headless!QueryCriteriaHandle": {
@@ -64765,7 +65001,7 @@
       "name": "QueryCriteriaHandle",
       "signature": "Symbol QueryCriteriaHandle",
       "sourceFile": "packages/headless/src/modules/query/query.types.ts",
-      "sourceLine": 427,
+      "sourceLine": 435,
       "tsdoc": "What every list handle publishes about its request state, so each layer reads\nONE source and no consumer needs a shadow copy."
     },
     "@upmind-automation/headless!QueryCriteriaOptions": {
@@ -64776,7 +65012,7 @@
       "name": "QueryCriteriaOptions",
       "signature": "Symbol QueryCriteriaOptions",
       "sourceFile": "packages/headless/src/modules/query/query.types.ts",
-      "sourceLine": 346,
+      "sourceLine": 354,
       "tsdoc": null
     },
     "@upmind-automation/headless!QueryParams": {
@@ -64787,8 +65023,8 @@
       "name": "QueryParams",
       "signature": "Symbol QueryParams",
       "sourceFile": "packages/headless/src/modules/query/query.types.ts",
-      "sourceLine": 215,
-      "tsdoc": "Type alias defining parameters for TanStack Query's `useQuery` hook,\nextending RequestParams with `QueryObserverOptions` and omitting\n`queryFn` and `initialData`, which are handled internally."
+      "sourceLine": 218,
+      "tsdoc": "Type alias defining parameters for TanStack Query's `useQuery` hook,\nextending RequestParams with `QueryObserverOptions` and omitting\n`queryFn` and `initialData`, which are handled internally.\n\n`select` receives the response `data` and, second, the whole response\nenvelope, so a read can map off envelope fields such as `total`."
     },
     "@upmind-automation/headless!QueryProps": {
       "id": "@upmind-automation/headless!QueryProps",
@@ -64831,7 +65067,7 @@
       "name": "QuerySchema",
       "signature": "Symbol QuerySchema",
       "sourceFile": "packages/headless/src/modules/query/query.types.ts",
-      "sourceLine": 344,
+      "sourceLine": 352,
       "tsdoc": "A collection's declared query schema — filters · sort · pagination as ONE\nDraft-07 schema. The translator and the validators walk it at runtime, so\nthe type stays the general Draft-07 shape, never a module literal."
     },
     "@upmind-automation/headless!QuerySortEntry": {
@@ -64842,7 +65078,7 @@
       "name": "QuerySortEntry",
       "signature": "Symbol QuerySortEntry",
       "sourceFile": "packages/headless/src/modules/query/query.types.ts",
-      "sourceLine": 556,
+      "sourceLine": 564,
       "tsdoc": "One entry in a query model's `sort` branch — precedence is position. The\nMODEL's ordered form; QueryProps.sort's `[direction, property]`\ntuple is its wire form."
     },
     "@upmind-automation/headless!RECEIVED_EMAILS_SCOPE_MATRIX": {
@@ -64897,7 +65133,7 @@
       "name": "ReactiveQueryKeys",
       "signature": "Symbol ReactiveQueryKeys",
       "sourceFile": "packages/headless/src/modules/query/query.types.ts",
-      "sourceLine": 228,
+      "sourceLine": 236,
       "tsdoc": "Type alias for reactive query keys used to create dynamic query keys for TanStack Query.\nThis allows query keys to automatically update based on reactive sources."
     },
     "@upmind-automation/headless!RecaptchaContext": {
@@ -65073,7 +65309,7 @@
       "name": "RequestFilterOperator",
       "signature": "Enum RequestFilterOperator",
       "sourceFile": "packages/headless/src/modules/query/query.types.ts",
-      "sourceLine": 581,
+      "sourceLine": 589,
       "tsdoc": "The filter operators the API accepts, as the `filter[column|operator]` key's\noperator half. ONE vocabulary for all three consumers: the criteria's\ntranslator, a query schema's declared operator leaves, and the filter\nrenderer's dispatch.\n\nGrounded on the legacy app's own `ApiOperators` enum\n(`vue-app/src/data/table.ts:4-17`) — the parity oracle, not this module's\ncurrent usage. Two deliberate omissions: its `DEFAULT = \"\"` member is the\nsuffix-LESS form (`filter[column]`), not an operator a schema can name; and\n`any` / `none` are UI-level members of its sibling `FilterOperators` enum\nwith no `ApiOperators` counterpart, so they are not wire vocabulary.\n\nA schema keeps PLAIN STRING KEYS so it stays a liftable JSON literal — a\ncomputed key would break that. This enum names the operator in CODE; the two\nare kept in step by the schema being walked at runtime, where an operator no\ncolumn declares is unspellable."
     },
     "@upmind-automation/headless!RequestFilters": {
@@ -65084,7 +65320,7 @@
       "name": "RequestFilters",
       "signature": "Symbol RequestFilters",
       "sourceFile": "packages/headless/src/modules/query/query.types.ts",
-      "sourceLine": 599,
+      "sourceLine": 607,
       "tsdoc": "Interface representing a collection of filter parameters for a request.\nIt's a record where keys are filter names and values are the filter criteria."
     },
     "@upmind-automation/headless!RequestPagination": {
@@ -65095,7 +65331,7 @@
       "name": "RequestPagination",
       "signature": "Symbol RequestPagination",
       "sourceFile": "packages/headless/src/modules/query/query.types.ts",
-      "sourceLine": 604,
+      "sourceLine": 612,
       "tsdoc": "Interface representing pagination parameters for a request."
     },
     "@upmind-automation/headless!RequestParams": {
@@ -65117,7 +65353,7 @@
       "name": "RequestSortDirection",
       "signature": "Enum RequestSortDirection",
       "sourceFile": "packages/headless/src/modules/query/query.types.ts",
-      "sourceLine": 527,
+      "sourceLine": 535,
       "tsdoc": "Enumeration defining the direction for sorting query results."
     },
     "@upmind-automation/headless!RouteQueryParams": {
@@ -65185,6 +65421,17 @@
       "sourceFile": "packages/headless/src/modules/session-store/session-store.types.ts",
       "sourceLine": 29,
       "tsdoc": "Scope matrix for useActiveSession composable.\nSession scope is simple - no context needed for any actor."
+    },
+    "@upmind-automation/headless!STATS_SCOPE_MATRIX": {
+      "id": "@upmind-automation/headless!STATS_SCOPE_MATRIX",
+      "kind": "Variable",
+      "lessons": [],
+      "module": "stats",
+      "name": "STATS_SCOPE_MATRIX",
+      "signature": "STATS_SCOPE_MATRIX: object",
+      "sourceFile": "packages/headless/src/modules/stats/stats.types.ts",
+      "sourceLine": 54,
+      "tsdoc": "Scope matrix for `useStats`. SELF only, and `null as never`: the oracle\nsupports no client-for-another-client cell and no staff cell for this leaf\n(`parity.yaml`), so there is no arm to declare and `.for(type, id)` is a\ncompile-time error for every actor."
     },
     "@upmind-automation/headless!ScalarOperator": {
       "id": "@upmind-automation/headless!ScalarOperator",
@@ -65513,7 +65760,7 @@
       "name": "SessionEntry",
       "signature": "Symbol SessionEntry",
       "sourceFile": "packages/headless/src/modules/session-store/session-store.types.ts",
-      "sourceLine": 216,
+      "sourceLine": 224,
       "tsdoc": "A session entry pairs a token with optional user profile data.\nUsed in clientSessions and staffSessions records."
     },
     "@upmind-automation/headless!SessionEventType": {
@@ -65524,7 +65771,7 @@
       "name": "SessionEventType",
       "signature": "Symbol SessionEventType",
       "sourceFile": "packages/headless/src/modules/session-store/session-store.types.ts",
-      "sourceLine": 320,
+      "sourceLine": 328,
       "tsdoc": null
     },
     "@upmind-automation/headless!SessionEvents": {
@@ -65535,7 +65782,7 @@
       "name": "SessionEvents",
       "signature": "SessionEvents: object",
       "sourceFile": "packages/headless/src/modules/session-store/session-store.types.ts",
-      "sourceLine": 311,
+      "sourceLine": 319,
       "tsdoc": "Shared session event names used by both the authSubscription helper\n(XState callback actor) and BroadcastChannel cross-tab sync."
     },
     "@upmind-automation/headless!SessionScopeMatrix": {
@@ -65557,7 +65804,7 @@
       "name": "SessionState",
       "signature": "Symbol SessionState",
       "sourceFile": "packages/headless/src/modules/session-store/session-store.types.ts",
-      "sourceLine": 237,
+      "sourceLine": 245,
       "tsdoc": "Store state for managing multiple actor sessions."
     },
     "@upmind-automation/headless!SessionStoreConfig": {
@@ -65579,7 +65826,7 @@
       "name": "SessionSyncMessage",
       "signature": "Symbol SessionSyncMessage",
       "sourceFile": "packages/headless/src/modules/session-store/session-store.types.ts",
-      "sourceLine": 341,
+      "sourceLine": 349,
       "tsdoc": "Message format for BroadcastChannel session sync."
     },
     "@upmind-automation/headless!SessionTransfer": {
@@ -65645,7 +65892,7 @@
       "name": "SimpleQuery",
       "signature": "Symbol SimpleQuery",
       "sourceFile": "packages/headless/src/modules/query/query.types.ts",
-      "sourceLine": 463,
+      "sourceLine": 471,
       "tsdoc": "The `query()` query's return shape (`useQuery.ts`), parameterised by the raw\nfetch type, the (optionally `select`-mapped) data type and the collection's\nquery model. Extracted from `query`'s own inline return-statement cast for\nthe same reason as ListQuery.\n\nONE shape: sort and filters are the criteria's, so there are no\n`sort()`/`filter()` setters beside QueryCriteriaHandle.setCriteria.\nA plain GET has no page window, so the model's `pagination` branch — if the\ncollection declares one — is honoured in the model and never reaches the\nwire; a collection that pages is a ListQuery."
     },
     "@upmind-automation/headless!SoftCancelModel": {
@@ -65667,8 +65914,41 @@
       "name": "SortDirection",
       "signature": "Enum SortDirection",
       "sourceFile": "packages/headless/src/modules/query/query.types.ts",
-      "sourceLine": 546,
+      "sourceLine": 554,
       "tsdoc": "A sort direction as the MODEL spells it — what a query schema's `dir` enum\ndeclares and a consumer writes. RequestSortDirection is the same fact\nin its wire form; the criteria's translator is the one place that maps\nbetween them."
+    },
+    "@upmind-automation/headless!StatType": {
+      "id": "@upmind-automation/headless!StatType",
+      "kind": "Enum",
+      "lessons": [],
+      "module": "stats",
+      "name": "StatType",
+      "signature": "Enum StatType",
+      "sourceFile": "packages/headless/src/modules/stats/stats.types.ts",
+      "sourceLine": 66,
+      "tsdoc": "The four `type` values `GET api/stats` accepts on the client path (design 8.1)."
+    },
+    "@upmind-automation/headless!StatsData": {
+      "id": "@upmind-automation/headless!StatsData",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "stats",
+      "name": "StatsData",
+      "signature": "Symbol StatsData",
+      "sourceFile": "packages/headless/src/modules/stats/stats.types.ts",
+      "sourceLine": 131,
+      "tsdoc": "The published read context of `useStats`. The four tile counts and the\nusage answer are SEPARATE members and never collapse into one: an absent\nreport key stays `null`; the module never coalesces an absence into zero,\nand never promotes a real zero into an absence (design 8.3). `usage` is\nhost-gated and the four counts are not, so `usage` carries its own absent\nvalue and its own flags."
+    },
+    "@upmind-automation/headless!StatsScopeMatrix": {
+      "id": "@upmind-automation/headless!StatsScopeMatrix",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "stats",
+      "name": "StatsScopeMatrix",
+      "signature": "Symbol StatsScopeMatrix",
+      "sourceFile": "packages/headless/src/modules/stats/stats.types.ts",
+      "sourceLine": 59,
+      "tsdoc": "Scope matrix type for `useStats` (derived from the runtime const)."
     },
     "@upmind-automation/headless!StoredOperation": {
       "id": "@upmind-automation/headless!StoredOperation",
@@ -66274,6 +66554,17 @@
       "sourceFile": "packages/headless/src/useUpmind.ts",
       "sourceLine": 49,
       "tsdoc": "Enumeration representing the initialisation status of the Upmind instance."
+    },
+    "@upmind-automation/headless!UpmindUsageData": {
+      "id": "@upmind-automation/headless!UpmindUsageData",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "stats",
+      "name": "UpmindUsageData",
+      "signature": "Symbol UpmindUsageData",
+      "sourceFile": "packages/headless/src/modules/stats/stats.types.ts",
+      "sourceLine": 152,
+      "tsdoc": "The usage answer of the server. Ruling R7 defers the whole 200 success\npath — the eleven usage numbers and the quota-key map (ruling R10) — so\nthis type carries no members today. `useContext().data` therefore stays\n`undefined` on every reachable branch; the refusal path (409) is what this\nmodule proves, through `useContext().error` and `useMeta().isVisible`."
     },
     "@upmind-automation/headless!UseAccount": {
       "id": "@upmind-automation/headless!UseAccount",
@@ -68198,6 +68489,61 @@
       "signature": "Symbol UseSessionStore",
       "sourceFile": "packages/headless/src/modules/session-store/useSessionStore.ts",
       "sourceLine": 57,
+      "tsdoc": null
+    },
+    "@upmind-automation/headless!UseStats": {
+      "id": "@upmind-automation/headless!UseStats",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "stats",
+      "name": "UseStats",
+      "signature": "Symbol UseStats",
+      "sourceFile": "packages/headless/src/modules/stats/useStats.ts",
+      "sourceLine": 99,
+      "tsdoc": null
+    },
+    "@upmind-automation/headless!UseStatsActions": {
+      "id": "@upmind-automation/headless!UseStatsActions",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "stats",
+      "name": "UseStatsActions",
+      "signature": "Symbol UseStatsActions",
+      "sourceFile": "packages/headless/src/modules/stats/useStats.actions.ts",
+      "sourceLine": 204,
+      "tsdoc": null
+    },
+    "@upmind-automation/headless!UseStatsContext": {
+      "id": "@upmind-automation/headless!UseStatsContext",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "stats",
+      "name": "UseStatsContext",
+      "signature": "Symbol UseStatsContext",
+      "sourceFile": "packages/headless/src/modules/stats/useStats.context.ts",
+      "sourceLine": 119,
+      "tsdoc": null
+    },
+    "@upmind-automation/headless!UseStatsInternals": {
+      "id": "@upmind-automation/headless!UseStatsInternals",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "stats",
+      "name": "UseStatsInternals",
+      "signature": "Symbol UseStatsInternals",
+      "sourceFile": "packages/headless/src/modules/stats/useStats.internals.ts",
+      "sourceLine": 36,
+      "tsdoc": null
+    },
+    "@upmind-automation/headless!UseStatsMeta": {
+      "id": "@upmind-automation/headless!UseStatsMeta",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "stats",
+      "name": "UseStatsMeta",
+      "signature": "Symbol UseStatsMeta",
+      "sourceFile": "packages/headless/src/modules/stats/useStats.meta.ts",
+      "sourceLine": 219,
       "tsdoc": null
     },
     "@upmind-automation/headless!UseSystem": {
@@ -70762,6 +71108,17 @@
       "sourceFile": "packages/headless/src/modules/session-store/useSessionStore.ts",
       "sourceLine": 32,
       "tsdoc": "Composable for accessing the multi-session store.\nSupports multiple simultaneous sessions per actor type (guest, client, staff).\n\n**Important:** Call `initialise()` from `useUpmind` before using other sub-composables.\nThis ensures config (allowedScopes) is set before state is built."
+    },
+    "@upmind-automation/headless!useStats": {
+      "id": "@upmind-automation/headless!useStats",
+      "kind": "Variable",
+      "lessons": [],
+      "module": "stats",
+      "name": "useStats",
+      "signature": "useStats: ScopedComposable<object, object>",
+      "sourceFile": "packages/headless/src/modules/stats/useStats.ts",
+      "sourceLine": 93,
+      "tsdoc": "Scoped composable for the client dashboard's stats — the four counts and\nthe Upmind-usage block."
     },
     "@upmind-automation/headless!useStoredPaymentMethodsSchema": {
       "id": "@upmind-automation/headless!useStoredPaymentMethodsSchema",

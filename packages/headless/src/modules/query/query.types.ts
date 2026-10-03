@@ -209,6 +209,9 @@ export type RequestParams = QueryProps & {
  * extending {@link RequestParams} with `QueryObserverOptions` and omitting
  * `queryFn` and `initialData`, which are handled internally.
  *
+ * `select` receives the response `data` and, second, the whole response
+ * envelope, so a read can map off envelope fields such as `total`.
+ *
  * @template TQueryFnData - The type of data returned by the `queryFn`.
  * @template TData - The type of data after the `select` transformation.
  */
@@ -218,8 +221,13 @@ export type QueryParams<
 > = RequestParams &
   Omit<
     QueryObserverOptions<TQueryFnData, DefaultError, TData>,
-    "queryFn" | "initialData"
-  >;
+    "queryFn" | "initialData" | "select"
+  > & {
+    select?: (
+      data: TQueryFnData,
+      response: QueryResponse<TQueryFnData>
+    ) => TData;
+  };
 
 /**
  * Type alias for reactive query keys used to create dynamic query keys for TanStack Query.

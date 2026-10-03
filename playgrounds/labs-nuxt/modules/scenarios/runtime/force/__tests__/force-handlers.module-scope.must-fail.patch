@@ -22,12 +22,16 @@ registers one handler per declared route and no catch-all beside them.
 diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/force/handlers.ts b/playgrounds/labs-nuxt/modules/scenarios/runtime/force/handlers.ts
 --- a/playgrounds/labs-nuxt/modules/scenarios/runtime/force/handlers.ts
 +++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/force/handlers.ts
-@@ -108,4 +108,7 @@ export function createForceHandlers(
+@@ -108,6 +108,9 @@ export function createForceHandlers(
    const resolve = presetResolver(preset, bodies, failure);
  
--  return map(moduleRoutes(feature, bodies), route => http.all(route, resolve));
+-  return map(moduleRoutes(feature, bodies), route =>
+-    http.all(routeMatcher(route), resolve)
+-  );
 +  return [
-+    ...map(moduleRoutes(feature, bodies), route => http.all(route, resolve)),
++    ...map(moduleRoutes(feature, bodies), route =>
++      http.all(routeMatcher(route), resolve)
++    ),
 +    http.all("*", resolve)
 +  ];
  }

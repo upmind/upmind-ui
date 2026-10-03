@@ -30,6 +30,16 @@
  *           adding one import.
  *
  * @decision
+ * what:     `bar-chart-03` (the `useStats` scenario's sidebar icon and its
+ *           usage-block empty state) is mapped to its own real lucide glyph
+ *           (`ChartBar`) on the same rule as `bell-01` above.
+ * why:      It is a genuine lucide v1 export for the exact concept the
+ *           declared name names — a bar chart. No in-map name carries that
+ *           shape, so aliasing would draw a mismatched glyph.
+ * rejected: (a) aliasing to an in-map name — cheaper, no new import, but
+ *           spends an existing glyph on a different meaning.
+ *
+ * @decision
  * what:     `message-question-circle` and `users-01` (client-tickets
  *           scenario) are mapped to their own real lucide glyphs
  *           (`MessageCircleQuestionMark`, `Users`) rather than aliased to an
@@ -51,6 +61,7 @@ import {
   Bell,
   Boxes,
   Building2,
+  ChartBar,
   Check,
   ChevronDown,
   ChevronRight,
@@ -166,6 +177,7 @@ export const ICON_MAP: Record<string, Component> = {
   "arrow-left": ArrowLeft,
   "arrow-right": ArrowRight,
   "arrow-up": ArrowUp,
+  "bar-chart-03": ChartBar,
   basket: ShoppingBasket,
   "bell-01": Bell,
   box: Boxes,

@@ -440,7 +440,13 @@ describe("AC5 a declared state the corpus cannot answer is NAMED, never dropped"
     // but its corpus holds only a 200 read and a 404 absent-record. A servable
     // refused read of a client's own details is the fault staging will not return
     // on demand, so error-collection stays an owed capture, named not dropped.
-    "client-personal-details": ["error-collection"]
+    "client-personal-details": ["error-collection"],
+    // FE-3229, design DA59: isEmpty's TRUE state needs every stat's report
+    // key absent at once; no recorded fixture omits the tickets `open` key
+    // (design 8.3), so no capture can answer it. The limit is on the proof,
+    // not the member. Tracked: FE-3229 stats.negative-controls.md
+    // Part 12, docs/sdd/FE-3229-client-stats/parity.yaml.
+    stats: ["empty"]
   };
 
   it("owes a capture only where one is on record as owed", () => {
