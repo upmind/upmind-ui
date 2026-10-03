@@ -16,6 +16,9 @@
       "@upmind-automation/invoice": ["../modules-invoice/src/index.ts"],
       "@upmind-automation/payment": ["../modules-payment/src/index.ts"],
       "@upmind-automation/product": ["../modules-product/src/index.ts"],
+      "@upmind-automation/recommendations": [
+        "../modules-recommendations/src/index.ts"
+      ],
       "@upmind/ui": ["../../design-system/packages/ui/src/index.ts"],
       "@upmind/tokens": ["../../design-system/packages/tokens/src/index.ts"],
       "@/*": ["./src/*"]
@@ -38,6 +41,7 @@
     { "path": "../modules-invoice/tsconfig.build.json" },
     { "path": "../modules-payment/tsconfig.build.json" },
     { "path": "../modules-product/tsconfig.build.json" },
+    { "path": "../modules-recommendations/tsconfig.build.json" },
     { "path": "../../design-system/packages/ui/tsconfig.build.json" },
     { "path": "../../design-system/packages/tokens/tsconfig.build.json" }
   ]
