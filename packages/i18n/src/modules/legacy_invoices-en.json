@@ -1,0 +1,42 @@
+{
+  "$comment": "legacy_invoices.* — the scoped legacy-invoices module's own strings. The FILENAME is the namespace: the loader parses modules/NAME-en.json as NAME, so every key here resolves as legacy_invoices.KEY. The sibling invoices-en.json is a DIFFERENT namespace (invoices.*, the live invoices module) — do not merge the two. These are the archive list's column headers and the single-read detail labels, consumed by the labs scenario presentation (legacy-invoices.presentation.ts).",
+  "badge": {
+    "overdue": "Overdue",
+    "paid": "Paid",
+    "staged": "Staged import",
+    "unpaid": "Unpaid"
+  },
+  "table": {
+    "date_created": "Created",
+    "items": "Items",
+    "number": "Number",
+    "status": "Status",
+    "total": "Total"
+  },
+  "detail": {
+    "brand_address": "Brand address",
+    "brand_name": "Brand",
+    "brand_vat_number": "Brand VAT number",
+    "client": "Client",
+    "client_address": "Client address",
+    "client_company_name": "Company",
+    "client_company_reg_number": "Company registration number",
+    "client_company_vat_number": "Company VAT number",
+    "date_created": "Created",
+    "date_paid": "Date paid",
+    "discount": "Discount",
+    "download_failure": "We could not download this invoice. Please try again.",
+    "download_success": "Your invoice PDF is downloading.",
+    "number": "Number",
+    "product_alt_name": "Alternative name",
+    "product_description": "Description",
+    "product_name": "Product",
+    "product_quantity": "Quantity",
+    "product_total": "Total",
+    "products": "Products",
+    "status": "Status",
+    "subtotal": "Subtotal",
+    "tax": "Tax",
+    "total": "Total"
+  }
+}

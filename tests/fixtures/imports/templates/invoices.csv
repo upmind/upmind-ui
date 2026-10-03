@@ -1,0 +1,2 @@
+id,contract_id,number,client_id,user_id,net_amount,tax_amount,total_amount,paid_amount,status,paid_datetime,due_date,created_at,updated_at,cancellation_datetime,invoice_product_id,invoice_product_product_id,invoice_product_name,invoice_product_description,invoice_product_quantity,invoice_product_unit_quantity,invoice_product_net_amount,invoice_product_tax_amount,invoice_product_vat_percentage,invoice_product_total_amount,invoice_product_created_at,invoice_product_updated_at,currency_code
+inv1,,,,,,,,,,,,,,,,,Fixture invoice_product_name inv1,,,,,,,,,,GBP

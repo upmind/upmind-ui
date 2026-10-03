@@ -1,0 +1,40 @@
+# Must-fail mutant for legacy-invoices.cache-key.int.test.ts's AC-17
+# specification. Paired describes: "legacy-invoices cache — the collection is
+# keyed per client (AC-17)" and "legacy-invoices cache — the single read is
+# keyed per client (AC-17)".
+#
+# Mutates `loadList` and `loadOne` in `legacy-invoices.services.ts` — drops the
+# `{ client: clientId.value }` segment from BOTH cache keys (design.md §5.1,
+# §8.1, §10.1 row 7). Without the client segment, a second client in the same
+# tab reads the first client's one-day-stale cache entry instead of a fresh
+# per-client request.
+#
+# Reds (exactly two):
+#   - "@AC-17 a second client's archive read issues a fresh request and
+#     publishes that client's rows, never the first client's cached rows"
+#   - "@AC-17 a second client reading the SAME record id issues a fresh request
+#     and publishes that client's record, never the first client's cached
+#     record"
+#
+# Declared collateral: NONE (verified — the full headless integration suite
+# stays green with this patch applied, aside from the two named assertions:
+# 7 files / 53 tests, of which only the two @AC-17 tests red).
+#
+# Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+--- a/packages/headless/src/modules/legacy-invoices/legacy-invoices.services.ts
++++ b/packages/headless/src/modules/legacy-invoices/legacy-invoices.services.ts
+@@ -71,6 +71,6 @@ function loadList(): LegacyInvoicesListQuery {
+   return list<ILegacyInvoice[], LegacyInvoice[], LegacyInvoiceQueryModel>({
+     criteria: { schema: useQuerySchema() },
+-    queryKey: [...queryKey, { client: clientId.value }],
++    queryKey: [...queryKey],
+     url: useUrl("import_invoice_data"),
+     withAccessToken: true,
+     guard: async () =>
+@@ -100,5 +100,5 @@ function loadOne(recordId?: LegacyInvoice["id"]): LegacyInvoiceItemQuery {
+   return query<ILegacyInvoice, LegacyInvoice>({
+-    queryKey: [...queryKey, "record", recordId, { client: clientId.value }],
++    queryKey: [...queryKey, "record", recordId],
+     url: useUrl(`import_invoice_data/${recordId}`, LOAD_ONE_PARAMS),
+     withAccessToken: true,
+     guard: async () =>

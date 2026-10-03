@@ -1,0 +1,48 @@
+# Must-fail mutant for legacy-invoices.mappers.test.ts (AC-7, T48).
+#
+# Mutates `mapLegacyInvoice` — drops the preserved-bill half of the
+# projection, publishing `content: {}` instead of `raw.content` (design.md
+# §8.11's declared mutation point for the mappers unit specification: "one
+# half of the projection, dropped").
+#
+# Reds: legacy-invoices.mappers.test.ts — both assertions of "the preserved
+# bill kept WHOLE (AC-7, D-16, PROJ-1)": "keeps the preserved bill reachable
+# in full" and "does not itself derive any of the five conditions — content
+# stays the sole path".
+#
+# Declared collateral: the SAME mapper feeds `useLegacyInvoice`'s `loadOne`,
+# so dropping `content` there empties the published record's preserved bill
+# too, and every AC-7 specification in
+# `legacy-invoices.single-read.int.test.ts` that reads a `content.*` path
+# reddens alongside the two named above — FIVE specifications, not one:
+#  - "@AC-7 the preserved bill resolves path by path, each of the five
+#    conditions reads its own path, and the three company paths resolve to
+#    nothing without an error" (every `content.*` path, including `number`,
+#    now resolves to nothing)
+#  - "@AC-7 isPaid reads true when content.status carries a paid code..."
+#  - "@AC-7 isOverdue reads true when content.status carries an overdue
+#    code..."
+#  - "@AC-7 isCredited reads true when
+#    content.partial_amount_credited_converted is positive..."
+#  - "@AC-7 isProforma reads true when content.proforma is true..."
+# `isStaged` does NOT redden — it reads `staged_import` off the record's
+# TOP LEVEL (design.md §8.13), a sibling of `content`, untouched by this
+# mutation. Verified: no OTHER integration file reddens (collection,
+# filter-operators, order, download, divergences all stay green).
+#
+# Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+--- a/packages/headless/src/modules/legacy-invoices/legacy-invoices.mappers.ts
++++ b/packages/headless/src/modules/legacy-invoices/legacy-invoices.mappers.ts
+@@ -43,11 +43,11 @@
+ export function mapLegacyInvoice(raw: ILegacyInvoice): LegacyInvoice {
+   return {
+     id: raw.id,
+     number: raw.number,
+     total_amount: raw.total_amount,
+     total_amount_formatted: raw.total_amount_formatted,
+     create_datetime: raw.create_datetime,
+     staged_import: !!raw.staged_import,
+-    content: raw.content
++    content: {}
+   };
+ }

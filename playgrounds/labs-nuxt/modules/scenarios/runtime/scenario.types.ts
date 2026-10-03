@@ -459,6 +459,20 @@ export type DetailUischema = Layout & {
    * assembly is the seam this field extends, additively.
    */
   siblings?: string[];
+  /**
+   * Detail-port controls the overlay declares — drawn in the drawer's existing
+   * `#footer` group beside Close, bound to the booted READ composable's own
+   * action map (`DetailDialog`'s `port.actions`), never the list's. Drawn only
+   * where a control's `name` is a live function there, the same gate
+   * `ListSurface`'s row actions already apply. Absent, the footer draws only
+   * Close and the row actions, exactly as before this field existed.
+   *
+   * @graphify-citation `graphify query "detail uischema action control read
+   * composable"` (2026-09-28) — no detail-action-list node exists in the
+   * tree; this reuses the existing `ScenarioAction` shape rather than
+   * minting a second one.
+   */
+  actions?: ScenarioAction[];
 };
 
 /** Where an action sits among the surface's placements. */

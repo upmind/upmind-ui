@@ -133,7 +133,7 @@ async function render(context: PaymentContext, event: AnyEventObject) {
   if (!renderer) {
     return Promise.reject(
       new DetailedError(
-        t("error.challenge_renderer_not_available"),
+        t("error.payment_challenge_renderer_not_available"),
         responseCodes.Not_Found,
         ErrorOrigin.Headless,
         { gatewayCode }
@@ -145,7 +145,7 @@ async function render(context: PaymentContext, event: AnyEventObject) {
   if (renderer.isSupported && !renderer.isSupported(context)) {
     return Promise.reject(
       new DetailedError(
-        t("error.challenge_not_supported"),
+        t("error.payment_challenge_not_valid"),
         responseCodes.Bad_Request,
         ErrorOrigin.Headless,
         { gatewayCode }

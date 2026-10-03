@@ -6,6 +6,7 @@ import {
 } from "@upmind-automation/types";
 import { useQuery } from "../query";
 import { ScopeActorTypes } from "../scope/scope.types";
+import { useI18n } from "../system-localisation";
 import { mapSessionUser } from "./session-store.mappers";
 import { getTokenFromStorage } from "./session-store.utils";
 import {
@@ -46,6 +47,8 @@ async function loadClientUser(token: IToken): Promise<SessionUser> {
           "actor.account",
           "actor.brand",
           "actor.image",
+          // FE-3230 ruling E3-R — computes `has_legacy_invoices` (oracle: clients/index.ts:158)
+          "actor.legacy_invoices",
           "actor.parent_client_config.parent_client",
           "actor.parent_client_config.parent_client.image",
           "accounts",
@@ -201,6 +204,8 @@ export function mintNewGuestToken(): Promise<IToken> {
 }
 
 async function driveGuestMint(fresh?: boolean): Promise<IToken> {
+  const { t } = useI18n();
+
   // `useAuth` stays a lazy import: the auth module imports session-store
   // statically, so importing the auth barrel at the top of this file would
   // close a real auth ↔ session-store cycle. (ScopeActorTypes is imported
@@ -237,7 +242,7 @@ async function driveGuestMint(fresh?: boolean): Promise<IToken> {
   // hang or proceed guestless. `initialise` catches this and surfaces the boot
   // error so downstream consumers can react.
   throw new DetailedError(
-    `Failed to mint a guest token after ${GUEST_MINT_MAX_ATTEMPTS} attempts`,
+    t("error.session_guest_mint_failed", { attempts: GUEST_MINT_MAX_ATTEMPTS }),
     responseCodes.Service_Unavailable,
     ErrorOrigin.Headless
   );

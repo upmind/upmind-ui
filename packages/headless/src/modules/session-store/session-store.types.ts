@@ -125,7 +125,14 @@ export type SessionUser = {
    */
   isGuest?: boolean;
   /** Staged-import (read-only) client; mapped from actor.staged_import (graphify-out/). */
-  staged_import?: boolean;
+  stagedImport?: boolean;
+  /**
+   * Whether this client owns at least one imported (legacy) invoice; mapped
+   * from actor.has_legacy_invoices (FE-3230 ruling UQ1-C). READ ONLY — a
+   * passthrough, never a derivation. `useLegacyInvoices().meta.
+   * hasLegacyInvoices` reads this field; it does not compute it.
+   */
+  hasLegacyInvoices?: boolean;
   /**
    * Primary email with verification status (M1/M6/M7).
    * Populated by mapSessionUser from actor.default_email.

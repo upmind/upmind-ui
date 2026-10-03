@@ -119,6 +119,14 @@ Switching `list()` to a combination it has never shown before replaces the page 
 
 `listInfinite()` doesn't get the same treatment, because it has nothing to bridge: it never replaces anything to make room for what's loading — every additional page it pulls in is rows **added** to what's already there, never rows **ousting** them. There is no in-between state to paper over, so nothing was added to paper over one.
 
+## Binary downloads
+
+`useQuery().download({ url, init, withAccessToken, withoutLocale })` is the binary sibling of `request()`: it resolves the response body as a `Blob`, for payloads a JSON reader cannot carry (a PDF, an attachment). It takes the same url, locale and access-token options as `request()`: `lang` is added unless `withoutLocale` is set or the url already has one, and `withAccessToken` (`true` for the active session's token, or a token string) sets the `Authorization` header. A caller that needs an `ArrayBuffer` converts with `blob.arrayBuffer()`.
+
+On a non-OK response it rejects with a `DetailedError` whose `code` is the HTTP status (and whose message and data come from the API error body when present), so a caller can branch on it, for example a 404 meaning "not ready yet". An aborted request rejects with no value, as `request()` does.
+
+A download is a plain one-shot call: it is not cached, not retried and has no query state. Invoices, legacy invoices and tickets all download through it.
+
 ## Where it fits
 
 ```text

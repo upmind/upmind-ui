@@ -1,0 +1,2 @@
+id,first_name,last_name,has_login,verified,email,phone_phone,phone_country_code,phone_verified,address_address_1,address_city,address_postcode,address_country_code,address_verified,company_name,company_verified,currency_code
+c1,Fixture first_name c1,Fixture last_name c1,,,client-c1@example.com,,,,,,,,,Fixture company_name c1,,GBP

@@ -196,6 +196,22 @@ invoice:
     - { type: symbol, id: "@upmind-automation/headless!useInvoice" }
     - { type: symbol, id: "@upmind-automation/headless!Invoice" }
 
+imported-invoice:
+  term: imported invoice
+  kind: domain
+  aliases: [legacy invoice]
+  definition: >-
+    A bill originally issued by a predecessor billing system and carried into
+    the platform as a read-only archived record, distinct from an invoice the
+    platform itself raises. The record's own top-level fields (number, total,
+    dates) support listing, filtering and sorting; its original document is
+    preserved whole rather than reshaped. Read-only, self scope only — no
+    pay, cancel, refund, share or edit capability exists.
+  referents:
+    - { type: symbol, id: "@upmind-automation/headless!useLegacyInvoices" }
+    - { type: symbol, id: "@upmind-automation/headless!useLegacyInvoice" }
+    - { type: symbol, id: "@upmind-automation/headless!LegacyInvoice" }
+
 client:
   term: client
   kind: domain

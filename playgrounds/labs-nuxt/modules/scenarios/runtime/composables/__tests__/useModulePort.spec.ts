@@ -187,10 +187,17 @@ function createForRecordingComposable() {
     return scoped;
   }) as ScenarioScopedCell["for"];
 
-  return {
-    composable: (() => ({ as: () => unscoped })) as FourLayerComposable,
-    calls
-  };
+  const composable = (() => ({ as: () => unscoped })) as FourLayerComposable;
+  // A composable with no matrix declares no context, so both contexts the arity
+  // cases boot at are declared here.
+  composable.scopeMatrix = {
+    [ScopeActorTypes.SELF]: null as never,
+    [ScopeActorTypes.STAFF]: null as never,
+    [ScopeActorTypes.CLIENT]: ["invoice", "client"],
+    [ScopeActorTypes.GUEST]: null as never
+  } as unknown as ActorContextMatrix;
+
+  return { composable, calls };
 }
 
 /**

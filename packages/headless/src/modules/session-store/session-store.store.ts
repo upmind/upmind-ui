@@ -10,6 +10,7 @@ import {
   resolveGuestCookieId,
   resolveGuestSessionId
 } from "../session-store/session-store.utils";
+import { useI18n } from "../system-localisation";
 import {
   loadAllSessionUsers,
   loadUser,
@@ -530,6 +531,8 @@ sessionStore.subscribe(() => {
  * ```
  */
 export async function initialise(config?: SessionStoreConfig): Promise<void> {
+  const { t } = useI18n();
+
   // Always apply config, even if init is already in progress.
   // This handles the case where useSessionStore() is called without config
   // (triggering init) before useUpmind passes the config.
@@ -553,7 +556,7 @@ export async function initialise(config?: SessionStoreConfig): Promise<void> {
         error instanceof DetailedError
           ? error
           : new DetailedError(
-              "Session store failed to initialise",
+              t("error.session_store_init_failed"),
               responseCodes.Service_Unavailable,
               ErrorOrigin.Headless
             ),

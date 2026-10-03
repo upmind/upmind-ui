@@ -397,7 +397,13 @@ export function createClientNotificationsManagerActions(
     const effectiveModel = nextValue ?? getModel();
 
     if (isEqual(effectiveModel, getBaseModel())) {
-      return Promise.reject(new Error("Nothing to save"));
+      return Promise.reject(
+        new DetailedError(
+          t("error.input_not_available"),
+          responseCodes.Forbidden,
+          ErrorOrigin.Headless
+        )
+      );
     }
 
     if (nextValue) {

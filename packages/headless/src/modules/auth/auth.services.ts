@@ -1,7 +1,7 @@
 /** @internal */
-import { t, type AnyEventObject } from "xstate";
 import { ScopeActorTypes } from "../scope";
 import { useSessionStore } from "../session-store";
+import { useI18n } from "../system-localisation";
 import { createClientAuthServices } from "./auth.services.client";
 import { createGuestAuthServices } from "./auth.services.guest";
 import { createStaffAuthServices } from "./auth.services.staff";
@@ -24,6 +24,7 @@ import type {
   AuthServices
 } from "./auth.types";
 import type { IToken } from "@upmind-automation/types";
+import type { AnyEventObject } from "xstate";
 // -----------------------------------------------------------------------------
 /**
  * @internal
@@ -61,6 +62,7 @@ export async function checkSession(
   context: AuthContext,
   _event: AnyEventObject
 ): Promise<{ session: IToken }> {
+  const { t } = useI18n();
   const { scopeActor, scopeContext } = context;
   const { useContext } = useSessionStore();
   const { staffSessions, clientSessions, guestSessions } = useContext();
@@ -98,7 +100,7 @@ export async function checkSession(
   if (!session?.access_token) {
     return Promise.reject(
       new DetailedError(
-        t("errors.auth.unauthorized"),
+        t("error.session_not_available"),
         responseCodes.Unauthorized,
         ErrorOrigin.Headless,
         { scopeActor }
@@ -131,6 +133,7 @@ export async function validate(
   context: AuthContext,
   _event: AnyEventObject
 ): Promise<void> {
+  const { t } = useI18n();
   const { model, schema } = context;
   if (!schema) return;
 
@@ -139,7 +142,7 @@ export async function validate(
 
   if (!isEmpty(errors)) {
     throw new DetailedError(
-      "Validation failed",
+      t("error.auth_validation_failed"),
       responseCodes.Unprocessable_Entity,
       ErrorOrigin.Headless,
       errors
