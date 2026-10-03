@@ -75,15 +75,20 @@ const unboundKeys = (): ScenarioKey[] =>
   filter(selfDrawnKeys(), key => !registry[key].useManage);
 
 /**
- * The four by ROUTE — the directory each declaration was found in, which is what
+ * The five by ROUTE — the directory each declaration was found in, which is what
  * a reader recognises them by. Named so the set itself is falsifiable: an opt-in
  * that leaked onto one of these fails here before it can fail anywhere subtler.
+ *
+ * `useStats` joined them when the two client-stats scenarios merged into one:
+ * it reads four fixed counts and a usage block, so it has neither a collection
+ * nor a record for the shared runtime to draw, and its page draws itself.
  */
 const UNBOUND_ROUTES = [
   "overlay-pay",
   "overlay-payment",
   "overlay-upgrade",
-  "usePaymentDetailAdd"
+  "usePaymentDetailAdd",
+  "useStats"
 ];
 
 // -----------------------------------------------------------------------------

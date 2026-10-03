@@ -96,6 +96,9 @@ export function mapSessionUser(
     brands: self.brands,
     // ?? {} defends against the wire's only recorded case (`null`), even
     // though ISelf.delegated_ids is typed non-nullable — never remove this.
-    delegatedIds: self.delegated_ids ?? {}
+    delegatedIds: self.delegated_ids ?? {},
+    // FE-3229 AC18, ruling R2 — additive. No default: the wire value is
+    // published verbatim, including a present empty bag.
+    upmindPackageLimits: client.upmind_package_limits
   };
 }

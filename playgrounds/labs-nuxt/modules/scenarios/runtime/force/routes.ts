@@ -32,6 +32,7 @@
 import { isAbsentRecordRead, isServedRead } from "./capabilities";
 import {
   compact,
+  escapeRegExp,
   filter,
   intersection,
   isEmpty,
@@ -52,8 +53,13 @@ import type { RecordedFixture } from "./corpus.source.types";
 // -----------------------------------------------------------------------------
 
 /** A recorded id segment: a uuid, or the capture run's own `mock-uuid-N` stand-in. */
-const IDENTIFIER =
-  /^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mock-uuid-\d+)$/i;
+const IDENTIFIER_SOURCE =
+  "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mock-uuid-\\d+";
+
+const IDENTIFIER = new RegExp(`^(?:${IDENTIFIER_SOURCE})$`, "i");
+
+/** An `:idN` parameter `routePattern` put where a recorded id stood. */
+const ID_PARAMETER = /^:id\d+$/;
 
 /** Gherkin states the subject once, on the feature's own `Feature:` line. */
 const SUBJECT_LINE = /^[^\S\n]*Feature:[^\S\n]*(.+)$/m;
@@ -175,6 +181,28 @@ function routePattern(path: string): string {
   );
 
   return `*/${segments.join("/")}`;
+}
+
+/**
+ * The route as the matcher a handler is armed with: the origin left free, and
+ * every `:idN` held to the id shape it was derived from.
+ *
+ * A bare `:idN` matches ANY segment, so the `api/clients/:id2` route also
+ * claims a sibling endpoint named by a literal — `api/clients/upmind_usage` —
+ * that the module never recorded, and forcing `loading` would hang it. msw
+ * strips `|` and `?` from a string path, so the id alternation cannot ride in
+ * one; it rides in a RegExp, matched against the url with its query dropped.
+ */
+export function routeMatcher(route: string): RegExp {
+  const segments = map(
+    compact(split(route.replace(/^\*\//, ""), "/")),
+    segment =>
+      ID_PARAMETER.test(segment)
+        ? `(?:${IDENTIFIER_SOURCE})`
+        : escapeRegExp(segment)
+  );
+
+  return new RegExp(`^.*/${segments.join("/")}$`, "i");
 }
 
 // -----------------------------------------------------------------------------

@@ -5428,6 +5428,122 @@
       "path": "packages/headless/src/modules/session-store/docs/usage.md",
       "title": "Session Store — Usage"
     },
+    "guide:packages/headless/src/modules/stats/docs/CHANGELOG": {
+      "crossRefs": [],
+      "headings": [
+        "stats Changelog",
+        "[Unreleased]",
+        "Added",
+        "Changed",
+        "Known limitations",
+        "Migration Guide",
+        "From v1.x to v2.x"
+      ],
+      "id": "guide:packages/headless/src/modules/stats/docs/CHANGELOG",
+      "path": "packages/headless/src/modules/stats/docs/CHANGELOG.md",
+      "title": "stats Changelog"
+    },
+    "guide:packages/headless/src/modules/stats/docs/README": {
+      "crossRefs": [],
+      "headings": [
+        "stats",
+        "What Is This?",
+        "Quick Start",
+        "Features",
+        "Key Concepts",
+        "One composable, one identity seam, two gates",
+        "Every count is either a number or absent — never a promoted zero",
+        "Actor Types",
+        "Documentation",
+        "How it is proven",
+        "Playground"
+      ],
+      "id": "guide:packages/headless/src/modules/stats/docs/README",
+      "path": "packages/headless/src/modules/stats/docs/README.md",
+      "title": "stats"
+    },
+    "guide:packages/headless/src/modules/stats/docs/architecture": {
+      "crossRefs": [],
+      "headings": [
+        "stats Architecture",
+        "Overview",
+        "Data Flow",
+        "Sub-Composables",
+        "Services",
+        "Dependencies",
+        "stats Depends On",
+        "Modules That Depend On stats",
+        "Integration Points"
+      ],
+      "id": "guide:packages/headless/src/modules/stats/docs/architecture",
+      "path": "packages/headless/src/modules/stats/docs/architecture.md",
+      "title": "stats Architecture"
+    },
+    "guide:packages/headless/src/modules/stats/docs/foundation": {
+      "crossRefs": [],
+      "headings": [
+        "Module: stats",
+        "What it is",
+        "Core concepts",
+        "Operations",
+        "Data shape",
+        "Dependencies",
+        "Dependants — modules that read from this one",
+        "This module's own dependencies",
+        "API endpoints",
+        "GET /stats",
+        "GET /clients/upmind_usage",
+        "Failure modes",
+        "`GET /stats` — a report window can hold nothing, two different ways",
+        "`GET /stats` — array-style query parameters answer with a server error, not a validation error",
+        "`GET /clients/upmind_usage` — the only observed outcome is a hard refusal",
+        "No addressable client → no request at all",
+        "Lessons (hard-won)"
+      ],
+      "id": "guide:packages/headless/src/modules/stats/docs/foundation",
+      "path": "packages/headless/src/modules/stats/docs/foundation.md",
+      "title": "Module: stats"
+    },
+    "guide:packages/headless/src/modules/stats/docs/gotchas": {
+      "crossRefs": [],
+      "headings": [
+        "stats Gotchas",
+        "1. The Upmind-usage panel has no proven success state 🧪",
+        "2. A tile's `null` is not a zero, and a zero is not a `null` 🧪",
+        "3. Naming `report` or `invoice_status` as an array crashes the request, not just this module",
+        "4. The usage flags are NOT the tiles' flags 🧪",
+        "5. `isEmpty` is \"none of the four holds a number\", not \"the account has nothing\"",
+        "6. The active-tickets tile fails OPEN, not closed",
+        "Common Mistakes",
+        "Assuming the usage panel's data shape from the legacy admin dashboard",
+        "Reaching for `.for('client', someOtherId)`",
+        "Sending a currency code on the tickets read",
+        "Edge Cases",
+        "Lifecycle Considerations",
+        "Destroy the Instance When Done",
+        "Wait for Ready State",
+        "`reset()` drops cached data — it does not refetch"
+      ],
+      "id": "guide:packages/headless/src/modules/stats/docs/gotchas",
+      "path": "packages/headless/src/modules/stats/docs/gotchas.md",
+      "title": "stats Gotchas"
+    },
+    "guide:packages/headless/src/modules/stats/docs/usage": {
+      "crossRefs": [],
+      "headings": [
+        "stats Usage & API",
+        "Composable Structure",
+        "Context",
+        "Meta",
+        "Actions",
+        "Internals",
+        "Vue Component Integration",
+        "Lifecycle"
+      ],
+      "id": "guide:packages/headless/src/modules/stats/docs/usage",
+      "path": "packages/headless/src/modules/stats/docs/usage.md",
+      "title": "stats Usage & API"
+    },
     "guide:packages/headless/src/modules/system/docs/CHANGELOG": {
       "crossRefs": [],
       "headings": [
@@ -7584,6 +7700,12 @@
       "path": "packages/headless/src/modules/config/schema/types.ts",
       "title": "PRODUCT_STYLE"
     },
+    "@upmind-automation/headless!PackageLimits": {
+      "kind": "symbol",
+      "module": "stats",
+      "path": "packages/headless/src/modules/stats/stats.types.ts",
+      "title": "PackageLimits"
+    },
     "@upmind-automation/headless!PageRoute": {
       "kind": "symbol",
       "module": "routing",
@@ -8226,6 +8348,12 @@
       "path": "packages/headless/src/modules/session-store/session-store.types.ts",
       "title": "SESSION_SCOPE_MATRIX"
     },
+    "@upmind-automation/headless!STATS_SCOPE_MATRIX": {
+      "kind": "symbol",
+      "module": "stats",
+      "path": "packages/headless/src/modules/stats/stats.types.ts",
+      "title": "STATS_SCOPE_MATRIX"
+    },
     "@upmind-automation/headless!ScalarOperator": {
       "kind": "symbol",
       "module": "config",
@@ -8489,6 +8617,24 @@
       "module": "query",
       "path": "packages/headless/src/modules/query/query.types.ts",
       "title": "SortDirection"
+    },
+    "@upmind-automation/headless!StatType": {
+      "kind": "symbol",
+      "module": "stats",
+      "path": "packages/headless/src/modules/stats/stats.types.ts",
+      "title": "StatType"
+    },
+    "@upmind-automation/headless!StatsData": {
+      "kind": "symbol",
+      "module": "stats",
+      "path": "packages/headless/src/modules/stats/stats.types.ts",
+      "title": "StatsData"
+    },
+    "@upmind-automation/headless!StatsScopeMatrix": {
+      "kind": "symbol",
+      "module": "stats",
+      "path": "packages/headless/src/modules/stats/stats.types.ts",
+      "title": "StatsScopeMatrix"
     },
     "@upmind-automation/headless!StoredOperation": {
       "kind": "symbol",
@@ -8819,6 +8965,12 @@
       "module": "",
       "path": "packages/headless/src/useUpmind.ts",
       "title": "UpmindStatus"
+    },
+    "@upmind-automation/headless!UpmindUsageData": {
+      "kind": "symbol",
+      "module": "stats",
+      "path": "packages/headless/src/modules/stats/stats.types.ts",
+      "title": "UpmindUsageData"
     },
     "@upmind-automation/headless!UseAccount": {
       "kind": "symbol",
@@ -9869,6 +10021,36 @@
       "module": "session-store",
       "path": "packages/headless/src/modules/session-store/useSessionStore.ts",
       "title": "UseSessionStore"
+    },
+    "@upmind-automation/headless!UseStats": {
+      "kind": "symbol",
+      "module": "stats",
+      "path": "packages/headless/src/modules/stats/useStats.ts",
+      "title": "UseStats"
+    },
+    "@upmind-automation/headless!UseStatsActions": {
+      "kind": "symbol",
+      "module": "stats",
+      "path": "packages/headless/src/modules/stats/useStats.actions.ts",
+      "title": "UseStatsActions"
+    },
+    "@upmind-automation/headless!UseStatsContext": {
+      "kind": "symbol",
+      "module": "stats",
+      "path": "packages/headless/src/modules/stats/useStats.context.ts",
+      "title": "UseStatsContext"
+    },
+    "@upmind-automation/headless!UseStatsInternals": {
+      "kind": "symbol",
+      "module": "stats",
+      "path": "packages/headless/src/modules/stats/useStats.internals.ts",
+      "title": "UseStatsInternals"
+    },
+    "@upmind-automation/headless!UseStatsMeta": {
+      "kind": "symbol",
+      "module": "stats",
+      "path": "packages/headless/src/modules/stats/useStats.meta.ts",
+      "title": "UseStatsMeta"
     },
     "@upmind-automation/headless!UseSystem": {
       "kind": "symbol",
@@ -11267,6 +11449,12 @@
       "module": "session-store",
       "path": "packages/headless/src/modules/session-store/useSessionStore.ts",
       "title": "useSessionStore"
+    },
+    "@upmind-automation/headless!useStats": {
+      "kind": "symbol",
+      "module": "stats",
+      "path": "packages/headless/src/modules/stats/useStats.ts",
+      "title": "useStats"
     },
     "@upmind-automation/headless!useStoredPaymentMethodsSchema": {
       "kind": "symbol",
@@ -18030,6 +18218,42 @@
       "path": "packages/headless/src/modules/session-store/docs/usage.md",
       "title": "Session Store — Usage"
     },
+    "guide:packages/headless/src/modules/stats/docs/CHANGELOG": {
+      "kind": "guide",
+      "module": "",
+      "path": "packages/headless/src/modules/stats/docs/CHANGELOG.md",
+      "title": "stats Changelog"
+    },
+    "guide:packages/headless/src/modules/stats/docs/README": {
+      "kind": "guide",
+      "module": "",
+      "path": "packages/headless/src/modules/stats/docs/README.md",
+      "title": "stats"
+    },
+    "guide:packages/headless/src/modules/stats/docs/architecture": {
+      "kind": "guide",
+      "module": "",
+      "path": "packages/headless/src/modules/stats/docs/architecture.md",
+      "title": "stats Architecture"
+    },
+    "guide:packages/headless/src/modules/stats/docs/foundation": {
+      "kind": "guide",
+      "module": "",
+      "path": "packages/headless/src/modules/stats/docs/foundation.md",
+      "title": "Module: stats"
+    },
+    "guide:packages/headless/src/modules/stats/docs/gotchas": {
+      "kind": "guide",
+      "module": "",
+      "path": "packages/headless/src/modules/stats/docs/gotchas.md",
+      "title": "stats Gotchas"
+    },
+    "guide:packages/headless/src/modules/stats/docs/usage": {
+      "kind": "guide",
+      "module": "",
+      "path": "packages/headless/src/modules/stats/docs/usage.md",
+      "title": "stats Usage & API"
+    },
     "guide:packages/headless/src/modules/system/docs/CHANGELOG": {
       "kind": "guide",
       "module": "",
@@ -18206,21 +18430,21 @@
     }
   },
   "meta": {
-    "built_at": "2026-10-03T07:09:17.593Z",
-    "corpus_version": "1+43567826efae",
+    "built_at": "2026-10-03T12:04:34.211Z",
+    "corpus_version": "1+77d2eee08f1d",
     "counts": {
       "adrs": 35,
       "changelogSymbols": 0,
       "examples": 0,
       "glossaryTerms": 27,
-      "guides": 180,
-      "indexEntries": 2070,
+      "guides": 186,
+      "indexEntries": 2088,
       "relationEdges": 5310,
       "relationsPruned": 2227,
-      "symbols": 928
+      "symbols": 940
     },
     "relationsSha256": "9a6f85296b647222228f20f54141377046925e9862437ca4617d3a6a8b87e391",
-    "source_commit": "a5793a8a6810ef2a8adef91874105bd24c0745c2"
+    "source_commit": "6f02077dc84c824230f290796001494595763b1c"
   },
   "relations": {
     "edges": [
@@ -60706,7 +60930,7 @@
       }
     ],
     "prunedCount": 2227,
-    "sourcedAt": ""
+    "sourcedAt": "2026-10-03"
   },
   "symbols": {
     "@upmind-automation/headless!ACCOUNT_SCOPE_MATRIX": {
@@ -60959,7 +61183,7 @@
       "name": "AuthEventType",
       "signature": "Symbol AuthEventType",
       "sourceFile": "packages/headless/src/modules/session-store/session-store.types.ts",
-      "sourceLine": 336,
+      "sourceLine": 344,
       "tsdoc": null
     },
     "@upmind-automation/headless!AuthEvents": {
@@ -60970,7 +61194,7 @@
       "name": "AuthEvents",
       "signature": "AuthEvents: object",
       "sourceFile": "packages/headless/src/modules/session-store/session-store.types.ts",
-      "sourceLine": 328,
+      "sourceLine": 336,
       "tsdoc": "Interactive auth action that minted a token. Passed through `add()` /\n`persistTokenToStorage` to drive the login/sign_up dataLayer event and the\nsubsequent-login `/self` cache-bust."
     },
     "@upmind-automation/headless!AuthFlowTypes": {
@@ -62488,7 +62712,7 @@
       "name": "DelegatableRecord",
       "signature": "Symbol DelegatableRecord",
       "sourceFile": "packages/headless/src/modules/session-store/session-store.types.ts",
-      "sourceLine": 199,
+      "sourceLine": 207,
       "tsdoc": "Record types the server can mark as delegated to the active client\n(graphify-out/ — `graphify query \"IOrder IInvoice alias delegatable record\norder delegate_related\"` confirms `IOrder` carries no node of its own).\n\nORDERS ARE COVERED, via `IInvoice`. `IOrder` is a straight alias of\n`IInvoice` (`types/src/models/orders.ts:3`), so an order both satisfies this\nunion and takes the invoice arm of `isDelegated` — child-account exclusion\nand all. That matches the oracle: the legacy orders module maps\n`belongsToDelegate` onto the invoices getter verbatim\n(`vue-app src/store/modules/data/orders/index.ts:65-68`, commented \"Map to\nidentical INVOICES getter\"), and orders render the same delegated badge\n(`orderRowItem.vue:99`). Naming `IOrder` here would be a no-op alias in the\nunion, not extra coverage."
     },
     "@upmind-automation/headless!Delegate": {
@@ -62521,7 +62745,7 @@
       "name": "DelegatedRecordOwner",
       "signature": "Symbol DelegatedRecordOwner",
       "sourceFile": "packages/headless/src/modules/session-store/session-store.types.ts",
-      "sourceLine": 205,
+      "sourceLine": 213,
       "tsdoc": "The owning client of a delegated record, read off the record's own embedded\n`client` relation. Every field optional because every source field is."
     },
     "@upmind-automation/headless!DescriptionDisplay": {
@@ -63478,7 +63702,7 @@
       "name": "LoadedSessionUsers",
       "signature": "Symbol LoadedSessionUsers",
       "sourceFile": "packages/headless/src/modules/session-store/session-store.types.ts",
-      "sourceLine": 229,
+      "sourceLine": 237,
       "tsdoc": "Result of loading `/self` for every session during boot resolution.\n`users` holds the profiles that loaded; `invalidSessionIds` names the\nsessions whose token returned `401` (dead token) and must be dropped so boot\nfalls through to the guest floor. A non-401 failure is a soft degrade and\nappears in neither list."
     },
     "@upmind-automation/headless!Locale": {
@@ -64009,6 +64233,17 @@
       "sourceLine": 120,
       "tsdoc": null
     },
+    "@upmind-automation/headless!PackageLimits": {
+      "id": "@upmind-automation/headless!PackageLimits",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "stats",
+      "name": "PackageLimits",
+      "signature": "Symbol PackageLimits",
+      "sourceFile": "packages/headless/src/modules/stats/stats.types.ts",
+      "sourceLine": 159,
+      "tsdoc": "The quota bag of the client record (AC18), as the wire actually carries\nit. Declared for read-back clarity; no composable of this module reads it\n— the bag lands on the session alone (ruling R2, design DA12)."
+    },
     "@upmind-automation/headless!PageRoute": {
       "id": "@upmind-automation/headless!PageRoute",
       "kind": "2097152",
@@ -64160,7 +64395,7 @@
       "name": "PersistedSessionState",
       "signature": "Symbol PersistedSessionState",
       "sourceFile": "packages/headless/src/modules/session-store/session-store.types.ts",
-      "sourceLine": 302,
+      "sourceLine": 310,
       "tsdoc": "Shape persisted to sessionStorage.\nContains all session data needed to fully restore the store on page reload.\nExcludes transient flags (`initialised`, `loading`) which reset on each load."
     },
     "@upmind-automation/headless!PersonalDetailsScopeMatrix": {
@@ -65186,6 +65421,17 @@
       "sourceLine": 29,
       "tsdoc": "Scope matrix for useActiveSession composable.\nSession scope is simple - no context needed for any actor."
     },
+    "@upmind-automation/headless!STATS_SCOPE_MATRIX": {
+      "id": "@upmind-automation/headless!STATS_SCOPE_MATRIX",
+      "kind": "Variable",
+      "lessons": [],
+      "module": "stats",
+      "name": "STATS_SCOPE_MATRIX",
+      "signature": "STATS_SCOPE_MATRIX: object",
+      "sourceFile": "packages/headless/src/modules/stats/stats.types.ts",
+      "sourceLine": 54,
+      "tsdoc": "Scope matrix for `useStats`. SELF only, and `null as never`: the oracle\nsupports no client-for-another-client cell and no staff cell for this leaf\n(`parity.yaml`), so there is no arm to declare and `.for(type, id)` is a\ncompile-time error for every actor."
+    },
     "@upmind-automation/headless!ScalarOperator": {
       "id": "@upmind-automation/headless!ScalarOperator",
       "kind": "Enum",
@@ -65513,7 +65759,7 @@
       "name": "SessionEntry",
       "signature": "Symbol SessionEntry",
       "sourceFile": "packages/headless/src/modules/session-store/session-store.types.ts",
-      "sourceLine": 216,
+      "sourceLine": 224,
       "tsdoc": "A session entry pairs a token with optional user profile data.\nUsed in clientSessions and staffSessions records."
     },
     "@upmind-automation/headless!SessionEventType": {
@@ -65524,7 +65770,7 @@
       "name": "SessionEventType",
       "signature": "Symbol SessionEventType",
       "sourceFile": "packages/headless/src/modules/session-store/session-store.types.ts",
-      "sourceLine": 320,
+      "sourceLine": 328,
       "tsdoc": null
     },
     "@upmind-automation/headless!SessionEvents": {
@@ -65535,7 +65781,7 @@
       "name": "SessionEvents",
       "signature": "SessionEvents: object",
       "sourceFile": "packages/headless/src/modules/session-store/session-store.types.ts",
-      "sourceLine": 311,
+      "sourceLine": 319,
       "tsdoc": "Shared session event names used by both the authSubscription helper\n(XState callback actor) and BroadcastChannel cross-tab sync."
     },
     "@upmind-automation/headless!SessionScopeMatrix": {
@@ -65557,7 +65803,7 @@
       "name": "SessionState",
       "signature": "Symbol SessionState",
       "sourceFile": "packages/headless/src/modules/session-store/session-store.types.ts",
-      "sourceLine": 237,
+      "sourceLine": 245,
       "tsdoc": "Store state for managing multiple actor sessions."
     },
     "@upmind-automation/headless!SessionStoreConfig": {
@@ -65579,7 +65825,7 @@
       "name": "SessionSyncMessage",
       "signature": "Symbol SessionSyncMessage",
       "sourceFile": "packages/headless/src/modules/session-store/session-store.types.ts",
-      "sourceLine": 341,
+      "sourceLine": 349,
       "tsdoc": "Message format for BroadcastChannel session sync."
     },
     "@upmind-automation/headless!SessionTransfer": {
@@ -65669,6 +65915,39 @@
       "sourceFile": "packages/headless/src/modules/query/query.types.ts",
       "sourceLine": 546,
       "tsdoc": "A sort direction as the MODEL spells it — what a query schema's `dir` enum\ndeclares and a consumer writes. RequestSortDirection is the same fact\nin its wire form; the criteria's translator is the one place that maps\nbetween them."
+    },
+    "@upmind-automation/headless!StatType": {
+      "id": "@upmind-automation/headless!StatType",
+      "kind": "Enum",
+      "lessons": [],
+      "module": "stats",
+      "name": "StatType",
+      "signature": "Enum StatType",
+      "sourceFile": "packages/headless/src/modules/stats/stats.types.ts",
+      "sourceLine": 66,
+      "tsdoc": "The four `type` values `GET api/stats` accepts on the client path (design 8.1)."
+    },
+    "@upmind-automation/headless!StatsData": {
+      "id": "@upmind-automation/headless!StatsData",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "stats",
+      "name": "StatsData",
+      "signature": "Symbol StatsData",
+      "sourceFile": "packages/headless/src/modules/stats/stats.types.ts",
+      "sourceLine": 131,
+      "tsdoc": "The published read context of `useStats`. The four tile counts and the\nusage answer are SEPARATE members and never collapse into one: an absent\nreport key stays `null`; the module never coalesces an absence into zero,\nand never promotes a real zero into an absence (design 8.3). `usage` is\nhost-gated and the four counts are not, so `usage` carries its own absent\nvalue and its own flags."
+    },
+    "@upmind-automation/headless!StatsScopeMatrix": {
+      "id": "@upmind-automation/headless!StatsScopeMatrix",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "stats",
+      "name": "StatsScopeMatrix",
+      "signature": "Symbol StatsScopeMatrix",
+      "sourceFile": "packages/headless/src/modules/stats/stats.types.ts",
+      "sourceLine": 59,
+      "tsdoc": "Scope matrix type for `useStats` (derived from the runtime const)."
     },
     "@upmind-automation/headless!StoredOperation": {
       "id": "@upmind-automation/headless!StoredOperation",
@@ -66274,6 +66553,17 @@
       "sourceFile": "packages/headless/src/useUpmind.ts",
       "sourceLine": 49,
       "tsdoc": "Enumeration representing the initialisation status of the Upmind instance."
+    },
+    "@upmind-automation/headless!UpmindUsageData": {
+      "id": "@upmind-automation/headless!UpmindUsageData",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "stats",
+      "name": "UpmindUsageData",
+      "signature": "Symbol UpmindUsageData",
+      "sourceFile": "packages/headless/src/modules/stats/stats.types.ts",
+      "sourceLine": 152,
+      "tsdoc": "The usage answer of the server. Ruling R7 defers the whole 200 success\npath — the eleven usage numbers and the quota-key map (ruling R10) — so\nthis type carries no members today. `useContext().data` therefore stays\n`undefined` on every reachable branch; the refusal path (409) is what this\nmodule proves, through `useContext().error` and `useMeta().isVisible`."
     },
     "@upmind-automation/headless!UseAccount": {
       "id": "@upmind-automation/headless!UseAccount",
@@ -68198,6 +68488,61 @@
       "signature": "Symbol UseSessionStore",
       "sourceFile": "packages/headless/src/modules/session-store/useSessionStore.ts",
       "sourceLine": 57,
+      "tsdoc": null
+    },
+    "@upmind-automation/headless!UseStats": {
+      "id": "@upmind-automation/headless!UseStats",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "stats",
+      "name": "UseStats",
+      "signature": "Symbol UseStats",
+      "sourceFile": "packages/headless/src/modules/stats/useStats.ts",
+      "sourceLine": 99,
+      "tsdoc": null
+    },
+    "@upmind-automation/headless!UseStatsActions": {
+      "id": "@upmind-automation/headless!UseStatsActions",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "stats",
+      "name": "UseStatsActions",
+      "signature": "Symbol UseStatsActions",
+      "sourceFile": "packages/headless/src/modules/stats/useStats.actions.ts",
+      "sourceLine": 204,
+      "tsdoc": null
+    },
+    "@upmind-automation/headless!UseStatsContext": {
+      "id": "@upmind-automation/headless!UseStatsContext",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "stats",
+      "name": "UseStatsContext",
+      "signature": "Symbol UseStatsContext",
+      "sourceFile": "packages/headless/src/modules/stats/useStats.context.ts",
+      "sourceLine": 119,
+      "tsdoc": null
+    },
+    "@upmind-automation/headless!UseStatsInternals": {
+      "id": "@upmind-automation/headless!UseStatsInternals",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "stats",
+      "name": "UseStatsInternals",
+      "signature": "Symbol UseStatsInternals",
+      "sourceFile": "packages/headless/src/modules/stats/useStats.internals.ts",
+      "sourceLine": 36,
+      "tsdoc": null
+    },
+    "@upmind-automation/headless!UseStatsMeta": {
+      "id": "@upmind-automation/headless!UseStatsMeta",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "stats",
+      "name": "UseStatsMeta",
+      "signature": "Symbol UseStatsMeta",
+      "sourceFile": "packages/headless/src/modules/stats/useStats.meta.ts",
+      "sourceLine": 219,
       "tsdoc": null
     },
     "@upmind-automation/headless!UseSystem": {
@@ -70762,6 +71107,17 @@
       "sourceFile": "packages/headless/src/modules/session-store/useSessionStore.ts",
       "sourceLine": 32,
       "tsdoc": "Composable for accessing the multi-session store.\nSupports multiple simultaneous sessions per actor type (guest, client, staff).\n\n**Important:** Call `initialise()` from `useUpmind` before using other sub-composables.\nThis ensures config (allowedScopes) is set before state is built."
+    },
+    "@upmind-automation/headless!useStats": {
+      "id": "@upmind-automation/headless!useStats",
+      "kind": "Variable",
+      "lessons": [],
+      "module": "stats",
+      "name": "useStats",
+      "signature": "useStats: ScopedComposable<object, object>",
+      "sourceFile": "packages/headless/src/modules/stats/useStats.ts",
+      "sourceLine": 93,
+      "tsdoc": "Scoped composable for the client dashboard's stats — the four counts and\nthe Upmind-usage block."
     },
     "@upmind-automation/headless!useStoredPaymentMethodsSchema": {
       "id": "@upmind-automation/headless!useStoredPaymentMethodsSchema",
