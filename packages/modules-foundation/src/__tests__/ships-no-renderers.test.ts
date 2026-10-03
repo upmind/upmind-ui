@@ -1,13 +1,13 @@
 /**
- * @fileoverview Foundation ships no form control of its own.
+ * @fileoverview Foundation registers no form control itself.
  *
  * ## Job To Be Done
- * On a cold import, in every build, the registry is empty: only the packages
- * that own a control register it.
+ * On a cold import, in every build, the registry is empty: foundation hands
+ * its own controls out in `foundationRenderers`, and only its consumers register.
  *
  * ## What Breaks If These Fail
- * A control declared in `foundation` creates a `foundation → <domain>` cycle,
- * or a catch-all hides the engine's notice on a field no control claims.
+ * An app that registers foundation's list holds each control twice, or a
+ * catch-all hides the engine's notice on a field no control claims.
  */
 
 import { afterEach, describe, expect, it, vi } from "vitest";

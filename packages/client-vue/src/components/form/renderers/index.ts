@@ -1,4 +1,5 @@
 import { registerEntry } from "@upmind/ui";
+import { foundationRenderers } from "@upmind-automation/foundation";
 import DomainRenderer from "./DomainRenderer.vue";
 import { tester as domainTest } from "./DomainRenderer.vue";
 import EnumToggleGroupRenderer from "./EnumToggleGroupRenderer.vue";
@@ -19,27 +20,30 @@ import FilterToggleGroupRenderer from "./FilterToggleGroupRenderer.vue";
 import { tester as filterToggleGroupTest } from "./FilterToggleGroupRenderer.vue";
 import ImageRenderer from "./ImageRenderer.vue";
 import { tester as imageTest } from "./ImageRenderer.vue";
-import LookupRenderer from "./LookupRenderer.vue";
-import { tester as lookupTest } from "./LookupRenderer.vue";
 import SLDRenderer from "./SLDRenderer.vue";
 import { tester as sldTest } from "./SLDRenderer.vue";
+import { concat } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 
-export const formRenderers = [
-  registerEntry(DomainRenderer, domainTest),
-  registerEntry(SLDRenderer, sldTest),
-  registerEntry(ImageRenderer, imageTest),
-  registerEntry(LookupRenderer, lookupTest),
-  registerEntry(FilterButtonGroupRenderer, filterButtonGroupTest),
-  registerEntry(
-    FilterExclusiveToggleGroupRenderer,
-    filterExclusiveToggleGroupTest
-  ),
-  registerEntry(FilterToggleGroupRenderer, filterToggleGroupTest),
-  registerEntry(EnumToggleGroupRenderer, enumToggleGroupTest),
-  registerEntry(FilterSearchRenderer, filterSearchTest),
-  registerEntry(FilterMultiSelectRenderer, filterMultiSelectTest),
-  registerEntry(FilterRangeRenderer, filterRangeTest),
-  registerEntry(FilterBarRenderer, filterBarTest)
-];
+export const formRenderers = concat(
+  [
+    registerEntry(DomainRenderer, domainTest),
+    registerEntry(SLDRenderer, sldTest),
+    registerEntry(ImageRenderer, imageTest)
+  ],
+  foundationRenderers,
+  [
+    registerEntry(FilterButtonGroupRenderer, filterButtonGroupTest),
+    registerEntry(
+      FilterExclusiveToggleGroupRenderer,
+      filterExclusiveToggleGroupTest
+    ),
+    registerEntry(FilterToggleGroupRenderer, filterToggleGroupTest),
+    registerEntry(EnumToggleGroupRenderer, enumToggleGroupTest),
+    registerEntry(FilterSearchRenderer, filterSearchTest),
+    registerEntry(FilterMultiSelectRenderer, filterMultiSelectTest),
+    registerEntry(FilterRangeRenderer, filterRangeTest),
+    registerEntry(FilterBarRenderer, filterBarTest)
+  ]
+);

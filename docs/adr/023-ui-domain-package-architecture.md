@@ -2,7 +2,7 @@
 
 **Date:** June 15, 2026
 **Updated:** June 15, 2026 — §10 rewritten as a two-axis SSR-safe state model (brand-invariant shared cache + per-user request scope), after reviewing the `@next-legacy` scope-based composables (`modules/scope/`). They are built and SPA-correct; the SSR gap is that the scope registry, `QueryClient`, and session-store are module-level (per-process) rather than per-request — fixable at one chokepoint (`ensure()`). **Accepted 2026-06-16** — all Open Questions (Q1–Q4) resolved.
-**Status:** Accepted — amended 2026-08-25 (constraint 5 narrowed), 2026-09-07 (Amendment 1: a phased strangler replaces the big-bang wave), 2026-09-08 (Amendment 2: four scope rulings, UNRATIFIED), 2026-09-11 (Amendment 3: a generic control is not a domain renderer — ratified, and it supersedes part of Amendment 2 ruling 1), 2026-09-15 (Amendment 4: genericness admits to `foundation` alongside the count — ratified 2026-09-16, WITHDRAWN 2026-09-17), 2026-09-17 (Amendment 7: `basket` may read `client`, and the subject rows go home — ratified), 2026-09-21 (Amendment 9: the §8 feature contract is retired — the app owns its renderer list, its routes and its route names — ratified 2026-09-25), 2026-09-24 (Amendment 11: Phase 0 holds only what Phase 0 needs), 2026-09-25 (Amendment 13: a domain package holds only UI concerns; the rest lives in `headless` — ratified 2026-09-28), 2026-09-28 (Amendment 14: the theme belongs to the app; useAnnouncement lives in foundation; both ports are removed) and 2026-09-28 (Amendment 15: a page takes its templates from the page that mounts it; catalogue imports domain when a category needs it; headless stays as develop has it; the shell socket and the DAC port are removed). See the Amendments below.
+**Status:** Accepted — amended 2026-08-25 (constraint 5 narrowed), 2026-09-07 (Amendment 1: a phased strangler replaces the big-bang wave), 2026-09-08 (Amendment 2: four scope rulings, UNRATIFIED), 2026-09-11 (Amendment 3: a generic control is not a domain renderer — ratified, and it supersedes part of Amendment 2 ruling 1), 2026-09-15 (Amendment 4: genericness admits to `foundation` alongside the count — ratified 2026-09-16, WITHDRAWN 2026-09-17), 2026-09-17 (Amendment 7: `basket` may read `client`, and the subject rows go home — ratified), 2026-09-21 (Amendment 9: the §8 feature contract is retired — the app owns its renderer list, its routes and its route names — ratified 2026-09-25), 2026-09-24 (Amendment 11: Phase 0 holds only what Phase 0 needs), 2026-09-25 (Amendment 12: the lookup control lives in `foundation`'s form — ratified), 2026-09-25 (Amendment 13: a domain package holds only UI concerns; the rest lives in `headless` — ratified 2026-09-28), 2026-09-28 (Amendment 14: the theme belongs to the app; useAnnouncement lives in foundation; both ports are removed) and 2026-09-28 (Amendment 15: a page takes its templates from the page that mounts it; catalogue imports domain when a category needs it; headless stays as develop has it; the shell socket and the DAC port are removed). See the Amendments below.
 **Authors:** Dom da Costa
 
 ---
@@ -632,6 +632,16 @@ The tests for each change move with it.
 - `scripts/rename-domain-packages.mjs`. Its rename legs are complete on every branch, and the script stays in history. Its lint glob now lands with Phase 1's own script.
 
 **Phase 0 keeps** the ten shells, their aliases and project references, `import/no-cycle` and `import/no-internal-modules` at ERROR, the per-package `@internal` barrier, the `typecheck:packages` CI job, and the import-cycle negative control.
+
+## Amendment 12 (2026-09-25) — the lookup control lives in `foundation`'s form
+
+**Scope.** Replaces the destination that Amendment 3 ruling 3 gave `Lookup`. The other six generic controls stay in the design system. Decided by the operator on 2026-09-25.
+
+**What changed.** The design system removed its `LookupRenderer` on 2026-09-22 (design-system `da08d9b`, which develop pins through `1a236d2be2`). The control searches through `headless`'s `useLookup`, and the design system may not import `headless`. Amendment 3 bridged that gap with a lookup port on `provideFormEngineData`. With no lookup control in the design system, that port has no consumer.
+
+**The ruling.** `client-vue`'s `LookupRenderer` moves unchanged to `packages/modules-foundation/src/forms/`, and its tests move with it. It calls `useLookup` itself, as it did in `client-vue`. `foundation`'s form host registers it on every form, as `client-vue`'s form did: no injection and no registry contribution. `foundation`'s `formLookupPort` is deleted. `foundation`'s registries still ship empty.
+
+**Why `foundation`.** It is the only layer below the domain packages that may reach `headless`, and it already hosts the form that every package renders. The control knows no domain: its tester keys on the `Lookup` ui type, and the query arrives in `options.lookup`.
 
 ## Amendment 13 (2026-09-25) — a domain package holds only UI concerns; the rest lives in `headless`
 

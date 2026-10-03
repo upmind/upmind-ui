@@ -2159,6 +2159,9 @@ importers:
       '@jsonforms/core':
         specifier: ^3.6.0
         version: 3.7.0
+      '@jsonforms/vue':
+        specifier: ^3.6.0
+        version: 3.7.0(@jsonforms/core@3.7.0)(vue@3.5.39(typescript@5.9.3))
       '@upmind-automation/headless':
         specifier: workspace:*
         version: link:../headless
