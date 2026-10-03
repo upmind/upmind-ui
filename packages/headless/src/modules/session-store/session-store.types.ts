@@ -179,6 +179,14 @@ export type SessionUser = {
    * case today) maps to `{}`, never to `undefined`.
    */
   delegatedIds: Partial<Record<UpmindObjectTypes, string[]>>;
+  /**
+   * The client record's package-limits quota bag (FE-3229 AC18, ruling R2).
+   * Additive: mapped straight off the actor record, exactly as the wire
+   * sends it, on the `delegatedIds` precedent above. Absent only if the wire
+   * omits the member entirely — never defaulted, so a present empty bag and
+   * an absent member stay distinguishable.
+   */
+  upmindPackageLimits?: IClient["upmind_package_limits"];
 };
 
 /**

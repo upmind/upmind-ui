@@ -32,7 +32,7 @@ import {
   runtimeRecordsScenarios
 } from "./corpus";
 import { PENDING, presetAnswer } from "./presets";
-import { moduleRoutes } from "./routes";
+import { moduleRoutes, routeMatcher } from "./routes";
 import { isUndefined, map } from "lodash-es";
 import type { CorpusBodies } from "./corpus";
 import type { RecordedFixture } from "./corpus.source.types";
@@ -108,7 +108,9 @@ export function createForceHandlers(
 
   const resolve = presetResolver(preset, bodies, failure);
 
-  return map(moduleRoutes(feature, bodies), route => http.all(route, resolve));
+  return map(moduleRoutes(feature, bodies), route =>
+    http.all(routeMatcher(route), resolve)
+  );
 }
 
 /**

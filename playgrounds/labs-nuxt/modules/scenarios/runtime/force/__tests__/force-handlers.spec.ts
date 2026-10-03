@@ -94,11 +94,15 @@ await armCorpusModule(MODULE);
 
 const bodies = runtimeCorpus(MODULE)!;
 
-/** The module's own endpoints — what forcing exists to answer. */
+/**
+ * The module's own endpoints — what forcing exists to answer. The ids are the
+ * capture run's own `mock-uuid-N` shape: an armed id segment answers an id, and
+ * a literal sibling in its place (`clients/self`) is not one.
+ */
 const OWN = [
-  `${ORIGIN}/clients/CLIENT_ID/emails`,
-  `${ORIGIN}/clients/CLIENT_ID/emails/EMAIL_ID`,
-  `${ORIGIN}/clients/CLIENT_ID/emails/EMAIL_ID/send_verify`
+  `${ORIGIN}/clients/mock-uuid-1/emails`,
+  `${ORIGIN}/clients/mock-uuid-1/emails/mock-uuid-2`,
+  `${ORIGIN}/clients/mock-uuid-1/emails/mock-uuid-2/send_verify`
 ];
 
 /** The chrome's own boot calls — booted once by singletons that never re-ask. */
