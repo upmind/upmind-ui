@@ -160,9 +160,17 @@ export default defineNuxtConfig({
       __dirname,
       "../../packages/modules-recommendations/src/index.ts"
     ),
+    "@upmind-automation/catalogue/styles": resolve(
+      __dirname,
+      "../../packages/modules-catalogue/src/styles.css"
+    ),
     "@upmind-automation/catalogue": resolve(
       __dirname,
       "../../packages/modules-catalogue/src/index.ts"
+    ),
+    "@upmind-automation/domain/styles": resolve(
+      __dirname,
+      "../../packages/modules-domain/src/styles.css"
     ),
     "@upmind-automation/domain": resolve(
       __dirname,

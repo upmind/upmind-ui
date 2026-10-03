@@ -1,0 +1,24 @@
+# Negative control — the widget sends the results to the catalogue's content
+# footer, so a guest's domain search shows its results under the page instead
+# of under the search box.
+#
+# Intended RED:
+#   packages/modules-catalogue/src/__tests__/dac-widget-slots.int.test.ts
+#     "draws the domain search and its results in the frame where the catalogue shows its widget"
+#     "puts neither the search nor the results in a footer"
+
+diff --git a/packages/modules-domain/src/components/WidgetLayout.vue b/packages/modules-domain/src/components/WidgetLayout.vue
+index 753b0aeda7..8dd24a8560 100644
+--- a/packages/modules-domain/src/components/WidgetLayout.vue
++++ b/packages/modules-domain/src/components/WidgetLayout.vue
+@@ -1,7 +1,9 @@
+ <template>
+   <slot name="search" />
+ 
+-  <slot name="results" />
++  <Teleport to="#domain-content-footer" defer>
++    <slot name="results" />
++  </Teleport>
+ 
+   <Teleport to="#domain-aside-footer" defer>
+     <slot name="hint" />

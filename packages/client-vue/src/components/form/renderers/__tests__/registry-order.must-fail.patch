@@ -2,28 +2,29 @@
 #
 # Intended RED (registry-order.test.ts):
 #   "keeps develop's sequence, with foundation's list in the lookup control's slot"
-#   "keeps <slot> at position <n>" from position 3 on
+#   "keeps <slot> at position <n>" from position 1 on
 #   "hands on foundation's own LookupRenderer entry, not a copy"
 # Intended GREEN:
 #   "carries the lookup control in foundation's list, so the claims below are not vacuous"
-#   "keeps <slot> at position <n>" for positions 0 to 2
+#   "leaves <name>, which develop registers here, to the domain package"
+#   "keeps <slot> at position <n>" for position 0
 #
 # APPLIED BY HAND. No superproject lane scans `packages/client-vue` for
 # `*.must-fail.patch` (FE-3131).
 
 diff --git a/packages/client-vue/src/components/form/renderers/index.ts b/packages/client-vue/src/components/form/renderers/index.ts
-index b007a59..219b81f 100644
+index 78ae429..fd4f34a 100644
 --- a/packages/client-vue/src/components/form/renderers/index.ts
 +++ b/packages/client-vue/src/components/form/renderers/index.ts
-@@ -32,7 +32,6 @@ export const formRenderers = concat(
-     registerEntry(SLDRenderer, sldTest),
-     registerEntry(ImageRenderer, imageTest)
-   ],
+@@ -24,7 +24,6 @@ import { concat } from "lodash-es";
+ 
+ export const formRenderers = concat(
+   [registerEntry(ImageRenderer, imageTest)],
 -  foundationRenderers,
    [
      registerEntry(FilterButtonGroupRenderer, filterButtonGroupTest),
      registerEntry(
-@@ -45,5 +44,6 @@ export const formRenderers = concat(
+@@ -37,5 +36,6 @@ export const formRenderers = concat(
      registerEntry(FilterMultiSelectRenderer, filterMultiSelectTest),
      registerEntry(FilterRangeRenderer, filterRangeTest),
      registerEntry(FilterBarRenderer, filterBarTest)

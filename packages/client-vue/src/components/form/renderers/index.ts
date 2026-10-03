@@ -1,7 +1,5 @@
 import { registerEntry } from "@upmind/ui";
 import { foundationRenderers } from "@upmind-automation/foundation";
-import DomainRenderer from "./DomainRenderer.vue";
-import { tester as domainTest } from "./DomainRenderer.vue";
 import EnumToggleGroupRenderer from "./EnumToggleGroupRenderer.vue";
 import { tester as enumToggleGroupTest } from "./EnumToggleGroupRenderer.vue";
 import FilterBarRenderer from "./FilterBarRenderer.vue";
@@ -20,18 +18,12 @@ import FilterToggleGroupRenderer from "./FilterToggleGroupRenderer.vue";
 import { tester as filterToggleGroupTest } from "./FilterToggleGroupRenderer.vue";
 import ImageRenderer from "./ImageRenderer.vue";
 import { tester as imageTest } from "./ImageRenderer.vue";
-import SLDRenderer from "./SLDRenderer.vue";
-import { tester as sldTest } from "./SLDRenderer.vue";
 import { concat } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 
 export const formRenderers = concat(
-  [
-    registerEntry(DomainRenderer, domainTest),
-    registerEntry(SLDRenderer, sldTest),
-    registerEntry(ImageRenderer, imageTest)
-  ],
+  [registerEntry(ImageRenderer, imageTest)],
   foundationRenderers,
   [
     registerEntry(FilterButtonGroupRenderer, filterButtonGroupTest),

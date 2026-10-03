@@ -22,7 +22,7 @@ import {
 } from "@upmind-automation/foundation";
 import { formRenderers } from "../index";
 import "../../../../index";
-import { concat, filter, get, map, size } from "lodash-es";
+import { concat, filter, get, map, size, sortBy } from "lodash-es";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
 // -----------------------------------------------------------------------------
@@ -47,6 +47,8 @@ const KEPT_HERE = [
 const MOVED_TO_FOUNDATION = ["LookupRenderer"];
 
 const MOVED_EARLIER = ["AddressRenderer", "ManageRenderer"];
+
+const MOVED_TO_THE_DOMAIN_PACKAGE = ["DomainRenderer", "SLDRenderer"];
 
 const SCHEMA: JsonSchema = {
   type: "object",
@@ -147,29 +149,57 @@ describe("the form registry after the client renderers moved out", () => {
 });
 
 describe("a move, not a copy", () => {
-  it.each(concat(MOVED_EARLIER, MOVED_TO_FOUNDATION))(
-    "leaves no %s.vue behind to drift from the moved one",
-    name => {
-      const left = readdirSync(RENDERERS_DIR).filter(
-        entry => entry === `${name}.vue`
-      );
-
-      expect(
-        left,
-        "a second copy of this renderer still ships from the package it moved out of"
-      ).toEqual([]);
-    }
-  );
-
-  it("keeps the renderers this package still owns", () => {
-    const own = readdirSync(RENDERERS_DIR).filter(entry =>
-      entry.endsWith("Renderer.vue")
+  it.each(
+    concat(MOVED_EARLIER, MOVED_TO_FOUNDATION, MOVED_TO_THE_DOMAIN_PACKAGE)
+  )("leaves no %s.vue behind to drift from the moved one", name => {
+    const left = readdirSync(RENDERERS_DIR).filter(
+      entry => entry === `${name}.vue`
     );
 
     expect(
-      own.length,
-      "every renderer left this package, so the registry above can only be " +
-        "reading entries nothing in this tree defines"
-    ).toBeGreaterThan(0);
+      left,
+      "a second copy of this renderer still ships from the package it moved out of"
+    ).toEqual([]);
   });
+
+  it("reads a real renderers directory, and a registry that is not empty", () => {
+    const listed = readdirSync(RENDERERS_DIR);
+
+    expect(
+      listed,
+      "the sweep above is reading a directory with nothing in it, so it would " +
+        "pass whatever this package shipped"
+    ).not.toEqual([]);
+    expect(listed).toContain("index.ts");
+    expect(useFormRenderers().renderers.value.length).toBeGreaterThan(0);
+  });
+
+  const KEPT_LOCAL = sortBy(
+    map(
+      concat(
+        ["EnumToggleGroupRenderer", "FilterExclusiveToggleGroupRenderer"],
+        KEPT_HERE
+      ),
+      name => `${name}.vue`
+    )
+  );
+
+  it("defines no renderer component of its own, bar the ones named", () => {
+    const own = sortBy(
+      readdirSync(RENDERERS_DIR).filter(entry => entry.endsWith(".vue"))
+    );
+
+    expect(
+      own,
+      `this package defines renderer components again, so the registry it ` +
+        `binds forks from the packages that own them: ${own.join(", ")}`
+    ).toEqual(KEPT_LOCAL);
+  });
+
+  it.each(KEPT_LOCAL)(
+    "still ships %s, so the line above is not vacuous",
+    name => {
+      expect(readdirSync(RENDERERS_DIR)).toContain(name);
+    }
+  );
 });

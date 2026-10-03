@@ -1,21 +1,23 @@
 diff --git a/packages/client-vue/src/components/form/renderers/index.ts b/packages/client-vue/src/components/form/renderers/index.ts
-index b007a59..9a3ae1d 100644
+index 78ae429..24dc8fb 100644
 --- a/packages/client-vue/src/components/form/renderers/index.ts
 +++ b/packages/client-vue/src/components/form/renderers/index.ts
-@@ -20,6 +20,8 @@ import FilterToggleGroupRenderer from "./FilterToggleGroupRenderer.vue";
+@@ -18,12 +18,17 @@ import FilterToggleGroupRenderer from "./FilterToggleGroupRenderer.vue";
  import { tester as filterToggleGroupTest } from "./FilterToggleGroupRenderer.vue";
  import ImageRenderer from "./ImageRenderer.vue";
  import { tester as imageTest } from "./ImageRenderer.vue";
 +import LookupRenderer from "./LookupRenderer.vue";
 +import { tester as lookupTest } from "./LookupRenderer.vue";
- import SLDRenderer from "./SLDRenderer.vue";
- import { tester as sldTest } from "./SLDRenderer.vue";
  import { concat } from "lodash-es";
-@@ -28,6 +30,7 @@ import { concat } from "lodash-es";
+ 
+ // -----------------------------------------------------------------------------
  
  export const formRenderers = concat(
-   [
+-  [registerEntry(ImageRenderer, imageTest)],
++  [
 +    registerEntry(LookupRenderer, lookupTest),
-     registerEntry(DomainRenderer, domainTest),
-     registerEntry(SLDRenderer, sldTest),
-     registerEntry(ImageRenderer, imageTest)
++    registerEntry(ImageRenderer, imageTest)
++  ],
+   foundationRenderers,
+   [
+     registerEntry(FilterButtonGroupRenderer, filterButtonGroupTest),

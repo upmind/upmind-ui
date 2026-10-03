@@ -1,0 +1,19 @@
+# Negative control — the domain record keeps a widget entry, so the app still
+# hands the domain package a layout for the catalogue's widget, which places its
+# own pieces.
+#
+# Intended RED:
+#   packages/client-vue/src/__tests__/shell-registration.test.ts
+#     "the templates domain draws > holds no entry for a template it does not draw"
+
+diff --git a/packages/client-vue/src/modules/domain/shell.ts b/packages/client-vue/src/modules/domain/shell.ts
+--- a/packages/client-vue/src/modules/domain/shell.ts
++++ b/packages/client-vue/src/modules/domain/shell.ts
+@@ -9,5 +9,6 @@
+ import type { DomainTemplates } from "@upmind-automation/domain";
+ 
+ export const DOMAIN_TEMPLATES: DomainTemplates = {
+-  [DOMAIN_TEMPLATE.FULL]: DomainFullTemplate
++  [DOMAIN_TEMPLATE.FULL]: DomainFullTemplate,
++  [DOMAIN_TEMPLATE.WIDGET]: DomainFullTemplate
+ };

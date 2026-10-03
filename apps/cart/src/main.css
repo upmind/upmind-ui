@@ -8,7 +8,9 @@
 @import "@upmind-automation/client-vue/styles";
 
 @import "@upmind-automation/auth/styles";
+@import "@upmind-automation/catalogue/styles";
 @import "@upmind-automation/client/styles";
+@import "@upmind-automation/domain/styles";
 @import "@upmind-automation/foundation/styles";
 @import "@upmind-automation/invoice/styles";
 @import "@upmind-automation/payment/styles";
