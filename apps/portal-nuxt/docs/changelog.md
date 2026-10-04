@@ -469,3 +469,10 @@ One entry per commit that built this app's mock data layer and its forms, oldest
   stand-in schemas, forms, verbs, data-refs, tests and mutant patches are removed.
   `docs/client-vue-adoption.md` records what mounts where and the legacy rules the
   components still lack. F19's inherited cards went with the payment-methods page.
+
+- **The basket package lands, and nothing here changes.** The ADR 023 cut moves the
+  basket, its `basketProduct`, `billing` and `product-setup` children and the checkout
+  flow into `@upmind-automation/basket`. This app takes none of it: a portal has no
+  in-flight order, so the package is not a dependency, its Nuxt module is not registered,
+  and no file imports it. The phase touched this app's docs only — no page, component or
+  route it renders changed.

@@ -7,6 +7,7 @@
 #     "'apps/cart' > reaches packages/modules-auth's sources"
 
 diff --git a/apps/cart/src/main.css b/apps/cart/src/main.css
+index fef7eeaa3a..fc30195ff1 100644
 --- a/apps/cart/src/main.css
 +++ b/apps/cart/src/main.css
 @@ -7,7 +7,6 @@
@@ -14,6 +15,6 @@ diff --git a/apps/cart/src/main.css b/apps/cart/src/main.css
  @import "@upmind-automation/client-vue/styles";
  
 -@import "@upmind-automation/auth/styles";
+ @import "@upmind-automation/basket/styles";
+ @import "@upmind-automation/catalogue/styles";
  @import "@upmind-automation/client/styles";
- @import "@upmind-automation/foundation/styles";
- @import "@upmind-automation/invoice/styles";

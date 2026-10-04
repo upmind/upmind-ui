@@ -98,13 +98,25 @@ export default defineConfig(({ mode, command }) => {
           __dirname,
           "../../packages/modules-product/src/index.ts"
         ),
+        "@upmind-automation/recommendations/styles": resolve(
+          __dirname,
+          "../../packages/modules-recommendations/src/styles.css"
+        ),
         "@upmind-automation/recommendations": resolve(
           __dirname,
           "../../packages/modules-recommendations/src/index.ts"
         ),
+        "@upmind-automation/catalogue/styles": resolve(
+          __dirname,
+          "../../packages/modules-catalogue/src/styles.css"
+        ),
         "@upmind-automation/catalogue": resolve(
           __dirname,
           "../../packages/modules-catalogue/src/index.ts"
+        ),
+        "@upmind-automation/domain/styles": resolve(
+          __dirname,
+          "../../packages/modules-domain/src/styles.css"
         ),
         "@upmind-automation/domain": resolve(
           __dirname,
@@ -141,6 +153,10 @@ export default defineConfig(({ mode, command }) => {
         "@upmind-automation/invoice": resolve(
           __dirname,
           "../../packages/modules-invoice/src/index.ts"
+        ),
+        "@upmind-automation/basket/styles": resolve(
+          __dirname,
+          "../../packages/modules-basket/src/styles.css"
         ),
         "@upmind-automation/basket": resolve(
           __dirname,

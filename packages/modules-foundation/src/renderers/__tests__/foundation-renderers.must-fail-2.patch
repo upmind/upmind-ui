@@ -1,0 +1,29 @@
+# Negative control — foundationRenderers drops the lookup control, so no consumer can register it.
+#
+# Intended RED:
+#   packages/modules-foundation/src/renderers/__tests__/foundation-renderers.test.ts
+#     "hands its consumer the lookup control in foundationRenderers"
+#     "opens a lookup machine for a control naming a service"
+#     "opens one machine per lookup control, so two pickers never share one"
+#   packages/modules-foundation/src/renderers/__tests__/LookupRenderer.test.ts
+#     every test that draws a lookup control
+
+diff --git a/packages/modules-foundation/src/renderers/index.ts b/packages/modules-foundation/src/renderers/index.ts
+index d172471..6dbb9d4 100644
+--- a/packages/modules-foundation/src/renderers/index.ts
++++ b/packages/modules-foundation/src/renderers/index.ts
+@@ -1,13 +1,7 @@
+-import { registerEntry } from "@upmind/ui";
+-import LookupRenderer from "./LookupRenderer.vue";
+-import { tester as lookupTester } from "./LookupRenderer.vue";
+ import type { FormRendererEntry } from "./types";
+ 
+ export type { FormRendererEntry } from "./types";
+ export * from "./useFormRenderers";
+ 
+ /** Foundation's own form controls; the consumer registers them, foundation never does. */
+-export const foundationRenderers: FormRendererEntry[] = [
+-  // The lookup control searches through headless, which the design system may not import.
+-  registerEntry(LookupRenderer, lookupTester)
+-];
++export const foundationRenderers: FormRendererEntry[] = [];

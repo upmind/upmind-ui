@@ -1,9 +1,8 @@
 // -----------------------------------------------------------------------------
+/**
+ * @module modules/checkout
+ * @description The checkout templates this package hands the `@upmind-automation/basket` organism.
+ */
 
-// --- Export Views
-export { default as UpmCheckout } from "./Checkout.vue";
-// --- Export Components
-export { default as UpmGuestCheckoutOffer } from "./components/GuestCheckoutOffer.vue";
-
-// --- Export Types
-export * from "./types";
+// --- Export Templates
+export { CHECKOUT_TEMPLATES } from "./shell";

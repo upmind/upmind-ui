@@ -1,0 +1,19 @@
+# Negative control — the offer ignores the slot's `isRegistering`, so a second
+# click starts a second guest registration while the first still runs.
+#
+# Intended RED:
+#   packages/modules-basket/src/checkout/components/__tests__/guest-checkout-cta.test.ts
+#     "stops taking clicks while a registration is already running"
+
+diff --git a/packages/modules-basket/src/checkout/components/GuestCheckoutOffer.vue b/packages/modules-basket/src/checkout/components/GuestCheckoutOffer.vue
+index 52dea75c27..bd3760e647 100644
+--- a/packages/modules-basket/src/checkout/components/GuestCheckoutOffer.vue
++++ b/packages/modules-basket/src/checkout/components/GuestCheckoutOffer.vue
+@@ -11,7 +11,6 @@
+         size="sm"
+         @click="props.registerAsGuest"
+         color="inherit"
+-        :disabled="props.isRegistering"
+         :data-attrs="{ 'data-test-key': 'guest-checkout-cta' }"
+       >
+         {{ t("auth.guest_checkout_action") }}

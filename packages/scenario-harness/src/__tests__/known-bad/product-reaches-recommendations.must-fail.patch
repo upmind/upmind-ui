@@ -1,0 +1,20 @@
+diff --git a/packages/modules-product/src/components/card/ProductCard.vue b/packages/modules-product/src/components/card/ProductCard.vue
+index 13d6c411af..2ee044bf3a 100644
+--- a/packages/modules-product/src/components/card/ProductCard.vue
++++ b/packages/modules-product/src/components/card/ProductCard.vue
+@@ -172,6 +172,7 @@ import {
+   QUERY_PARAMS,
+   useImageUrl
+ } from "@upmind-automation/headless";
++import { UpmRecommendations } from "@upmind-automation/recommendations";
+ import ProductBenefits from "./ProductBenefits.vue";
+ import ProductInfo from "./ProductInfo.vue";
+ import ProductPrice from "./ProductPrice.vue";
+@@ -394,6 +395,6 @@ function doResolve() {
+   if (!props.id) return;
+   if (isUnavailable.value) return;
+   clicked.value = true;
+-  emit("resolve", props.id);
++  emit("resolve", `${UpmRecommendations.name}:${props.id}`);
+ }
+ </script>

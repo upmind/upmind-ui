@@ -1,14 +1,20 @@
 <template>
-  <UpmBasket
-    :storefront-route="storefrontRoute"
-    :basket-route="{ name: ROUTE.BASKET }"
-    :edit-route="{ name: ROUTE.BASKET_PRODUCT_EDIT }"
-  />
+  <UpmTransition>
+    <UpmBasket
+      :storefront-route="storefrontRoute"
+      :basket-route="{ name: ROUTE.BASKET }"
+      :edit-route="{ name: ROUTE.BASKET_PRODUCT_EDIT }"
+      v-slot="{ template }"
+    >
+      <component :is="BASKET_TEMPLATES[template]" />
+    </UpmBasket>
+  </UpmTransition>
 </template>
 
 <script lang="ts" setup>
 import { useI18n } from "vue-i18n";
-import { UpmBasket } from "@upmind-automation/client-vue";
+import { UpmBasket } from "@upmind-automation/basket";
+import { BASKET_TEMPLATES, UpmTransition } from "@upmind-automation/client-vue";
 import { useStorefrontRoute } from "~/composables/useStorefrontRoute";
 import { ROUTE } from "~/funnels/types";
 

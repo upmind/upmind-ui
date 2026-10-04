@@ -1,0 +1,19 @@
+# Negative control — domain's entry stops registering its controls, so the playground starts without them.
+#
+# Intended RED:
+#   playgrounds/labs-nuxt/app/plugins/__tests__/form-controls.spec.ts
+#     "holds the form controls of 'domain'"
+
+diff --git a/packages/modules-domain/src/index.ts b/packages/modules-domain/src/index.ts
+index 008412905e..5c0e7297dc 100644
+--- a/packages/modules-domain/src/index.ts
++++ b/packages/modules-domain/src/index.ts
+@@ -6,8 +6,6 @@
+ import { registerFormRenderers } from "@upmind-automation/foundation";
+ import { domainRenderers } from "./renderers";
+ 
+-registerFormRenderers(domainRenderers);
+-
+ // --- Export Views
+ export { default as UpmDomain } from "./components/Domain.vue";
+ export { default as UpmDac } from "./components/Dac.vue";

@@ -1,0 +1,19 @@
+# Negative control — the catalogue picks the DAC widget for every category, so
+# a grid category mounts the widget and loads `domain` for a search it never
+# shows.
+#
+# Intended RED:
+#   packages/modules-catalogue/src/__tests__/lazy-dac.test.ts
+#     "is never evaluated for a grid category"
+
+diff --git a/packages/modules-catalogue/src/components/Catalogue.vue b/packages/modules-catalogue/src/components/Catalogue.vue
+--- a/packages/modules-catalogue/src/components/Catalogue.vue
++++ b/packages/modules-catalogue/src/components/Catalogue.vue
+@@ -152,6 +152,7 @@
+ 
+ const widget = computed(() => {
+   if (
++    true ||
+     (category.value.uiMeta as { widgets?: { dac?: boolean } })?.widgets?.dac ||
+     ui.productList.value === PRODUCT_LIST_STYLE.DAC
+   ) {

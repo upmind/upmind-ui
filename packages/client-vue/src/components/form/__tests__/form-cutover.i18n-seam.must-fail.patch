@@ -9,7 +9,7 @@ at all. The mount was changed to match how an app actually mounts it.
 MUST red: translator > "labels and prompts a control from the catalogue
 key its uischema names". The bare-engine twin MUST stay green.
 diff --git a/packages/modules-foundation/src/forms/Form.vue b/packages/modules-foundation/src/forms/Form.vue
-index 5aff2af4a4..c9b8f566e3 100644
+index 438b022..7078032 100644
 --- a/packages/modules-foundation/src/forms/Form.vue
 +++ b/packages/modules-foundation/src/forms/Form.vue
 @@ -2,7 +2,7 @@

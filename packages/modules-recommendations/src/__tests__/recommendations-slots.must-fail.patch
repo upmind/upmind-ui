@@ -1,0 +1,24 @@
+# Negative control — the recommendations page fills its cards block under a name
+# no layout draws, so the page's layout never gets develop's cards or the
+# nothing-to-recommend notice.
+#
+# Intended RED:
+#   packages/modules-recommendations/src/__tests__/recommendations-slots.int.test.ts
+#     "UpmRecommendations's layout, for the recorded guest with no basket"
+#       "hands the layout develop's hero, cards and configure, and no footer"
+#       "draws the hero and the nothing-to-recommend notice, and no frame for an empty configure"
+#       "puts the page's own layout slot in place of its block, and keeps every other block's"
+
+diff --git a/packages/modules-recommendations/src/components/Recommendations.vue b/packages/modules-recommendations/src/components/Recommendations.vue
+index 022626a..ed2f80d 100644
+--- a/packages/modules-recommendations/src/components/Recommendations.vue
++++ b/packages/modules-recommendations/src/components/Recommendations.vue
+@@ -11,7 +11,7 @@
+       </slot>
+     </template>
+ 
+-    <template #cards>
++    <template #card>
+       <Interstitial
+         :close-label="t('action.close')"
+         v-if="!meta.hasRecommendations"

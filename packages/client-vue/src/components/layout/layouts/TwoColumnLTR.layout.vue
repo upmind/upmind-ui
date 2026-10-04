@@ -107,7 +107,7 @@
 import { useSlots } from "@upmind/ui";
 import { computed } from "vue";
 import { isMobile } from "@upmind-automation/foundation";
-import { isEmptySlot } from "../../../utils/isEmptySlot";
+import { isEmptySlot } from "@upmind-automation/foundation";
 import {
   COLUMN_BACKGROUND,
   COLUMN_WIDTH,
