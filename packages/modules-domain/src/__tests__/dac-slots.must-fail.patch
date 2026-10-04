@@ -1,0 +1,21 @@
+# Negative control — the domain search fills its way-on block under a name no
+# layout draws, so the page's layout never gets develop's continue button.
+#
+# Intended RED:
+#   packages/modules-domain/src/__tests__/dac-slots.int.test.ts
+#     "hands the layout develop's six blocks"
+#     "draws the hero, the search, the hint and the way on without a domain, each in its own frame"
+
+diff --git a/packages/modules-domain/src/components/Dac.vue b/packages/modules-domain/src/components/Dac.vue
+index 17ebc33..55dd14b 100644
+--- a/packages/modules-domain/src/components/Dac.vue
++++ b/packages/modules-domain/src/components/Dac.vue
+@@ -59,7 +59,7 @@
+       </p>
+     </template>
+ 
+-    <template #resolve>
++    <template #actions>
+       <Button
+         v-if="showActions"
+         :loading="processingBasket"

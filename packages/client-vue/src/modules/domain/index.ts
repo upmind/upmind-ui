@@ -1,13 +1,8 @@
 // -----------------------------------------------------------------------------
 /**
- * @module domain
- * @description Domain module - domain search, selection, and DAC components.
+ * @module modules/domain
+ * @description The DAC page templates this package hands the `@upmind-automation/domain` organisms.
  */
 
-// --- Export Views
-export { default as UpmDomain } from "./Domain.vue";
-export { default as UpmDac } from "./Dac.vue";
-export { default as UpmSmartDomainField } from "./SmartDomainField.vue";
-
-// --- Export Types
-export * from "./types";
+// --- Export Templates
+export { DOMAIN_TEMPLATES } from "./shell";

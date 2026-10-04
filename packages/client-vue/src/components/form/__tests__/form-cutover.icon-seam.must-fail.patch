@@ -20,6 +20,7 @@ APPLIED BY HAND. No superproject lane scans `packages/client-vue` for
 `*.must-fail.patch`, so no runner applies this file. That gap is FE-3131.
 
 diff --git a/packages/modules-foundation/src/forms/Form.vue b/packages/modules-foundation/src/forms/Form.vue
+index 438b022..5945b49 100644
 --- a/packages/modules-foundation/src/forms/Form.vue
 +++ b/packages/modules-foundation/src/forms/Form.vue
 @@ -24,12 +24,10 @@

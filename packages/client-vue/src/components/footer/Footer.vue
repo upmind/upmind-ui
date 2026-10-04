@@ -31,6 +31,7 @@
 
 <script lang="ts" setup>
 import { Markdown } from "@upmind/ui";
+import { UpmCurrency } from "@upmind-automation/basket";
 import {
   useBrand,
   useLocale,
@@ -39,7 +40,6 @@ import {
   ClientTemplateSlotCodes
 } from "@upmind-automation/headless";
 import UpmLocale from "../../components/LocaleSwitcher.vue";
-import UpmCurrency from "../../modules/basket/components/CurrencySwitcher.vue";
 import ColorModeToggle from "./ColorModeToggle.vue";
 import Content from "./components/Content.vue";
 import Copyright from "./components/Copyright.vue";

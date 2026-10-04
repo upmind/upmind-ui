@@ -7,12 +7,12 @@
     <template #content>
       <!-- On mobile the aside column is hidden, so the summary stacks above the
            form. -->
-      <CheckoutPricing v-if="isMobile" breakdown />
+      <UpmCheckoutPricing v-if="isMobile" breakdown />
       <slot name="content" />
     </template>
 
     <template #aside>
-      <CheckoutPricing breakdown />
+      <UpmCheckoutPricing breakdown />
       <slot name="markdown" />
     </template>
   </InsetLayout>
@@ -22,7 +22,7 @@
 // --- components
 import { isMobile } from "@upmind-automation/foundation";
 import InsetLayout from "../../../components/layout/layouts/Inset.layout.vue";
-import CheckoutPricing from "../../checkout/components/CheckoutPricing.vue";
+import { UpmCheckoutPricing } from "@upmind-automation/basket";
 
 // --- internal
 import { useSection } from "@upmind-automation/foundation";

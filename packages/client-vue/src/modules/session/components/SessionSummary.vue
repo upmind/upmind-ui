@@ -4,16 +4,16 @@
     :label="t('cart.basket_section')"
     icon="shopping-bag-02"
   >
-    <Summary :show-promotions="false" show-products />
+    <UpmBasketSummary :show-promotions="false" show-products />
   </Section>
 </template>
 
 <script lang="ts" setup>
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
+import { UpmBasketSummary } from "@upmind-automation/basket";
 import { Section } from "@upmind-automation/foundation";
 import { useBasket } from "@upmind-automation/headless";
-import Summary from "../../basket/components/Summary.vue";
 import type { AuthSummarySlotProps } from "@upmind-automation/auth";
 
 // -----------------------------------------------------------------------------

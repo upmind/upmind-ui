@@ -945,6 +945,56 @@
       "count": 1
     }
   },
+  "packages/modules-basket/src/basket-product/Edit.vue": {
+    "vue/no-expose-after-await": {
+      "count": 1
+    }
+  },
+  "packages/modules-basket/src/basket-product/components/card/components/BasketProductSummary.vue": {
+    "vue/no-use-v-if-with-v-for": {
+      "count": 1
+    }
+  },
+  "packages/modules-basket/src/basket-product/components/card/components/BasketQuantityField.vue": {
+    "vue/return-in-computed-property": {
+      "count": 1
+    }
+  },
+  "packages/modules-basket/src/billing/components/BillingForm.vue": {
+    "@typescript-eslint/no-unused-expressions": {
+      "count": 1
+    }
+  },
+  "packages/modules-basket/src/billing/components/TabBusiness.vue": {
+    "vue/no-dupe-keys": {
+      "count": 2
+    }
+  },
+  "packages/modules-basket/src/billing/components/TabPersonal.vue": {
+    "vue/no-dupe-keys": {
+      "count": 2
+    }
+  },
+  "packages/modules-basket/src/components/Summary.vue": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "packages/modules-basket/src/product-setup/components/Setup.vue": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "packages/modules-catalogue/src/components/Catalogue.vue": {
+    "vue/return-in-computed-property": {
+      "count": 2
+    }
+  },
+  "packages/modules-catalogue/src/products/WidgetGrid.vue": {
+    "vue/no-use-v-if-with-v-for": {
+      "count": 1
+    }
+  },
   "packages/client-vue/src/components/emailHistory/EmailHistoryListing.vue": {
     "@typescript-eslint/no-explicit-any": {
       "count": 1
@@ -1179,6 +1229,21 @@
   },
   "packages/client-vue/src/modules/system/Error.vue": {
     "no-fallthrough": {
+      "count": 1
+    }
+  },
+  "packages/modules-domain/src/components/DomainType.vue": {
+    "vue/no-dupe-keys": {
+      "count": 4
+    }
+  },
+  "packages/modules-domain/src/renderers/DomainRenderer.vue": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "packages/modules-domain/src/renderers/SLDRenderer.vue": {
+    "@typescript-eslint/no-explicit-any": {
       "count": 1
     }
   },

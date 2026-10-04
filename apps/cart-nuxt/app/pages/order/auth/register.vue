@@ -18,9 +18,9 @@
 <script lang="ts" setup>
 import { useI18n } from "vue-i18n";
 import { UpmAuthRegister } from "@upmind-automation/auth";
+import { UpmGuestCheckoutOffer } from "@upmind-automation/basket";
 import {
   SESSION_TEMPLATES,
-  UpmGuestCheckoutOffer,
   UpmLoading,
   UpmSessionSummary
 } from "@upmind-automation/client-vue";

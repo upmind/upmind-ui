@@ -1,4 +1,8 @@
-export { default as UpmBasketProductEdit } from "./Edit.vue";
-export { default as UpmBasketProductCards } from "./components/card/BasketProductCards.vue";
+// -----------------------------------------------------------------------------
+/**
+ * @module modules/basket-product
+ * @description The basket-product templates this package hands the `@upmind-automation/basket` organisms.
+ */
 
-export { BASKET_PRODUCT_TEMPLATE } from "./types";
+// --- Export Templates
+export { BASKET_PRODUCT_TEMPLATES } from "./shell";

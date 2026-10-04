@@ -124,11 +124,15 @@ are pages of their own (`config/auth-pages.ts`, `mock/contracts/auth.schemas.{re
 
 **There is no component to adopt here.** `UpmProductSetup` renders a different surface with
 the same name: the basket-funnel step that repairs invalid or deferred products on the way
-to checkout. Its route is `BASKET_PRODUCTS_SETUP`, headless `useProductSetup` is a selector
-over `useBasket`/`useBasketProducts`, and `ApplyToOthers` acts across the basket. This page
-is post-purchase, for a product the client already owns, with no basket anywhere. Ruled in
-ADR 023 Amendment 3 (2026-09-11); the module itself moves into `basket` in that epic's
-Phase 9.
+to checkout. Its route is `BASKET_PRODUCTS_SETUP` and `ApplyToOthers` acts across the
+basket. Headless `useProductSetup` has no machine of its own: it selects over `useBasket`
+and `useBasketProducts`, and also reads `useConfig` (in `UIContext.CHECKOUT`) and
+`getDomainBasketProducts` — basket state is not its only input. The part that decides this
+page is the write: it applies through `basketProductServices.updateMany(basketId.value, …)`,
+with `basketId` taken from `useBasket()`. This page is post-purchase, for a product the
+client already owns, with no basket anywhere — so there is no id to apply against, and the
+composable cannot be reused as it stands. Ruled in ADR 023 Amendment 3 (2026-09-11); the
+module moved into `basket` in that epic's Phase 9.
 
 Mocked since 11 September 2026, per the ruling that a surface with no component is mocked.
 The mock renders the provider's blueprint as one form whose Confirm is the setup step

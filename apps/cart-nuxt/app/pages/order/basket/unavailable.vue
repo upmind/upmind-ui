@@ -4,7 +4,7 @@
 
 <script lang="ts" setup>
 import { useI18n } from "vue-i18n";
-import { UpmBasketUnavailable } from "@upmind-automation/client-vue";
+import { UpmBasketUnavailable } from "@upmind-automation/basket";
 import { ROUTE } from "~/funnels/types";
 
 const { t } = useI18n();

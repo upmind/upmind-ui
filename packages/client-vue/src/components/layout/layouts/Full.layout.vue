@@ -71,7 +71,7 @@
 <script lang="ts" setup>
 import { useSlots } from "@upmind/ui";
 import { computed } from "vue";
-import { isEmptySlot } from "../../../utils/isEmptySlot";
+import { isEmptySlot } from "@upmind-automation/foundation";
 import { COLUMN_FLOW } from "../components/column";
 import Column from "../components/column/Column.vue";
 import Container from "../components/container/Container.vue";

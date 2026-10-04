@@ -1,0 +1,21 @@
+# Negative control — the catalogue fills its categories block under a name no
+# layout draws, so the page's layout never gets develop's content header.
+#
+# Intended RED:
+#   packages/modules-catalogue/src/__tests__/catalogue-slots.int.test.ts
+#     "hands the layout develop's header and content, and no domain footer anchor"
+#     "draws the recorded categories in the header frame and the grid in the content frame"
+
+diff --git a/packages/modules-catalogue/src/components/Catalogue.vue b/packages/modules-catalogue/src/components/Catalogue.vue
+index d43437b..d27a6c2 100644
+--- a/packages/modules-catalogue/src/components/Catalogue.vue
++++ b/packages/modules-catalogue/src/components/Catalogue.vue
+@@ -2,7 +2,7 @@
+   <LayoutProvider>
+     <slot :template="CATALOGUE_TEMPLATE.FULL" />
+ 
+-    <template #content-header>
++    <template #header>
+       <Categories
+         v-model="categoryId"
+         v-bind="{ ...category, title }"

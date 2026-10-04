@@ -1,14 +1,17 @@
 <template>
-  <UpmDac :tlds="tlds" @resolve="doResolve" />
+  <UpmDac :tlds="tlds" v-slot="{ template }" @resolve="doResolve">
+    <component :is="DOMAIN_TEMPLATES[template]" />
+  </UpmDac>
 </template>
 
 <script lang="ts" setup>
 import { useRoute } from "vue-router";
 import {
-  UpmDac,
+  DOMAIN_TEMPLATES,
   useQueryParams,
   useRoutingEngine
 } from "@upmind-automation/client-vue";
+import { UpmDac } from "@upmind-automation/domain";
 import { first } from "lodash-es";
 
 // -----------------------------------------------------------------------------

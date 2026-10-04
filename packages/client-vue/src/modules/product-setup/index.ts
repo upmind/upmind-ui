@@ -1,11 +1,8 @@
 // -----------------------------------------------------------------------------
 /**
- * @module product-setup
- * @description Product Setup module for fixing invalid/deferred products before checkout.
+ * @module modules/product-setup
+ * @description The product-setup templates this package hands the `@upmind-automation/basket` organism.
  */
 
-// --- Export Views
-export { default as UpmProductSetup } from "./ProductSetup.vue";
-
-// --- Export Types
-export * from "./types";
+// --- Export Templates
+export { PRODUCT_SETUP_TEMPLATES } from "./shell";

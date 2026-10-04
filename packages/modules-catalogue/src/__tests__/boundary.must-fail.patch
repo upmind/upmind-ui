@@ -1,0 +1,26 @@
+# Negative control — the DAC widget imports `domain` statically, so every
+# catalogue page loads the whole domain tree, whether or not a category asks
+# for the domain search.
+#
+# Intended RED:
+#   packages/modules-catalogue/src/__tests__/boundary.test.ts
+#     "imports domain statically at no hop"
+#     "loads domain through exactly one dynamic import, in the DAC widget"
+
+diff --git a/packages/modules-catalogue/src/products/WidgetDAC.vue b/packages/modules-catalogue/src/products/WidgetDAC.vue
+--- a/packages/modules-catalogue/src/products/WidgetDAC.vue
++++ b/packages/modules-catalogue/src/products/WidgetDAC.vue
+@@ -4,11 +4,12 @@
+ 
+ <script setup lang="ts">
+ import { defineAsyncComponent } from "vue";
++import { UpmDacWidget } from "@upmind-automation/domain";
+ 
+ // -----------------------------------------------------------------------------
+ 
+ // Lazy: only a category that shows the domain search loads `domain`.
+ const DacWidget = defineAsyncComponent(() =>
+-  import("@upmind-automation/domain").then(({ UpmDacWidget }) => UpmDacWidget)
++  Promise.resolve(UpmDacWidget)
+ );
+ </script>

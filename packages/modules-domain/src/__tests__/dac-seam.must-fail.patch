@@ -1,0 +1,20 @@
+# Negative control — the catalogue's lazy import reads a name this package does
+# not publish, so a DAC category resolves its widget to nothing.
+#
+# Intended RED:
+#   packages/modules-domain/src/__tests__/dac-seam.test.ts
+#     "is published by this package's barrel"
+#     "names a component, not a bare value"
+
+diff --git a/packages/modules-catalogue/src/products/WidgetDAC.vue b/packages/modules-catalogue/src/products/WidgetDAC.vue
+index 4079bab9f8..a403b91040 100644
+--- a/packages/modules-catalogue/src/products/WidgetDAC.vue
++++ b/packages/modules-catalogue/src/products/WidgetDAC.vue
+@@ -12,6 +12,6 @@ const props = defineProps<WidgetDacProps>();
+ 
+ // Lazy: only a category that shows the domain search loads `domain`.
+ const DacWidget = defineAsyncComponent(() =>
+-  import("@upmind-automation/domain").then(({ UpmDacWidget }) => UpmDacWidget)
++  import("@upmind-automation/domain").then(({ UpmDacWidgets }) => UpmDacWidgets)
+ );
+ </script>
