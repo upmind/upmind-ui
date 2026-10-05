@@ -109,6 +109,7 @@ import {
   UIContext,
   useBasketProductInline
 } from "@upmind-automation/headless";
+import { Config } from "@upmind-automation/product";
 import {
   productRootCardContentVariants,
   productRootListVariants,
