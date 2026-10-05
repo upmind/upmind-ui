@@ -1,10 +1,10 @@
 // -----------------------------------------------------------------------------
 /**
- * @fileoverview The page templates this package hands the catalogue, domain and basket pages.
+ * @fileoverview The page templates this package hands the basket pages.
  *
  * ## Job To Be Done
- * Every template `catalogue`, `domain` and `basket` can draw has a real component
- * in the record the host pages pass.
+ * Every template `basket` can draw has a real component in the record the host
+ * pages pass.
  *
  * ## What Breaks If These Fail
  * A page is handed a record with a gap, and the arrangement it names throws.
@@ -18,30 +18,16 @@ import {
   CHECKOUT_TEMPLATE,
   PRODUCT_SETUP_TEMPLATE
 } from "@upmind-automation/basket";
-import { CATALOGUE_TEMPLATE } from "@upmind-automation/catalogue";
-import { DOMAIN_TEMPLATE } from "@upmind-automation/domain";
 import { BASKET_TEMPLATES } from "../modules/basket";
 import { BASKET_PRODUCT_TEMPLATES } from "../modules/basket-product";
 import { BILLING_TEMPLATES } from "../modules/billing";
-import { CATALOGUE_TEMPLATES } from "../modules/catalogue";
 import { CHECKOUT_TEMPLATES } from "../modules/checkout";
-import { DOMAIN_TEMPLATES } from "../modules/domain";
 import { PRODUCT_SETUP_TEMPLATES } from "../modules/product-setup";
 import { difference, get, keys, map, uniq, values } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 
 const HOSTED = [
-  {
-    name: "catalogue",
-    record: CATALOGUE_TEMPLATES,
-    templates: values(CATALOGUE_TEMPLATE)
-  },
-  {
-    name: "domain",
-    record: DOMAIN_TEMPLATES,
-    templates: [DOMAIN_TEMPLATE.FULL]
-  },
   {
     name: "basket",
     record: BASKET_TEMPLATES,

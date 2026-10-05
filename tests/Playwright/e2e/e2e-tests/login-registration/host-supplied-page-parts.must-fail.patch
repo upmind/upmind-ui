@@ -14,7 +14,7 @@ diff --git a/apps/cart/src/pages/session/Login.vue b/apps/cart/src/pages/session
    >
      <template #loading><UpmLoading /></template>
 -    <template #summary="summary">
--      <UpmSessionSummary v-bind="summary" />
+-      <SessionSummary v-bind="summary" />
 -    </template>
    </UpmAuthLogin>
  </template>

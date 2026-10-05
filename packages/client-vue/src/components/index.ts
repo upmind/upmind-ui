@@ -1,9 +1,8 @@
 export * from "./form";
 export * from "./navigation";
 export * from "./footer";
-export * from "./layout";
+export { default as UpmTransition } from "./transition/Transition.vue";
 export * from "./header";
-export * from "./shell";
 export { default as UpmLocale } from "./LocaleSwitcher.vue";
 export { default as UpmOverlayController } from "./overlays/OverlayController.vue";
 export { useOverlayRoute } from "./overlays/useOverlayRoute";

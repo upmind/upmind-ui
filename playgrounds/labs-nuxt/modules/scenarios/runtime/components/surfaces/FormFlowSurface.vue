@@ -77,7 +77,6 @@
         :uischema="uischema"
         :model-value="model"
         :additional-errors="validationErrors"
-        :additional-renderers="formRenderers"
         :actions="actions"
         :processing="isSubmitting"
         @update:model-value="onUpdate"
@@ -112,8 +111,7 @@ import { isControlElement, RuleEffect } from "@jsonforms/core";
 import { Alert, Button, Skeleton } from "@upmind/ui";
 import { computed, onUnmounted, ref, watch, watchEffect } from "vue";
 import { useI18n } from "vue-i18n";
-import { formRenderers } from "@upmind-automation/client-vue";
-import { Form, Icon } from "@upmind-automation/foundation";
+import { Icon, Form } from "@upmind-automation/foundation";
 import {
   clearScenarioStage,
   useScenarioStage
@@ -131,7 +129,7 @@ import { FormFlowActionTypes } from "./FormFlowSurface.types";
 import { find, get, isFunction, isNil, keys, sumBy } from "lodash-es";
 import type { FormFlowSurfaceProps } from "./FormFlowSurface.types";
 import type { UISchemaElement } from "@jsonforms/core";
-import type { FormProps } from "@upmind-automation/client-vue";
+import type { FormProps } from "@upmind/ui";
 // -----------------------------------------------------------------------------
 
 const props = defineProps<FormFlowSurfaceProps>();

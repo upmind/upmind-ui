@@ -16,7 +16,6 @@ const alias = {
   "@upmind-automation/types": at("../../packages/types/src/index.ts"),
   "@upmind-automation/i18n": at("../../packages/i18n/src"),
   "@upmind-automation/headless": at("../../packages/headless/src/index.ts"),
-  "@upmind-automation/client-vue": at("../../packages/client-vue/src/index.ts"),
   "@upmind-automation/foundation": at(
     "../../packages/modules-foundation/src/index.ts"
   ),

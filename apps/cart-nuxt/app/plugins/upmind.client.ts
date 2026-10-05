@@ -1,21 +1,31 @@
-import UpmindClient, {
-  useTheme,
-  decorateRoutes,
-  registerOverlayRoutes,
-  useHeader,
-  useFooter,
-  useLayout,
-  useShell,
-  SHELL
-} from "@upmind-automation/client-vue";
+import "@upmind-automation/client";
 import "@upmind-automation/domain";
+import {
+  foundationRenderers,
+  registerFormRenderers,
+  useLayout
+} from "@upmind-automation/foundation";
+import { SHELL, useShell } from "@upmind-automation/foundation";
+import {
+  decorateRoutes,
+  registerOverlayRoutes
+} from "@upmind-automation/headless";
+import "@upmind-automation/payment";
+import "@upmind-automation/product";
 import { AccessRoleTypes } from "@upmind-automation/types";
+import { registerFunnels } from "../funnels";
+import { CART_OVERLAYS } from "../router.options";
+import { useFooter } from "../shell/components/footer/useFooter";
+import { useHeader } from "../shell/components/header/useHeader";
+import { useTheme } from "../shell/modules/theming/useTheme";
+import UpmindClient from "../shell/useUpmindClient";
 import { forEach } from "lodash-es";
 import type { I18n } from "vue-i18n";
 import type { Router } from "vue-router";
 import { defineNuxtPlugin } from "#app";
-import { registerFunnels } from "~/funnels";
-import { CART_OVERLAYS } from "~/router.options";
+import { LOCALE_OVERRIDES } from "#locale-overrides";
+
+registerFormRenderers(foundationRenderers);
 
 export default defineNuxtPlugin(async nuxtApp => {
   const runtimeConfig = useRuntimeConfig();
@@ -36,10 +46,13 @@ export default defineNuxtPlugin(async nuxtApp => {
     i18n: {
       instance: nuxtApp.$i18n as I18n,
       // Glob pattern adapted for relative path from this plugin
-      files: import.meta.glob<Record<string, string>>(
-        "../assets/locales/**/*.json",
-        { import: "default" }
-      )
+      files: {
+        ...import.meta.glob<Record<string, string>>(
+          "../assets/locales/**/*.json",
+          { import: "default" }
+        ),
+        ...LOCALE_OVERRIDES
+      }
     },
     router: {
       instance: router,

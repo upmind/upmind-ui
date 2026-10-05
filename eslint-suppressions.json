@@ -1030,11 +1030,6 @@
       "count": 1
     }
   },
-  "packages/client-vue/src/components/form/renderers/ImageRenderer.vue": {
-    "@typescript-eslint/no-explicit-any": {
-      "count": 2
-    }
-  },
   "packages/client-vue/src/components/form/renderers/PaymentDetailsRenderer.vue": {
     "@typescript-eslint/no-explicit-any": {
       "count": 1
@@ -1250,6 +1245,11 @@
   "packages/modules-foundation/src/forms/Form.vue": {
     "@typescript-eslint/no-explicit-any": {
       "count": 7
+    }
+  },
+  "packages/modules-foundation/src/renderers/ImageRenderer.vue": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
     }
   },
   "packages/modules-foundation/src/forms/useFormI18n.ts": {
@@ -2470,6 +2470,11 @@
       "count": 1
     }
   },
+  "playgrounds/labs-nuxt/app/components/OrderView.vue": {
+    "@workspace/no-cross-package-path-imports": {
+      "count": 2
+    }
+  },
   "playgrounds/labs/src/App.vue": {
     "vue/no-unused-vars": {
       "count": 1
@@ -2492,6 +2497,11 @@
   },
   "playgrounds/labs/src/router.ts": {
     "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "apps/velia-nuxt/app/router.options.ts": {
+    "@workspace/no-cross-package-path-imports": {
       "count": 1
     }
   }

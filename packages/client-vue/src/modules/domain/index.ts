@@ -5,4 +5,4 @@
  */
 
 // --- Export Templates
-export { DOMAIN_TEMPLATES } from "./shell";
+export { domainTemplate } from "./shell";

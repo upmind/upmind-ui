@@ -1,29 +1,34 @@
 // -----------------------------------------------------------------------------
 /**
- * @fileoverview The registry's slot sequence, against develop's.
+ * @fileoverview The registry's slot sequence, against the one it held before the move.
  *
  * ## Job To Be Done
- * Foundation's list takes the slot develop gives the lookup control, the domain
- * package registers its own pair, and every other control keeps the position it
- * holds on develop.
+ * Only the moved slots change, and the packages that register their own controls
+ * (domain among them) leave the list; every other slot keeps its position.
  *
  * ## What Breaks If These Fail
  * A renderer's slot goes to its neighbour, so the terms selector draws a gateway picker.
  */
 
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
-import { foundationRenderers } from "@upmind-automation/foundation";
-import { formRenderers } from "../index";
-import { concat, difference, get, indexOf, map, slice } from "lodash-es";
-import type { FormRendererEntry } from "@upmind-automation/foundation";
+import { concat, difference, intersection } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 
-const DEVELOP = [
+const REPO_ROOT = resolve(import.meta.dirname, "../../../../../../..");
+const REGISTRY_PATH =
+  "packages/client-vue/src/components/form/renderers/index.ts";
+
+const before = [
   "DomainRenderer",
   "SLDRenderer",
+  "...clientRenderers",
   "ImageRenderer",
   "LookupRenderer",
+  "...paymentRenderers",
+  "...productRenderers",
   "FilterButtonGroupRenderer",
   "FilterExclusiveToggleGroupRenderer",
   "FilterToggleGroupRenderer",
@@ -34,61 +39,161 @@ const DEVELOP = [
   "FilterBarRenderer"
 ];
 
-const MOVED_TO_FOUNDATION = "LookupRenderer";
+const MOVED_TO_FOUNDATION = [
+  "LookupRenderer",
+  "ImageRenderer",
+  "FilterButtonGroupRenderer",
+  "FilterExclusiveToggleGroupRenderer",
+  "FilterToggleGroupRenderer",
+  "FilterSearchRenderer",
+  "FilterMultiSelectRenderer",
+  "FilterRangeRenderer",
+  "FilterBarRenderer"
+];
 
-const MOVED_TO_THE_DOMAIN_PACKAGE = ["DomainRenderer", "SLDRenderer"];
+const REPLACED_BY_THE_DOMAIN_MOVE = ["DomainRenderer", "SLDRenderer"];
 
-const KEPT = difference(DEVELOP, MOVED_TO_THE_DOMAIN_PACKAGE);
-const FOUNDATION_SLOT = indexOf(KEPT, MOVED_TO_FOUNDATION);
+const DOMAIN_SET = "...domainRenderers";
 
-function namesOf(entries: FormRendererEntry[]): string[] {
-  return map(entries, entry => get(entry.renderer, "__name"));
+const REGISTERED_BY_THEIR_PACKAGE = [
+  "...clientRenderers",
+  "...paymentRenderers",
+  "...productRenderers"
+];
+
+const LEFT_THE_LIST = concat(
+  MOVED_TO_FOUNDATION,
+  REPLACED_BY_THE_DOMAIN_MOVE,
+  REGISTERED_BY_THEIR_PACKAGE
+);
+
+const ARRAY_BLOCK = /export const formRenderers\s*=\s*\[([\s\S]*?)\n\]/;
+const SPREAD = /^\.\.\.([A-Za-z0-9_$]+)$/;
+const CALL = /^registerEntry\(\s*([A-Za-z0-9_$]+)/;
+const PLAIN = /^([A-Za-z0-9_$]+)$/;
+
+/** Splits on the commas between slots, not those inside a `registerEntry(...)` call. */
+function topLevelEntries(block: string): string[] {
+  const entries: string[] = [];
+  let depth = 0;
+  let current = "";
+
+  for (const char of block) {
+    if (char === "(") depth += 1;
+    if (char === ")") depth -= 1;
+    if (char === "," && depth === 0) {
+      entries.push(current);
+      current = "";
+      continue;
+    }
+    current += char;
+  }
+  entries.push(current);
+
+  return entries;
 }
 
-const foundationNames = namesOf(foundationRenderers);
-const expected = concat(
-  slice(KEPT, 0, FOUNDATION_SLOT),
-  foundationNames,
-  slice(KEPT, FOUNDATION_SLOT + 1)
-);
-const now = namesOf(formRenderers);
+function slotsIn(source: string): string[] {
+  const block = ARRAY_BLOCK.exec(source);
+  if (!block) throw new Error("no formRenderers array literal found");
+
+  return topLevelEntries(block[1].replace(/\/\/.*$/gm, ""))
+    .map(entry => entry.trim())
+    .filter(Boolean)
+    .map(line => {
+      const spread = SPREAD.exec(line);
+      if (spread) return `...${spread[1]}`;
+      const call = CALL.exec(line);
+      if (call) return call[1];
+      const plain = PLAIN.exec(line);
+      if (plain) return plain[1];
+      throw new Error(`unreadable registry slot: ${line}`);
+    });
+}
+
+const now = slotsIn(readFileSync(resolve(REPO_ROOT, REGISTRY_PATH), "utf8"));
+
+const expected = difference(before, LEFT_THE_LIST);
 
 // -----------------------------------------------------------------------------
 
 describe("the registry's slot sequence", () => {
-  it("carries the lookup control in foundation's list, so the claims below are not vacuous", () => {
-    expect(foundationNames).toContain(MOVED_TO_FOUNDATION);
-  });
-
-  it.each(MOVED_TO_THE_DOMAIN_PACKAGE)(
-    "leaves %s, which develop registers here, to the domain package",
+  it.each(MOVED_TO_FOUNDATION)(
+    "carried %s before the move, so the claim below is not vacuous",
     name => {
-      expect(DEVELOP).toContain(name);
-      expect(now).not.toContain(name);
+      expect(before).toContain(name);
     }
   );
 
-  it("keeps develop's sequence, with foundation's list in the lookup control's slot", () => {
+  it.each(MOVED_TO_FOUNDATION)("registers %s no longer", name => {
+    expect(now).not.toContain(name);
+  });
+
+  it.each(REPLACED_BY_THE_DOMAIN_MOVE)(
+    "carried %s before the domain move, so the claim below is not vacuous",
+    name => {
+      expect(before).toContain(name);
+    }
+  );
+
+  it.each(REPLACED_BY_THE_DOMAIN_MOVE)(
+    "leaves %s to the domain package, which registers its own set",
+    component => {
+      expect(now).not.toContain(component);
+      expect(now).not.toContain(DOMAIN_SET);
+    }
+  );
+
+  it("adds nothing", () => {
+    const added = difference(now, expected);
+
+    expect(
+      added,
+      `slots nobody declared appeared in the registry: ${added.join(", ")}`
+    ).toEqual([]);
+  });
+
+  it("keeps every slot in the position this phase entitles it to", () => {
     expect(now).toEqual(expected);
   });
 
-  it.each(map(expected, (slot, index) => ({ slot, index })))(
+  it.each(expected.map((slot, index) => ({ slot, index })))(
     "keeps $slot at position $index",
     ({ slot, index }) => {
       expect(now[index]).toBe(slot);
     }
   );
 
-  it.each(
-    map(foundationRenderers, (entry, offset) => ({
-      entry,
-      offset,
-      name: foundationNames[offset]
-    }))
-  )(
-    "hands on foundation's own $name entry, not a copy",
-    ({ entry, offset }) => {
-      expect(formRenderers[FOUNDATION_SLOT + offset]).toBe(entry);
+  it.each(REGISTERED_BY_THEIR_PACKAGE)(
+    "leaves %s to the package that registers it",
+    slot => {
+      expect(before).toContain(slot);
+      expect(now).not.toContain(slot);
     }
   );
+
+  it("takes exactly the moved controls, the domain pair and the self-registering packages, and nothing else", () => {
+    expect(difference(before, now)).toEqual(
+      intersection(before, LEFT_THE_LIST)
+    );
+  });
+
+  it("leaves every untouched slot exactly where it was", () => {
+    expect(expected.length).toBeGreaterThan(0);
+
+    for (const slot of expected) {
+      expect(now.indexOf(slot), `${slot} moved`).toBe(expected.indexOf(slot));
+    }
+  });
+
+  it("names no file either move deleted", () => {
+    const source = readFileSync(resolve(REPO_ROOT, REGISTRY_PATH), "utf8");
+
+    for (const name of concat(
+      MOVED_TO_FOUNDATION,
+      REPLACED_BY_THE_DOMAIN_MOVE
+    )) {
+      expect(source).not.toContain(`./${name}.vue`);
+    }
+  });
 });

@@ -1,0 +1,32 @@
+Negative control for domain-template.test.ts.
+
+Looks the template up in the layout record with no fallback, so the full
+layout is no longer drawn for a template the page does not lay out: an empty
+one, a template the organism draws itself, or a name no domain layout carries
+draws no layout. No template still takes the full default, and the full
+template still draws its own layout.
+
+Intended RED (domain-template.test.ts, "domainTemplate"):
+  draws the full layout for an empty template
+  draws the full layout for the drawer template the organism draws itself
+  draws the full layout for the widget template the organism draws itself
+  draws the full layout for a template only other pages carry
+  draws the full layout for a name no layout carries
+Intended GREEN:
+  draws the layout the full template carries
+  draws the full layout for no template
+
+diff --git a/apps/cart-nuxt/app/shell/modules/domain/shell.ts b/apps/cart-nuxt/app/shell/modules/domain/shell.ts
+--- a/apps/cart-nuxt/app/shell/modules/domain/shell.ts
++++ b/apps/cart-nuxt/app/shell/modules/domain/shell.ts
+@@ -16,9 +16,5 @@ export const DOMAIN_TEMPLATES: Record<DOMAIN_TEMPLATE.FULL, Component> = {
+ export function domainTemplate(
+   template: string = DOMAIN_TEMPLATE.FULL
+ ): Component {
+-  return get(
+-    DOMAIN_TEMPLATES,
+-    template,
+-    DOMAIN_TEMPLATES[DOMAIN_TEMPLATE.FULL]
+-  );
++  return get(DOMAIN_TEMPLATES, template);
+ }

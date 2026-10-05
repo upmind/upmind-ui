@@ -14,11 +14,9 @@
 <script lang="ts" setup>
 import { useI18n } from "vue-i18n";
 import { UpmAuthRecoverPassword } from "@upmind-automation/auth";
-import {
-  SESSION_TEMPLATES,
-  UpmSessionSummary
-} from "@upmind-automation/client-vue";
 import { ROUTE } from "~/funnels/types";
+import UpmSessionSummary from "~/shell/modules/session/components/SessionSummary.vue";
+import { SESSION_TEMPLATES } from "~/shell/shell";
 const { t } = useI18n();
 
 // SEO: Password recovery page

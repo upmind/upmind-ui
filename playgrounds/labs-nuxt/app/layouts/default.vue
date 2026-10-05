@@ -108,14 +108,12 @@ import {
   Toaster,
   TooltipProvider
 } from "@upmind/ui";
-import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import {
-  UpmOverlayController,
   useRoutingEngine,
   useActiveSession,
   useSessionStore
-} from "@upmind-automation/client-vue";
+} from "@upmind-automation/headless";
 import { filter, flatMap, includes, map, startsWith } from "lodash-es";
 import type { Component } from "vue";
 import type { RouteLocationRaw } from "vue-router";
@@ -127,6 +125,7 @@ import { ScopeBar } from "~/components/scope";
 import { SheetHost, usePlaygroundSheet } from "~/components/sheets";
 import { useNavigation } from "~/composables/useNavigation";
 import { ROUTE } from "~/funnels";
+import UpmOverlayController from "~/shell/components/overlays/OverlayController.vue";
 // -----------------------------------------------------------------------------
 
 /** One destination as the rail draws it. */

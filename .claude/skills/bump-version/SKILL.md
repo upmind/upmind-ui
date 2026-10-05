@@ -16,7 +16,6 @@ Wraps `pnpm -r --include-workspace-root --filter='!…types' --filter='!…upmin
 1. Run it. Exit 0 = done; 12 files in the monorepo plus the two submodules.
 2. Read the diffstat it prints and show the operator.
 3. Do NOT commit unless asked — the bump usually rides an existing release commit.
-4. Bump the `apps/hosting` and `apps/velia` submodules in their own repos; those commits belong to them, not the monorepo.
 
 ## Covers
 

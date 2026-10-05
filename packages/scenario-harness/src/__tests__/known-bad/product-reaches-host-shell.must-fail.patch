@@ -1,3 +1,14 @@
+# Negative control — `product` reaches into an app's shell for the product page
+# templates instead of taking them from its `templates` prop. Page templates are
+# app-owned (ADR 023 Amendment 1 change 3); a package reaching them points a
+# package at an app, an edge no row of §3's grant matrix carries.
+#
+# Caught by `eslint`'s `@workspace/no-cross-package-path-imports`, which resolves
+# the relative escape to disk and names the package that owns the target.
+#
+# Intended RED under lint:
+#   Import a workspace package by its published specifier — its internals are
+#   private. ("../../../../apps/cart/src/shell/modules/product/shell" resolves into apps/cart)
 diff --git a/packages/modules-product/src/components/Configure.vue b/packages/modules-product/src/components/Configure.vue
 index f38cf2e..1424351 100644
 --- a/packages/modules-product/src/components/Configure.vue
@@ -14,7 +25,7 @@ index f38cf2e..1424351 100644
  import { useClipboard } from "@vueuse/core";
  import { computed, onUnmounted, provide, watch } from "vue";
  import { useI18n } from "vue-i18n";
-+import { PRODUCT_TEMPLATES } from "@upmind-automation/client-vue";
++import { PRODUCT_TEMPLATES } from "../../../../apps/cart/src/shell/modules/product/shell";
  import { Section } from "@upmind-automation/foundation";
  import { Icon } from "@upmind-automation/foundation";
  import { isMobile } from "@upmind-automation/foundation";

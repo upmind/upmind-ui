@@ -3,9 +3,9 @@ import {
   useActiveSession,
   useBasket,
   useRoutingEngine
-} from "@upmind-automation/client-vue";
+} from "@upmind-automation/headless";
 import { ROUTE } from "./types";
-import type { FunnelWatcher } from "@upmind-automation/client-vue";
+import type { FunnelWatcher } from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------
 

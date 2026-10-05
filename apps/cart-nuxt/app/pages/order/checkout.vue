@@ -13,9 +13,9 @@
 <script lang="ts" setup>
 import { useI18n } from "vue-i18n";
 import { UpmCheckout } from "@upmind-automation/basket";
-import { CHECKOUT_TEMPLATES } from "@upmind-automation/client-vue";
-import { useStorefrontRoute } from "~/composables/useStorefrontRoute";
-import { ROUTE } from "~/funnels/types";
+import { useStorefrontRoute } from "../../composables/useStorefrontRoute";
+import { ROUTE } from "../../funnels/types";
+import { CHECKOUT_TEMPLATES } from "../../shell/modules/checkout/shell";
 
 const { t } = useI18n();
 

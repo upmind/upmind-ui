@@ -8,16 +8,17 @@
 #     "puts neither the search nor the results in a footer"
 
 diff --git a/packages/modules-domain/src/components/WidgetLayout.vue b/packages/modules-domain/src/components/WidgetLayout.vue
-index 753b0aeda7..8dd24a8560 100644
 --- a/packages/modules-domain/src/components/WidgetLayout.vue
 +++ b/packages/modules-domain/src/components/WidgetLayout.vue
-@@ -1,7 +1,9 @@
+@@ -1,9 +1,11 @@
  <template>
-   <slot name="search" />
+   <Content :flow="COLUMN_FLOW.VERTICAL" class="lg:p-0">
+     <slot name="search" />
++  </Content>
  
--  <slot name="results" />
 +  <Teleport to="#domain-content-footer" defer>
-+    <slot name="results" />
+     <slot name="results" />
+-  </Content>
 +  </Teleport>
  
    <Teleport to="#domain-aside-footer" defer>

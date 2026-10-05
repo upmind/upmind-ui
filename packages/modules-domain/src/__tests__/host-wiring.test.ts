@@ -1,17 +1,20 @@
 // -----------------------------------------------------------------------------
 /**
- * @fileoverview A host that sells no domain names takes none of this package.
+ * @fileoverview How hosts take this package: never through a widget port.
  *
  * ## Job To Be Done
- * portal-nuxt neither declares nor imports this package.
+ * No app provides browse a DAC widget, and portal-nuxt neither declares nor
+ * imports this package.
  *
  * ## What Breaks If These Fail
- * The package ships to a brand with no domains.
+ * The port the catalogue's lazy import replaced comes back, or the package ships
+ * to a brand with no domains.
  */
 
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { extname, join, resolve } from "node:path";
 import { describe, expect, it } from "vitest";
+import { filter, flatMap, includes, map } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 
@@ -21,15 +24,18 @@ const OPTED_OUT = { app: "portal-nuxt", source: "app" };
 
 const PACKAGE = "@upmind-automation/domain";
 
+const PORT_WIDGET = "UpmDacWidget";
+const PORT_KEY = "DAC_WIDGET";
+
+const EXCLUDED_DIRECTORIES = ["node_modules", ".nuxt", ".output", "dist"];
+
 const SOURCE_EXTENSIONS = [".ts", ".tsx", ".vue", ".mts", ".js", ".mjs"];
 
 function sourceFiles(directory: string): string[] {
   if (!existsSync(directory)) return [];
   const found: string[] = [];
   for (const entry of readdirSync(directory)) {
-    if (entry === "node_modules" || entry === ".nuxt" || entry === "dist") {
-      continue;
-    }
+    if (includes(EXCLUDED_DIRECTORIES, entry)) continue;
     const path = join(directory, entry);
     if (statSync(path).isDirectory()) {
       found.push(...sourceFiles(path));
@@ -126,7 +132,33 @@ function manifestOf(app: string) {
   };
 }
 
+const HOST_ROOTS = ["apps", "playgrounds"];
+
+const PORT_NAME = new RegExp(`\\b${PORT_KEY}\\b`);
+const WIDGET_PROVIDE = new RegExp(`\\bprovide\\s*\\([^)]*\\b${PORT_WIDGET}\\b`);
+
+function hostFilesMatching(pattern: RegExp) {
+  const files = flatMap(HOST_ROOTS, root => sourceFiles(join(REPO_ROOT, root)));
+
+  return map(
+    filter(files, file =>
+      pattern.test(withoutComments(readFileSync(file, "utf8")))
+    ),
+    file => file.slice(REPO_ROOT.length + 1)
+  );
+}
+
 // -----------------------------------------------------------------------------
+
+describe("no host provides browse a DAC widget", () => {
+  it("names no widget port in any app's source", () => {
+    expect(hostFilesMatching(PORT_NAME)).toEqual([]);
+  });
+
+  it("hands this package's widget to no provide", () => {
+    expect(hostFilesMatching(WIDGET_PROVIDE)).toEqual([]);
+  });
+});
 
 describe("the host that proves this package optional", () => {
   const dependencies = Object.keys({

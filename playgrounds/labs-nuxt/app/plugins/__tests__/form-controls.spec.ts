@@ -3,8 +3,9 @@
  *
  * ## Job To Be Done
  * Once every plugin the playground boots with has loaded, the form-control
- * registry holds the controls of every package the app depends on, and no
- * other control, before any form renders.
+ * registry holds foundation's controls, which the app registers itself, and the
+ * controls of every package the app depends on, and no other control, before
+ * any form renders.
  *
  * ## What Breaks If These Fail
  * A playground form draws a field with no control, because the package that
@@ -12,30 +13,23 @@
  * engine's notice on a field no control claims.
  */
 
-import { createRequire, findPackageJSON } from "node:module";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
+import { join, resolve } from "node:path";
 import { beforeAll, describe, expect, it, vi } from "vitest";
-import { clone, differenceWith, flatten, isEqual, map } from "lodash-es";
+import {
+  clone,
+  concat,
+  differenceWith,
+  filter,
+  flatten,
+  has,
+  isEqual,
+  map,
+  sortBy
+} from "lodash-es";
 import type { FormRendererEntry } from "@upmind-automation/foundation";
 
-// The playground declares these packages only through client-vue, so each is
-// resolved from client-vue's package, the way client-vue's entry imports it.
-const importThroughClientVue = async (specifier: string) => {
-  const manifest = findPackageJSON(
-    "@upmind-automation/client-vue",
-    import.meta.url
-  );
-
-  if (!manifest) throw new Error("The playground has no client-vue package.");
-
-  return import(/* @vite-ignore */ createRequire(manifest).resolve(specifier));
-};
-
 const PACKAGES = [
-  {
-    name: "client-vue",
-    controls: async () =>
-      (await import("@upmind-automation/client-vue")).formRenderers
-  },
   {
     name: "payment",
     controls: async () =>
@@ -44,14 +38,12 @@ const PACKAGES = [
   {
     name: "product",
     controls: async () =>
-      (await importThroughClientVue("@upmind-automation/product"))
-        .productRenderers
+      (await import("@upmind-automation/product")).productRenderers
   },
   {
     name: "client",
     controls: async () =>
-      (await importThroughClientVue("@upmind-automation/client"))
-        .clientRenderers
+      (await import("@upmind-automation/client")).clientRenderers
   },
   {
     name: "domain",
@@ -60,17 +52,60 @@ const PACKAGES = [
   }
 ];
 
+const PACKAGE_SCOPE = "@upmind-automation/";
+
+const APP_ROOT = process.cwd();
+const REPO_ROOT = resolve(APP_ROOT, "..", "..");
+
+function manifestName(directory: string): string {
+  const { name }: { name: string } = JSON.parse(
+    readFileSync(join(directory, "package.json"), "utf8")
+  );
+  return name;
+}
+
+/** The packages this app declares whose entry registers form controls. */
+function registeringDependencies(): string[] {
+  const { dependencies }: { dependencies?: Record<string, string> } =
+    JSON.parse(readFileSync(join(APP_ROOT, "package.json"), "utf8"));
+  const registering = filter(
+    map(readdirSync(join(REPO_ROOT, "packages")), name =>
+      join(REPO_ROOT, "packages", name)
+    ),
+    directory => {
+      const entry = join(directory, "src/index.ts");
+      return (
+        existsSync(entry) &&
+        /^registerFormRenderers\(/m.test(readFileSync(entry, "utf8"))
+      );
+    }
+  );
+
+  return sortBy(
+    filter(map(registering, manifestName), name => has(dependencies, [name]))
+  );
+}
+
 let registered: FormRendererEntry[] = [];
+let foundation: FormRendererEntry[] = [];
 
 beforeAll(async () => {
   vi.stubGlobal("defineNuxtPlugin", <T>(plugin: T): T => plugin);
   const plugins = import.meta.glob("../*.ts");
   await Promise.all(map(plugins, load => load()));
-  const { useFormRenderers } = await import("@upmind-automation/foundation");
+  const { foundationRenderers, useFormRenderers } =
+    await import("@upmind-automation/foundation");
+  foundation = foundationRenderers;
   registered = clone(useFormRenderers().renderers.value);
 }, 60000);
 
 describe("the labs playground after startup", () => {
+  it("checks every package it depends on that registers controls", () => {
+    expect(
+      sortBy(map(PACKAGES, entry => `${PACKAGE_SCOPE}${entry.name}`))
+    ).toEqual(registeringDependencies());
+  });
+
   it.each(PACKAGES)(
     "holds the form controls of $name",
     async ({ controls }) => {
@@ -81,9 +116,18 @@ describe("the labs playground after startup", () => {
     }
   );
 
+  it("holds each of foundation's controls once, registered by the app itself", () => {
+    expect(foundation).not.toHaveLength(0);
+
+    for (const entry of foundation) {
+      expect(filter(registered, held => held === entry)).toHaveLength(1);
+    }
+  });
+
   it("holds no form control that none of its packages registered", async () => {
-    const expected = flatten(
-      await Promise.all(map(PACKAGES, ({ controls }) => controls()))
+    const expected = concat(
+      foundation,
+      flatten(await Promise.all(map(PACKAGES, ({ controls }) => controls())))
     );
 
     expect(differenceWith(registered, expected, isEqual)).toEqual([]);

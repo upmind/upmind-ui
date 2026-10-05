@@ -12,10 +12,10 @@
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute } from "vue-router";
-import { recommendationsTemplate } from "@upmind-automation/client-vue";
 import { UpmRecommendations } from "@upmind-automation/recommendations";
-import type { LAYOUT_VARIANTS } from "@upmind-automation/client-vue";
-import { ROUTE } from "~/funnels/types";
+import { ROUTE } from "../../funnels/types";
+import { recommendationsTemplate } from "../../shell/modules/recommendations/shell";
+import type { LAYOUT_VARIANTS } from "@upmind-automation/foundation";
 
 const { t } = useI18n();
 const route = useRoute();

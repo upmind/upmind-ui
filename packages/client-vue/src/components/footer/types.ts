@@ -1,6 +1,6 @@
+import { COLUMN_ITEMS, COLUMN_JUSTIFY } from "@upmind-automation/foundation";
+import { RIBBON_BACKGROUND } from "@upmind-automation/foundation";
 import { parseVariants, type VariantValues } from "../../utils/parseVariants";
-import { COLUMN_ITEMS, COLUMN_JUSTIFY } from "../layout/components/column";
-import { RIBBON_BACKGROUND } from "../layout/components/ribbon";
 import { variants } from "./variants";
 
 export const FOOTER_POSITION = parseVariants(variants.position);

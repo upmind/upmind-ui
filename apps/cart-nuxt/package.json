@@ -42,10 +42,13 @@
     "localazy": "localazy download && pnpm format",
     "localazy:upload": "localazy upload",
     "deploy:staging": "pnpm generate:staging  && firebase deploy --only hosting:staging",
-    "deploy": "pnpm generate && firebase deploy --only hosting:cart"
+    "deploy": "pnpm generate && firebase deploy --only hosting:cart",
+    "test": "vitest run --config tests/vitest.config.ts",
+    "test:unit": "vitest run --config tests/vitest.config.ts"
   },
   "dependencies": {
     "@formkit/auto-animate": "^0.8.2",
+    "@jsonforms/core": "^3.6.0",
     "@nuxtjs/seo": "^3.3.0",
     "@nuxtjs/web-vitals": "^0.2.7",
     "@sentry/nuxt": "^10.34.0",
@@ -56,9 +59,9 @@
     "@upmind-automation/basket": "workspace:*",
     "@upmind-automation/catalogue": "workspace:*",
     "@upmind-automation/client": "workspace:*",
-    "@upmind-automation/client-vue": "workspace:*",
     "@upmind-automation/domain": "workspace:*",
     "@upmind-automation/foundation": "workspace:*",
+    "@upmind-automation/headless": "workspace:*",
     "@upmind-automation/i18n": "workspace:*",
     "@upmind-automation/invoice": "workspace:*",
     "@upmind-automation/payment": "workspace:*",

@@ -7,9 +7,9 @@
   </UpmProductRecommendations>
 </template>
 <script lang="ts" setup>
-import { recommendationsTemplate } from "@upmind-automation/client-vue";
 import { UpmProductRecommendations } from "@upmind-automation/recommendations";
 import { ROUTE } from "../../router";
+import { recommendationsTemplate } from "../../shell/modules/recommendations/shell";
 
 // -----------------------------------------------------------------------------
 </script>

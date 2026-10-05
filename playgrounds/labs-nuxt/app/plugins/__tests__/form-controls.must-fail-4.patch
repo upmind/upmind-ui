@@ -2,6 +2,7 @@
 #
 # Intended RED:
 #   playgrounds/labs-nuxt/app/plugins/__tests__/form-controls.spec.ts
+#     "checks every package it depends on that registers controls"
 #     "holds the form controls of 'product'"
 
 diff --git a/packages/modules-product/src/index.ts b/packages/modules-product/src/index.ts

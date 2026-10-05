@@ -34,7 +34,7 @@ import { computed } from "vue";
 import { Form } from "@upmind-automation/foundation";
 import { assign, get, has, isEmpty } from "lodash-es";
 import type { FilterBarProps } from "./FilterBar.types";
-import type { FormProps } from "@upmind-automation/client-vue";
+import type { FormProps } from "@upmind/ui";
 // -----------------------------------------------------------------------------
 
 const props = defineProps<FilterBarProps>();

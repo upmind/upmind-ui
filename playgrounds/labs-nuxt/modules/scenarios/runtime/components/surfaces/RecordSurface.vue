@@ -319,7 +319,6 @@
         :schema="formSlot.schema"
         :uischema="formSlot.uischema"
         :model-value="formSlot.model"
-        :additional-renderers="formRenderers"
         :additional-errors="validationErrors"
         :disabled="isSubmitting"
         no-actions
@@ -393,8 +392,7 @@ import {
 } from "@upmind/ui";
 import { computed, ref, unref } from "vue";
 import { useI18n } from "vue-i18n";
-import { formRenderers, useRoutingEngine } from "@upmind-automation/client-vue";
-import { useTransfer, useUrl } from "@upmind-automation/headless";
+import { useRoutingEngine, useTransfer, useUrl } from "@upmind-automation/headless";
 import { Form, Icon, Section } from "@upmind-automation/foundation";
 import { useRecordSources } from "../../composables/useRecordSources";
 import {
@@ -445,8 +443,7 @@ import type {
   RecordSectionDeclaration,
   RecordFormDeclaration
 } from "../../scenario.types";
-import type { MenuItem } from "@upmind/ui";
-import type { FormProps } from "@upmind-automation/client-vue";
+import type { FormProps, MenuItem } from "@upmind/ui";
 // -----------------------------------------------------------------------------
 
 const PRIMARY_LIMIT = 2;

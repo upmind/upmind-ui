@@ -21,7 +21,6 @@ build base:
     - if: $CI_COMMIT_TAG =~ /^cart-v\d+(\.\d+)+-rc\d+$/
     - if: $CI_COMMIT_TAG =~ /^cart-staging-v\d+(\.\d+)+$/
     - if: $CI_COMMIT_TAG =~ /^velia-v\d+(\.\d+)+$/
-    - if: $CI_COMMIT_TAG =~ /^hosting-v\d+(\.\d+)+$/
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event' && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == 'main'
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event' && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == 'develop'
   artifacts:
@@ -42,8 +41,6 @@ build base:
       - apps/cart/dist
 
   script:
-    - ls -a apps/hosting
-    - ls -a apps/velia
     - ls -a packages/types
     - ls -a design-system/packages/ui
     - pnpm -r --workspace-concurrency=1 --filter '!@upmind-automation/labs-nuxt' build
@@ -104,7 +101,7 @@ build base:
     # For Cloudflare pages
     - cp apps/cart/deploy/_headers apps/cart/dist/_headers
 
-(apps/velia) build:
+(apps/velia-nuxt) build:
   extends: .pnpm
   stage: build
   interruptible: true
@@ -116,16 +113,16 @@ build base:
   cache:
     - key:
         files:
-          - apps/velia/package.json
-          - apps/velia/pnpm-lock.yaml
+          - apps/velia-nuxt/package.json
+          - pnpm-lock.yaml
       paths:
-        - apps/velia/node_modules
+        - apps/velia-nuxt/node_modules
   artifacts:
     when: on_success
     access: all
     expire_in: "3 days"
     paths:
-      - apps/velia/dist
+      - apps/velia-nuxt/.output
   rules:
     - if: $CI_PIPELINE_SOURCE == 'web'
       when: manual
@@ -142,53 +139,8 @@ build base:
     # The design-system packages ship dist the app builds consume (tokens
     # css + ui d.ts) — CI must build them first; a dev machine has them built.
     - pnpm --filter @upmind/tokens build && pnpm --filter @upmind/ui build
-    - cd apps/velia
+    - cd apps/velia-nuxt
     - pnpm run build:prod
-
-(apps/hosting) build:
-  extends: .pnpm
-  stage: build
-  interruptible: true
-  tags: [xl]
-  needs:
-    - dependencies
-    - job: build base
-      optional: true
-  cache:
-    - key:
-        files:
-          - apps/hosting/package.json
-          - apps/hosting/pnpm-lock.yaml
-      paths:
-        - apps/hosting/node_modules
-  artifacts:
-    when: on_success
-    access: all
-    expire_in: "3 days"
-    paths:
-      - apps/hosting/dist
-  rules:
-    - if: $CI_PIPELINE_SOURCE == 'web'
-      when: manual
-    - if: $CI_PIPELINE_SOURCE == 'merge_request_event' && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == 'main'
-      allow_failure: false
-    - if: $CI_PIPELINE_SOURCE == 'merge_request_event' && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == 'develop'
-      allow_failure: true
-    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
-      when: manual
-      allow_failure: true
-    - if: $CI_COMMIT_TAG =~ /^cart-v\d+(\.\d+)+$/
-    - if: $CI_COMMIT_TAG =~ /^hosting-v\d+(\.\d+)+$/
-  script:
-    # The design-system packages ship dist the app builds consume (tokens
-    # css + ui d.ts) — CI must build them first; a dev machine has them built.
-    - pnpm --filter @upmind/tokens build && pnpm --filter @upmind/ui build
-    - cd apps/hosting
-    - pnpm run build:prod
-
-#-------------------------------------------------------------------------------
-# 🌤️ Cloudflare pages deployments - Vanilla cart
-#-------------------------------------------------------------------------------
 
 .deploy cloudflare pages:
   extends: .pnpm
@@ -254,7 +206,7 @@ build base:
     - echo "${GCP_SERVICE_ACCOUNT_JSON}" > ${GOOGLE_APPLICATION_CREDENTIALS}
     - |
       cd ${APP_DIR}
-      bash "${CI_PROJECT_DIR}/etc/scripts/deploy-gcs.sh" --bucket "${GCS_BUCKET}" --prefix "${GCS_PREFIX}"
+      bash "${CI_PROJECT_DIR}/etc/scripts/deploy-gcs.sh" --bucket "${GCS_BUCKET}" --prefix "${GCS_PREFIX}" --dist "${GCS_DIST:-dist}"
 
 (apps/cart) deploy gcs - staging:
   extends: .deploy gcs
@@ -294,13 +246,13 @@ build base:
     GCS_BUCKET: ${GCS_BUCKET_PRODUCTION}
     GCS_PREFIX: production
 
-(apps/velia) deploy gcs:
+(apps/velia-nuxt) deploy gcs:
   extends: .deploy gcs
   needs:
     - dependencies
     - job: build base
       optional: true
-    - (apps/velia) build
+    - (apps/velia-nuxt) build
   rules:
     - if: $CI_COMMIT_TAG =~ /^cart-v\d+(\.\d+)+$/ && $CART_PRIMARY_DEPLOY =~ /firebase/
       allow_failure: false
@@ -311,40 +263,13 @@ build base:
     - if: $CI_COMMIT_TAG =~ /^velia-v\d+(\.\d+)+$/ && $CART_PRIMARY_DEPLOY !~ /firebase/
       allow_failure: true
   environment:
-    name: apps/velia/gcs/production
+    name: apps/velia-nuxt/gcs/production
     action: start
   variables:
-    APP_DIR: apps/velia
+    APP_DIR: apps/velia-nuxt
     GCS_BUCKET: ${GCS_BUCKET_PRODUCTION}
     GCS_PREFIX: velia
-
-(apps/hosting) deploy gcs:
-  extends: .deploy gcs
-  needs:
-    - dependencies
-    - job: build base
-      optional: true
-    - (apps/hosting) build
-  rules:
-    - if: $CI_COMMIT_TAG =~ /^cart-v\d+(\.\d+)+$/ && $CART_PRIMARY_DEPLOY =~ /firebase/
-      allow_failure: false
-    - if: $CI_COMMIT_TAG =~ /^hosting-v\d+(\.\d+)+$/ && $CART_PRIMARY_DEPLOY =~ /firebase/
-      allow_failure: false
-    - if: $CI_COMMIT_TAG =~ /^cart-v\d+(\.\d+)+$/ && $CART_PRIMARY_DEPLOY !~ /firebase/
-      allow_failure: true
-    - if: $CI_COMMIT_TAG =~ /^hosting-v\d+(\.\d+)+$/ && $CART_PRIMARY_DEPLOY !~ /firebase/
-      allow_failure: true
-  environment:
-    name: apps/hosting/gcs/production
-    action: start
-  variables:
-    APP_DIR: apps/hosting
-    GCS_BUCKET: ${GCS_BUCKET_PRODUCTION}
-    GCS_PREFIX: hosting
-
-#-------------------------------------------------------------------------------
-# 🔥 Firebase deployments — All flavours
-#-------------------------------------------------------------------------------
+    GCS_DIST: .output/public
 
 .deploy firebase:
   extends: .pnpm
@@ -402,15 +327,15 @@ build base:
     FIREBASE_PROJECT: upmind-cart
     FIREBASE_DEPLOY_TARGET: upmind-cart
 
-(apps/velia) deploy firebase:
+(apps/velia-nuxt) deploy firebase:
   extends: .deploy firebase
   stage: deploy
   needs:
     - dependencies
     - job: build base
       optional: true
-    - (apps/velia) build
-    - (apps/velia) deploy gcs
+    - (apps/velia-nuxt) build
+    - (apps/velia-nuxt) deploy gcs
   rules:
     # Allow failure when it's not the primary deploy mechanism
     - if: $CI_COMMIT_TAG =~ /^cart-v\d+(\.\d+)+$/ && $CART_PRIMARY_DEPLOY =~ /firebase/
@@ -423,44 +348,12 @@ build base:
     - if: $CI_COMMIT_TAG =~ /^velia-v\d+(\.\d+)+$/ && $CART_PRIMARY_DEPLOY !~ /firebase/
       allow_failure: true
   environment:
-    name: apps/velia/firebase/production
+    name: apps/velia-nuxt/firebase/production
     action: start
     url: ${FIREBASE_ENVIRONMENT_URL_PRODUCTION}
   variables:
-    APP_DIR: apps/velia
+    APP_DIR: apps/velia-nuxt
     FIREBASE_DEPLOY_TARGET: velia
-
-(apps/hosting) deploy firebase:
-  extends: .deploy firebase
-  stage: deploy
-  needs:
-    - dependencies
-    - job: build base
-      optional: true
-    - (apps/hosting) build
-    - (apps/hosting) deploy gcs
-  rules:
-    # Allow failure when it's not the primary deploy mechanism
-    - if: $CI_COMMIT_TAG =~ /^cart-v\d+(\.\d+)+$/ && $CART_PRIMARY_DEPLOY =~ /firebase/
-      allow_failure: false
-    - if: $CI_COMMIT_TAG =~ /^hosting-v\d+(\.\d+)+$/ && $CART_PRIMARY_DEPLOY =~ /firebase/
-      allow_failure: false
-
-    - if: $CI_COMMIT_TAG =~ /^cart-v\d+(\.\d+)+$/ && $CART_PRIMARY_DEPLOY !~ /firebase/
-      allow_failure: true
-    - if: $CI_COMMIT_TAG =~ /^hosting-v\d+(\.\d+)+$/ && $CART_PRIMARY_DEPLOY !~ /firebase/
-      allow_failure: true
-  environment:
-    name: apps/hosting/firebase/production
-    action: start
-    url: ${FIREBASE_ENVIRONMENT_URL_PRODUCTION}
-  variables:
-    APP_DIR: apps/hosting
-    FIREBASE_DEPLOY_TARGET: hosting
-
-#------------------------------------------------------------------------------
-# 📢 Notify
-#------------------------------------------------------------------------------
 
 (apps/cart) notify slack:
   stage: deploy

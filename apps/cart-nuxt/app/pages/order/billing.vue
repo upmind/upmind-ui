@@ -7,8 +7,8 @@
 <script lang="ts" setup>
 import { useI18n } from "vue-i18n";
 import { UpmBilling } from "@upmind-automation/basket";
-import { BILLING_TEMPLATES } from "@upmind-automation/client-vue";
-import { ROUTE } from "~/funnels/types";
+import { ROUTE } from "../../funnels/types";
+import { BILLING_TEMPLATES } from "../../shell/modules/billing/shell";
 
 const { t } = useI18n();
 

@@ -1,0 +1,31 @@
+# Negative control — drops the client address renderer from rank 2 to rank 1,
+# the rank it would carry if somebody read "a custom renderer outranks the
+# default" and picked the lowest number above the floor. The design system's own
+# `layouts/LayoutRenderer.vue` testers on bare `isLayout` at rank 1, and
+# `Form.vue` spreads `upmindUIRenderers` FIRST, so lodash `maxBy` keeps the
+# built-in on the tie and the customer's address block is drawn by the generic
+# layout renderer. The form still renders, the page still looks complete, and
+# every type, lint and unit gate outside this spec stays green.
+#
+# Intended RED (apps/cart-nuxt/tests/renderer-ranks.test.ts):
+#   no built-in ties a published entry on an element it claims >
+#     'AddressRenderer' outranks every built-in on 'an address layout'
+#   reported as: expected [ 'LayoutRenderer at 1' ] to deeply equal []
+#
+# Not gradeable by packages/scenario-harness/scripts/verify-negative-controls.mjs:
+# that runner reads the specifier off an ADDED import line, and this mutation
+# adds no import. Verified by hand — apply, run the spec, revert, re-run.
+
+diff --git a/packages/modules-client/src/renderers/AddressRenderer.vue b/packages/modules-client/src/renderers/AddressRenderer.vue
+index aea3d8964e..b9752dc131 100644
+--- a/packages/modules-client/src/renderers/AddressRenderer.vue
++++ b/packages/modules-client/src/renderers/AddressRenderer.vue
+@@ -115,7 +115,7 @@ function setShowAddressFields(value: boolean = true) {
+ 
+ <script lang="ts">
+ export const tester = {
+-  rank: 2,
++  rank: 1,
+   controlType: and(isLayout, uiTypeIs("address"))
+ };
+ </script>

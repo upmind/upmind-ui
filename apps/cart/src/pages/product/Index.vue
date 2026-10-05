@@ -3,5 +3,5 @@
 </template>
 
 <script lang="ts" setup>
-import { UpmRouteView } from "@upmind-automation/client-vue";
+import UpmRouteView from "../../shell/modules/system/RouteView.vue";
 </script>

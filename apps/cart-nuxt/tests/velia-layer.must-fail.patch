@@ -1,0 +1,32 @@
+# Negative control — gives velia-nuxt its own copy overrides back: a
+# `#locale-overrides` module in its layer and the alias that wires it over
+# cart-nuxt's. Velia's customers would read wording no other storefront has.
+#
+# Intended RED (apps/cart-nuxt/tests/velia-layer.test.ts):
+#   velia-nuxt's layer holds only its cart route >
+#     keeps no source beside the cart route's segment and router options
+#   velia-nuxt's layer holds only its cart route >
+#     extends cart-nuxt with no alias but the basket segment's and no runtime config
+
+diff --git a/apps/velia-nuxt/nuxt.config.ts b/apps/velia-nuxt/nuxt.config.ts
+--- a/apps/velia-nuxt/nuxt.config.ts
++++ b/apps/velia-nuxt/nuxt.config.ts
+@@ -4,7 +4,8 @@ export default defineNuxtConfig({
+   extends: ["../cart-nuxt"],
+ 
+   alias: {
+-    "#basket-segment": resolve(__dirname, "./app/funnels/segment.ts")
++    "#basket-segment": resolve(__dirname, "./app/funnels/segment.ts"),
++    "#locale-overrides": resolve(__dirname, "./app/assets/locale-overrides.ts")
+   },
+ 
+   app: {
+diff --git a/apps/velia-nuxt/app/assets/locale-overrides.ts b/apps/velia-nuxt/app/assets/locale-overrides.ts
+new file mode 100644
+--- /dev/null
++++ b/apps/velia-nuxt/app/assets/locale-overrides.ts
+@@ -0,0 +1,4 @@
++export const LOCALE_OVERRIDES = import.meta.glob<Record<string, unknown>>(
++  "./localesOverrides/*-en.json",
++  { import: "default" }
++);

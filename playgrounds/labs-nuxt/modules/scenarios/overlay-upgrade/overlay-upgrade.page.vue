@@ -23,7 +23,6 @@
         :schema="pickerForm.schema"
         :uischema="pickerForm.uischema"
         :model-value="pickerModel"
-        :additional-renderers="formRenderers"
         no-actions
         size="sm"
         data-test-key="contract-product-lookup"
@@ -199,13 +198,12 @@ import {
 import { computed, onMounted, onUnmounted, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import {
-  formRenderers,
   OverlayType,
   QUERY_PARAMS,
   ScopeActorTypes,
   useContractProduct,
   useContractProducts
-} from "@upmind-automation/client-vue";
+} from "@upmind-automation/headless";
 import {
   ConfigSkeleton as UpmConfigSkeleton,
   ProductCard as UpmProductCard,

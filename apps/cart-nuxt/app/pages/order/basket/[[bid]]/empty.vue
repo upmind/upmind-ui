@@ -4,9 +4,9 @@
 
 <script lang="ts" setup>
 import { useI18n } from "vue-i18n";
-import { UpmEmpty } from "@upmind-automation/client-vue";
-import { useStorefrontRoute } from "~/composables/useStorefrontRoute";
-import { ROUTE } from "~/funnels/types";
+import { useStorefrontRoute } from "../../../../composables/useStorefrontRoute";
+import { ROUTE } from "../../../../funnels/types";
+import UpmEmpty from "../../../../shell/modules/system/Empty.vue";
 
 const { t } = useI18n();
 

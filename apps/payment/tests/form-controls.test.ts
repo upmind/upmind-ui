@@ -10,6 +10,8 @@
  * package that registers it had not loaded when the form copied the registry.
  */
 
+import { existsSync, readFileSync, readdirSync } from "node:fs";
+import { join, resolve } from "node:path";
 import { beforeAll, describe, expect, it, vi } from "vitest";
 import { createMemoryHistory, createRouter } from "vue-router";
 import type { FormRendererEntry } from "@upmind-automation/foundation";
@@ -42,6 +44,39 @@ const PACKAGES = [
   }
 ];
 
+const PACKAGE_SCOPE = "@upmind-automation/";
+
+const APP_ROOT = process.cwd();
+const REPO_ROOT = resolve(APP_ROOT, "..", "..");
+
+function manifestName(directory: string): string {
+  const { name }: { name: string } = JSON.parse(
+    readFileSync(join(directory, "package.json"), "utf8")
+  );
+  return name;
+}
+
+// Native array calls: the payment app does not depend on lodash-es.
+/** The packages this app declares whose entry registers form controls. */
+function registeringDependencies(): string[] {
+  const { dependencies = {} }: { dependencies?: Record<string, string> } =
+    JSON.parse(readFileSync(join(APP_ROOT, "package.json"), "utf8"));
+  const registering = readdirSync(join(REPO_ROOT, "packages"))
+    .map(name => join(REPO_ROOT, "packages", name))
+    .filter(directory => {
+      const entry = join(directory, "src/index.ts");
+      return (
+        existsSync(entry) &&
+        /^registerFormRenderers\(/m.test(readFileSync(entry, "utf8"))
+      );
+    });
+
+  return registering
+    .map(manifestName)
+    .filter(name => name in dependencies)
+    .sort();
+}
+
 let registered: FormRendererEntry[] | undefined;
 
 beforeAll(async () => {
@@ -61,6 +96,12 @@ beforeAll(async () => {
 }, 60000);
 
 describe("the payment app once its pay page has loaded", () => {
+  it("checks every package it depends on that registers controls", () => {
+    expect(
+      PACKAGES.map(entry => `${PACKAGE_SCOPE}${entry.name}`).sort()
+    ).toEqual(registeringDependencies());
+  });
+
   it.each(PACKAGES)(
     "holds the form controls of $name",
     async ({ controls }) => {

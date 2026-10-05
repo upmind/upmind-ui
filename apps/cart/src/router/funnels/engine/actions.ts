@@ -1,17 +1,19 @@
 import {
-  type AnyEventObject,
   assign,
-  type FunnelContext,
   QUERY_PARAMS,
   useBasket,
   useBasketProductsPending,
   useQueryParams,
   useRoutingEngine,
   useActiveSession
-} from "@upmind-automation/client-vue";
+} from "@upmind-automation/headless";
 import { ROUTE } from "../types";
 import { applyBillingDefaults } from "./services";
 import { isEmpty, isString } from "lodash-es";
+import type {
+  AnyEventObject,
+  FunnelContext
+} from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------
 

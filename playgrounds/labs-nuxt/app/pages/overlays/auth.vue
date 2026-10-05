@@ -149,8 +149,8 @@ import { Avatar, Button, DialogHeader, DialogTitle } from "@upmind/ui";
 import { computed, onUnmounted, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
-import { OverlayType } from "@upmind-automation/client-vue";
 import { Icon } from "@upmind-automation/foundation";
+import { OverlayType } from "@upmind-automation/headless";
 import {
   ScopeActorTypes,
   useActiveSession,
