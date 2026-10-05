@@ -23,7 +23,7 @@
         :readonly="readonly"
         :force-open="props.expand"
         @processing="wait"
-        @resolve="() => emit('formResolve')"
+        @resolve="doResolveCompany"
         v-model:touched="touched"
       >
         <template #item="{ item, readonly, doEdit, doRemove }">
@@ -47,7 +47,7 @@
             :show-label="!!selectedPhone"
             :readonly="readonly"
             @processing="wait"
-            @resolve="() => emit('formResolve')"
+            @resolve="doResolvePhone"
             v-model:touched="touched"
           >
             <template #item="{ item, readonly, doEdit, doRemove }">
@@ -348,6 +348,19 @@ function doResolve(value: BillingModel) {
     addressId: company?.addressId
   };
   showForm.value = false;
+  emit("formResolve");
+}
+
+// Write the resolved id explicitly: after a save the list refetch can make the
+// getter's default fallback already equal the new id, so Manage's v-model
+// update is suppressed and the basket would never be written (FE-3274).
+function doResolveCompany(_add: boolean, id?: string) {
+  selectedCompany.value = id ?? selectedCompany.value;
+  emit("formResolve");
+}
+
+function doResolvePhone(_add: boolean, id?: string) {
+  selectedPhone.value = id ?? selectedPhone.value;
   emit("formResolve");
 }
 

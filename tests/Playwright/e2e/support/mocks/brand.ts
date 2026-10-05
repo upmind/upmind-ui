@@ -52,6 +52,12 @@ interface ConfigOverrides {
    * whichever way the brand happens to be configured.
    */
   hidePromotionsAtCheckout?: boolean;
+  /**
+   * Makes registration ask for a phone. Maps to brand config key
+   * `ui.client_registration.require_phone`
+   * (`BrandConfigKeys.REQUIRE_PHONE_ON_REGISTRATION`).
+   */
+  requirePhoneOnRegistration?: boolean;
 }
 
 /**
@@ -114,7 +120,7 @@ export async function interceptConfigValues(
   overrides: ConfigOverrides
 ) {
   await page.route(
-    "**/api/config/brand/values**",
+    /\/api\/config\/brand\/values(\?|$)/,
     async (route: Route, request: Request) => {
       // Replay the request's own auth and strip cache-validation headers, so
       // cached (TanStack) reloads return a full 200 body instead of a 304 with
@@ -172,6 +178,10 @@ export async function interceptConfigValues(
       if (overrides.hidePromotionsAtCheckout !== undefined) {
         json.data["ui.checkout.hide_promotions_field"] =
           overrides.hidePromotionsAtCheckout;
+      }
+      if (overrides.requirePhoneOnRegistration !== undefined) {
+        json.data["ui.client_registration.require_phone"] =
+          overrides.requirePhoneOnRegistration;
       }
       const updatedResponseBody = {
         ...json

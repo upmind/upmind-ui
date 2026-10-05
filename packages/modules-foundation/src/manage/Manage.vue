@@ -98,7 +98,7 @@ const props = withDefaults(
 const emits = defineEmits<{
   (e: "update:modelValue", value: string): void;
   (e: "processing", value: boolean): void;
-  (e: "resolve", add: boolean): void;
+  (e: "resolve", add: boolean, id?: string): void;
 }>();
 
 const touched = defineModel<boolean>("touched");
@@ -132,13 +132,14 @@ function doReject() {
 
 function doResolve(value?: any) {
   const add = !editId.value;
-  modelValue.value = get(value, props.identifier ?? "id", value);
+  const id = get(value, props.identifier ?? "id", value);
+  modelValue.value = id;
   openForm.value = false;
   if (!props.forceOpen) {
     safeOpen.value = false;
   }
   editId.value = "";
-  emits("resolve", add);
+  emits("resolve", add, id);
 }
 
 function doAdd() {
