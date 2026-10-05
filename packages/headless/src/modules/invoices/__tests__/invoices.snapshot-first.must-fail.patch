@@ -1,0 +1,18 @@
+FE-3237 AC15 — negative control (design 8.10).
+Spec: invoices.replay.int.test.ts (test:integration invoices.replay)
+Row: -t "Read the items of one of my orders" — the step "I see each item from the snapshot, ..."
+Mutation: mapInvoiceItemRows reads the live products before the snapshot.
+
+diff --git a/packages/headless/src/modules/invoices/invoices.mappers.ts b/packages/headless/src/modules/invoices/invoices.mappers.ts
+index 1d47f76ac8..bfc43f2402 100644
+--- a/packages/headless/src/modules/invoices/invoices.mappers.ts
++++ b/packages/headless/src/modules/invoices/invoices.mappers.ts
+@@ -179,7 +179,7 @@ export function mapInvoice(raw: IInvoice, readingClientId?: string): Invoice {
+  * gives no items and no fallback.
+  */
+ export function mapInvoiceItemRows(raw?: IInvoice): IInvoiceProduct[] {
+-  return raw?.current_data?.content?.products || raw?.products || [];
++  return raw?.products || raw?.current_data?.content?.products || [];
+ }
+ 
+ function subItemName(subItem: IInvoiceProduct): string {

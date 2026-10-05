@@ -1,0 +1,18 @@
+FE-3237 AC7, AC11 — negative control re-pointed from orders/__tests__/useOrders.actions.must-fail.patch (ruling Step 4).
+Spec: invoices.writers.test.ts (test:unit invoices.writers)
+Row: -t "two writes share no filters object"
+Mutation: the writers mutate the live filters object instead of a fresh copy.
+
+diff --git a/packages/headless/src/modules/invoices/useInvoices.actions.ts b/packages/headless/src/modules/invoices/useInvoices.actions.ts
+index 2c879a5d14..b5581d9406 100644
+--- a/packages/headless/src/modules/invoices/useInvoices.actions.ts
++++ b/packages/headless/src/modules/invoices/useInvoices.actions.ts
+@@ -93,7 +93,7 @@ export function createInvoicesActions(
+   }
+ 
+   function liveFilters(): Record<string, unknown> {
+-    return { ...(query.criteria.value.filters ?? {}) };
++    return (query.criteria.value.filters ?? {}) as Record<string, unknown>;
+   }
+ 
+   /** Writes a fresh copy of the live filters after `mutate` changed it; the page returns to one. */

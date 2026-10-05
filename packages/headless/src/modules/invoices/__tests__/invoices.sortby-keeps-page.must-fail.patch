@@ -1,0 +1,20 @@
+FE-3237 AC10 — negative control (design 8.10).
+Spec: invoices.replay.int.test.ts (test:integration invoices.replay)
+Row: -t "Sort my orders and stay on my page" — the step "each sort gives me page two of my orders in that order"
+Row: -t "Sort my invoice list" — the step "I stay on page two"
+Mutation: sortBy drops the live pagination, so the core returns the page to one.
+
+diff --git a/packages/headless/src/modules/invoices/useInvoices.actions.ts b/packages/headless/src/modules/invoices/useInvoices.actions.ts
+index 2c879a5d14..5f93ca2fe6 100644
+--- a/packages/headless/src/modules/invoices/useInvoices.actions.ts
++++ b/packages/headless/src/modules/invoices/useInvoices.actions.ts
+@@ -119,8 +119,7 @@ export function createInvoicesActions(
+   /** Applies a sort INTENT; the live page window rides along, so the page stays. */
+   function sortBy(intent: InvoiceSortModel): void {
+     query.setCriteria({
+-      sort: intent,
+-      pagination: query.criteria.value.pagination
++      sort: intent
+     });
+   }
+ 

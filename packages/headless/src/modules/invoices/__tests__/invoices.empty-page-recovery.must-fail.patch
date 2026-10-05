@@ -1,0 +1,32 @@
+FE-3237 AC4 — negative control (design 8.10).
+Spec: invoices.replay.int.test.ts (test:integration invoices.replay)
+Row: -t "Go back to the first page when my page has no orders" — the step "I am taken back to page one"
+Mutation: the empty-page recovery watch is removed.
+
+diff --git a/packages/headless/src/modules/invoices/useInvoices.actions.ts b/packages/headless/src/modules/invoices/useInvoices.actions.ts
+index 2c879a5d14..c45823a8ed 100644
+--- a/packages/headless/src/modules/invoices/useInvoices.actions.ts
++++ b/packages/headless/src/modules/invoices/useInvoices.actions.ts
+@@ -142,22 +142,6 @@ export function createInvoicesActions(
+     query.setCriteria({ pagination: { limit: Math.max(1, limit), offset: 0 } });
+   }
+ 
+-  // A settled read past page one with no rows and a zero total goes back to
+-  // page one. A non-zero total past the last page is the core's to recover.
+-  watch(
+-    () =>
+-      [
+-        query.isFetched.value && !query.isFetching.value,
+-        !!query.error.value,
+-        query.pagination.value.total,
+-        query.criteria.value.pagination?.offset
+-      ] as const,
+-    ([isSettled, hasError, total, offset]) => {
+-      if (!isSettled || hasError || total !== 0 || !offset) return;
+-      query.setCriteria({ pagination: { limit: liveLimit(), offset: 0 } });
+-    }
+-  );
+-
+   /** The number column's leaf path: the operator branch `number.eq` where the schema declares one, else the bare column. */
+   function numberLeafPath(): string[] {
+     return has(query.schema, [

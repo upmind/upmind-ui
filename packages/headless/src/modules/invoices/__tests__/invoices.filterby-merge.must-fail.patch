@@ -1,0 +1,19 @@
+FE-3237 AC11 — negative control (design 8.10).
+Spec: invoices.replay.int.test.ts (test:integration invoices.replay)
+Row: -t "Find one order by its number while a filter is on" — the step "both filters stay on"
+Row: -t "Filter my invoice list to what I need" — the step "each new filter keeps the filters I set before it"
+Mutation: filterBy writes { filters: intent } again, replacing the live filters.
+
+diff --git a/packages/headless/src/modules/invoices/useInvoices.actions.ts b/packages/headless/src/modules/invoices/useInvoices.actions.ts
+index 2c879a5d14..a987d6ec85 100644
+--- a/packages/headless/src/modules/invoices/useInvoices.actions.ts
++++ b/packages/headless/src/modules/invoices/useInvoices.actions.ts
+@@ -112,7 +112,7 @@ export function createInvoicesActions(
+     intent: InvoiceFilterModel | InvoiceOrderFilterModel
+   ): void {
+     query.setCriteria({
+-      filters: omitBy(assign(liveFilters(), intent), isNil)
++      filters: intent
+     } as CriteriaWrite);
+   }
+ 

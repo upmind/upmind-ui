@@ -1,0 +1,18 @@
+FE-3237 AC1, AC12 — negative control (design 8.10).
+Spec: packages/headless/src/modules/invoices/__tests__/invoices.replay.int.test.ts (test:integration invoices.replay)
+Row: -t "List only the orders I placed" — the step "only my new-contract invoices are returned, ten on the first page"
+Row: -t "Keep my order history to the orders I placed" — the step "each read still asks for my placed orders only"
+Mutation: loadList no longer spreads the selector wire param, so the order history sends no filter[category.slug]=new_contract.
+
+diff --git a/packages/headless/src/modules/invoices/invoices.services.ts b/packages/headless/src/modules/invoices/invoices.services.ts
+index 526c3c467f..d99047e1f6 100644
+--- a/packages/headless/src/modules/invoices/invoices.services.ts
++++ b/packages/headless/src/modules/invoices/invoices.services.ts
+@@ -199,7 +199,6 @@ function loadList(scopeContext?: ScopeContext): InvoicesListQuery {
+     queryKey: [...queryKey, { client: clientId, scope: scopeContext }],
+     url: useUrl("invoices", {
+       ...scopeWireParams(scopeContext),
+-      ...selectorWireParams(scopeContext),
+       with: LOAD_LIST_INCLUDES,
+       with_count: "products"
+     }),

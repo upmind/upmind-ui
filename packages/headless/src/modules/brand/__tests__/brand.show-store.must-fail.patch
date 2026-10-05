@@ -1,0 +1,18 @@
+FE-3237 AC5 (brand AC-9) — negative control (design 8.10).
+Spec: packages/headless/src/modules/brand/__tests__/brand.show-store.test.ts (test:unit brand.show-store)
+Row: -t "HIDE hides the store for every session kind" — the three HIDE cells of that it()
+Mutation: resolveShowStore treats HIDE as shown.
+
+diff --git a/packages/headless/src/modules/brand/brand.mappers.ts b/packages/headless/src/modules/brand/brand.mappers.ts
+index af7ecb0c3e..7da229761e 100644
+--- a/packages/headless/src/modules/brand/brand.mappers.ts
++++ b/packages/headless/src/modules/brand/brand.mappers.ts
+@@ -83,7 +83,7 @@ export function resolveShowStore(
+ ): boolean {
+   switch (mode) {
+     case StoreDisplayMode.HIDE:
+-      return false;
++      return true;
+     case StoreDisplayMode.SHOW_LOGGED_IN:
+       return isAuthenticated;
+     default:

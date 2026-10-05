@@ -1,0 +1,17 @@
+FE-3237 AC1 — negative control (design 8.10).
+Spec: invoices.replay.int.test.ts (test:integration invoices.replay)
+Row: -t "List only the orders I placed" — the step "my unpaid check counts only my own invoices"
+Mutation: probeClientFilter drops the no-id arm, so the order-history probe sends no client_id.
+
+diff --git a/packages/headless/src/modules/invoices/invoices.utils.ts b/packages/headless/src/modules/invoices/invoices.utils.ts
+index 58d2709d79..5ebe20db38 100644
+--- a/packages/headless/src/modules/invoices/invoices.utils.ts
++++ b/packages/headless/src/modules/invoices/invoices.utils.ts
+@@ -44,7 +44,6 @@ export function probeClientFilter(
+ ): Record<string, string> {
+   const isIdentityScope =
+     !scopeContext ||
+-    !scopeContext.id ||
+     scopeContext.type === InvoicesContextTypes.CLIENT;
+   return isIdentityScope && clientId ? { client_id: clientId } : {};
+ }

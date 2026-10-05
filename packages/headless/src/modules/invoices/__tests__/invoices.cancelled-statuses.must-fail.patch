@@ -1,0 +1,21 @@
+FE-3237 AC18 — negative control re-pointed from orders/__tests__/orders.utils.must-fail.patch (ruling Step 4).
+Spec: invoices.order-conditions.test.ts (test:unit invoices.order-conditions)
+Row: -t "row 7 (cancellation request) — its isCancelled expectation"
+Mutation: isCancelled no longer counts CANCELLATION_REQUEST as cancelled.
+
+diff --git a/packages/headless/src/modules/invoices/invoice.utils.ts b/packages/headless/src/modules/invoices/invoice.utils.ts
+index 788c838801..a62fbc6399 100644
+--- a/packages/headless/src/modules/invoices/invoice.utils.ts
++++ b/packages/headless/src/modules/invoices/invoice.utils.ts
+@@ -82,10 +82,7 @@ type InvoiceCondition = Pick<
+   "status" | "paid_amount" | "unpaid_amount_converted"
+ >;
+ 
+-const CANCELLED_STATUSES: InvoiceStatus[] = [
+-  InvoiceStatus.CANCELLED,
+-  InvoiceStatus.CANCELLATION_REQUEST
+-];
++const CANCELLED_STATUSES: InvoiceStatus[] = [InvoiceStatus.CANCELLED];
+ 
+ /** True while the invoice's status is `OVERDUE`. */
+ export function isOverdue(invoice: Pick<IInvoice, "status">): boolean {

@@ -1,0 +1,17 @@
+FE-3237 AC18 — negative control (design 8.10).
+Spec: packages/headless/src/modules/invoices/__tests__/invoices.order-conditions.test.ts (test:unit invoices.order-conditions)
+Row: -t "row 6: a cancelled part-paid order is not partly paid" — the isPartiallyPaid expectation of that it()
+Mutation: isPartiallyPaid drops isDue, so a cancelled part-paid order reads partly paid.
+
+diff --git a/packages/headless/src/modules/invoices/invoice.utils.ts b/packages/headless/src/modules/invoices/invoice.utils.ts
+index 788c838801..c2ff4870bf 100644
+--- a/packages/headless/src/modules/invoices/invoice.utils.ts
++++ b/packages/headless/src/modules/invoices/invoice.utils.ts
+@@ -105,7 +105,6 @@ export function isCancelled(invoice: Pick<IInvoice, "status">): boolean {
+ /** True while the invoice is due and carries both an unpaid and a paid amount. */
+ export function isPartiallyPaid(invoice: InvoiceCondition): boolean {
+   return (
+-    isDue(invoice) &&
+     (invoice.unpaid_amount_converted ?? 0) > 0 &&
+     (invoice.paid_amount ?? 0) > 0
+   );

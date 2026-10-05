@@ -1,0 +1,31 @@
+FE-3237 AC11, AC24 (divergence 2) — negative control (design 8.10).
+Spec: invoices.replay.int.test.ts (test:integration invoices.replay)
+Row: -t "Only my last number search or number filter narrows my orders" — the step "after each write only the number of that write is sent"
+Mutation: search adds its term beside the live number.eq value as a second csv value instead of replacing it.
+
+diff --git a/packages/headless/src/modules/invoices/useInvoices.actions.ts b/packages/headless/src/modules/invoices/useInvoices.actions.ts
+index 2c879a5d14..2497bcacf2 100644
+--- a/packages/headless/src/modules/invoices/useInvoices.actions.ts
++++ b/packages/headless/src/modules/invoices/useInvoices.actions.ts
+@@ -175,7 +175,20 @@ export function createInvoicesActions(
+   const writeSearch = debounce((term?: string) => {
+     writeFilters(filters => {
+       const path = numberLeafPath();
+-      if (term) set(filters, path, term);
++      if (term)
++        set(
++          filters,
++          path,
++          [
++            path.reduce<unknown>(
++              (node, key) => (node as Record<string, unknown>)?.[key],
++              filters
++            ),
++            term
++          ]
++            .filter(Boolean)
++            .join(",")
++        );
+       else unset(filters, path);
+       if (path.length > 1 && isEmpty(filters.number)) unset(filters, "number");
+     });
