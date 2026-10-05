@@ -1,0 +1,28 @@
+# Negative-control mutant — the subscription-type toggle replaces, never merges (R38 item 1)
+#
+# Assertion it attacks:
+# contract-products-filter-wire.test.ts, "One-time, after Subscriptions,
+# replaces the narrowing and never sends both" — after Subscriptions then
+# One-time, the wire carries filter[billing_cycle_days|eq]=0 and no
+# filter[billing_cycle_days|neq].
+# Mutation:
+# `onPick` merges the picked operator into the current leaf instead of
+# replacing it, so the Subscriptions narrowing survives the One-time pick.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+diff --git a/packages/modules-foundation/src/renderers/FilterExclusiveToggleGroupRenderer.vue b/packages/modules-foundation/src/renderers/FilterExclusiveToggleGroupRenderer.vue
+index 00f39b58a..bc56a563a 100644
+--- a/packages/modules-foundation/src/renderers/FilterExclusiveToggleGroupRenderer.vue
++++ b/packages/modules-foundation/src/renderers/FilterExclusiveToggleGroupRenderer.vue
+@@ -79,7 +79,9 @@ function onPick(member?: unknown): void {
+   const picked = find(items.value, item => item.member === member);
+   handleChange(
+     control.value.path,
+-    picked?.key ? { [picked.key]: picked.value } : {}
++    picked?.key
++      ? { ...(control.value.data ?? {}), [picked.key]: picked.value }
++      : {}
+   );
+ }
+ </script>

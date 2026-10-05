@@ -5,10 +5,13 @@
 </template>
 
 <script lang="ts" setup>
+import { onMounted } from "vue";
 import { useI18n } from "vue-i18n";
-import { ROUTE } from "~/funnels/types";
+import { useTransfer } from "@upmind-automation/headless";
+import { ROUTE } from "../../../funnels/types";
 
 const { t } = useI18n();
+const { transferFrom } = useTransfer();
 
 // SEO: Session transfer page - noindex (internal process)
 useHead({
@@ -22,5 +25,9 @@ useSeoMeta({
 
 definePageMeta({
   name: ROUTE.SESSION_TRANSFER
+});
+
+onMounted(() => {
+  void transferFrom();
 });
 </script>

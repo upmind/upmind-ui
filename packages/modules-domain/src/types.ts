@@ -10,7 +10,6 @@ import {
   type DomainProduct,
   type UseDac
 } from "@upmind-automation/headless";
-import type { Component } from "vue";
 
 // -----------------------------------------------------------------------------
 
@@ -211,6 +210,3 @@ export interface SmartDomainDrawerProps {
   valid: boolean;
   empty: boolean;
 }
-
-/** The host's DAC page templates, one per `DOMAIN_TEMPLATE`. */
-export type DomainTemplates = Partial<Record<DOMAIN_TEMPLATE, Component>>;

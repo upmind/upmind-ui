@@ -1,6 +1,6 @@
 # Placeholder audit — what the client-vue refactor will and will not fill
 
-**Date:** 11 September 2026. **Re-counted:** 15 September 2026.
+**Date:** 11 September 2026. **Re-counted:** 21 September 2026.
 **Companion to:** [`client-vue-adoption.md`](./client-vue-adoption.md), which this corrects.
 
 Every route in this app that shows a **"Provided by client-vue"** row was audited against
@@ -9,12 +9,13 @@ the ADR 023 phase roster, to answer one question: *will each one be filled?*
 The original answer was no, with fourteen placeholder sites and nine of them needing a
 component that does not exist and is in no phase.
 
-**Six pages and two panel rows remain.** Eight sites closed between 11 and 15 September,
-because those surfaces were mocked directly on `develop` rather than waiting for a phase.
+**On this branch the count is zero.** No file calls `clientVuePage` or `clientVueRow` any
+more; only the helper itself remains, at `app/portal/config/client-vue.ts`, with no caller.
+Develop still has six call sites, in `auth-pages.ts` and `billing-pages.ts`.
 
-What is left: three auth rows that are still live on develop but orphaned on the ADR 023 stack,
-one page and two panel rows waiting on a barrel export that is already agreed, and two pages
-blocked on one small defect.
+Each row below records how its site closed. Three auth keys are orphaned rather than filled —
+they are live on develop and must be deleted on the stack alone. One page, the orders list,
+has no component to fill it and stays mocked.
 
 **Read every row below with the branch in mind.** Develop carries none of the ADR 023
 packages, so a surface the stack fills with a real component is still a placeholder there.
@@ -99,7 +100,7 @@ controls moved out of `client-vue`.
 
 ---
 
-## 2. What remains — six pages and two panel rows
+## 2. What remains — six call sites on develop, none on the stack
 
 Counted from the callers of `clientVuePage` and `clientVueRow` on `develop`.
 
@@ -125,38 +126,34 @@ Note the fourth key: `AUTH_LOGIN_TWOFA` shares the `login` config, so it goes wi
 | `billing-pages.ts:321` row | `PaymentDetails` |
 | `product-pages.ts:525` row | `StoredPaymentMethods` |
 
-`PaymentDetails` is already published as `UpmPaymentDetails`. `StoredPaymentMethods.vue`
-exists at `packages/modules-payment/src/components/` but is **not exported** from that package's
-barrel — its only importer is `PaymentDetails.vue`.
+Both are published now: `UpmPaymentDetails`, and `UpmStoredPaymentMethods` at
+`packages/modules-payment/src/index.ts:22`. The export was decided by the operator in September 2026
+on a count of two real portal consumers, and it landed.
 
-**Decided (operator, September 2026): publish it.** It has two real portal consumers, which is
-exactly the test that package applies to a published symbol. Once it is in the barrel, all
-three sites use the real component rather than a mock, because the components exist.
+The export was never the whole blocker. `BILLING_PAYMENT_METHODS` stays mocked on capability
+grounds — headless `payment-details` has no writes at all. The checklist entry below records
+what is missing.
 
-### Needs a component — 2
+### Needs a component — 1
 
 | Page key | Placeholder names | Reality |
 | --- | --- | --- |
-| `BILLING_ORDERS` | `UpmOrder` over headless `orders` | Phase 8 extracted the order surface into `packages/modules-invoice`, but the portal cannot mount it. See below. Recorded on !585. |
-| `BILLING_ORDER_DETAIL` | `UpmOrder` (detail) | Same blocker. |
+| `BILLING_ORDERS` | `UpmOrder` over headless `orders` | `packages/modules-invoice` publishes the single-order document and no list surface. This page stays mocked. Recorded on !585. |
+| `BILLING_ORDER_DETAIL` | `UpmOrder` (detail) | **Filled.** `app/pages/billing/orders/[id].vue` mounts the real organism. |
 
-**The blocker.** `packages/modules-invoice/src/components/Order.vue:255` reads its id from a fixed route
-parameter:
+**How the detail page was unblocked.** `packages/modules-invoice/src/components/Order.vue` read its id from a
+fixed route parameter, `QUERY_PARAMS.ORDER_ID` (`"oid"`), while this app routes the order on
+`id`. `OrderProps` now carries an optional `orderId` (`packages/modules-invoice/src/types.ts:19`) and
+the organism falls back to the route parameter when it is absent
+(`packages/modules-invoice/src/components/Order.vue:255-256`). `src/__tests__/order-id-source.int.test.ts` proves
+the prop wins over the route, and a must-fail patch beside it inverts that precedence.
 
-```js
-const orderId = route.params?.[QUERY_PARAMS.ORDER_ID]?.toString();
-```
+The page passes the id as a prop, keys the organism on it, and wraps it in its own
+`<Suspense>` so the page header and the account rail paint while the order resolves. Its five
+page arrangements are registered by `app/portal/billing/shell.ts`.
 
-`QUERY_PARAMS.ORDER_ID` is `"oid"`. `OrderProps` carries no id, so the id can only arrive
-through a route parameter of that exact name. This app's route is
-`app/pages/billing/orders/[id].vue`, whose parameter is `id`, so `route.params.oid` is
-`undefined` and `useOrder` receives nothing.
-
-The fix is small: accept an optional `orderId` prop and fall back to the route parameter. The
-cart keeps working unchanged, and a host with a different route shape can pass the id in.
-
-These two were listed as "filled by Phase 8" until 14 September 2026. Phase 8 ran and could
-not fill them.
+The list page is a different question. It needs a surface that lists orders, and this package
+publishes none.
 
 ---
 
@@ -200,11 +197,11 @@ row straight shows another. Both render; only one matches the recording.
 - [x] Mock the profile page — `account/profile.vue` with `mock/forms/profile-context.ts`.
 - [x] Mock the post-purchase product setup form, and stop naming `UpmProductSetup` for it.
 - [ ] Delete the four orphaned auth keys (`AUTH_LOGIN`, `AUTH_LOGIN_TWOFA`, `AUTH_REGISTER`, `AUTH_FORGOTTEN_PASSWORD`) — **on the ADR 023 stack only**. They are live on develop.
-- [ ] Export `StoredPaymentMethods` from `packages/modules-payment`'s barrel. Decided; not yet done.
+- [x] Export `StoredPaymentMethods` from `packages/modules-payment`'s barrel — `UpmStoredPaymentMethods`, `packages/modules-payment/src/index.ts:22`.
 - [x] `BILLING_PAYMENT_METHODS` stays mocked, and the reason is capability, not a missing export. `UpmStoredPaymentMethods` is published, but headless `payment-details` has **no writes at all** — remove, set-default, auto-payment, rename and verify exist in no service, composable or machine event, and the wire records a `405` on set-default with `PUT` owed on FE-3130. Three drawn facts also have no source: `mapPaymentDetail` drops `sca_verified` and the joined gateway, and nothing reads `inherit_payment_details`.
-- [ ] Give `Order.vue` an optional `orderId` prop with a route-parameter fallback, then wire the two orders pages.
+- [x] Give `Order.vue` an optional `orderId` prop with a route-parameter fallback, then wire the order detail page. The list page needs a list surface this package does not publish.
 - [x] Settle where `AddressItem`, `CompanyItem` and `PhoneItem` land — `client`, on Phase 7's branch, under Amendment 7. Amendment 4 sent them to `foundation` and was withdrawn.
-- [ ] Re-run this audit at Phase 10 and confirm the count is zero.
+- [x] Re-run this audit at Phase 10 and confirm the count is zero. Re-run 21 September 2026: no file calls either helper on this branch. `app/portal/config/client-vue.ts` itself is now dead and can go with the four auth keys.
 
 ---
 
@@ -220,7 +217,6 @@ row straight shows another. Both render; only one matches the recording.
 
 ## 5. Still open
 
-- The two orders pages, blocked on the `Order.vue` order-id defect.
-- The `StoredPaymentMethods` barrel export, decided but not yet done. It covers one page and two panels.
+- The orders list page, which needs a list surface `packages/modules-invoice` does not publish.
 - The four orphaned auth keys, which need deleting on the stack rather than filling.
 - Where the three profile row renderers land in Phase 9.

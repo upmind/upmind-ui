@@ -6,16 +6,14 @@
     :register-route="{ name: ROUTE.SESSION_REGISTER }"
   >
     <template #summary="summary">
-      <UpmSessionSummary v-bind="summary" />
+      <SessionSummary v-bind="summary" />
     </template>
   </UpmAuthRecoverPassword>
 </template>
 <script lang="ts" setup>
 import { UpmAuthRecoverPassword } from "@upmind-automation/auth";
-import {
-  SESSION_TEMPLATES,
-  UpmSessionSummary
-} from "@upmind-automation/client-vue";
 import { ROUTE } from "../../router";
+import SessionSummary from "../../shell/modules/session/components/SessionSummary.vue";
+import { SESSION_TEMPLATES } from "../../shell/modules/session/shell";
 // -----------------------------------------------------------------------------
 </script>

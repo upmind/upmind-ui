@@ -11,10 +11,10 @@
 <script lang="ts" setup>
 import { computed } from "vue";
 import { useRoute } from "vue-router";
-import { recommendationsTemplate } from "@upmind-automation/client-vue";
 import { UpmRecommendations } from "@upmind-automation/recommendations";
 import { ROUTE } from "../router";
-import type { LAYOUT_VARIANTS } from "@upmind-automation/client-vue";
+import { recommendationsTemplate } from "../shell/modules/recommendations/shell";
+import type { LAYOUT_VARIANTS } from "@upmind-automation/foundation";
 
 // -----------------------------------------------------------------------------
 const route = useRoute();

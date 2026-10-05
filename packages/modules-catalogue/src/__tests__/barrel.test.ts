@@ -3,10 +3,12 @@
  * @fileoverview The curated public barrel.
  *
  * ## Job To Be Done
- * The barrel publishes only this package's own UI, and no `headless` composable.
+ * The barrel publishes only this package's own UI, no `headless` composable,
+ * and no template name: the page owns its template names.
  *
  * ## What Breaks If These Fail
- * A `headless` composable or a lower package's symbol gains a second import path.
+ * A `headless` composable or a lower package's symbol gains a second import
+ * path, or the package picks a page layout again.
  */
 
 import { join, resolve } from "node:path";
@@ -74,5 +76,13 @@ describe("the catalogue package's curated public barrel", () => {
       passedThrough,
       `a lower package's symbols are published from here: ${passedThrough.join(", ")}`
     ).toEqual([]);
+  });
+});
+
+describe("the template names the page owns", () => {
+  it("publishes no template name", () => {
+    const templateNames = exported.filter(name => /template/i.test(name));
+
+    expect(templateNames).toEqual([]);
   });
 });

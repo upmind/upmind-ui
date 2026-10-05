@@ -118,10 +118,6 @@ export default defineNuxtConfig({
       __dirname,
       "../../packages/modules-catalogue/src/index.ts"
     ),
-    "@upmind-automation/domain": resolve(
-      __dirname,
-      "../../packages/modules-domain/src/index.ts"
-    ),
     "@upmind-automation/auth/styles": resolve(
       __dirname,
       "../../packages/modules-auth/src/styles.css"
@@ -153,10 +149,6 @@ export default defineNuxtConfig({
     "@upmind-automation/invoice": resolve(
       __dirname,
       "../../packages/modules-invoice/src/index.ts"
-    ),
-    "@upmind-automation/basket": resolve(
-      __dirname,
-      "../../packages/modules-basket/src/index.ts"
     )
   },
 

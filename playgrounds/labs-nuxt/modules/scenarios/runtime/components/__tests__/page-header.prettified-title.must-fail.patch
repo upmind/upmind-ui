@@ -15,6 +15,10 @@ handed, verbatim, with no prettified alias).
 Re-armed 2026-08-13 against the replay lock (R6-23), which put the actions
 behind their own tooltip and moved the import line the second hunk lands on.
 
+Re-armed 2026-09-16 against the retirement of `@upmind-automation/client-vue`,
+which repointed the `Icon` import at `@upmind-automation/foundation` -- the
+second hunk carries that import line as context.
+
 diff --git a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/PageHeader.vue b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/PageHeader.vue
 --- a/playgrounds/labs-nuxt/modules/scenarios/runtime/components/PageHeader.vue
 +++ b/playgrounds/labs-nuxt/modules/scenarios/runtime/components/PageHeader.vue

@@ -2,6 +2,7 @@
 #
 # Intended RED:
 #   apps/cart-nuxt/tests/form-controls.test.ts
+#     "checks every package it depends on that registers controls"
 #     "holds the form controls of 'product'"
 
 diff --git a/packages/modules-product/src/index.ts b/packages/modules-product/src/index.ts

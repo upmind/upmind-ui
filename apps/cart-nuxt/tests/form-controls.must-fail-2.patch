@@ -1,19 +1,19 @@
-# Negative control — client-vue's entry also registers a catch-all control it does not export, so the Nuxt cart starts with a control no package owns.
+# Negative control — payment's entry also registers a catch-all control it does not export, so the Nuxt cart starts with a control no package owns.
 #
 # Intended RED:
 #   apps/cart-nuxt/tests/form-controls.test.ts
 #     "holds no form control that none of its packages registered"
 
-diff --git a/packages/client-vue/src/index.ts b/packages/client-vue/src/index.ts
---- a/packages/client-vue/src/index.ts
-+++ b/packages/client-vue/src/index.ts
-@@ -3,6 +3,9 @@ import { formRenderers } from "./components/form/renderers";
- import useUpmindClient from "./useUpmindClient";
+diff --git a/packages/modules-payment/src/index.ts b/packages/modules-payment/src/index.ts
+--- a/packages/modules-payment/src/index.ts
++++ b/packages/modules-payment/src/index.ts
+@@ -7,6 +7,9 @@
+ import { paymentRenderers } from "./renderers";
  
- registerFormRenderers(formRenderers);
+ registerFormRenderers(paymentRenderers);
 +registerFormRenderers([
 +  { renderer: { render: () => null }, tester: () => 0 }
 +]);
  
- export * from "@upmind-automation/headless";
- 
+ // --- Export Views
+ export { default as UpmPayment } from "./components/Payment.vue";

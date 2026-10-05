@@ -1,19 +1,20 @@
-# Negative control — the domain record keeps a widget entry, so the app still
-# hands the domain package a layout for the catalogue's widget, which places its
-# own pieces.
+# Negative control — the basket record hands the right-to-left basket the
+# left-to-right layout, so a brand on the right-to-left template gets its
+# columns the wrong way round.
 #
 # Intended RED:
 #   packages/client-vue/src/__tests__/shell-registration.test.ts
-#     "the templates domain draws > holds no entry for a template it does not draw"
+#     "the templates basket draws > gives each template its own component"
 
-diff --git a/packages/client-vue/src/modules/domain/shell.ts b/packages/client-vue/src/modules/domain/shell.ts
---- a/packages/client-vue/src/modules/domain/shell.ts
-+++ b/packages/client-vue/src/modules/domain/shell.ts
-@@ -9,5 +9,6 @@
- import type { DomainTemplates } from "@upmind-automation/domain";
- 
- export const DOMAIN_TEMPLATES: DomainTemplates = {
--  [DOMAIN_TEMPLATE.FULL]: DomainFullTemplate
-+  [DOMAIN_TEMPLATE.FULL]: DomainFullTemplate,
-+  [DOMAIN_TEMPLATE.WIDGET]: DomainFullTemplate
+diff --git a/packages/client-vue/src/modules/basket/shell.ts b/packages/client-vue/src/modules/basket/shell.ts
+--- a/packages/client-vue/src/modules/basket/shell.ts
++++ b/packages/client-vue/src/modules/basket/shell.ts
+@@ -15,7 +15,7 @@
+ export const BASKET_TEMPLATES: BasketTemplates = {
+   [BASKET_TEMPLATE.FULL]: BasketFullTemplate,
+   [BASKET_TEMPLATE.TWO_COLUMN_LTR]: BasketLTRTemplate,
+-  [BASKET_TEMPLATE.TWO_COLUMN_RTL]: BasketRTLTemplate,
++  [BASKET_TEMPLATE.TWO_COLUMN_RTL]: BasketLTRTemplate,
+   [BASKET_TEMPLATE.ENCLOSED]: BasketEnclosedTemplate,
+   [BASKET_TEMPLATE.INSET]: BasketInsetTemplate
  };

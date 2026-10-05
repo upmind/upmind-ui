@@ -10,10 +10,10 @@
 
 <script lang="ts" setup>
 import { useI18n } from "vue-i18n";
-import { ORDER_TEMPLATES } from "@upmind-automation/client-vue";
 import { UpmOrder } from "@upmind-automation/invoice";
-import { useStorefrontRoute } from "~/composables/useStorefrontRoute";
-import { ROUTE } from "~/funnels/types";
+import { useStorefrontRoute } from "../../composables/useStorefrontRoute";
+import { ROUTE } from "../../funnels/types";
+import { ORDER_TEMPLATES } from "../../shell/modules/order/shell";
 
 const { t } = useI18n();
 

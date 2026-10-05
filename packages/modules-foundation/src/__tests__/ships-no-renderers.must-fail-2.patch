@@ -6,20 +6,20 @@
 #     "registers no form control in a 'production' build"
 
 diff --git a/packages/modules-foundation/src/renderers/index.ts b/packages/modules-foundation/src/renderers/index.ts
-index d172471..93f96a7 100644
+index 9c728f8..ea2dba3 100644
 --- a/packages/modules-foundation/src/renderers/index.ts
 +++ b/packages/modules-foundation/src/renderers/index.ts
-@@ -1,6 +1,7 @@
- import { registerEntry } from "@upmind/ui";
+@@ -19,6 +19,7 @@ import ImageRenderer from "./ImageRenderer.vue";
+ import { tester as imageTester } from "./ImageRenderer.vue";
  import LookupRenderer from "./LookupRenderer.vue";
  import { tester as lookupTester } from "./LookupRenderer.vue";
 +import { registerFormRenderers } from "./useFormRenderers";
  import type { FormRendererEntry } from "./types";
  
  export type { FormRendererEntry } from "./types";
-@@ -11,3 +12,5 @@ export const foundationRenderers: FormRendererEntry[] = [
-   // The lookup control searches through headless, which the design system may not import.
-   registerEntry(LookupRenderer, lookupTester)
+@@ -41,3 +42,5 @@ export const foundationRenderers: FormRendererEntry[] = [
+   registerEntry(FilterRangeRenderer, filterRangeTester),
+   registerEntry(FilterBarRenderer, filterBarTester)
  ];
 +
 +registerFormRenderers(foundationRenderers);

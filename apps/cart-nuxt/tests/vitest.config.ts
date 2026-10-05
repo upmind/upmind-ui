@@ -37,11 +37,16 @@ export default defineConfig({
       "@upmind-automation/catalogue": src(
         "packages/modules-catalogue/src/index.ts"
       ),
-      "@upmind-automation/client-vue": src("packages/client-vue/src/index.ts"),
       "@upmind-automation/client": src("packages/modules-client/src/index.ts"),
       "@upmind-automation/domain": src("packages/modules-domain/src/index.ts"),
       "@upmind-automation/foundation": src(
         "packages/modules-foundation/src/index.ts"
+      ),
+      "@upmind-automation/headless/fixtures": src(
+        "packages/headless/src/testing/fixtures.ts"
+      ),
+      "@upmind-automation/headless/testing": src(
+        "packages/headless/src/testing/index.ts"
       ),
       "@upmind-automation/headless": src("packages/headless/src/index.ts"),
       "@upmind-automation/i18n": src("packages/i18n/src/index.ts"),
@@ -57,7 +62,8 @@ export default defineConfig({
       "@upmind-automation/recommendations": src(
         "packages/modules-recommendations/src/index.ts"
       ),
-      "@upmind-automation/types": src("packages/types/src/index.ts")
+      "@upmind-automation/types": src("packages/types/src/index.ts"),
+      "@upmind-automation/test-fixtures": src("tests/fixtures")
     }
   },
   test: {

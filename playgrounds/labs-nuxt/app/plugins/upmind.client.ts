@@ -1,14 +1,24 @@
-import UpmindClient, {
-  decorateRoutes,
-  registerOverlayRoutes,
-  useTheme
-} from "@upmind-automation/client-vue";
+import "@upmind-automation/client";
 import "@upmind-automation/domain";
+import {
+  foundationRenderers,
+  registerFormRenderers
+} from "@upmind-automation/foundation";
+import {
+  decorateRoutes,
+  registerOverlayRoutes
+} from "@upmind-automation/headless";
+import "@upmind-automation/payment";
+import "@upmind-automation/product";
 import { AccessRoleTypes } from "@upmind-automation/types";
 import { forEach } from "lodash-es";
 import type { I18n } from "vue-i18n";
 import type { Router } from "vue-router";
 import { LABS_OVERLAYS, registerFunnels } from "~/funnels";
+import { useTheme } from "~/shell/modules/theming/useTheme";
+import UpmindClient from "~/shell/useUpmindClient";
+
+registerFormRenderers(foundationRenderers);
 
 export default defineNuxtPlugin(async nuxtApp => {
   const runtimeConfig = useRuntimeConfig();

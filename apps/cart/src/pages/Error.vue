@@ -2,8 +2,8 @@
   <UpmError :status="404" :storefront-route="storefrontRoute" />
 </template>
 <script lang="ts" setup>
-import { UpmError } from "@upmind-automation/client-vue";
 import { useStorefrontRoute } from "../router/useStorefrontRoute";
+import UpmError from "../shell/modules/system/Error.vue";
 // -----------------------------------------------------------------------------
 const { storefrontRoute } = useStorefrontRoute();
 </script>

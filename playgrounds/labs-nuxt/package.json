@@ -51,7 +51,7 @@
     "@tanstack/vue-table": "^8.21.3",
     "@upmind-automation/auth": "workspace:*",
     "@upmind-automation/basket": "workspace:*",
-    "@upmind-automation/client-vue": "workspace:*",
+    "@upmind-automation/client": "workspace:*",
     "@upmind-automation/domain": "workspace:*",
     "@upmind-automation/foundation": "workspace:*",
     "@upmind-automation/headless": "workspace:*",

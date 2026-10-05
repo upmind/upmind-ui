@@ -1,5 +1,5 @@
 <template>
-  <UpmTransition>
+  <Transitions>
     <UpmBasketProductEdit
       :storefront-route="storefrontRoute"
       :catalogue-route="{ name: ROUTE.CATALOGUE }"
@@ -7,15 +7,13 @@
     >
       <component :is="BASKET_PRODUCT_TEMPLATES[template]" />
     </UpmBasketProductEdit>
-  </UpmTransition>
+  </Transitions>
 </template>
 <script lang="ts" setup>
 import { UpmBasketProductEdit } from "@upmind-automation/basket";
-import {
-  BASKET_PRODUCT_TEMPLATES,
-  UpmTransition
-} from "@upmind-automation/client-vue";
 import { ROUTE } from "../../router";
 import { useStorefrontRoute } from "../../router/useStorefrontRoute";
+import Transitions from "../../shell/components/transition/Transition.vue";
+import { BASKET_PRODUCT_TEMPLATES } from "../../shell/modules/basket-product/shell";
 const { storefrontRoute } = useStorefrontRoute();
 </script>

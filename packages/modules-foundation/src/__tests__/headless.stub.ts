@@ -5,6 +5,7 @@
  * Drive brand and theming state as a reactive input, with no network and no machine.
  */
 
+import { vi } from "vitest";
 import { computed, ref } from "vue";
 
 export type StubTheme = {
@@ -116,6 +117,10 @@ const useConfig = () => ({
 
 const UIContext = { ALL: "all", CART: "cart", CHECKOUT: "checkout" };
 
-export function createHeadlessStub() {
-  return { useBrand, useTheming, useConfig, UIContext };
+export async function createHeadlessStub() {
+  const { Store } = await vi.importActual<
+    typeof import("@upmind-automation/headless")
+  >("@upmind-automation/headless");
+
+  return { useBrand, useTheming, useConfig, UIContext, Store };
 }

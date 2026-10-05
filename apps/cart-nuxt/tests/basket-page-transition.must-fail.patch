@@ -7,12 +7,12 @@
 #     "the Nuxt cart's 'index.vue' > puts the organism, and only the organism, inside it"
 
 diff --git a/apps/cart-nuxt/app/pages/order/basket/[[bid]]/index.vue b/apps/cart-nuxt/app/pages/order/basket/[[bid]]/index.vue
-index 54bc9a0..ba82a0f 100644
+index 2b72525..033852d 100644
 --- a/apps/cart-nuxt/app/pages/order/basket/[[bid]]/index.vue
 +++ b/apps/cart-nuxt/app/pages/order/basket/[[bid]]/index.vue
 @@ -1,5 +1,4 @@
  <template>
--  <UpmTransition>
+-  <Transitions>
      <UpmBasket
        :storefront-route="storefrontRoute"
        :basket-route="{ name: ROUTE.BASKET }"
@@ -20,7 +20,7 @@ index 54bc9a0..ba82a0f 100644
      >
        <component :is="BASKET_TEMPLATES[template]" />
      </UpmBasket>
--  </UpmTransition>
+-  </Transitions>
  </template>
  
  <script lang="ts" setup>

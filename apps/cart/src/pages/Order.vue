@@ -9,10 +9,10 @@
 </template>
 
 <script lang="ts" setup>
-import { ORDER_TEMPLATES } from "@upmind-automation/client-vue";
 import { UpmOrder } from "@upmind-automation/invoice";
 import { ROUTE } from "../router";
 import { useStorefrontRoute } from "../router/useStorefrontRoute";
+import { ORDER_TEMPLATES } from "../shell/modules/order/shell";
 // -----------------------------------------------------------------------------
 const { storefrontRoute } = useStorefrontRoute();
 </script>

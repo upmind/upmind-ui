@@ -22,4 +22,3 @@ echo
 git --no-pager diff --stat -- '*package.json'
 echo
 echo "exempt: @upmind-automation/types, @upmind/ui, @upmind/tokens"
-echo "submodules apps/hosting + apps/velia commit in their own repos"

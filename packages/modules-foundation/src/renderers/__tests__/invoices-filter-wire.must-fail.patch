@@ -1,0 +1,22 @@
+# Negative control — the multi-select facet reads its selection back off the dot-joined path,
+# which splits a dotted column such as "status.code" in two, so its current selection is always empty:
+# a de-select re-adds, and a second pick drops the first.
+#
+# Intended RED:
+#   packages/modules-foundation/src/renderers/__tests__/invoices-filter-wire.test.ts
+#     "status.code: click A, click B, de-select A, clear to empty"
+#     "category.slug: click A, click B, de-select A, clear to empty"
+
+diff --git a/packages/modules-foundation/src/renderers/FilterMultiSelectRenderer.vue b/packages/modules-foundation/src/renderers/FilterMultiSelectRenderer.vue
+index fc9e194116..720eae07b5 100644
+--- a/packages/modules-foundation/src/renderers/FilterMultiSelectRenderer.vue
++++ b/packages/modules-foundation/src/renderers/FilterMultiSelectRenderer.vue
+@@ -139,7 +139,7 @@
+ 
+ /** Read by literal path: `control.data` never resolves for a dotted column. */
+ const selected = computed<unknown[]>(
+-  () => get(jsonforms?.core?.data, literalPath.value) ?? []
++  () => get(jsonforms?.core?.data, control.value.path) ?? []
+ );
+ 
+ const triggerLabel = computed(() =>

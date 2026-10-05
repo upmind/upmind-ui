@@ -9,10 +9,6 @@ export { default as UpmCatalogue } from "./components/Catalogue.vue";
 export { default as UpmCategories } from "./categories/Categories.vue";
 export { default as UpmProducts } from "./products/WidgetGrid.vue";
 
-// --- Export Types
-export { CATALOGUE_TEMPLATE } from "./types";
-export type { CatalogueTemplates } from "./types";
-
 // --- Export the types the module published
 export type {
   CategoriesFacetProps,

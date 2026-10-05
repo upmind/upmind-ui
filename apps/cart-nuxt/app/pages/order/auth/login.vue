@@ -7,7 +7,7 @@
   >
     <template #loading><UpmLoading /></template>
     <template #summary="summary">
-      <UpmSessionSummary v-bind="summary" />
+      <SessionSummary v-bind="summary" />
     </template>
   </UpmAuthLogin>
 </template>
@@ -15,12 +15,10 @@
 <script lang="ts" setup>
 import { useI18n } from "vue-i18n";
 import { UpmAuthLogin } from "@upmind-automation/auth";
-import {
-  SESSION_TEMPLATES,
-  UpmLoading,
-  UpmSessionSummary
-} from "@upmind-automation/client-vue";
-import { ROUTE } from "~/funnels/types";
+import { ROUTE } from "../../../funnels/types";
+import SessionSummary from "../../../shell/modules/session/components/SessionSummary.vue";
+import { SESSION_TEMPLATES } from "../../../shell/modules/session/shell";
+import UpmLoading from "../../../shell/modules/system/Loading.vue";
 
 const { t } = useI18n();
 

@@ -4,8 +4,8 @@
 
 <script lang="ts" setup>
 import { useI18n } from "vue-i18n";
-import { UpmLoading } from "@upmind-automation/client-vue";
-import { ROUTE } from "~/funnels/types";
+import { ROUTE } from "../funnels/types";
+import UpmLoading from "../shell/modules/system/Loading.vue";
 
 const { t } = useI18n();
 

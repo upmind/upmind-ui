@@ -3,7 +3,7 @@
  * @description What a mount actually puts in front of a user, as atomic
  * strings — the instrument the i18n sweep measures with.
  *
- * A twin of `packages/client-vue/src/components/form/renderers/__tests__/filter.harness.ts`,
+ * A twin of `packages/modules-foundation/src/forms/__tests__/filter.harness.ts`,
  * duplicated rather than shared because there is no cross-package test module
  * to host it: `@vue/test-utils` is not a root dependency, so a primitive typed
  * against it cannot live outside a package that installs it.

@@ -19,7 +19,7 @@ import { filter, has, map } from "lodash-es";
 // -----------------------------------------------------------------------------
 
 const PAGES = resolve(import.meta.dirname, "../app/pages/order/basket/[[bid]]");
-const TRANSITION = "UpmTransition";
+const TRANSITION = "Transitions";
 
 const HOSTS = [
   { page: "index.vue", organism: "UpmBasket" },

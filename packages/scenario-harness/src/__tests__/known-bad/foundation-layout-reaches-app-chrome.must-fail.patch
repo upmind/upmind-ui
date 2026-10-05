@@ -1,0 +1,40 @@
+# Negative control — `foundation`'s layout reaches the chrome it must not own.
+# ADR 023 Amendment 10 moves the layout tree here and hoists `Inset`'s
+# `useHeader`/`useFooter` calls out into the templates that mount it. That hoist
+# is the whole seam: the arrangements draw, and the host owns its chrome.
+#
+# This control exists because the hoist is the inconvenient part. The next person
+# who wants a chrome call inside an arrangement has one obvious move — reach back
+# across the line — and nothing else stops them.
+#
+# Lint is the only gate that catches it. The chrome lives outside this package,
+# and a relative specifier into another package resolves to nothing the type
+# build reads, so the patch is mandatory rather than nice-to-have.
+#
+# Intended RED under eslint, exactly one error:
+#   packages/modules-foundation/src/layout/layouts/Inset.layout.vue
+#     error  Import a workspace package by its published specifier — its
+#     internals are private. (… resolves into packages/client-vue)
+#     @workspace/no-cross-package-path-imports
+#
+#   git apply packages/scenario-harness/src/__tests__/known-bad/foundation-layout-reaches-app-chrome.must-fail.patch
+#   pnpm --filter @upmind-automation/foundation lint
+diff --git a/packages/modules-foundation/src/layout/layouts/Inset.layout.vue b/packages/modules-foundation/src/layout/layouts/Inset.layout.vue
+index ec4c095996..ce3ad4d872 100644
+--- a/packages/modules-foundation/src/layout/layouts/Inset.layout.vue
++++ b/packages/modules-foundation/src/layout/layouts/Inset.layout.vue
+@@ -103,6 +103,7 @@
+ <script lang="ts" setup>
+ // --- external
+ import { computed } from "vue";
++import { useHeader } from "../../../../client-vue/src/components/header/useHeader";
+ // --- internal
+ // --- components
+ // --- utils
+@@ -151,4 +152,6 @@ defineOptions({
+ const meta = computed(() => ({
+   showAside: props.aside && !props.centered && !isMobile.value
+ }));
++
++useHeader({ items: "end" });
+ </script>

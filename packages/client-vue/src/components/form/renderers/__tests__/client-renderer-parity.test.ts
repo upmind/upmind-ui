@@ -4,9 +4,9 @@
  *
  * ## Job To Be Done
  * Once client-vue and client have registered, the moved `Address` and `Manage`
- * entries claim their elements alone, at the rank consumers read, the filter
- * and image controls stay registered here, and the lookup control arrives
- * once, through foundation's own list.
+ * entries claim their elements alone, at the rank consumers read, and the
+ * lookup, filter and image controls, which foundation's form now carries, are
+ * registered here no longer.
  *
  * ## What Breaks If These Fail
  * An address field renders as bare text inputs, or a collection panel never renders.
@@ -16,13 +16,10 @@ import { readdirSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 import { clientRenderers } from "@upmind-automation/client";
-import {
-  foundationRenderers,
-  useFormRenderers
-} from "@upmind-automation/foundation";
+import { useFormRenderers } from "@upmind-automation/foundation";
 import { formRenderers } from "../index";
 import "../../../../index";
-import { concat, filter, get, map, size, sortBy } from "lodash-es";
+import { concat, filter, get, map, sortBy } from "lodash-es";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 
 // -----------------------------------------------------------------------------
@@ -34,17 +31,17 @@ const MANAGE_RANK = 4;
 
 const UNCLAIMED_RANK = 0;
 
-const KEPT_HERE = [
+const MOVED_TO_FOUNDATION = [
+  "LookupRenderer",
   "FilterBarRenderer",
   "FilterButtonGroupRenderer",
+  "FilterExclusiveToggleGroupRenderer",
   "FilterToggleGroupRenderer",
   "FilterSearchRenderer",
   "FilterMultiSelectRenderer",
   "FilterRangeRenderer",
   "ImageRenderer"
 ];
-
-const MOVED_TO_FOUNDATION = ["LookupRenderer"];
 
 const MOVED_EARLIER = ["AddressRenderer", "ManageRenderer"];
 
@@ -96,34 +93,12 @@ describe("the form registry after the client renderers moved out", () => {
     }
   });
 
-  it.each(KEPT_HERE)("still registers %s, as develop does", name => {
-    expect(registeredNames()).toContain(name);
-  });
-
   it.each(MOVED_TO_FOUNDATION)(
-    "registers %s once, through foundation's list",
+    "registers %s no longer, now foundation's form carries it",
     name => {
-      expect(
-        filter(registeredNames(), registered => registered === name)
-      ).toEqual([name]);
+      expect(registeredNames()).not.toContain(name);
     }
   );
-
-  it.each(
-    map(foundationRenderers, entry => ({
-      entry,
-      name: get(entry.renderer, "__name")
-    }))
-  )("registers foundation's own $name entry, once", ({ entry }) => {
-    expect(
-      size(
-        filter(
-          useFormRenderers().renderers.value,
-          registered => registered === entry
-        )
-      )
-    ).toBe(1);
-  });
 
   it("hands the address block to one client entry alone, at the rank it always had", () => {
     const [claim, ...others] = claimants(ADDRESS_BLOCK);
@@ -174,15 +149,7 @@ describe("a move, not a copy", () => {
     expect(useFormRenderers().renderers.value.length).toBeGreaterThan(0);
   });
 
-  const KEPT_LOCAL = sortBy(
-    map(
-      concat(
-        ["EnumToggleGroupRenderer", "FilterExclusiveToggleGroupRenderer"],
-        KEPT_HERE
-      ),
-      name => `${name}.vue`
-    )
-  );
+  const KEPT_LOCAL = ["EnumToggleGroupRenderer.vue"];
 
   it("defines no renderer component of its own, bar the ones named", () => {
     const own = sortBy(

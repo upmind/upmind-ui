@@ -1,6 +1,4 @@
 import {
-  type AnyEventObject,
-  type FunnelContext,
   getDomainBasketProducts,
   UIContext,
   useBasket,
@@ -9,9 +7,13 @@ import {
   useProductSetup,
   useQueryParams,
   useActiveSession
-} from "@upmind-automation/client-vue";
+} from "@upmind-automation/headless";
 import { QUERY_PARAMS } from "@upmind-automation/types";
 import { get, isEmpty } from "lodash-es";
+import type {
+  AnyEventObject,
+  FunnelContext
+} from "@upmind-automation/headless";
 import type { RouteLocationGeneric } from "vue-router";
 
 // -----------------------------------------------------------------------------

@@ -10,9 +10,9 @@ diff --git a/apps/cart/src/main.css b/apps/cart/src/main.css
 index fef7eeaa3a..fc30195ff1 100644
 --- a/apps/cart/src/main.css
 +++ b/apps/cart/src/main.css
-@@ -7,7 +7,6 @@
- /* client-vue's own layer: the max-w-app utilities and the .prose font rule. */
- @import "@upmind-automation/client-vue/styles";
+@@ -4,7 +4,6 @@
+    that needed is retired. */
+ @import "@upmind/ui/styles";
  
 -@import "@upmind-automation/auth/styles";
  @import "@upmind-automation/basket/styles";

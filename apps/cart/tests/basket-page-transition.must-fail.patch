@@ -7,12 +7,12 @@
 #     "the cart's 'Basket.vue' > puts the organism, and only the organism, inside it"
 
 diff --git a/apps/cart/src/pages/Basket.vue b/apps/cart/src/pages/Basket.vue
-index 8892935..71b0996 100644
+index dc2d9e3..b9f575d 100644
 --- a/apps/cart/src/pages/Basket.vue
 +++ b/apps/cart/src/pages/Basket.vue
 @@ -1,5 +1,4 @@
  <template>
--  <UpmTransition>
+-  <Transitions>
      <UpmBasket
        :storefront-route="storefrontRoute"
        :basket-route="{ name: ROUTE.BASKET }"
@@ -20,7 +20,7 @@ index 8892935..71b0996 100644
      >
        <component :is="BASKET_TEMPLATES[template]" />
      </UpmBasket>
--  </UpmTransition>
+-  </Transitions>
  </template>
  
  <script lang="ts" setup>

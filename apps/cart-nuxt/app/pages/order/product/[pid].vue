@@ -11,11 +11,12 @@
 
 <script lang="ts" setup>
 import { useI18n } from "vue-i18n";
-import { PRODUCT_TEMPLATES, useBrand } from "@upmind-automation/client-vue";
+import { useBrand } from "@upmind-automation/headless";
 import { UpmProductConfigure } from "@upmind-automation/product";
-import type { ProductDetails } from "@upmind-automation/client-vue";
-import { useStorefrontRoute } from "~/composables/useStorefrontRoute";
-import { ROUTE } from "~/funnels/types";
+import { useStorefrontRoute } from "../../../composables/useStorefrontRoute";
+import { ROUTE } from "../../../funnels/types";
+import { PRODUCT_TEMPLATES } from "../../../shell/modules/product/shell";
+import type { ProductDetails } from "@upmind-automation/headless";
 
 const { t } = useI18n();
 const { name: brandName, currency } = useBrand();

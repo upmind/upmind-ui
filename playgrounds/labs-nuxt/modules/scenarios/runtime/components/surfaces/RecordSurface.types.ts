@@ -16,7 +16,7 @@ import type {
   RecordUischema
 } from "../../scenario.types";
 import type { ActionSlotItem } from "../ActionSlots.types";
-import type { FormProps } from "@upmind-automation/client-vue";
+import type { FormProps } from "@upmind/ui";
 
 // -----------------------------------------------------------------------------
 

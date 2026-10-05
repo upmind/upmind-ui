@@ -20,13 +20,22 @@ import {
   TERM_SELECTOR,
   UIContext,
   provideConfig,
-  useConfig
+  useConfig,
+  useI18n
 } from "@upmind-automation/headless";
 import "@upmind-automation/product";
-import { messages } from "./filter.harness";
 import { filter, map } from "lodash-es";
 import type { JsonSchema7, UISchemaElement } from "@jsonforms/core";
 import type { VueWrapper } from "@vue/test-utils";
+
+const catalogue = createI18n({ legacy: false, locale: "en" });
+const localisation = useI18n();
+localisation.init(
+  catalogue,
+  import.meta.glob("@upmind-automation/i18n/**/*-en.json", { eager: true })
+);
+await localisation.loadLocaleMessages("en");
+const messages = { en: catalogue.global.getLocaleMessage("en") };
 
 const price = (formatted: string) => ({
   currentAmount: 0,

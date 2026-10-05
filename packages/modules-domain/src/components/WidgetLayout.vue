@@ -1,7 +1,9 @@
 <template>
-  <slot name="search" />
+  <Content :flow="COLUMN_FLOW.VERTICAL" class="lg:p-0">
+    <slot name="search" />
 
-  <slot name="results" />
+    <slot name="results" />
+  </Content>
 
   <Teleport to="#domain-aside-footer" defer>
     <slot name="hint" />
@@ -13,6 +15,8 @@
 </template>
 
 <script setup lang="ts">
+import { COLUMN_FLOW, Content } from "@upmind-automation/foundation";
+
 defineOptions({
   inheritAttrs: false
 });

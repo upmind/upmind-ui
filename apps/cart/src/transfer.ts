@@ -1,4 +1,5 @@
-import Upmind, { useTransfer } from "@upmind-automation/client-vue";
+import { useTransfer } from "@upmind-automation/headless";
+import Upmind from "./shell/useUpmindClient";
 
 // -----------------------------------------------------------------------------
 

@@ -16,9 +16,9 @@
 import { computed } from "vue";
 import { useRoute } from "vue-router";
 import { UpmAccount } from "@upmind-automation/auth";
+import { ROUTE } from "../../funnels/types";
 import { get } from "lodash-es";
 import type { AuthProps } from "@upmind-automation/auth";
-import { ROUTE } from "~/funnels/types";
 
 // -----------------------------------------------------------------------------
 

@@ -14,10 +14,10 @@
 
     <UpmMain>
       <UpmLoading v-if="showLoader" modal />
-      <UpmRoot>
+      <Root>
         <!-- Page content from NuxtPage -->
         <slot />
-      </UpmRoot>
+      </Root>
     </UpmMain>
 
     <UpmFooter />
@@ -37,22 +37,19 @@
  * Session/basket redirect watchers are handled by the funnel engine (watchers.ts).
  */
 import { UpmAuthAction } from "@upmind-automation/auth";
-import {
-  UpmPage,
-  UpmHeader,
-  UpmFooter,
-  UpmMain,
-  // UpmFeedback,
-  UpmLoading,
-  UpmRoot,
-  UpmBasketAction,
-  UpmOverlayController,
-  useOverlayRoute,
-  useRoutingEngine
-} from "@upmind-automation/client-vue";
+import { Root } from "@upmind-automation/foundation";
+import { useRoutingEngine } from "@upmind-automation/headless";
+import { useStorefrontRoute } from "../composables/useStorefrontRoute";
+import { ROUTE } from "../funnels/types";
+import UpmFooter from "../shell/components/footer/Footer.vue";
+import UpmHeader from "../shell/components/header/Header.vue";
+import UpmMain from "../shell/components/main/Main.vue";
+import UpmOverlayController from "../shell/components/overlays/OverlayController.vue";
+import { useOverlayRoute } from "../shell/components/overlays/useOverlayRoute";
+import UpmPage from "../shell/components/page/Page.vue";
+import UpmBasketAction from "../shell/modules/basket/components/BasketAction.vue";
+import UpmLoading from "../shell/modules/system/Loading.vue";
 import { includes } from "lodash-es";
-import { useStorefrontRoute } from "~/composables/useStorefrontRoute";
-import { ROUTE } from "~/funnels/types";
 
 // -----------------------------------------------------------------------------
 const route = useRoute();

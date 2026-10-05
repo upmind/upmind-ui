@@ -1,10 +1,13 @@
-import { parseVariants, type VariantValues } from "../../utils/parseVariants";
 import {
   COLUMN_JUSTIFY,
   COLUMN_ITEMS,
   COLUMN_PADDING
-} from "../layout/components/column";
-import { RIBBON_BACKGROUND, RIBBON_BORDER } from "../layout/components/ribbon";
+} from "@upmind-automation/foundation";
+import {
+  RIBBON_BACKGROUND,
+  RIBBON_BORDER
+} from "@upmind-automation/foundation";
+import { parseVariants, type VariantValues } from "../../utils/parseVariants";
 import { variants } from "./variants";
 
 export const HEADER_POSITION = parseVariants(variants.position);

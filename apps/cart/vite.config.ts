@@ -74,14 +74,6 @@ export default defineConfig(({ mode, command }) => {
           __dirname,
           "../../design-system/packages/tokens/src/index.ts"
         ),
-        "@upmind-automation/client-vue/styles": resolve(
-          __dirname,
-          "../../packages/client-vue/src/assets/styles/index.css"
-        ),
-        "@upmind-automation/client-vue": resolve(
-          __dirname,
-          "../../packages/client-vue/src/index.ts"
-        ),
         "@upmind-automation/foundation/styles": resolve(
           __dirname,
           "../../packages/modules-foundation/src/styles.css"

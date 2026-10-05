@@ -1,0 +1,22 @@
+Negative control for filter-renderer.test.ts.
+
+Stops the range control merging its write onto the column's current value, so
+setting one end silently drops the other — the renderer deciding what the column
+meant, which is what scoping the column rather than a leaf costs if the write is
+not a merge. The assertion that reads the whole column after both ends are set
+goes red; one that sets a single end, or reads the declaration rather than a
+write, stays green.
+
+diff --git a/packages/modules-foundation/src/renderers/FilterRangeRenderer.vue b/packages/modules-foundation/src/renderers/FilterRangeRenderer.vue
+index b57cfa1..0557065 100644
+--- a/packages/modules-foundation/src/renderers/FilterRangeRenderer.vue
++++ b/packages/modules-foundation/src/renderers/FilterRangeRenderer.vue
+@@ -148,7 +148,7 @@ function write(operator: RequestFilterOperator, value?: string | number): void {
+ 
+   handleChange(
+     control.value.path,
+-    assign({}, control.value.data, { [operator]: finalValue })
++    assign({}, { [operator]: finalValue })
+   );
+ }
+ </script>

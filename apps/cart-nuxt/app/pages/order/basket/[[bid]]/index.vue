@@ -1,5 +1,5 @@
 <template>
-  <UpmTransition>
+  <Transitions>
     <UpmBasket
       :storefront-route="storefrontRoute"
       :basket-route="{ name: ROUTE.BASKET }"
@@ -8,15 +8,16 @@
     >
       <component :is="BASKET_TEMPLATES[template]" />
     </UpmBasket>
-  </UpmTransition>
+  </Transitions>
 </template>
 
 <script lang="ts" setup>
 import { useI18n } from "vue-i18n";
 import { UpmBasket } from "@upmind-automation/basket";
-import { BASKET_TEMPLATES, UpmTransition } from "@upmind-automation/client-vue";
-import { useStorefrontRoute } from "~/composables/useStorefrontRoute";
-import { ROUTE } from "~/funnels/types";
+import { useStorefrontRoute } from "../../../../composables/useStorefrontRoute";
+import { ROUTE } from "../../../../funnels/types";
+import Transitions from "../../../../shell/components/transition/Transition.vue";
+import { BASKET_TEMPLATES } from "../../../../shell/modules/basket/shell";
 
 const { t } = useI18n();
 

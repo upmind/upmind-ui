@@ -1,11 +1,5 @@
 import { AUTH_FORMS } from "@upmind-automation/auth";
-import {
-  type AnyEventObject,
-  assign,
-  type FunnelContext,
-  type FunnelProps,
-  QUERY_PARAMS
-} from "@upmind-automation/client-vue";
+import { assign, QUERY_PARAMS } from "@upmind-automation/headless";
 import {
   AUTH_SCOPE_MATRIX,
   ScopeActorTypes
@@ -17,6 +11,11 @@ import services from "./engine/services";
 import { ACTOR_PARAM, ADD_SESSION_PARAM, MODE_PARAM } from "./labs.constants";
 import { ROUTE } from "./types";
 import { get, isArray, join, mapValues, omit, toString } from "lodash-es";
+import type {
+  AnyEventObject,
+  FunnelContext,
+  FunnelProps
+} from "@upmind-automation/headless";
 import type { LocationQuery, RouteLocation } from "vue-router";
 import { parseScopeSuffix } from "~/composables/scope/scope-mapper";
 

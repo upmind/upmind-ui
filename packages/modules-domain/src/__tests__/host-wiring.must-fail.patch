@@ -1,0 +1,27 @@
+# Negative control — the cart provides the domain widget at the app root again,
+# the port the catalogue's lazy import replaced.
+#
+# Intended RED:
+#   packages/modules-domain/src/__tests__/host-wiring.test.ts
+#     "hands this package's widget to no provide"
+
+diff --git a/apps/cart/src/main.ts b/apps/cart/src/main.ts
+--- a/apps/cart/src/main.ts
++++ b/apps/cart/src/main.ts
+@@ -2,7 +2,7 @@
+ import * as Sentry from "@sentry/vue";
+ import { createApp } from "vue";
+ import "@upmind-automation/client";
+-import "@upmind-automation/domain";
++import { UpmDacWidget } from "@upmind-automation/domain";
+ import "@upmind-automation/payment";
+ import "@upmind-automation/product";
+ import { AccessRoleTypes } from "@upmind-automation/types";
+@@ -102,6 +102,7 @@
+ 
+ // ---
+ 
++app.provide("dac-widget", UpmDacWidget);
+ app.use(router);
+ app.use(i18n);
+ 

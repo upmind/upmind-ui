@@ -1,0 +1,35 @@
+# Negative control — the cart shell draws its bar from a copy of its own. The
+# shape of the `shell/components/announcement/useAnnouncement.ts` copy this
+# batch deletes: the bar reads shell-local state, so a page's `show()` through
+# `foundation` never reaches it, and the bar's dismiss clears nothing the page
+# can see.
+#
+# Intended RED:
+#   apps/cart/tests/announcement-bar.test.ts
+#     "draws the announcement a page shows through foundation"
+#     "draws an announcement a page showed before the shell was ready"
+#     "takes the bar down when a page dismisses through foundation"
+#     "clears foundation's announcement when the bar is dismissed"
+
+diff --git a/apps/cart/src/shell/Upmind.vue b/apps/cart/src/shell/Upmind.vue
+--- a/apps/cart/src/shell/Upmind.vue
++++ b/apps/cart/src/shell/Upmind.vue
+@@ -106,11 +106,13 @@
+ // -----------------------------------------------------------------------------
+ const { set } = useThemes();
+ const { meta: routingMeta } = useRoutingEngine();
+-const {
+-  announcement,
+-  isVisible: announcementVisible,
+-  dismiss: dismissAnnouncement
+-} = useAnnouncement();
++const announcement = ref<{
++  text: string;
++  type?: "success" | "danger";
++  onAction?: () => void;
++} | null>(null);
++const announcementVisible = computed(() => announcement.value !== null);
++const dismissAnnouncement = () => (announcement.value = null);
+ const themeReady = ref(false);
+ 
+ /**

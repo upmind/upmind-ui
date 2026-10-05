@@ -6,10 +6,10 @@
 #   tests/Playwright/e2e/e2e-tests/login-registration/host-supplied-page-parts.spec.ts
 #     'The recover page in the cart shows in the "enclosed" arrangement'
 
-diff --git a/packages/client-vue/src/modules/session/shell.ts b/packages/client-vue/src/modules/session/shell.ts
---- a/packages/client-vue/src/modules/session/shell.ts
-+++ b/packages/client-vue/src/modules/session/shell.ts
-@@ -16,7 +16,7 @@ import type { AuthTemplates } from "@upmind-automation/auth";
+diff --git a/apps/cart/src/shell/modules/session/shell.ts b/apps/cart/src/shell/modules/session/shell.ts
+--- a/apps/cart/src/shell/modules/session/shell.ts
++++ b/apps/cart/src/shell/modules/session/shell.ts
+@@ -17,7 +17,7 @@ import type { AuthTemplates } from "@upmind-automation/auth";
  
  export const SESSION_TEMPLATES: AuthTemplates = {
    [AUTH_TEMPLATE.SPLIT]: SessionSplitTemplate,

@@ -19,12 +19,10 @@
 import { useI18n } from "vue-i18n";
 import { UpmAuthRegister } from "@upmind-automation/auth";
 import { UpmGuestCheckoutOffer } from "@upmind-automation/basket";
-import {
-  SESSION_TEMPLATES,
-  UpmLoading,
-  UpmSessionSummary
-} from "@upmind-automation/client-vue";
 import { ROUTE } from "~/funnels/types";
+import UpmSessionSummary from "~/shell/modules/session/components/SessionSummary.vue";
+import UpmLoading from "~/shell/modules/system/Loading.vue";
+import { SESSION_TEMPLATES } from "~/shell/shell";
 const { t } = useI18n();
 
 // SEO: Registration page

@@ -1,0 +1,19 @@
+# Negative control — the catalogue hands its page a template name of its own
+# choosing instead of the brand's setting, so the page can no longer pick the
+# layout the brand asked for.
+#
+# Intended RED:
+#   packages/modules-catalogue/src/__tests__/catalogue-slots.int.test.ts
+#     "hands the page the brand's template, a name no page layout carries, as the brand wrote it"
+
+diff --git a/packages/modules-catalogue/src/components/Catalogue.vue b/packages/modules-catalogue/src/components/Catalogue.vue
+--- a/packages/modules-catalogue/src/components/Catalogue.vue
++++ b/packages/modules-catalogue/src/components/Catalogue.vue
+@@ -1,6 +1,6 @@
+ <template>
+   <LayoutProvider>
+-    <slot :template="ui.template.value" />
++    <slot template="full" />
+ 
+     <template #content-header>
+       <Categories

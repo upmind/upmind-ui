@@ -23,9 +23,9 @@
  */
 
 import { provide } from "vue";
-import { UIContext, useConfig } from "@upmind-automation/client-vue";
+import { UIContext, useConfig } from "@upmind-automation/headless";
 import { Config as UpmProductConfig } from "@upmind-automation/product";
-import type { MigrationConfig } from "@upmind-automation/client-vue";
+import type { MigrationConfig } from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------
 

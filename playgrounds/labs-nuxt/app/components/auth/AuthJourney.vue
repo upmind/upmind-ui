@@ -17,7 +17,6 @@
         :schema="schema"
         :uischema="uischema"
         :model-value="model"
-        :additional-renderers="formRenderers"
         @update:model-value="set($event)"
         @resolve="resolve(model)"
       >
@@ -182,8 +181,7 @@
 import { Alert, Badge, Button } from "@upmind/ui";
 import { computed, onMounted, onUnmounted, watch } from "vue";
 import { useI18n } from "vue-i18n";
-import { formRenderers } from "@upmind-automation/client-vue";
-import { Form, Icon } from "@upmind-automation/foundation";
+import { Icon, Form } from "@upmind-automation/foundation";
 import {
   AuthFlowTypes,
   ScopeActorTypes,
