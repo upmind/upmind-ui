@@ -4,10 +4,11 @@ import {
   useInvoicePickerUischema,
   useLookupsSchema,
   useLookupsUischema,
-  useQuerySchema,
+  useOrderQueryUischema,
   useQueryUischema,
   useSortUischema
 } from "./invoices.schemas";
+import { InvoicesContextTypes } from "./invoices.types";
 import { mapToHeadlessError, useCollection } from "../../utils";
 import { isArray } from "lodash-es";
 import type {
@@ -17,6 +18,7 @@ import type {
   InvoicesServices
 } from "./invoices.types";
 import type { ResponseError } from "../../utils";
+import type { ScopeContext } from "../scope";
 import type { ScopeActorTypes } from "../scope/scope.types";
 // -----------------------------------------------------------------------------
 /**
@@ -34,7 +36,8 @@ export function createInvoicesContext(
   _actorScope: ScopeActorTypes,
   service: InvoicesServices,
   query: InvoicesListQuery,
-  lookups: InvoicesScopeLookups
+  lookups: InvoicesScopeLookups,
+  scopeContext?: ScopeContext
 ) {
   const { findOne, getOne } = useCollection<Invoice>(query.data);
 
@@ -105,9 +108,13 @@ export function createInvoicesContext(
      * `useContext()`.
      */
     schemas: {
+      /** The query schema the list reads, and the filter bar of this context. */
       query: {
-        schema: useQuerySchema(),
-        uischema: useQueryUischema(),
+        schema: query.schema,
+        uischema:
+          scopeContext?.type === InvoicesContextTypes.NEW_CONTRACT
+            ? useOrderQueryUischema()
+            : useQueryUischema(),
         sortUischema: useSortUischema()
       },
       /**

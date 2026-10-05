@@ -10,7 +10,11 @@ import {
 } from "../payment-details";
 import { SortDirection } from "../query/query.types";
 import { PAGINATION } from "../query/query.utils";
-import { INVOICE_DEFAULT_SORT, InvoicesContextTypes } from "./invoices.types";
+import {
+  INVOICE_DEFAULT_SORT,
+  InvoicesContextTypes,
+  ORDER_STATUS_CHOICES
+} from "./invoices.types";
 import { map, values } from "lodash-es";
 import type { PaymentDetail } from "../payment-details";
 import type { Invoice, InvoicesScopeLookups } from "./invoices.types";
@@ -25,11 +29,208 @@ import type { ICurrency } from "@upmind-automation/types";
 /**
  * @module invoices/invoices.schemas
  * @description The invoices list's query schema and its filter-bar and sort
- * uischemas, the two query schemas the relationship lookups read, the
+ * uischemas, the order history's own query schema and filter bar, the query
+ * schemas the relationship lookups read, the
  * scope picker's lookups pair, and the single invoice's two write forms (its
  * payment method and its pay currency).
  */
 // -----------------------------------------------------------------------------
+
+const RELATIVE_DATE_PATTERN =
+  "^[+-](?:[1-9][0-9]*|[0-9]+\\.[0-9]+)_(hours|days|weeks|months|years)$";
+const ABSOLUTE_DATE_PATTERN = "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}$";
+
+/** The sort branch both list schemas share. */
+function sortSchema(): QuerySchema {
+  return {
+    type: "array",
+    default: INVOICE_DEFAULT_SORT,
+    minItems: 1,
+    uniqueItems: true,
+    items: {
+      type: "object",
+      additionalProperties: false,
+      required: ["field", "dir"],
+      properties: {
+        field: {
+          enum: [
+            "id",
+            "status_id",
+            "create_datetime",
+            "number",
+            "total_amount",
+            "net_amount",
+            "status",
+            "paid_datetime",
+            "due_date",
+            "cancellation_datetime"
+          ]
+        },
+        dir: { enum: [SortDirection.ASC, SortDirection.DESC] }
+      }
+    }
+  };
+}
+
+/** The page window both list schemas share. The platform reads `limit=0` as every row. */
+function paginationSchema(): QuerySchema {
+  return {
+    type: "object",
+    additionalProperties: false,
+    properties: {
+      limit: { type: "integer", minimum: 1, default: PAGINATION.limit },
+      offset: { type: "integer", minimum: 0 }
+    }
+  };
+}
+
+function textLeafSchema(): QuerySchema {
+  return {
+    type: "object",
+    additionalProperties: false,
+    properties: {
+      like: { type: ["string", "null"] },
+      eq: { type: ["string", "null"] },
+      neq: { type: ["string", "null"] }
+    }
+  };
+}
+
+function dateLeafSchema(): QuerySchema {
+  return {
+    type: "object",
+    additionalProperties: false,
+    properties: {
+      gt: { type: ["string", "null"], pattern: ABSOLUTE_DATE_PATTERN },
+      gte: { type: ["string", "null"], pattern: ABSOLUTE_DATE_PATTERN },
+      lt: { type: ["string", "null"], pattern: ABSOLUTE_DATE_PATTERN },
+      lte: { type: ["string", "null"], pattern: ABSOLUTE_DATE_PATTERN },
+      after: { type: ["string", "null"], pattern: RELATIVE_DATE_PATTERN },
+      before: { type: ["string", "null"], pattern: RELATIVE_DATE_PATTERN }
+    }
+  };
+}
+
+function statusChoicesSchema(): QuerySchema {
+  return {
+    type: ["array", "null"],
+    items: { type: "string", enum: [...ORDER_STATUS_CHOICES] },
+    uniqueItems: true
+  };
+}
+
+/**
+ * The order history's query schema (the `new_contract` context). It declares
+ * no `category.slug`, `client_id` or preset column: the forced category is a
+ * static request param no criteria write can reach (D-3).
+ */
+export function useOrderQuerySchema(): QuerySchema {
+  return {
+    $schema: "http://json-schema.org/draft-07/schema#",
+    type: "object",
+    additionalProperties: false,
+    properties: {
+      filters: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          number: textLeafSchema(),
+          total_amount: {
+            type: "object",
+            additionalProperties: false,
+            properties: {
+              eq: { type: ["number", "null"] },
+              neq: { type: ["number", "null"] },
+              gt: { type: ["number", "null"] },
+              gte: { type: ["number", "null"] },
+              lt: { type: ["number", "null"] },
+              lte: { type: ["number", "null"] }
+            }
+          },
+          "status.code": {
+            type: "object",
+            additionalProperties: false,
+            maxProperties: 1,
+            properties: {
+              eq: statusChoicesSchema(),
+              neq: statusChoicesSchema()
+            }
+          },
+          create_datetime: dateLeafSchema(),
+          paid_datetime: dateLeafSchema(),
+          "products.product.name": textLeafSchema(),
+          "products.product.category.name": textLeafSchema(),
+          "products.service_identifier": textLeafSchema()
+        }
+      },
+      sort: sortSchema(),
+      pagination: paginationSchema()
+    }
+  } satisfies QuerySchema;
+}
+
+/**
+ * The order history's filter bar. Each text and status control scopes one
+ * operator leaf, so the shared renderers draw one compact control per column.
+ */
+export function useOrderQueryUischema(): UISchemaElement {
+  return {
+    type: "FilterBar",
+    elements: [
+      {
+        type: "Control",
+        scope: "#/properties/filters/properties/number/properties/eq",
+        i18n: "form.orders_number_filter",
+        options: { format: "search", optionalText: "" }
+      },
+      {
+        type: "Control",
+        scope: "#/properties/filters/properties/status.code/properties/eq",
+        i18n: "form.orders_status_filter",
+        options: { format: "multi-select", optionalText: "" }
+      },
+      {
+        type: "Control",
+        scope: "#/properties/filters/properties/total_amount",
+        i18n: "form.orders_total_filter",
+        options: { format: "range", optionalText: "" }
+      },
+      {
+        type: "Control",
+        scope: "#/properties/filters/properties/create_datetime",
+        i18n: "form.orders_created_filter",
+        options: { format: "range", optionalText: "" }
+      },
+      {
+        type: "Control",
+        scope: "#/properties/filters/properties/paid_datetime",
+        i18n: "form.orders_paid_filter",
+        options: { format: "range", optionalText: "" }
+      },
+      {
+        type: "Control",
+        scope:
+          "#/properties/filters/properties/products.product.name/properties/like",
+        i18n: "form.orders_item_name_filter",
+        options: { format: "search", optionalText: "" }
+      },
+      {
+        type: "Control",
+        scope:
+          "#/properties/filters/properties/products.product.category.name/properties/like",
+        i18n: "form.orders_category_name_filter",
+        options: { format: "search", optionalText: "" }
+      },
+      {
+        type: "Control",
+        scope:
+          "#/properties/filters/properties/products.service_identifier/properties/like",
+        i18n: "form.orders_service_identifier_filter",
+        options: { format: "search", optionalText: "" }
+      }
+    ]
+  } as UISchemaElement;
+}
 
 export function useQuerySchema(): QuerySchema {
   return {
@@ -92,40 +293,8 @@ export function useQuerySchema(): QuerySchema {
           }
         }
       },
-      sort: {
-        type: "array",
-        default: INVOICE_DEFAULT_SORT,
-        minItems: 1,
-        uniqueItems: true,
-        items: {
-          type: "object",
-          additionalProperties: false,
-          required: ["field", "dir"],
-          properties: {
-            field: {
-              enum: [
-                "create_datetime",
-                "number",
-                "total_amount",
-                "net_amount",
-                "status",
-                "paid_datetime",
-                "due_date",
-                "cancellation_datetime"
-              ]
-            },
-            dir: { enum: [SortDirection.ASC, SortDirection.DESC] }
-          }
-        }
-      },
-      pagination: {
-        type: "object",
-        additionalProperties: false,
-        properties: {
-          limit: { type: "integer", minimum: 0, default: PAGINATION.limit },
-          offset: { type: "integer", minimum: 0 }
-        }
-      }
+      sort: sortSchema(),
+      pagination: paginationSchema()
     }
   } satisfies QuerySchema;
 }

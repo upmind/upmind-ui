@@ -18,7 +18,7 @@
  */
 
 import { TABLE_INTENT_TYPE } from "@upmind-automation/scenario-harness";
-import { forEach, get, isNil, keys, map } from "lodash-es";
+import { forEach, get, has, isNil, keys, map } from "lodash-es";
 import type {
   DeclaredSortField,
   DeclaringTableChannel,
@@ -110,6 +110,23 @@ function liftFilters(
 }
 
 /**
+ * Sets each live column the lifted model no longer holds to `undefined`, so a
+ * merging `filterBy` drops it; a replacing `filterBy` reads it as absent.
+ */
+function clearRemoved(
+  lifted: Record<string, Record<string, unknown>>,
+  live: Record<string, unknown>
+): Record<string, Record<string, unknown> | undefined> {
+  const next: Record<string, Record<string, unknown> | undefined> = {
+    ...lifted
+  };
+  forEach(keys(live), column => {
+    if (!has(next, column)) next[column] = undefined;
+  });
+  return next;
+}
+
+/**
  * Builds the controlled-table channel for a query-owning list cell. The context
  * and actions are resolved ONCE — `query`/`pagination` are computeds that stay
  * reactive, and the actions instance is minted once per scope.
@@ -144,7 +161,12 @@ export function useTableChannel(cell: TableChannelCell): DeclaringTableChannel {
 
     emit(intent: TableIntent): void {
       if (intent.type === TABLE_INTENT_TYPE.FILTER) {
-        actions.filterBy(liftFilters(intent.model, schema));
+        actions.filterBy(
+          clearRemoved(
+            liftFilters(intent.model, schema),
+            context.query.value.filters ?? {}
+          )
+        );
         return;
       }
 

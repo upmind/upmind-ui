@@ -81,7 +81,7 @@ export type TableChannelCell = {
     pagination: { value: Partial<PaginationInfo> };
   };
   useActions(): {
-    filterBy(model: Record<string, Record<string, unknown>>): void;
+    filterBy(model: Record<string, Record<string, unknown> | undefined>): void;
     sortBy(sort: TableModel["sort"]): void;
     nextPage(): void;
     prevPage(): void;

@@ -4,7 +4,8 @@
  * @description How one invoice DRAWS as a record on the shared record surface:
  * its number, its status, its payment-state badges, its details, one section
  * per line item (each linking to the product and contract it bills), its
- * payments and its totals. Every label is legacy's wording (`vue-app`
+ * order items (the snapshot first, folded in as the `items` sibling) and its
+ * order conditions, its payments and its totals. Every label is legacy's wording (`vue-app`
  * `invoiceDetails.vue`, `invoiceItems.vue`); a field legacy does not show on
  * the invoice is not drawn.
  *
@@ -27,6 +28,7 @@ import {
   TableColumnWidthTypes
 } from "../runtime/scenario.types";
 import {
+  invoiceItemSummary,
   invoiceLineItemSummary,
   invoicePaymentSummary,
   invoiceSummary,
@@ -95,6 +97,7 @@ const lead: RecordNoticeDeclaration[] = [
 export const invoiceRecord: RecordUischema = {
   type: "RecordLayout",
   record: "model",
+  siblings: ["items"],
   header: {
     title: "#/properties/number",
     status: "#/properties/statusName",
@@ -110,7 +113,22 @@ export const invoiceRecord: RecordUischema = {
         color: "danger"
       },
       { flag: "isLocked", i18n: "invoice.order_locked", color: "neutral" },
-      { flag: "isFree", i18n: "invoice.order_free", color: "neutral" }
+      { flag: "isFree", i18n: "invoice.order_free", color: "neutral" },
+      {
+        flag: "isOverdue",
+        i18n: "invoices.filter_option.status.invoice_overdue",
+        color: "danger"
+      },
+      {
+        flag: "isCancelled",
+        i18n: "invoices.filter_option.status.invoice_cancelled",
+        color: "neutral"
+      },
+      {
+        flag: "isDelegated",
+        i18n: "invoices.badge.delegated",
+        color: "warning"
+      }
     ]
   },
   sections: [
@@ -261,8 +279,37 @@ export const invoiceRecord: RecordUischema = {
           scope: "#/properties/address/properties/description",
           i18n: "invoices.detail.address",
           options: { width: TableColumnWidthTypes.HALF }
+        },
+        {
+          type: "TableCellDate",
+          scope: "#/properties/dateCancelled",
+          i18n: "invoices.detail.date_cancelled"
+        },
+        {
+          type: "TableCellText",
+          scope: "#/properties/cancellationReason",
+          i18n: "invoices.detail.cancellation_reason"
+        },
+        {
+          type: "TableCellText",
+          scope: "#/properties/notes",
+          i18n: "invoices.detail.notes"
+        },
+        {
+          type: "TableCellText",
+          scope: "#/properties/referrer/properties/fullname",
+          i18n: "invoices.detail.referrer"
         }
       ]
+    },
+    {
+      kind: "collection",
+      key: "order-items",
+      i18n: "invoices.detail.order_items",
+      scope: "#/properties/items",
+      rowTitle: "#/properties/name",
+      rowIcon: "shopping-bag-02",
+      row: invoiceItemSummary
     },
     {
       kind: "collection",

@@ -95,6 +95,15 @@ export function createInvoicesMeta(
      */
     hasError,
 
+    /** True while a page follows the current one. */
+    hasNextPage: computed(() => query.meta.value.hasNextPage),
+
+    /** True while the list spans more than one page. */
+    hasPages: computed(() => query.meta.value.hasPages),
+
+    /** True while a page comes before the current one. */
+    hasPrevPage: computed(() => query.meta.value.hasPrevPage),
+
     /** AC10 — true if this scope has anything unpaid, by server count. */
     hasUnpaid,
 

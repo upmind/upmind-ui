@@ -247,3 +247,85 @@ export const invoicePaymentSummary: TableCell[] = [
     }
   }
 ];
+
+/** One order item — `InvoiceItem`, snapshot first; its name is the row's title. */
+export const invoiceItemSummary: TableCell[] = [
+  {
+    type: "TableCellText",
+    scope: "#/properties/billingCycle/properties/name",
+    i18n: "labs.record_billing"
+  },
+  {
+    type: "TableCellText",
+    scope: "#/properties/quantity",
+    i18n: "labs.record_quantity",
+    rule: {
+      effect: RuleEffect.SHOW,
+      condition: {
+        scope: "#/properties/quantity",
+        schema: { type: "number", exclusiveMinimum: 1 }
+      }
+    }
+  },
+  {
+    type: "TableCellText",
+    scope: "#/properties/total",
+    i18n: "text.total"
+  },
+  {
+    type: "TableCellList",
+    scope: "#/properties/quantifiableItems",
+    i18n: "invoice.product_information",
+    rule: {
+      effect: RuleEffect.SHOW,
+      condition: {
+        scope: "#/properties/quantifiableItems",
+        schema: { type: "array", minItems: 1 }
+      }
+    },
+    options: {
+      width: TableColumnWidthTypes.FULL,
+      layout: TableCellListLayoutTypes.ROWS,
+      elements: [
+        {
+          type: "TableCellText",
+          scope: "#/properties/name",
+          i18n: "text.item"
+        },
+        {
+          type: "TableCellText",
+          scope: "#/properties/price",
+          i18n: "text.total"
+        }
+      ]
+    }
+  },
+  {
+    type: "TableCellList",
+    scope: "#/properties/nonQuantifiableItems",
+    i18n: "labs.record_options",
+    rule: {
+      effect: RuleEffect.SHOW,
+      condition: {
+        scope: "#/properties/nonQuantifiableItems",
+        schema: { type: "array", minItems: 1 }
+      }
+    },
+    options: {
+      width: TableColumnWidthTypes.FULL,
+      layout: TableCellListLayoutTypes.ROWS,
+      elements: [
+        {
+          type: "TableCellText",
+          scope: "#/properties/name",
+          i18n: "text.item"
+        },
+        {
+          type: "TableCellText",
+          scope: "#/properties/total",
+          i18n: "text.total"
+        }
+      ]
+    }
+  }
+];

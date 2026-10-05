@@ -1,8 +1,11 @@
+import { useOrderQuerySchema, useQuerySchema } from "./invoices.schemas";
 import {
   INVOICES_CONTEXT_WIRE_PARAMS,
+  INVOICES_SELECTOR_WIRE_PARAMS,
   InvoicesContextTypes
 } from "./invoices.types";
 import { get } from "lodash-es";
+import type { QuerySchema } from "../query/query.types";
 import type { ScopeContext } from "../scope";
 
 /** The static request param a relationship `.for()` context adds to every read; none for a client or no context. */
@@ -13,20 +16,36 @@ export function scopeWireParams(
   return param && scopeContext?.id ? { [param]: scopeContext.id } : {};
 }
 
+/** The static request params a SELECTOR `.for()` context adds to the list read; none for any other context. */
+export function selectorWireParams(
+  scopeContext?: ScopeContext
+): Record<string, string> {
+  return get(INVOICES_SELECTOR_WIRE_PARAMS, scopeContext?.type ?? "", {});
+}
+
+/** The query schema the list of this context reads: the order schema for the order history, else the default. */
+export function schemaFor(scopeContext?: ScopeContext): QuerySchema {
+  return scopeContext?.type === InvoicesContextTypes.NEW_CONTRACT
+    ? useOrderQuerySchema()
+    : useQuerySchema();
+}
+
 /**
  * The `client_id` a gated probe (`hasUnpaid` / `consolidatableCount`) filters
- * by. An identity scope (self, or `.for('client', id)`) scopes the count to
- * that client. A relationship narrow carries its own filter through
- * `scopeWireParams`, so the probe adds NO `client_id` — a session `client_id`
- * there re-widens a retargeted reading (FE-2824), exactly as the list read
- * omits it.
+ * by. An identity scope (self, `.for('client', id)`, or a selector with no id)
+ * scopes the count to that client. A relationship narrow carries its own filter
+ * through `scopeWireParams`, so the probe adds NO `client_id` — a session
+ * `client_id` there re-widens a retargeted reading (FE-2824), exactly as the
+ * list read omits it.
  */
 export function probeClientFilter(
   scopeContext: ScopeContext | undefined,
   clientId: string | undefined
 ): Record<string, string> {
   const isIdentityScope =
-    !scopeContext || scopeContext.type === InvoicesContextTypes.CLIENT;
+    !scopeContext ||
+    !scopeContext.id ||
+    scopeContext.type === InvoicesContextTypes.CLIENT;
   return isIdentityScope && clientId ? { client_id: clientId } : {};
 }
 

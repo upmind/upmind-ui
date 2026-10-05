@@ -10,6 +10,8 @@ import {
 import useUpmind from "../../useUpmind";
 import { useConfig } from "../config";
 import { invalidateQueryByKey } from "../query";
+import { useActiveSession } from "../session-store";
+import { resolveShowStore } from "./brand.mappers";
 import services from "./brand.services";
 import {
   get,
@@ -31,7 +33,8 @@ import type { BrandMeta } from "./brand.types";
 import type { CurrencyModel } from "../basket-currency/basket-currency.types";
 import type {
   DefaultPaymentPeriod,
-  UpmindModuleCodes
+  UpmindModuleCodes,
+  StoreDisplayMode
 } from "@upmind-automation/types";
 
 /**
@@ -259,6 +262,15 @@ export const useBrand = () => {
     return !storefrontUrl.value || !config.data.catalogueDisabled;
   });
 
+  // `useActiveSession` is read inside the computed: `session-store` imports
+  // this module, so a construction-time read would run before it exists.
+  const showStore = computed(() =>
+    resolveShowStore(
+      getConfigValue<StoreDisplayMode>(BrandConfigKeys.SHOW_CLIENT_STORE),
+      useActiveSession().useMeta().isAuthenticated.value
+    )
+  );
+
   const keepsUserInSitu = computed(
     () =>
       getConfigValue<BasketFunnelling>(BrandConfigKeys.BASKET_FUNNELLING) ===
@@ -478,6 +490,14 @@ export const useBrand = () => {
      * A flag indicating whether the brand has a storefront available.
      */
     hasStorefront,
+
+    /**
+     * Whether the client area offers the place-new-order control, by the
+     * brand's `SHOW_CLIENT_STORE` mode and the session kind. A different
+     * question from `hasStorefront`, which asks whether the headless cart
+     * serves the catalogue.
+     */
+    showStore,
 
     /**
      * `true` when the brand's "Add to Basket Funneling" setting is configured

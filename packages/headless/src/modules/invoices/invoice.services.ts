@@ -8,12 +8,14 @@ import {
   DetailedError,
   ErrorOrigin,
   NotAuthenticatedError,
-  responseCodes
+  responseCodes,
+  useTime
 } from "../../utils";
-import { find } from "lodash-es";
+import { find, isEmpty, reduce, size } from "lodash-es";
 import type {
   Invoice,
   InvoiceCurrencyConversion,
+  InvoiceItemImagesQuery,
   InvoiceLookups,
   InvoicePayContext,
   InvoicePaymentDetailsModel
@@ -68,8 +70,10 @@ async function loadLookups(
         "custom_fields.field",
         "affiliate_commissions",
         "products.product.image",
-        "account.affiliate_referral.affiliate_account.account.client"
-      ].join(",")
+        "account.affiliate_referral.affiliate_account.account.client",
+        "contract_product_tags"
+      ].join(","),
+      with_staged_imports: 1
     }),
     queryKey: ["order", invoiceId],
     withAccessToken: true,
@@ -169,6 +173,42 @@ export async function downloadPdf(invoiceId: Invoice["id"]): Promise<Blob> {
   return download({
     url: useUrl(`invoices/${invoiceId}/download`),
     withAccessToken: true
+  });
+}
+
+/**
+ * The catalogue images of an order's snapshot items — `GET api/products` over
+ * the item product ids, as `{ productId -> full_url }`. Built once with the
+ * known ids; disabled while there are none.
+ */
+export function loadItemImages(
+  invoiceId: Invoice["id"],
+  productIds: string[]
+): InvoiceItemImagesQuery {
+  const { query, useUrl } = useQuery();
+
+  return query<
+    { id: string; image?: { full_url?: string } }[],
+    Record<string, string>
+  >({
+    queryKey: ["invoices", "item-images", invoiceId, productIds],
+    url: useUrl("products", {
+      "filter[id]": productIds.join(","),
+      with: "image",
+      limit: size(productIds)
+    }),
+    withAccessToken: true,
+    enabled: () => !isEmpty(productIds),
+    select: rows =>
+      reduce(
+        rows,
+        (images, row) => {
+          if (row.image?.full_url) images[row.id] = row.image.full_url;
+          return images;
+        },
+        {} as Record<string, string>
+      ),
+    staleTime: useTime().DAY
   });
 }
 

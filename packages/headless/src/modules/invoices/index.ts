@@ -18,6 +18,7 @@ export {
   INVOICES_SCOPE_MATRIX,
   InvoicesContextTypes,
   ORDER_PAY_RETURN_KEY,
+  ORDER_STATUS_CHOICES,
   PAYMENT_STATE
 } from "./invoices.types";
 export type { InvoicesScopeMatrix, PaymentState } from "./invoices.types";
@@ -27,15 +28,32 @@ export type {
   Invoice,
   InvoiceLineItem,
   InvoiceBundleGroup,
+  InvoiceComparisonLeaf,
+  InvoiceDateLeaf,
   InvoiceFilterModel,
+  InvoiceItem,
+  InvoiceOrderFilterModel,
+  InvoiceOrderQueryModel,
+  InvoiceOrderStatusChoice,
   InvoicePaymentChallenge,
   InvoicePaymentDetailsModel,
   InvoiceQueryModel,
   InvoiceSortableField,
   InvoiceSortEntry,
   InvoiceSortModel,
+  InvoiceSubItem,
   Payment
 } from "./invoices.types";
+
+// --- The order conditions, for a basket consumer
+export {
+  canCancel,
+  canPay,
+  isCancelled,
+  isOverdue,
+  isPaid,
+  isPartiallyPaid
+} from "./invoice.utils";
 
 // --- Curated mapper re-exports (design D2)
 export { mapInvoice, mapInvoices } from "./invoices.mappers";

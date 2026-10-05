@@ -1,5 +1,9 @@
 /** @internal */
-import { GatewayTypes, InvoiceCategoryCode } from "@upmind-automation/types";
+import {
+  GatewayTypes,
+  InvoiceCategoryCode,
+  ProductOrderTypes
+} from "@upmind-automation/types";
 import { parseTaxes } from "../basket/basket.utils";
 import { parseBasketProduct } from "../basket-product/basket-product.utils";
 import { mapClient } from "../client";
@@ -9,22 +13,35 @@ import { useDate, useTranslateName } from "../../utils";
 import {
   castArray,
   compact,
+  find,
   first,
+  forEach,
   get,
   groupBy,
+  isArray,
+  isEmpty,
   join,
   map,
   orderBy,
   sortBy,
-  upperFirst
+  upperFirst,
+  values
 } from "lodash-es";
 import type { BasketProduct } from "../basket-product";
 import type { LookupItem } from "../lookup";
-import type { InvoiceBundleGroup, Invoice, Payment } from "./invoices.types";
 import type {
+  InvoiceBundleGroup,
+  Invoice,
+  InvoiceItem,
+  InvoiceSubItem,
+  Payment
+} from "./invoices.types";
+import type {
+  IBillingCycle,
   IContract,
   IContractProduct,
   IInvoice,
+  IInvoiceProduct,
   IPaymentDetail,
   InvoiceStatus
 } from "@upmind-automation/types";
@@ -36,9 +53,8 @@ import type {
  * what: File carries a standalone `@internal` marker as line 1
  * (`code-quality.md`'s Module Visibility Law), same as every other
  * `.mappers.ts` in the tree.
- * why: `mapInvoice` / `mapInvoices` are consumed cross-module by
- * `orders/order.machine.ts` only via the curated re-export at
- * `index.ts:46` — `orders/order.machine.ts:4` imports the module barrel
+ * why: `mapInvoice` / `mapInvoices` are consumed cross-module only via the
+ * curated re-export in `index.ts` — a consumer imports the module barrel
  * (`../invoices`), never this file directly. `@internal/no-cross-module-
  * imports` (`eslint.config.mjs`) fires only on a direct relative import
  * resolving to a marked file; `resolveRelativeTarget` resolves `../invoices`
@@ -46,8 +62,7 @@ import type {
  * cannot block that consumer.
  * rejected: leaving line 1 as an import (no marker) — this silently
  * disables `@internal/no-cross-module-imports` for the file with no gate
- * left to catch the omission, for a belief (blocks `orders/`) that does not
- * hold.
+ * left to catch the omission.
  */
 // -----------------------------------------------------------------------------
 
@@ -70,10 +85,6 @@ export function mapInvoices(
  * see {@link mapAttribution}) and does not depend on `readingClientId` at
  * all. Only `isChildOfClient` (and, through it, `isOwn`/`isSettleable`) is
  * conservative-by-default when `readingClientId` is absent.
- * `orders/order.machine.ts:176` calls this with one argument, so a
- * `delegate_related` invoice with no parent client maps `isDelegated: true`
- * from that call site too (design D2 — `orders/` is protected core and is
- * not changed by this module).
  */
 export function mapInvoice(raw: IInvoice, readingClientId?: string): Invoice {
   const slug = raw.category?.slug as InvoiceCategoryCode;
@@ -139,8 +150,157 @@ export function mapInvoice(raw: IInvoice, readingClientId?: string): Invoice {
     },
     dateCreated: useDate(raw.create_datetime, undefined, "MMM Do, YYYY"),
     dateDue: useDate(raw.due_date, undefined, "MMM Do, YYYY"),
-    datePaid: useDate(raw.paid_datetime, undefined, "MMM Do, YYYY h:mm A")
+    datePaid: useDate(raw.paid_datetime, undefined, "MMM Do, YYYY h:mm A"),
+    dateCancelled: useDate(
+      raw.cancellation_datetime ?? undefined,
+      undefined,
+      "MMM Do, YYYY"
+    ),
+    brandId: raw.brand_id,
+    brandName: raw.brand?.name,
+    contractId: raw.contract_id,
+    cancellationReason: raw.contract?.cancellation_reason ?? undefined,
+    hasPendingPaymentMethod: !!raw.pending_payment_method,
+    refundChanged: raw.refund_changed,
+    notes: raw.notes,
+    customFields: raw.custom_fields,
+    referrer:
+      raw.account?.affiliate_referral?.affiliate_account?.account?.client?.[0]
   };
+}
+
+// -----------------------------------------------------------------------------
+// The order items
+// -----------------------------------------------------------------------------
+
+/**
+ * The item rows of an order: the snapshot `current_data.content.products`
+ * first, the live `products` second. An empty snapshot array is present, so it
+ * gives no items and no fallback.
+ */
+export function mapInvoiceItemRows(raw?: IInvoice): IInvoiceProduct[] {
+  return raw?.current_data?.content?.products || raw?.products || [];
+}
+
+function subItemName(subItem: IInvoiceProduct): string {
+  return compact([
+    subItem.product?.category?.name_translated
+      ? `${subItem.product.category.name_translated}:`
+      : null,
+    subItem.name || subItem.product?.name_translated,
+    subItem.unit_quantity > 1 ? `(x${subItem.unit_quantity})` : null
+  ]).join(" ");
+}
+
+function mapSubItems(
+  item: IInvoiceProduct
+): Pick<
+  InvoiceItem,
+  "quantifiableItems" | "nonQuantifiableItems" | "hasSubItems"
+> {
+  const asRows = (
+    source?: IInvoiceProduct[] | Record<string, IInvoiceProduct>
+  ): IInvoiceProduct[] => (isArray(source) ? source : values(source ?? {}));
+
+  const quantifiableItems: InvoiceSubItem[] = [];
+  const nonQuantifiableItems: InvoiceSubItem[] = [];
+
+  function collect(rows: IInvoiceProduct[], fromAttributes: boolean) {
+    forEach(rows, subItem => {
+      const row: InvoiceSubItem = {
+        id: subItem.id,
+        name: subItemName(subItem),
+        quantity: subItem.unit_quantity ?? 1,
+        price: fromAttributes
+          ? "—"
+          : (subItem.configuration_net_selling_price_discounted_formatted ??
+            "—"),
+        total: ""
+      };
+
+      if (subItem.product?.order_type === ProductOrderTypes.SINGLE_OPTION) {
+        nonQuantifiableItems.push({ ...row, total: row.price });
+      } else {
+        quantifiableItems.push(row);
+      }
+    });
+  }
+
+  collect(asRows(item.options), false);
+  collect(asRows(item.attributes), true);
+
+  const hasSubItems =
+    !isEmpty(quantifiableItems) || !isEmpty(nonQuantifiableItems);
+
+  if (hasSubItems) {
+    quantifiableItems.unshift({
+      id: `sub-${item.id}`,
+      name: subItemName(item),
+      quantity: item.unit_quantity ?? 1,
+      price: item.net_selling_price_discounted_formatted ?? "—",
+      total: ""
+    });
+  }
+
+  return { quantifiableItems, nonQuantifiableItems, hasSubItems };
+}
+
+function itemPeriod(item: IInvoiceProduct): InvoiceItem["period"] {
+  const from = item.display_from_date ?? item.from_date;
+  const to = item.display_to_date ?? item.to_date;
+  return from && to ? { from, to } : undefined;
+}
+
+/**
+ * Maps the items of an order, snapshot first. `billingCycles` names each
+ * item's term (none until they resolve); `imageMap` is the catalogue image by
+ * `item.product.id`, falling back to the product image.
+ */
+export function mapInvoiceItems(
+  raw: IInvoice | undefined,
+  {
+    billingCycles,
+    imageMap
+  }: { billingCycles: IBillingCycle[]; imageMap: Record<string, string> }
+): InvoiceItem[] {
+  if (!raw) return [];
+
+  const contractProductTags = groupBy(
+    get(raw, "contract_product_tags", []),
+    "contract_product_id"
+  );
+
+  return map(mapInvoiceItemRows(raw), item => {
+    const billingCycleMonths =
+      item.billing_cycle_months || item.product?.billing_cycle_months || 0;
+    const contractProductId = item.contracts_product_id;
+
+    return {
+      id: item.id,
+      brandId: item.product?.brand_id,
+      contractProductId,
+      contractId: item.contract_id || raw.contract_id,
+      name: compact([
+        item.name || item.product?.name_translated,
+        item.service_identifier ? `(${item.service_identifier})` : null
+      ]).join(" "),
+      reference: item.client_label || "",
+      period: itemPeriod(item),
+      quantity: item.quantity,
+      price: item.configuration_net_selling_price_discounted_formatted,
+      total: item.configuration_net_amount_discounted_formatted,
+      billingCycleMonths,
+      isSubscription: !!item.billing_cycle_days || !!billingCycleMonths,
+      billingCycle: find(billingCycles, ["months", billingCycleMonths]),
+      image:
+        (item.product?.id ? imageMap[item.product.id] : undefined) ??
+        item.product?.image?.full_url,
+      tags: contractProductId
+        ? (contractProductTags[contractProductId] ?? [])
+        : [],
+      ...mapSubItems(item)
+    };
+  });
 }
 
 /**

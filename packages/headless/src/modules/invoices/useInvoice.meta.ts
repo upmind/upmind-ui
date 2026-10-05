@@ -1,6 +1,15 @@
 import { computed } from "vue";
+import { isCancellable, isDue } from "../contract-product";
 import { useActiveSession } from "../session-store";
-import { canChangePaymentCurrency } from "./invoice.utils";
+import {
+  canCancel,
+  canChangePaymentCurrency,
+  canPay,
+  isCancelled,
+  isOverdue,
+  isPaid,
+  isPartiallyPaid
+} from "./invoice.utils";
 import {
   machineMatches,
   stateMatches,
@@ -12,6 +21,7 @@ import { isEmpty, some } from "lodash-es";
 import type { Invoice, InvoiceBrandConfig } from "./invoices.types";
 import type { ResponseError, UseActor } from "../../utils";
 import type { ScopeActorTypes } from "../scope/scope.types";
+import type { IInvoice } from "@upmind-automation/types";
 import type { Ref } from "vue";
 // -----------------------------------------------------------------------------
 /**
@@ -28,6 +38,7 @@ export function createInvoiceMeta(
   const { isAuthenticated, isGuestClient } = useActiveSession().useMeta();
 
   const invoice = useContext<Invoice | undefined>(state, "invoice");
+  const rawInvoice = useContext<IInvoice | undefined>(state, "rawInvoice");
   const errors = useContext<ResponseError | undefined>(state, "error");
   const conversionError = useContext<ResponseError | undefined>(
     state,
@@ -50,7 +61,47 @@ export function createInvoiceMeta(
   const paidAmount = computed(() => invoice.value?.summary.paidAmount ?? 0);
   const unpaidAmount = computed(() => invoice.value?.summary.unpaidAmount ?? 0);
 
+  /** One order condition over the raw record; false until it loads. */
+  function condition(rule: (raw: IInvoice) => boolean) {
+    return computed(() => (rawInvoice.value ? rule(rawInvoice.value) : false));
+  }
+
+  const isDueStatus = condition(isDue);
+
   return {
+    /** Order condition — true while the invoice is due and carries an unpaid balance. */
+    canPay: condition(canPay),
+
+    /** Order condition — true while the invoice is due and cancellable. */
+    canCancel: condition(canCancel),
+
+    /** True while a payment on the invoice is in flight (pending settlement). */
+    hasPendingPayment,
+
+    /** Order condition — true while the status is unpaid, overdue or adjusted. */
+    isDue: isDueStatus,
+
+    /** Order condition — the same rule as `isDue`. */
+    isPayable: isDueStatus,
+
+    /** Order condition — true while the status is unpaid or overdue. */
+    isCancellable: condition(isCancellable),
+
+    /** Order condition — true while the status is cancelled or a cancellation request. */
+    isCancelled: condition(isCancelled),
+
+    /** True while a client delegated this invoice to the reading client. */
+    isDelegated: computed(() => !!invoice.value?.attribution.isDelegated),
+
+    /** Order condition — true while the status is overdue. */
+    isOverdue: condition(isOverdue),
+
+    /** Order condition — true while the status is paid. */
+    isPaid: condition(isPaid),
+
+    /** Order condition — true while the invoice is due with both a paid and an unpaid amount. */
+    isPartiallyPaid: condition(isPartiallyPaid),
+
     /** True while an error, a failed attempt or a failed pay-currency change
      * sits on an available invoice. */
     hasError: computed(

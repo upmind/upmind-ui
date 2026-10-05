@@ -21,7 +21,12 @@ import {
   INVOICE_PARENT_WIRE_PARAM,
   InvoicesContextTypes
 } from "./invoices.types";
-import { probeClientFilter, scopeWireParams } from "./invoices.utils";
+import {
+  probeClientFilter,
+  schemaFor,
+  scopeWireParams,
+  selectorWireParams
+} from "./invoices.utils";
 import { useTime, NotAuthenticatedError, DEBOUNCE_DELAY } from "../../utils";
 import type { LookupItem } from "../lookup";
 import type { ScopeContext } from "../scope";
@@ -33,6 +38,7 @@ import type {
   ContractProductLookupQueryModel,
   InvoiceLookupQuery,
   InvoiceLookupQueryModel,
+  InvoiceOrderQueryModel,
   InvoiceQueryModel,
   InvoicesListQuery,
   InvoicesServices
@@ -65,7 +71,8 @@ export const queryKey: QueryKey = ["invoices"];
 
 /**
  * `loadList`'s include set — the oracle's own leaner list set (`oracle:47-64`)
- * plus `category` and `client.parent_client_config`.
+ * plus `category` and `client.parent_client_config`, and the order history's
+ * `tags`.
  */
 const LOAD_LIST_INCLUDES = [
   "client",
@@ -75,7 +82,8 @@ const LOAD_LIST_INCLUDES = [
   "status",
   "category",
   "products",
-  "last_payment_log"
+  "last_payment_log",
+  "tags"
 ].join(",");
 
 /**
@@ -172,19 +180,26 @@ function loadContractLookup(
 }
 
 /**
- * The list. A retargeted client and a relationship ride as static url params, as
- * the legacy portal sends them; the client's OWN list sends no `client_id`, so the
- * platform co-mingles its sub-accounts' invoices (legacy invoicesProvider.vue:79).
+ * The list. A retargeted client, a relationship and a selector ride as static url
+ * params, as the legacy portal sends them; the client's OWN list sends no
+ * `client_id`, so the platform co-mingles its sub-accounts' invoices (legacy
+ * invoicesProvider.vue:79). The order history reads its own schema, which
+ * declares no column that could overwrite its static category.
  */
 function loadList(scopeContext?: ScopeContext): InvoicesListQuery {
   const { list, useUrl } = useQuery();
   const clientId = resolveClientId(scopeContext);
 
-  return list<IInvoice[], Invoice[], InvoiceQueryModel>({
-    criteria: { schema: useQuerySchema() },
+  return list<
+    IInvoice[],
+    Invoice[],
+    InvoiceQueryModel | InvoiceOrderQueryModel
+  >({
+    criteria: { schema: schemaFor(scopeContext) },
     queryKey: [...queryKey, { client: clientId, scope: scopeContext }],
     url: useUrl("invoices", {
       ...scopeWireParams(scopeContext),
+      ...selectorWireParams(scopeContext),
       with: LOAD_LIST_INCLUDES,
       with_count: "products"
     }),
@@ -281,7 +296,11 @@ function loadUnpaidExistence(
   const { list, useUrl } = useQuery();
   const clientId = resolveClientId(scopeContext);
 
-  return list<IInvoice[], Invoice[], InvoiceQueryModel>({
+  return list<
+    IInvoice[],
+    Invoice[],
+    InvoiceQueryModel | InvoiceOrderQueryModel
+  >({
     criteria: {
       schema: useQuerySchema(),
       model: {
@@ -321,7 +340,11 @@ function loadConsolidatableCount(
   const { list, useUrl } = useQuery();
   const clientId = resolveClientId(scopeContext);
 
-  return list<IInvoice[], Invoice[], InvoiceQueryModel>({
+  return list<
+    IInvoice[],
+    Invoice[],
+    InvoiceQueryModel | InvoiceOrderQueryModel
+  >({
     criteria: {
       schema: useQuerySchema(),
       model: {

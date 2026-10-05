@@ -1,5 +1,6 @@
 /** @internal */
 import { isString } from "xstate/lib/utils";
+import { StoreDisplayMode } from "@upmind-automation/types";
 import {
   defaultsDeep,
   forEach,
@@ -70,3 +71,22 @@ export const mapBrandSettings = (data: IBrandSettings) => {
 
   return settings;
 };
+
+/**
+ * Whether the client area offers the place-new-order control, by the brand's
+ * `SHOW_CLIENT_STORE` mode: unset or `SHOW` always, `HIDE` never,
+ * `SHOW_LOGGED_IN` only for an authenticated session (client or staff).
+ */
+export function resolveShowStore(
+  mode: StoreDisplayMode | null | undefined,
+  isAuthenticated: boolean
+): boolean {
+  switch (mode) {
+    case StoreDisplayMode.HIDE:
+      return false;
+    case StoreDisplayMode.SHOW_LOGGED_IN:
+      return isAuthenticated;
+    default:
+      return true;
+  }
+}

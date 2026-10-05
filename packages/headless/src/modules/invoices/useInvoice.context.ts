@@ -1,5 +1,6 @@
 import { computed } from "vue";
 import { useBrand } from "../brand";
+import { mapInvoiceItems } from "./invoices.mappers";
 import {
   useInvoiceCurrencySchema,
   useInvoiceCurrencyUischema,
@@ -11,16 +12,19 @@ import type { PaymentDetail } from "../payment-details";
 import type {
   Invoice,
   InvoiceForm,
+  InvoiceItem,
   InvoicePaymentDetailsModel
 } from "./invoices.types";
 import type { ResponseError, UseActor } from "../../utils";
 import type { ScopeActorTypes } from "../scope/scope.types";
+import type { IBillingCycle, IInvoice } from "@upmind-automation/types";
 import type { Ref } from "vue";
 // -----------------------------------------------------------------------------
 /**
  * @module invoices/useInvoice.context
  * @description Single-invoice context — the mapped invoice record (published as
- * `model`, the runtime's render key, never a `data` node), its captured error,
+ * `model`, the runtime's render key, never a `data` node), its order items,
+ * its captured error,
  * and the `{ schema, uischema, model }` slots of its two write forms. The pay
  * currency and its unpaid amount ride on `model` (`currencyPayment`, `summary`).
  *
@@ -31,11 +35,14 @@ export function createInvoiceContext(
   _actorScope: ScopeActorTypes,
   actor: UseActor,
   paymentDetailsModel: Ref<InvoicePaymentDetailsModel>,
-  storedPaymentMethods: Ref<PaymentDetail[] | undefined>
+  storedPaymentMethods: Ref<PaymentDetail[] | undefined>,
+  billingCycles: Ref<IBillingCycle[]>,
+  itemImages: Ref<Record<string, string>>
 ) {
   const { state } = actor;
   const { currencies } = useBrand();
   const invoice = useContext<Invoice | undefined>(state, "invoice");
+  const rawInvoice = useContext<IInvoice | undefined>(state, "rawInvoice");
 
   return {
     /**
@@ -53,6 +60,17 @@ export function createInvoiceContext(
 
     /** The scope's captured error — read, never raised. */
     error: useContext<ResponseError | undefined>(state, "error"),
+
+    /**
+     * The order's items — the snapshot first, the live products second — with
+     * each item's billing cycle and catalogue image once those resolve.
+     */
+    items: computed<InvoiceItem[]>(() =>
+      mapInvoiceItems(rawInvoice.value, {
+        billingCycles: billingCycles.value,
+        imageMap: itemImages.value
+      })
+    ),
 
     /** The mapped invoice record this scope resolved. */
     model: invoice,

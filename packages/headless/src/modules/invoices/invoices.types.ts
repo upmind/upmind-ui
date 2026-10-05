@@ -48,6 +48,7 @@ import {
 } from "@upmind-automation/types";
 import { SortDirection } from "../query/query.types";
 import { ScopeActorTypes } from "../scope/scope.types";
+import { selector } from "../scope/scope.utils";
 import type { FormattedDate, ResponseError } from "../../utils";
 import type { BasketProduct } from "../basket-product";
 import type { Client } from "../client";
@@ -55,7 +56,7 @@ import type { Address } from "../client-address/client-address.types";
 import type { Currency } from "../currency/currency.types";
 import type { LookupItem } from "../lookup";
 import type { PaymentDetailData, PaymentDetailModel } from "../payment-details";
-import type { InfiniteListQuery, ListQuery } from "../query";
+import type { InfiniteListQuery, ListQuery, SimpleQuery } from "../query";
 import type { ScopeContext } from "../scope";
 import type { JsonSchema7, UISchemaElement } from "@jsonforms/core";
 import type { QueryKey } from "@tanstack/vue-query";
@@ -65,6 +66,9 @@ import type { QueryKey } from "@tanstack/vue-query";
 import type {
   InvoiceStatus,
   CreditNoteStatus,
+  IBillingCycle,
+  IBrand,
+  IClient,
   IContract,
   IContractProduct,
   ICurrency,
@@ -97,8 +101,17 @@ export enum InvoicesContextTypes {
   /** Reading one contract product's invoices (`filter[products.contracts_product_id]`). */
   CONTRACT_PRODUCT = UpmindObjectTypes.CONTRACTS_PRODUCT,
   /** Reading one parent invoice's credit notes (`filter[credit_invoice_id]`). */
-  INVOICE = UpmindObjectTypes.INVOICE
+  INVOICE = UpmindObjectTypes.INVOICE,
+  /** SELECTOR — the client's order history: its new-contract invoices. */
+  NEW_CONTRACT = InvoiceCategoryCode.NEW_CONTRACT
 }
+
+/** The static request params each SELECTOR `.for()` context adds to the list read. */
+export const INVOICES_SELECTOR_WIRE_PARAMS = {
+  [InvoicesContextTypes.NEW_CONTRACT]: {
+    "filter[category.slug]": InvoiceCategoryCode.NEW_CONTRACT
+  }
+} as const;
 
 /** The static request param each relationship `.for()` context adds, as the legacy portal sends it. */
 export const INVOICES_CONTEXT_WIRE_PARAMS = {
@@ -135,7 +148,9 @@ export const INVOICE_PARENT_WIRE_PARAM = "filter[partial_amount_credited|gt]";
  * client lane has no `api/clients/{id}/invoices` route, `oracle:25-34`), and
  * `contract` / `contracts_product` / `invoice` are the three entity
  * relationships (FE-3031 F3, OR-1), each a declared filter column the scope
- * seam seeds (`INVOICES_CONTEXT_WIRE_KEYS`).
+ * seam seeds (`INVOICES_CONTEXT_WIRE_KEYS`). The cell also holds one SELECTOR
+ * member, `new_contract` — the order history, a static category param on the
+ * list read (`INVOICES_SELECTOR_WIRE_PARAMS`).
  *
  * @decision
  * what: model the three entity relationships as RETARGET context members of
@@ -156,7 +171,8 @@ export const INVOICES_SCOPE_MATRIX = {
     InvoicesContextTypes.CONTRACT,
     InvoicesContextTypes.CONTRACT_PRODUCT,
     InvoicesContextTypes.INVOICE,
-    InvoicesContextTypes.CLIENT
+    InvoicesContextTypes.CLIENT,
+    selector(InvoicesContextTypes.NEW_CONTRACT)
   ],
   [ScopeActorTypes.GUEST]: null as never
 } as const;
@@ -192,6 +208,8 @@ export type InvoiceScopeMatrix = typeof INVOICE_SCOPE_MATRIX;
  * `number`) + `sorters/creditNotes.ts:4-21` (`number`).
  */
 export type InvoiceSortableField =
+  | "id"
+  | "status_id"
   | "create_datetime"
   | "number"
   | "total_amount"
@@ -300,6 +318,85 @@ export const CREDIT_NOTE_FILTER: InvoiceFilterModel = {
 
 /** The ordered sort model — the `sort` branch of {@link InvoiceQueryModel}. */
 export type InvoiceSortModel = NonNullable<InvoiceQueryModel["sort"]>;
+
+// -----------------------------------------------------------------------------
+// ORDER-HISTORY QUERY MODEL — the `new_contract` context's own schema (D-4)
+// -----------------------------------------------------------------------------
+
+/**
+ * The five status choices the order history offers. Unpaid is ONE csv value
+ * that selects both the unpaid and the adjusted statuses.
+ */
+export const ORDER_STATUS_CHOICES = [
+  "invoice_paid",
+  "invoice_unpaid,invoice_adjusted",
+  "invoice_overdue",
+  "invoice_cancelled",
+  "invoice_refunded"
+] as const;
+
+/** One value of {@link ORDER_STATUS_CHOICES}. */
+export type InvoiceOrderStatusChoice = (typeof ORDER_STATUS_CHOICES)[number];
+
+/** The comparisons a many-comparison number column accepts. */
+export type InvoiceComparisonLeaf<TValue> = {
+  eq?: TValue;
+  neq?: TValue;
+  gt?: TValue;
+  gte?: TValue;
+  lt?: TValue;
+  lte?: TValue;
+};
+
+/**
+ * The comparisons a date column accepts. `after` / `before` take a relative
+ * period (`-7_days`); the other four an absolute `YYYY-MM-DD hh:mm:ss`.
+ */
+export type InvoiceDateLeaf = {
+  gt?: string;
+  gte?: string;
+  lt?: string;
+  lte?: string;
+  after?: string;
+  before?: string;
+};
+
+/**
+ * The order history's whole request state, validated against
+ * `useOrderQuerySchema()`. It declares no `category.slug` column, so no
+ * criteria write can reach the forced category (D-3).
+ */
+export type InvoiceOrderQueryModel = {
+  filters?: {
+    number?: { like?: string; eq?: string; neq?: string };
+    total_amount?: InvoiceComparisonLeaf<number>;
+    /** `maxProperties: 1` — `eq` and `neq` never together. */
+    "status.code"?: {
+      eq?: InvoiceOrderStatusChoice[];
+      neq?: InvoiceOrderStatusChoice[];
+    };
+    create_datetime?: InvoiceDateLeaf;
+    paid_datetime?: InvoiceDateLeaf;
+    "products.product.name"?: { like?: string; eq?: string; neq?: string };
+    "products.product.category.name"?: {
+      like?: string;
+      eq?: string;
+      neq?: string;
+    };
+    "products.service_identifier"?: {
+      like?: string;
+      eq?: string;
+      neq?: string;
+    };
+  };
+  sort?: InvoiceSortEntry[];
+  pagination?: { limit?: number; offset?: number };
+};
+
+/** The `filters` branch of {@link InvoiceOrderQueryModel}. */
+export type InvoiceOrderFilterModel = NonNullable<
+  InvoiceOrderQueryModel["filters"]
+>;
 
 // -----------------------------------------------------------------------------
 // MODELS
@@ -450,6 +547,55 @@ export type Invoice = {
   dateCreated: FormattedDate;
   dateDue: FormattedDate;
   datePaid: FormattedDate;
+  /** Tolerates absent/null; never an epoch date. */
+  dateCancelled: FormattedDate;
+  brandId: IBrand["id"] | undefined;
+  brandName: string | undefined;
+  /** The contract the invoice raised — an order's contract. */
+  contractId: IContract["id"] | null | undefined;
+  cancellationReason: string | undefined;
+  /** True while a paid invoice awaits its offline "pending arrival" funds. */
+  hasPendingPaymentMethod: boolean;
+  refundChanged: IInvoice["refund_changed"] | undefined;
+  notes: string | undefined;
+  customFields: IInvoice["custom_fields"] | undefined;
+  /** The client of the affiliate that referred the invoice's account. */
+  referrer: IClient | undefined;
+};
+
+/** One quantifiable or non-quantifiable sub-item row of an {@link InvoiceItem}. */
+export type InvoiceSubItem = {
+  id: string;
+  name: string;
+  quantity: number;
+  price: string;
+  total: string;
+};
+
+/**
+ * One item of an order, read from the snapshot first and the live products
+ * second (`mapInvoiceItems`).
+ */
+export type InvoiceItem = {
+  id: string;
+  brandId: IBrand["id"] | undefined;
+  contractProductId: IContractProduct["id"] | null | undefined;
+  contractId: IContract["id"] | null | undefined;
+  name: string;
+  reference: string;
+  period: { from: string; to: string } | undefined;
+  quantity: number | undefined;
+  price: string | undefined;
+  total: string | undefined;
+  billingCycleMonths: number;
+  isSubscription: boolean;
+  /** `undefined` until the billing cycles resolve. */
+  billingCycle: IBillingCycle | undefined;
+  image: string | undefined;
+  tags: unknown[];
+  quantifiableItems: InvoiceSubItem[];
+  nonQuantifiableItems: InvoiceSubItem[];
+  hasSubItems: boolean;
 };
 
 /**
@@ -610,7 +756,8 @@ export type InvoicePaymentChallenge = {
 /**
  * The reactive list query, minted ONCE per scope in `useInvoices.ts`.
  * Aliased from the query platform's own `ListQuery`, parameterised by this
- * module's {@link InvoiceQueryModel} — never derived with
+ * module's {@link InvoiceQueryModel}, or {@link InvoiceOrderQueryModel} on
+ * the `new_contract` context — never derived with
  * `ReturnType<typeof localServiceFn>`. `TQueryFnData` is the WIRE type
  * (`IInvoice[]`, what `list()`'s `queryFn` resolves), `TData` is the type
  * after `select` (`Invoice[]`) — matching the `list<IInvoice[], Invoice[],
@@ -620,7 +767,16 @@ export type InvoicePaymentChallenge = {
 export type InvoicesListQuery = ListQuery<
   IInvoice[],
   Invoice[],
-  InvoiceQueryModel
+  InvoiceQueryModel | InvoiceOrderQueryModel
+>;
+
+/**
+ * The item-image read — `GET api/products` over the snapshot items' catalogue
+ * product ids, mapped to a `{ productId -> full_url }` map.
+ */
+export type InvoiceItemImagesQuery = SimpleQuery<
+  { id: string; image?: { full_url?: string } }[],
+  Record<string, string>
 >;
 
 /**

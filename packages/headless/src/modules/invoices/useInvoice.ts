@@ -1,10 +1,13 @@
-import { ref, watch } from "vue";
+import { computed, getCurrentScope, ref, shallowRef, watch } from "vue";
 import { interpret } from "xstate";
 import { usePaymentDetail, usePaymentGateway } from "../payment-details";
 import { useQueryParams } from "../routing/useQueryParams";
 import { createScopedComposable } from "../scope";
+import { useSystem } from "../system";
 import { useI18n } from "../system-localisation";
 import invoiceMachine from "./invoice.machine";
+import { loadItemImages } from "./invoice.services";
+import { snapshotProductIds } from "./invoice.utils";
 import { INVOICE_SCOPE_MATRIX } from "./invoices.types";
 import { createInvoiceActions } from "./useInvoice.actions";
 import { createInvoiceContext } from "./useInvoice.context";
@@ -19,9 +22,10 @@ import {
   ErrorOrigin,
   responseCodes
 } from "../../utils";
-import { isEmpty } from "lodash-es";
+import { isEmpty, noop } from "lodash-es";
 import type { PaymentDetail } from "../payment-details";
 import type {
+  InvoiceItemImagesQuery,
   InvoicePayContext,
   InvoicePaymentDetailsModel,
   InvoiceScopeMatrix
@@ -29,6 +33,7 @@ import type {
 import type { ResponseError } from "../../utils";
 import type { ScopeActorTypes } from "../scope/scope.types";
 import type { ScopeConfig, ScopeKey } from "../scope/scope.types";
+import type { IBillingCycle, IInvoice } from "@upmind-automation/types";
 // -----------------------------------------------------------------------------
 /**
  * @module invoices/useInvoice
@@ -90,6 +95,35 @@ function createInvoiceForScope(config: ScopeConfig, scopeKey: ScopeKey) {
   const storedPaymentMethods = ref<PaymentDetail[]>();
 
   const errors = useContext<ResponseError | undefined>(actor.state, "error");
+  const rawInvoice = useContext<IInvoice | undefined>(
+    actor.state,
+    "rawInvoice"
+  );
+
+  // The item term names. Not awaited: `isReady()` never waits on a label, and a
+  // failed read leaves each item's `billingCycle` undefined.
+  const billingCycles = ref<IBillingCycle[]>([]);
+  useSystem()
+    .ensureBillingCycles()
+    .then(cycles => {
+      billingCycles.value = cycles;
+    })
+    .catch(noop);
+
+  // A `query()` url is fixed at build, so the image read is minted ONCE, with
+  // the snapshot ids of the first loaded record, inside this scope.
+  const scope = getCurrentScope();
+  const itemImagesQuery = shallowRef<InvoiceItemImagesQuery>();
+  const stopItemImages = watch(rawInvoice, raw => {
+    if (!raw?.id || itemImagesQuery.value) return;
+    itemImagesQuery.value = scope?.run(() =>
+      loadItemImages(invoiceId, snapshotProductIds(raw))
+    );
+    stopItemImages();
+  });
+  const itemImages = computed<Record<string, string>>(
+    () => itemImagesQuery.value?.data.value ?? {}
+  );
 
   // Mirror the pay outcome onto the `?payment_success` param, so an offsite
   // return lands back on the right state.
@@ -135,7 +169,9 @@ function createInvoiceForScope(config: ScopeConfig, scopeKey: ScopeKey) {
         actorScope,
         actor,
         paymentDetailsModel,
-        storedPaymentMethods
+        storedPaymentMethods,
+        billingCycles,
+        itemImages
       ),
 
     /** Sub-composable for advanced debugging and the delegated payment composables. */

@@ -81,7 +81,13 @@ function createInvoicesForScope(config: ScopeConfig, scopeKey: ScopeKey) {
 
     /** Sub-composable for collection context (reactive list + criteria/schemas). */
     useContext: () =>
-      createInvoicesContext(actorScope, service, query, lookups),
+      createInvoicesContext(
+        actorScope,
+        service,
+        query,
+        lookups,
+        config.context
+      ),
 
     /** Sub-composable for advanced debugging and internal access. */
     useInternals: () => createInvoicesInternals(actorScope, query, service),
@@ -115,6 +121,9 @@ function createInvoicesForScope(config: ScopeConfig, scopeKey: ScopeKey) {
  * const byContract = useInvoices().for('contract', contractId)
  * const byProduct = useInvoices().for('contracts_product', contractProductId)
  * const creditNotes = useInvoices().for('invoice', parentInvoiceId)
+ *
+ * // the order history — the client's new-contract invoices (selector, no id)
+ * const orders = useInvoices().as('client').for('new_contract')
  * ```
  */
 export const useInvoices = createScopedComposable<

@@ -13,6 +13,9 @@
  * scope matrix serves. The client cell holds four RETARGET members —
  * `client`, `contract`, `contracts_product`, `invoice` (FE-3031 F3 / OR-1) —
  * so the acting-for picker offers each and every pick drives the list. The
+ * cell also holds the `new_contract` SELECTOR — the order history, reached at
+ * `/useInvoices/as/client/for/new_contract` with no id; its filter bar is the
+ * module's order uischema, published by `useContext()` for that context. The
  * picker's form is the module's own (`useContext().schemas.lookups`), its
  * relationship controls bound to the module's lookups; nothing here declares
  * it. `self`/`staff`/`guest` stay compile-time errors on `.for()`, per the
