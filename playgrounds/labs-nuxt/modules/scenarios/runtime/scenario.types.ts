@@ -331,7 +331,46 @@ export type TableCellText = Omit<TableCellElement, "options"> & {
 export type TableCellHtml = TableCellElement & { type: "TableCellHtml" };
 
 /** A `useDate` descriptor (`{ date, relative }`), drawn as its relative form. */
-export type TableCellDate = TableCellElement & { type: "TableCellDate" };
+export type TableCellDate = TableCellElement & {
+  type: "TableCellDate";
+  options?: TableCellElement["options"] & {
+    /** Draw the descriptor's FULL date as a tooltip over its relative form. */
+    tooltip?: boolean;
+    /** Pull the value to the row's end — the trailing date column legacy draws. */
+    align?: "right";
+  };
+};
+
+/**
+ * A referral's IDENTITY block, the client path of the legacy
+ * `affiliateReferralsTable` as one cell: a leading avatar, a MASKED primary line
+ * that never shows the real name (the client area may not reveal who a referral
+ * is), and an optional muted second line naming the link the referral arrived
+ * through. The two lines stack in one column, which is why this is one composite
+ * cell rather than a column each.
+ */
+export type TableCellReferral = TableCellElement & {
+  type: "TableCellReferral";
+  options: TableCellElement["options"] & {
+    /** i18n key for the word drawn before the mask (e.g. "Client"); the real name is never shown. */
+    label: string;
+    /** Key on the scoped object for the display name — the avatar's initials and its alt. */
+    name: string;
+    /** Key on the scoped object for the avatar image source. */
+    image: string;
+    /** The fallback glyph when the scoped object carries neither image nor name. */
+    icon?: string;
+    /** The muted second line — the link a referral came through, drawn only where it exists. */
+    via?: {
+      /** i18n key, given `{link}` and `{url}`. */
+      i18n: string;
+      /** Scope on the row for the link name; its `"{name}: "` is omitted when absent. */
+      name: string;
+      /** Scope on the row for the redirect url; its protocol and trailing slash are stripped. */
+      url: string;
+    };
+  };
+};
 
 /**
  * A boolean drawn as ONE glyph on every row — filled where the flag is true,
@@ -384,7 +423,8 @@ export type TableCell =
   | TableCellIcon
   | TableCellBadges
   | TableCellList
-  | TableCellStatus;
+  | TableCellStatus
+  | TableCellReferral;
 
 /**
  * The WHOLE table: its header labels, its column order, every cell's renderer

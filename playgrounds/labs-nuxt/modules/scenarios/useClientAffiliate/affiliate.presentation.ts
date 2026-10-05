@@ -312,23 +312,47 @@ export const linksActions: ActionsUischema = {
 // -----------------------------------------------------------------------------
 // P3 `referrals` — who the links brought in
 
+/**
+ * The masked identity, drawn like the legacy client view: an avatar off the
+ * client, a masked "Client ••••••" that never shows the real name, and the link
+ * the referral came through under it (`affiliateReferralsTable.vue`, client
+ * path). The referral `via` line reads the link off the row directly.
+ */
+const referralIdentity = {
+  type: "TableCellReferral",
+  scope: "#/properties/client",
+  options: {
+    label: "labs.affiliate_referral_client",
+    name: "fullname",
+    image: "image_url",
+    via: {
+      i18n: "labs.affiliate_via",
+      name: "#/properties/affiliate_link/properties/name",
+      url: "#/properties/affiliate_link/properties/redirect_url"
+    }
+  }
+} as const;
+
 export const referralsTable: TableUischema = {
   type: "TableLayout",
   elements: [
     {
-      type: "TableCellText",
-      scope: "#/properties/client/properties/fullname",
-      i18n: "labs.affiliate_referral"
-    },
-    {
-      type: "TableCellText",
-      scope: "#/properties/affiliate_link/properties/name",
-      i18n: "labs.affiliate_referred_via"
+      ...referralIdentity,
+      i18n: "labs.affiliate_referral",
+      options: {
+        ...referralIdentity.options,
+        width: TableColumnWidthTypes.TWO_THIRDS
+      }
     },
     {
       type: "TableCellDate",
       scope: "#/properties/created_at",
-      i18n: "labs.affiliate_referred_on"
+      i18n: "labs.affiliate_referred_on",
+      options: {
+        width: TableColumnWidthTypes.THIRD,
+        align: "right",
+        tooltip: true
+      }
     }
   ]
 };
@@ -337,22 +361,15 @@ export const referralsCard: CardUischema = {
   type: "CardLayout",
   elements: [
     {
-      type: "TableCellText",
-      scope: "#/properties/client/properties/fullname",
+      ...referralIdentity,
       i18n: "labs.affiliate_referral",
-      options: { slot: CardSlotTypes.TITLE }
-    },
-    {
-      type: "TableCellText",
-      scope: "#/properties/affiliate_link/properties/name",
-      i18n: "labs.affiliate_referred_via",
-      options: { slot: CardSlotTypes.SUBTITLE }
+      options: { ...referralIdentity.options, slot: CardSlotTypes.TITLE }
     },
     {
       type: "TableCellDate",
       scope: "#/properties/created_at",
       i18n: "labs.affiliate_referred_on",
-      options: { slot: CardSlotTypes.BODY }
+      options: { slot: CardSlotTypes.BODY, tooltip: true }
     }
   ]
 };

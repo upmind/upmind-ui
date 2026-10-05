@@ -1,4 +1,15 @@
-<template>{{ isAbsent ? "" : text }}</template>
+<template>
+  <template v-if="!isAbsent">
+    <span v-if="align === 'right'" class="block w-full text-right">
+      <Tooltip v-if="tooltip && fullDate" :label="fullDate">{{ text }}</Tooltip>
+      <template v-else>{{ text }}</template>
+    </span>
+    <Tooltip v-else-if="tooltip && fullDate" :label="fullDate">{{
+      text
+    }}</Tooltip>
+    <template v-else>{{ text }}</template>
+  </template>
+</template>
 
 <script lang="ts" setup>
 // -----------------------------------------------------------------------------
@@ -13,6 +24,7 @@
  */
 
 import { uiTypeIs } from "@jsonforms/core";
+import { Tooltip } from "@upmind/ui";
 import { computed } from "vue";
 import { useDate } from "@upmind-automation/headless";
 import { isAbsentDate, resolveScope } from "../../scenario.utils";
@@ -29,11 +41,17 @@ const isAbsent = computed(() => isAbsentDate(value.value));
 
 // A raw wire date (a `raw` record's own `next_due_date`) is described here
 // through the same `useDate` the mappers use.
-const text = computed(() =>
-  toString(
-    get(isString(value.value) ? useDate(value.value) : value.value, "relative")
-  )
+const descriptor = computed(() =>
+  isString(value.value) ? useDate(value.value) : value.value
 );
+
+const text = computed(() => toString(get(descriptor.value, "relative")));
+
+const fullDate = computed(() => toString(get(descriptor.value, "date")));
+
+const tooltip = computed(() => !!props.element.options?.tooltip);
+
+const align = computed(() => props.element.options?.align);
 </script>
 
 <script lang="ts">

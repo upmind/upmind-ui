@@ -30,6 +30,17 @@ export const cellIcon = cva("block", {
  */
 export const cellHtml = cva("text-sm leading-relaxed break-words");
 
+/**
+ * A referral's identity block — the avatar leading two stacked lines. The second
+ * line stays muted and normal-weight even inside a card title, so the masked
+ * client reads as the heading and the link it came through as its sub-line.
+ */
+export const cellReferral = {
+  root: cva("flex items-start gap-3"),
+  body: cva("flex min-w-0 flex-col gap-0.5"),
+  via: cva("text-muted text-sm font-normal break-all")
+};
+
 export const cellList = {
   root: cva("flex flex-col", {
     variants: {

@@ -27,6 +27,9 @@ import TableCellIcon, {
   tester as iconTester
 } from "./TableCellIcon.vue";
 import TableCellList, { tester as listTester } from "./TableCellList.vue";
+import TableCellReferral, {
+  tester as referralTester
+} from "./TableCellReferral.vue";
 import TableCellStatus, { tester as statusTester } from "./TableCellStatus.vue";
 import TableCellText, { tester as textTester } from "./TableCellText.vue";
 import { map, maxBy } from "lodash-es";
@@ -43,7 +46,8 @@ export const tableCellRenderers: TableCellRenderer[] = [
   { ...registerEntry(TableCellIcon, iconTester), sizing: iconSizing },
   registerEntry(TableCellBadges, badgesTester),
   registerEntry(TableCellList, listTester),
-  registerEntry(TableCellStatus, statusTester)
+  registerEntry(TableCellStatus, statusTester),
+  registerEntry(TableCellReferral, referralTester)
 ];
 
 // A declaration points at a MAPPED RECORD, not at a validated JSON Schema
