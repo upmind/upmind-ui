@@ -4,7 +4,7 @@ import { createBdd, defineBddConfig, test as base } from "playwright-bdd";
 import { STEP_KIND } from "@upmind-automation/scenario-harness";
 import { SCENARIO_WORLD_KEY } from "./modules/scenarios/runtime/composables/useScenarioWorld.types";
 import { createBrowserWorld } from "./tests/e2e/browser-world";
-import { catalogs, features, pairOf } from "./tests/e2e/catalogs";
+import { catalogs, clientEmailsRoute, features } from "./tests/e2e/catalogs";
 import {
   installRecordedCorpus,
   seedRecordedClientSession
@@ -57,13 +57,10 @@ const testDir = defineBddConfig({
 });
 
 export const test = base.extend<{ world: World<ScenarioKey> }>({
-  world: async ({ page }, use, testInfo) => {
-    const pair = pairOf(testInfo.file);
-    if (!pair) throw new Error(`no adopted pair plays ${testInfo.file}`);
-
-    await installRecordedCorpus(page, pair.module, pair.pins);
+  world: async ({ page }, use) => {
+    await installRecordedCorpus(page);
     await seedRecordedClientSession(page);
-    await page.goto(pair.route);
+    await page.goto(clientEmailsRoute);
     await page.waitForFunction(
       key => Boolean((window as unknown as Record<string, unknown>)[key]),
       SCENARIO_WORLD_KEY
@@ -113,7 +110,7 @@ export default defineConfig({
     // The world is published in dev only, so a server this config did not
     // start is not a server this lane can drive.
     reuseExistingServer: false,
-    timeout: 300000
+    timeout: 120000
   },
   // Two lanes, one browser: the generated `.feature` pair, and the read-backs
   // the `World` seam cannot express (page, wire, reload).

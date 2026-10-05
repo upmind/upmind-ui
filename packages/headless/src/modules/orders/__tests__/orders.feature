@@ -5,11 +5,12 @@ Feature: Order history — the client self-service capability
   So that I can find and act on an order without a legacy portal
 
   # Business-logic anchor (code-test-bdd). Executable under ADR-020
-  # Amendment 5: the labs-nuxt bdd project drives the six collection
-  # scenarios that design 8.12 names, over the recorded corpus. Their Then
-  # steps read the query model, the pagination, the data and the meta only.
-  # Every scenario traces to a spec through orders.traceability.test.ts.
-  # Layer routing: the bdd.md AC to Scenario mapping. Client x self only.
+  # Amendment 5: the module's own orders.replay.int.test.ts drives the six
+  # collection scenarios that design 8.12 names, over the recorded corpus.
+  # Their Then steps read the query model, the pagination, the data and the
+  # meta only. Every scenario traces to a spec through
+  # orders.traceability.test.ts. Layer routing: the bdd.md AC to Scenario
+  # mapping. Client x self only.
 
   @AC-1 @FE-3237 @client
   Scenario: A signed-in client reads the history
@@ -250,12 +251,13 @@ Feature: Order history — the client self-service capability
     But a refused cancel gate sends nothing
     And cancelling with no connected flow fails with a named error and sends nothing
 
-  # Gap closed (operator ruling 2026-10-01): the labs-nuxt lane now proves the
-  # filter bar status-control writing filter[status.code|eq] from its
-  # multi-select eq leaf, live, over the recorded corpus — the former known gap
-  # (operator ruling 2026-09-29) is resolved and the test.fixme is removed. The
-  # headless dotted-operators int tests still prove the wire at the data layer.
-  @AC-22 @FE-3237 @client
+  # @todo — labs e2e lane dropped from this MR (operator ruling 2026-10-05):
+  # the playground consumer proof that drove the two composables shipped on the
+  # labs-nuxt orders e2e lane, which this MR does not add. The headless
+  # dotted-operators int tests still prove the status-filter wire at the data
+  # layer; the hand-driven consumer journey is an unproven, named gap until the
+  # lane lands.
+  @AC-22 @FE-3237 @client @todo
   Scenario: A hand drives the two composables
     Given the operator opens the playground
     When a hand drives the collection and the record

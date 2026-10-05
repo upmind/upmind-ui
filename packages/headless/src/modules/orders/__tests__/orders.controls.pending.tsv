@@ -1,4 +1,3 @@
 # patch	design 8.10 spec	why the row is not in orders.controls.tsv
 packages/headless/src/modules/orders/__tests__/orders.pay-delegate.must-fail.patch	orders.pay-delegate	spec absent; the AC20 engine-run captures need a real wallet payment on shared staging, which waits for the operator go-ahead
 packages/headless/src/modules/orders/__tests__/orders.mappers.must-fail.patch	orders.mappers (unit)	spec absent; orders.mappers.ts is not on the public surface and the seat guard blocks its signatures. The thin-record clause is proven through the manager in orders.items
--	tests/e2e/orders (lane)	no patch row yet; the labs-nuxt scenario pages exist, but the tests/e2e T02 harness (browser-world.ts, catalogs.ts, recorded-corpus.ts) and the T27 spec are absent

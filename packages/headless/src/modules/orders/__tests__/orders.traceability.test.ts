@@ -4,25 +4,27 @@
  *
  * ## Job To Be Done
  * Parse the colocated `orders.feature` and enforce the anchor both
- * ways: each AC of a scenario that is not `@todo` is named by a test title,
- * and each AC a test title names is a scenario of the feature. One proof
- * lives outside this directory and counts only through a test title: AC-22
- * through a `test(` title of the labs-nuxt lane spec that holds `@FE-3237`
- * (bdd.md, deferral table). AC-17 is a colocated unit proof of the FE-3244
- * interim gate `hidesOneTimePurchases()`.
+ * ways: each AC of a scenario that is not `@todo` is named by a colocated
+ * test title, and each AC a test title names is a scenario of the feature.
+ * AC-17 is a colocated unit proof of the FE-3244 interim gate
+ * `hidesOneTimePurchases()`. AC-22 is a named `@todo` gap: its playground
+ * consumer proof shipped on the labs-nuxt orders e2e lane, which this MR does
+ * not add (operator ruling 2026-10-05), so no test proves it here and the
+ * guard does not demand one — a non-`@todo` AC with no proof still fails.
  *
- * The feature is executable under ADR-020 Amendment 5: the labs-nuxt `bdd`
- * project drives the six design 8.12 scenarios. This spec also pins those six
- * titles and the three AC3 scenarios that bdd.md names, and holds the step
- * catalog to them: the catalog drives exactly those six, half-matches none,
- * defines no step nothing calls, and fires each action id it declares.
+ * The feature is executable under ADR-020 Amendment 5: the module's own
+ * `orders.replay.int.test.ts` drives the six design 8.12 scenarios over the
+ * recorded corpus. This spec also pins those six titles and the three AC3
+ * scenarios that bdd.md names, and holds the step catalog to them: the catalog
+ * drives exactly those six, half-matches none, defines no step nothing calls,
+ * and fires each action id it declares.
  *
  * ## What Breaks If These Fail
  * A capability silently loses its proof, or a gate reads a tag in place of a
  * test and stays green after the test is gone.
  */
 
-import { existsSync, readFileSync, readdirSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { createTraceabilityCheck } from "@upmind-automation/scenario-harness";
@@ -34,11 +36,6 @@ import { includes, keys, map, reject, sortBy } from "lodash-es";
 
 const TEST_DIR = import.meta.dirname;
 const FEATURE = join(TEST_DIR, "orders.feature");
-const REPO_ROOT = join(TEST_DIR, "../../../../../..");
-const LANE_SPEC = join(
-  REPO_ROOT,
-  "playgrounds/labs-nuxt/tests/e2e/orders.spec.ts"
-);
 
 const DRIVEN_TITLES = [
   "A signed-in client reads the history",
@@ -125,18 +122,8 @@ function colocatedProofs(): Map<string, string[]> {
   return proofs;
 }
 
-/** AC-22 is proven only by a lane `test(` title that holds `@FE-3237`. */
-function laneProvesAc22(): boolean {
-  if (!existsSync(LANE_SPEC)) return false;
-  return testTitles(readFileSync(LANE_SPEC, "utf-8"), "test").some(title =>
-    title.includes("@FE-3237")
-  );
-}
-
 function provenAcs(): Set<string> {
-  const proven = new Set(colocatedProofs().keys());
-  if (laneProvesAc22()) proven.add("AC-22");
-  return proven;
+  return new Set(colocatedProofs().keys());
 }
 
 // -----------------------------------------------------------------------------
@@ -221,23 +208,6 @@ describe("orders traceability — the proofs", () => {
       "AC-94"
     ]);
     expect(testTitles('expect(x).toBe("@FE-3237")', "test")).toEqual([]);
-  });
-});
-
-describe("orders traceability — the AC-22 status-filter proof", () => {
-  const laneSource = existsSync(LANE_SPEC)
-    ? readFileSync(LANE_SPEC, "utf-8")
-    : "";
-
-  it("AC-22 has a live lane proof and no scenario is held back", () => {
-    expect(laneProvesAc22()).toBe(true);
-    expect([...laneSource.matchAll(/\btest\.fixme\(/g)]).toHaveLength(0);
-    expect(laneSource).not.toMatch(/\btest\.skip\(/);
-  });
-
-  it("the lane proves the status multi-select writes filter[status.code|eq] (gap closed)", () => {
-    expect(laneSource).toMatch(/filter\[status\.code\|eq\]/);
-    expect(laneSource).toMatch(/gap closed/);
   });
 });
 
