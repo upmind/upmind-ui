@@ -10,7 +10,7 @@ All notable changes to the orders module.
 
 ### Fixed
 
-- The status filter on the playground history now sends its request: the filter-bar status control writes a `status.code` equality leaf (`filter[status.code|eq]=invoice_paid`), proven live against the wire. The earlier known gap is closed.
+- The status filter on the playground history now sends its request: the filter-bar status control writes a `status.code` equality leaf (`filter[status.code|eq]=invoice_paid`). The headless integration test for dotted filter operators proves the request on the wire; the playground page itself has no automated browser proof.
 - The history list no longer renders a Delegated column, which crashed the table's header model and rendered zero rows. The delegated marker remains on the single-order view as `meta.isDelegated`.
 
 ### Added
@@ -23,7 +23,7 @@ All notable changes to the orders module.
 - `useActions().setCriteria` on the history — a raw-intent `filters` / `sort` / `pagination` write applied in one call, branch by branch, alongside the named per-filter setters. A `filters` intent replaces the whole branch and re-asserts the forced category leaf on its own copy.
 - `useMeta().isFiltered` on the history — true while any filter other than the forced category leaf currently applies.
 - One shared services factory behind both composables (`scopeActor`/`scopeContext` in, the list read plus the single-order read and its two secondary reads out), so the history and the single-order manager address the same client identity through one seam.
-- The browser-driven playground pages for both composables: `/useOrders` renders on the shared playground renderer (the same surface as `/useInvoices`), and `/useOrder/:id` is a self-drawn order view. The history list has no Delegated column; the delegated marker is the order view's `meta.isDelegated`.
+- The playground pages for both composables (manual demo surface; no automated browser proof): `/useOrders` renders on the shared playground renderer (the same surface as `/useInvoices`), and `/useOrder/:id` is a self-drawn order view. The history list has no Delegated column; the delegated marker is the order view's `meta.isDelegated`.
 - The full documentation set: foundation, README, usage, architecture, gotchas.
 
 ### Known gaps (tracked, not yet closed)

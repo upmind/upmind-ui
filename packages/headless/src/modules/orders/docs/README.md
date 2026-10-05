@@ -38,7 +38,7 @@ See [Usage](./usage.md) for the complete API reference.
 | Online-gateway condition | ✅ | Read from the response envelope's reported total, never a row count. |
 | Pay delegate | ✅ | Delegates to the existing payment engine; the completed-payment stale-mark still needs a real staging payment to prove end-to-end. |
 | Cancel delegate | ✅ | Delegates through an injectable port; rejects distinctly until a contract-cancellation flow connects to it. |
-| Playground / browser-driven proof | ✅ | `/useOrders` renders on the shared playground renderer (the same surface as `/useInvoices`); `/useOrder/:id` is a self-drawn order view. |
+| Playground pages | ✅ | `/useOrders` renders on the shared playground renderer (the same surface as `/useInvoices`); `/useOrder/:id` is a self-drawn order view. The pages exist for manual driving; no automated browser test proves them. |
 
 ## Key Concepts
 
@@ -89,6 +89,8 @@ pnpm dev
 ```
 
 Then navigate to `/useOrders` (the history, drawn by the shared renderer) or `/useOrder/<orderId>` (one order, a self-drawn order view).
+
+The playground is a manual demo surface: no automated browser test drives these pages.
 
 **Playground location:** `playgrounds/labs-nuxt/modules/scenarios/useOrders/`, `playgrounds/labs-nuxt/modules/scenarios/useOrder/`.
 

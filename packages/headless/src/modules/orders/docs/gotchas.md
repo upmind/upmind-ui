@@ -129,6 +129,12 @@ const row = getOne(orderId);
 
 ---
 
+## No automated browser proof of the playground pages
+
+The `/useOrders` and `/useOrder/:id` playground pages exist, but no automated browser test drives them. This is a named gap, not a passing check: no browser lane ships with this module. The status-filter request (`filter[status.code|eq]=...`) is proven only by the headless integration test for dotted filter operators, so a regression confined to the playground page's filter-bar wiring would not be caught automatically. Verify the pages by hand after changing the history's filter surface.
+
+---
+
 ## Common Mistakes
 
 ### Reading an item's image by its line id
