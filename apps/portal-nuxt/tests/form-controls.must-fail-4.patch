@@ -1,0 +1,30 @@
+# Negative control — the portal's plugin stops registering foundation's controls, so its forms draw no lookup, image or filter control.
+#
+# Intended RED:
+#   apps/portal-nuxt/tests/form-controls.test.ts
+#     "holds each of foundation's controls once, registered by the app itself"
+
+diff --git a/apps/portal-nuxt/app/plugins/upmind.client.ts b/apps/portal-nuxt/app/plugins/upmind.client.ts
+index 51c36e1..1f48e5f 100644
+--- a/apps/portal-nuxt/app/plugins/upmind.client.ts
++++ b/apps/portal-nuxt/app/plugins/upmind.client.ts
+@@ -4,10 +4,6 @@
+  * @description Boots the headless runtime the `@upmind-automation/auth` organisms need.
+  */
+ import "@upmind-automation/client";
+-import {
+-  foundationRenderers,
+-  registerFormRenderers
+-} from "@upmind-automation/foundation";
+ import useUpmind from "@upmind-automation/headless";
+ import "@upmind-automation/payment";
+ import "@upmind-automation/product";
+@@ -15,8 +11,6 @@ import { AccessRoleTypes } from "@upmind-automation/types";
+ import { defineNuxtPlugin, useRouter, useRuntimeConfig } from "#app";
+ import i18n from "~/portal/i18n";
+ 
+-registerFormRenderers(foundationRenderers);
+-
+ export default defineNuxtPlugin(() => {
+   const { public: config } = useRuntimeConfig();
+ 

@@ -1,0 +1,32 @@
+# Negative control — the cart's entry stops registering foundation's controls, so its forms draw no lookup, image or filter control.
+#
+# Intended RED:
+#   apps/cart/tests/form-controls.test.ts
+#     "holds each of foundation's controls once, registered by the app itself"
+# Intended GREEN:
+#     "holds no form control that none of its packages registered"
+
+diff --git a/apps/cart/src/main.ts b/apps/cart/src/main.ts
+index d5c74bd..ec66083 100644
+--- a/apps/cart/src/main.ts
++++ b/apps/cart/src/main.ts
+@@ -3,10 +3,6 @@ import * as Sentry from "@sentry/vue";
+ import { createApp } from "vue";
+ import "@upmind-automation/client";
+ import "@upmind-automation/domain";
+-import {
+-  foundationRenderers,
+-  registerFormRenderers
+-} from "@upmind-automation/foundation";
+ import "@upmind-automation/payment";
+ import "@upmind-automation/product";
+ import { AccessRoleTypes } from "@upmind-automation/types";
+@@ -18,8 +14,6 @@ import UpmindClient from "./shell/useUpmindClient";
+ import { forEach } from "lodash-es";
+ // -----------------------------------------------------------------------------
+ 
+-registerFormRenderers(foundationRenderers);
+-
+ const app = createApp(App);
+ 
+ // ---

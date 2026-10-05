@@ -135,7 +135,7 @@ export interface {Module}FormProps {
 | Types file | types.ts (always) | `types.ts` |
 | Index file | index.ts (always) | `index.ts` |
 | Export prefix | Upm{ModuleName} | `UpmBilling`, `UpmDomain` |
-| Template enum | {MODULE}_TEMPLATE | `BILLING_TEMPLATE`, `DOMAIN_TEMPLATE` |
+| Template enum | {MODULE}_TEMPLATE | `BILLING_TEMPLATE`, `ORDER_TEMPLATE` |
 
 ---
 

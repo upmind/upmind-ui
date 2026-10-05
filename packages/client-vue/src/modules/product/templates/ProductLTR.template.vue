@@ -27,13 +27,13 @@
 
 <script lang="ts" setup>
 import { onMounted } from "vue";
-import { isMobile } from "@upmind-automation/foundation";
 import { useConfig } from "@upmind-automation/headless";
 import { useHeader } from "../../../components/header/useHeader";
 import { useFooter } from "../../../components/footer/useFooter";
 import { useSection } from "@upmind-automation/foundation";
-import Layout from "../../../components/layout/Layout.vue";
-import { LAYOUT_VARIANTS } from "../../../components/layout/types";
+import { Layout } from "@upmind-automation/foundation";
+import { isMobile } from "@upmind-automation/foundation";
+import { LAYOUT_VARIANTS } from "@upmind-automation/foundation";
 import { HEADER_BACKGROUND } from "../../../components/header/types";
 import { FOOTER_BACKGROUND } from "../../../components/footer/types";
 import { FOOTER_LAYOUT } from "../../../components/footer/types";

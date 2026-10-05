@@ -1,5 +1,4 @@
 import {
-  type FunnelContext,
   useBasket,
   useBasketProductsPending,
   useBrand,
@@ -10,8 +9,6 @@ import {
   useRecommendations,
   useActiveSession,
   useBasketFields,
-  type AnyEventObject,
-  type FunnelResponse,
   useBasketProducts,
   isDomainProduct,
   useBasketBilling,
@@ -21,10 +18,8 @@ import {
   useConfig,
   ScopeActorTypes,
   UIContext,
-  FunnelActions,
-  type FunnelTarget,
-  type OverlayResponse
-} from "@upmind-automation/client-vue";
+  FunnelActions
+} from "@upmind-automation/headless";
 import {
   BrandConfigKeys,
   CheckoutFlows,
@@ -35,6 +30,13 @@ import {
 import { FUNNEL, ROUTE } from "../types";
 import guards from "./guards";
 import { filter, first, includes, reduce } from "lodash-es";
+import type {
+  FunnelContext,
+  AnyEventObject,
+  FunnelResponse,
+  FunnelTarget,
+  OverlayResponse
+} from "@upmind-automation/headless";
 import type { RouteLocationGeneric } from "vue-router";
 
 // -----------------------------------------------------------------------------

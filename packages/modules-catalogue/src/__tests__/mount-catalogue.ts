@@ -1,7 +1,7 @@
 // -----------------------------------------------------------------------------
 /**
  * @module catalogue/__tests__/mount-catalogue
- * @description Mounts the catalogue page in its short form on the recorded guest boot: `UpmCatalogue` with the template's layout, self-closing, in its default slot, under the Suspense boundary the app's route view gives a page; the layout skips an empty slot as develop's layouts do.
+ * @description Mounts the catalogue page in its short form on the recorded guest boot: `UpmCatalogue` with the page's layout, self-closing, in its default slot, under the Suspense boundary the app's route view gives a page; the layout keeps the slot's scope and skips an empty slot as develop's layouts do.
  */
 
 import { mount } from "@vue/test-utils";
@@ -14,9 +14,8 @@ import {
   useRoutingEngine,
   useSessionStore
 } from "@upmind-automation/headless";
-import { CATALOGUE_TEMPLATE, UpmCatalogue } from "../index";
+import { UpmCatalogue } from "../index";
 import { every, filter, has, isEmpty, map, reject } from "lodash-es";
-import type { CatalogueTemplates } from "../index";
 import type { RawSlots, Slots, VNode } from "vue";
 import type { LocationQueryRaw } from "vue-router";
 
@@ -41,28 +40,24 @@ function isEmptySlot(name: string, slots: Slots): boolean {
   return isEmpty(vnodes) || every(vnodes, isBlank);
 }
 
-/** One template's layout: it lists every slot it receives, and draws a frame for each one that is not empty. */
-const layoutFor = (template: CATALOGUE_TEMPLATE) =>
-  defineComponent({
-    setup(_props, { slots }) {
-      return () => {
-        const handed = filter(LAYOUT_SLOTS, name => has(slots, name));
-        const drawn = reject(handed, name => isEmptySlot(name, slots));
+/** The page's layout: it keeps the scope the organism's default slot hands it, lists every slot it receives, and draws a frame for each one that is not empty. */
+const Layout = defineComponent({
+  props: ["scope"],
+  setup(_props, { slots }) {
+    return () => {
+      const handed = filter(LAYOUT_SLOTS, name => has(slots, name));
+      const drawn = reject(handed, name => isEmptySlot(name, slots));
 
-        return h(
-          "div",
-          { "data-layout": template, "data-slots": handed.join(" ") },
-          map(drawn, name =>
-            h("section", { "data-frame": name }, slots[name]?.())
-          )
-        );
-      };
-    }
-  });
-
-const CATALOGUE_LAYOUTS: CatalogueTemplates = {
-  [CATALOGUE_TEMPLATE.FULL]: layoutFor(CATALOGUE_TEMPLATE.FULL)
-};
+      return h(
+        "div",
+        { "data-layout": "", "data-slots": handed.join(" ") },
+        map(drawn, name =>
+          h("section", { "data-frame": name }, slots[name]?.())
+        )
+      );
+    };
+  }
+});
 
 const blank = { setup: () => () => h("div") };
 
@@ -135,8 +130,8 @@ export async function mountCatalogue(
                 configureRoute: { name: "product" }
               },
               {
-                default: ({ template }: { template: CATALOGUE_TEMPLATE }) =>
-                  h(CATALOGUE_LAYOUTS[template], null, overrides)
+                default: (scope: Record<string, unknown>) =>
+                  h(Layout, { scope }, overrides)
               }
             ),
           fallback: () => h("div", { "data-test-key": "page-pending" })
@@ -179,6 +174,9 @@ export function framesOf(wrapper: CatalogueWrapper) {
   );
 }
 
-export function layoutOf(wrapper: CatalogueWrapper) {
-  return wrapper.find("[data-layout]").attributes("data-layout");
+/** The scope the organism's default slot handed the page, as it was handed. */
+export function slotScopeOf(
+  wrapper: CatalogueWrapper
+): Record<string, unknown> {
+  return wrapper.findComponent(Layout).props("scope");
 }

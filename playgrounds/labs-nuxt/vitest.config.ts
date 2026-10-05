@@ -62,26 +62,54 @@ const alias: Alias[] = [
     replacement: resolve(root, "../../design-system/packages/ui/src/index.ts")
   },
   {
-    find: "@upmind-automation/client-vue/styles",
+    find: "@upmind-automation/foundation/styles",
     replacement: resolve(
       root,
-      "../../packages/client-vue/src/assets/styles/index.css"
+      "../../packages/modules-foundation/src/assets/styles/index.css"
     )
   },
   {
-    find: "@upmind-automation/client-vue/vars",
+    find: "@upmind-automation/foundation/vars",
     replacement: resolve(
       root,
-      "../../packages/client-vue/src/assets/styles/vars.css"
+      "../../packages/modules-foundation/src/assets/styles/vars.css"
     )
   },
   // Every lane takes the real package from `src` (`nuxt.config.ts:149-152`);
-  // without this key they resolve through the package's `exports` map to a
+  // without these keys they resolve through the package's `exports` map to a
   // `dist` build older than `src`, the same src/dist split
   // `nuxt.config.ts:199-202` closes for types.
   {
-    find: "@upmind-automation/client-vue",
-    replacement: resolve(root, "../../packages/client-vue/src/index.ts")
+    find: "@upmind-automation/foundation",
+    replacement: resolve(root, "../../packages/modules-foundation/src/index.ts")
+  },
+  {
+    find: "@upmind-automation/auth",
+    replacement: resolve(root, "../../packages/modules-auth/src/index.ts")
+  },
+  {
+    find: "@upmind-automation/basket",
+    replacement: resolve(root, "../../packages/modules-basket/src/index.ts")
+  },
+  {
+    find: "@upmind-automation/client",
+    replacement: resolve(root, "../../packages/modules-client/src/index.ts")
+  },
+  {
+    find: "@upmind-automation/domain",
+    replacement: resolve(root, "../../packages/modules-domain/src/index.ts")
+  },
+  {
+    find: "@upmind-automation/invoice",
+    replacement: resolve(root, "../../packages/modules-invoice/src/index.ts")
+  },
+  {
+    find: "@upmind-automation/payment",
+    replacement: resolve(root, "../../packages/modules-payment/src/index.ts")
+  },
+  {
+    find: "@upmind-automation/product",
+    replacement: resolve(root, "../../packages/modules-product/src/index.ts")
   }
 ];
 

@@ -1,9 +1,9 @@
 import { createRouter, createWebHistory } from "vue-router";
 import {
   registerOverlayRoutes,
-  useAssetRecovery,
   useRoutingEngine
-} from "@upmind-automation/client-vue";
+} from "@upmind-automation/headless";
+import { useAssetRecovery } from "../shell/modules/system/useAssetRecovery";
 import routes, { CART_OVERLAYS } from "./routes";
 
 // ---types

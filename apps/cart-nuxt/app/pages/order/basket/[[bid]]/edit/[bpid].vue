@@ -1,5 +1,5 @@
 <template>
-  <UpmTransition>
+  <Transitions>
     <UpmBasketProductEdit
       :storefront-route="storefrontRoute"
       :catalogue-route="{ name: ROUTE.CATALOGUE }"
@@ -8,20 +8,18 @@
     >
       <component :is="BASKET_PRODUCT_TEMPLATES[template]" />
     </UpmBasketProductEdit>
-  </UpmTransition>
+  </Transitions>
 </template>
 
 <script lang="ts" setup>
 import { useI18n } from "vue-i18n";
 import { UpmBasketProductEdit } from "@upmind-automation/basket";
-import {
-  BASKET_PRODUCT_TEMPLATES,
-  UpmTransition,
-  useBrand
-} from "@upmind-automation/client-vue";
-import type { ProductDetails } from "@upmind-automation/client-vue";
-import { useStorefrontRoute } from "~/composables/useStorefrontRoute";
-import { ROUTE } from "~/funnels/types";
+import { useBrand } from "@upmind-automation/headless";
+import { useStorefrontRoute } from "../../../../../composables/useStorefrontRoute";
+import { ROUTE } from "../../../../../funnels/types";
+import Transitions from "../../../../../shell/components/transition/Transition.vue";
+import { BASKET_PRODUCT_TEMPLATES } from "../../../../../shell/modules/basket-product/shell";
+import type { ProductDetails } from "@upmind-automation/headless";
 
 const { t } = useI18n();
 const { name: brandName, currency } = useBrand();

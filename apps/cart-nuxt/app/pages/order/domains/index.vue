@@ -1,20 +1,17 @@
 <template>
   <UpmDac :tlds="tlds" v-slot="{ template }" @resolve="doResolve">
-    <component :is="DOMAIN_TEMPLATES[template]" />
+    <component :is="domainTemplate(template)" />
   </UpmDac>
 </template>
 
 <script lang="ts" setup>
 import { useI18n } from "vue-i18n";
 import { useRoute } from "vue-router";
-import {
-  DOMAIN_TEMPLATES,
-  useQueryParams,
-  useRoutingEngine
-} from "@upmind-automation/client-vue";
 import { UpmDac } from "@upmind-automation/domain";
+import { useQueryParams, useRoutingEngine } from "@upmind-automation/headless";
+import { ROUTE } from "../../../funnels/types";
+import { domainTemplate } from "../../../shell/modules/domain/shell";
 import { first } from "lodash-es";
-import { ROUTE } from "~/funnels/types";
 
 const { t } = useI18n();
 const route = useRoute();

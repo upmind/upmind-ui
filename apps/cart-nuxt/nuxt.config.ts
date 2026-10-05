@@ -104,6 +104,10 @@ export default defineNuxtConfig({
    */
 
   alias: {
+    "#basket-segment": resolve(__dirname, "./app/funnels/segment.ts"),
+
+    "#locale-overrides": resolve(__dirname, "./app/assets/locale-overrides.ts"),
+
     // App directories
     "@": resolve(__dirname, "./app"),
     "@icons": resolve(__dirname, "../../packages/icons/assets"),
@@ -127,15 +131,6 @@ export default defineNuxtConfig({
       __dirname,
       "../../design-system/packages/ui/src/index.ts"
     ),
-    "@upmind-automation/client-vue/styles": resolve(
-      __dirname,
-      "../../packages/client-vue/src/assets/styles/index.css"
-    ),
-    "@upmind-automation/client-vue": resolve(
-      __dirname,
-      "../../packages/client-vue/src/index.ts"
-    ),
-
     "@upmind-automation/foundation/styles": resolve(
       __dirname,
       "../../packages/modules-foundation/src/styles.css"
@@ -273,5 +268,6 @@ export default defineNuxtConfig({
     }
   },
 
-  css: ["~//main.css"]
+  // Absolute, not `~/`: an extending layer resolves `~` to its own srcDir.
+  css: [resolve(__dirname, "./app/main.css")]
 });

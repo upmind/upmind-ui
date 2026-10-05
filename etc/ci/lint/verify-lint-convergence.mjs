@@ -18,7 +18,7 @@
  *      must be identical. This catches a broken wrapper even if the script string
  *      still looks right.
  *
- * Git-submodule packages (packages/ui, packages/types, apps/hosting, apps/velia)
+ * Git-submodule packages (packages/ui, packages/types)
  * are reported as a KNOWN BOUNDARY, not a failure: the parent repo cannot edit
  * their package.json without submodule churn, so the same one-line change must
  * land in each submodule's own repo. The guard flags any that still use the

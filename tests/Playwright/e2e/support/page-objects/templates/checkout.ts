@@ -364,6 +364,36 @@ export class Checkout {
   }
 
   /**
+   * Opens the business tab and saves a new company with a manually entered
+   * address.
+   * @param name - company name
+   * @param regNumber - registration number, also used as the tax number
+   * @param address - manually entered company address
+   */
+  async saveNewCompany(
+    name: string,
+    regNumber: string,
+    address: { line1: string; city: string; postcode: string }
+  ) {
+    await this.page.getByTestId("tab-business-details").click();
+    const companyName = this.page.getByTestId("input-properties-name");
+    await expect(companyName.or(this.addNewCompany).first()).toBeVisible();
+    if (!(await companyName.isVisible())) await this.addNewCompany.click();
+    await companyName.fill(name);
+    await this.page.getByTestId("input-properties-reg-number").fill(regNumber);
+    await this.page
+      .getByTestId("input-properties-tax-properties-number")
+      .fill(regNumber);
+    await this.manuallyInputAddress(
+      address.line1,
+      address.city,
+      address.postcode,
+      null
+    );
+    await this.clickSaveDetails("companies");
+  }
+
+  /**
    * Returns the gateway radio for a provider code in a LOCALE-SAFE way. Each
    * gateway radio is tagged `data-test-key="gateway-{provider}"` by
    * `GatewaysRenderer.vue` (provider code from the headless gateway schema), so

@@ -1,4 +1,4 @@
-import { useActiveSession } from "@upmind-automation/client-vue";
+import { useActiveSession } from "@upmind-automation/headless";
 // -----------------------------------------------------------------------------
 /**
  * Actions to perform specific tasks during state transitions.

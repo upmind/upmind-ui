@@ -1,6 +1,6 @@
 {
   "name": "@upmind-automation/client-vue",
-  "version": "0.20.18",
+  "version": "0.20.19",
   "description": "",
   "type": "module",
   "sideEffects": [
@@ -63,14 +63,10 @@
     "@vueuse/core": "^13.6.0",
     "@vueuse/router": "^13.6.0",
     "class-variance-authority": "^0.7.1",
-    "filepond": "^4.32.8",
-    "filepond-plugin-file-validate-type": "^1.2.9",
-    "filepond-plugin-image-preview": "^4.6.12",
     "lodash-es": "^4.17.21",
     "lucide-vue-next": "catalog:",
     "randexp": "^0.5.3",
     "tailwind-merge": "^3.3.1",
-    "vue-filepond": "^7.0.4",
     "webfontloader": "^1.6.28",
     "xstate": "^4.38.3"
   },

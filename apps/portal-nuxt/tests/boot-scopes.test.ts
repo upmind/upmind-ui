@@ -13,7 +13,7 @@
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { AccessRoleTypes } from "@upmind-automation/types";
-import { get, last } from "lodash-es";
+import { assign, get, last } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 
@@ -25,7 +25,13 @@ vi.mock("#app", () => ({
   useRuntimeConfig: () => ({ public: {} })
 }));
 
-vi.mock("@upmind-automation/headless", () => ({ default: { init } }));
+vi.mock("@upmind-automation/headless", async importOriginal =>
+  assign(
+    {},
+    await importOriginal<typeof import("@upmind-automation/headless")>(),
+    { default: { init } }
+  )
+);
 
 vi.mock("~/portal/i18n", () => ({ default: {} }));
 

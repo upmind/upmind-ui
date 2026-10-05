@@ -1,0 +1,18 @@
+# Negative control — cart-nuxt's basket record draws the full page for the inset
+# arrangement, so a brand that picks inset gets the full page.
+#
+# Intended RED:
+#   packages/modules-foundation/src/shell/__tests__/app-shell-fill.test.ts
+#     "cart-nuxt's basket draws each of its templates once"
+#     "cart-nuxt's basket leaves no template no entry draws"
+
+diff --git a/apps/cart-nuxt/app/shell/modules/basket/shell.ts b/apps/cart-nuxt/app/shell/modules/basket/shell.ts
+--- a/apps/cart-nuxt/app/shell/modules/basket/shell.ts
++++ b/apps/cart-nuxt/app/shell/modules/basket/shell.ts
+@@ -17,5 +17,5 @@
+   [BASKET_TEMPLATE.TWO_COLUMN_LTR]: BasketLTRTemplate,
+   [BASKET_TEMPLATE.TWO_COLUMN_RTL]: BasketRTLTemplate,
+   [BASKET_TEMPLATE.ENCLOSED]: BasketEnclosedTemplate,
+-  [BASKET_TEMPLATE.INSET]: BasketInsetTemplate
++  [BASKET_TEMPLATE.INSET]: BasketFullTemplate
+ };

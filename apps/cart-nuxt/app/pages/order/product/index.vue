@@ -7,7 +7,7 @@
  * Product Layout
  * Parent route for all product-related pages.
  */
-import { ROUTE } from "~/funnels/types";
+import { ROUTE } from "../../../funnels/types";
 
 definePageMeta({
   name: ROUTE.PRODUCT

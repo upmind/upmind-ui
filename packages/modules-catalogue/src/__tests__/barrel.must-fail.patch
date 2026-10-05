@@ -1,0 +1,29 @@
+# Negative control — the catalogue publishes its page's template names again,
+# so a page switches on the package's names and the package picks a page
+# layout.
+#
+# Intended RED:
+#   packages/modules-catalogue/src/__tests__/barrel.test.ts
+#     "the template names the page owns > publishes no template name"
+
+diff --git a/packages/modules-catalogue/src/index.ts b/packages/modules-catalogue/src/index.ts
+--- a/packages/modules-catalogue/src/index.ts
++++ b/packages/modules-catalogue/src/index.ts
+@@ -9,6 +9,9 @@
+ export { default as UpmCategories } from "./categories/Categories.vue";
+ export { default as UpmProducts } from "./products/WidgetGrid.vue";
+ 
++// --- Export Templates
++export { CATALOGUE_TEMPLATE } from "./types";
++
+ // --- Export the types the module published
+ export type {
+   CategoriesFacetProps,
+diff --git a/packages/modules-catalogue/src/types.ts b/packages/modules-catalogue/src/types.ts
+new file mode 100644
+--- /dev/null
++++ b/packages/modules-catalogue/src/types.ts
+@@ -0,0 +1,3 @@
++export enum CATALOGUE_TEMPLATE {
++  FULL = "full"
++}

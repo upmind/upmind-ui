@@ -56,7 +56,6 @@
         :schema="contextForm.schema"
         :uischema="contextForm.uischema"
         :model-value="contextModel"
-        :additional-renderers="formRenderers"
         no-actions
         size="sm"
         @update:model-value="onContextPick"
@@ -204,7 +203,6 @@ import {
 } from "@upmind/ui";
 import { computed, reactive, ref } from "vue";
 import { useI18n } from "vue-i18n";
-import { formRenderers } from "@upmind-automation/client-vue";
 import { Form, Icon } from "@upmind-automation/foundation";
 import {
   ScopeActorTypes,

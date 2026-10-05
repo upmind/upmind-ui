@@ -135,17 +135,73 @@ export default defineNuxtConfig({
       __dirname,
       "../../design-system/packages/ui/src/index.ts"
     ),
-    "@upmind-automation/client-vue/styles": resolve(
+    "@upmind-automation/foundation/styles": resolve(
       __dirname,
-      "../../packages/client-vue/src/assets/styles/index.css"
+      "../../packages/modules-foundation/src/styles.css"
     ),
-    "@upmind-automation/client-vue/vars": resolve(
+    "@upmind-automation/foundation/vars": resolve(
       __dirname,
-      "../../packages/client-vue/src/assets/styles/vars.css"
+      "../../packages/modules-foundation/src/assets/styles/vars.css"
     ),
-    "@upmind-automation/client-vue": resolve(
+    "@upmind-automation/foundation": resolve(
       __dirname,
-      "../../packages/client-vue/src/index.ts"
+      "../../packages/modules-foundation/src/index.ts"
+    ),
+    "@upmind-automation/auth/styles": resolve(
+      __dirname,
+      "../../packages/modules-auth/src/styles.css"
+    ),
+    "@upmind-automation/auth": resolve(
+      __dirname,
+      "../../packages/modules-auth/src/index.ts"
+    ),
+    "@upmind-automation/basket/styles": resolve(
+      __dirname,
+      "../../packages/modules-basket/src/styles.css"
+    ),
+    "@upmind-automation/basket": resolve(
+      __dirname,
+      "../../packages/modules-basket/src/index.ts"
+    ),
+    "@upmind-automation/client/styles": resolve(
+      __dirname,
+      "../../packages/modules-client/src/styles.css"
+    ),
+    "@upmind-automation/client": resolve(
+      __dirname,
+      "../../packages/modules-client/src/index.ts"
+    ),
+    "@upmind-automation/domain/styles": resolve(
+      __dirname,
+      "../../packages/modules-domain/src/styles.css"
+    ),
+    "@upmind-automation/domain": resolve(
+      __dirname,
+      "../../packages/modules-domain/src/index.ts"
+    ),
+    "@upmind-automation/invoice/styles": resolve(
+      __dirname,
+      "../../packages/modules-invoice/src/styles.css"
+    ),
+    "@upmind-automation/invoice": resolve(
+      __dirname,
+      "../../packages/modules-invoice/src/index.ts"
+    ),
+    "@upmind-automation/payment/styles": resolve(
+      __dirname,
+      "../../packages/modules-payment/src/styles.css"
+    ),
+    "@upmind-automation/payment": resolve(
+      __dirname,
+      "../../packages/modules-payment/src/index.ts"
+    ),
+    "@upmind-automation/product/styles": resolve(
+      __dirname,
+      "../../packages/modules-product/src/styles.css"
+    ),
+    "@upmind-automation/product": resolve(
+      __dirname,
+      "../../packages/modules-product/src/index.ts"
     )
   },
 

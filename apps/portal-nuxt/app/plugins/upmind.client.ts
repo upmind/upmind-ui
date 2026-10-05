@@ -4,12 +4,18 @@
  * @description Boots the headless runtime the `@upmind-automation/auth` organisms need.
  */
 import "@upmind-automation/client";
+import {
+  foundationRenderers,
+  registerFormRenderers
+} from "@upmind-automation/foundation";
 import useUpmind from "@upmind-automation/headless";
 import "@upmind-automation/payment";
 import "@upmind-automation/product";
 import { AccessRoleTypes } from "@upmind-automation/types";
 import { defineNuxtPlugin, useRouter, useRuntimeConfig } from "#app";
 import i18n from "~/portal/i18n";
+
+registerFormRenderers(foundationRenderers);
 
 export default defineNuxtPlugin(() => {
   const { public: config } = useRuntimeConfig();

@@ -9,9 +9,9 @@
 
 <script lang="ts" setup>
 import { useI18n } from "vue-i18n";
-import { recommendationsTemplate } from "@upmind-automation/client-vue";
 import { UpmProductRecommendations } from "@upmind-automation/recommendations";
-import { ROUTE } from "~/funnels/types";
+import { ROUTE } from "../../../funnels/types";
+import { recommendationsTemplate } from "../../../shell/modules/recommendations/shell";
 
 const { t } = useI18n();
 

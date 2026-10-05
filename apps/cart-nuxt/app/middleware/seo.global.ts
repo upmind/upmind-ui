@@ -1,4 +1,4 @@
-import { useBrand } from "@upmind-automation/client-vue";
+import { useBrand } from "@upmind-automation/headless";
 
 /**
  * Global SEO Middleware

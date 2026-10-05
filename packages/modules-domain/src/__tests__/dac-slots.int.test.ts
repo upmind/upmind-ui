@@ -5,10 +5,11 @@
  * @fileoverview The domain search page's layout gets the organism's develop blocks
  *
  * ## Job To Be Done
- * On the domain search route, the page's self-closing layout for the template
- * it is handed gets `UpmDac`'s own content in every slot develop fills before a
- * search: the hero, the search, the tabs, the results, the hint and the way on.
- * A slot the page writes on its layout replaces only that slot's content.
+ * On the domain search route, `UpmDac`'s default slot hands the page the full
+ * template, and the page's self-closing layout gets `UpmDac`'s own content in
+ * every slot develop fills before a search: the hero, the search, the tabs, the
+ * results, the hint and the way on. A slot the page writes on its layout
+ * replaces only that slot's content.
  *
  * ## What Breaks If These Fail
  * A guest looking for a domain gets no search box or no way on without one, or
@@ -21,14 +22,13 @@ import { DOMAIN_TEMPLATE } from "../index";
 import {
   BOOT_BUDGET,
   framesOf,
-  layoutOf,
   mountDac,
   seedBasket,
   seedGuestSession,
+  slotScopeOf,
   slotsOf
 } from "./mount-dac";
 import { installBootRoutes } from "./recorded-pool";
-import { values } from "lodash-es";
 import type { DacWrapper } from "./mount-dac";
 
 // -----------------------------------------------------------------------------
@@ -60,7 +60,7 @@ describe("the domain search page's layout, for the recorded guest with no basket
     async () => {
       const wrapper = await mountDac(showsContinue);
 
-      expect(values(DOMAIN_TEMPLATE)).toContain(layoutOf(wrapper));
+      expect(slotScopeOf(wrapper)).toEqual({ template: DOMAIN_TEMPLATE.FULL });
       expect(slotsOf(wrapper)).toEqual(expect.arrayContaining(DEVELOP_BLOCKS));
     },
     BOOT_BUDGET

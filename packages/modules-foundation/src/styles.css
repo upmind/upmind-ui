@@ -1,1 +1,3 @@
+@import "./assets/styles/index.css";
+
 @source "./**/*.{html,vue,js,tsx,ts}";

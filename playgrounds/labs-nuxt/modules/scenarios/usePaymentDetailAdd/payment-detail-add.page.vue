@@ -94,17 +94,17 @@ import {
 } from "@upmind/ui";
 import { computed, provide, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
+import { Icon, Section } from "@upmind-automation/foundation";
 import {
   useActiveSession,
   useBasketCurrency,
   usePaymentDetailAdd,
   usePaymentDetails
-} from "@upmind-automation/client-vue";
-import { Icon, Section } from "@upmind-automation/foundation";
+} from "@upmind-automation/headless";
 import { UpmPaymentDetails } from "@upmind-automation/payment";
 import { compact, join, map } from "lodash-es";
 import type { ListRow } from "@upmind/ui";
-import type { UsePaymentDetailAdd } from "@upmind-automation/client-vue";
+import type { UsePaymentDetailAdd } from "@upmind-automation/headless";
 import type { ICurrency } from "@upmind-automation/types";
 
 /** A stored method as the roster draws it — a List row plus the two chips. */

@@ -15,7 +15,6 @@
           :schema="pickerForm.schema"
           :uischema="pickerForm.uischema"
           :model-value="pickerModel"
-          :additional-renderers="formRenderers"
           no-actions
           size="sm"
           @update:model-value="onPick"
@@ -65,13 +64,12 @@
 import { Alert, Button, Card, EmptyState, Input } from "@upmind/ui";
 import { onUnmounted, ref, unref, watch } from "vue";
 import { useI18n } from "vue-i18n";
-import { formRenderers } from "@upmind-automation/client-vue";
 import { Form, Icon } from "@upmind-automation/foundation";
 import { recordLookup } from "../RecordSurface.styles";
 import { recordPath } from "./record.utils";
 import { get, head, isFunction } from "lodash-es";
 import type { RecordLookupProps } from "../RecordSurface.types";
-import type { FormProps } from "@upmind-automation/client-vue";
+import type { FormProps } from "@upmind/ui";
 // -----------------------------------------------------------------------------
 
 // Loose hex, not RFC-4122: real ids carry non-standard version/variant nibbles.

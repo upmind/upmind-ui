@@ -6,20 +6,22 @@
  * versions via the `routes()` hook.
  *
  * Nuxt's file-system routing generates routes without the optional
- * `:segment(basket)?/:bid(UUID)?` segments, so we filter the scanned routes we
+ * `:segment(…)?/:bid(UUID)?` segments, so we filter the scanned routes we
  * own and push BID-aware replacements (same names so `router.resolve` works).
  *
  * @see apps/cart/src/router/routes.ts — the legacy SPA route table this mirrors.
  */
 import { AUTH_FORMS } from "@upmind-automation/auth";
-import { OverlayType, useAssetRecovery } from "@upmind-automation/client-vue";
+import { OverlayType } from "@upmind-automation/headless";
 import { BID_PREFIX, RegexMatch, ROUTE } from "./funnels/types";
+import { useAssetRecovery } from "./shell/modules/system/useAssetRecovery";
 import { filter, flatMap, map, reduce } from "lodash-es";
 import type {
   RouteLocationNormalized,
   RouteRecordRaw,
   RouterScrollBehavior
 } from "vue-router";
+import { BASKET_SEGMENT } from "#basket-segment";
 
 // -----------------------------------------------------------------------------
 
@@ -35,6 +37,8 @@ if (import.meta.client) {
 
 const UUID = RegexMatch.UUID;
 
+const SCANNED_BASKET_PREFIX = "/order/basket";
+
 /**
  * Overlay route definitions — components rendered inside OverlayController.
  */
@@ -42,13 +46,13 @@ const OVERLAY_ROUTES: RouteRecordRaw[] = [
   {
     path: "/auth/",
     name: ROUTE.OVERLAY_AUTH,
-    component: () => import("~/pages/overlays/AuthOverlay.vue"),
+    component: () => import("./pages/overlays/AuthOverlay.vue"),
     meta: { overlay: OverlayType.MODAL }
   },
   {
     path: "/verify-email/",
     name: ROUTE.OVERLAY_VERIFY_EMAIL,
-    component: () => import("~/pages/overlays/AccountOverlay.vue"),
+    component: () => import("./pages/overlays/AccountOverlay.vue"),
     meta: {
       overlay: OverlayType.CUSTOM,
       dismissable: false,
@@ -78,68 +82,70 @@ const BID_ROUTES: RouteRecordRaw[] = [
   {
     name: ROUTE.CATALOGUE,
     path: `/order/${BID_PREFIX}/shop/`,
-    component: () => import("~/pages/order/shop.vue")
+    component: () => import("./pages/order/shop.vue")
   },
   {
     name: ROUTE.CHECKOUT,
     path: `/order/${BID_PREFIX}/checkout/`,
-    component: () => import("~/pages/order/checkout.vue")
+    component: () => import("./pages/order/checkout.vue")
   },
   {
     name: ROUTE.RECOMMENDATIONS,
     path: `/order/${BID_PREFIX}/recommendations/`,
-    component: () => import("~/pages/order/recommendations.vue")
+    component: () => import("./pages/order/recommendations.vue")
   },
 
   // --- domains
   {
     name: ROUTE.DOMAINS,
     path: `/order/${BID_PREFIX}/domains/`,
-    component: () => import("~/pages/order/domains/index.vue")
+    component: () => import("./pages/order/domains/index.vue")
   },
   {
     name: ROUTE.DOMAINS_WITH_PRODUCT,
     path: `/order/${BID_PREFIX}/domains/:pid(${UUID})/`,
-    component: () => import("~/pages/order/domains/[pid]/index.vue")
+    component: () => import("./pages/order/domains/[pid]/index.vue")
   },
   {
     name: ROUTE.DOMAINS_WITH_PRODUCT_PROCESSING,
     path: `/order/${BID_PREFIX}/domains/:pid(${UUID})/processing/`,
-    component: () => import("~/pages/order/domains/[pid]/processing.vue")
+    component: () => import("./pages/order/domains/[pid]/processing.vue")
   },
 
   // --- auth (parent + children, mirrors cart's nested structure)
   {
     name: ROUTE.SESSION,
     path: `/order/${BID_PREFIX}/auth/`,
-    component: () => import("~/pages/order/auth/index.vue"),
+    component: () => import("./pages/order/auth/index.vue"),
     children: [
       {
         name: ROUTE.SESSION_LOGIN,
         path: "login/",
-        component: () => import("~/pages/order/auth/login.vue")
+        component: () => import("./pages/order/auth/login.vue")
       },
       {
         name: ROUTE.SESSION_REGISTER,
         path: "register/",
         alias: ["signup/"],
-        component: () => import("~/pages/order/auth/register.vue")
+        component: () => import("./pages/order/auth/register.vue")
       },
       {
         name: ROUTE.SESSION_END,
         path: "logout/",
         alias: ["signout/"],
-        component: () => import("~/pages/order/auth/end.vue")
+        component: () => import("./pages/order/auth/end.vue")
       },
       {
         name: ROUTE.SESSION_RECOVER_PASSWORD,
         path: "recover/",
-        component: () => import("~/pages/order/auth/recover.vue")
+        component: () => import("./pages/order/auth/recover.vue")
       },
       {
         name: ROUTE.SESSION_TRANSFER,
         path: "transfer/",
-        component: () => import("~/pages/order/auth/transfer.vue")
+        // Absolute: the platform's session hand-off URL sits outside `/order`.
+        alias: ["/auth/transfer/"],
+        component: () => import("./pages/order/auth/transfer.vue")
       }
     ]
   },
@@ -148,22 +154,22 @@ const BID_ROUTES: RouteRecordRaw[] = [
   {
     name: ROUTE.PRODUCT,
     path: `/order/${BID_PREFIX}/product/`,
-    component: () => import("~/pages/order/product/index.vue"),
+    component: () => import("./pages/order/product/index.vue"),
     children: [
       {
         name: ROUTE.PRODUCT_CONFIGURE,
         path: `:pid(${UUID})/`,
-        component: () => import("~/pages/order/product/[pid].vue")
+        component: () => import("./pages/order/product/[pid].vue")
       },
       {
         name: ROUTE.PRODUCT_NOT_FOUND,
         path: `:pid(${UUID})/not-found/`,
-        component: () => import("~/pages/order/product/not-found.vue")
+        component: () => import("./pages/order/product/not-found.vue")
       },
       {
         name: ROUTE.PRODUCT_RECOMMENDATIONS,
         path: `:pid(${UUID})/recommendations/`,
-        component: () => import("~/pages/order/product/recommendations.vue")
+        component: () => import("./pages/order/product/recommendations.vue")
       }
     ]
   }
@@ -218,6 +224,12 @@ export default {
       }
       return true;
     });
+
+    for (const route of filtered) {
+      if (!route.path.startsWith(SCANNED_BASKET_PREFIX)) continue;
+      const tail = route.path.slice(SCANNED_BASKET_PREFIX.length);
+      route.path = `/order/${BASKET_SEGMENT}${tail}`;
+    }
 
     // Push BID-aware routes (same names so router.resolve works) + overlays
     filtered.push(...BID_ROUTES, ...OVERLAY_ROUTES);

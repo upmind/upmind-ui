@@ -18,6 +18,7 @@ export class Registration {
   readonly passwordStrengthBars: Locator;
   readonly passwordGenerator: Locator;
   readonly passwordToggle: Locator;
+  readonly phone: Locator;
 
   constructor(page: Page, context?: BrowserContext) {
     this.page = page;
@@ -47,6 +48,7 @@ export class Registration {
       .locator("> div");
     this.passwordGenerator = this.passwordItem.getByTestId("password-generate");
     this.passwordToggle = this.passwordItem.getByTestId("password-toggle");
+    this.phone = page.getByTestId("form-item-phone").getByTestId("input-tel");
   }
 
   /**
@@ -69,6 +71,18 @@ export class Registration {
    * wire (the register POST payload), not just that a session cookie appeared.
    */
   async inputRegistration() {
+    const credentials = await this.submitRegistration();
+    await this.page.waitForLoadState("networkidle");
+    return credentials;
+  }
+
+  /**
+   * Fills and submits the register form without waiting for the next page.
+   * Returns the generated credentials, as `inputRegistration` does.
+   * @param phone - national number for the phone field; pass it only when
+   * the brand requires a phone on registration.
+   */
+  async submitRegistration(phone?: string) {
     const firstName = `${faker.person.firstName()}`;
     const lastName = `${faker.person.lastName()}`;
     const email = `nathan.robinson+${faker.string.alpha({ length: 10 })}@upmind.com`;
@@ -76,8 +90,8 @@ export class Registration {
     await this.lastName.fill(lastName);
     await this.email.fill(email);
     await this.password.fill(STRONG_PASSWORD);
+    if (phone !== undefined) await this.phone.fill(phone);
     await this.page.getByTestId("button-continue").click();
-    await this.page.waitForLoadState("networkidle");
     return { firstName, lastName, email };
   }
 

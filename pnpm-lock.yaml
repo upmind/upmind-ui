@@ -477,15 +477,15 @@ importers:
       '@upmind-automation/client':
         specifier: workspace:*
         version: link:../../packages/modules-client
-      '@upmind-automation/client-vue':
-        specifier: workspace:*
-        version: link:../../packages/client-vue
       '@upmind-automation/domain':
         specifier: workspace:*
         version: link:../../packages/modules-domain
       '@upmind-automation/foundation':
         specifier: workspace:*
         version: link:../../packages/modules-foundation
+      '@upmind-automation/headless':
+        specifier: workspace:*
+        version: link:../../packages/headless
       '@upmind-automation/i18n':
         specifier: workspace:*
         version: link:../../packages/i18n
@@ -646,6 +646,9 @@ importers:
       '@formkit/auto-animate':
         specifier: ^0.8.2
         version: 0.8.4
+      '@jsonforms/core':
+        specifier: ^3.6.0
+        version: 3.7.0
       '@nuxtjs/seo':
         specifier: ^3.3.0
         version: 3.3.0(@unhead/vue@2.1.2(vue@3.5.39(typescript@5.9.3)))(db0@0.3.4(@electric-sql/pglite@0.3.14))(ioredis@5.9.0(supports-color@10.2.2))(magicast@0.5.1)(rollup@4.53.5)(supports-color@10.2.2)(unhead@2.1.2)(unstorage@1.17.3(db0@0.3.4(@electric-sql/pglite@0.3.14))(ioredis@5.9.0(supports-color@10.2.2)))(vite@7.3.0(@types/node@22.19.3)(jiti@2.7.0)(lightningcss@1.32.0)(sass@1.97.0)(terser@5.44.1)(yaml@2.9.0))(vue@3.5.39(typescript@5.9.3))(zod@3.25.76)
@@ -676,15 +679,15 @@ importers:
       '@upmind-automation/client':
         specifier: workspace:*
         version: link:../../packages/modules-client
-      '@upmind-automation/client-vue':
-        specifier: workspace:*
-        version: link:../../packages/client-vue
       '@upmind-automation/domain':
         specifier: workspace:*
         version: link:../../packages/modules-domain
       '@upmind-automation/foundation':
         specifier: workspace:*
         version: link:../../packages/modules-foundation
+      '@upmind-automation/headless':
+        specifier: workspace:*
+        version: link:../../packages/headless
       '@upmind-automation/i18n':
         specifier: workspace:*
         version: link:../../packages/i18n
@@ -776,166 +779,6 @@ importers:
       '@types/mercadopago-sdk-js':
         specifier: ^2.0.17
         version: 2.0.17
-      '@types/node':
-        specifier: ^22.17.1
-        version: 22.19.3
-      '@types/webfontloader':
-        specifier: ^1.6.38
-        version: 1.6.38
-      '@typescript-eslint/eslint-plugin':
-        specifier: ^8.39.1
-        version: 8.50.0(@typescript-eslint/parser@8.50.0(eslint@9.39.2(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(typescript@5.9.3))(eslint@9.39.2(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(typescript@5.9.3)
-      '@vitejs/plugin-vue':
-        specifier: ^6.0.1
-        version: 6.0.7(vite@7.3.0(@types/node@22.19.3)(jiti@2.7.0)(lightningcss@1.32.0)(sass@1.97.0)(terser@5.44.1)(yaml@2.9.0))(vue@3.5.39(typescript@5.9.3))
-      '@vitest/coverage-istanbul':
-        specifier: ^3.2.4
-        version: 3.2.4(supports-color@10.2.2)(vitest@3.2.4)
-      '@vitest/eslint-plugin':
-        specifier: ^1.3.4
-        version: 1.5.2(eslint@9.39.2(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(typescript@5.9.3)(vitest@3.2.4)
-      '@vue/eslint-config-prettier':
-        specifier: ^10.2.0
-        version: 10.2.0(eslint@9.39.2(jiti@2.7.0)(supports-color@10.2.2))(prettier@3.7.4)
-      '@vue/eslint-config-typescript':
-        specifier: ^14.6.0
-        version: 14.6.0(eslint-plugin-vue@10.4.0(@typescript-eslint/parser@8.50.0(eslint@9.39.2(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(typescript@5.9.3))(eslint@9.39.2(jiti@2.7.0)(supports-color@10.2.2))(vue-eslint-parser@10.2.0(eslint@9.39.2(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)))(eslint@9.39.2(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(typescript@5.9.3)
-      '@vue/test-utils':
-        specifier: ^2.4.6
-        version: 2.4.11(@vue/compiler-dom@3.5.39)(@vue/server-renderer@3.5.39(vue@3.5.39(typescript@5.9.3)))(vue@3.5.39(typescript@5.9.3))
-      '@vue/tsconfig':
-        specifier: ^0.7.0
-        version: 0.7.0(typescript@5.9.3)(vue@3.5.39(typescript@5.9.3))
-      eslint:
-        specifier: ^9.33.0
-        version: 9.39.2(jiti@2.7.0)(supports-color@10.2.2)
-      eslint-plugin-playwright:
-        specifier: ^2.2.2
-        version: 2.4.0(eslint@9.39.2(jiti@2.7.0)(supports-color@10.2.2))
-      eslint-plugin-vue:
-        specifier: ~10.4.0
-        version: 10.4.0(@typescript-eslint/parser@8.50.0(eslint@9.39.2(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(typescript@5.9.3))(eslint@9.39.2(jiti@2.7.0)(supports-color@10.2.2))(vue-eslint-parser@10.2.0(eslint@9.39.2(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2))
-      jiti:
-        specifier: ^2.5.1
-        version: 2.7.0
-      jsdom:
-        specifier: ^26.1.0
-        version: 26.1.0(supports-color@10.2.2)
-      prettier:
-        specifier: ^3.6.2
-        version: 3.7.4
-      prettier-plugin-tailwindcss:
-        specifier: ^0.6.14
-        version: 0.6.14(prettier@3.7.4)
-      sass:
-        specifier: ^1.90.0
-        version: 1.97.0
-      typescript:
-        specifier: ^5.9.2
-        version: 5.9.3
-      vite:
-        specifier: ^7.1.2
-        version: 7.3.0(@types/node@22.19.3)(jiti@2.7.0)(lightningcss@1.32.0)(sass@1.97.0)(terser@5.44.1)(yaml@2.9.0)
-      vite-plugin-dts:
-        specifier: ^4.5.4
-        version: 4.5.4(@types/node@22.19.3)(rollup@4.53.5)(supports-color@10.2.2)(typescript@5.9.3)(vite@7.3.0(@types/node@22.19.3)(jiti@2.7.0)(lightningcss@1.32.0)(sass@1.97.0)(terser@5.44.1)(yaml@2.9.0))
-      vite-plugin-vue-devtools:
-        specifier: ^8.0.0
-        version: 8.0.5(@nuxt/kit@4.2.2(magicast@0.5.1))(supports-color@10.2.2)(vite@7.3.0(@types/node@22.19.3)(jiti@2.7.0)(lightningcss@1.32.0)(sass@1.97.0)(terser@5.44.1)(yaml@2.9.0))(vue@3.5.39(typescript@5.9.3))
-      vitest:
-        specifier: ^3.2.4
-        version: 3.2.4(@types/debug@4.1.12)(@types/node@22.19.3)(happy-dom@20.10.6)(jiti@2.7.0)(jsdom@26.1.0(supports-color@10.2.2))(lightningcss@1.32.0)(msw@2.14.6(@types/node@22.19.3)(typescript@5.9.3))(sass@1.97.0)(supports-color@10.2.2)(terser@5.44.1)(yaml@2.9.0)
-      vue-tsc:
-        specifier: ^3.0.5
-        version: 3.3.5(typescript@5.9.3)
-      wrangler:
-        specifier: ^4.28.1
-        version: 4.56.0
-
-  apps/hosting:
-    dependencies:
-      '@formkit/auto-animate':
-        specifier: ^0.8.2
-        version: 0.8.4
-      '@sentry/vue':
-        specifier: ^10.4.0
-        version: 10.34.0(vue@3.5.39(typescript@5.9.3))
-      '@tailwindcss/typography':
-        specifier: ^0.5.16
-        version: 0.5.19(tailwindcss@4.3.1)
-      '@tanstack/vue-query':
-        specifier: ^5.83.1
-        version: 5.92.1(vue@3.5.39(typescript@5.9.3))
-      '@upmind-automation/client-vue':
-        specifier: workspace:*
-        version: link:../../packages/client-vue
-      '@upmind-automation/i18n':
-        specifier: workspace:*
-        version: link:../../packages/i18n
-      '@upmind-automation/types':
-        specifier: workspace:*
-        version: link:../../packages/types
-      '@upmind/tokens':
-        specifier: workspace:*
-        version: link:../../design-system/packages/tokens
-      '@upmind/ui':
-        specifier: workspace:*
-        version: link:../../design-system/packages/ui
-      '@vueuse/components':
-        specifier: ^13.6.0
-        version: 13.9.0(vue@3.5.39(typescript@5.9.3))
-      '@vueuse/core':
-        specifier: ^13.6.0
-        version: 13.9.0(vue@3.5.39(typescript@5.9.3))
-      class-variance-authority:
-        specifier: ^0.7.1
-        version: 0.7.1
-      lodash-es:
-        specifier: ^4.17.21
-        version: 4.18.1
-      tailwind-merge:
-        specifier: ^3.3.1
-        version: 3.6.0
-      tailwindcss:
-        specifier: ^4.1.11
-        version: 4.3.1
-      tailwindcss-animate:
-        specifier: ^1.0.7
-        version: 1.0.7(tailwindcss@4.3.1)
-      vue:
-        specifier: 3.5.39
-        version: 3.5.39(typescript@5.9.3)
-      vue-i18n:
-        specifier: ^11.1.11
-        version: 11.2.2(vue@3.5.39(typescript@5.9.3))
-      vue-router:
-        specifier: ^4.5.1
-        version: 4.6.4(vue@3.5.39(typescript@5.9.3))
-      webfontloader:
-        specifier: ^1.6.28
-        version: 1.6.28
-    devDependencies:
-      '@localazy/cli':
-        specifier: ^2.0.8
-        version: 2.0.8
-      '@playwright/test':
-        specifier: ^1.54.2
-        version: 1.62.1
-      '@sentry/vite-plugin':
-        specifier: ^4.1.0
-        version: 4.6.1(encoding@0.1.13)(supports-color@10.2.2)
-      '@tailwindcss/vite':
-        specifier: ^4.1.11
-        version: 4.3.1(vite@7.3.0(@types/node@22.19.3)(jiti@2.7.0)(lightningcss@1.32.0)(sass@1.97.0)(terser@5.44.1)(yaml@2.9.0))
-      '@tsconfig/node22':
-        specifier: ^22.0.2
-        version: 22.0.5
-      '@types/jsdom':
-        specifier: ^21.1.7
-        version: 21.1.7
-      '@types/lodash-es':
-        specifier: ^4.17.12
-        version: 4.17.12
       '@types/node':
         specifier: ^22.17.1
         version: 22.19.3
@@ -1227,11 +1070,20 @@ importers:
         specifier: ^3.0.5
         version: 3.3.5(typescript@5.9.3)
 
-  apps/velia:
+  apps/velia-nuxt:
     dependencies:
       '@formkit/auto-animate':
         specifier: ^0.8.2
         version: 0.8.4
+      '@nuxtjs/seo':
+        specifier: ^3.3.0
+        version: 3.3.0(@unhead/vue@2.1.2(vue@3.5.39(typescript@5.9.3)))(db0@0.3.4(@electric-sql/pglite@0.3.14))(ioredis@5.9.0(supports-color@10.2.2))(magicast@0.5.1)(rollup@4.53.5)(supports-color@10.2.2)(unhead@2.1.2)(unstorage@1.17.3(db0@0.3.4(@electric-sql/pglite@0.3.14))(ioredis@5.9.0(supports-color@10.2.2)))(vite@7.3.0(@types/node@22.19.3)(jiti@2.7.0)(lightningcss@1.32.0)(sass@1.97.0)(terser@5.44.1)(yaml@2.9.0))(vue@3.5.39(typescript@5.9.3))(zod@3.25.76)
+      '@nuxtjs/web-vitals':
+        specifier: ^0.2.7
+        version: 0.2.7(magicast@0.5.1)
+      '@sentry/nuxt':
+        specifier: ^10.34.0
+        version: 10.34.0(@opentelemetry/api@1.9.0)(@opentelemetry/context-async-hooks@2.4.0(@opentelemetry/api@1.9.0))(@opentelemetry/core@2.4.0(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@2.4.0(@opentelemetry/api@1.9.0))(@opentelemetry/semantic-conventions@1.38.0)(encoding@0.1.13)(magicast@0.5.1)(nuxt@4.2.2(@electric-sql/pglite@0.3.14)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.1)(@parcel/watcher@2.5.1)(@types/node@22.19.3)(@vue/compiler-sfc@3.5.39)(cac@6.7.14)(commander@14.0.2)(db0@0.3.4(@electric-sql/pglite@0.3.14))(encoding@0.1.13)(eslint@9.39.2(jiti@2.7.0)(supports-color@10.2.2))(ioredis@5.9.0(supports-color@10.2.2))(lightningcss@1.32.0)(magicast@0.5.1)(optionator@0.9.4)(rolldown@1.1.3)(rollup@4.53.5)(sass@1.97.0)(supports-color@10.2.2)(terser@5.44.1)(typescript@5.9.3)(vite@7.3.0(@types/node@22.19.3)(jiti@2.7.0)(lightningcss@1.32.0)(sass@1.97.0)(terser@5.44.1)(yaml@2.9.0))(vue-tsc@3.3.5(typescript@5.9.3))(yaml@2.9.0))(rollup@4.53.5)(supports-color@10.2.2)(vue@3.5.39(typescript@5.9.3))
       '@sentry/vue':
         specifier: ^10.4.0
         version: 10.34.0(vue@3.5.39(typescript@5.9.3))
@@ -1241,38 +1093,68 @@ importers:
       '@tanstack/vue-query':
         specifier: ^5.83.1
         version: 5.92.1(vue@3.5.39(typescript@5.9.3))
-      '@upmind-automation/client-vue':
+      '@upmind-automation/auth':
         specifier: workspace:*
-        version: link:../../packages/client-vue
+        version: link:../../packages/auth
+      '@upmind-automation/basket':
+        specifier: workspace:*
+        version: link:../../packages/basket
+      '@upmind-automation/catalogue':
+        specifier: workspace:*
+        version: link:../../packages/catalogue
+      '@upmind-automation/client':
+        specifier: workspace:*
+        version: link:../../packages/client
+      '@upmind-automation/domain':
+        specifier: workspace:*
+        version: link:../../packages/domain
+      '@upmind-automation/foundation':
+        specifier: workspace:*
+        version: link:../../packages/foundation
       '@upmind-automation/i18n':
         specifier: workspace:*
         version: link:../../packages/i18n
+      '@upmind-automation/invoice':
+        specifier: workspace:*
+        version: link:../../packages/invoice
+      '@upmind-automation/payment':
+        specifier: workspace:*
+        version: link:../../packages/payment
+      '@upmind-automation/product':
+        specifier: workspace:*
+        version: link:../../packages/product
+      '@upmind-automation/recommendations':
+        specifier: workspace:*
+        version: link:../../packages/recommendations
       '@upmind-automation/types':
         specifier: workspace:*
         version: link:../../packages/types
       '@upmind/tokens':
         specifier: workspace:*
         version: link:../../design-system/packages/tokens
-      '@upmind/ui':
-        specifier: workspace:*
-        version: link:../../design-system/packages/ui
       '@vueuse/components':
         specifier: ^13.6.0
         version: 13.9.0(vue@3.5.39(typescript@5.9.3))
       '@vueuse/core':
         specifier: ^13.6.0
         version: 13.9.0(vue@3.5.39(typescript@5.9.3))
+      '@vueuse/nuxt':
+        specifier: ^13.6.0
+        version: 13.9.0(magicast@0.5.1)(nuxt@4.2.2(@electric-sql/pglite@0.3.14)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.1)(@parcel/watcher@2.5.1)(@types/node@22.19.3)(@vue/compiler-sfc@3.5.39)(cac@6.7.14)(commander@14.0.2)(db0@0.3.4(@electric-sql/pglite@0.3.14))(encoding@0.1.13)(eslint@9.39.2(jiti@2.7.0)(supports-color@10.2.2))(ioredis@5.9.0(supports-color@10.2.2))(lightningcss@1.32.0)(magicast@0.5.1)(optionator@0.9.4)(rolldown@1.1.3)(rollup@4.53.5)(sass@1.97.0)(supports-color@10.2.2)(terser@5.44.1)(typescript@5.9.3)(vite@7.3.0(@types/node@22.19.3)(jiti@2.7.0)(lightningcss@1.32.0)(sass@1.97.0)(terser@5.44.1)(yaml@2.9.0))(vue-tsc@3.3.5(typescript@5.9.3))(yaml@2.9.0))(vue@3.5.39(typescript@5.9.3))
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
       lodash-es:
         specifier: ^4.17.21
         version: 4.18.1
+      nuxt:
+        specifier: ^4.2.2
+        version: 4.2.2(@electric-sql/pglite@0.3.14)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.1)(@parcel/watcher@2.5.1)(@types/node@22.19.3)(@vue/compiler-sfc@3.5.39)(cac@6.7.14)(commander@14.0.2)(db0@0.3.4(@electric-sql/pglite@0.3.14))(encoding@0.1.13)(eslint@9.39.2(jiti@2.7.0)(supports-color@10.2.2))(ioredis@5.9.0(supports-color@10.2.2))(lightningcss@1.32.0)(magicast@0.5.1)(optionator@0.9.4)(rolldown@1.1.3)(rollup@4.53.5)(sass@1.97.0)(supports-color@10.2.2)(terser@5.44.1)(typescript@5.9.3)(vite@7.3.0(@types/node@22.19.3)(jiti@2.7.0)(lightningcss@1.32.0)(sass@1.97.0)(terser@5.44.1)(yaml@2.9.0))(vue-tsc@3.3.5(typescript@5.9.3))(yaml@2.9.0)
       tailwind-merge:
         specifier: ^3.3.1
         version: 3.6.0
       tailwindcss:
-        specifier: ^4.1.11
+        specifier: ^4.3.0
         version: 4.3.1
       tailwindcss-animate:
         specifier: ^1.0.7
@@ -1293,6 +1175,9 @@ importers:
       '@localazy/cli':
         specifier: ^2.0.8
         version: 2.0.8
+      '@nuxt/eslint':
+        specifier: ^1.5.0
+        version: 1.12.1(@typescript-eslint/utils@8.50.0(eslint@9.39.2(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(typescript@5.9.3))(@vue/compiler-sfc@3.5.39)(eslint-import-resolver-node@0.3.10(supports-color@10.2.2))(eslint@9.39.2(jiti@2.7.0)(supports-color@10.2.2))(magicast@0.5.1)(supports-color@10.2.2)(typescript@5.9.3)(vite@7.3.0(@types/node@22.19.3)(jiti@2.7.0)(lightningcss@1.32.0)(sass@1.97.0)(terser@5.44.1)(yaml@2.9.0))
       '@playwright/test':
         specifier: ^1.54.2
         version: 1.62.1
@@ -1305,12 +1190,18 @@ importers:
       '@tsconfig/node22':
         specifier: ^22.0.2
         version: 22.0.5
+      '@types/google.maps':
+        specifier: ^3.58.1
+        version: 3.58.1
       '@types/jsdom':
         specifier: ^21.1.7
         version: 21.1.7
       '@types/lodash-es':
         specifier: ^4.17.12
         version: 4.17.12
+      '@types/mercadopago-sdk-js':
+        specifier: ^2.0.17
+        version: 2.0.17
       '@types/node':
         specifier: ^22.17.1
         version: 22.19.3
@@ -1625,15 +1516,6 @@ importers:
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
-      filepond:
-        specifier: ^4.32.8
-        version: 4.32.10
-      filepond-plugin-file-validate-type:
-        specifier: ^1.2.9
-        version: 1.2.9(filepond@4.32.10)
-      filepond-plugin-image-preview:
-        specifier: ^4.6.12
-        version: 4.6.12(filepond@4.32.10)
       lodash-es:
         specifier: ^4.17.21
         version: 4.18.1
@@ -1652,9 +1534,6 @@ importers:
       vue:
         specifier: 3.5.39
         version: 3.5.39(typescript@5.9.3)
-      vue-filepond:
-        specifier: ^7.0.4
-        version: 7.0.4(filepond@4.32.10)(vue@3.5.39(typescript@5.9.3))
       vue-i18n:
         specifier: ^11.1.1
         version: 11.2.2(vue@3.5.39(typescript@5.9.3))
@@ -2327,6 +2206,15 @@ importers:
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
+      filepond:
+        specifier: ^4.32.8
+        version: 4.32.10
+      filepond-plugin-file-validate-type:
+        specifier: ^1.2.9
+        version: 1.2.9(filepond@4.32.10)
+      filepond-plugin-image-preview:
+        specifier: ^4.6.12
+        version: 4.6.12(filepond@4.32.10)
       lodash-es:
         specifier: ^4.17.21
         version: 4.18.1
@@ -2339,6 +2227,9 @@ importers:
       vue:
         specifier: 3.5.39
         version: 3.5.39(typescript@5.9.3)
+      vue-filepond:
+        specifier: ^7.0.4
+        version: 7.0.4(filepond@4.32.10)(vue@3.5.39(typescript@5.9.3))
       vue-i18n:
         specifier: ^11.1.1
         version: 11.2.2(vue@3.5.39(typescript@5.9.3))
@@ -2669,9 +2560,9 @@ importers:
       '@upmind-automation/basket':
         specifier: workspace:*
         version: link:../../packages/modules-basket
-      '@upmind-automation/client-vue':
+      '@upmind-automation/client':
         specifier: workspace:*
-        version: link:../../packages/client-vue
+        version: link:../../packages/modules-client
       '@upmind-automation/domain':
         specifier: workspace:*
         version: link:../../packages/modules-domain
@@ -16489,6 +16380,45 @@ snapshots:
     dependencies:
       infer-owner: 1.0.4
 
+  '@nuxt/cli@3.37.0(@nuxt/schema@4.2.2)(@parcel/watcher@2.5.1)(cac@6.7.14)(commander@14.0.2)(magicast@0.5.1)(supports-color@10.2.2)':
+    dependencies:
+      '@bomb.sh/tab': 0.0.19(cac@6.7.14)(citty@0.2.2)(commander@14.0.2)
+      '@clack/prompts': 1.7.0
+      c12: 3.3.4(magicast@0.5.1)
+      citty: 0.2.2
+      confbox: 0.2.4
+      consola: 3.4.2
+      debug: 4.4.3(supports-color@10.2.2)
+      defu: 6.1.7
+      exsolve: 1.1.1
+      fuse.js: 7.5.0
+      fzf: 0.5.2
+      giget: 3.3.1
+      jiti: 2.7.0
+      listhen: 1.10.1(@parcel/watcher@2.5.1)(srvx@0.11.22)
+      nypm: 0.6.9
+      ofetch: 1.5.1
+      ohash: 2.0.11
+      pathe: 2.0.3
+      perfect-debounce: 2.1.0
+      pkg-types: 2.3.1
+      scule: 1.3.0
+      semver: 7.8.5
+      srvx: 0.11.22
+      std-env: 4.2.0
+      tinyclip: 0.1.15
+      tinyexec: 1.2.4
+      ufo: 1.6.4
+      youch: 4.1.1
+    optionalDependencies:
+      '@nuxt/schema': 4.2.2
+    transitivePeerDependencies:
+      - '@parcel/watcher'
+      - cac
+      - commander
+      - magicast
+      - supports-color
+
   '@nuxt/cli@3.37.0(@nuxt/schema@4.2.2)(cac@6.7.14)(commander@14.0.2)(magicast@0.5.1)(supports-color@10.2.2)':
     dependencies:
       '@bomb.sh/tab': 0.0.19(cac@6.7.14)(citty@0.2.2)(commander@14.0.2)
@@ -16504,7 +16434,7 @@ snapshots:
       fzf: 0.5.2
       giget: 3.3.1
       jiti: 2.7.0
-      listhen: 1.10.1(srvx@0.11.22)
+      listhen: 1.10.1(@parcel/watcher@2.5.1)(srvx@0.11.22)
       nypm: 0.6.9
       ofetch: 1.5.1
       ohash: 2.0.11
@@ -16825,6 +16755,70 @@ snapshots:
       - xml2js
     optional: true
 
+  '@nuxt/nitro-server@4.2.2(@electric-sql/pglite@0.3.14)(db0@0.3.4(@electric-sql/pglite@0.3.14))(encoding@0.1.13)(ioredis@5.9.0(supports-color@10.2.2))(magicast@0.5.1)(nuxt@4.2.2(@electric-sql/pglite@0.3.14)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.1)(@parcel/watcher@2.5.1)(@types/node@22.19.3)(@vue/compiler-sfc@3.5.39)(cac@6.7.14)(commander@14.0.2)(db0@0.3.4(@electric-sql/pglite@0.3.14))(encoding@0.1.13)(eslint@9.39.2(jiti@2.7.0)(supports-color@10.2.2))(ioredis@5.9.0(supports-color@10.2.2))(lightningcss@1.32.0)(magicast@0.5.1)(optionator@0.9.4)(rolldown@1.1.3)(rollup@4.53.5)(sass@1.97.0)(supports-color@10.2.2)(terser@5.44.1)(typescript@5.9.3)(vite@7.3.0(@types/node@22.19.3)(jiti@2.7.0)(lightningcss@1.32.0)(sass@1.97.0)(terser@5.44.1)(yaml@2.9.0))(vue-tsc@3.3.5(typescript@5.9.3))(yaml@2.9.0))(rolldown@1.1.3)(supports-color@10.2.2)(typescript@5.9.3)':
+    dependencies:
+      '@nuxt/devalue': 2.0.2
+      '@nuxt/kit': 4.2.2(magicast@0.5.1)
+      '@unhead/vue': 2.1.2(vue@3.5.39(typescript@5.9.3))
+      '@vue/shared': 3.5.39
+      consola: 3.4.2
+      defu: 6.1.7
+      destr: 2.0.5
+      devalue: 5.6.1
+      errx: 0.1.0
+      escape-string-regexp: 5.0.0
+      exsolve: 1.0.8
+      h3: 1.15.4
+      impound: 1.0.0
+      klona: 2.0.6
+      mocked-exports: 0.1.1
+      nitropack: 2.12.9(@electric-sql/pglite@0.3.14)(encoding@0.1.13)(rolldown@1.1.3)(supports-color@10.2.2)
+      nuxt: 4.2.2(@electric-sql/pglite@0.3.14)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.1)(@parcel/watcher@2.5.1)(@types/node@22.19.3)(@vue/compiler-sfc@3.5.39)(cac@6.7.14)(commander@14.0.2)(db0@0.3.4(@electric-sql/pglite@0.3.14))(encoding@0.1.13)(eslint@9.39.2(jiti@2.7.0)(supports-color@10.2.2))(ioredis@5.9.0(supports-color@10.2.2))(lightningcss@1.32.0)(magicast@0.5.1)(optionator@0.9.4)(rolldown@1.1.3)(rollup@4.53.5)(sass@1.97.0)(supports-color@10.2.2)(terser@5.44.1)(typescript@5.9.3)(vite@7.3.0(@types/node@22.19.3)(jiti@2.7.0)(lightningcss@1.32.0)(sass@1.97.0)(terser@5.44.1)(yaml@2.9.0))(vue-tsc@3.3.5(typescript@5.9.3))(yaml@2.9.0)
+      pathe: 2.0.3
+      pkg-types: 2.3.0
+      radix3: 1.1.2
+      std-env: 3.10.0
+      ufo: 1.6.3
+      unctx: 2.5.0
+      unstorage: 1.17.3(db0@0.3.4(@electric-sql/pglite@0.3.14))(ioredis@5.9.0(supports-color@10.2.2))
+      vue: 3.5.39(typescript@5.9.3)
+      vue-bundle-renderer: 2.2.0
+      vue-devtools-stub: 0.1.0
+    transitivePeerDependencies:
+      - '@azure/app-configuration'
+      - '@azure/cosmos'
+      - '@azure/data-tables'
+      - '@azure/identity'
+      - '@azure/keyvault-secrets'
+      - '@azure/storage-blob'
+      - '@capacitor/preferences'
+      - '@deno/kv'
+      - '@electric-sql/pglite'
+      - '@libsql/client'
+      - '@netlify/blobs'
+      - '@planetscale/database'
+      - '@upstash/redis'
+      - '@vercel/blob'
+      - '@vercel/functions'
+      - '@vercel/kv'
+      - aws4fetch
+      - bare-abort-controller
+      - better-sqlite3
+      - db0
+      - drizzle-orm
+      - encoding
+      - idb-keyval
+      - ioredis
+      - magicast
+      - mysql2
+      - react-native-b4a
+      - rolldown
+      - sqlite3
+      - supports-color
+      - typescript
+      - uploadthing
+      - xml2js
+
   '@nuxt/nitro-server@4.2.2(@electric-sql/pglite@0.3.14)(db0@0.3.4(@electric-sql/pglite@0.3.14))(encoding@0.1.13)(ioredis@5.9.0(supports-color@10.2.2))(magicast@0.5.1)(nuxt@4.2.2(@electric-sql/pglite@0.3.14)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.1)(@types/node@22.19.3)(@vue/compiler-sfc@3.5.39)(cac@6.7.14)(commander@14.0.2)(db0@0.3.4(@electric-sql/pglite@0.3.14))(encoding@0.1.13)(eslint@9.39.2(jiti@2.7.0)(supports-color@10.2.2))(ioredis@5.9.0(supports-color@10.2.2))(lightningcss@1.32.0)(magicast@0.5.1)(optionator@0.9.4)(rolldown@1.1.3)(rollup@4.53.5)(sass@1.97.0)(supports-color@10.2.2)(terser@5.44.1)(typescript@5.9.3)(vite@7.3.0(@types/node@22.19.3)(jiti@2.7.0)(lightningcss@1.32.0)(sass@1.97.0)(terser@5.44.1)(yaml@2.9.0))(vue-tsc@3.3.5(typescript@5.9.3))(yaml@2.9.0))(rolldown@1.1.3)(supports-color@10.2.2)(typescript@5.9.3)':
     dependencies:
       '@nuxt/devalue': 2.0.2
@@ -16913,6 +16907,68 @@ snapshots:
       std-env: 3.10.0
     transitivePeerDependencies:
       - magicast
+
+  '@nuxt/vite-builder@4.2.2(@types/node@22.19.3)(eslint@9.39.2(jiti@2.7.0)(supports-color@10.2.2))(lightningcss@1.32.0)(magicast@0.5.1)(nuxt@4.2.2(@electric-sql/pglite@0.3.14)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.1)(@parcel/watcher@2.5.1)(@types/node@22.19.3)(@vue/compiler-sfc@3.5.39)(cac@6.7.14)(commander@14.0.2)(db0@0.3.4(@electric-sql/pglite@0.3.14))(encoding@0.1.13)(eslint@9.39.2(jiti@2.7.0)(supports-color@10.2.2))(ioredis@5.9.0(supports-color@10.2.2))(lightningcss@1.32.0)(magicast@0.5.1)(optionator@0.9.4)(rolldown@1.1.3)(rollup@4.53.5)(sass@1.97.0)(supports-color@10.2.2)(terser@5.44.1)(typescript@5.9.3)(vite@7.3.0(@types/node@22.19.3)(jiti@2.7.0)(lightningcss@1.32.0)(sass@1.97.0)(terser@5.44.1)(yaml@2.9.0))(vue-tsc@3.3.5(typescript@5.9.3))(yaml@2.9.0))(optionator@0.9.4)(rolldown@1.1.3)(rollup@4.53.5)(sass@1.97.0)(supports-color@10.2.2)(terser@5.44.1)(typescript@5.9.3)(vue-tsc@3.3.5(typescript@5.9.3))(vue@3.5.39(typescript@5.9.3))(yaml@2.9.0)':
+    dependencies:
+      '@nuxt/kit': 4.2.2(magicast@0.5.1)
+      '@rollup/plugin-replace': 6.0.3(rollup@4.53.5)
+      '@vitejs/plugin-vue': 6.0.7(vite@7.3.0(@types/node@22.19.3)(jiti@2.7.0)(lightningcss@1.32.0)(sass@1.97.0)(terser@5.44.1)(yaml@2.9.0))(vue@3.5.39(typescript@5.9.3))
+      '@vitejs/plugin-vue-jsx': 5.1.3(supports-color@10.2.2)(vite@7.3.0(@types/node@22.19.3)(jiti@2.7.0)(lightningcss@1.32.0)(sass@1.97.0)(terser@5.44.1)(yaml@2.9.0))(vue@3.5.39(typescript@5.9.3))
+      autoprefixer: 10.4.23(postcss@8.5.16)
+      consola: 3.4.2
+      cssnano: 7.1.2(postcss@8.5.16)
+      defu: 6.1.7
+      esbuild: 0.27.2
+      escape-string-regexp: 5.0.0
+      exsolve: 1.0.8
+      get-port-please: 3.2.0
+      h3: 1.15.4
+      jiti: 2.7.0
+      knitwork: 1.3.0
+      magic-string: 0.30.21
+      mlly: 1.8.0
+      mocked-exports: 0.1.1
+      nuxt: 4.2.2(@electric-sql/pglite@0.3.14)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.1)(@parcel/watcher@2.5.1)(@types/node@22.19.3)(@vue/compiler-sfc@3.5.39)(cac@6.7.14)(commander@14.0.2)(db0@0.3.4(@electric-sql/pglite@0.3.14))(encoding@0.1.13)(eslint@9.39.2(jiti@2.7.0)(supports-color@10.2.2))(ioredis@5.9.0(supports-color@10.2.2))(lightningcss@1.32.0)(magicast@0.5.1)(optionator@0.9.4)(rolldown@1.1.3)(rollup@4.53.5)(sass@1.97.0)(supports-color@10.2.2)(terser@5.44.1)(typescript@5.9.3)(vite@7.3.0(@types/node@22.19.3)(jiti@2.7.0)(lightningcss@1.32.0)(sass@1.97.0)(terser@5.44.1)(yaml@2.9.0))(vue-tsc@3.3.5(typescript@5.9.3))(yaml@2.9.0)
+      pathe: 2.0.3
+      pkg-types: 2.3.0
+      postcss: 8.5.16
+      rollup-plugin-visualizer: 6.0.5(rolldown@1.1.3)(rollup@4.53.5)
+      seroval: 1.4.2
+      std-env: 3.10.0
+      ufo: 1.6.3
+      unenv: 2.0.0-rc.24
+      unplugin: 2.3.11
+      vite: 7.3.0(@types/node@22.19.3)(jiti@2.7.0)(lightningcss@1.32.0)(sass@1.97.0)(terser@5.44.1)(yaml@2.9.0)
+      vite-node: 5.2.0(@types/node@22.19.3)(jiti@2.7.0)(lightningcss@1.32.0)(sass@1.97.0)(terser@5.44.1)(yaml@2.9.0)
+      vite-plugin-checker: 0.12.0(eslint@9.39.2(jiti@2.7.0)(supports-color@10.2.2))(optionator@0.9.4)(typescript@5.9.3)(vite@7.3.0(@types/node@22.19.3)(jiti@2.7.0)(lightningcss@1.32.0)(sass@1.97.0)(terser@5.44.1)(yaml@2.9.0))(vue-tsc@3.3.5(typescript@5.9.3))
+      vue: 3.5.39(typescript@5.9.3)
+      vue-bundle-renderer: 2.2.0
+    optionalDependencies:
+      rolldown: 1.1.3
+    transitivePeerDependencies:
+      - '@biomejs/biome'
+      - '@types/node'
+      - eslint
+      - less
+      - lightningcss
+      - magicast
+      - meow
+      - optionator
+      - oxlint
+      - rollup
+      - sass
+      - sass-embedded
+      - stylelint
+      - stylus
+      - sugarss
+      - supports-color
+      - terser
+      - tsx
+      - typescript
+      - vls
+      - vti
+      - vue-tsc
+      - yaml
 
   '@nuxt/vite-builder@4.2.2(@types/node@22.19.3)(eslint@9.39.2(jiti@2.7.0)(supports-color@10.2.2))(lightningcss@1.32.0)(magicast@0.5.1)(nuxt@4.2.2(@electric-sql/pglite@0.3.14)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.1)(@types/node@22.19.3)(@vue/compiler-sfc@3.5.39)(cac@6.7.14)(commander@14.0.2)(db0@0.3.4(@electric-sql/pglite@0.3.14))(encoding@0.1.13)(eslint@9.39.2(jiti@2.7.0)(supports-color@10.2.2))(ioredis@5.9.0(supports-color@10.2.2))(lightningcss@1.32.0)(magicast@0.5.1)(optionator@0.9.4)(rolldown@1.1.3)(rollup@4.53.5)(sass@1.97.0)(supports-color@10.2.2)(terser@5.44.1)(typescript@5.9.3)(vite@7.3.0(@types/node@22.19.3)(jiti@2.7.0)(lightningcss@1.32.0)(sass@1.97.0)(terser@5.44.1)(yaml@2.9.0))(vue-tsc@3.3.5(typescript@5.9.3))(yaml@2.9.0))(optionator@0.9.4)(rolldown@1.1.3)(rollup@4.53.5)(sass@1.97.0)(supports-color@10.2.2)(terser@5.44.1)(typescript@5.9.3)(vue-tsc@3.3.5(typescript@5.9.3))(vue@3.5.39(typescript@5.9.3))(yaml@2.9.0)':
     dependencies:
@@ -18336,6 +18392,35 @@ snapshots:
       minimatch: 9.0.5
     transitivePeerDependencies:
       - supports-color
+
+  '@sentry/nuxt@10.34.0(@opentelemetry/api@1.9.0)(@opentelemetry/context-async-hooks@2.4.0(@opentelemetry/api@1.9.0))(@opentelemetry/core@2.4.0(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@2.4.0(@opentelemetry/api@1.9.0))(@opentelemetry/semantic-conventions@1.38.0)(encoding@0.1.13)(magicast@0.5.1)(nuxt@4.2.2(@electric-sql/pglite@0.3.14)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.1)(@parcel/watcher@2.5.1)(@types/node@22.19.3)(@vue/compiler-sfc@3.5.39)(cac@6.7.14)(commander@14.0.2)(db0@0.3.4(@electric-sql/pglite@0.3.14))(encoding@0.1.13)(eslint@9.39.2(jiti@2.7.0)(supports-color@10.2.2))(ioredis@5.9.0(supports-color@10.2.2))(lightningcss@1.32.0)(magicast@0.5.1)(optionator@0.9.4)(rolldown@1.1.3)(rollup@4.53.5)(sass@1.97.0)(supports-color@10.2.2)(terser@5.44.1)(typescript@5.9.3)(vite@7.3.0(@types/node@22.19.3)(jiti@2.7.0)(lightningcss@1.32.0)(sass@1.97.0)(terser@5.44.1)(yaml@2.9.0))(vue-tsc@3.3.5(typescript@5.9.3))(yaml@2.9.0))(rollup@4.53.5)(supports-color@10.2.2)(vue@3.5.39(typescript@5.9.3))':
+    dependencies:
+      '@nuxt/kit': 3.20.2(magicast@0.5.1)
+      '@sentry/browser': 10.34.0
+      '@sentry/cloudflare': 10.34.0
+      '@sentry/core': 10.34.0
+      '@sentry/node': 10.34.0(supports-color@10.2.2)
+      '@sentry/node-core': 10.34.0(@opentelemetry/api@1.9.0)(@opentelemetry/context-async-hooks@2.4.0(@opentelemetry/api@1.9.0))(@opentelemetry/core@2.4.0(@opentelemetry/api@1.9.0))(@opentelemetry/instrumentation@0.208.0(@opentelemetry/api@1.9.0)(supports-color@10.2.2))(@opentelemetry/resources@2.4.0(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@2.4.0(@opentelemetry/api@1.9.0))(@opentelemetry/semantic-conventions@1.38.0)(supports-color@10.2.2)
+      '@sentry/rollup-plugin': 4.6.2(encoding@0.1.13)(rollup@4.53.5)(supports-color@10.2.2)
+      '@sentry/vite-plugin': 4.6.1(encoding@0.1.13)(supports-color@10.2.2)
+      '@sentry/vue': 10.34.0(vue@3.5.39(typescript@5.9.3))
+      nuxt: 4.2.2(@electric-sql/pglite@0.3.14)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.1)(@parcel/watcher@2.5.1)(@types/node@22.19.3)(@vue/compiler-sfc@3.5.39)(cac@6.7.14)(commander@14.0.2)(db0@0.3.4(@electric-sql/pglite@0.3.14))(encoding@0.1.13)(eslint@9.39.2(jiti@2.7.0)(supports-color@10.2.2))(ioredis@5.9.0(supports-color@10.2.2))(lightningcss@1.32.0)(magicast@0.5.1)(optionator@0.9.4)(rolldown@1.1.3)(rollup@4.53.5)(sass@1.97.0)(supports-color@10.2.2)(terser@5.44.1)(typescript@5.9.3)(vite@7.3.0(@types/node@22.19.3)(jiti@2.7.0)(lightningcss@1.32.0)(sass@1.97.0)(terser@5.44.1)(yaml@2.9.0))(vue-tsc@3.3.5(typescript@5.9.3))(yaml@2.9.0)
+    transitivePeerDependencies:
+      - '@cloudflare/workers-types'
+      - '@opentelemetry/api'
+      - '@opentelemetry/context-async-hooks'
+      - '@opentelemetry/core'
+      - '@opentelemetry/instrumentation'
+      - '@opentelemetry/resources'
+      - '@opentelemetry/sdk-trace-base'
+      - '@opentelemetry/semantic-conventions'
+      - '@tanstack/vue-router'
+      - encoding
+      - magicast
+      - pinia
+      - rollup
+      - supports-color
+      - vue
 
   '@sentry/nuxt@10.34.0(dd22602be3120630e56505bfc08605a6)':
     dependencies:
@@ -19784,6 +19869,17 @@ snapshots:
   '@vueuse/metadata@13.9.0': {}
 
   '@vueuse/metadata@14.3.0': {}
+
+  '@vueuse/nuxt@13.9.0(magicast@0.5.1)(nuxt@4.2.2(@electric-sql/pglite@0.3.14)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.1)(@parcel/watcher@2.5.1)(@types/node@22.19.3)(@vue/compiler-sfc@3.5.39)(cac@6.7.14)(commander@14.0.2)(db0@0.3.4(@electric-sql/pglite@0.3.14))(encoding@0.1.13)(eslint@9.39.2(jiti@2.7.0)(supports-color@10.2.2))(ioredis@5.9.0(supports-color@10.2.2))(lightningcss@1.32.0)(magicast@0.5.1)(optionator@0.9.4)(rolldown@1.1.3)(rollup@4.53.5)(sass@1.97.0)(supports-color@10.2.2)(terser@5.44.1)(typescript@5.9.3)(vite@7.3.0(@types/node@22.19.3)(jiti@2.7.0)(lightningcss@1.32.0)(sass@1.97.0)(terser@5.44.1)(yaml@2.9.0))(vue-tsc@3.3.5(typescript@5.9.3))(yaml@2.9.0))(vue@3.5.39(typescript@5.9.3))':
+    dependencies:
+      '@nuxt/kit': 3.20.2(magicast@0.5.1)
+      '@vueuse/core': 13.9.0(vue@3.5.39(typescript@5.9.3))
+      '@vueuse/metadata': 13.9.0
+      local-pkg: 1.1.2
+      nuxt: 4.2.2(@electric-sql/pglite@0.3.14)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.1)(@parcel/watcher@2.5.1)(@types/node@22.19.3)(@vue/compiler-sfc@3.5.39)(cac@6.7.14)(commander@14.0.2)(db0@0.3.4(@electric-sql/pglite@0.3.14))(encoding@0.1.13)(eslint@9.39.2(jiti@2.7.0)(supports-color@10.2.2))(ioredis@5.9.0(supports-color@10.2.2))(lightningcss@1.32.0)(magicast@0.5.1)(optionator@0.9.4)(rolldown@1.1.3)(rollup@4.53.5)(sass@1.97.0)(supports-color@10.2.2)(terser@5.44.1)(typescript@5.9.3)(vite@7.3.0(@types/node@22.19.3)(jiti@2.7.0)(lightningcss@1.32.0)(sass@1.97.0)(terser@5.44.1)(yaml@2.9.0))(vue-tsc@3.3.5(typescript@5.9.3))(yaml@2.9.0)
+      vue: 3.5.39(typescript@5.9.3)
+    transitivePeerDependencies:
+      - magicast
 
   '@vueuse/nuxt@13.9.0(magicast@0.5.1)(nuxt@4.2.2(@electric-sql/pglite@0.3.14)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.1)(@types/node@22.19.3)(@vue/compiler-sfc@3.5.39)(cac@6.7.14)(commander@14.0.2)(db0@0.3.4(@electric-sql/pglite@0.3.14))(encoding@0.1.13)(eslint@9.39.2(jiti@2.7.0)(supports-color@10.2.2))(ioredis@5.9.0(supports-color@10.2.2))(lightningcss@1.32.0)(magicast@0.5.1)(optionator@0.9.4)(rolldown@1.1.3)(rollup@4.53.5)(sass@1.97.0)(supports-color@10.2.2)(terser@5.44.1)(typescript@5.9.3)(vite@7.3.0(@types/node@22.19.3)(jiti@2.7.0)(lightningcss@1.32.0)(sass@1.97.0)(terser@5.44.1)(yaml@2.9.0))(vue-tsc@3.3.5(typescript@5.9.3))(yaml@2.9.0))(vue@3.5.39(typescript@5.9.3))':
     dependencies:
@@ -23447,7 +23543,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  listhen@1.10.1(srvx@0.11.22):
+  listhen@1.10.1(@parcel/watcher@2.5.1)(srvx@0.11.22):
     dependencies:
       '@parcel/watcher-wasm': 2.6.0
       citty: 0.2.2
@@ -23465,6 +23561,8 @@ snapshots:
       ufo: 1.6.4
       untun: 0.2.2
       uqr: 0.1.3
+    optionalDependencies:
+      '@parcel/watcher': 2.5.1
     transitivePeerDependencies:
       - srvx
 
@@ -24497,6 +24595,131 @@ snapshots:
       - xml2js
       - yaml
     optional: true
+
+  nuxt@4.2.2(@electric-sql/pglite@0.3.14)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.1)(@parcel/watcher@2.5.1)(@types/node@22.19.3)(@vue/compiler-sfc@3.5.39)(cac@6.7.14)(commander@14.0.2)(db0@0.3.4(@electric-sql/pglite@0.3.14))(encoding@0.1.13)(eslint@9.39.2(jiti@2.7.0)(supports-color@10.2.2))(ioredis@5.9.0(supports-color@10.2.2))(lightningcss@1.32.0)(magicast@0.5.1)(optionator@0.9.4)(rolldown@1.1.3)(rollup@4.53.5)(sass@1.97.0)(supports-color@10.2.2)(terser@5.44.1)(typescript@5.9.3)(vite@7.3.0(@types/node@22.19.3)(jiti@2.7.0)(lightningcss@1.32.0)(sass@1.97.0)(terser@5.44.1)(yaml@2.9.0))(vue-tsc@3.3.5(typescript@5.9.3))(yaml@2.9.0):
+    dependencies:
+      '@dxup/nuxt': 0.2.2(magicast@0.5.1)
+      '@nuxt/cli': 3.37.0(@nuxt/schema@4.2.2)(@parcel/watcher@2.5.1)(cac@6.7.14)(commander@14.0.2)(magicast@0.5.1)(supports-color@10.2.2)
+      '@nuxt/devtools': 3.1.1(supports-color@10.2.2)(vite@7.3.0(@types/node@22.19.3)(jiti@2.7.0)(lightningcss@1.32.0)(sass@1.97.0)(terser@5.44.1)(yaml@2.9.0))(vue@3.5.39(typescript@5.9.3))
+      '@nuxt/kit': 4.2.2(magicast@0.5.1)
+      '@nuxt/nitro-server': 4.2.2(@electric-sql/pglite@0.3.14)(db0@0.3.4(@electric-sql/pglite@0.3.14))(encoding@0.1.13)(ioredis@5.9.0(supports-color@10.2.2))(magicast@0.5.1)(nuxt@4.2.2(@electric-sql/pglite@0.3.14)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.1)(@parcel/watcher@2.5.1)(@types/node@22.19.3)(@vue/compiler-sfc@3.5.39)(cac@6.7.14)(commander@14.0.2)(db0@0.3.4(@electric-sql/pglite@0.3.14))(encoding@0.1.13)(eslint@9.39.2(jiti@2.7.0)(supports-color@10.2.2))(ioredis@5.9.0(supports-color@10.2.2))(lightningcss@1.32.0)(magicast@0.5.1)(optionator@0.9.4)(rolldown@1.1.3)(rollup@4.53.5)(sass@1.97.0)(supports-color@10.2.2)(terser@5.44.1)(typescript@5.9.3)(vite@7.3.0(@types/node@22.19.3)(jiti@2.7.0)(lightningcss@1.32.0)(sass@1.97.0)(terser@5.44.1)(yaml@2.9.0))(vue-tsc@3.3.5(typescript@5.9.3))(yaml@2.9.0))(rolldown@1.1.3)(supports-color@10.2.2)(typescript@5.9.3)
+      '@nuxt/schema': 4.2.2
+      '@nuxt/telemetry': 2.6.6(magicast@0.5.1)
+      '@nuxt/vite-builder': 4.2.2(@types/node@22.19.3)(eslint@9.39.2(jiti@2.7.0)(supports-color@10.2.2))(lightningcss@1.32.0)(magicast@0.5.1)(nuxt@4.2.2(@electric-sql/pglite@0.3.14)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.1)(@parcel/watcher@2.5.1)(@types/node@22.19.3)(@vue/compiler-sfc@3.5.39)(cac@6.7.14)(commander@14.0.2)(db0@0.3.4(@electric-sql/pglite@0.3.14))(encoding@0.1.13)(eslint@9.39.2(jiti@2.7.0)(supports-color@10.2.2))(ioredis@5.9.0(supports-color@10.2.2))(lightningcss@1.32.0)(magicast@0.5.1)(optionator@0.9.4)(rolldown@1.1.3)(rollup@4.53.5)(sass@1.97.0)(supports-color@10.2.2)(terser@5.44.1)(typescript@5.9.3)(vite@7.3.0(@types/node@22.19.3)(jiti@2.7.0)(lightningcss@1.32.0)(sass@1.97.0)(terser@5.44.1)(yaml@2.9.0))(vue-tsc@3.3.5(typescript@5.9.3))(yaml@2.9.0))(optionator@0.9.4)(rolldown@1.1.3)(rollup@4.53.5)(sass@1.97.0)(supports-color@10.2.2)(terser@5.44.1)(typescript@5.9.3)(vue-tsc@3.3.5(typescript@5.9.3))(vue@3.5.39(typescript@5.9.3))(yaml@2.9.0)
+      '@unhead/vue': 2.1.2(vue@3.5.39(typescript@5.9.3))
+      '@vue/shared': 3.5.39
+      c12: 3.3.3(magicast@0.5.1)
+      chokidar: 5.0.0
+      compatx: 0.2.0
+      consola: 3.4.2
+      cookie-es: 2.0.0
+      defu: 6.1.7
+      destr: 2.0.5
+      devalue: 5.6.1
+      errx: 0.1.0
+      escape-string-regexp: 5.0.0
+      exsolve: 1.0.8
+      h3: 1.15.4
+      hookable: 5.5.3
+      ignore: 7.0.5
+      impound: 1.0.0
+      jiti: 2.7.0
+      klona: 2.0.6
+      knitwork: 1.3.0
+      magic-string: 0.30.21
+      mlly: 1.8.0
+      nanotar: 0.2.0
+      nypm: 0.6.2
+      ofetch: 1.5.1
+      ohash: 2.0.11
+      on-change: 6.0.1
+      oxc-minify: 0.102.0(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.1)
+      oxc-parser: 0.102.0(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.1)
+      oxc-transform: 0.102.0(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.1)
+      oxc-walker: 0.6.0(oxc-parser@0.102.0(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.1))
+      pathe: 2.0.3
+      perfect-debounce: 2.0.0
+      pkg-types: 2.3.0
+      radix3: 1.1.2
+      scule: 1.3.0
+      semver: 7.8.5
+      std-env: 3.10.0
+      tinyglobby: 0.2.17
+      ufo: 1.6.3
+      ultrahtml: 1.6.0
+      uncrypto: 0.1.3
+      unctx: 2.5.0
+      unimport: 5.6.0
+      unplugin: 2.3.11
+      unplugin-vue-router: 0.19.2(@vue/compiler-sfc@3.5.39)(vue-router@4.6.4(vue@3.5.39(typescript@5.9.3)))(vue@3.5.39(typescript@5.9.3))
+      untyped: 2.0.0
+      vue: 3.5.39(typescript@5.9.3)
+      vue-router: 4.6.4(vue@3.5.39(typescript@5.9.3))
+    optionalDependencies:
+      '@parcel/watcher': 2.5.1
+      '@types/node': 22.19.3
+    transitivePeerDependencies:
+      - '@azure/app-configuration'
+      - '@azure/cosmos'
+      - '@azure/data-tables'
+      - '@azure/identity'
+      - '@azure/keyvault-secrets'
+      - '@azure/storage-blob'
+      - '@biomejs/biome'
+      - '@capacitor/preferences'
+      - '@deno/kv'
+      - '@electric-sql/pglite'
+      - '@emnapi/core'
+      - '@emnapi/runtime'
+      - '@libsql/client'
+      - '@netlify/blobs'
+      - '@planetscale/database'
+      - '@upstash/redis'
+      - '@vercel/blob'
+      - '@vercel/functions'
+      - '@vercel/kv'
+      - '@vitejs/devtools'
+      - '@vue/compiler-sfc'
+      - aws4fetch
+      - bare-abort-controller
+      - better-sqlite3
+      - bufferutil
+      - cac
+      - commander
+      - db0
+      - drizzle-orm
+      - encoding
+      - eslint
+      - idb-keyval
+      - ioredis
+      - less
+      - lightningcss
+      - magicast
+      - meow
+      - mysql2
+      - optionator
+      - oxlint
+      - react-native-b4a
+      - rolldown
+      - rollup
+      - sass
+      - sass-embedded
+      - sqlite3
+      - stylelint
+      - stylus
+      - sugarss
+      - supports-color
+      - terser
+      - tsx
+      - typescript
+      - uploadthing
+      - utf-8-validate
+      - vite
+      - vls
+      - vti
+      - vue-tsc
+      - xml2js
+      - yaml
 
   nuxt@4.2.2(@electric-sql/pglite@0.3.14)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.1)(@types/node@22.19.3)(@vue/compiler-sfc@3.5.39)(cac@6.7.14)(commander@14.0.2)(db0@0.3.4(@electric-sql/pglite@0.3.14))(encoding@0.1.13)(eslint@9.39.2(jiti@2.7.0)(supports-color@10.2.2))(ioredis@5.9.0(supports-color@10.2.2))(lightningcss@1.32.0)(magicast@0.5.1)(optionator@0.9.4)(rolldown@1.1.3)(rollup@4.53.5)(sass@1.97.0)(supports-color@10.2.2)(terser@5.44.1)(typescript@5.9.3)(vite@7.3.0(@types/node@22.19.3)(jiti@2.7.0)(lightningcss@1.32.0)(sass@1.97.0)(terser@5.44.1)(yaml@2.9.0))(vue-tsc@3.3.5(typescript@5.9.3))(yaml@2.9.0):
     dependencies:

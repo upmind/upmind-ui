@@ -1,5 +1,5 @@
 import { AUTH_FORMS } from "@upmind-automation/auth";
-import { OverlayType } from "@upmind-automation/client-vue";
+import { OverlayType } from "@upmind-automation/headless";
 import { ROUTE, RegexMatch } from "./funnels/types";
 import { BID_PREFIX } from "./funnels/types";
 import { reduce, trimStart } from "lodash-es";

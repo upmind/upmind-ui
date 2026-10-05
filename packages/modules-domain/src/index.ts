@@ -29,7 +29,6 @@ export type {
   DomainProps,
   DomainSlotProps,
   DomainSummaryProps,
-  DomainTemplates,
   SmartDomainDrawerProps,
   SmartDomainExistingProps,
   SmartDomainFieldProps,

@@ -83,9 +83,8 @@ dependencies:
         - apps/cart/node_modules
         - apps/cart-nuxt/node_modules
         - apps/portal-nuxt/node_modules
-        - apps/velia/node_modules
+        - apps/velia-nuxt/node_modules
         - apps/webcentral/node_modules
-        - apps/hosting/node_modules
         - packages/headless/node_modules
         - packages/client-vue/node_modules
         - packages/icons/node_modules
@@ -113,9 +112,8 @@ dependencies:
       - apps/cart/node_modules
       - apps/cart-nuxt/node_modules
       - apps/portal-nuxt/node_modules
-      - apps/velia/node_modules
+      - apps/velia-nuxt/node_modules
       - apps/webcentral/node_modules
-      - apps/hosting/node_modules
       - packages/headless/node_modules
       - packages/client-vue/node_modules
       - packages/i18n/node_modules

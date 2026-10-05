@@ -11,7 +11,7 @@
  *   With only this root file present, every package resolves to it. The former
  *   per-package clones existed ONLY to re-state shared rules — flat config
  *   `files`/`ignores` give us per-area scoping without duplicate files.
- *   packages/ui, apps/velia, apps/hosting are standalone submodules that get a
+ *   packages/ui is a standalone submodule that gets a
  *   FULL BYTE-COPY of this file (kept in lockstep via etc/ci/lint/sync-configs.mjs).
  *
  * Correctness baselines (the floor that was lost in the flat migration — every
@@ -52,7 +52,7 @@
  * hook for the suppressions location; it is purely a CLI concern).
  * `etc/ci/lint/verify-lint-convergence.mjs` (CI job `lint:convergence`, run via
  * `pnpm lint:verify`) guards the invariant so the entrypoints cannot silently
- * diverge again. Git-submodule packages (packages/ui, apps/hosting, apps/velia)
+ * diverge again. Git-submodule packages (packages/ui)
  * must adopt the same wrapper in their OWN repos — the parent cannot edit their
  * package.json without submodule churn; the guard flags any that haven't.
  *
@@ -1218,7 +1218,7 @@ export default [
   },
 
   // ---------------------------------------------------------------------------
-  // 10. Upmind.vue — two-script-block SFC whose plain options block
+  // 10. The Upmind.vue shells — two-script-block SFCs whose plain options block
   //    (inheritAttrs/customOptions — inexpressible in <script setup>) precedes
   //    the setup block. vue-eslint-parser reads both blocks as one program, so
   //    import/first ("imports before code") is structurally unsatisfiable here.
@@ -1227,7 +1227,10 @@ export default [
   //    refuses to write fixes to multi-block SFCs for the same reason.
   // ---------------------------------------------------------------------------
   {
-    files: ["packages/client-vue/src/Upmind.vue"],
+    files: [
+      "packages/client-vue/src/Upmind.vue",
+      "apps/cart/src/shell/Upmind.vue"
+    ],
     rules: { "import/first": "off" }
   },
 

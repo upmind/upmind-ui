@@ -18,7 +18,7 @@ If this package is clean, the app locales will be clean after sync.
 **App locales — expand only if the user says "check all" or names an app:**
 
 ```bash
-LOCALE_DIRS="packages/i18n/public/locales/ apps/cart/src/assets/locales/ apps/cart-nuxt/src/assets/locales/ apps/hosting/src/assets/locales/ apps/velia/src/assets/locales/"
+LOCALE_DIRS="packages/i18n/public/locales/ apps/cart/src/assets/locales/ apps/cart-nuxt/src/assets/locales/"
 ```
 
 ## Gotchas reference doc (`$GOTCHAS_DOC`)

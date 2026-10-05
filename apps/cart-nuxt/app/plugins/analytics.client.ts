@@ -1,4 +1,4 @@
-import { useDataLayer } from "@upmind-automation/client-vue";
+import { useDataLayer } from "@upmind-automation/headless";
 /**
  * Analytics Plugin (Client-only)
  *

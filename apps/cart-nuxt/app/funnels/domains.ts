@@ -3,14 +3,14 @@ import {
   QUERY_PARAMS,
   useBasketProducts,
   useQueryParams,
-  type FunnelProps,
   getDomainBasketProducts
-} from "@upmind-automation/client-vue";
+} from "@upmind-automation/headless";
 import actions from "./engine/actions";
 import guards from "./engine/guards";
 import services from "./engine/services";
 import { ROUTE } from "./types";
 import { isEmpty, join } from "lodash-es";
+import type { FunnelProps } from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------
 

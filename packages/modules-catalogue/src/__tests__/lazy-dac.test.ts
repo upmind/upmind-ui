@@ -18,8 +18,6 @@ import { createI18n } from "vue-i18n";
 import { createMemoryHistory, createRouter } from "vue-router";
 import { PRODUCT_LIST_STYLE } from "@upmind-automation/headless";
 import Catalogue from "../components/Catalogue.vue";
-import { CATALOGUE_TEMPLATE } from "../types";
-import type { CatalogueTemplates } from "../types";
 import type { VueWrapper } from "@vue/test-utils";
 import type { Component } from "vue";
 
@@ -116,10 +114,6 @@ const HostTemplate = defineComponent({
       ])
 });
 
-const CATALOGUE_TEMPLATES: CatalogueTemplates = {
-  [CATALOGUE_TEMPLATE.FULL]: HostTemplate
-};
-
 let mounted: VueWrapper | undefined;
 
 async function browse(category: StubCategory) {
@@ -146,8 +140,7 @@ async function browse(category: StubCategory) {
           Catalogue,
           { categoryRoute: { name: "catalogue" } },
           {
-            default: ({ template }: { template: CATALOGUE_TEMPLATE }) =>
-              h(CATALOGUE_TEMPLATES[template])
+            default: () => h(HostTemplate)
           }
         )
     }),

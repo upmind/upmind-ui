@@ -1,5 +1,17 @@
+# Negative control — `basket` reaches into an app's shell for the basket page
+# templates instead of taking them from its `templates` prop. ADR 023
+# Amendment 1 change 3 makes page templates app-owned; they live in
+# `apps/cart/src/shell`. A package reaching them points a package at an app, an
+# edge no row of §3's grant matrix carries.
+#
+# Caught by `eslint`'s `@workspace/no-cross-package-path-imports`, which resolves
+# the relative escape to disk and names the package that owns the target.
+#
+# Intended RED under lint:
+#   Import a workspace package by its published specifier — its internals are
+#   private. ("../../../../apps/cart/src/shell/modules/basket/shell" resolves into apps/cart)
 diff --git a/packages/modules-basket/src/components/Basket.vue b/packages/modules-basket/src/components/Basket.vue
-index 7dcfd8c..35b7220 100644
+index 7dcfd8c..b723316 100644
 --- a/packages/modules-basket/src/components/Basket.vue
 +++ b/packages/modules-basket/src/components/Basket.vue
 @@ -1,6 +1,6 @@
@@ -10,11 +22,11 @@ index 7dcfd8c..35b7220 100644
  
      <template v-if="!isSlotHidden('summary')" #summary>
        <slot name="summary">
-@@ -105,6 +105,7 @@ import { Markdown } from "@upmind/ui";
- import { Alert } from "@upmind/ui";
- import { ref, computed } from "vue";
- import { useI18n } from "vue-i18n";
-+import { BASKET_TEMPLATES } from "@upmind-automation/client-vue";
- import { Back } from "@upmind-automation/foundation";
- import { Icon } from "@upmind-automation/foundation";
- import { LayoutProvider } from "@upmind-automation/foundation";
+@@ -129,6 +129,7 @@ import BasketHero from "./BasketHero.vue";
+ import BasketPricing from "./BasketPricing.vue";
+ import BasketProducts from "./BasketProducts.vue";
+ import BasketTotal from "./BasketTotal.vue";
++import { BASKET_TEMPLATES } from "../../../../apps/cart/src/shell/modules/basket/shell";
+ import { includes } from "lodash-es";
+ import type { StorefrontRoute } from "@upmind-automation/foundation";
+ import type { RouteLocationAsRelativeGeneric } from "vue-router";

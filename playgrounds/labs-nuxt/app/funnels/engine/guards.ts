@@ -1,4 +1,4 @@
-import { useActiveSession } from "@upmind-automation/client-vue";
+import { useActiveSession } from "@upmind-automation/headless";
 // -----------------------------------------------------------------------------
 /**
  * Guards to control transitions between states based on specific conditions.

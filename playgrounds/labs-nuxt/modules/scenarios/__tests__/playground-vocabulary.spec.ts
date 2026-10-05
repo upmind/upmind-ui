@@ -132,6 +132,11 @@ const KNOWN_HEAD_STRINGS = [
     file: "app/pages/useAuth/logged-out.vue",
     text: "You have been securely logged out of your session.",
     owner: "T6.2"
+  },
+  {
+    file: "app/shell/components/footer/layouts/FooterStacked.layout.vue",
+    text: 'aria-label="Language and currency preferences"',
+    owner: "T6.2"
   }
 ];
 

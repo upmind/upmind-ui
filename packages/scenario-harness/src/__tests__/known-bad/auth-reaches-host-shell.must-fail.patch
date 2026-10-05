@@ -1,16 +1,26 @@
+# Negative control — `auth` reaches into an app's shell for the sign-in page
+# templates instead of taking them from its `templates` prop. Page templates are
+# app-owned (ADR 023 Amendment 1 change 3); a package reaching them points a
+# package at an app, an edge no row of §3's grant matrix carries.
+#
+# Caught by `eslint`'s `@workspace/no-cross-package-path-imports`, which resolves
+# the relative escape to disk and names the package that owns the target.
+#
+# Intended RED under lint:
+#   Import a workspace package by its published specifier — its internals are
+#   private. ("../../../../apps/cart/src/shell/modules/session/shell" resolves into apps/cart)
 diff --git a/packages/modules-auth/src/components/Login.vue b/packages/modules-auth/src/components/Login.vue
-index 6e5cb25..96546fc 100644
 --- a/packages/modules-auth/src/components/Login.vue
 +++ b/packages/modules-auth/src/components/Login.vue
 @@ -97,6 +97,7 @@
  import { Link, Markdown } from "@upmind/ui";
  import { computed, ref } from "vue";
  import { useI18n } from "vue-i18n";
-+import { SESSION_TEMPLATES } from "@upmind-automation/client-vue";
++import { SESSION_TEMPLATES } from "../../../../apps/cart/src/shell/modules/session/shell";
  import { Hero } from "@upmind-automation/foundation";
  import { Back } from "@upmind-automation/foundation";
  import { Section } from "@upmind-automation/foundation";
-@@ -170,7 +171,7 @@ const meta = computed(() => ({
+@@ -170,7 +171,7 @@
    isInset: template.value === AUTH_TEMPLATE.INSET
  }));
  

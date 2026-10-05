@@ -46,12 +46,11 @@
  * so they all resolve the identical suppression state. `etc/ci/lint/
  * verify-lint-convergence.mjs` guards that invariant.
  *
- * SUBMODULE BOUNDARY: packages/ui, apps/hosting, apps/velia are git submodules
- * whose package.json lives in a separate repo; their `lint` scripts must adopt
- * this same wrapper in their own repos (the parent cannot edit them without
- * submodule churn). Until then, only THOSE packages' `--filter` runs diverge; a
- * whole-tree root run still suppresses them correctly (their files are in the
- * tree and their keys match).
+ * SUBMODULE BOUNDARY: packages/ui is a git submodule whose package.json lives in
+ * a separate repo; its `lint` script must adopt this same wrapper in that repo
+ * (the parent cannot edit it without submodule churn). Until then, only THAT
+ * package's `--filter` run diverges; a whole-tree root run still suppresses it
+ * correctly (its files are in the tree and its keys match).
  */
 
 import { spawnSync } from "node:child_process";

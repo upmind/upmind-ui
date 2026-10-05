@@ -1,0 +1,19 @@
+# Negative control — the cart's basket page passes cart-nuxt's basket record, so
+# the cart draws another app's templates.
+#
+# Intended RED:
+#   packages/modules-foundation/src/shell/__tests__/app-shell-fill.test.ts
+#     "cart's pages take each record from its own module"
+
+diff --git a/apps/cart/src/pages/Basket.vue b/apps/cart/src/pages/Basket.vue
+--- a/apps/cart/src/pages/Basket.vue
++++ b/apps/cart/src/pages/Basket.vue
+@@ -14,7 +14,7 @@ import { UpmBasket } from "@upmind-automation/basket";
+ import { ROUTE } from "../router";
+ import { useStorefrontRoute } from "../router/useStorefrontRoute";
+ import Transitions from "../shell/components/transition/Transition.vue";
+-import { BASKET_TEMPLATES } from "../shell/modules/basket/shell";
++import { BASKET_TEMPLATES } from "../../../cart-nuxt/app/shell/modules/basket/shell";
+ 
+ // -----------------------------------------------------------------------------
+ const { storefrontRoute } = useStorefrontRoute();

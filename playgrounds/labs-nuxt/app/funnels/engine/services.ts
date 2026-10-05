@@ -1,12 +1,10 @@
 import {
-  type FunnelContext,
   useRoutingEngine,
   useActiveSession,
   useQueryParams,
-  type FunnelResponse,
   FunnelActions,
   QUERY_PARAMS
-} from "@upmind-automation/client-vue";
+} from "@upmind-automation/headless";
 import {
   ScopeActorTypes,
   useInvoice,
@@ -27,6 +25,10 @@ import {
   startsWith,
   toString
 } from "lodash-es";
+import type {
+  FunnelContext,
+  FunnelResponse
+} from "@upmind-automation/headless";
 import type { RouteLocation } from "vue-router";
 import {
   parseScopeSuffix,

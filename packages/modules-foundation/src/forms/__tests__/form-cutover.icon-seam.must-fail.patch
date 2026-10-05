@@ -1,0 +1,43 @@
+Negative control for form-cutover.test.ts — the icon seam.
+
+Drops the wrapper's `provideFormIcon(Icon)` call, so `@upmind/ui`'s engine falls
+back to its render-nothing default and every engine glyph disappears: the
+FormField label icon, the tooltip trigger, and the leading icon inside the
+control. Nothing else changes — the country seam, the host binding and the model
+round-trip are untouched.
+
+The unused `provideFormIcon` and `Icon` imports go with it. Left behind they trip
+`noUnusedLocals` and the mutant grades TYPECHECK instead of the assertion.
+
+Expected: the two assertions under "the wrapper's icon reaches the engine" that
+read the wrapper path go red — "draws the label icon and the tooltip trigger the
+uischema names" and "draws the leading icon inside the field". The paired
+bare-engine control, "draws no glyph at all on a host nobody supplied an icon
+to", must stay GREEN; that pairing is what separates a real seam assertion from
+one passing on ambient state. Both country assertions stay green.
+
+diff --git a/packages/modules-foundation/src/forms/Form.vue b/packages/modules-foundation/src/forms/Form.vue
+index 438b022..5945b49 100644
+--- a/packages/modules-foundation/src/forms/Form.vue
++++ b/packages/modules-foundation/src/forms/Form.vue
+@@ -24,12 +24,10 @@
+ import {
+   Form,
+   provideFormEngineData,
+-  provideFormIcon,
+   useForwardPropsEmits
+ } from "@upmind/ui";
+ import { useI18n } from "vue-i18n";
+ import { useSystem, useValidation } from "@upmind-automation/headless";
+-import { Icon } from "../icon";
+ import { useFormRenderers } from "../renderers";
+ import { useFormI18n } from "./useFormI18n";
+ import { assign } from "lodash-es";
+@@ -49,7 +47,6 @@ const { countries, ensureCountries } = useSystem();
+ 
+ // The engine takes its glyph and its reference data from the host: it resolves
+ // neither an app icon name-map nor a BE country list itself.
+-provideFormIcon(Icon);
+ provideFormEngineData({ countries, ensureCountries });
+ 
+ const emits = defineEmits<{

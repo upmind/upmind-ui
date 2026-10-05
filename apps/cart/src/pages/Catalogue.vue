@@ -4,12 +4,12 @@
     :configure-route="{ name: ROUTE.PRODUCT_CONFIGURE }"
     v-slot="{ template }"
   >
-    <component :is="CATALOGUE_TEMPLATES[template]" />
+    <component :is="catalogueTemplate(template)" />
   </UpmCatalogue>
 </template>
 
 <script lang="ts" setup>
 import { UpmCatalogue } from "@upmind-automation/catalogue";
-import { CATALOGUE_TEMPLATES } from "@upmind-automation/client-vue";
 import { ROUTE } from "../router";
+import { catalogueTemplate } from "../shell/modules/catalogue/shell";
 </script>

@@ -9,21 +9,23 @@
 #     every test that draws a lookup control
 
 diff --git a/packages/modules-foundation/src/renderers/index.ts b/packages/modules-foundation/src/renderers/index.ts
-index d172471..6dbb9d4 100644
+index 22e4e566f1..9286d6d1a2 100644
 --- a/packages/modules-foundation/src/renderers/index.ts
 +++ b/packages/modules-foundation/src/renderers/index.ts
-@@ -1,13 +1,7 @@
--import { registerEntry } from "@upmind/ui";
+@@ -17,8 +17,6 @@
+ import { tester as filterToggleGroupTester } from "./FilterToggleGroupRenderer.vue";
+ import ImageRenderer from "./ImageRenderer.vue";
+ import { tester as imageTester } from "./ImageRenderer.vue";
 -import LookupRenderer from "./LookupRenderer.vue";
 -import { tester as lookupTester } from "./LookupRenderer.vue";
  import type { FormRendererEntry } from "./types";
  
  export type { FormRendererEntry } from "./types";
- export * from "./useFormRenderers";
+@@ -26,7 +24,6 @@
  
- /** Foundation's own form controls; the consumer registers them, foundation never does. */
--export const foundationRenderers: FormRendererEntry[] = [
--  // The lookup control searches through headless, which the design system may not import.
--  registerEntry(LookupRenderer, lookupTester)
--];
-+export const foundationRenderers: FormRendererEntry[] = [];
+ export const foundationRenderers: FormRendererEntry[] = [
+   registerEntry(ImageRenderer, imageTester),
+-  registerEntry(LookupRenderer, lookupTester),
+   registerEntry(FilterButtonGroupRenderer, filterButtonGroupTester),
+   registerEntry(
+     FilterExclusiveToggleGroupRenderer,

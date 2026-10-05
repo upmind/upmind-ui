@@ -254,11 +254,11 @@ describe("the catalogue package's resolved import boundary", () => {
 describe("the import reader the boundary rests on", () => {
   it.each([
     [
-      'import type { DomainTemplates } from "@upmind-automation/domain";',
+      'import type { DacProps } from "@upmind-automation/domain";',
       IMPORT_KIND.TYPE
     ],
     [
-      'export type { DomainTemplates } from "@upmind-automation/domain";',
+      'export type { DacProps } from "@upmind-automation/domain";',
       IMPORT_KIND.TYPE
     ],
     [
@@ -266,7 +266,7 @@ describe("the import reader the boundary rests on", () => {
       IMPORT_KIND.STATIC
     ],
     [
-      'import { type DomainTemplates } from "@upmind-automation/domain";',
+      'import { type DacProps } from "@upmind-automation/domain";',
       IMPORT_KIND.STATIC
     ],
     [

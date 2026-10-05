@@ -17,9 +17,7 @@ import { createI18n } from "vue-i18n";
 import { createMemoryHistory, createRouter } from "vue-router";
 import { PRODUCT_LIST_STYLE } from "@upmind-automation/headless";
 import Catalogue from "../components/Catalogue.vue";
-import { CATALOGUE_TEMPLATE } from "../types";
 import { assign, filter, map } from "lodash-es";
-import type { CatalogueTemplates } from "../types";
 import type { VueWrapper } from "@vue/test-utils";
 import type { Component } from "vue";
 import type { Router } from "vue-router";
@@ -105,10 +103,6 @@ const HostTemplate = defineComponent({
       ])
 });
 
-const CATALOGUE_TEMPLATES: CatalogueTemplates = {
-  [CATALOGUE_TEMPLATE.FULL]: HostTemplate
-};
-
 async function routerOn(query: Record<string, string>): Promise<Router> {
   const router = createRouter({
     history: createMemoryHistory(),
@@ -138,8 +132,7 @@ async function mountCatalogue(query: Record<string, string> = {}) {
         Catalogue,
         { categoryRoute: { name: "catalogue" } },
         {
-          default: ({ template }: { template: CATALOGUE_TEMPLATE }) =>
-            h(CATALOGUE_TEMPLATES[template])
+          default: () => h(HostTemplate)
         }
       )
   });

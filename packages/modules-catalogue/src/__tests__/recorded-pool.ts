@@ -1,7 +1,7 @@
 // -----------------------------------------------------------------------------
 /**
  * @module catalogue/__tests__/recorded-pool
- * @description The recorded guest storefront traffic the integration lane replays: the brand's category tree and the products listed under it.
+ * @description The recorded guest storefront traffic the integration lane replays: the brand's category tree and the products listed under it, on a brand that sets one template for every page.
  */
 
 import { join } from "node:path";
@@ -10,7 +10,7 @@ import {
   overrideRoute,
   startReplayServer
 } from "@upmind-automation/test-fixtures/replay-server";
-import { find, map } from "lodash-es";
+import { filter, find, get, isEqual, keys, map } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 
@@ -35,6 +35,10 @@ const SESSION = pool("session-store");
 const CATEGORIES_KEY = "get-basket-products-categories-case-unpaged";
 const PRODUCTS_KEY =
   "get-basket-products-case-page-1-filter-provision-blueprint-category-code-neq-domain-names";
+
+const BRAND_SETTINGS_KEY = "get-brand-settings";
+
+const EVERY_PAGE_TEMPLATE = "@context.*.template";
 
 export const server = startReplayServer({ recordingsDir: CATEGORIES });
 
@@ -114,3 +118,25 @@ if (
       "`pnpm fixtures:generate product-catalogue`."
   );
 }
+
+const brandMeta: Record<string, unknown> = get(
+  getFixture(BRAND_SETTINGS_KEY, { recordingsDir: CATEGORIES }).response.body,
+  ["data", "meta", "cart"],
+  {}
+);
+
+if (
+  !isEqual(
+    filter(keys(brandMeta), setting => setting.endsWith("template")),
+    [EVERY_PAGE_TEMPLATE]
+  )
+) {
+  throw new Error(
+    "The recorded storefront pool no longer holds a brand whose only " +
+      `template setting is \`${EVERY_PAGE_TEMPLATE}\`. Re-run ` +
+      "`pnpm fixtures:generate product-categories`."
+  );
+}
+
+/** The recorded brand's template for every page, as the brand wrote it. */
+export const RECORDED_TEMPLATE = brandMeta[EVERY_PAGE_TEMPLATE];

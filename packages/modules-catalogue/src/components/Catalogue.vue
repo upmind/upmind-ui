@@ -1,6 +1,6 @@
 <template>
   <LayoutProvider>
-    <slot :template="CATALOGUE_TEMPLATE.FULL" />
+    <slot :template="ui.template.value" />
 
     <template #content-header>
       <Categories
@@ -77,7 +77,6 @@ import Categories from "../categories/Categories.vue";
 import CategoriesFacet from "../categories/facet/CategoriesFacet.vue";
 import WidgetDAC from "../products/WidgetDAC.vue";
 import WidgetGrid from "../products/WidgetGrid.vue";
-import { CATALOGUE_TEMPLATE } from "../types";
 import { productsRootVariants, productsFacetsRootVariants } from "../variants";
 import { last } from "lodash-es";
 import type {

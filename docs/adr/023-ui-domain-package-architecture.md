@@ -2,7 +2,7 @@
 
 **Date:** June 15, 2026
 **Updated:** June 15, 2026 — §10 rewritten as a two-axis SSR-safe state model (brand-invariant shared cache + per-user request scope), after reviewing the `@next-legacy` scope-based composables (`modules/scope/`). They are built and SPA-correct; the SSR gap is that the scope registry, `QueryClient`, and session-store are module-level (per-process) rather than per-request — fixable at one chokepoint (`ensure()`). **Accepted 2026-06-16** — all Open Questions (Q1–Q4) resolved.
-**Status:** Accepted — amended 2026-08-25 (constraint 5 narrowed), 2026-09-07 (Amendment 1: a phased strangler replaces the big-bang wave), 2026-09-08 (Amendment 2: four scope rulings, UNRATIFIED), 2026-09-11 (Amendment 3: a generic control is not a domain renderer — ratified, and it supersedes part of Amendment 2 ruling 1), 2026-09-15 (Amendment 4: genericness admits to `foundation` alongside the count — ratified 2026-09-16, WITHDRAWN 2026-09-17), 2026-09-17 (Amendment 7: `basket` may read `client`, and the subject rows go home — ratified), 2026-09-21 (Amendment 9: the §8 feature contract is retired — the app owns its renderer list, its routes and its route names — ratified 2026-09-25), 2026-09-24 (Amendment 11: Phase 0 holds only what Phase 0 needs), 2026-09-25 (Amendment 12: the lookup control lives in `foundation`'s form — ratified), 2026-09-25 (Amendment 13: a domain package holds only UI concerns; the rest lives in `headless` — ratified 2026-09-28), 2026-09-28 (Amendment 14: the theme belongs to the app; useAnnouncement lives in foundation; both ports are removed) and 2026-09-28 (Amendment 15: a page takes its templates from the page that mounts it; catalogue imports domain when a category needs it; headless stays as develop has it; the shell socket and the DAC port are removed). See the Amendments below.
+**Status:** Accepted — amended 2026-08-25 (constraint 5 narrowed), 2026-09-07 (Amendment 1: a phased strangler replaces the big-bang wave), 2026-09-08 (Amendment 2: four scope rulings, UNRATIFIED), 2026-09-11 (Amendment 3: a generic control is not a domain renderer — ratified, and it supersedes part of Amendment 2 ruling 1), 2026-09-15 (Amendment 4: genericness admits to `foundation` alongside the count — ratified 2026-09-16, WITHDRAWN 2026-09-17), 2026-09-17 (Amendment 7: `basket` may read `client`, and the subject rows go home — ratified), 2026-09-17 (Amendment 8: a host that registers no page gets an error, not one this repo drew — ratified), 2026-09-21 (Amendment 9: the §8 feature contract is retired — the app owns its renderer list, its routes and its route names — ratified 2026-09-25), 2026-09-23 (Amendment 10: the layout tree moves to `foundation`; the page, header and footer stay app-owned — ratified), 2026-09-24 (Amendment 11: Phase 0 holds only what Phase 0 needs), 2026-09-25 (Amendment 12: the lookup control lives in `foundation`'s form — ratified), 2026-09-25 (Amendment 13: a domain package holds only UI concerns; the rest lives in `headless` — ratified 2026-09-28), 2026-09-28 (Amendment 14: the theme belongs to the app; useAnnouncement lives in foundation; both ports are removed) and 2026-09-28 (Amendment 15: a page takes its templates from the page that mounts it; catalogue imports domain when a category needs it; headless stays as develop has it; the shell socket and the DAC port are removed). See the Amendments below.
 **Authors:** Dom da Costa
 
 ---
@@ -386,6 +386,19 @@ No `client` surface draws them yet, so the count is one today. "Always will be" 
 
 ---
 
+## Amendment 8 (2026-09-17) — a host that registers no page gets an error, not one this repo drew
+
+**Scope.** Removes the bare templates from every domain package. §7's socket rule is unchanged: a package still names the slots and still draws nothing. Ratified by the operator on 2026-09-17.
+
+**What existed.** Twelve files across seven packages — one per module — each a `div` that drew the module's named slots and nothing else. They rendered when a host filled no template slot, and they printed a development warning while doing it.
+
+**Why they fell.** They answered a question that could not be asked before the split. `client-vue`'s `Basket.vue` imported its own five templates and picked one from a map, so a template always existed. Moving the templates into the apps made "the host gave me nothing" possible, and the bare file was invented to cover it. A page nobody designed is indistinguishable from a working one in a screenshot and in every lane, so the cover was worse than the miss.
+
+**The rule.** A template name the host registered no page for throws, naming the slot. Every host registers a page for every name the package can resolve; no name clamps to another, and no package substitutes one of its own.
+
+**What it cost.** Three hosts drew no templates at all and now draw all of them: `apps/auth` and `apps/portal-nuxt` gained the seven `auth` arrangements, `playgrounds/labs-nuxt` gained those seven plus the five `invoice` ones, and `portal-nuxt` gained the five `invoice` ones. `apps/cart` and `apps/cart-nuxt` already registered all 45 and never reached a fallback.
+
+**What is not covered.** `auth`'s loading interstitial still falls back to its own spinner when a host fills no loading slot. A spinner is not page chrome, and it is the only one of its kind; it is a decision on its own evidence.
 ## Amendment 9 (2026-09-21) — the feature contract is retired; the app owns its list, its routes and its names
 
 **Scope.** Retires §8 in full. Corrects §9's claim that the Nuxt module system is the loader.
@@ -607,6 +620,96 @@ revived registry, and not a lookup against a list the host itself wrote.
 
 ---
 
+## Amendment 10 (2026-09-23) — the layout tree moves to `foundation`; the page, header and footer stay app-owned
+
+> ✅ **Ratified by the operator on 2026-09-23.** Written the same day against
+> `feature/fe-3199-phase-10-retire-client-vue` @ `543d80fcff`.
+
+**Scope.** Moves one subtree — `shell/components/layout/` — out of three hosts into
+`packages/modules-foundation`. **Amendment 1 change 3 otherwise stands**: the page, the header and the
+footer remain app-owned and remain copied into each host. §3's grant matrix, §7's socket rule and
+the three layers are unchanged. The operator also ruled, the same day, that no domain package draws a page template of its own — not even a domain-free composition on a design-system frame; every host registers every template a package can ask for, as Amendment 8 already requires.
+
+**What this reverses.** Amendment 5 (2026-09-16) proposed moving the whole shell — page, layouts,
+header, footer — into `foundation`, and was **withdrawn the day it was written** when the operator
+upheld Amendment 1 change 3. Amendment 6 was withdrawn with it. **This amendment reverses that
+withdrawal for the `layout` third only, and on different grounds.** Amendment 5 rested on
+Amendment 6's widened count (an app counts as a consumer); this one does not, and Amendment 6 stays
+withdrawn. §2's count means domain packages, as originally written.
+
+**The measurement, at `543d80fcff`.** The tree is 34 files in `apps/cart/src` and
+`apps/cart-nuxt/app`, **byte-identical across both** by blob hash, and 33 in
+`playgrounds/labs-nuxt/app` — also byte-identical, lacking only
+`components/transition/Transition.vue`. Its package imports are `@upmind/ui` (13),
+`@upmind-automation/foundation` (13), `@vueuse/core` (3), `@upmind-automation/headless` (2), plus
+`vue`, `class-variance-authority` and `lodash-es`. **No domain package**, so the move creates no
+cycle, and **`foundation`'s manifest already declares every one of them** — the move adds no
+dependency edge.
+
+**How the count is met.** It is not, on the letter of §2, and this amendment says so rather than
+dressing it up. Zero domain packages depend on the layout tree today; three *hosts* do. The
+admission rests on the same ground as the announcer port (2026-09-14, admitted below the count):
+the layout arrangement is a **seam**, not a kit, and three byte-identical copies of a seam is a
+broken connection, not a duplicate. §2's own note leaves "whether ports are exempt as a class"
+open; **this is a second instance of that open question and it stays open.**
+
+**The seam, and why no new socket is built.** `Layout.vue` never rendered the header or the footer
+— the page does. Exactly one arrangement of eight, `Inset.layout.vue`, reached them, and only to
+*configure* them in `onMounted`. Those calls are hoisted into the seven app-owned templates that
+mount `Inset`. **The layout tree reaches app-owned chrome zero times after the move**, so it needs
+neither the shell socket, nor slots, nor props, nor a typed injection port. An unbuilt port cannot
+rot; Amendment 7 already refused indirection of this shape for the manage rows.
+
+**The three things that travel that arguably should not.** `parseVariants`, `Container` and
+`Ribbon` know no Upmind domain, no brand and no feature — a lodash helper and two cva class
+wrappers. By §2's deciding rule their home is **`@upmind/ui`, not `foundation`.** They go to
+`foundation` anyway, because **the operator ruled on 2026-09-23 that `design-system` is not
+touched**: nothing added to it and nothing moved into it. **This is accepted debt with no repayment
+date, not a ruling that they belong there.** If the DS adopts them later, they move once more, and
+this paragraph is why. `Column` and `Content` are **not** in this set — `Column` reads `useSection()`
+and `isMobile`, `Content` measures itself against the viewport and drops `sticky` when oversized, so
+§2's rule as written puts both in `foundation`.
+
+**What travels, restated against the ruling.** All 34 files, `Layout.vue` and its seven-way switch
+included. `Layout.vue` is a ten-slot pass-through over a store read, not geometry, so nothing in it
+is rewritten on the way. `useLayout` is a **fourth module-level global chrome store** beside
+`useHeader`, `useFooter` and `useSection`, and the move puts one of the four inside `foundation`
+while the other three stay app-owned — the asymmetry §4 resolves. The layout variant reaches
+`Layout.vue` through **two** channels that both cross the new boundary: 34 templates pass
+`:variant` as a prop, 5 set it through the store (§3.1.1).
+
+**The cost, stated plainly.** 109 files outside the tree import into it — 240 import lines — across
+`apps/cart` (48 files / 109 refs), `apps/cart-nuxt` (49 / 108) and `playgrounds/labs-nuxt`
+(12 / 23). Every one is a rewrite. The moved tree is 34 files; the edit is seven times that. The
+rewrites are loud — `vue-tsc` fails on a miss — but the ratio is the honest price and the operator
+saw it before ratifying.
+
+**What each host keeps.** Nothing. `apps/*/shell/components/layout/` is deleted outright, with no
+wrapper and no re-export barrel — a wrapper is a second name for one thing and the drift starts
+there. `playgrounds/labs-nuxt` takes the moved tree like the two apps; it is a workspace member,
+already depends on `foundation`, and its 33 files were proven identical.
+`components/transition/Transition.vue` is **not** part of the move: no file inside the tree imports
+it, `labs-nuxt` ships without it, and it is route-transition chrome rather than an arrangement. It
+moves up one level and stays app-owned, which is what keeps `modules/system/useRouteTransition`
+app-owned too — consistent with §2's 2026-09-16 note that `modules/system` fails the count.
+
+**The new invariant, and its control.** After this amendment, **`foundation`'s layout may not reach
+the app-owned header, footer, page or `modules/system`.** `@workspace/no-cross-package-path-imports`
+is the only gate that can see it — the type gate cannot, because `apps/cart` sits outside the root
+`vue-tsc -b` reference graph. A known-bad patch,
+`foundation-layout-reaches-app-chrome.must-fail.patch`, is added beside the five
+`*-reaches-app-shell` controls to prove the rule fires.
+
+**What the existing corpus does about it: nothing, and that was checked.** All 556
+`.must-fail.patch` files were read at `543d80fcff`. **No patch header names a path this amendment
+moves**, so none silently stops grading. The five `*-reaches-app-shell` controls target
+`apps/cart/src/shell/modules/*/shell` and `apps/cart/src/shell/components/form/renderers`, which
+stay. Their prose cites "Amendment 1 change 3 makes page, layouts, header and footer app-owned";
+that sentence is now imprecise and should read "page, header and footer". **They still apply and
+still red** — this is a comment accuracy fix, not a broken control.
+
+---
+
 ## Amendment 11 (2026-09-24) — Phase 0 holds only what Phase 0 needs
 
 **Scope.** Narrows Amendment 1's "Unchanged and held" pre-flight list. The placements in §5 and in Amendment 1 change 6 stand; only the phase that lands them changes. Numbered after Amendment 10, which is recorded on a later phase's branch.
@@ -641,7 +744,7 @@ The tests for each change move with it.
 
 **The ruling.** `client-vue`'s `LookupRenderer` moves unchanged to `packages/modules-foundation/src/forms/`, and its tests move with it. It calls `useLookup` itself, as it did in `client-vue`. `foundation`'s form host registers it on every form, as `client-vue`'s form did: no injection and no registry contribution. `foundation`'s `formLookupPort` is deleted. `foundation`'s registries still ship empty.
 
-**Why `foundation`.** It is the only layer below the domain packages that may reach `headless`, and it already hosts the form that every package renders. The control knows no domain: its tester keys on the `Lookup` ui type, and the query arrives in `options.lookup`.
+**Why `foundation`.** It is the only layer below the domain packages that may reach `headless`, and it already hosts the form that every package renders. The control knows no domain: its tester keys on the `Lookup` ui type, and the query arrives in `options.lookup`. `EnumToggleGroupRenderer` joins `Lookup` in `foundation`'s form for the same reason.
 
 ## Amendment 13 (2026-09-25) — a domain package holds only UI concerns; the rest lives in `headless`
 

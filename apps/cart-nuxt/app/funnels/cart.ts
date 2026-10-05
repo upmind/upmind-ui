@@ -1,15 +1,13 @@
-import {
-  type AnyEventObject,
-  assign,
-  type FunnelContext,
-  type FunnelProps,
-  QUERY_PARAMS,
-  useBasket
-} from "@upmind-automation/client-vue";
+import { assign, QUERY_PARAMS, useBasket } from "@upmind-automation/headless";
 import actions from "./engine/actions";
 import guards from "./engine/guards";
 import services from "./engine/services";
 import { ROUTE } from "./types";
+import type {
+  AnyEventObject,
+  FunnelContext,
+  FunnelProps
+} from "@upmind-automation/headless";
 // Note: useBasket and QUERY_PARAMS are still used by the CHECKOUT NEXT handler.
 
 // -----------------------------------------------------------------------------
