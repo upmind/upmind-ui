@@ -582,7 +582,10 @@ type RecordedSubItem = {
   name: string;
   unit_quantity: number | null;
   configuration_net_selling_price_discounted_formatted: string;
-  product: { order_type: ProductOrderTypes };
+  product: {
+    order_type: ProductOrderTypes;
+    category: { name_translated: string };
+  };
 };
 
 type RecordedItem = {
@@ -758,19 +761,19 @@ describe("invoices — AC-32: the sub-items of an order item", () => {
     );
   });
 
-  it("names a sub-item bought several times with its count, and one bought once without", () => {
+  it("names a sub-item by its category and name, with its count when bought several times", () => {
     const several = mapOne({
       ...optionedItem,
       options: [{ ...recordedOption, unit_quantity: 3 }]
     });
+    const recordedName = `${recordedOption.product.category.name_translated}: ${recordedOption.name}`;
     const bought = find(several.quantifiableItems, ["id", recordedOption.id]);
     expect(bought?.quantity).toBe(3);
-    expect(bought?.name).toContain(recordedOption.name);
-    expect(bought?.name).toContain("(x3)");
+    expect(bought?.name).toBe(`${recordedName} (x3)`);
     expect(
       find(mapOne(optionedItem).quantifiableItems, ["id", recordedOption.id])
         ?.name
-    ).not.toContain("(x");
+    ).toBe(recordedName);
   });
 
   it("gives an item with no option and no attribute no sub-item, not even itself", () => {
