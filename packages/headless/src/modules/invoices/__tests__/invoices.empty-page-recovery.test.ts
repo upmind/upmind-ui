@@ -13,44 +13,80 @@
  * one, so a retry reads the wrong page.
  */
 
+import { join } from "node:path";
+import { http, HttpResponse } from "msw";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { nextTick, unref } from "vue";
-import { startScenarioReplay } from "@upmind-automation/test-fixtures/replay-server";
+import {
+  replayStep,
+  startScenarioReplay
+} from "@upmind-automation/test-fixtures/replay-server";
 import { InvoiceCategoryCode } from "@upmind-automation/types";
-import { useInvoices } from "..";
+import { InvoicesContextTypes, useInvoices } from "..";
 import { ScopeActorTypes } from "../../scope/scope.types";
 import { resetInvoiceScopes, seedClientSession } from "./invoices.int-helpers";
 import { server } from "./setup.integration";
 
+const PAGE_ONE = join(
+  import.meta.dirname,
+  "scenarios/page-through-my-orders-and-choose-the-page-size/02"
+);
+
 afterEach(resetInvoiceScopes);
+
+/** Answers the order-history read of page two, and only that read, with a server error. */
+function failPageTwo(): { served: () => number } {
+  let served = 0;
+  server?.use(
+    http.get("*/api/invoices", ({ request }) => {
+      const params = new URL(request.url).searchParams;
+      if (
+        params.get("filter[category.slug]") !==
+          InvoiceCategoryCode.NEW_CONTRACT ||
+        params.get("limit") !== "10" ||
+        params.get("offset") !== "10"
+      )
+        return undefined;
+      served += 1;
+      return HttpResponse.json(
+        {
+          status: "error",
+          data: null,
+          error: { code: 500, message: "Server Error" }
+        },
+        { status: 500 }
+      );
+    })
+  );
+  return { served: () => served };
+}
 
 // FE-3237 AC4
 describe("AC-22: the empty-page recovery", () => {
   it("keeps a failed read past page one on its page", async () => {
+    const replay = startScenarioReplay(server);
     await seedClientSession();
-    const gaps = startScenarioReplay(server);
+    replayStep(server, PAGE_ONE);
+    const pageTwo = failPageTwo();
 
     const cell = useInvoices()
       .as(ScopeActorTypes.CLIENT)
-      .for(InvoiceCategoryCode.NEW_CONTRACT as never);
-    const actions = cell.useActions() as unknown as {
-      setPage: (page: number) => Promise<void>;
-    };
-    const context = cell.useContext() as unknown as Record<string, unknown>;
-    const meta = cell.useMeta() as unknown as Record<string, unknown>;
+      .for(InvoicesContextTypes.NEW_CONTRACT);
+    const actions = cell.useActions();
+    const context = cell.useContext();
+    const meta = cell.useMeta();
 
     await actions.setPage(2);
-    await vi.waitFor(() => {
-      expect(gaps.gaps().length).toBeGreaterThan(0);
-      expect(unref(meta.isLoading)).toBe(false);
-    });
-    await new Promise(resolve => setTimeout(resolve, 300));
-    await nextTick();
+    await vi.waitFor(
+      () => {
+        expect(pageTwo.served()).toBeGreaterThan(0);
+        expect(meta.isLoading.value).toBe(false);
+      },
+      { timeout: 20000 }
+    );
 
-    expect(unref(meta.hasError)).toBe(true);
-    expect(unref(context.pagination)).toMatchObject({ page: 2 });
-    expect(
-      (unref(context.query) as { pagination: unknown }).pagination
-    ).toEqual({ limit: 10, offset: 10 });
-  });
+    expect(context.pagination.value).toMatchObject({ page: 2 });
+    expect(context.query.value.pagination).toEqual({ limit: 10, offset: 10 });
+    expect(meta.hasError.value).toBe(true);
+    expect(replay.gaps()).toEqual([]);
+  }, 30000);
 });

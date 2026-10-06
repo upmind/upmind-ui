@@ -5,25 +5,11 @@
  * the context publishes.
  */
 
-import { unref } from "vue";
-import { InvoiceCategoryCode } from "@upmind-automation/types";
-import { useInvoices } from "..";
+import { InvoicesContextTypes, useInvoices } from "..";
 import { queryClient } from "../../query/client";
 import { getRegistry, remove } from "../../scope/scope.registry";
 import { ScopeActorTypes } from "../../scope/scope.types";
 import { startsWith } from "lodash-es";
-
-/** The criteria, error and page meta a cell publishes, unwrapped. */
-export type CellView = {
-  query: {
-    filters?: Record<string, unknown>;
-    sort?: unknown[];
-    pagination?: { limit?: number; offset?: number };
-  };
-  error: unknown;
-  pagination: { page: number; limit: number };
-  meta: { hasNextPage: boolean; hasPrevPage: boolean; hasPages: boolean };
-};
 
 /** Drops every invoices scope and the query cache, so each spec starts clean. */
 export function resetCells(): void {
@@ -38,22 +24,19 @@ export function openCell(context: "orders" | "invoices" = "orders") {
   const client = useInvoices().as(ScopeActorTypes.CLIENT);
   const cell =
     context === "orders"
-      ? client.for(InvoiceCategoryCode.NEW_CONTRACT as never)
+      ? client.for(InvoicesContextTypes.NEW_CONTRACT)
       : client;
-  const actions = cell.useActions() as unknown as Record<
-    string,
-    (...args: unknown[]) => unknown
-  > & { filters: Record<string, (...args: unknown[]) => unknown> };
-  const published = cell.useContext() as unknown as Record<string, unknown>;
-  const meta = cell.useMeta() as unknown as Record<string, unknown>;
-  const view = (): CellView => ({
-    query: unref(published.query) as CellView["query"],
-    error: unref(published.error),
-    pagination: unref(published.pagination) as CellView["pagination"],
+  const actions = cell.useActions();
+  const published = cell.useContext();
+  const meta = cell.useMeta();
+  const view = () => ({
+    query: published.query.value,
+    error: published.error.value,
+    pagination: published.pagination.value,
     meta: {
-      hasNextPage: unref(meta.hasNextPage) as boolean,
-      hasPrevPage: unref(meta.hasPrevPage) as boolean,
-      hasPages: unref(meta.hasPages) as boolean
+      hasNextPage: meta.hasNextPage.value,
+      hasPrevPage: meta.hasPrevPage.value,
+      hasPages: meta.hasPages.value
     }
   });
   return { actions, view, published };

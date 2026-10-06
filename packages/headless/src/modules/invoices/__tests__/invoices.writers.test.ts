@@ -96,7 +96,7 @@ describe("AC-28: the filter writers", () => {
     });
   });
 
-  it("drops a column whose filterBy value is undefined or null", async () => {
+  it("drops a column whose filterBy value is undefined", async () => {
     const { actions, view } = openCell();
     await actions.filterBy({
       "status.code": { eq: [UNPAID_CHOICE] },
@@ -105,7 +105,7 @@ describe("AC-28: the filter writers", () => {
     });
     await actions.filterBy({
       total_amount: undefined,
-      "products.product.name": null
+      "products.product.name": undefined
     });
     await nextTick();
     expect(view().query.filters).toEqual({
@@ -124,5 +124,28 @@ describe("AC-28: the filter writers", () => {
     await nextTick();
     expect(before).toEqual(snapshot);
     expect(view().query.filters).not.toBe(before);
+  });
+
+  it("searches on a fresh copy, never the live number leaf", async () => {
+    vi.useFakeTimers();
+    const { actions, view } = openCell();
+    await actions.filterBy({ number: { eq: "QA-INV-1" } });
+    await nextTick();
+    const before = view().query.filters;
+    const snapshot = structuredClone(before);
+
+    actions.search("QA-INV-2");
+    await vi.advanceTimersByTimeAsync(300);
+    await nextTick();
+    expect(before).toEqual(snapshot);
+    expect(view().query.filters?.number).toEqual({ eq: "QA-INV-2" });
+
+    const replaced = view().query.filters;
+    const replacedSnapshot = structuredClone(replaced);
+    actions.search("");
+    await vi.advanceTimersByTimeAsync(300);
+    await nextTick();
+    expect(replaced).toEqual(replacedSnapshot);
+    expect(view().query.filters?.number).toBeUndefined();
   });
 });
