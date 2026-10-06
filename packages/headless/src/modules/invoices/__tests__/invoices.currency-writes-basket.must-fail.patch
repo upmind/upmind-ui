@@ -8,6 +8,7 @@
 # `PUT orders/{basket}/currency` request its recording does not hold, and the
 # scenario fails by name.
 diff --git a/packages/headless/src/modules/invoices/useInvoice.actions.ts b/packages/headless/src/modules/invoices/useInvoice.actions.ts
+index 5fd631ff78..0467e73eba 100644
 --- a/packages/headless/src/modules/invoices/useInvoice.actions.ts
 +++ b/packages/headless/src/modules/invoices/useInvoice.actions.ts
 @@ -1,4 +1,5 @@
@@ -15,8 +16,8 @@ diff --git a/packages/headless/src/modules/invoices/useInvoice.actions.ts b/pack
 +import { useBasketCurrency } from "../basket";
  import { usePaymentDetails } from "../payment-details";
  import { remove as removeFromRegistry } from "../scope";
- import {
-@@ -141,6 +141,7 @@
+ import { useI18n } from "../system-localisation";
+@@ -143,6 +144,7 @@ export function createInvoiceActions(
     * unless `useMeta().hasPaymentCurrencyChoice` is true.
     */
    function setCurrency(code: string): void {

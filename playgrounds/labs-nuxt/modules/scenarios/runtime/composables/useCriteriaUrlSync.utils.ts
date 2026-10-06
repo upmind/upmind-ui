@@ -18,6 +18,8 @@ import {
 import {
   castArray,
   compact,
+  filter,
+  find,
   flatMap,
   forEach,
   get,
@@ -33,6 +35,7 @@ import {
   map,
   set,
   size,
+  sortBy,
   split,
   startsWith,
   toNumber,
@@ -118,6 +121,38 @@ function coerce(leafSchema: unknown, raw: string): unknown {
   return raw;
 }
 
+/**
+ * An array leaf's comma list back to its values. A declared choice that is
+ * itself a csv (the order history's Unpaid) rides the wire as several tokens
+ * and is regrouped into ONE value, longest choice first; any other token stays
+ * a value of its own.
+ */
+function splitChoices(leafSchema: unknown, raw: string): string[] {
+  const tokens = compact(split(raw, ","));
+  const csvChoices = sortBy(
+    filter(
+      get(leafSchema, ["items", "enum"], []) as unknown[],
+      (choice): choice is string => isString(choice) && includes(choice, ",")
+    ),
+    choice => -size(split(choice, ","))
+  );
+  if (isEmpty(csvChoices)) return tokens;
+
+  const values: string[] = [];
+  let index = 0;
+  while (index < size(tokens)) {
+    const choice = find(
+      csvChoices,
+      candidate =>
+        join(tokens.slice(index, index + size(split(candidate, ","))), ",") ===
+        candidate
+    );
+    values.push(choice ?? tokens[index]);
+    index += choice ? size(split(choice, ",")) : 1;
+  }
+  return values;
+}
+
 /** The criteria model → url params. An INACTIVE leaf contributes no key at all. */
 export function criteriaToParams(
   schema: unknown,
@@ -179,7 +214,7 @@ export function paramsToCriteria(
       castArray(get(leafSchema, "type", "string")),
       "array"
     )
-      ? compact(split(raw, ","))
+      ? splitChoices(leafSchema, raw)
       : coerce(leafSchema, raw);
     if (!isNil(value) && !(isArray(value) && isEmpty(value)))
       set(criteria, leafPath(column, operator), value);
