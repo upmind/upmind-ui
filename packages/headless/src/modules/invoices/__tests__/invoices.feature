@@ -123,17 +123,20 @@ Feature: A client reads and manages their invoices
 
   # === THE COLLECTION — READING MY OWN INVOICES (client×self) ===============
 
+  # FE-3237 AC11
   @AC-2 @client @cell:client-self @collection
   Scenario: Filter my invoice list to what I need
-    When I filter my invoice list by status, category, amount or date
+    When I filter my invoice list by status, then add a category filter, then an amount or a date filter
     Then only the invoices matching every filter I set are returned
-    And an unpaid-status filter and a category filter narrow the list together
+    And each new filter keeps the filters I set before it
 
+  # FE-3237 AC10
   @AC-2 @client @cell:client-self @collection
   Scenario: Sort my invoice list
-    Given before I sort, I see the default order: most recently created first
+    Given I am on page two of my invoice list, most recently created first
     When I sort my invoice list by due date, newest first
     Then my invoice list comes back ordered by due date, newest first
+    And I stay on page two
 
   @AC-2 @client @cell:client-self @collection
   Scenario: Page through my invoice list
@@ -419,14 +422,14 @@ Feature: A client reads and manages their invoices
     And my unpaid check counts only my own invoices
 
   # FE-3237 AC2
-  @AC-20 @client @cell:client-self @collection @todo
+  @AC-20 @client @cell:client-self @collection
   Scenario: Read my order list with its brand and item counts
     Given I have placed orders with several items
     When I open my order history
     Then each order carries its brand and its item count
 
   # FE-3237 AC3
-  @AC-21 @client @cell:client-self @collection @todo
+  @AC-21 @client @cell:client-self @collection
   Scenario: Page through my orders and choose the page size
     Given I have more orders than fit on one page
     When I go to the next page, then to page three, then back one page, then choose five orders a page
@@ -435,21 +438,21 @@ Feature: A client reads and manages their invoices
     And choosing a page size takes me back to page one
 
   # FE-3237 AC3
-  @AC-21 @client @cell:client-self @collection @todo
+  @AC-21 @client @cell:client-self @collection
   Scenario: Read a search of my orders that matches nothing as empty
     Given no order of mine has the number I search for
     When I search my orders for that number
     Then my order history is empty, with a total of zero
 
   # FE-3237 AC4
-  @AC-22 @client @cell:client-self @collection @todo
+  @AC-22 @client @cell:client-self @collection
   Scenario: Go back to the first page when my page has no orders
     Given my orders are narrowed to none
     When I ask for page two
     Then I am taken back to page one
 
   # FE-3237 AC24, divergence 3
-  @AC-22 @client @cell:client-self @collection @todo
+  @AC-22 @client @cell:client-self @collection
   Scenario: Land on the last page when I ask for a page past it
     Given I have orders on three pages
     When I ask for page nine
@@ -463,7 +466,7 @@ Feature: A client reads and manages their invoices
     Then each row carries its number, total, items, dates, status, brand and markers
 
   # FE-3237 AC7, AC24 divergence 1
-  @AC-24 @client @cell:client-self @collection @todo
+  @AC-24 @client @cell:client-self @collection
   Scenario: Narrow my orders by item, category, service, number and amount
     Given I am on page two of my orders of several products and amounts
     When I narrow my orders by item name, product category, service, number or total
@@ -473,14 +476,14 @@ Feature: A client reads and manages their invoices
     And a second filter on one text column replaces the first
 
   # FE-3237 AC8
-  @AC-25 @client @cell:client-self @collection @todo
+  @AC-25 @client @cell:client-self @collection
   Scenario: Narrow my orders by when I placed or paid them
     Given I have orders placed and paid on different dates
     When I narrow my orders to the last seven days, or to a date I give
     Then only the orders placed or paid in that period are returned
 
   # FE-3237 AC9
-  @AC-26 @client @cell:client-self @collection @todo
+  @AC-26 @client @cell:client-self @collection
   Scenario: Narrow my orders by status
     Given I have paid, unpaid and adjusted orders
     When I narrow my orders to the unpaid ones, then to all but the paid ones
@@ -488,7 +491,7 @@ Feature: A client reads and manages their invoices
     And the second choice replaces the first
 
   # FE-3237 AC9
-  @AC-26 @client @cell:client-self @collection @todo
+  @AC-26 @client @cell:client-self @collection
   Scenario: Refuse an equal and a not-equal status narrowing together
     Given my orders are narrowed to the unpaid ones
     When I ask for the unpaid ones and all but the paid ones in one narrowing
@@ -496,14 +499,14 @@ Feature: A client reads and manages their invoices
     And my orders stay narrowed to the unpaid ones
 
   # FE-3237 AC10
-  @AC-27 @client @cell:client-self @collection @todo
+  @AC-27 @client @cell:client-self @collection
   Scenario: Sort my orders and stay on my page
     Given I am on page two of my orders, newest first
     When I sort my orders by total, then by status, then by order number
     Then each sort gives me page two of my orders in that order
 
   # FE-3237 AC11
-  @AC-28 @client @cell:client-self @collection @todo
+  @AC-28 @client @cell:client-self @collection
   Scenario: Find one order by its number while a filter is on
     Given my orders are narrowed to the unpaid ones and then to one product category, and I am on page two
     When I search for one order number
@@ -511,7 +514,7 @@ Feature: A client reads and manages their invoices
     And both filters stay on
 
   # FE-3237 AC11, AC24 divergence 2
-  @AC-36 @client @cell:client-self @collection @todo
+  @AC-36 @client @cell:client-self @collection
   Scenario: Only my last number search or number filter narrows my orders
     Given I have two orders, A and B
     When I filter my orders to the number of A, then search for B, then filter to the number of A again
@@ -519,7 +522,7 @@ Feature: A client reads and manages their invoices
     And after each write only that order is returned
 
   # FE-3237 AC12
-  @AC-29 @client @cell:client-self @collection @todo
+  @AC-29 @client @cell:client-self @collection
   Scenario: Keep my order history to the orders I placed
     Given my order history is open
     When I narrow it by a filter, then by the credit-notes narrowing, then by a search, then by a raw criteria write that names another category

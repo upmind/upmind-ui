@@ -86,12 +86,14 @@ import {
 import { defaultBrandConfigKeys } from "../../brand/brand.constants";
 import {
   compact,
+  filter,
   find,
   forEach,
   isEmpty,
   map,
   sortBy,
   split,
+  trim,
   uniq
 } from "lodash-es";
 import type { IToken } from "@upmind-automation/types";
@@ -987,31 +989,48 @@ describe("Invoices scenario recordings", () => {
   describe("Filter my invoice list to what I need", () => {
     const scenario = "Filter my invoice list to what I need";
     const filterStep =
-      "I filter my invoice list by status, category, amount or date";
+      "I filter my invoice list by status, then add a category filter, then an amount or a date filter";
+    const page = "&limit=10&offset=0";
 
     it(BG, () => recordStep(scenario, BG, recordBoot));
-    it(filterStep, () =>
-      recordStep(scenario, filterStep, generator =>
-        generator.get(
-          listUrl(
-            `&filter[status.code]=${InvoiceStatus.PAID}` +
-              `&filter[category.slug]=${InvoiceCategoryCode.RECURRENT}`
-          )
-        )
-      )
-    );
+    it(filterStep, async () => {
+      const status = `&filter[status.code]=${InvoiceStatus.PAID}`;
+      const category = `&filter[category.slug]=${InvoiceCategoryCode.RECURRENT}`;
+      const { body } = await selfCall(
+        `/api/invoices?client_id=${clientId}&order=-create_datetime&limit=1${status}${category}`,
+        clientToken.access_token
+      );
+      const amount = (body as { data?: Array<{ total_amount?: number }> })
+        ?.data?.[0]?.total_amount;
+      if (amount === undefined)
+        throw new Error(`${scenario}: no paid recurring invoice to narrow to.`);
+      return recordStep(scenario, filterStep, async generator => {
+        await generator.get(listUrl(status + page));
+        await generator.get(listUrl(status + category + page));
+        await generator.get(
+          listUrl(`${status}${category}&filter[total_amount]=${amount}${page}`)
+        );
+      });
+    });
   });
 
   describe("Sort my invoice list", () => {
     const scenario = "Sort my invoice list";
+    const pageTwoStep =
+      "I am on page two of my invoice list, most recently created first";
     const sortStep = "I sort my invoice list by due date, newest first";
 
     it(BG, () => recordStep(scenario, BG, recordBoot));
+    it(pageTwoStep, () =>
+      recordStep(scenario, pageTwoStep, generator =>
+        generator.get(listUrl("&limit=10&offset=10"))
+      )
+    );
     it(sortStep, () =>
       recordStep(scenario, sortStep, generator =>
         generator.get(
           `/api/invoices?${LOAD_LIST_WITH}` +
-            `&with_count=products&order=-due_date`
+            "&with_count=products&order=-due_date&limit=10&offset=10"
         )
       )
     );
@@ -3093,6 +3112,52 @@ describe("Invoices order-history scenario recordings", () => {
     generator.save();
   }
 
+  /** An order number no order of the client holds. */
+  const NO_SUCH_ORDER = "FE3237-NO-SUCH-ORDER";
+
+  /** The Unpaid status choice: one csv value, two statuses (design 8.3). */
+  const UNPAID_CHOICE = "&filter[status.code|eq]=invoice_unpaid,invoice_adjusted";
+
+  type CorpusOrder = {
+    id: string;
+    number: string;
+    total_amount: number;
+    create_datetime: string;
+    paid_datetime?: string | null;
+    status?: { code?: string };
+    products?: Array<{
+      service_identifier?: string | null;
+      product?: { name?: string; category?: { name?: string } };
+    }>;
+  };
+
+  /** The values each narrowing scenario writes, chosen from the live corpus. */
+  const corpus = {
+    threePagesFrom: "",
+    paidFrom: "",
+    unpaidCategory: "",
+    unpaidNumber: "",
+    numberA: "",
+    numberB: "",
+    narrowTarget: {
+      name: "",
+      otherName: "",
+      category: "",
+      service: "",
+      number: "",
+      total: 0
+    }
+  };
+
+  async function readOrders(query: string): Promise<CorpusOrder[]> {
+    const { body } = await selfCall(
+      `/api/invoices?filter[category.slug]=${InvoiceCategoryCode.NEW_CONTRACT}` +
+        `&with=status,products.product.category&order=-create_datetime&${query}`,
+      clientToken.access_token
+    );
+    return (body as { data?: CorpusOrder[] })?.data ?? [];
+  }
+
   beforeAll(async () => {
     clientToken = await mintClientToken();
     clientId = await resolveClientId(clientToken.access_token);
@@ -3101,7 +3166,69 @@ describe("Invoices order-history scenario recordings", () => {
         "Could not resolve the client id from /self — cannot record the " +
           "order-history scenarios."
       );
-  }, 60000);
+
+    const newest = await readOrders("limit=30");
+    if (newest.length < 30)
+      throw new Error(
+        "The client holds fewer than 30 placed orders — the order-history " +
+          "scenarios need three pages. Escalate."
+      );
+    corpus.numberA = newest[0].number;
+    corpus.numberB = newest[1].number;
+    corpus.threePagesFrom = newest[24].create_datetime;
+    const paid = find(newest, row => !!row.paid_datetime);
+    if (!paid?.paid_datetime)
+      throw new Error("No paid order among the newest thirty. Escalate.");
+    corpus.paidFrom = `${paid.paid_datetime.slice(0, 10)} 00:00:00`;
+
+    const unpaid = await readOrders(
+      "limit=50&filter[status.code|eq]=invoice_unpaid,invoice_adjusted"
+    );
+    const category = unpaid[0]?.products?.[0]?.product?.category?.name;
+    const sameCategory = filter(
+      unpaid,
+      row => row.products?.[0]?.product?.category?.name === category
+    );
+    if (!category || sameCategory.length < 3)
+      throw new Error(
+        "Fewer than three unpaid orders share a product category — the " +
+          '"Find one order by its number" scenario needs page two at two a page. Escalate.'
+      );
+    corpus.unpaidCategory = trim(category);
+    corpus.unpaidNumber = sameCategory[sameCategory.length - 1].number;
+
+    const serviced = await readOrders(
+      "limit=50&filter[products.service_identifier|like]=%25.%25"
+    );
+    const target = find(serviced, row => {
+      const item = row.products?.[0];
+      return !!(
+        item?.service_identifier &&
+        item.product?.name &&
+        item.product.category?.name
+      );
+    });
+    const item = target?.products?.[0];
+    const otherName = find(
+      newest,
+      row =>
+        !!row.products?.[0]?.product?.name &&
+        trim(row.products[0].product.name) !== trim(item?.product?.name ?? "")
+    )?.products?.[0]?.product?.name;
+    if (!target || !item?.product?.name || !otherName)
+      throw new Error(
+        "No placed order with an item name, a category and a service " +
+          "identifier. Escalate."
+      );
+    corpus.narrowTarget = {
+      name: trim(item.product.name),
+      otherName: trim(otherName),
+      category: trim(item.product.category?.name ?? ""),
+      service: item.service_identifier ?? "",
+      number: target.number,
+      total: target.total_amount
+    };
+  }, 120000);
 
   describe("List only the orders I placed", () => {
     const scenario = "List only the orders I placed";
@@ -3109,5 +3236,339 @@ describe("Invoices order-history scenario recordings", () => {
     it(BG, () => recordStep(scenario, BG, recordBoot));
     it("I open my order history", () =>
       recordStep(scenario, "I open my order history", recordOrderBoot()));
+  });
+
+  describe("Read my order list with its brand and item counts", () => {
+    const scenario = "Read my order list with its brand and item counts";
+
+    // The first page must hold an order of several items: place one through
+    // the real client order flow when the newest ten hold none.
+    beforeAll(async () => {
+      const { body } = await selfCall(
+        `/api/invoices?filter[category.slug]=${InvoiceCategoryCode.NEW_CONTRACT}` +
+          "&with_count=products&order=-create_datetime&limit=10",
+        clientToken.access_token
+      );
+      const rows =
+        (body as { data?: Array<{ products_count?: number }> })?.data ?? [];
+      if (find(rows, row => Number(row.products_count) > 1)) return;
+      const line = {
+        product_id: ARRANGE_PRODUCTS.recurring,
+        quantity: 1,
+        billing_cycle_months: 1
+      };
+      const order = await arrangeCall(
+        "POST",
+        "/api/orders",
+        clientToken.access_token,
+        { category_slug: InvoiceCategoryCode.NEW_CONTRACT, products: [line, line] }
+      );
+      const basketId = (order.body as { data?: { id?: string } })?.data?.id;
+      const convert = basketId
+        ? await arrangeCall(
+            "PATCH",
+            `/api/orders/${basketId}/convert`,
+            clientToken.access_token,
+            { type: PaymentType.PAY_LATER, amount: 0 }
+          )
+        : order;
+      if (!(convert.body as { data?: { id?: string } })?.data?.id)
+        throw new Error(
+          `${scenario}: placing an order of several items failed — ` +
+            JSON.stringify(convert.body)
+        );
+    }, 60000);
+
+    it(BG, () => recordStep(scenario, BG, recordBoot));
+    it("I open my order history", () =>
+      recordStep(scenario, "I open my order history", recordOrderBoot()));
+  });
+
+  // The replay keys a list read without `limit`, `offset` and `order`, so one
+  // step answers each page move with ONE recording: the last move, five a page.
+  describe("Page through my orders and choose the page size", () => {
+    const scenario = "Page through my orders and choose the page size";
+    const given = "I have more orders than fit on one page";
+    const when =
+      "I go to the next page, then to page three, then back one page, then choose five orders a page";
+
+    it(BG, () => recordStep(scenario, BG, recordBoot));
+    it(given, () => recordStep(scenario, given, recordOrderBoot()));
+    it(when, () =>
+      recordStep(scenario, when, async generator => {
+        await generator.get(orderListUrl("", { offset: 10 }));
+        await generator.get(orderListUrl("", { offset: 20 }));
+        await generator.get(orderListUrl("", { limit: 5, offset: 0 }));
+      })
+    );
+  });
+
+  describe("Read a search of my orders that matches nothing as empty", () => {
+    const scenario = "Read a search of my orders that matches nothing as empty";
+    const given = "no order of mine has the number I search for";
+    const when = "I search my orders for that number";
+
+    it(BG, () => recordStep(scenario, BG, recordBoot));
+    it(given, () => recordStep(scenario, given, recordOrderBoot()));
+    it(when, () =>
+      recordStep(scenario, when, generator =>
+        generator.get(orderListUrl(`&filter[number|eq]=${NO_SUCH_ORDER}`))
+      )
+    );
+  });
+
+  describe("Go back to the first page when my page has no orders", () => {
+    const scenario = "Go back to the first page when my page has no orders";
+    const given = "my orders are narrowed to none";
+    const when = "I ask for page two";
+    const none = `&filter[number|eq]=${NO_SUCH_ORDER}`;
+
+    it(BG, () => recordStep(scenario, BG, recordBoot));
+    it(given, () =>
+      recordStep(scenario, given, async generator => {
+        await recordOrderBoot()(generator);
+        await generator.get(orderListUrl(none));
+      })
+    );
+    it(when, () =>
+      recordStep(scenario, when, generator =>
+        generator.get(orderListUrl(none, { offset: 10 }))
+      )
+    );
+  });
+
+  // The page-nine read and the last-page read share one replay key, so the
+  // step holds the page-nine answer: no row at that offset, and the total.
+  describe("Land on the last page when I ask for a page past it", () => {
+    const scenario = "Land on the last page when I ask for a page past it";
+    const given = "I have orders on three pages";
+    const when = "I ask for page nine";
+    const threePages = (): string =>
+      `&filter[create_datetime|gte]=${encodeURIComponent(corpus.threePagesFrom)}`;
+
+    it(BG, () => recordStep(scenario, BG, recordBoot));
+    it(given, () =>
+      recordStep(scenario, given, async generator => {
+        await recordOrderBoot()(generator);
+        const { body } = await generator.get(orderListUrl(threePages()));
+        const total = (body as { total?: number })?.total ?? 0;
+        if (total < 21 || total > 30)
+          throw new Error(
+            `${scenario}: the narrowing holds ${total} orders, not three pages of ten.`
+          );
+      })
+    );
+    it(when, () =>
+      recordStep(scenario, when, generator =>
+        generator.get(orderListUrl(threePages(), { offset: 80 }))
+      )
+    );
+  });
+
+  describe("Narrow my orders by item, category, service, number and amount", () => {
+    const scenario =
+      "Narrow my orders by item, category, service, number and amount";
+    const given =
+      "I am on page two of my orders of several products and amounts";
+    const when =
+      "I narrow my orders by item name, product category, service, number or total";
+
+    it(BG, () => recordStep(scenario, BG, recordBoot));
+    it(given, () =>
+      recordStep(scenario, given, async generator => {
+        await recordOrderBoot()(generator);
+        await generator.get(orderListUrl("", { offset: 10 }));
+      })
+    );
+    it(when, () =>
+      recordStep(scenario, when, async generator => {
+        const t = corpus.narrowTarget;
+        const like = (value: string): string =>
+          encodeURIComponent(`%${value}%`);
+        const name = `&filter[products.product.name|like]=${like(t.name)}`;
+        const category = `&filter[products.product.category.name|like]=${like(t.category)}`;
+        const service = `&filter[products.service_identifier|like]=${like(t.service)}`;
+        const number = `&filter[number|eq]=${encodeURIComponent(t.number)}`;
+        const total = `&filter[total_amount|eq]=${t.total}`;
+        await generator.get(
+          orderListUrl(
+            `&filter[products.product.name|like]=${like(t.otherName)}`
+          )
+        );
+        await generator.get(orderListUrl(name));
+        await generator.get(orderListUrl(name + category));
+        await generator.get(orderListUrl(name + category + service));
+        await generator.get(orderListUrl(name + category + service + number));
+        const { body } = await generator.get(
+          orderListUrl(name + category + service + number + total)
+        );
+        if (!(body as { total?: number })?.total)
+          throw new Error(`${scenario}: the narrowing returned no order.`);
+      })
+    );
+  });
+
+  describe("Narrow my orders by when I placed or paid them", () => {
+    const scenario = "Narrow my orders by when I placed or paid them";
+    const given = "I have orders placed and paid on different dates";
+    const when =
+      "I narrow my orders to the last seven days, or to a date I give";
+
+    it(BG, () => recordStep(scenario, BG, recordBoot));
+    it(given, () => recordStep(scenario, given, recordOrderBoot()));
+    it(when, () =>
+      recordStep(scenario, when, async generator => {
+        const placed = "&filter[create_datetime|after]=-7_days";
+        await generator.get(orderListUrl(placed));
+        await generator.get(
+          orderListUrl(
+            `${placed}&filter[paid_datetime|gte]=${encodeURIComponent(corpus.paidFrom)}`
+          )
+        );
+      })
+    );
+  });
+
+  describe("Narrow my orders by status", () => {
+    const scenario = "Narrow my orders by status";
+    const given = "I have paid, unpaid and adjusted orders";
+    const when =
+      "I narrow my orders to the unpaid ones, then to all but the paid ones";
+
+    it(BG, () => recordStep(scenario, BG, recordBoot));
+    it(given, () => recordStep(scenario, given, recordOrderBoot()));
+    it(when, () =>
+      recordStep(scenario, when, async generator => {
+        await generator.get(orderListUrl(UNPAID_CHOICE));
+        await generator.get(
+          orderListUrl("&filter[status.code|neq]=invoice_paid")
+        );
+      })
+    );
+  });
+
+  // The refused write sends nothing, so its step records nothing.
+  describe("Refuse an equal and a not-equal status narrowing together", () => {
+    const scenario =
+      "Refuse an equal and a not-equal status narrowing together";
+    const given = "my orders are narrowed to the unpaid ones";
+
+    it(BG, () => recordStep(scenario, BG, recordBoot));
+    it(given, () =>
+      recordStep(scenario, given, async generator => {
+        await recordOrderBoot()(generator);
+        await generator.get(orderListUrl(UNPAID_CHOICE));
+      })
+    );
+  });
+
+  // The three sorts share one replay key, so the step holds the last sort.
+  describe("Sort my orders and stay on my page", () => {
+    const scenario = "Sort my orders and stay on my page";
+    const given = "I am on page two of my orders, newest first";
+    const when =
+      "I sort my orders by total, then by status, then by order number";
+
+    it(BG, () => recordStep(scenario, BG, recordBoot));
+    it(given, () =>
+      recordStep(scenario, given, async generator => {
+        await recordOrderBoot()(generator);
+        await generator.get(orderListUrl("", { offset: 10 }));
+      })
+    );
+    it(when, () =>
+      recordStep(scenario, when, async generator => {
+        await generator.get(
+          orderListUrl("", { offset: 10, order: "total_amount" })
+        );
+        await generator.get(orderListUrl("", { offset: 10, order: "status_id" }));
+        await generator.get(orderListUrl("", { offset: 10, order: "id" }));
+      })
+    );
+  });
+
+  describe("Find one order by its number while a filter is on", () => {
+    const scenario = "Find one order by its number while a filter is on";
+    const given =
+      "my orders are narrowed to the unpaid ones and then to one product category, and I am on page two";
+    const when = "I search for one order number";
+    const category = (): string =>
+      "&filter[products.product.category.name|like]=" +
+      encodeURIComponent(`%${corpus.unpaidCategory}%`);
+    const narrowed = (): string => `${UNPAID_CHOICE}${category()}`;
+    const number = (): string =>
+      `&filter[number|eq]=${encodeURIComponent(corpus.unpaidNumber)}`;
+
+    it(BG, () => recordStep(scenario, BG, recordBoot));
+    it(given, () =>
+      recordStep(scenario, given, async generator => {
+        await recordOrderBoot()(generator);
+        await generator.get(orderListUrl(UNPAID_CHOICE));
+        await generator.get(orderListUrl(narrowed()));
+        await generator.get(orderListUrl(narrowed(), { limit: 2, offset: 0 }));
+        const { body } = await generator.get(
+          orderListUrl(narrowed(), { limit: 2, offset: 2 })
+        );
+        if (((body as { data?: unknown[] })?.data ?? []).length === 0)
+          throw new Error(`${scenario}: page two of the narrowing is empty.`);
+        // The read a replacing filterBy sends in place of the merge: recorded
+        // so its negative control fails on the kept-filters step by name.
+        await generator.get(orderListUrl(category(), { limit: 2, offset: 2 }));
+      })
+    );
+    it(when, () =>
+      recordStep(scenario, when, async generator => {
+        await generator.get(
+          orderListUrl(narrowed() + number(), { limit: 2, offset: 0 })
+        );
+        await generator.get(
+          orderListUrl(category() + number(), { limit: 2, offset: 0 })
+        );
+      })
+    );
+  });
+
+  describe("Only my last number search or number filter narrows my orders", () => {
+    const scenario =
+      "Only my last number search or number filter narrows my orders";
+    const when =
+      "I filter my orders to the number of A, then search for B, then filter to the number of A again";
+
+    it(BG, () => recordStep(scenario, BG, recordBoot));
+    it("I have two orders, A and B", () =>
+      recordStep(scenario, "I have two orders, A and B", recordOrderBoot()));
+    it(when, () =>
+      recordStep(scenario, when, async generator => {
+        await generator.get(
+          orderListUrl(`&filter[number|eq]=${encodeURIComponent(corpus.numberA)}`)
+        );
+        await generator.get(
+          orderListUrl(`&filter[number|eq]=${encodeURIComponent(corpus.numberB)}`)
+        );
+      })
+    );
+  });
+
+  // The credit-notes write drops its undeclared column, so its read is the
+  // boot read the Given already holds.
+  describe("Keep my order history to the orders I placed", () => {
+    const scenario = "Keep my order history to the orders I placed";
+    const when =
+      "I narrow it by a filter, then by the credit-notes narrowing, then by a search, then by a raw criteria write that names another category";
+
+    it(BG, () => recordStep(scenario, BG, recordBoot));
+    it("my order history is open", () =>
+      recordStep(scenario, "my order history is open", recordOrderBoot()));
+    it(when, () =>
+      recordStep(scenario, when, async generator => {
+        await generator.get(orderListUrl("&filter[status.code|eq]=invoice_paid"));
+        await generator.get(
+          orderListUrl(`&filter[number|eq]=${encodeURIComponent(corpus.numberA)}`)
+        );
+        await generator.get(
+          orderListUrl(`&filter[total_amount|eq]=${corpus.narrowTarget.total}`)
+        );
+      })
+    );
   });
 });

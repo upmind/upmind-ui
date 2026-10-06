@@ -87,8 +87,8 @@ async function arrangeScenario(scenario: FeatureScenario): Promise<void> {
 
 /**
  * Fails the scenario by its first capture gap, whatever else it failed on: a
- * request the recording lacks is the cause, and the check it broke is only the
- * symptom.
+ * request the recording lacks is the cause. The gap is a soft failure, so a
+ * step that failed on it is reported beside it, never hidden by it.
  */
 function cleanupScenario(): void {
   resetInvoiceScopes();
@@ -97,7 +97,7 @@ function cleanupScenario(): void {
   const [gap] = replay?.gaps() ?? [];
   replay = undefined;
 
-  if (gap) throw new Error(`"${currentScenario}" — ${gap}`);
+  expect.soft(gap, `"${currentScenario}" — capture gap`).toBeUndefined();
 }
 
 /** Arms the answers THIS step recorded; a step that made no request has none. */

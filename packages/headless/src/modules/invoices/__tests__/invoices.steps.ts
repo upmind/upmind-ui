@@ -65,6 +65,21 @@ import creditNoteRecording from "./scenarios/tie-a-credit-note-back-to-the-invoi
 import ac19DefaultListRecording from "./scenarios/list-only-the-orders-i-placed/01/get-invoices.json";
 import ac19UnpaidProbeRecording from "./scenarios/list-only-the-orders-i-placed/01/get-invoices-filter-client-id-filter-status-code-invoice-unpaid-invoice-overdue-invoice-adjusted.json";
 import ac19OrderListRecording from "./scenarios/list-only-the-orders-i-placed/03/get-invoices-filter-category-slug-new-contract.json";
+import ac20OrderListRecording from "./scenarios/read-my-order-list-with-its-brand-and-item-counts/03/get-invoices-filter-category-slug-new-contract.json";
+import ac21BootRecording from "./scenarios/page-through-my-orders-and-choose-the-page-size/02/get-invoices-filter-category-slug-new-contract.json";
+import ac21FiveRecording from "./scenarios/page-through-my-orders-and-choose-the-page-size/03/get-invoices-filter-category-slug-new-contract.json";
+import ac21EmptyBootRecording from "./scenarios/read-a-search-of-my-orders-that-matches-nothing-as-empty/02/get-invoices-filter-category-slug-new-contract.json";
+import ac21EmptyRecording from "./scenarios/read-a-search-of-my-orders-that-matches-nothing-as-empty/03/get-invoices-filter-category-slug-new-contract-filter-number-eq-fe3237-no-such-order.json";
+import ac22NoneRecording from "./scenarios/go-back-to-the-first-page-when-my-page-has-no-orders/02/get-invoices-filter-category-slug-new-contract-filter-number-eq-fe3237-no-such-order.json";
+import ac24PageTwoRecording from "./scenarios/narrow-my-orders-by-item-category-service-number-and-amount/02/get-invoices-filter-category-slug-new-contract.json";
+import ac25PlacedRecording from "./scenarios/narrow-my-orders-by-when-i-placed-or-paid-them/03/get-invoices-filter-category-slug-new-contract-filter-create-datetime-after-7-days.json";
+import ac26UnpaidRecording from "./scenarios/narrow-my-orders-by-status/03/get-invoices-filter-category-slug-new-contract-filter-status-code-eq-invoice-unpaid-invoice-adjusted.json";
+import ac26NotPaidRecording from "./scenarios/narrow-my-orders-by-status/03/get-invoices-filter-category-slug-new-contract-filter-status-code-neq-invoice-paid.json";
+import ac26RefuseUnpaidRecording from "./scenarios/refuse-an-equal-and-a-not-equal-status-narrowing-together/02/get-invoices-filter-category-slug-new-contract-filter-status-code-eq-invoice-unpaid-invoice-adjusted.json";
+import ac27PageTwoRecording from "./scenarios/sort-my-orders-and-stay-on-my-page/02/get-invoices-filter-category-slug-new-contract.json";
+import ac27SortedRecording from "./scenarios/sort-my-orders-and-stay-on-my-page/03/get-invoices-filter-category-slug-new-contract.json";
+import ac29PaidRecording from "./scenarios/keep-my-order-history-to-the-orders-i-placed/03/get-invoices-filter-category-slug-new-contract-filter-status-code-eq-invoice-paid.json";
+import ac29BootRecording from "./scenarios/keep-my-order-history-to-the-orders-i-placed/02/get-invoices-filter-category-slug-new-contract.json";
 import {
   latestSent,
   markWire,
@@ -73,12 +88,18 @@ import {
 } from "./invoices.wire";
 import {
   every,
+  filter,
   findLast,
   first,
+  includes,
   isEmpty,
+  last,
   map,
+  size,
+  some,
   split,
-  values
+  values,
+  zipObject
 } from "lodash-es";
 import type { World } from "@upmind-automation/scenario-harness";
 
@@ -104,6 +125,8 @@ export const INVOICES_COVERED_ACTIONS = {
   isReady: "isReady",
   setCriteria: "setCriteria",
   sortBy: "sortBy",
+  filterBy: "filterBy",
+  setPage: "setPage",
   refresh: "refresh",
   filterCreditNotes: "filterCreditNotes"
 } as const;
@@ -467,7 +490,275 @@ const AC19 = {
   unpaidTotal: (ac19UnpaidProbeRecording as ListRecording).response.body.total
 } as const;
 
+
+/** Every list recording of the module's scenarios, by its path. */
+const LIST_RECORDINGS = import.meta.glob<ListRecording>(
+  "./scenarios/*/*/get-invoices*.json",
+  { eager: true, import: "default" }
+);
+
+/**
+ * The one list recording of a scenario step whose request `match` selects. A
+ * value-bearing file name changes on each re-record, so the step reads the
+ * recording by its request, never by its name.
+ */
+function listRecording(
+  slug: string,
+  step: string,
+  match: (params: URLSearchParams) => boolean
+): ListRecording {
+  const found = filter(
+    map(LIST_RECORDINGS, (recording, path) => ({ recording, path })),
+    ({ recording, path }) =>
+      includes(path, `/scenarios/${slug}/${step}/`) &&
+      match(new URL(recording.request.path, "http://localhost").searchParams)
+  );
+  if (size(found) !== 1)
+    throw new Error(
+      `expected one recording in ${slug}/${step}, found ${size(found)}; re-record.`
+    );
+  return found[0].recording;
+}
+
+const hasAll =
+  (...keys: string[]) =>
+  (params: URLSearchParams): boolean =>
+    every(keys, key => params.has(key));
+
+const filterKeys = (params: URLSearchParams): string[] =>
+  filter([...params.keys()], key => key.startsWith("filter["));
+
+/** One param of a recorded request path, decoded. */
+const recordedParam = (recording: ListRecording, key: string): string =>
+  paramOf(recording.request.path, key);
+
+/** The rows of a recorded list read as `{ id }` subsets, in order. */
+const rowIds = (recording: ListRecording) =>
+  map(recording.response.body.data, ({ id }) => ({ id }));
+
+/** Waits until the context holds this recorded read: its rows and its total. */
+const holdsRead = (world: World, recording: ListRecording) =>
+  settles(() =>
+    world.expectContext({
+      data: rowIds(recording),
+      pagination: { total: recording.response.body.total }
+    })
+  );
+
+/** A boolean meta member's live value, read through the World. */
+const metaIs = (world: World, flag: string): Promise<boolean> =>
+  world.expectMeta({ [flag]: true }).then(
+    () => true,
+    () => false
+  );
+
+const PAGE_FLAGS = ["hasNextPage", "hasPrevPage", "hasPages"] as const;
+
+type PageMove = {
+  page: number;
+  limit: number;
+  flags: Record<(typeof PAGE_FLAGS)[number], boolean>;
+};
+
+/** Fires one page move and waits until the context sits on its page. */
+async function movePage(
+  world: World,
+  actionId: string,
+  input: unknown,
+  page: number,
+  limit: number
+): Promise<PageMove> {
+  await world.fire(actionId, input);
+  await settles(() => world.expectContext({ pagination: { page, limit } }));
+  const flags = await Promise.all(map(PAGE_FLAGS, flag => metaIs(world, flag)));
+  return {
+    page,
+    limit,
+    flags: zipObject(PAGE_FLAGS, flags) as PageMove["flags"]
+  };
+}
+
+/** The page flags the design promises for a page of a given total. */
+const expectedFlags = (
+  page: number,
+  limit: number,
+  total: number
+): PageMove["flags"] => ({
+  hasNextPage: page * limit < total,
+  hasPrevPage: page > 1,
+  hasPages: total > limit
+});
+
+const listOffsets = (requests: URL[]) =>
+  map(requests, request => ({
+    offset: request.searchParams.get("offset"),
+    limit: request.searchParams.get("limit")
+  }));
+
+/** The number leaves of a request, in every spelling the wire could carry. */
+const numberLeaves = (request: URL): string[] => [
+  ...request.searchParams.getAll("filter[number|eq]"),
+  ...request.searchParams.getAll("filter[number]")
+];
+
+/** Per-scenario observations a `When` keeps for its `Then` steps. */
+const observed: {
+  moves: PageMove[];
+  readsPerWrite: number[];
+  narrowedRead: boolean[];
+} = { moves: [], readsPerWrite: [], narrowedRead: [] };
+
+function resetObserved(): void {
+  observed.moves = [];
+  observed.readsPerWrite = [];
+  observed.narrowedRead = [];
+}
+
+/** The default list narrowed by status, then category, then amount (AC-2). */
+const INVOICE_FILTER = (() => {
+  const final = listRecording(
+    "filter-my-invoice-list-to-what-i-need",
+    "02",
+    hasAll("filter[total_amount]")
+  );
+  return {
+    final,
+    amount: Number(recordedParam(final, "filter[total_amount]"))
+  };
+})();
+
+const AC21 = {
+  boot: ac21BootRecording as ListRecording,
+  five: ac21FiveRecording as ListRecording
+} as const;
+
+const AC21_EMPTY = {
+  boot: ac21EmptyBootRecording as ListRecording,
+  empty: ac21EmptyRecording as ListRecording,
+  term: recordedParam(ac21EmptyRecording as ListRecording, "filter[number|eq]")
+} as const;
+
+const AC22 = (() => {
+  const threePages = listRecording(
+    "land-on-the-last-page-when-i-ask-for-a-page-past-it",
+    "02",
+    hasAll("filter[create_datetime|gte]")
+  );
+  return {
+    none: ac22NoneRecording as ListRecording,
+    term: recordedParam(ac22NoneRecording as ListRecording, "filter[number|eq]"),
+    threePages,
+    from: recordedParam(threePages, "filter[create_datetime|gte]")
+  };
+})();
+
+const AC24 = (() => {
+  const slug = "narrow-my-orders-by-item-category-service-number-and-amount";
+  const NAME = "filter[products.product.name|like]";
+  const final = listRecording(slug, "03", hasAll("filter[total_amount|eq]"));
+  const like = (recording: ListRecording, key: string) =>
+    recordedParam(recording, key).replace(/^%|%$/g, "");
+  const name = like(final, NAME);
+  const firstNameRead = listRecording(
+    slug,
+    "03",
+    params =>
+      size(filterKeys(params)) === 2 && params.get(NAME) !== `%${name}%`
+  );
+  return {
+    pageTwo: ac24PageTwoRecording as ListRecording,
+    final,
+    firstName: like(firstNameRead, NAME),
+    name,
+    category: like(final, "filter[products.product.category.name|like]"),
+    service: like(final, "filter[products.service_identifier|like]"),
+    number: recordedParam(final, "filter[number|eq]"),
+    total: recordedParam(final, "filter[total_amount|eq]")
+  };
+})();
+
+const AC25 = (() => {
+  const paid = listRecording(
+    "narrow-my-orders-by-when-i-placed-or-paid-them",
+    "03",
+    hasAll("filter[paid_datetime|gte]")
+  );
+  return {
+    placed: ac25PlacedRecording as ListRecording,
+    paid,
+    paidFrom: recordedParam(paid, "filter[paid_datetime|gte]")
+  };
+})();
+
+const UNPAID_CHOICE = "invoice_unpaid,invoice_adjusted";
+
+const AC26 = {
+  unpaid: ac26UnpaidRecording as ListRecording,
+  notPaid: ac26NotPaidRecording as ListRecording,
+  refuseUnpaid: ac26RefuseUnpaidRecording as ListRecording
+} as const;
+
+const AC27 = {
+  pageTwo: ac27PageTwoRecording as ListRecording,
+  sorted: ac27SortedRecording as ListRecording
+} as const;
+
+const AC28 = (() => {
+  const slug = "find-one-order-by-its-number-while-a-filter-is-on";
+  const found = listRecording(
+    slug,
+    "03",
+    hasAll("filter[number|eq]", "filter[status.code|eq]")
+  );
+  return {
+    found,
+    category: recordedParam(
+      found,
+      "filter[products.product.category.name|like]"
+    ).replace(/^%|%$/g, ""),
+    number: recordedParam(found, "filter[number|eq]")
+  };
+})();
+
+const AC29 = (() => {
+  const slug = "keep-my-order-history-to-the-orders-i-placed";
+  const search = listRecording(slug, "03", hasAll("filter[number|eq]"));
+  const total = listRecording(slug, "03", hasAll("filter[total_amount|eq]"));
+  return {
+    boot: ac29BootRecording as ListRecording,
+    paid: ac29PaidRecording as ListRecording,
+    search,
+    total,
+    number: recordedParam(search, "filter[number|eq]"),
+    amount: Number(recordedParam(total, "filter[total_amount|eq]"))
+  };
+})();
+
+const AC36 = (() => {
+  const slug = "only-my-last-number-search-or-number-filter-narrows-my-orders";
+  const [first, second] = listRecording(
+    slug,
+    "02",
+    params =>
+      params.get("filter[category.slug]") === ORDER_CATEGORY &&
+      !params.has("filter[number|eq]")
+  ).response.body.data;
+  const read = (number: string) =>
+    listRecording(
+      slug,
+      "03",
+      params => params.get("filter[number|eq]") === number
+    );
+  return {
+    a: read(first.number),
+    b: read(second.number),
+    numberA: first.number,
+    numberB: second.number
+  };
+})();
+
 async function openOrderHistory(world: World): Promise<void> {
+  resetObserved();
   markWire();
   await openCollection(world, ORDER_HISTORY);
 }
@@ -517,55 +808,72 @@ export const invoicesSteps = defineSteps(({ Given, When, Then }) => {
     openCollection(world, { actor: ScopeActorTypes.CLIENT })
   );
 
-  // === AC-2: FILTER ==========================================================
+  // === AC-2: FILTER (FE-3237 AC11 — each filter keeps the ones before it) ====
 
-  When("I filter my invoice list by status, category, amount or date", world =>
-    world.fire(INVOICES_COVERED_ACTIONS.setCriteria, {
-      filters: {
-        "status.code": [InvoiceStatus.PAID],
-        "category.slug": [InvoiceCategoryCode.RECURRENT]
+  When(
+    "I filter my invoice list by status, then add a category filter, then an amount or a date filter",
+    async world => {
+      markWire();
+      const writes = [
+        { "status.code": InvoiceStatus.PAID },
+        { "category.slug": [InvoiceCategoryCode.RECURRENT] },
+        { total_amount: INVOICE_FILTER.amount }
+      ];
+      for (const [index, intent] of writes.entries()) {
+        await world.fire(INVOICES_COVERED_ACTIONS.filterBy, intent);
+        await settles(async () => {
+          expect(size(sentSinceMark(isListRead))).toBe(index + 1);
+        });
       }
-    })
+    }
   );
 
-  Then("only the invoices matching every filter I set are returned", world =>
-    settles(() =>
-      world.expectContext({
-        data: [
-          {
-            status: InvoiceStatus.PAID,
-            category: { slug: InvoiceCategoryCode.RECURRENT }
-          }
-        ]
-      })
-    )
-  );
-
-  Then(
-    "an unpaid-status filter and a category filter narrow the list together",
-    world =>
-      settles(() =>
-        world.expectContext({
-          query: {
-            filters: {
-              "status.code": [InvoiceStatus.PAID],
-              "category.slug": [InvoiceCategoryCode.RECURRENT]
-            }
-          }
-        })
+  Then("only the invoices matching every filter I set are returned", async world => {
+    if (
+      !INVOICE_FILTER.final.response.body.total ||
+      !every(INVOICE_FILTER.final.response.body.data, row =>
+        row.status?.code === InvoiceStatus.PAID &&
+        row.category?.slug === InvoiceCategoryCode.RECURRENT
       )
-  );
+    )
+      throw new Error("the filtered recording must hold paid recurring invoices.");
+    await holdsRead(world, INVOICE_FILTER.final);
+  });
 
-  // === AC-2: SORT ============================================================
+  Then("each new filter keeps the filters I set before it", () => {
+    const [statusRead, categoryRead, amountRead] = sentSinceMark(isListRead);
+    expect(filterKeys(statusRead.searchParams)).toEqual(["filter[status.code]"]);
+    expect(categoryRead.searchParams.get("filter[status.code]")).toBe(
+      InvoiceStatus.PAID
+    );
+    expect(categoryRead.searchParams.get("filter[category.slug]")).toBe(
+      InvoiceCategoryCode.RECURRENT
+    );
+    expect(amountRead.searchParams.get("filter[status.code]")).toBe(
+      InvoiceStatus.PAID
+    );
+    expect(amountRead.searchParams.get("filter[category.slug]")).toBe(
+      InvoiceCategoryCode.RECURRENT
+    );
+    expect(amountRead.searchParams.get("filter[total_amount]")).toBe(
+      String(INVOICE_FILTER.amount)
+    );
+  });
+
+  // === AC-2: SORT (FE-3237 AC10 — a sort keeps my page) ======================
 
   Given(
-    "before I sort, I see the default order: most recently created first",
-    world =>
-      settles(() =>
+    "I am on page two of my invoice list, most recently created first",
+    async world => {
+      await world.fire(INVOICES_COVERED_ACTIONS.setPage, 2);
+      await settles(() =>
         world.expectContext({
+          pagination: { page: 2 },
           query: { sort: [{ field: "create_datetime", dir: "desc" }] }
         })
-      )
+      );
+      markWire();
+    }
   );
 
   When("I sort my invoice list by due date, newest first", world =>
@@ -581,6 +889,13 @@ export const invoicesSteps = defineSteps(({ Given, When, Then }) => {
       })
     )
   );
+
+  Then("I stay on page two", async world => {
+    await settles(() => world.expectContext({ pagination: { page: 2 } }));
+    const sorted = latestSent(isListRead);
+    expect(sorted?.searchParams.get("order")).toBe("-due_date");
+    expect(sorted?.searchParams.get("offset")).toBe("10");
+  });
 
   // === AC-2: PAGE ============================================================
 
@@ -1281,6 +1596,618 @@ export const invoicesSteps = defineSteps(({ Given, When, Then }) => {
       expect(request.searchParams.has("filter[client_id]")).toBe(false);
     }
   });
+
+  // === FE-3237 AC2 — EACH ORDER CARRIES ITS BRAND AND ITEM COUNT ============
+
+  Given("I have placed orders with several items", () => {
+    const rows = (ac20OrderListRecording as {
+      response: { body: { data: Array<{ products_count?: number }> } };
+    }).response.body.data;
+    if (!some(rows, row => Number(row.products_count) > 1))
+      throw new Error("no recorded order holds several items; re-record.");
+  });
+
+  Then("each order carries its brand and its item count", async world => {
+    const rows = (ac20OrderListRecording as {
+      response: {
+        body: {
+          data: Array<{
+            id: string;
+            products_count: number;
+            brand: { name: string };
+          }>;
+        };
+      };
+    }).response.body.data;
+    await settles(() =>
+      world.expectContext({
+        data: map(rows, row => ({
+          id: row.id,
+          brandName: row.brand.name,
+          bundle: { productCount: row.products_count }
+        }))
+      })
+    );
+    const list = latestSent(isListRead);
+    expect(split(list?.searchParams.get("with") ?? "", ",")).toEqual(
+      expect.arrayContaining(["brand", "tags"])
+    );
+    expect(list?.searchParams.get("with_count")).toBe("products");
+  });
+
+  // === FE-3237 AC3 — PAGE THROUGH MY ORDERS ==================================
+
+  Given("I have more orders than fit on one page", async world => {
+    await openOrderHistory(world);
+    if (AC21.boot.response.body.total <= 30)
+      throw new Error("the order history must span more than three pages.");
+    await holdsRead(world, AC21.boot);
+  });
+
+  When(
+    "I go to the next page, then to page three, then back one page, then choose five orders a page",
+    async world => {
+      markWire();
+      observed.moves = [
+        await movePage(world, "nextPage", undefined, 2, 10),
+        await movePage(world, "setPage", 3, 3, 10),
+        await movePage(world, "prevPage", undefined, 2, 10),
+        await movePage(world, "setLimit", 5, 1, 5)
+      ];
+    }
+  );
+
+  Then(
+    "each move gives me the orders of that page and keeps my page size",
+    async world => {
+      expect(map(observed.moves, ({ page, limit }) => ({ page, limit }))).toEqual(
+        [
+          { page: 2, limit: 10 },
+          { page: 3, limit: 10 },
+          { page: 2, limit: 10 },
+          { page: 1, limit: 5 }
+        ]
+      );
+      const reads = listOffsets(sentSinceMark(isListRead));
+      expect(reads).toEqual(
+        expect.arrayContaining([
+          { offset: "10", limit: "10" },
+          { offset: "20", limit: "10" },
+          { offset: "0", limit: "5" }
+        ])
+      );
+      await holdsRead(world, AC21.five);
+    }
+  );
+
+  Then(
+    "at each step I am told if a next page, a previous page and more than one page exist",
+    () => {
+      const total = AC21.boot.response.body.total;
+      expect(map(observed.moves, "flags")).toEqual(
+        map(observed.moves, ({ page, limit }) =>
+          expectedFlags(page, limit, total)
+        )
+      );
+    }
+  );
+
+  Then("choosing a page size takes me back to page one", async world => {
+    expect(listOffsets([last(sentSinceMark(isListRead))!])).toEqual([
+      { offset: "0", limit: "5" }
+    ]);
+    await settles(() =>
+      world.expectContext({ pagination: { page: 1, limit: 5 } })
+    );
+  });
+
+  Given("no order of mine has the number I search for", async world => {
+    await openOrderHistory(world);
+    await holdsRead(world, AC21_EMPTY.boot);
+    if (some(AC21_EMPTY.boot.response.body.data, ["number", AC21_EMPTY.term]))
+      throw new Error("the searched number belongs to an order; re-record.");
+  });
+
+  When("I search my orders for that number", async world => {
+    markWire();
+    await world.fire("search", AC21_EMPTY.term);
+  });
+
+  Then("my order history is empty, with a total of zero", async world => {
+    if (AC21_EMPTY.empty.response.body.total !== 0)
+      throw new Error("the search recording must hold no order; re-record.");
+    await settles(() => world.expectContext({ pagination: { total: 0 } }));
+    for (const { id } of AC21_EMPTY.boot.response.body.data)
+      await world.expectAbsent!(id);
+    expect(latestSent(isListRead)?.searchParams.get("filter[number|eq]")).toBe(
+      AC21_EMPTY.term
+    );
+  });
+
+  // === FE-3237 AC4 — AN EMPTY PAGE GOES BACK TO PAGE ONE =====================
+
+  Given("my orders are narrowed to none", async world => {
+    await openOrderHistory(world);
+    await world.fire("search", AC22.term);
+    await settles(() =>
+      world.expectContext({ pagination: { page: 1, total: 0 } })
+    );
+  });
+
+  When("I ask for page two", async world => {
+    markWire();
+    await world.fire("setPage", 2);
+  });
+
+  Then("I am taken back to page one", async world => {
+    await settles(() =>
+      world.expectContext({ pagination: { page: 1, total: 0 } })
+    );
+    // Page one of this narrowing is already held fresh, so going back to it
+    // reads from the cache and sends no second request.
+    expect(first(listOffsets(sentSinceMark(isListRead)))).toEqual({
+      offset: "10",
+      limit: "10"
+    });
+  });
+
+  // === FE-3237 AC24, divergence 3 — PAST THE LAST PAGE =======================
+
+  Given("I have orders on three pages", async world => {
+    const total = AC22.threePages.response.body.total;
+    if (total < 21 || total > 30)
+      throw new Error("the narrowing must hold three pages of ten; re-record.");
+    await openOrderHistory(world);
+    await world.fire("filters.dateCreated", AC22.from);
+    await holdsRead(world, AC22.threePages);
+  });
+
+  When("I ask for page nine", async world => {
+    markWire();
+    await world.fire("setPage", 9);
+  });
+
+  Then("I am given the last page of my orders", async world => {
+    await settles(() =>
+      world.expectContext({
+        pagination: {
+          page: 3,
+          total: AC22.threePages.response.body.total
+        }
+      })
+    );
+    const reads = listOffsets(sentSinceMark(isListRead));
+    expect(first(reads)).toEqual({ offset: "80", limit: "10" });
+    expect(last(reads)).toEqual({ offset: "20", limit: "10" });
+  });
+
+  // === FE-3237 AC7, AC24 divergence 1 — NARROW BY TEXT, NUMBER AND AMOUNT ====
+
+  Given(
+    "I am on page two of my orders of several products and amounts",
+    async world => {
+      await openOrderHistory(world);
+      await world.fire("setPage", 2);
+      await settles(() => world.expectContext({ pagination: { page: 2 } }));
+      await holdsRead(world, AC24.pageTwo);
+    }
+  );
+
+  When(
+    "I narrow my orders by item name, product category, service, number or total",
+    async world => {
+      markWire();
+      const writes: Array<[string, unknown]> = [
+        ["filters.itemName", AC24.firstName],
+        ["filters.itemName", AC24.name],
+        ["filters.categoryName", AC24.category],
+        ["filters.serviceIdentifier", AC24.service],
+        ["search", AC24.number],
+        ["filters.total", Number(AC24.total)]
+      ];
+      for (const [index, [id, input]] of writes.entries()) {
+        await world.fire(id, input);
+        await settles(async () => {
+          expect(size(sentSinceMark(isListRead))).toBe(index + 1);
+        });
+      }
+    }
+  );
+
+  Then("only the orders that match each filter I set are returned", async world => {
+    await holdsRead(world, AC24.final);
+    const final = latestSent(isListRead)!;
+    expect(final.searchParams.get("filter[products.product.name|like]")).toBe(
+      `%${AC24.name}%`
+    );
+    expect(
+      final.searchParams.get("filter[products.product.category.name|like]")
+    ).toBe(`%${AC24.category}%`);
+    expect(
+      final.searchParams.get("filter[products.service_identifier|like]")
+    ).toBe(`%${AC24.service}%`);
+  });
+
+  Then("each narrowing takes me back to page one", async world => {
+    const reads = sentSinceMark(isListRead);
+    expect(reads.length).toBeGreaterThanOrEqual(6);
+    expect(every(listOffsets(reads), ["offset", "0"])).toBe(true);
+    await settles(() => world.expectContext({ pagination: { page: 1 } }));
+  });
+
+  Then("each equal comparison is sent with its explicit equal operator", () => {
+    const final = latestSent(isListRead)!;
+    expect(final.searchParams.get("filter[number|eq]")).toBe(AC24.number);
+    expect(final.searchParams.get("filter[total_amount|eq]")).toBe(AC24.total);
+    expect(final.searchParams.has("filter[number]")).toBe(false);
+    expect(final.searchParams.has("filter[total_amount]")).toBe(false);
+  });
+
+  Then("a second filter on one text column replaces the first", () => {
+    const [firstRead, secondRead] = sentSinceMark(isListRead);
+    expect(
+      firstRead.searchParams.getAll("filter[products.product.name|like]")
+    ).toEqual([`%${AC24.firstName}%`]);
+    expect(
+      secondRead.searchParams.getAll("filter[products.product.name|like]")
+    ).toEqual([`%${AC24.name}%`]);
+  });
+
+  // === FE-3237 AC8 — NARROW BY WHEN AN ORDER WAS PLACED OR PAID ==============
+
+  Given("I have orders placed and paid on different dates", async world => {
+    await openOrderHistory(world);
+    if (
+      AC25.paid.response.body.total >= AC25.placed.response.body.total ||
+      AC25.placed.response.body.total === 0
+    )
+      throw new Error("the two date narrowings must differ; re-record.");
+  });
+
+  When(
+    "I narrow my orders to the last seven days, or to a date I give",
+    async world => {
+      markWire();
+      await world.fire("filters.dateCreated", "-7_days");
+      observed.narrowedRead.push(
+        await holdsRead(world, AC25.placed).then(
+          () => true,
+          () => false
+        )
+      );
+      await world.fire("filters.datePaid", AC25.paidFrom);
+    }
+  );
+
+  Then(
+    "only the orders placed or paid in that period are returned",
+    async world => {
+      expect(observed.narrowedRead).toEqual([true]);
+      await holdsRead(world, AC25.paid);
+      const final = latestSent(isListRead)!;
+      expect(final.searchParams.get("filter[create_datetime|after]")).toBe(
+        "-7_days"
+      );
+      expect(final.searchParams.get("filter[paid_datetime|gte]")).toBe(
+        AC25.paidFrom
+      );
+    }
+  );
+
+  // === FE-3237 AC9 — NARROW BY STATUS ========================================
+
+  Given("I have paid, unpaid and adjusted orders", async world => {
+    await openOrderHistory(world);
+    if (
+      !AC26.unpaid.response.body.total ||
+      !some(AC26.notPaid.response.body.data, ["status.code", InvoiceStatus.UNPAID])
+    )
+      throw new Error("the status recordings hold no unpaid order; re-record.");
+  });
+
+  When(
+    "I narrow my orders to the unpaid ones, then to all but the paid ones",
+    async world => {
+      markWire();
+      await world.fire("filters.status", [UNPAID_CHOICE]);
+      observed.narrowedRead.push(
+        await holdsRead(world, AC26.unpaid).then(
+          () => true,
+          () => false
+        )
+      );
+      await world.fire("filterBy", {
+        "status.code": { neq: [InvoiceStatus.PAID] }
+      });
+    }
+  );
+
+  Then(
+    "the unpaid choice gives the unpaid and the adjusted orders together",
+    () => {
+      expect(observed.narrowedRead).toEqual([true]);
+      const [unpaidRead] = sentSinceMark(isListRead);
+      expect(unpaidRead.searchParams.getAll("filter[status.code|eq]")).toEqual([
+        UNPAID_CHOICE
+      ]);
+      expect(
+        every(AC26.unpaid.response.body.data, row =>
+          includes(split(UNPAID_CHOICE, ","), row.status?.code)
+        )
+      ).toBe(true);
+    }
+  );
+
+  Then("the second choice replaces the first", async world => {
+    await holdsRead(world, AC26.notPaid);
+    const final = latestSent(isListRead)!;
+    expect(final.searchParams.get("filter[status.code|neq]")).toBe(
+      InvoiceStatus.PAID
+    );
+    expect(final.searchParams.has("filter[status.code|eq]")).toBe(false);
+  });
+
+  Given("my orders are narrowed to the unpaid ones", async world => {
+    await openOrderHistory(world);
+    await world.fire("filters.status", [UNPAID_CHOICE]);
+    await holdsRead(world, AC26.refuseUnpaid);
+  });
+
+  When(
+    "I ask for the unpaid ones and all but the paid ones in one narrowing",
+    async world => {
+      markWire();
+      await world
+        .fire("filterBy", {
+          "status.code": { eq: [UNPAID_CHOICE], neq: [InvoiceStatus.PAID] }
+        })
+        .catch(() => undefined);
+    }
+  );
+
+  Then("the narrowing is refused and nothing is read", async world => {
+    await settles(() =>
+      world.expectContext({
+        error: { status: 422, data: [{ keyword: "maxProperties" }] }
+      })
+    );
+    expect(sentSinceMark(isListRead)).toHaveLength(0);
+  });
+
+  Then("my orders stay narrowed to the unpaid ones", async world => {
+    await holdsRead(world, AC26.refuseUnpaid);
+    expect(
+      latestSent(isListRead)?.searchParams.get("filter[status.code|eq]")
+    ).toBe(UNPAID_CHOICE);
+  });
+
+  // === FE-3237 AC10 — SORT AND STAY ON MY PAGE ===============================
+
+  Given("I am on page two of my orders, newest first", async world => {
+    await openOrderHistory(world);
+    await world.fire("setPage", 2);
+    await settles(() =>
+      world.expectContext({
+        pagination: { page: 2 },
+        query: { sort: [{ field: "create_datetime", dir: "desc" }] }
+      })
+    );
+    await holdsRead(world, AC27.pageTwo);
+  });
+
+  When(
+    "I sort my orders by total, then by status, then by order number",
+    async world => {
+      markWire();
+      for (const field of ["total_amount", "status_id", "id"]) {
+        await world.fire("sortBy", [{ field, dir: "asc" }]);
+        await settles(async () => {
+          expect(latestSent(isListRead)?.searchParams.get("order")).toBe(field);
+        });
+      }
+    }
+  );
+
+  Then("each sort gives me page two of my orders in that order", async world => {
+    const reads = sentSinceMark(isListRead);
+    expect(
+      map(reads, request => ({
+        order: request.searchParams.get("order"),
+        offset: request.searchParams.get("offset"),
+        limit: request.searchParams.get("limit")
+      }))
+    ).toEqual([
+      { order: "total_amount", offset: "10", limit: "10" },
+      { order: "status_id", offset: "10", limit: "10" },
+      { order: "id", offset: "10", limit: "10" }
+    ]);
+    await settles(() =>
+      world.expectContext({
+        pagination: { page: 2 },
+        query: { sort: [{ field: "id", dir: "asc" }] }
+      })
+    );
+    await holdsRead(world, AC27.sorted);
+  });
+
+  // === FE-3237 AC11 — SEARCH WHILE A FILTER IS ON ============================
+
+  Given(
+    "my orders are narrowed to the unpaid ones and then to one product category, and I am on page two",
+    async world => {
+      await openOrderHistory(world);
+      await world.fire("filterBy", {
+        "status.code": { eq: [UNPAID_CHOICE] }
+      });
+      await world.fire("filterBy", {
+        "products.product.category.name": { like: AC28.category }
+      });
+      await world.fire("setLimit", 2);
+      await world.fire("setPage", 2);
+      await settles(() =>
+        world.expectContext({ pagination: { page: 2, limit: 2 } })
+      );
+    }
+  );
+
+  When("I search for one order number", async world => {
+    markWire();
+    await world.fire("search", AC28.number);
+  });
+
+  Then("I get that order on page one", async world => {
+    await holdsRead(world, AC28.found);
+    await settles(() =>
+      world.expectContext({
+        data: [{ number: AC28.number }],
+        pagination: { page: 1 }
+      })
+    );
+  });
+
+  Then("both filters stay on", () => {
+    const final = latestSent(isListRead)!;
+    expect(final.searchParams.get("filter[status.code|eq]")).toBe(UNPAID_CHOICE);
+    expect(
+      final.searchParams.get("filter[products.product.category.name|like]")
+    ).toBe(`%${AC28.category}%`);
+    expect(final.searchParams.get("filter[number|eq]")).toBe(AC28.number);
+  });
+
+  // === FE-3237 AC11, AC24 divergence 2 — ONE NUMBER LEAF =====================
+
+  Given("I have two orders, A and B", async world => {
+    await openOrderHistory(world);
+    if (
+      AC36.a.response.body.total !== 1 ||
+      AC36.b.response.body.total !== 1 ||
+      AC36.numberA === AC36.numberB
+    )
+      throw new Error("A and B must each match one order; re-record.");
+  });
+
+  When(
+    "I filter my orders to the number of A, then search for B, then filter to the number of A again",
+    async world => {
+      markWire();
+      const writes = [
+        { id: "filterBy", input: { number: { eq: AC36.numberA } }, read: AC36.a },
+        { id: "search", input: AC36.numberB, read: AC36.b },
+        { id: "filterBy", input: { number: { eq: AC36.numberA } }, read: AC36.a }
+      ];
+      for (const write of writes) {
+        await world.fire(write.id, write.input);
+        observed.narrowedRead.push(
+          await holdsRead(world, write.read).then(
+            () => true,
+            () => false
+          )
+        );
+      }
+    }
+  );
+
+  Then("after each write only the number of that write is sent", () => {
+    const reads = sentSinceMark(isListRead);
+    expect(reads.length).toBeGreaterThanOrEqual(2);
+    expect(map(reads, numberLeaves)).toEqual(
+      map(reads, (_, index) =>
+        index === 1 ? [AC36.numberB] : [AC36.numberA]
+      )
+    );
+  });
+
+  Then("after each write only that order is returned", () => {
+    expect(observed.narrowedRead).toEqual([true, true, true]);
+  });
+
+  // === FE-3237 AC12 — THE FORCED CATEGORY HOLDS UNDER EVERY WRITER ===========
+
+  Given("my order history is open", async world => {
+    await openOrderHistory(world);
+    await holdsRead(world, AC29.boot);
+  });
+
+  When(
+    "I narrow it by a filter, then by the credit-notes narrowing, then by a search, then by a raw criteria write that names another category",
+    async world => {
+      markWire();
+      const writes: Array<[string, unknown, ListRecording]> = [
+        ["filters.status", [InvoiceStatus.PAID], AC29.paid],
+        ["filterCreditNotes", undefined, AC29.boot],
+        ["search", AC29.number, AC29.search],
+        [
+          "setCriteria",
+          {
+            filters: {
+              "category.slug": InvoiceCategoryCode.RECURRENT,
+              total_amount: { eq: AC29.amount }
+            }
+          },
+          AC29.total
+        ]
+      ];
+      for (const [id, input, read] of writes) {
+        const before = size(sentSinceMark(isListRead));
+        await world.fire(id, input);
+        await holdsRead(world, read);
+        await settles(async () => {
+          expect(size(sentSinceMark(isListRead))).toBeGreaterThan(before);
+        }).catch(() => undefined);
+        observed.readsPerWrite.push(size(sentSinceMark(isListRead)) - before);
+        if (id === "filterCreditNotes" || id === "setCriteria")
+          observed.narrowedRead.push(
+            await world
+              .expectAbsent!(
+                id === "setCriteria"
+                  ? InvoiceCategoryCode.RECURRENT
+                  : InvoiceCategoryCode.CREDIT_NOTE_FOR_REFUND
+              )
+              .then(
+                () => true,
+                () => false
+              )
+          );
+      }
+    }
+  );
+
+  // The credit-notes write drops its column and returns the criteria to the
+  // boot read, which the list still holds fresh (design 8.4), so it reads from
+  // the cache: no request.
+  Then("each write sends one new read", () => {
+    expect(observed.readsPerWrite).toEqual([1, 0, 1, 1]);
+  });
+
+  Then("each read still asks for my placed orders only", () => {
+    const reads = sentInWindow(isListRead);
+    const orderReads = filter(reads, request =>
+      request.searchParams.has("filter[category.slug]")
+    );
+    expect(size(orderReads)).toBeGreaterThanOrEqual(4);
+    for (const request of sentSinceMark(isListRead))
+      expect(request.searchParams.getAll("filter[category.slug]")).toEqual([
+        ORDER_CATEGORY
+      ]);
+  });
+
+  Then(
+    "the narrowing to credit notes or to another category is dropped",
+    () => {
+      const [, , rawRead] = sentSinceMark(isListRead);
+      expect(observed.narrowedRead).toEqual([true, true]);
+      expect(rawRead.searchParams.getAll("filter[category.slug]")).toEqual([
+        ORDER_CATEGORY
+      ]);
+      expect(rawRead.searchParams.get("filter[total_amount|eq]")).toBe(
+        String(AC29.amount)
+      );
+    }
+  );
+
+  Then("no error is reported", world =>
+    settles(() => world.expectMeta({ hasError: false, isAvailable: true }))
+  );
 
   Then("my unpaid check counts only my own invoices", async world => {
     await settles(() =>
