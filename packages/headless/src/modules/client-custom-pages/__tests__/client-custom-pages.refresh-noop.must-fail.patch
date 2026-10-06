@@ -1,0 +1,11 @@
+--- a/packages/headless/src/modules/client-custom-pages/useClientCustomPages.actions.ts
++++ b/packages/headless/src/modules/client-custom-pages/useClientCustomPages.actions.ts
+@@ -64,7 +64,7 @@
+ 
+   /** Forces a re-read of the list from the server. */
+   async function refresh(): Promise<void> {
+-    await query.refetch();
++    return;
+   }
+ 
+   /**

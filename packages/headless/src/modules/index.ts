@@ -13,6 +13,7 @@ export * from "./client-address";
 export * from "./client-billing-settings";
 export * from "./client-company";
 export * from "./client-custom-fields";
+export * from "./client-custom-pages";
 export * from "./client-email";
 export * from "./client-email-history";
 export * from "./client-notes";

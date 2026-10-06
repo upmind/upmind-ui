@@ -1,0 +1,80 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/custom_pages",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a464ec925b08bf0a-LHR",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json",
+      "date": "Tue, 06 Oct 2026 13:13:33 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=vCJZnftNnxq%2BqZK67QwVruCM2X418VovDvU%2F5MHyZyuj9ENeaSbqbHhc%2BpwyVufPs%2FKx%2BGz9r5jfYs22%2BSl4bvbh%2FHNINPfMZeBsX1cGA%2BldM8xoS6S9nEAthEsxfZ5Bu7oeA8sJ8g%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-frame-options": "SAMEORIGIN",
+      "x-total-count": "2"
+    },
+    "body": {
+      "status": "ok",
+      "data": [
+        {
+          "id": "85d085e6-9d56-2371-9ea2-18e940d42370",
+          "org_id": "5d085e69-d562-3719-e46c-218e940d4237",
+          "brand_id": "2785d26e-9678-3d16-999f-314502e70439",
+          "name": "Client custom page invisible",
+          "slug": "custom-page-invisible",
+          "show_on_menu": false,
+          "menu_label": "Custom page - invisible",
+          "title": "Client custom page - invisible",
+          "order": 1,
+          "created_at": "2026-10-06 11:56:10",
+          "updated_at": "2026-10-06 11:56:10",
+          "menu_label_translated": "Custom page - invisible",
+          "title_translated": "Client custom page - invisible"
+        },
+        {
+          "id": "3825d96e-763e-d091-3dc4-174825283406",
+          "org_id": "5d085e69-d562-3719-e46c-218e940d4237",
+          "brand_id": "2785d26e-9678-3d16-999f-314502e70439",
+          "name": "Client custom page",
+          "slug": "custom-page",
+          "show_on_menu": true,
+          "menu_label": "Custom page",
+          "title": "Client custom page",
+          "order": 0,
+          "created_at": "2026-10-06 11:22:09",
+          "updated_at": "2026-10-06 11:22:09",
+          "menu_label_translated": "Custom page",
+          "title_translated": "Client custom page"
+        }
+      ],
+      "related": null,
+      "total": 2,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-10-06T13:13:33.935Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "client-custom-pages"
+  }
+}

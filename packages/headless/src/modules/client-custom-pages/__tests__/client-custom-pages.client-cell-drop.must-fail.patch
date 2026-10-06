@@ -1,0 +1,11 @@
+--- a/packages/headless/src/modules/client-custom-pages/client-custom-pages.types.ts
++++ b/packages/headless/src/modules/client-custom-pages/client-custom-pages.types.ts
+@@ -121,7 +121,7 @@
+ export const CLIENT_CUSTOM_PAGES_SCOPE_MATRIX = {
+   [ScopeActorTypes.SELF]: null as never,
+   [ScopeActorTypes.STAFF]: null as never,
+-  [ScopeActorTypes.CLIENT]: ClientCustomPagesContextTypes.CLIENT,
++  [ScopeActorTypes.CLIENT]: null as never,
+   [ScopeActorTypes.GUEST]: null as never
+ } as const;
+ 
