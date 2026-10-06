@@ -50,6 +50,34 @@ describe("AC-28: the filter writers", () => {
     expect(writes).toHaveLength(1);
   });
 
+  it("keeps a number filterBy written inside 250 ms of a search, not the searched term", async () => {
+    vi.useFakeTimers();
+    const { actions, view } = openCell();
+    actions.search("QA-INV-2");
+    await vi.advanceTimersByTimeAsync(100);
+    await actions.filterBy({ number: { eq: "QA-INV-1" } });
+    await vi.advanceTimersByTimeAsync(300);
+    await nextTick();
+    expect(view().query.filters?.number).toEqual({ eq: "QA-INV-1" });
+  });
+
+  it("keeps the number leaf cleared when filterBy drops it inside 250 ms of a search", async () => {
+    vi.useFakeTimers();
+    const { actions, view } = openCell();
+    await actions.filterBy({
+      "status.code": { eq: [UNPAID_CHOICE] },
+      number: { eq: "QA-INV-1" }
+    });
+    actions.search("QA-INV-2");
+    await vi.advanceTimersByTimeAsync(100);
+    await actions.filterBy({ number: undefined });
+    await vi.advanceTimersByTimeAsync(300);
+    await nextTick();
+    expect(view().query.filters).toEqual({
+      "status.code": { eq: [UNPAID_CHOICE] }
+    });
+  });
+
   it("removes the number leaf when the search term is empty", async () => {
     vi.useFakeTimers();
     const { actions, view } = openCell();
