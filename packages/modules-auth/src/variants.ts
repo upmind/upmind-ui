@@ -2,7 +2,10 @@ import { cva } from "class-variance-authority";
 // -----------------------------------------------------------------------------
 
 export const contentVariants = cva("rounded-card w-full max-w-5xl items-start");
-export const markdownVariants = cva("my-6");
+export const markdownVariants = cva("", {
+  variants: { flush: { true: "", false: "my-6" } },
+  defaultVariants: { flush: false }
+});
 
 export const authRootVariants = cva("flex max-w-3xl flex-col gap-8 text-start");
 export const authFormVariants = cva("place-items-start", {
@@ -32,27 +35,24 @@ export const transitionsFadeLeaveActiveVariants = cva(
 export const transitionsFadeLeaveFromVariants = cva("opacity-100");
 export const transitionsFadeLeaveToVariants = cva("opacity-0");
 
+export const guestCheckoutSpacing = {
+  flush: "mt-0 mb-0",
+  below: "mt-0 mb-6",
+  around: "mt-6 mb-6",
+  none: ""
+};
+
 export const guestCheckoutVariants = cva("", {
-  variants: {
-    template: {
-      "two-column-ltr": "mt-0 mb-0",
-      "two-column-rtl": "mt-0 mb-0",
-      enclosed: "mt-0 mb-0",
-      split: "mt-0 mb-6",
-      "canvas-card": "mt-0 mb-6",
-      "surface-box": "mt-6 mb-6",
-      inset: ""
-    }
-  }
+  variants: { spacing: guestCheckoutSpacing },
+  defaultVariants: { spacing: "flush" }
 });
 
-// Ported from the retired session.config: the inset template lets the form run
-// full-width, since the enclosing card already bounds it.
+// A carded form runs full-width, since the card already bounds it.
 // Both widths sit in the variant rather than base + override, so the two never
 // land on the element together and the cap does not depend on stylesheet order.
 export const sessionFormWidthVariants = cva("", {
-  variants: { inset: { true: "max-w-none", false: "max-w-3xl" } },
-  defaultVariants: { inset: false }
+  variants: { card: { true: "max-w-none", false: "max-w-3xl" } },
+  defaultVariants: { card: false }
 });
 
 // Ported from the retired session.config: the hero subtitle under the auth

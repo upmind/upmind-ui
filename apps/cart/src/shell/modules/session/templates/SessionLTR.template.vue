@@ -27,11 +27,6 @@ import {
   FOOTER_LAYOUT,
   FOOTER_BACKGROUND
 } from "../../../components/footer/types";
-import type { AuthRoutes } from "@upmind-automation/auth";
-
-// -----------------------------------------------------------------------------
-
-const props = defineProps<AuthRoutes>();
 
 // -----------------------------------------------------------------------------
 

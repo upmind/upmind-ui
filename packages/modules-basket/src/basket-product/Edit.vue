@@ -1,8 +1,14 @@
 <template>
   <LayoutProvider>
-    <slot :template="template" />
+    <slot :template="configMeta.ui.template.value" />
 
-    <template v-if="!isSlotHidden('product-details')" #product-details>
+    <template
+      v-if="!isSlotHidden('product-details')"
+      #product-details="{
+        direction = PRODUCT_HERO_DIRECTION.HORIZONTAL,
+        heroImage = true
+      }"
+    >
       <slot
         name="product-details"
         :config-meta="configMeta"
@@ -13,8 +19,8 @@
           v-if="productMeta?.isAvailable && product?.productDetails"
           :product-details="product.productDetails"
           :product-image="productImage()"
-          :direction="stylesMeta.direction"
-          :image="stylesMeta.heroImage"
+          :direction="direction"
+          :image="heroImage && configMeta.ui.productImages.isVisible"
           :meta="configMeta"
         >
           <template #prepend>
@@ -99,7 +105,7 @@
       </slot>
     </template>
 
-    <template #pricing>
+    <template #pricing="{ showTotal = false, showActions = false }">
       <Section :label="t('text.configuration_summary')" icon="shopping-bag-02">
         <slot
           name="pricing"
@@ -116,8 +122,7 @@
             v-if="product && productMeta?.isAvailable"
             :product="product"
             :meta="productMeta"
-            :template="props.template"
-            :total="stylesMeta.showTotal"
+            :total="showTotal"
             :title="configMeta.data.productName || product.productDetails.title"
             :options="configMeta.ui.productConfigOptionsSummary.isVisible"
             :fields="configMeta.ui.productConfigFieldsSummary.isVisible"
@@ -126,15 +131,11 @@
           <PricingSkeleton v-else />
 
           <slot
-            v-if="
-              template === BASKET_PRODUCT_TEMPLATE.INSET ||
-              (template === BASKET_PRODUCT_TEMPLATE.TWO_COLUMN_LTR && !isMobile)
-            "
+            v-if="showActions"
             name="actions"
             :product="product"
             :config-meta="configMeta"
             :product-meta="productMeta"
-            :template="props.template"
             :do-resolve="doResolve"
             :update-quantity="updateQuantity"
           >
@@ -142,7 +143,6 @@
               v-if="product && productMeta?.isAvailable"
               :product="product"
               :meta="productMeta"
-              :template="props.template"
               @resolve="doResolve"
               @update:quantity="updateQuantity"
             />
@@ -177,7 +177,6 @@
         name="actions"
         :product="product"
         :config-meta="configMeta"
-        :template="props.template"
         :do-resolve="doResolve"
         :update-quantity="updateQuantity"
       >
@@ -185,7 +184,6 @@
           v-if="product && productMeta?.isAvailable"
           :product="product"
           :meta="productMeta"
-          :template="props.template"
           @resolve="doResolve"
           @update:quantity="updateQuantity"
         />
@@ -241,7 +239,6 @@ import { computed, provide, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { Section } from "@upmind-automation/foundation";
 import { Icon } from "@upmind-automation/foundation";
-import { isMobile } from "@upmind-automation/foundation";
 import { useBreadcrumbs } from "@upmind-automation/foundation";
 import { LayoutProvider } from "@upmind-automation/foundation";
 import {
@@ -254,7 +251,7 @@ import {
   responseCodes,
   ErrorOrigin
 } from "@upmind-automation/headless";
-import { useConfig, validateTemplate } from "@upmind-automation/headless";
+import { useConfig } from "@upmind-automation/headless";
 import { BreadcrumbVariant, UIContext } from "@upmind-automation/headless";
 import { Config } from "@upmind-automation/product";
 import { ConfigErrors } from "@upmind-automation/product";
@@ -268,7 +265,6 @@ import { PricingSkeleton } from "@upmind-automation/product";
 import { PricingTotal } from "@upmind-automation/product";
 import { UpmProductNotFound } from "@upmind-automation/product";
 import BasketActions from "./components/BasketActions.vue";
-import { BASKET_PRODUCT_TEMPLATE } from "./types";
 import { includes, take, isEmpty } from "lodash-es";
 import type { BasketProductEditProps } from "./types";
 
@@ -328,31 +324,9 @@ await isReady();
 
 const isSlotHidden = (name: string) => includes(props.hideSlots, name);
 
-const template = computed(() =>
-  validateTemplate(
-    configMeta.ui.template.value || props.template,
-    BASKET_PRODUCT_TEMPLATE,
-    BASKET_PRODUCT_TEMPLATE.TWO_COLUMN_RTL
-  )
-);
-
 const stylesMeta = computed(() => {
   return {
-    breadcrumbs: configMeta.ui.breadcrumbs.value as BreadcrumbVariant,
-    direction:
-      template.value === BASKET_PRODUCT_TEMPLATE.TWO_COLUMN_RTL
-        ? PRODUCT_HERO_DIRECTION.VERTICAL
-        : PRODUCT_HERO_DIRECTION.HORIZONTAL,
-    heroImage:
-      (template.value !== BASKET_PRODUCT_TEMPLATE.TWO_COLUMN_LTR ||
-        isMobile.value) &&
-      configMeta.ui.productImages.isVisible,
-    showTotal:
-      (template.value === BASKET_PRODUCT_TEMPLATE.TWO_COLUMN_RTL &&
-        isMobile.value) ||
-      template.value === BASKET_PRODUCT_TEMPLATE.TWO_COLUMN_LTR ||
-      template.value === BASKET_PRODUCT_TEMPLATE.FULL ||
-      template.value === BASKET_PRODUCT_TEMPLATE.INSET
+    breadcrumbs: configMeta.ui.breadcrumbs.value as BreadcrumbVariant
   };
 });
 

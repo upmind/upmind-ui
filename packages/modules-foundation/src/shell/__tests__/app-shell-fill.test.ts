@@ -3,14 +3,16 @@
  * @fileoverview Every page template record an app passes is whole and its own.
  *
  * ## Job To Be Done
- * Each app module's `*_TEMPLATES` record draws every template its package can
- * pick (any of them, when the package types its record `Partial`), each from
- * one of the module's own page templates, and every host page passes, or draws
- * its slot from, the record of its own app.
+ * Each app module's `*_TEMPLATES` record draws every template its package, or
+ * its own enum, can pick (any of them, when the package types its record
+ * `Partial`), each from one of the module's own page templates; an app-keyed
+ * record's pick falls back to a template it draws; and every host page passes,
+ * picks from, or draws its slot from, the record or the pick of its own app.
  *
  * ## What Breaks If These Fail
- * A brand's chosen arrangement throws, a page draws another page's template, or
- * a page ships a record that another app owns.
+ * A brand's chosen arrangement throws, a page draws another page's template, a
+ * brand with no template gets no page, or a page ships a record that another
+ * app owns.
  */
 
 import { existsSync, readFileSync, readdirSync } from "node:fs";
@@ -28,10 +30,12 @@ import {
   keys,
   map,
   pickBy,
+  replace,
   some,
   sortBy,
   startsWith,
-  sumBy
+  sumBy,
+  toArray
 } from "lodash-es";
 
 // -----------------------------------------------------------------------------
@@ -52,8 +56,8 @@ const TEMPLATE_TREES = concat(
   [{ name: "labs-nuxt", tree: "playgrounds/labs-nuxt/app" }]
 );
 
-// Catalogue's, domain's and recommendations' records are typed by the app itself, so their picks are graded in the app shell's own specs.
-const RECORDED = { modules: 8, templates: 41 };
+// Domain's record is keyed by its one template, so its pick is graded in the app shell's own spec.
+const RECORDED = { modules: 10, templates: 43, picks: 11 };
 
 const PACKAGE_SCOPE = "@upmind-automation/";
 
@@ -185,6 +189,20 @@ function templateKeys(published: string, type: string, enumName: string) {
   );
 }
 
+/** The members of an enum a record is keyed by: read from the app module's own file, or from the package that publishes it. */
+function keyMembers(directory: string, specifier: string, enumName: string) {
+  if (startsWith(specifier, ".")) {
+    return enumMembers(
+      [withoutComments(read(`${resolve(directory, specifier)}.ts`))],
+      enumName
+    );
+  }
+  return enumMembers(
+    packageCode(replace(specifier, PACKAGE_SCOPE, "")),
+    enumName
+  );
+}
+
 /** Whether a package's `*Templates` record type lets the app draw only some of its keys. */
 function isPartialRecord(published: string, type: string) {
   return (
@@ -199,7 +217,10 @@ function recordModule(tree: string, name: string) {
   const directory = join(REPO_ROOT, tree, "shell/modules", name);
   const code = withoutComments(read(join(directory, "shell.ts")));
   const record =
-    /export const (\w+_TEMPLATES)\s*:\s*(\w+)\s*=\s*\{([^}]*)\}/.exec(code);
+    /export const (\w+_TEMPLATES)\s*:\s*(\w+|Record<\s*\w+\s*,\s*Component\s*>)\s*=\s*\{([^}]*)\}/.exec(
+      code
+    );
+  const keyedBy = /^Record<\s*(\w+)/.exec(record?.[2] ?? "")?.[1];
   const entries = map(
     [...(record?.[3] ?? "").matchAll(/\[\s*(\w+)\.(\w+)\s*\]\s*:\s*([\w$]+)/g)],
     match => ({ enum: match[1], key: match[2], component: match[3] })
@@ -207,7 +228,12 @@ function recordModule(tree: string, name: string) {
   const bindings = importsOf(code);
   const enumName = entries[0]?.enum ?? "";
   const enumSource = bindings.get(enumName) ?? "";
-  const type = record?.[2] ?? "";
+  const type = keyedBy ?? record?.[2] ?? "";
+  const declared =
+    /export const (\w+)\s*=\s*resolveTemplate\(\s*(\w+_TEMPLATES)\s*,\s*(\w+)\.(\w+)\s*,?\s*\)/.exec(
+      code
+    );
+  const ownRecord = declared !== null && declared[2] === record?.[1];
   const templates = join(directory, "templates");
 
   let files: string[] = [];
@@ -227,12 +253,15 @@ function recordModule(tree: string, name: string) {
     enumSource,
     entries,
     bindings,
-    expected: templateKeys(
-      enumSource.replace(PACKAGE_SCOPE, ""),
-      type,
-      enumName
-    ),
-    partial: isPartialRecord(enumSource.replace(PACKAGE_SCOPE, ""), type),
+    keyed: keyedBy !== undefined,
+    pick: ownRecord ? declared[1] : "",
+    fallback: ownRecord ? { enum: declared[3], key: declared[4] } : null,
+    expected: keyedBy
+      ? keyMembers(directory, enumSource, keyedBy)
+      : templateKeys(replace(enumSource, PACKAGE_SCOPE, ""), type, enumName),
+    partial: keyedBy
+      ? false
+      : isPartialRecord(replace(enumSource, PACKAGE_SCOPE, ""), type),
     files
   };
 }
@@ -254,11 +283,30 @@ function modulesOf(tree: string) {
   );
 }
 
+/** Each module's exported pick: the function a page calls with the raw template to draw a layout. */
+function picksOf(tree: string) {
+  const root = join(REPO_ROOT, tree, "shell/modules");
+  if (!existsSync(root)) return [];
+  return flatMap(readdirSync(root, { withFileTypes: true }), entry => {
+    const code = withoutComments(read(join(root, entry.name, "shell.ts")));
+    return map(
+      toArray(
+        code.matchAll(/export const (\w+Template)\s*=\s*resolveTemplate\(/g)
+      ),
+      match => ({
+        pick: match[1],
+        shell: join(tree, "shell/modules", entry.name, "shell")
+      })
+    );
+  });
+}
+
 function specifierPath(file: string, specifier: string) {
   if (!startsWith(specifier, ".")) return specifier;
   return relative(REPO_ROOT, resolve(dirname(file), specifier));
 }
 
+/** Every record a host's pages pass, or pick from with the module's `xTemplate(template)`. */
 function recordsPassed(pages: string) {
   const files = filter(sourceFiles(join(REPO_ROOT, pages)), file =>
     endsWith(file, ".vue")
@@ -271,11 +319,11 @@ function recordsPassed(pages: string) {
     return map(
       [
         ...code.matchAll(
-          /:(?:(?:[\w-]+-)?templates="(\w+)"|is="(\w+_TEMPLATES)\[)/g
+          /:(?:(?:[\w-]+-)?templates="(\w+)"|is="(\w+_TEMPLATES)\[|is="(\w+Template)\(\s*template\s*\)")/g
         )
       ],
       match => {
-        const record = match[1] ?? match[2];
+        const record = match[1] ?? match[2] ?? match[3];
         return {
           page: relative(REPO_ROOT, file),
           record,
@@ -290,6 +338,7 @@ const hosts = map(HOSTS, host => ({
   name: host.name,
   tree: host.tree,
   modules: modulesOf(host.tree),
+  picks: picksOf(host.tree),
   passed: recordsPassed(host.pages)
 }));
 
@@ -327,6 +376,14 @@ describe("the record surface this spec grades", () => {
       `${host.name} is graded on ${drawn} record entries and ` +
         `${RECORDED.templates} were recorded`
     ).toBe(RECORDED.templates);
+  });
+
+  it.each(hosts)("finds $name's picks", host => {
+    expect(
+      map(host.picks, "pick"),
+      `${host.name} exports ${host.picks.length} picks and ` +
+        `${RECORDED.picks} were recorded, so a pick went missing`
+    ).toHaveLength(RECORDED.picks);
   });
 
   it.each(pairs)(
@@ -393,6 +450,33 @@ describe("every template a package can pick, drawn by the app that owns the page
       ).toBe(pair.detail.enumSource);
     }
   );
+});
+
+describe("every app-keyed record, picked with a fallback it draws", () => {
+  const keyed = filter(pairs, pair => pair.detail.keyed);
+
+  it("finds the app-keyed records", () => {
+    expect(keyed.length).toBeGreaterThan(0);
+  });
+
+  it.each(keyed)("$host's $module hands its pages a pick", pair => {
+    expect(
+      pair.detail.pick,
+      `${pair.host}'s ${pair.detail.record} declares no \`resolveTemplate\` ` +
+        `pick over it, so a page reads the record unchecked`
+    ).not.toBe("");
+  });
+
+  it.each(keyed)("$host's $module falls back to a template it draws", pair => {
+    expect(
+      pair.detail.fallback,
+      `${pair.host}'s ${pair.module} pick names no fallback`
+    ).not.toBeNull();
+    expect(pair.detail.fallback?.enum).toBe(pair.detail.type);
+    expect(map(pair.detail.entries, "key")).toContain(
+      pair.detail.fallback?.key
+    );
+  });
 });
 
 describe("each entry pinned to the file it draws", () => {
@@ -464,10 +548,9 @@ describe("each host page passes its own app's record", () => {
   it.each(hosts)("$name's pages take each record from its own module", host => {
     const stray = map(
       filter(host.passed, passed => {
-        const owner = find(
-          host.modules,
-          module => module.record === passed.record
-        );
+        const owner =
+          find(host.modules, module => module.record === passed.record) ??
+          find(host.picks, pick => pick.pick === passed.record);
         return owner === undefined || passed.from !== owner.shell;
       }),
       passed =>
@@ -481,17 +564,28 @@ describe("each host page passes its own app's record", () => {
     ).toEqual([]);
   });
 
-  it.each(hosts)("$name hands every module's record to a page", host => {
-    const unpassed = difference(
-      map(host.modules, "record"),
-      map(host.passed, "record")
-    );
+  it.each(hosts)(
+    "$name hands every module's record and pick to a page",
+    host => {
+      const passed = map(host.passed, "record");
+      const unpassed = concat(
+        map(
+          filter(
+            host.modules,
+            module =>
+              !includes(passed, module.record) && !includes(passed, module.pick)
+          ),
+          "record"
+        ),
+        difference(map(host.picks, "pick"), passed)
+      );
 
-    expect(
-      unpassed,
-      `${host.name} builds ${unpassed.join(", ")} and no page passes it`
-    ).toEqual([]);
-  });
+      expect(
+        unpassed,
+        `${host.name} builds ${unpassed.join(", ")} and no page passes it`
+      ).toEqual([]);
+    }
+  );
 });
 
 describe("the two apps against each other", () => {
@@ -509,6 +603,19 @@ describe("the two apps against each other", () => {
       `${second.name} draws a different set from ${first.name}, so one of the ` +
         `two renders a page the other does not`
     ).toEqual(setOf(first));
+  });
+
+  it("falls back to the same template in both", () => {
+    const fallbacksOf = (host: (typeof hosts)[number]) =>
+      sortBy(
+        map(
+          filter(host.modules, module => module.keyed),
+          module => `${module.name}: ${module.fallback?.key ?? "none"}`
+        )
+      );
+    const [first, second] = hosts;
+
+    expect(fallbacksOf(second)).toEqual(fallbacksOf(first));
   });
 });
 

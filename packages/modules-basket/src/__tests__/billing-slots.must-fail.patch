@@ -1,0 +1,19 @@
+# Negative control — billing draws its back link unless the layout turns it off,
+# so every billing page but the inset one gains a back link develop never drew.
+#
+# Intended RED:
+#   packages/modules-basket/src/__tests__/billing-slots.int.test.ts
+#     "draws the back link only when the layout asks for it"
+
+diff --git a/packages/modules-basket/src/billing/Billing.vue b/packages/modules-basket/src/billing/Billing.vue
+--- a/packages/modules-basket/src/billing/Billing.vue
++++ b/packages/modules-basket/src/billing/Billing.vue
+@@ -25,7 +25,7 @@
+       </slot>
+     </template>
+ 
+-    <template #back="{ showBack = false }">
++    <template #back="{ showBack = true }">
+       <slot name="back">
+         <!-- One-page reaches billing as a checkout sub-step, so it needs a Back;
+              stepped billing templates never showed one. -->

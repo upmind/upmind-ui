@@ -19,21 +19,20 @@
 
 import { afterEach, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { h } from "vue";
-import { PRODUCT_SETUP_TEMPLATE, UpmProductSetup } from "../index";
+import { UpmProductSetup } from "../index";
 import {
   BOOT_BUDGET,
   inFrame,
-  layoutOf,
-  layoutsFor,
+  layoutFor,
   mountPage,
   ROUTES,
   seedBasket,
   seedGuestSession,
   slotsOf,
+  templateOf,
   unmountPages
 } from "./mount-page";
-import { installBootRoutes } from "./recorded-pool";
-import { values } from "lodash-es";
+import { installBootRoutes, recordedTemplate } from "./recorded-pool";
 import type { PageWrapper } from "./mount-page";
 import type { RawSlots } from "vue";
 
@@ -47,8 +46,6 @@ const DEVELOP_BLOCKS = [
   "actions"
 ];
 
-const SETUP_LAYOUTS = layoutsFor(PRODUCT_SETUP_TEMPLATE, DEVELOP_BLOCKS);
-
 const HERO_TITLE = '[data-test-key="product-setup-hero-title"]';
 
 const drawsForm = (wrapper: PageWrapper) =>
@@ -58,7 +55,7 @@ const openSetup = (overrides?: RawSlots) =>
   mountPage({
     organism: UpmProductSetup,
     props: { basketRoute: { name: ROUTES.BASKET } },
-    layouts: SETUP_LAYOUTS,
+    layout: layoutFor(DEVELOP_BLOCKS),
     path: "/order/basket/setup",
     until: drawsForm,
     overrides
@@ -80,11 +77,11 @@ describe("the product setup page's layout, for the recorded basket's invalid pro
   afterEach(unmountPages);
 
   it(
-    "hands the layout every block develop fills",
+    "hands the layout the brand's own template and every block develop fills",
     async () => {
       const wrapper = await openSetup();
 
-      expect(values(PRODUCT_SETUP_TEMPLATE)).toContain(layoutOf(wrapper));
+      expect(templateOf(wrapper)).toBe(recordedTemplate);
       expect(slotsOf(wrapper)).toEqual(expect.arrayContaining(DEVELOP_BLOCKS));
     },
     BOOT_BUDGET

@@ -4,7 +4,7 @@
     :label="t('cart.basket_section')"
     value="basket-summary"
     icon="shopping-bag-02"
-    :class="basketAsideVariants({ variant: props.layout })"
+    :class="basketAsideVariants()"
   >
     <!-- itemized per-product breakdown when the brand asks for it (priced from
          the saved server basket), otherwise a plain totals summary -->
@@ -28,7 +28,6 @@
 import { useI18n } from "vue-i18n";
 import { Section } from "@upmind-automation/foundation";
 import { useConfig } from "@upmind-automation/headless";
-import { BASKET_TEMPLATE } from "../types";
 import { basketAsideVariants } from "../variants";
 import BasketCheckout from "./BasketCheckout.vue";
 import Summary from "./Summary.vue";
@@ -37,14 +36,12 @@ import Summary from "./Summary.vue";
 
 const props = withDefaults(
   defineProps<{
-    layout?: BASKET_TEMPLATE;
     disabled?: boolean;
     loading?: boolean;
     showCheckout?: boolean;
     showTotal?: boolean;
   }>(),
   {
-    layout: BASKET_TEMPLATE.FULL,
     showCheckout: true,
     showTotal: true
   }

@@ -1,0 +1,19 @@
+# Negative control — the sign-in form keeps the brand's copy when the layout
+# makes it inactive, so the copy shows twice beside the layout's own.
+#
+# Intended RED:
+#   packages/modules-auth/src/__tests__/slot-options.test.ts
+#     "keeps the 'login' page's form active with the brand's copy by default, and drops the copy where the layout makes it inactive"
+
+diff --git a/packages/modules-auth/src/components/Login.vue b/packages/modules-auth/src/components/Login.vue
+--- a/packages/modules-auth/src/components/Login.vue
++++ b/packages/modules-auth/src/components/Login.vue
+@@ -56,7 +56,7 @@
+           </template>
+ 
+           <Markdown
+-            v-if="active && loginTemplate?.body"
++            v-if="loginTemplate?.body"
+             tag="section"
+             :model-value="loginTemplate.body"
+           />

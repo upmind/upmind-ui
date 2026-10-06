@@ -3,11 +3,15 @@
        no summary aside (matches the auth step of the route-based flow). -->
   <InsetLayout centered :aside="false">
     <template #back>
-      <slot name="back" />
+      <slot name="back" :compact="true" />
     </template>
 
     <template #content>
-      <slot name="form" />
+      <slot
+        name="form"
+        :card="true"
+        :guest-spacing="GUEST_CHECKOUT_SPACING.NONE"
+      />
     </template>
   </InsetLayout>
 </template>
@@ -31,11 +35,9 @@ import { InsetLayout } from "@upmind-automation/foundation";
 // --- components
 
 // --- types
-import type { AuthRoutes } from "@upmind-automation/auth";
+import { GUEST_CHECKOUT_SPACING } from "@upmind-automation/auth";
 
 // -----------------------------------------------------------------------------
-
-defineProps<AuthRoutes>();
 
 const { ui } = useConfig();
 

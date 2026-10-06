@@ -9,7 +9,7 @@
       :catalogue-route="{ name: ROUTE.CATALOGUE }"
       v-slot="{ template }"
     >
-      <component :is="PRODUCT_TEMPLATES[template]" />
+      <component :is="productTemplate(template)" />
     </UpmProductConfigure>
     <template #fallback>
       <UpmLoading />
@@ -20,7 +20,7 @@
 import { UpmProductConfigure } from "@upmind-automation/product";
 import { ROUTE } from "../../router";
 import { useStorefrontRoute } from "../../router/useStorefrontRoute";
-import { PRODUCT_TEMPLATES } from "../../shell/modules/product/shell";
+import { productTemplate } from "../../shell/modules/product/shell";
 import UpmLoading from "../../shell/modules/system/Loading.vue";
 
 // -----------------------------------------------------------------------------

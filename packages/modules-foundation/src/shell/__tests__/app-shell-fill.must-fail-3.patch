@@ -1,5 +1,5 @@
-# Negative control — the cart's product page draws its layout from cart-nuxt's
-# product record, so the cart renders another app's templates.
+# Negative control — the cart's product page picks its layout with cart-nuxt's
+# product pick, so the cart renders another app's templates.
 #
 # Intended RED:
 #   packages/modules-foundation/src/shell/__tests__/app-shell-fill.test.ts
@@ -12,8 +12,8 @@ diff --git a/apps/cart/src/pages/product/Configure.vue b/apps/cart/src/pages/pro
  import { UpmProductConfigure } from "@upmind-automation/product";
  import { ROUTE } from "../../router";
  import { useStorefrontRoute } from "../../router/useStorefrontRoute";
--import { PRODUCT_TEMPLATES } from "../../shell/modules/product/shell";
-+import { PRODUCT_TEMPLATES } from "../../../../cart-nuxt/app/shell/modules/product/shell";
+-import { productTemplate } from "../../shell/modules/product/shell";
++import { productTemplate } from "../../../../cart-nuxt/app/shell/modules/product/shell";
  import UpmLoading from "../../shell/modules/system/Loading.vue";
  
  // -----------------------------------------------------------------------------

@@ -8,12 +8,12 @@
 diff --git a/packages/modules-auth/src/components/Register.vue b/packages/modules-auth/src/components/Register.vue
 --- a/packages/modules-auth/src/components/Register.vue
 +++ b/packages/modules-auth/src/components/Register.vue
-@@ -265,7 +265,7 @@ const meta = computed(() => ({
- const templateVariant = computed(() => get(props.templates, template.value));
- const templateProps = computed(() => omit(props, ["templates"]));
+@@ -250,7 +250,7 @@
+ 
+ const isResolving = ref(false);
  
 -const summarySlot: AuthSummarySlotProps = { showWhileLoading: true };
 +const summarySlot: AuthSummarySlotProps = { showWhileLoading: false };
  const guestCheckoutSlot = computed<AuthGuestCheckoutSlotProps>(() => ({
    registerAsGuest,
-   isRegistering: isRegisteringAsGuest.value,
+   isRegistering: isRegisteringAsGuest.value

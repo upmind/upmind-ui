@@ -1,7 +1,7 @@
 // -----------------------------------------------------------------------------
 /**
  * @module invoice/__tests__/order-harness
- * @description Boots a signed-in client on the recorded traffic and mounts the order page in its short form: `UpmOrder` with the template's layout, self-closing, in its default slot; the layout skips an empty slot as develop's layouts do.
+ * @description Boots a signed-in client on the recorded traffic and mounts the order page in its short form: `UpmOrder` with one self-closing layout in its default slot, named for the raw template the page hands it; the layout skips an empty slot as develop's layouts do.
  */
 
 import { mount } from "@vue/test-utils";
@@ -14,23 +14,15 @@ import {
   useRoutingEngine,
   useSessionStore
 } from "@upmind-automation/headless";
-import { ORDER_TEMPLATE, UpmOrder } from "../index";
+import { UpmOrder } from "../index";
 import {
   clearOutbound,
   installBootRoutes,
   recordedSession,
   serveRecordedOrders
 } from "./recorded-orders";
-import {
-  every,
-  filter,
-  has,
-  isEmpty,
-  isUndefined,
-  map,
-  reject
-} from "lodash-es";
-import type { OrderProps, OrderTemplates } from "../index";
+import { every, filter, has, isEmpty, join, map, reject } from "lodash-es";
+import type { OrderProps } from "../index";
 import type { RawSlots, Slots, VNode } from "vue";
 
 // -----------------------------------------------------------------------------
@@ -101,37 +93,30 @@ function isEmptySlot(name: string, slots: Slots): boolean {
   return isEmpty(vnodes) || every(vnodes, isBlank);
 }
 
-/** One template's layout: it lists every slot it receives, and draws a frame for each one that is not empty. */
-function hostTemplate(template: ORDER_TEMPLATE) {
-  return defineComponent({
-    setup(_props, { slots }) {
-      return () => {
-        const handed = filter(ORDER_SLOTS, name => has(slots, name));
-        const drawn = reject(handed, name => isEmptySlot(name, slots));
+/** Every raw template the order page handed its default slot, in order. */
+export const handed: unknown[] = [];
 
-        return h(
-          "div",
-          { "data-template": template, "data-slots": handed.join(" ") },
-          map(drawn, name =>
-            h("section", { "data-frame": name }, slots[name]?.())
-          )
-        );
-      };
-    }
-  });
-}
+/** The page's layout: it lists every slot it receives, and draws a frame for each one that is not empty. */
+const HostLayout = defineComponent({
+  props: { template: { type: String, required: true } },
+  setup(props, { slots }) {
+    return () => {
+      const received = filter(ORDER_SLOTS, name => has(slots, name));
+      const drawn = reject(received, name => isEmptySlot(name, slots));
 
-const HOST_TEMPLATES: OrderTemplates = {
-  [ORDER_TEMPLATE.FULL]: hostTemplate(ORDER_TEMPLATE.FULL),
-  [ORDER_TEMPLATE.TWO_COLUMN_LTR]: hostTemplate(ORDER_TEMPLATE.TWO_COLUMN_LTR),
-  [ORDER_TEMPLATE.TWO_COLUMN_RTL]: hostTemplate(ORDER_TEMPLATE.TWO_COLUMN_RTL),
-  [ORDER_TEMPLATE.ENCLOSED]: hostTemplate(ORDER_TEMPLATE.ENCLOSED),
-  [ORDER_TEMPLATE.INSET]: hostTemplate(ORDER_TEMPLATE.INSET)
-};
+      return h(
+        "div",
+        { "data-template": props.template, "data-slots": join(received, " ") },
+        map(drawn, name =>
+          h("section", { "data-frame": name }, slots[name]?.())
+        )
+      );
+    };
+  }
+});
 
 export async function mountOrder(options: {
   route: string;
-  template?: ORDER_TEMPLATE;
   /** The page's own slots on its layout; with none the layout is self-closing. */
   overrides?: RawSlots;
 }): Promise<ReturnType<typeof mount>> {
@@ -154,7 +139,7 @@ export async function mountOrder(options: {
   await router.isReady();
 
   const given: OrderProps = { storefrontRoute: { to: { path: "/" } } };
-  if (!isUndefined(options.template)) given.template = options.template;
+  handed.length = 0;
 
   const Host = defineComponent({
     setup() {
@@ -163,8 +148,14 @@ export async function mountOrder(options: {
         h(Suspense, null, {
           default: () =>
             h(UpmOrder, given, {
-              default: ({ template }: { template: ORDER_TEMPLATE }) =>
-                h(HOST_TEMPLATES[template], null, options.overrides)
+              default: ({ template }: { template?: unknown }) => {
+                handed.push(template);
+                return h(
+                  HostLayout,
+                  { template: String(template) },
+                  options.overrides
+                );
+              }
             })
         });
     }

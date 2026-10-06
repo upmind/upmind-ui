@@ -1,0 +1,18 @@
+# Negative control — cart-nuxt's checkout pick names its fallback from the
+# billing enum, not from the checkout record's own templates, so the fallback
+# holds only while two modules' template names happen to match.
+#
+# Intended RED:
+#   packages/modules-foundation/src/shell/__tests__/app-shell-fill.test.ts
+#     "cart-nuxt's checkout falls back to a template it draws"
+
+diff --git a/apps/cart-nuxt/app/shell/modules/checkout/shell.ts b/apps/cart-nuxt/app/shell/modules/checkout/shell.ts
+--- a/apps/cart-nuxt/app/shell/modules/checkout/shell.ts
++++ b/apps/cart-nuxt/app/shell/modules/checkout/shell.ts
+@@ -23,5 +23,5 @@
+ 
+ export const checkoutTemplate = resolveTemplate(
+   CHECKOUT_TEMPLATES,
+-  CHECKOUT_TEMPLATE.TWO_COLUMN_LTR
++  BILLING_TEMPLATE.TWO_COLUMN_LTR
+ );

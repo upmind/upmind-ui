@@ -9,14 +9,14 @@
     <template #content>
       <slot name="configuration" />
       <template v-if="isMobile">
-        <slot name="pricing" />
+        <slot name="pricing" :show-total="true" :show-actions="true" />
         <slot name="errors" />
         <slot name="markdown" />
       </template>
     </template>
 
     <template #aside>
-      <slot name="pricing" />
+      <slot name="pricing" :show-total="true" :show-actions="true" />
       <slot name="errors" />
       <slot name="markdown" />
     </template>

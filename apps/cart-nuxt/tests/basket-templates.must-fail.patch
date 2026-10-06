@@ -1,0 +1,65 @@
+# Negative control — every one of the cart-nuxt's five basket-family picks is declared
+# with the other two-column layout as its fallback, so a brand with no template,
+# an empty one, or a name the family does not carry gets the mirror of its page.
+#
+# Intended RED (apps/cart-nuxt/tests/basket-templates.test.ts), in each of
+# basketTemplate, basketProductTemplate, billingTemplate, checkoutTemplate and
+# productSetupTemplate:
+#   draws the <fallback> layout for no template
+#   draws the <fallback> layout for an empty template
+#   draws the <fallback> layout for "not-a-template", which none of its layouts carries
+#   draws the <fallback> layout for "constructor", which none of its layouts carries
+#   (productSetupTemplate also) draws the two-column-rtl layout for "inset", ...
+# Intended GREEN:
+#   draws the layout the <template> template carries
+
+diff --git a/apps/cart-nuxt/app/shell/modules/basket/shell.ts b/apps/cart-nuxt/app/shell/modules/basket/shell.ts
+--- a/apps/cart-nuxt/app/shell/modules/basket/shell.ts
++++ b/apps/cart-nuxt/app/shell/modules/basket/shell.ts
+@@ -23,5 +23,5 @@
+ 
+ export const basketTemplate = resolveTemplate(
+   BASKET_TEMPLATES,
+-  BASKET_TEMPLATE.TWO_COLUMN_LTR
++  BASKET_TEMPLATE.TWO_COLUMN_RTL
+ );
+diff --git a/apps/cart-nuxt/app/shell/modules/basket-product/shell.ts b/apps/cart-nuxt/app/shell/modules/basket-product/shell.ts
+--- a/apps/cart-nuxt/app/shell/modules/basket-product/shell.ts
++++ b/apps/cart-nuxt/app/shell/modules/basket-product/shell.ts
+@@ -26,5 +26,5 @@
+ 
+ export const basketProductTemplate = resolveTemplate(
+   BASKET_PRODUCT_TEMPLATES,
+-  BASKET_PRODUCT_TEMPLATE.TWO_COLUMN_RTL
++  BASKET_PRODUCT_TEMPLATE.TWO_COLUMN_LTR
+ );
+diff --git a/apps/cart-nuxt/app/shell/modules/billing/shell.ts b/apps/cart-nuxt/app/shell/modules/billing/shell.ts
+--- a/apps/cart-nuxt/app/shell/modules/billing/shell.ts
++++ b/apps/cart-nuxt/app/shell/modules/billing/shell.ts
+@@ -23,5 +23,5 @@
+ 
+ export const billingTemplate = resolveTemplate(
+   BILLING_TEMPLATES,
+-  BILLING_TEMPLATE.TWO_COLUMN_RTL
++  BILLING_TEMPLATE.TWO_COLUMN_LTR
+ );
+diff --git a/apps/cart-nuxt/app/shell/modules/checkout/shell.ts b/apps/cart-nuxt/app/shell/modules/checkout/shell.ts
+--- a/apps/cart-nuxt/app/shell/modules/checkout/shell.ts
++++ b/apps/cart-nuxt/app/shell/modules/checkout/shell.ts
+@@ -23,5 +23,5 @@
+ 
+ export const checkoutTemplate = resolveTemplate(
+   CHECKOUT_TEMPLATES,
+-  CHECKOUT_TEMPLATE.TWO_COLUMN_LTR
++  CHECKOUT_TEMPLATE.TWO_COLUMN_RTL
+ );
+diff --git a/apps/cart-nuxt/app/shell/modules/product-setup/shell.ts b/apps/cart-nuxt/app/shell/modules/product-setup/shell.ts
+--- a/apps/cart-nuxt/app/shell/modules/product-setup/shell.ts
++++ b/apps/cart-nuxt/app/shell/modules/product-setup/shell.ts
+@@ -24,5 +24,5 @@
+ 
+ export const productSetupTemplate = resolveTemplate(
+   PRODUCT_SETUP_TEMPLATES,
+-  PRODUCT_SETUP_TEMPLATE.TWO_COLUMN_RTL
++  PRODUCT_SETUP_TEMPLATE.TWO_COLUMN_LTR
+ );

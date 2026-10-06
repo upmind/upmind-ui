@@ -1,14 +1,16 @@
 <template>
   <UpmAuthRecoverPassword
     v-bind="AUTH_ROUTES"
-    :templates="PORTAL_AUTH_TEMPLATES"
     @reject="onReject"
-  />
+    v-slot="{ template }"
+  >
+    <component :is="authTemplate(template)" />
+  </UpmAuthRecoverPassword>
 </template>
 
 <script setup lang="ts">
 import { UpmAuthRecoverPassword } from "@upmind-automation/auth";
-import { PORTAL_AUTH_TEMPLATES } from "~/portal/auth/shell";
+import { authTemplate } from "~/portal/auth/shell";
 import { AUTH_ROUTES } from "~/portal/auth-routes";
 
 definePageMeta({

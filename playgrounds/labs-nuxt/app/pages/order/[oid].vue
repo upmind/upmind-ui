@@ -1,7 +1,7 @@
 <template>
   <div data-test-key="order-page">
     <UpmOrder v-slot="{ template }">
-      <component :is="LABS_ORDER_TEMPLATES[template]" />
+      <component :is="orderTemplate(template)" />
     </UpmOrder>
   </div>
 </template>
@@ -19,7 +19,7 @@
 
 import { UpmOrder } from "@upmind-automation/invoice";
 import { ROUTE } from "~/funnels/types";
-import { LABS_ORDER_TEMPLATES } from "~/shell/shell";
+import { orderTemplate } from "~/shell/shell";
 
 // -----------------------------------------------------------------------------
 

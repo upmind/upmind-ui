@@ -1,23 +1,10 @@
-import { cva, type VariantProps } from "class-variance-authority";
+import { cva } from "class-variance-authority";
 
 // -----------------------------------------------------------------------------
 // Basket variants (token utilities) — the in-component cva class-organisers
 // (ADR-024 D-3, replaces the retired useStyles/*.config.ts + uiConfig shape).
 
-// `variant` keyed full/enclosed only; the empty two-column entries let callers
-// pass the full BASKET_TEMPLATE union to the direct cva call (behaviour
-// identical — unmatched templates resolve to the base classes).
-export const basketAsideVariants = cva("", {
-  variants: {
-    variant: {
-      full: "gap-9",
-      enclosed: "gap-6",
-      "two-column-ltr": "",
-      "two-column-rtl": "",
-      inset: ""
-    }
-  }
-});
+export const basketAsideVariants = cva("gap-9");
 
 export const basketCustomFieldsRootVariants = cva("");
 
@@ -37,5 +24,3 @@ export const promotionsVariants = {
   },
   input: cva("w-20")
 };
-
-export type BasketAsideVariants = VariantProps<typeof basketAsideVariants>;

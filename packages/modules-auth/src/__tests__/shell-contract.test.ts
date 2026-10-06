@@ -1,30 +1,31 @@
 // -----------------------------------------------------------------------------
 /**
- * @fileoverview The page templates each auth page takes from the page that mounts it.
+ * @fileoverview The raw template each auth page hands the page that mounts it.
  *
  * ## Job To Be Done
- * Each page draws the host's template for the brand's chosen arrangement and
- * hands it the page's props but not the record.
+ * Each page hands its default slot the brand's raw template, unchecked, so the
+ * host picks the layout from its own record; a template the host writes on the
+ * page changes nothing, and the page draws its own parts inside the layout.
  *
  * ## What Breaks If These Fail
- * A page draws the wrong arrangement or leaks the record onto the template.
+ * Every host draws one arrangement whatever the brand picks, a host overrides
+ * the brand, or the page's form lands outside the host's layout.
  */
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import LoginView from "../components/Login.vue";
 import RecoverPasswordView from "../components/RecoverPassword.vue";
 import RegisterView from "../components/Register.vue";
-import { AUTH_TEMPLATE } from "../types";
 import {
   FormStub,
-  ROUTES,
+  handed,
   host,
+  region,
   renderPage,
   resetHost,
-  seen,
   templateDrawn
 } from "./support/auth-host";
-import { find, values } from "lodash-es";
+import { uniq } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 
@@ -52,45 +53,47 @@ const SCREENS = [
   { name: "recovery", view: RecoverPasswordView }
 ] as const;
 
-const ARRANGEMENTS = values(AUTH_TEMPLATE);
+const RAW_TEMPLATES = ["split", "inset", "mosaic", ""];
 
 // -----------------------------------------------------------------------------
 
-describe("the page templates an auth page takes from its host", () => {
+describe("the raw template an auth page hands its host", () => {
   beforeEach(() => {
     resetHost();
   });
 
   for (const screen of SCREENS) {
     describe(`the ${screen.name} page`, () => {
-      it.each(ARRANGEMENTS)(
-        "draws the host's template when the brand picks %s",
-        async arrangement => {
-          host.brandTemplate = arrangement;
+      it.each(RAW_TEMPLATES)(
+        "hands its default slot the brand's raw template %j, unchecked",
+        async raw => {
+          host.brandTemplate = raw;
 
           const rendered = await renderPage(screen.view);
 
-          expect(templateDrawn(rendered)).toBe(arrangement);
+          expect(uniq(handed)).toEqual([raw]);
+          expect(templateDrawn(rendered)).toBe(raw);
           expect(rendered.errors).toEqual([]);
         }
       );
 
-      it("hands the template its routes, and not the record", async () => {
-        host.brandTemplate = AUTH_TEMPLATE.SPLIT;
+      it("hands on the brand's template when the host writes another on the page", async () => {
+        host.brandTemplate = "split";
 
-        await renderPage(screen.view);
-        const drawn = find(seen, { name: AUTH_TEMPLATE.SPLIT });
+        await renderPage(screen.view, { props: { template: "inset" } });
 
-        expect(drawn?.props).toMatchObject(ROUTES);
-        expect(drawn?.attrs).not.toHaveProperty("templates");
+        expect(uniq(handed)).toEqual(["split"]);
       });
 
-      it("draws the page's own form inside the template", async () => {
-        host.brandTemplate = AUTH_TEMPLATE.ENCLOSED;
+      it("draws its own form and hero inside the layout the host picks", async () => {
+        host.brandTemplate = "enclosed";
 
         const rendered = await renderPage(screen.view);
 
-        expect(rendered.wrapper.findComponent(FormStub).exists()).toBe(true);
+        expect(region(rendered, "form").findComponent(FormStub).exists()).toBe(
+          true
+        );
+        expect(region(rendered, "hero").text()).not.toBe("");
       });
     });
   }

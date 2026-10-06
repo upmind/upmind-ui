@@ -7,7 +7,6 @@
 #     "the cart's 'Basket.vue' > puts the organism, and only the organism, inside it"
 
 diff --git a/apps/cart/src/pages/Basket.vue b/apps/cart/src/pages/Basket.vue
-index dc2d9e3..b9f575d 100644
 --- a/apps/cart/src/pages/Basket.vue
 +++ b/apps/cart/src/pages/Basket.vue
 @@ -1,5 +1,4 @@
@@ -18,7 +17,7 @@ index dc2d9e3..b9f575d 100644
        :basket-route="{ name: ROUTE.BASKET }"
 @@ -8,7 +7,6 @@
      >
-       <component :is="BASKET_TEMPLATES[template]" />
+       <component :is="basketTemplate(template)" />
      </UpmBasket>
 -  </Transitions>
  </template>

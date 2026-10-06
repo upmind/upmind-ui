@@ -6,7 +6,7 @@
     :billing-route="{ name: ROUTE.BILLING }"
     v-slot="{ template }"
   >
-    <component :is="CHECKOUT_TEMPLATES[template]" />
+    <component :is="checkoutTemplate(template)" />
   </UpmCheckout>
 </template>
 
@@ -14,7 +14,7 @@
 import { UpmCheckout } from "@upmind-automation/basket";
 import { ROUTE } from "../router";
 import { useStorefrontRoute } from "../router/useStorefrontRoute";
-import { CHECKOUT_TEMPLATES } from "../shell/modules/checkout/shell";
+import { checkoutTemplate } from "../shell/modules/checkout/shell";
 
 // --- components
 const { storefrontRoute } = useStorefrontRoute();

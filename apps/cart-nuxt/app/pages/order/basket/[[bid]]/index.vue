@@ -6,7 +6,7 @@
       :edit-route="{ name: ROUTE.BASKET_PRODUCT_EDIT }"
       v-slot="{ template }"
     >
-      <component :is="BASKET_TEMPLATES[template]" />
+      <component :is="basketTemplate(template)" />
     </UpmBasket>
   </Transitions>
 </template>
@@ -17,7 +17,7 @@ import { UpmBasket } from "@upmind-automation/basket";
 import { useStorefrontRoute } from "../../../../composables/useStorefrontRoute";
 import { ROUTE } from "../../../../funnels/types";
 import Transitions from "../../../../shell/components/transition/Transition.vue";
-import { BASKET_TEMPLATES } from "../../../../shell/modules/basket/shell";
+import { basketTemplate } from "../../../../shell/modules/basket/shell";
 
 const { t } = useI18n();
 

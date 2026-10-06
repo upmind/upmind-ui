@@ -1,5 +1,5 @@
-# Negative control — `product` reaches into an app's shell for the product page
-# templates instead of taking them from its `templates` prop. Page templates are
+# Negative control — `product` reaches into an app's shell for the product
+# layout instead of handing its page the brand's raw template. Page layouts are
 # app-owned (ADR 023 Amendment 1 change 3); a package reaching them points a
 # package at an app, an edge no row of §3's grant matrix carries.
 #
@@ -9,23 +9,26 @@
 # Intended RED under lint:
 #   Import a workspace package by its published specifier — its internals are
 #   private. ("../../../../apps/cart/src/shell/modules/product/shell" resolves into apps/cart)
+
 diff --git a/packages/modules-product/src/components/Configure.vue b/packages/modules-product/src/components/Configure.vue
-index f38cf2e..1424351 100644
 --- a/packages/modules-product/src/components/Configure.vue
 +++ b/packages/modules-product/src/components/Configure.vue
-@@ -1,6 +1,6 @@
+@@ -1,6 +1,9 @@
  <template>
    <LayoutProvider>
--    <slot :template="template" />
-+    <slot :template="template" :layout="PRODUCT_TEMPLATES[template]" />
+-    <slot :template="configMeta.ui.template.value" />
++    <slot
++      :template="configMeta.ui.template.value"
++      :layout="productTemplate(configMeta.ui.template.value)"
++    />
  
-     <template v-if="!isSlotHidden('product-details')" #product-details>
-       <slot
-@@ -236,6 +236,7 @@
- import { useClipboard } from "@vueuse/core";
- import { computed, onUnmounted, provide, watch } from "vue";
- import { useI18n } from "vue-i18n";
-+import { PRODUCT_TEMPLATES } from "../../../../apps/cart/src/shell/modules/product/shell";
- import { Section } from "@upmind-automation/foundation";
- import { Icon } from "@upmind-automation/foundation";
- import { isMobile } from "@upmind-automation/foundation";
+     <template
+       v-if="!isSlotHidden('product-details')"
+@@ -264,6 +267,7 @@
+ import PricingSkeleton from "./pricing-list/PricingSkeleton.vue";
+ import PricingTotal from "./pricing-list/PricingTotal.vue";
+ import ProductActions from "./ProductActions.vue";
++import { productTemplate } from "../../../../apps/cart/src/shell/modules/product/shell";
+ import { includes, take, isEmpty } from "lodash-es";
+ import type { ConfigureProps } from "../types";
+ 

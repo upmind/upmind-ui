@@ -1,10 +1,12 @@
 <template>
   <UpmAuthRegister
-    :templates="SESSION_TEMPLATES"
     :login-route="{ name: ROUTE.SESSION_LOGIN }"
     :recover-route="{ name: ROUTE.SESSION_RECOVER_PASSWORD }"
     :register-route="{ name: ROUTE.SESSION_REGISTER }"
   >
+    <template #default="{ template }">
+      <component :is="sessionTemplate(template)" />
+    </template>
     <template #loading><UpmLoading /></template>
     <template #summary="summary">
       <SessionSummary v-bind="summary" />
@@ -21,7 +23,7 @@ import { UpmAuthRegister } from "@upmind-automation/auth";
 import { UpmGuestCheckoutOffer } from "@upmind-automation/basket";
 import { ROUTE } from "../../../funnels/types";
 import SessionSummary from "../../../shell/modules/session/components/SessionSummary.vue";
-import { SESSION_TEMPLATES } from "../../../shell/modules/session/shell";
+import { sessionTemplate } from "../../../shell/modules/session/shell";
 import UpmLoading from "../../../shell/modules/system/Loading.vue";
 
 const { t } = useI18n();

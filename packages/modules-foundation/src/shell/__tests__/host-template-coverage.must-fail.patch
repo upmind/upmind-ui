@@ -1,14 +1,14 @@
 # Negative control — the portal's auth record leaves out the inset arrangement,
-# so a brand that picks it gets an error instead of a page.
+# so a brand that picks it gets no layout.
 #
 # Intended RED:
 #   packages/modules-foundation/src/shell/__tests__/host-template-coverage.test.ts
-#     "portal-nuxt draws every auth name"
+#     "portal-nuxt draws every auth name it offers"
 
 diff --git a/apps/portal-nuxt/app/portal/auth/shell.ts b/apps/portal-nuxt/app/portal/auth/shell.ts
 --- a/apps/portal-nuxt/app/portal/auth/shell.ts
 +++ b/apps/portal-nuxt/app/portal/auth/shell.ts
-@@ -19,6 +19,5 @@
+@@ -20,8 +20,7 @@
    [AUTH_TEMPLATE.CANVAS_CARD]: AuthCanvasCardTemplate,
    [AUTH_TEMPLATE.SURFACE_BOX]: AuthSurfaceBoxTemplate,
    [AUTH_TEMPLATE.TWO_COLUMN_LTR]: AuthLTRTemplate,
@@ -16,3 +16,5 @@ diff --git a/apps/portal-nuxt/app/portal/auth/shell.ts b/apps/portal-nuxt/app/po
 -  [AUTH_TEMPLATE.INSET]: AuthInsetTemplate
 +  [AUTH_TEMPLATE.TWO_COLUMN_RTL]: AuthRTLTemplate
  };
+ 
+ export const authTemplate = resolveTemplate(

@@ -1,12 +1,12 @@
 <template>
   <InsetLayout>
     <template #back>
-      <slot name="back" />
+      <slot name="back" :show-back="true" />
     </template>
 
     <template #content>
       <UpmCheckoutPricing v-if="isMobile" breakdown />
-      <slot name="content" />
+      <slot name="content" :card="true" :inline-editing="true" />
     </template>
 
     <template #aside>

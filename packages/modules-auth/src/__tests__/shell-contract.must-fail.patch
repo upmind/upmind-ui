@@ -1,20 +1,20 @@
-# Negative control — the sign-in page binds its whole props object into the
-# template, record included. Every template then carries the host's seven
-# components as a stray `templates` attribute.
+# Negative control — the sign-in page fills in a template when the brand gives
+# none, so the host can no longer tell "no choice" from a real one and its own
+# fallback never runs.
 #
 # Intended RED:
 #   packages/modules-auth/src/__tests__/shell-contract.test.ts
-#     "the login page > hands the template its routes, and not the record"
+#     "the login page > hands its default slot the brand's raw template \"\", unchecked"
 
 diff --git a/packages/modules-auth/src/components/Login.vue b/packages/modules-auth/src/components/Login.vue
 --- a/packages/modules-auth/src/components/Login.vue
 +++ b/packages/modules-auth/src/components/Login.vue
-@@ -171,7 +171,7 @@ const meta = computed(() => ({
- }));
+@@ -1,7 +1,7 @@
+ <template>
+   <slot v-if="isResolving" name="loading"><AuthLoading /></slot>
+   <LayoutProvider v-else>
+-    <slot :template="ui.template.value" />
++    <slot :template="ui.template.value || 'two-column-ltr'" />
  
- const templateVariant = computed(() => get(props.templates, template.value));
--const templateProps = computed(() => omit(props, ["templates"]));
-+const templateProps = computed(() => props);
- 
- const summarySlot: AuthSummarySlotProps = { showWhileLoading: false };
- const { meta: templateMeta } = useAuthTemplates(template);
+     <template #back="{ compact = false }">
+       <slot name="back">

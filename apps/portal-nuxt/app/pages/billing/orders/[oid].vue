@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { UpmOrder } from "@upmind-automation/invoice";
-import { PORTAL_BILLING_TEMPLATES } from "~/portal/billing/shell";
+import { orderTemplate } from "~/portal/billing/shell";
 import PortalPageHost from "~/portal/content/PortalPageHost.vue";
 import { PAGE_KEY } from "~/portal/types";
 </script>
@@ -12,7 +12,7 @@ import { PAGE_KEY } from "~/portal/types";
   >
     <Suspense>
       <UpmOrder v-slot="{ template }">
-        <component :is="PORTAL_BILLING_TEMPLATES[template]" />
+        <component :is="orderTemplate(template)" />
       </UpmOrder>
     </Suspense>
   </PortalPageHost>

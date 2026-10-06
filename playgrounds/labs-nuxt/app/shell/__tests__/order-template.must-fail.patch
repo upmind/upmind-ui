@@ -1,0 +1,26 @@
+Negative control for order-template.spec.ts.
+
+Declares the pick with the left-hand two-column layout as its fallback, so a
+brand with no template, an empty one, or a name the page does not lay out gets
+that instead of the right-hand two-column layout. Every named template still
+draws its own layout.
+
+Intended RED (order-template.spec.ts, "orderTemplate"):
+  draws the right-hand two-column layout for no template
+  draws the right-hand two-column layout for an empty template
+  draws the right-hand two-column layout for a template only other pages carry
+  draws the right-hand two-column layout for a name no layout carries
+  draws the right-hand two-column layout for a name every object inherits
+Intended GREEN:
+  draws the layout the <each> template carries
+
+diff --git a/playgrounds/labs-nuxt/app/shell/shell.ts b/playgrounds/labs-nuxt/app/shell/shell.ts
+--- a/playgrounds/labs-nuxt/app/shell/shell.ts
++++ b/playgrounds/labs-nuxt/app/shell/shell.ts
+@@ -45,5 +45,5 @@
+ 
+ export const orderTemplate = resolveTemplate(
+   LABS_ORDER_TEMPLATES,
+-  ORDER_TEMPLATE.TWO_COLUMN_RTL
++  ORDER_TEMPLATE.TWO_COLUMN_LTR
+ );

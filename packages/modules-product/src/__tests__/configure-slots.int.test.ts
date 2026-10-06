@@ -10,7 +10,9 @@
  * image slot of a product recorded with no image reaches the layout empty, so
  * the layout draws no image frame, as develop's layouts judge an empty slot.
  * The page hiding product-details removes that slot, and a slot the page writes
- * replaces only that slot's content.
+ * replaces only that slot's content. The layout sets each slot's options: the
+ * hero's direction and image, and whether pricing carries the total and the
+ * actions.
  *
  * ## What Breaks If These Fail
  * A customer sees an empty image frame beside a domain, a hidden header still
@@ -19,10 +21,11 @@
 
 import { beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { h } from "vue";
-import { Config, Pricing, PRODUCT_TEMPLATE, ProductHero } from "../index";
+import { Config, Pricing, PRODUCT_HERO_DIRECTION, ProductHero } from "../index";
 import {
   bootAt,
   framesOf,
+  handed,
   layoutOf,
   readableText,
   seedBasket,
@@ -35,7 +38,7 @@ import {
   recordedProductId,
   recordedProductName
 } from "./recorded-pool";
-import { values } from "lodash-es";
+import { last } from "lodash-es";
 import type { ConfigureWrapper } from "./mount-configure";
 
 // -----------------------------------------------------------------------------
@@ -52,7 +55,14 @@ const drawsFields = (wrapper: ConfigureWrapper) =>
 const inFrame = (wrapper: ConfigureWrapper, name: string) =>
   wrapper.find(`[data-frame="${name}"]`);
 
-const PRODUCT_LAYOUTS = values(PRODUCT_TEMPLATE);
+const drawsHandedLayout = (wrapper: ConfigureWrapper) =>
+  layoutOf(wrapper) === String(last(handed));
+
+const heroIn = (wrapper: ConfigureWrapper) =>
+  inFrame(wrapper, "product-details").findComponent(ProductHero);
+
+const actionsInPricing = (wrapper: ConfigureWrapper) =>
+  inFrame(wrapper, "pricing").findComponent({ name: "ProductActions" });
 
 // -----------------------------------------------------------------------------
 
@@ -74,7 +84,7 @@ describe("the product page's layout, for the product recorded with no image", ()
     async () => {
       const { wrapper } = await bootAt(productId, showsProduct);
 
-      expect(PRODUCT_LAYOUTS).toContain(layoutOf(wrapper));
+      expect(drawsHandedLayout(wrapper)).toBe(true);
       expect(readableText(wrapper)).toContain(recordedProductName);
       expect(slotsOf(wrapper)).toContain("image");
       expect(framesOf(wrapper)).not.toContain("image");
@@ -104,7 +114,7 @@ describe("the product page's layout, for the product recorded with no image", ()
         props: { hideSlots: ["product-details"] }
       });
 
-      expect(PRODUCT_LAYOUTS).toContain(layoutOf(wrapper));
+      expect(drawsHandedLayout(wrapper)).toBe(true);
       expect(
         drawsFields(wrapper),
         "the recorded provision fields never reached the form"
@@ -140,6 +150,64 @@ describe("the product page's layout, for the product recorded with no image", ()
       expect(
         inFrame(wrapper, "configuration").findComponent(Config).exists()
       ).toBe(true);
+    },
+    BOOT_TIMEOUT
+  );
+});
+
+describe("the options the product page's layout sets on each slot", () => {
+  beforeAll(async () => {
+    installBootRoutes();
+    await seedGuestSession();
+    await seedBasket();
+
+    await bootAt(productId, showsProduct);
+  }, BOOT_TIMEOUT);
+
+  beforeEach(() => {
+    installBootRoutes();
+  });
+
+  it(
+    "draws the hero horizontally by default, and vertically with no image where the layout says",
+    async () => {
+      const plain = await bootAt(productId, showsProduct);
+      const set = await bootAt(productId, showsProduct, {
+        slotOptions: {
+          "product-details": {
+            direction: PRODUCT_HERO_DIRECTION.VERTICAL,
+            heroImage: false
+          }
+        }
+      });
+
+      expect(heroIn(plain.wrapper).props("direction")).toBe(
+        PRODUCT_HERO_DIRECTION.HORIZONTAL
+      );
+      expect(heroIn(set.wrapper).props("direction")).toBe(
+        PRODUCT_HERO_DIRECTION.VERTICAL
+      );
+      expect(heroIn(set.wrapper).props("image")).toBe(false);
+    },
+    BOOT_TIMEOUT
+  );
+
+  it(
+    "leaves the total and the actions out of pricing by default, and adds them where the layout says",
+    async () => {
+      const plain = await bootAt(productId, showsProduct);
+      const set = await bootAt(productId, showsProduct, {
+        slotOptions: { pricing: { showTotal: true, showActions: true } }
+      });
+
+      expect(
+        inFrame(plain.wrapper, "pricing").findComponent(Pricing).props("total")
+      ).toBe(false);
+      expect(actionsInPricing(plain.wrapper).exists()).toBe(false);
+      expect(
+        inFrame(set.wrapper, "pricing").findComponent(Pricing).props("total")
+      ).toBe(true);
+      expect(actionsInPricing(set.wrapper).exists()).toBe(true);
     },
     BOOT_TIMEOUT
   );

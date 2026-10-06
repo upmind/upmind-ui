@@ -9,12 +9,12 @@
 diff --git a/packages/modules-auth/src/components/Auth.vue b/packages/modules-auth/src/components/Auth.vue
 --- a/packages/modules-auth/src/components/Auth.vue
 +++ b/packages/modules-auth/src/components/Auth.vue
-@@ -277,7 +277,7 @@ function doResolve(model: unknown) {
-       } catch {
-         // Token issued but the user load failed — escalate to the reject path
-         // rather than hang the overlay waiting for a user that never loads.
--        emit("reject");
-+        emit("resolve", model);
-         return;
-       }
+@@ -281,7 +281,7 @@
+           emit("resolve", model);
+         })
+         .catch(() => {
+-          emit("reject");
++          emit("resolve", model);
+         });
      }
+     emit("resolve", model);

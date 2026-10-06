@@ -1,0 +1,17 @@
+# Negative control — the barrel publishes a basket template record type again,
+# so the basket package names page templates the apps now own.
+#
+# Intended RED:
+#   packages/modules-basket/src/__tests__/barrel.test.ts
+#     "no longer publishes the template-only type BasketTemplates"
+#     "publishes no template name, value or type, at all"
+
+diff --git a/packages/modules-basket/src/index.ts b/packages/modules-basket/src/index.ts
+--- a/packages/modules-basket/src/index.ts
++++ b/packages/modules-basket/src/index.ts
+@@ -36,3 +36,5 @@
+   ProductSetupFormProps,
+   ProductSetupProps
+ } from "./product-setup/types";
++
++export type BasketTemplates = Record<string, unknown>;

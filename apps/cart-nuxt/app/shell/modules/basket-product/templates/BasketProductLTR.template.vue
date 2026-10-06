@@ -1,7 +1,7 @@
 <template>
   <Layout :variant="LAYOUT_VARIANTS.TWO_COLUMN_LTR">
     <template #content-header>
-      <slot name="product-details" />
+      <slot name="product-details" :hero-image="isMobile" />
     </template>
 
     <template #content>
@@ -14,7 +14,7 @@
 
     <template #aside>
       <slot v-if="isMobile" name="actions" />
-      <slot name="pricing" />
+      <slot name="pricing" :show-total="true" :show-actions="!isMobile" />
       <slot name="errors" />
       <slot name="markdown" />
     </template>

@@ -4,7 +4,7 @@
       :basket-route="{ name: ROUTE.BASKET }"
       v-slot="{ template }"
     >
-      <component :is="PRODUCT_SETUP_TEMPLATES[template]" />
+      <component :is="productSetupTemplate(template)" />
     </UpmProductSetup>
   </Transitions>
 </template>
@@ -13,5 +13,5 @@
 import { UpmProductSetup } from "@upmind-automation/basket";
 import { ROUTE } from "../router";
 import Transitions from "../shell/components/transition/Transition.vue";
-import { PRODUCT_SETUP_TEMPLATES } from "../shell/modules/product-setup/shell";
+import { productSetupTemplate } from "../shell/modules/product-setup/shell";
 </script>

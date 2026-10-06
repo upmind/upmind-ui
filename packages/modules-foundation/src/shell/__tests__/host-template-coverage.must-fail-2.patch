@@ -1,0 +1,20 @@
+# Negative control — the cart offers an order arrangement no other host offers,
+# so a brand that picks it gets that layout in the cart and the fallback
+# everywhere else.
+#
+# Intended RED:
+#   packages/modules-foundation/src/shell/__tests__/host-template-coverage.test.ts
+#     "every host offers the same order names"
+#     "cart draws every order name it offers"
+
+diff --git a/apps/cart/src/shell/modules/order/types.ts b/apps/cart/src/shell/modules/order/types.ts
+--- a/apps/cart/src/shell/modules/order/types.ts
++++ b/apps/cart/src/shell/modules/order/types.ts
+@@ -3,5 +3,6 @@
+   TWO_COLUMN_LTR = "two-column-ltr",
+   TWO_COLUMN_RTL = "two-column-rtl",
+   ENCLOSED = "enclosed",
+-  INSET = "inset"
++  INSET = "inset",
++  MOSAIC = "mosaic"
+ }

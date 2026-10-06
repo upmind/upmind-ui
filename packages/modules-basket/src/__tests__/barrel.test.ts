@@ -3,10 +3,12 @@
  * @fileoverview The curated public barrel.
  *
  * ## Job To Be Done
- * The barrel publishes the moved modules' names, minus two, and no lower package's.
+ * The barrel publishes the moved modules' names, minus two withheld and the
+ * template names and types it no longer owns, and no lower package's.
  *
  * ## What Breaks If These Fail
- * A dropped name breaks the old import path, or a `headless` composable gains a second one.
+ * A dropped name breaks the old import path, a `headless` composable gains a
+ * second one, or a page template name comes back to a package that draws none.
  */
 
 import { readFileSync } from "node:fs";
@@ -17,6 +19,7 @@ import * as headless from "@upmind-automation/headless";
 import * as payment from "@upmind-automation/payment";
 import * as product from "@upmind-automation/product";
 import * as barrel from "../index";
+import { concat, filter } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 
@@ -26,25 +29,36 @@ const LEGACY_VALUES = [
   "UpmBasketUnavailable",
   "UpmCurrency",
   "UpmBasketSummary",
-  "BASKET_TEMPLATE",
   "UpmBasketProductEdit",
   "UpmPromotionBadge",
   "UpmBasketProductCards",
-  "BASKET_PRODUCT_TEMPLATE",
   "UpmBillingForm",
   "UpmBilling",
-  "BILLING_TEMPLATE",
   "UpmCheckout",
+  "UpmProductSetup"
+];
+
+const RETIRED_TEMPLATES = [
+  "BASKET_TEMPLATE",
+  "BASKET_PRODUCT_TEMPLATE",
+  "BILLING_TEMPLATE",
   "CHECKOUT_TEMPLATE",
-  "UpmProductSetup",
   "PRODUCT_SETUP_TEMPLATE"
+];
+
+const RETIRED_TEMPLATE_TYPES = [
+  "CheckoutHeroProps",
+  "BasketTemplates",
+  "BasketProductTemplates",
+  "BillingTemplates",
+  "CheckoutTemplates",
+  "ProductSetupTemplates"
 ];
 
 const LEGACY_TYPES = [
   "BillingProps",
   "BillingFormProps",
   "CheckoutContentProps",
-  "CheckoutHeroProps",
   "CheckoutProductSetupProps",
   "CheckoutBillingProps",
   "CheckoutPricingProps",
@@ -149,6 +163,30 @@ describe("what the five moved modules published before the move", () => {
 
   it.each(WITHHELD)("withholds %s, and says so by not publishing it", name => {
     expect(exported).not.toContain(name);
+  });
+});
+
+describe("the page templates the apps now own", () => {
+  it.each(RETIRED_TEMPLATES)("no longer publishes %s", name => {
+    expect(exported).not.toContain(name);
+  });
+
+  it.each(RETIRED_TEMPLATE_TYPES)(
+    "no longer publishes the template-only type %s",
+    name => {
+      expect(publishedTypes).not.toContain(name);
+    }
+  );
+
+  it("publishes no template name, value or type, at all", () => {
+    const named = filter(concat(exported, publishedTypes), name =>
+      /TEMPLATES?$|Templates?$/.test(name)
+    );
+
+    expect(
+      named,
+      `the basket package names page templates again: ${named.join(", ")}`
+    ).toEqual([]);
   });
 });
 

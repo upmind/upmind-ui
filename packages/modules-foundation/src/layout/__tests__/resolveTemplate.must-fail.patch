@@ -1,0 +1,31 @@
+# Negative control — the pick reads the brand's template as a lodash path with a
+# default, not as one of the record's own entries, so a name every object
+# inherits, or a dotted path into a layout, hands the page a non-layout.
+#
+# Intended RED:
+#   packages/modules-foundation/src/layout/__tests__/resolveTemplate.test.ts
+#     "draws the fallback layout for a name every object inherits"
+#     "draws the fallback layout for an inherited method name"
+#     "draws the fallback layout for the prototype accessor"
+#     "draws the fallback layout for a dotted path into one of its layouts"
+# Intended GREEN:
+#   "draws the layout the <each> template carries"
+#   "draws the fallback layout when called with no template"
+#   "draws the fallback layout for an undefined template"
+#   "draws the fallback layout for an empty template"
+#   "draws the fallback layout for a name no layout carries"
+#   "falls back to the layout its own declaration names"
+
+diff --git a/packages/modules-foundation/src/layout/resolveTemplate.ts b/packages/modules-foundation/src/layout/resolveTemplate.ts
+--- a/packages/modules-foundation/src/layout/resolveTemplate.ts
++++ b/packages/modules-foundation/src/layout/resolveTemplate.ts
+@@ -6,8 +6,6 @@
+   fallback: T
+ ): (template?: string) => Component {
+   return (template: string = fallback): Component => {
+-    if (has(templates, [template])) return get(templates, [template]);
+-
+-    return templates[fallback];
++    return get(templates, template, templates[fallback]);
+   };
+ }

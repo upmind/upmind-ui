@@ -1,6 +1,6 @@
 <template>
   <LayoutProvider>
-    <slot :template="template" />
+    <slot :template="ui.template.value" />
 
     <template v-if="!isSlotHidden('summary')" #summary>
       <slot name="summary">
@@ -38,7 +38,7 @@
       </BasketProducts>
     </template>
 
-    <template #pricing>
+    <template #pricing="{ showCheckout = true, showTotal = true }">
       <slot name="pricing">
         <BasketPricing
           @resolve="navigateNext"
@@ -46,12 +46,8 @@
             !meta.hasFields || !meta.hasProducts || meta.hasLockedProducts
           "
           :loading="meta.isProcessing || isNavigating"
-          :show-checkout="
-            template !== BASKET_TEMPLATE.TWO_COLUMN_RTL &&
-            template !== BASKET_TEMPLATE.ENCLOSED &&
-            !meta.isLoading
-          "
-          :show-total="template !== BASKET_TEMPLATE.TWO_COLUMN_RTL"
+          :show-checkout="showCheckout && !meta.isLoading"
+          :show-total="showTotal"
         />
       </slot>
     </template>
@@ -103,7 +99,7 @@
 import { useTestAttrs } from "@upmind/ui";
 import { Markdown } from "@upmind/ui";
 import { Alert } from "@upmind/ui";
-import { ref, computed } from "vue";
+import { ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { Back } from "@upmind-automation/foundation";
 import { Icon } from "@upmind-automation/foundation";
@@ -113,16 +109,11 @@ import {
   useQueryParams,
   useRoutingEngine
 } from "@upmind-automation/headless";
-import {
-  useConfig,
-  validateTemplate,
-  useClientTemplate
-} from "@upmind-automation/headless";
+import { useConfig, useClientTemplate } from "@upmind-automation/headless";
 import {
   UIContext,
   ClientTemplateSlotCodes
 } from "@upmind-automation/headless";
-import { BASKET_TEMPLATE } from "../types";
 import BasketAlerts from "./BasketAlerts.vue";
 import BasketCheckout from "./BasketCheckout.vue";
 import BasketHero from "./BasketHero.vue";
@@ -137,7 +128,6 @@ import type { RouteLocationAsRelativeGeneric } from "vue-router";
 
 const props = withDefaults(
   defineProps<{
-    template?: BASKET_TEMPLATE;
     basketRoute?: RouteLocationAsRelativeGeneric;
     storefrontRoute?: StorefrontRoute;
     editRoute: RouteLocationAsRelativeGeneric;
@@ -178,14 +168,6 @@ const { ui, data } = useConfig({
   context: UIContext.BASKET,
   provide: true
 });
-
-const template = computed(() =>
-  validateTemplate(
-    ui.template.value || props.template,
-    BASKET_TEMPLATE,
-    BASKET_TEMPLATE.TWO_COLUMN_LTR
-  )
-);
 
 await isReady();
 

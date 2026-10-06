@@ -1,9 +1,11 @@
 <template>
   <UpmAuthRegister
     v-bind="AUTH_ROUTES"
-    :templates="PORTAL_AUTH_TEMPLATES"
     @resolve="onResolve"
-  />
+    v-slot="{ template }"
+  >
+    <component :is="authTemplate(template)" />
+  </UpmAuthRegister>
 </template>
 
 <script setup lang="ts">
@@ -14,7 +16,7 @@
 // a page that exists elsewhere.
 import { toast } from "@upmind/ui";
 import { UpmAuthRegister } from "@upmind-automation/auth";
-import { PORTAL_AUTH_TEMPLATES } from "~/portal/auth/shell";
+import { authTemplate } from "~/portal/auth/shell";
 import { AUTH_LANDING, AUTH_ROUTES } from "~/portal/auth-routes";
 import { useMockBrandGates } from "~/portal/mock/gates";
 

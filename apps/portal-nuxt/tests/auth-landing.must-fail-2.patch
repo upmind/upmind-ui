@@ -8,11 +8,11 @@
 diff --git a/apps/portal-nuxt/app/pages/forgotten-password.vue b/apps/portal-nuxt/app/pages/forgotten-password.vue
 --- a/apps/portal-nuxt/app/pages/forgotten-password.vue
 +++ b/apps/portal-nuxt/app/pages/forgotten-password.vue
-@@ -2,7 +2,6 @@
+@@ -1,7 +1,6 @@
+ <template>
    <UpmAuthRecoverPassword
      v-bind="AUTH_ROUTES"
-     :templates="PORTAL_AUTH_TEMPLATES"
 -    @reject="onReject"
-   />
- </template>
- 
+     v-slot="{ template }"
+   >
+     <component :is="authTemplate(template)" />

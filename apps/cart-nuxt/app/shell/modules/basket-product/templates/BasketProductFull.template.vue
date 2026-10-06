@@ -17,7 +17,7 @@
     </template>
 
     <template #aside>
-      <slot name="pricing" />
+      <slot name="pricing" :show-total="true" />
       <slot name="actions" />
       <slot name="errors" />
       <slot name="markdown" />

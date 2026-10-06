@@ -1,7 +1,10 @@
 <template>
   <Layout :variant="LAYOUT_VARIANTS.TWO_COLUMN_RTL">
     <template #content-header>
-      <slot name="product-details" />
+      <slot
+        name="product-details"
+        :direction="PRODUCT_HERO_DIRECTION.VERTICAL"
+      />
       <slot name="markdown" />
     </template>
 
@@ -10,7 +13,7 @@
     </template>
 
     <template #aside>
-      <slot name="pricing" />
+      <slot name="pricing" :show-total="isMobile" />
       <slot name="errors" />
     </template>
 
@@ -35,8 +38,10 @@ import { useHeader } from "../../../components/header/useHeader";
 import { useFooter } from "../../../components/footer/useFooter";
 import { useSection } from "@upmind-automation/foundation";
 import { Layout } from "@upmind-automation/foundation";
+import { isMobile } from "@upmind-automation/foundation";
 import { LAYOUT_VARIANTS } from "@upmind-automation/foundation";
 import { HEADER_BACKGROUND } from "../../../components/header/types";
+import { PRODUCT_HERO_DIRECTION } from "@upmind-automation/product";
 
 defineOptions({
   inheritAttrs: false

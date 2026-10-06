@@ -52,7 +52,6 @@ import { isString } from "lodash-es";
 const props = defineProps<{
   product: Product;
   meta: UseProductConfigMeta;
-  template?: string;
 }>();
 
 const emits = defineEmits(["resolve", "update:quantity"]);

@@ -1,4 +1,4 @@
-# Negative control — the stand-alone sign-in app's template record keys the split
+# Negative control — the stand-alone sign-in app's layout record keys the split
 # arrangement to the mirrored two-column template. A brand that picks split gets
 # another arrangement in that app only.
 #
@@ -9,10 +9,10 @@
 diff --git a/apps/auth/src/shell.ts b/apps/auth/src/shell.ts
 --- a/apps/auth/src/shell.ts
 +++ b/apps/auth/src/shell.ts
-@@ -14,7 +14,7 @@ import AuthSurfaceBoxTemplate from "./templates/AuthSurfaceBox.template.vue";
- import type { AuthTemplates } from "@upmind-automation/auth";
+@@ -15,7 +15,7 @@
+ import type { Component } from "vue";
  
- export const AUTH_TEMPLATES: AuthTemplates = {
+ export const AUTH_TEMPLATES: Record<AUTH_TEMPLATE, Component> = {
 -  [AUTH_TEMPLATE.SPLIT]: AuthSplitTemplate,
 +  [AUTH_TEMPLATE.SPLIT]: AuthRTLTemplate,
    [AUTH_TEMPLATE.ENCLOSED]: AuthEnclosedTemplate,

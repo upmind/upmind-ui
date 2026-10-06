@@ -2,15 +2,12 @@
  * @module auth-app/routes
  * @description This app's own auth paths.
  */
-import {
-  UpmAuthLogin,
-  UpmAuthLogout,
-  UpmAuthRecoverPassword,
-  UpmAuthRegister
-} from "@upmind-automation/auth";
+import { UpmAuthLogout } from "@upmind-automation/auth";
 // `./router` imports this file; headless holds the same router instance.
 import { router } from "@upmind-automation/headless";
-import { AUTH_TEMPLATES } from "./shell";
+import Login from "./pages/Login.vue";
+import Recover from "./pages/Recover.vue";
+import Register from "./pages/Register.vue";
 import type { RouteRecordRaw } from "vue-router";
 
 export const AUTH_ROUTE = {
@@ -25,18 +22,16 @@ export const AUTH_ROUTE = {
 const authRouteProps = {
   loginRoute: { name: AUTH_ROUTE.LOGIN },
   registerRoute: { name: AUTH_ROUTE.REGISTER },
-  recoverRoute: { name: AUTH_ROUTE.RECOVER },
-  templates: AUTH_TEMPLATES
+  recoverRoute: { name: AUTH_ROUTE.RECOVER }
 };
 
-const { loginRoute, registerRoute, recoverRoute, templates } = authRouteProps;
+const { loginRoute, registerRoute, recoverRoute } = authRouteProps;
 
 // No funnel runs here, so this listener is the recovery page's only way back to login.
 const recoverRouteProps = {
   loginRoute,
   registerRoute,
   recoverRoute,
-  templates,
   onReject: () => router.push(loginRoute)
 };
 
@@ -60,7 +55,7 @@ export const authRoutes: RouteRecordRaw[] = [
       {
         path: "login",
         name: AUTH_ROUTE.LOGIN,
-        component: UpmAuthLogin,
+        component: Login,
         props: authRouteProps,
         meta: signInMeta
       },
@@ -68,14 +63,14 @@ export const authRoutes: RouteRecordRaw[] = [
         path: "register",
         name: AUTH_ROUTE.REGISTER,
         alias: ["signup"],
-        component: UpmAuthRegister,
+        component: Register,
         props: authRouteProps,
         meta: signInMeta
       },
       {
         path: "recover",
         name: AUTH_ROUTE.RECOVER,
-        component: UpmAuthRecoverPassword,
+        component: Recover,
         props: recoverRouteProps,
         meta: signInMeta
       },

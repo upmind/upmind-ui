@@ -1,6 +1,6 @@
 <template>
   <UpmBilling v-slot="{ template }">
-    <component :is="BILLING_TEMPLATES[template]" />
+    <component :is="billingTemplate(template)" />
   </UpmBilling>
 </template>
 
@@ -8,7 +8,7 @@
 import { useI18n } from "vue-i18n";
 import { UpmBilling } from "@upmind-automation/basket";
 import { ROUTE } from "../../funnels/types";
-import { BILLING_TEMPLATES } from "../../shell/modules/billing/shell";
+import { billingTemplate } from "../../shell/modules/billing/shell";
 
 const { t } = useI18n();
 

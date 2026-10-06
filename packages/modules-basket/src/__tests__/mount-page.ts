@@ -1,7 +1,7 @@
 // -----------------------------------------------------------------------------
 /**
  * @module basket/__tests__/mount-page
- * @description Mounts a basket-family page in its short form on the recorded guest boot: the organism with the template's layout, self-closing, in its default slot; the layout skips an empty slot as develop's layouts do.
+ * @description Mounts a basket-family page in its short form on the recorded guest boot: the organism with a self-closing layout in its default slot, marked with the template the organism hands; the layout sets its slot options and skips an empty slot as develop's layouts do.
  */
 
 import { mount } from "@vue/test-utils";
@@ -16,16 +16,7 @@ import {
   useRoutingEngine,
   useSessionStore
 } from "@upmind-automation/headless";
-import {
-  every,
-  filter,
-  fromPairs,
-  has,
-  isEmpty,
-  map,
-  reject,
-  values
-} from "lodash-es";
+import { every, filter, has, isEmpty, join, map, reject } from "lodash-es";
 import type { Component, RawSlots, Slots, VNode } from "vue";
 
 // -----------------------------------------------------------------------------
@@ -53,39 +44,46 @@ const isBlank = (vnode: VNode) =>
   vnode.type === Comment ||
   (vnode.type === Fragment && isEmpty(vnode.children));
 
+/** The options a layout sets on its slots, by slot name. */
+export type SlotOptions = Record<string, Record<string, unknown>>;
+
 /** Empty as develop's layouts judge a slot (its `isEmptySlot`): absent, no vnodes, or only comments and empty fragments. */
-function isEmptySlot(name: string, slots: Slots): boolean {
-  const vnodes = slots[name]?.();
+function isEmptySlot(
+  name: string,
+  slots: Slots,
+  options: Record<string, unknown>
+): boolean {
+  const vnodes = slots[name]?.(options);
   return isEmpty(vnodes) || every(vnodes, isBlank);
 }
 
-/** One template's layout: it lists every slot it receives, and draws a frame for each one that is not empty. */
-const layoutFor = (template: string, names: string[]) =>
-  defineComponent({
+/** A page's layout: it lists every slot it receives, sets `options` on each, and draws a frame for each one that is not empty. */
+export function layoutFor(
+  names: string[],
+  options: SlotOptions = {}
+): Component {
+  return defineComponent({
     setup(_props, { slots }) {
       return () => {
         const handed = filter(names, name => has(slots, name));
-        const drawn = reject(handed, name => isEmptySlot(name, slots));
+        const drawn = reject(handed, name =>
+          isEmptySlot(name, slots, options[name] ?? {})
+        );
 
         return h(
           "div",
-          { "data-layout": template, "data-slots": handed.join(" ") },
+          { "data-layout": "", "data-slots": join(handed, " ") },
           map(drawn, name =>
-            h("section", { "data-frame": name }, slots[name]?.())
+            h(
+              "section",
+              { "data-frame": name },
+              slots[name]?.(options[name] ?? {})
+            )
           )
         );
       };
     }
   });
-
-/** A page's record: one layout per template the organism can hand, each listing `names`. */
-export function layoutsFor(
-  templates: Record<string, string>,
-  names: string[]
-): Record<string, Component> {
-  return fromPairs(
-    map(values(templates), template => [template, layoutFor(template, names)])
-  );
 }
 
 const blank = { setup: () => () => h("div") };
@@ -137,7 +135,7 @@ export async function seedClientBasket(
 export type PageOptions = {
   organism: Component;
   props?: Record<string, unknown>;
-  layouts: Record<string, Component>;
+  layout: Component;
   path: string;
   until: (wrapper: ReturnType<typeof mount>) => boolean;
   /** The page's own slots on its layout; with none the layout is self-closing. */
@@ -191,8 +189,12 @@ export async function mountPage(options: PageOptions) {
         h(Suspense, null, {
           default: () =>
             h(options.organism, options.props ?? {}, {
-              default: ({ template }: { template: string }) =>
-                h(options.layouts[template], null, options.overrides)
+              default: ({ template }: { template?: string }) =>
+                h(
+                  options.layout,
+                  { "data-template": String(template) },
+                  options.overrides
+                )
             }),
           fallback: () => h("div", { "data-test-key": "page-pending" })
         });
@@ -237,8 +239,9 @@ export function framesOf(wrapper: PageWrapper) {
   );
 }
 
-export function layoutOf(wrapper: PageWrapper) {
-  return wrapper.find("[data-layout]").attributes("data-layout");
+/** The template the organism handed its default slot, as the brand sent it. */
+export function templateOf(wrapper: PageWrapper) {
+  return wrapper.find("[data-layout]").attributes("data-template");
 }
 
 export const inFrame = (wrapper: PageWrapper, name: string) =>

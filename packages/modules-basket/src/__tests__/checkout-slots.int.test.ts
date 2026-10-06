@@ -8,44 +8,47 @@
  * On the checkout route, the page's self-closing layout for the template it is
  * handed gets `UpmCheckout`'s own content in every slot develop fills for the
  * recorded guest basket: the back link, the summary, the checkout sections and
- * the pricing. The page hiding the summary removes that slot, and a slot the
- * page writes on its layout replaces only that slot's content.
+ * the pricing. The page hiding the summary removes that slot, a slot the page
+ * writes on its layout replaces only that slot's content, and the layout's back
+ * option draws the compact back link.
  *
  * ## What Breaks If These Fail
  * A guest at checkout sees no sections to complete or no order total, a hidden
- * summary still takes its place, or a page override pushes out the content
- * around it.
+ * summary still takes its place, a page override pushes out the content around
+ * it, or the inset checkout draws the full back link.
  */
 
 import { afterEach, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { h } from "vue";
-import { CHECKOUT_TEMPLATE, UpmCheckout, UpmCheckoutPricing } from "../index";
+import { UpmCheckout, UpmCheckoutPricing } from "../index";
 import {
   BOOT_BUDGET,
   inFrame,
-  layoutOf,
-  layoutsFor,
+  layoutFor,
   mountPage,
   ROUTES,
   seedBasket,
   seedGuestSession,
   slotsOf,
+  templateOf,
   unmountPages
 } from "./mount-page";
-import { installBootRoutes, recordedProductNames } from "./recorded-pool";
-import { every, values } from "lodash-es";
-import type { PageWrapper } from "./mount-page";
+import {
+  installBootRoutes,
+  recordedProductNames,
+  recordedTemplate
+} from "./recorded-pool";
+import { concat, every } from "lodash-es";
+import type { PageWrapper, SlotOptions } from "./mount-page";
 import type { RawSlots } from "vue";
 
 // -----------------------------------------------------------------------------
 
 const DEVELOP_BLOCKS = ["back", "summary", "content", "pricing"];
 
-const CHECKOUT_LAYOUTS = layoutsFor(CHECKOUT_TEMPLATE, [
-  ...DEVELOP_BLOCKS,
-  "markdown",
-  "errors"
-]);
+const LAYOUT_BLOCKS = concat(DEVELOP_BLOCKS, "markdown", "errors");
+
+const BACK_ARROW = 'svg[aria-label="arrow-narrow-left icon"]';
 
 const pricesProducts = (wrapper: PageWrapper) =>
   every(recordedProductNames, name =>
@@ -55,6 +58,7 @@ const pricesProducts = (wrapper: PageWrapper) =>
 const openCheckout = (options?: {
   hideSlots?: string[];
   overrides?: RawSlots;
+  slotOptions?: SlotOptions;
 }) =>
   mountPage({
     organism: UpmCheckout,
@@ -63,7 +67,7 @@ const openCheckout = (options?: {
       billingRoute: { name: ROUTES.BILLING },
       hideSlots: options?.hideSlots
     },
-    layouts: CHECKOUT_LAYOUTS,
+    layout: layoutFor(LAYOUT_BLOCKS, options?.slotOptions),
     path: "/order/checkout",
     until: wrapper =>
       wrapper.findComponent(UpmCheckoutPricing).exists() &&
@@ -87,11 +91,11 @@ describe("the checkout page's layout, for the recorded guest basket", () => {
   afterEach(unmountPages);
 
   it(
-    "hands the layout every block develop fills",
+    "hands the layout the brand's own template and every block develop fills",
     async () => {
       const wrapper = await openCheckout();
 
-      expect(values(CHECKOUT_TEMPLATE)).toContain(layoutOf(wrapper));
+      expect(templateOf(wrapper)).toBe(recordedTemplate);
       expect(slotsOf(wrapper)).toEqual(expect.arrayContaining(DEVELOP_BLOCKS));
     },
     BOOT_BUDGET
@@ -145,6 +149,26 @@ describe("the checkout page's layout, for the recorded guest basket", () => {
       expect(
         inFrame(wrapper, "pricing").findComponent(UpmCheckoutPricing).exists()
       ).toBe(true);
+    },
+    BOOT_BUDGET
+  );
+
+  it(
+    "draws the full back link until the layout asks for the compact one",
+    async () => {
+      const full = await openCheckout();
+      expect(inFrame(full, "back").text()).toContain("action.back_to_basket");
+      expect(inFrame(full, "back").find(BACK_ARROW).exists()).toBe(false);
+      unmountPages();
+
+      const compact = await openCheckout({
+        slotOptions: { back: { compact: true } }
+      });
+      expect(inFrame(compact, "back").text()).not.toContain(
+        "action.back_to_basket"
+      );
+      expect(inFrame(compact, "back").text()).toContain("action.back");
+      expect(inFrame(compact, "back").find(BACK_ARROW).exists()).toBe(true);
     },
     BOOT_BUDGET
   );

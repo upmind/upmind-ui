@@ -13,6 +13,6 @@ diff --git a/packages/modules-auth/src/components/Login.vue b/packages/modules-a
  <template>
 -  <slot v-if="isResolving" name="loading"><AuthLoading /></slot>
 +  <AuthLoading v-if="isResolving" />
-   <component :is="templateVariant" v-bind="templateProps" v-else>
-     <template #back>
-       <slot name="back">
+   <LayoutProvider v-else>
+     <slot :template="ui.template.value" />
+ 

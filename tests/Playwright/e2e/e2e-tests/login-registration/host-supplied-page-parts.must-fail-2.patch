@@ -1,4 +1,4 @@
-# Negative control — the cart's template record keys the enclosed arrangement to
+# Negative control — the cart's layout record keys the enclosed arrangement to
 # the mirrored two-column template. A brand that picks enclosed gets another
 # arrangement, and the type-check cannot see it (every key still holds a template).
 #
@@ -9,9 +9,9 @@
 diff --git a/apps/cart/src/shell/modules/session/shell.ts b/apps/cart/src/shell/modules/session/shell.ts
 --- a/apps/cart/src/shell/modules/session/shell.ts
 +++ b/apps/cart/src/shell/modules/session/shell.ts
-@@ -17,7 +17,7 @@ import type { AuthTemplates } from "@upmind-automation/auth";
+@@ -17,7 +17,7 @@
  
- export const SESSION_TEMPLATES: AuthTemplates = {
+ export const SESSION_TEMPLATES: Record<AUTH_TEMPLATE, Component> = {
    [AUTH_TEMPLATE.SPLIT]: SessionSplitTemplate,
 -  [AUTH_TEMPLATE.ENCLOSED]: SessionEnclosedTemplate,
 +  [AUTH_TEMPLATE.ENCLOSED]: SessionRTLTemplate,
