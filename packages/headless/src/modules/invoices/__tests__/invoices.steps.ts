@@ -2983,9 +2983,20 @@ export const invoicesSteps = defineSteps(({ Given, When, Then }) => {
   Given(
     "one of my orders whose snapshot items have catalogue images",
     world => {
-      if (!some(AC33.images.response.body.data, row => !!row.image?.full_url))
+      const catalogue = new Map(
+        map(AC33.images.response.body.data, row => [
+          row.id,
+          row.image?.full_url
+        ])
+      );
+      if (
+        !some(snapshotItems(AC33.order), item => {
+          const image = catalogue.get(item.product?.id ?? "");
+          return !!image && image !== item.product?.image?.full_url;
+        })
+      )
         throw new Error(
-          "the image recording must hold a catalogue image; re-record."
+          "the image recording must hold a catalogue image that differs from its snapshot image; re-record."
         );
       return openDetail(world, orderId(AC33.order));
     }

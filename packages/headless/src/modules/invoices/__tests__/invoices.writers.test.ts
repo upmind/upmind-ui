@@ -114,6 +114,22 @@ describe("AC-28: the filter writers", () => {
     });
   });
 
+  it("drops a column whose decoded filterBy value is null", async () => {
+    const { actions, view } = openCell();
+    await actions.filterBy({
+      "status.code": { eq: [UNPAID_CHOICE] },
+      total_amount: { gte: 10 },
+      "products.product.name": { like: "Hat" }
+    });
+    await actions.filterBy(
+      JSON.parse('{"total_amount":null,"products.product.name":null}')
+    );
+    await nextTick();
+    expect(view().query.filters).toEqual({
+      "status.code": { eq: [UNPAID_CHOICE] }
+    });
+  });
+
   it("writes a fresh copy, never the live filters object", async () => {
     const { actions, view } = openCell();
     await actions.filterBy({ "status.code": { eq: [UNPAID_CHOICE] } });

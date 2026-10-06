@@ -19,6 +19,7 @@
 import { join } from "node:path";
 import { http, HttpResponse } from "msw";
 import { afterEach, describe, expect, it, onTestFinished, vi } from "vitest";
+import { fixtureIdentity } from "@upmind-automation/test-fixtures/fixture-naming.mjs";
 import {
   replayStep,
   startScenarioReplay
@@ -31,7 +32,7 @@ import { resetInvoiceScopes, seedClientSession } from "./invoices.int-helpers";
 import orderRecording from "./scenarios/see-the-catalogue-image-of-each-item-i-ordered/02/get-invoices-id-with-staged-imports-1.json";
 import imagesRecording from "./scenarios/see-the-catalogue-image-of-each-item-i-ordered/02/get-products-filter-id.json";
 import { server } from "./setup.integration";
-import { fromPairs, map } from "lodash-es";
+import { fromPairs, isEqual, map } from "lodash-es";
 import type { IBillingCycle, IInvoice } from "@upmind-automation/types";
 
 type RecordedItem = {
@@ -96,7 +97,21 @@ async function openRecordedOrder() {
   return { replay };
 }
 
-/** Answers every image read and billing-cycle read with a server error, counting each. */
+/** True when `url` asks the recorded request `path`, under the replay's own identity. */
+function isRecordedRequest(url: string, path: string): boolean {
+  const sent = new URL(url);
+  return isEqual(
+    fixtureIdentity("GET", sent.pathname + sent.search),
+    fixtureIdentity("GET", path)
+  );
+}
+
+const IMAGE_REQUEST = (imagesRecording as { request: { path: string } }).request
+  .path;
+const CYCLES_REQUEST = (billingCyclesRecording as { request: { path: string } })
+  .request.path;
+
+/** Answers the recorded image read and billing-cycle read with a server error, counting each. */
 function failSideReads(): { images: () => number; cycles: () => number } {
   const served = { images: 0, cycles: 0 };
   const failure = () =>
@@ -105,11 +120,13 @@ function failSideReads(): { images: () => number; cycles: () => number } {
       { status: 500 }
     );
   server?.use(
-    http.get("*/api/products", () => {
+    http.get("*/api/products", ({ request }) => {
+      if (!isRecordedRequest(request.url, IMAGE_REQUEST)) return;
       served.images += 1;
       return failure();
     }),
-    http.get("*/api/billing_cycles", () => {
+    http.get("*/api/billing_cycles", ({ request }) => {
+      if (!isRecordedRequest(request.url, CYCLES_REQUEST)) return;
       served.cycles += 1;
       return failure();
     })
@@ -117,7 +134,7 @@ function failSideReads(): { images: () => number; cycles: () => number } {
   return { images: () => served.images, cycles: () => served.cycles };
 }
 
-/** Holds every image read and billing-cycle read open until released. */
+/** Holds the recorded image read and billing-cycle read open until released. */
 function holdSideReads(): {
   imagesStarted: Promise<void>;
   release: () => void;
@@ -131,12 +148,14 @@ function holdSideReads(): {
     started = resolve;
   });
   server?.use(
-    http.get("*/api/products", async () => {
+    http.get("*/api/products", async ({ request }) => {
+      if (!isRecordedRequest(request.url, IMAGE_REQUEST)) return;
       started();
       await gate;
       return HttpResponse.error();
     }),
-    http.get("*/api/billing_cycles", async () => {
+    http.get("*/api/billing_cycles", async ({ request }) => {
+      if (!isRecordedRequest(request.url, CYCLES_REQUEST)) return;
       await gate;
       return HttpResponse.error();
     })
@@ -170,7 +189,7 @@ describe("AC-33: the image and the billing cycle of an item", () => {
     expect(replay.gaps()).toEqual([]);
   }, 30000);
 
-  it("is ready while the image read is still pending", async () => {
+  it("is ready, with no billing cycle yet, while both side reads are pending", async () => {
     const { replay } = await openRecordedOrder();
     const held = holdSideReads();
 
@@ -190,7 +209,9 @@ describe("AC-33: the image and the billing cycle of an item", () => {
     ]);
 
     expect(outcome).toBe("ready");
-    expect(map(order.useContext().items.value, "image")).toEqual(productImages);
+    const items = order.useContext().items.value;
+    expect(map(items, "image")).toEqual(productImages);
+    expect(map(items, "billingCycle")).toEqual(map(snapshot, () => undefined));
     expect(order.useMeta().hasError.value).toBe(false);
     expect(replay.gaps()).toEqual([]);
   }, 30000);

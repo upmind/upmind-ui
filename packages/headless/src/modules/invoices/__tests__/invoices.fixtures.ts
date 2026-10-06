@@ -3738,17 +3738,39 @@ describe("Invoices order-history scenario recordings", () => {
       given,
       async () => {
         const rows = filter(
-          (await readOrders("limit=100&with_count=products")) as Array<
+          (await readOrders("limit=2000&with_count=products")) as Array<
             CorpusOrder & { products_count?: number }
           >,
-          row => Number(row.products_count) > 1
+          row => Number(row.products_count) > 0
         );
+        const catalogue = new Map<string, string | undefined>();
         for (const row of rows) {
           const order = await readOrder(row.id);
           const snapshot = order?.current_data?.content?.products ?? [];
+          const unread = filter(
+            uniq(compact(map(snapshot, item => item.product?.id))),
+            id => !catalogue.has(id)
+          );
+          if (!isEmpty(unread)) {
+            const { body } = await selfCall(
+              `/api/products?filter[id]=${unread.join(",")}&with=image&limit=${unread.length}&lang=en`,
+              clientToken.access_token
+            );
+            forEach(unread, id => catalogue.set(id, undefined));
+            forEach(
+              (
+                body as {
+                  data?: Array<{ id: string; image?: { full_url?: string } }>;
+                }
+              )?.data,
+              product => catalogue.set(product.id, product.image?.full_url)
+            );
+          }
           if (
-            size(snapshot) > 1 &&
-            some(snapshot, item => !!item.product?.image?.full_url)
+            some(snapshot, item => {
+              const image = catalogue.get(item.product?.id ?? "");
+              return !!image && image !== item.product?.image?.full_url;
+            })
           ) {
             orderIds.images = row.id;
             break;
@@ -3756,7 +3778,7 @@ describe("Invoices order-history scenario recordings", () => {
         }
         if (!orderIds.images)
           throw new Error(
-            `${scenario}: no placed order with several snapshot items and a catalogue image. Escalate.`
+            `${scenario}: none of ${size(rows)} placed orders has a snapshot item whose catalogue image differs from its product image (${catalogue.size} products read). Escalate.`
           );
         return recordStep(
           scenario,
@@ -3764,7 +3786,7 @@ describe("Invoices order-history scenario recordings", () => {
           recordOrderDetail(() => orderIds.images)
         );
       },
-      600000
+      3600000
     );
   });
 
