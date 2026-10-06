@@ -5,12 +5,12 @@ Row: -t "Filter my invoice list to what I need" — the step "each new filter ke
 Mutation: filterBy writes { filters: intent } again, replacing the live filters.
 
 diff --git a/packages/headless/src/modules/invoices/useInvoices.actions.ts b/packages/headless/src/modules/invoices/useInvoices.actions.ts
-index 2c879a5d14..a987d6ec85 100644
+index e439621c3a..3a05bf214a 100644
 --- a/packages/headless/src/modules/invoices/useInvoices.actions.ts
 +++ b/packages/headless/src/modules/invoices/useInvoices.actions.ts
-@@ -112,7 +112,7 @@ export function createInvoicesActions(
-     intent: InvoiceFilterModel | InvoiceOrderFilterModel
+@@ -113,7 +113,7 @@ export function createInvoicesActions(
    ): void {
+     if (has(intent, "number")) writeSearch.cancel();
      query.setCriteria({
 -      filters: omitBy(assign(liveFilters(), intent), isNil)
 +      filters: intent
