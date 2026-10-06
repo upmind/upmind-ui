@@ -1,5 +1,6 @@
 import type { ScopeActor } from "../world/scope-actor";
 import type { JsonSchema } from "@jsonforms/core";
+// -----------------------------------------------------------------------------
 
 /**
  * Tag kind for coverage gate verdicts.

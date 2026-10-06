@@ -22,6 +22,7 @@ import type { BillingSettingsContext } from "../contracts/client-billing-setting
 import type { InvoiceShareContext } from "../contracts/client-invoices.share.schemas";
 import type { WalletTopUpContext } from "../contracts/client-wallet";
 import type { MockDataset, MockInvoice } from "../types";
+// -----------------------------------------------------------------------------
 
 /**
  * What `client-billing-settings`'s own `useSchema` / `useUischema` are handed.

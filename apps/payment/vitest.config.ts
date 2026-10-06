@@ -2,6 +2,7 @@ import { fileURLToPath } from "node:url";
 import vue from "@vitejs/plugin-vue";
 import { defineConfig, configDefaults } from "vitest/config";
 import { workerPool } from "../../vitest.workers";
+// -----------------------------------------------------------------------------
 
 const root = fileURLToPath(new URL("./", import.meta.url));
 

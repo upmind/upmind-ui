@@ -29,6 +29,7 @@ import type { MockDataset } from "../types";
 import type { FormModel } from "@upmind/ui";
 import type { ResponseError } from "@upmind-automation/headless";
 import type { ComputedRef } from "vue";
+// -----------------------------------------------------------------------------
 
 /** Why a write refused — a code the dispatcher renders, never a message. */
 export const MOCK_RECEIPT_REASON = {

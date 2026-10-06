@@ -1,26 +1,27 @@
 import type { CxOptions } from "class-variance-authority";
+// -----------------------------------------------------------------------------
 
-export interface LayoutProps {
+export type LayoutProps = {
   variant?: LAYOUT_VARIANTS;
   overflow?: LAYOUT_OVERFLOW;
   mode?: LAYOUT_MODE;
   minimal?: boolean;
   class?: string;
-}
-export interface VariantProps extends LayoutProps {
+};
+export type VariantProps = LayoutProps & {
   uiConfig?: { layout: CxOptions };
-}
-export interface InsetProps extends VariantProps {
+};
+export type InsetProps = VariantProps & {
   /** Persistent summary column (Your Order / Billing / Payment). Off for auth. */
   aside?: boolean;
   /** Single centred column, no aside (the Create Account step). */
   centered?: boolean;
-}
-export interface SectionProps {
+};
+export type SectionProps = {
   title?: string;
   as?: string;
   variant?: LayoutProps["variant"];
-}
+};
 
 export enum LAYOUT_VARIANTS {
   FULL = "full",

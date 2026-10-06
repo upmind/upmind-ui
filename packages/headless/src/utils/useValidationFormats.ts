@@ -1,12 +1,12 @@
 import { DOMAIN_LIKE_VALIDATION } from "./useValidation";
 import { isString, isNil } from "lodash-es";
 import type { FormatDefinition } from "ajv";
+// -----------------------------------------------------------------------------
 
-export interface NamedFormatDefinition<
-  T extends string | number = string
-> extends FormatDefinition<T> {
-  name: string;
-}
+export type NamedFormatDefinition<T extends string | number = string> =
+  FormatDefinition<T> & {
+    name: string;
+  };
 
 export const domainNameFormat: NamedFormatDefinition<string> = {
   name: "domain_name",

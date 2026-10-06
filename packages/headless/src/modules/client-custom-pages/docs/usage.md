@@ -273,9 +273,13 @@ Nothing in this module raises a toast, a notification, or any other message
 on your behalf.
 
 ```ts
-import { useClientCustomPages, useClientCustomPage } from "@upmind-automation/headless";
+import {
+  ScopeActorTypes,
+  useClientCustomPage,
+  useClientCustomPages
+} from "@upmind-automation/headless";
 
-const pages = useClientCustomPages().as("client");
+const pages = useClientCustomPages().as(ScopeActorTypes.CLIENT);
 const page = useClientCustomPage().withId("about");
 
 // Collection

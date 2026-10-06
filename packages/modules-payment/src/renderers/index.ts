@@ -9,6 +9,7 @@ import { tester as gatewaysTester } from "./GatewaysRenderer.vue";
 import PaymentDetailsRenderer from "./PaymentDetailsRenderer.vue";
 import { tester as paymentDetailsTester } from "./PaymentDetailsRenderer.vue";
 import type { FormRendererEntry } from "@upmind-automation/foundation";
+// -----------------------------------------------------------------------------
 
 export const paymentRenderers: FormRendererEntry[] = [
   registerEntry(PaymentDetailsRenderer, paymentDetailsTester),

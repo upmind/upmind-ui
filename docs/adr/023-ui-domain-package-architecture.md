@@ -609,7 +609,7 @@ entry is not filed by its neighbours, and a spec holds it.
 
 **One consequence worth naming: array order stops being load-bearing.** Several comments in the
 tree called the pre-move renderer order "this move's oracle." They are gone now: once no entry can
-tie a built-in, order cannot decide anything, and each host simply spreads the published array of
+tie a built-in, order cannot decide anything, and each host spreads the published array of
 every domain package it depends on — which is the idiomatic JSON Forms shape and what `develop`'s
 single static array was. A host cherry-picking entries by name was the only reason "an app could
 forget a control" was a failure mode at all.
@@ -660,14 +660,18 @@ revived registry, and not a lookup against a list the host itself wrote.
 
 **Scope.** Moves one subtree — `shell/components/layout/` — out of three hosts into
 `packages/modules-foundation`. **Amendment 1 change 3 otherwise stands**: the page, the header and the
-footer remain app-owned and remain copied into each host. §3's grant matrix, §7's socket rule and
-the three layers are unchanged. The operator also ruled, the same day, that no domain package draws a page template of its own — not even a domain-free composition on a design-system frame; every host registers every template a package can ask for, as Amendment 8 already requires.
+footer remain app-owned and remain copied into each host. The grant matrix of §3, the socket rule of §7 and
+the three layers are unchanged.
+
+The operator also ruled, the same day, that no domain package draws a page template of its own. That holds even for a domain-free composition on a design-system frame. Every host registers every template a package can ask for, as Amendment 8 already requires.
 
 **What this reverses.** Amendment 5 (2026-09-16) proposed moving the whole shell — page, layouts,
-header, footer — into `foundation`, and was **withdrawn the day it was written** when the operator
-upheld Amendment 1 change 3. Amendment 6 was withdrawn with it. **This amendment reverses that
+header, footer — into `foundation`. It was **withdrawn the day it was written** when the operator
+upheld Amendment 1 change 3. Amendment 6 was withdrawn with it.
+
+**This amendment reverses that
 withdrawal for the `layout` third only, and on different grounds.** Amendment 5 rested on
-Amendment 6's widened count (an app counts as a consumer); this one does not, and Amendment 6 stays
+Amendment 6's widened count, in which an app counts as a consumer. This amendment does not, and Amendment 6 stays
 withdrawn. §2's count means domain packages, as originally written.
 
 **The measurement, at `543d80fcff`.** The tree is 34 files in `apps/cart/src` and
@@ -680,18 +684,19 @@ cycle, and **`foundation`'s manifest already declares every one of them** — th
 dependency edge.
 
 **How the count is met.** It is not, on the letter of §2, and this amendment says so rather than
-dressing it up. Zero domain packages depend on the layout tree today; three *hosts* do. The
-admission rests on the same ground as the announcer port (2026-09-14, admitted below the count):
-the layout arrangement is a **seam**, not a kit, and three byte-identical copies of a seam is a
-broken connection, not a duplicate. §2's own note leaves "whether ports are exempt as a class"
-open; **this is a second instance of that open question and it stays open.**
+dressing it up. Zero domain packages depend on the layout tree today. Three *hosts* do.
+
+The admission rests on the same ground as the announcer port, which was admitted below the count on 2026-09-14.
+The layout arrangement is a **seam**, not a kit. Three byte-identical copies of a seam is a
+broken connection, not a duplicate. The note in §2 leaves "whether ports are exempt as a class"
+open. **This is a second instance of that open question, and it stays open.**
 
 **The seam, and why no new socket is built.** `Layout.vue` never rendered the header or the footer
 — the page does. Exactly one arrangement of eight, `Inset.layout.vue`, reached them, and only to
 *configure* them in `onMounted`. Those calls are hoisted into the seven app-owned templates that
 mount `Inset`. **The layout tree reaches app-owned chrome zero times after the move**, so it needs
-neither the shell socket, nor slots, nor props, nor a typed injection port. An unbuilt port cannot
-rot; Amendment 7 already refused indirection of this shape for the manage rows.
+no shell socket, slots, props or typed injection port. An unbuilt port cannot
+rot, and Amendment 7 already refused indirection of this shape for the manage rows.
 
 **The three things that travel that arguably should not.** `parseVariants`, `Container` and
 `Ribbon` know no Upmind domain, no brand and no feature — a lodash helper and two cva class
@@ -699,29 +704,34 @@ wrappers. By §2's deciding rule their home is **`@upmind/ui`, not `foundation`.
 `foundation` anyway, because **the operator ruled on 2026-09-23 that `design-system` is not
 touched**: nothing added to it and nothing moved into it. **This is accepted debt with no repayment
 date, not a ruling that they belong there.** If the DS adopts them later, they move once more, and
-this paragraph is why. `Column` and `Content` are **not** in this set — `Column` reads `useSection()`
-and `isMobile`, `Content` measures itself against the viewport and drops `sticky` when oversized, so
-§2's rule as written puts both in `foundation`. *(Superseded in part by Amendment 16, 2026-10-02, ruling 5: `parseVariants` reached `foundation` on Phase 4, as `createVariantConstants`. The layout tree imports it under that name.)*
+this paragraph is why.
+
+`Column` and `Content` are **not** in this set. `Column` reads `useSection()`
+and `isMobile`. `Content` measures itself against the viewport and drops `sticky` when oversized.
+Thus §2's rule as written puts both in `foundation`. *(Superseded in part by Amendment 16, 2026-10-02, ruling 5: `parseVariants` reached `foundation` on Phase 4, as `createVariantConstants`. The layout tree imports it under that name.)*
 
 **What travels, restated against the ruling.** All 34 files, `Layout.vue` and its seven-way switch
 included. `Layout.vue` is a ten-slot pass-through over a store read, not geometry, so nothing in it
 is rewritten on the way. `useLayout` is a **fourth module-level global chrome store** beside
-`useHeader`, `useFooter` and `useSection`, and the move puts one of the four inside `foundation`
-while the other three stay app-owned — the asymmetry §4 resolves. The layout variant reaches
-`Layout.vue` through **two** channels that both cross the new boundary: 34 templates pass
-`:variant` as a prop, 5 set it through the store (§3.1.1).
+`useHeader`, `useFooter` and `useSection`. The move puts one of the four inside `foundation`
+while the other three stay app-owned, and §4 resolves that asymmetry.
+
+The layout variant reaches
+`Layout.vue` through **two** channels, and both cross the new boundary. 34 templates pass
+`:variant` as a prop, and 5 set it through the store (§3.1.1).
 
 **The cost, stated plainly.** 109 files outside the tree import into it — 240 import lines — across
 `apps/cart` (48 files / 109 refs), `apps/cart-nuxt` (49 / 108) and `playgrounds/labs-nuxt`
-(12 / 23). Every one is a rewrite. The moved tree is 34 files; the edit is seven times that. The
+(12 / 23). Every one is a rewrite. The moved tree is 34 files. The edit is seven times that. The
 rewrites are loud — `vue-tsc` fails on a miss — but the ratio is the honest price and the operator
 saw it before ratifying.
 
 **What each host keeps.** Nothing. `apps/*/shell/components/layout/` is deleted outright, with no
 wrapper and no re-export barrel — a wrapper is a second name for one thing and the drift starts
-there. `playgrounds/labs-nuxt` takes the moved tree like the two apps; it is a workspace member,
+there. `playgrounds/labs-nuxt` takes the moved tree like the two apps. It is a workspace member,
 already depends on `foundation`, and its 33 files were proven identical.
-`components/transition/Transition.vue` is **not** part of the move: no file inside the tree imports
+
+`components/transition/Transition.vue` is **not** part of the move. No file inside the tree imports
 it, `labs-nuxt` ships without it, and it is route-transition chrome rather than an arrangement. It
 moves up one level and stays app-owned, which is what keeps `modules/system/useRouteTransition`
 app-owned too — consistent with §2's 2026-09-16 note that `modules/system` fails the count.
@@ -737,15 +747,17 @@ is the only gate that can see it — the type gate cannot, because `apps/cart` s
 `.must-fail.patch` files were read at `543d80fcff`. **No patch header names a path this amendment
 moves**, so none silently stops grading. The five `*-reaches-app-shell` controls target
 `apps/cart/src/shell/modules/*/shell` and `apps/cart/src/shell/components/form/renderers`, which
-stay. Their prose cites "Amendment 1 change 3 makes page, layouts, header and footer app-owned";
-that sentence is now imprecise and should read "page, header and footer". **They still apply and
+stay.
+
+Their prose cites "Amendment 1 change 3 makes page, layouts, header and footer app-owned".
+That sentence is now imprecise and should read "page, header and footer". **They still apply and
 still red** — this is a comment accuracy fix, not a broken control.
 
 ---
 
 ## Amendment 11 (2026-09-24) — Phase 0 holds only what Phase 0 needs
 
-**Scope.** Narrows Amendment 1's "Unchanged and held" pre-flight list. The placements in §5 and in Amendment 1 change 6 stand; only the phase that lands them changes. Numbered after Amendment 10, which is recorded on a later phase's branch.
+**Scope.** Narrows Amendment 1's "Unchanged and held" pre-flight list. The placements in §5 and in Amendment 1 change 6 stand. Only the phase that lands them changes. Numbered after Amendment 10, which is recorded on a later phase's branch.
 
 **The test.** A change belongs to Phase 0 only if a Phase 0 gate needs it. When no Phase 0 gate needs it, or a later phase moves or replaces the same code, it lands in that later phase. A change that no phase needs lands nowhere.
 
@@ -767,7 +779,7 @@ The tests for each change move with it.
 - A trailing-newline change to `eslint-suppressions.json`.
 - `scripts/rename-domain-packages.mjs`. Its rename legs are complete on every branch, and the script stays in history. Its lint glob now lands with Phase 1's own script.
 
-**Phase 0 keeps** the ten shells, their aliases and project references, `import/no-cycle` and `import/no-internal-modules` at ERROR, the per-package `@internal` barrier, the `typecheck:packages` CI job, and the import-cycle negative control.
+**Phase 0 keeps** the ten shells, their aliases and project references, and the per-package `@internal` barrier. It also keeps `import/no-cycle` and `import/no-internal-modules` at ERROR, the `typecheck:packages` CI job, and the import-cycle negative control.
 
 ## Amendment 12 (2026-09-25) — the lookup control lives in `foundation`'s form
 
@@ -785,7 +797,7 @@ The tests for each change move with it.
 
 > **Ratified by the operator on 2026-09-28.**
 
-**The ruling.** *"It should only be in our packages if it is a UI concern."* A package holds markup, styles, variants, prop, emit and slot types, view state, presentation mapping, the wiring that passes `headless` values into components, and component gates that combine `headless` flags. Everything else lives in `headless`: a service or query, a cache, a machine or store, a domain rule, routing or funnel logic, static domain data, and a composable whose output is domain data.
+**The ruling.** *"It should only be in our packages if it is a UI concern."* A package holds markup, styles, variants, prop, emit and slot types, view state and presentation mapping. It also holds the wiring that passes `headless` values into components, and component gates that combine `headless` flags. Everything else lives in `headless`: a service or query, a cache, a machine or store, and a domain rule. Routing or funnel logic, static domain data, and a composable whose output is domain data also live in `headless`.
 
 **The test.** Would a second surface with a different design need the logic to behave the same way? Then `headless` owns it. If only this component's look needs it, the package keeps it.
 
@@ -814,7 +826,7 @@ The tests for each change move with it.
 | Phase 9 | the basket card's save rules (500 ms wait, flush on teardown, cancel on remove, forced save when invalid) and its config-spawn and error rules | save methods and flags on `headless` `useBasketProductInline`; its unused old quantity methods are deleted. **Behaviour:** a save queued at teardown fires as the card unmounts, not after it. |
 | Phase 9 | the checkout's "next product to set up" | `headless` `useProductSetupCursor`, per caller. The setup page keeps its own rule. **Behaviour:** a product that needs setup after the checkout opens now shows its setup form. |
 
-**Kept as UI.** Six items only arrange values that `headless` already serves, so they stay in their packages: `useBreadcrumbs` (`foundation`), the `PricingList` row filter (`product`), the `OrderProducts` rows (`invoice`), the summary price lines (`basket`), the payment-order signed-out gate (`payment`) *(superseded by Amendment 16, 2026-10-02, ruling 2: the payment organism has no signed-out gate)* and the checkout payment gate (`basket`).
+**Kept as UI.** Six items only arrange values that `headless` already serves, so they stay in their packages. They are `useBreadcrumbs` (`foundation`), the `PricingList` row filter (`product`), the `OrderProducts` rows (`invoice`) and the summary price lines (`basket`). The last two are the checkout payment gate (`basket`) and the payment-order signed-out gate (`payment`). *(Superseded by Amendment 16, 2026-10-02, ruling 2: the payment organism has no signed-out gate.)*
 
 ## Amendment 14 (2026-09-28) — the theme belongs to the app; `useAnnouncement` lives in `foundation`; both ports are removed
 
@@ -842,7 +854,7 @@ The tests for each change move with it.
 
 ## Amendment 15 (2026-09-28) — a page takes its templates from the page that mounts it; `catalogue` imports `domain` when a category needs it; `headless` stays as `develop` has it; the shell socket and the DAC port are removed
 
-**Scope.** Removes two injection ports the phased run added: the shell socket (`provideShellComponents`, `useShellComponents`, `SHELL_COMPONENTS`) and the DAC widget port (`DAC_WIDGET`, `useDomainWidget`, `catalogue`'s `products/dac.socket.ts`). Keeps one app-root injection, the renderer inject. Reverses §5's DAC reroute and §7's "`catalogue` does not import `domain`", and Amendment 9's §7 correction with them. Grants `catalogue → domain` in §3. Withdraws Amendment 13's moves into `headless`, except `commitProductUpdate`. *(Superseded by Amendment 16, 2026-10-02, ruling 3: the exception is withdrawn.)* Records that this migration fixes no bug, and that `apps/auth` does nothing after a sign-in. Restates Amendment 8's rule for props. Ruled by the operator on 2026-09-28: *avoid the provide/inject pattern; prefer props, slots and direct imports*, and *a `headless` change needs heavy justification; the migration moves code as `develop` has it*. Numbered after Amendment 14. Amendment 8 is recorded on Phase 9c's branch; on a lower branch, read its rule from this amendment.
+**Scope.** Removes two injection ports the phased run added: the shell socket (`provideShellComponents`, `useShellComponents`, `SHELL_COMPONENTS`) and the DAC widget port (`DAC_WIDGET`, `useDomainWidget`, `catalogue`'s `products/dac.socket.ts`). Keeps one app-root injection, the renderer inject. Reverses §5's DAC reroute and §7's "`catalogue` does not import `domain`", and Amendment 9's §7 correction with them. Grants `catalogue → domain` in §3. Withdraws Amendment 13's moves into `headless`, except `commitProductUpdate`. *(Superseded by Amendment 16, 2026-10-02, ruling 3: the exception is withdrawn.)* Records that this migration fixes no bug, and that `apps/auth` does nothing after a sign-in. Restates Amendment 8's rule for props. Ruled by the operator on 2026-09-28, in two rulings. The first: *avoid the provide/inject pattern; prefer props, slots and direct imports*. The second: *a `headless` change needs heavy justification; the migration moves code as `develop` has it*. Numbered after Amendment 14. Amendment 8 is recorded on Phase 9c's branch. On a lower branch, read its rule from this amendment.
 
 **The rulings.**
 
@@ -851,25 +863,40 @@ The tests for each change move with it.
 3. **`catalogue` imports `domain` directly, as `develop` does, but only when a category needs it.** `catalogue`'s `products/WidgetDAC.vue` loads `domain`'s `UpmDacWidget` with a dynamic import (`defineAsyncComponent`), the pattern `domain`'s `DomainRenderer` and `product`'s `SubProductRenderer` and `TermsRenderer` already use. The catalogue mounts it only when the category asks for the domain search (`uiMeta.widgets.dac`, or the brand's product-list style is `DAC`), as `develop` does. No app provides the widget: wiring it is not the app's responsibility. `DAC_WIDGET`, `useDomainWidget`, `dac.socket.ts`, the "is a widget provided" check (`hasWidget`) and `domain`'s `dacWidgetEntry` are deleted.
 4. **The renderer inject stays.** It is the one app-root injection (`FORM_RENDERERS`, `useFormRenderers`). `apps/auth`'s provide of an empty list is deleted, because the inject defaults to an empty list.
 5. **The portal keeps its seven auth templates.** They are app code, and the portal's sign-in pages pass them as `templates`. *Superseded: the portal's sign-in pages now read the template value from `auth`'s default slot and pick their own component for it, the same as `apps/auth`.*
-6. **`headless` stays as `develop` has it.** A `headless` change needs heavy justification: domain logic that more than one surface needs today and that cannot stay in its `develop` home. A behaviour change to an existing `headless` API needs the heaviest. The migration moves code as `develop` has it. Of the 22 changes the phased run made in `headless`, two pass: `commitProductUpdate` (Phase 4; additive, three importers in three packages, and §6 blocks a shared home outside `headless`) and one `usage.md` line that names the consumer's new path (Phase 3). The other 20 go back to their `develop` homes, each on the phase that added it: `useRoutingResolve`, `withPatternExample` and the post-sign-in wait in `useAuth().resolve()` (Phase 2); `defaultWalletAmount` with `usePaymentDetail().amountCreditDefault`, and the pay-later gateway option (Phase 3); `canAddDirectly`, `isSingleSelection`, `toSubproductSelection`, `setSubproductQuantity` and the custom-price guard in `parsePromotionDetails` (Phase 4); `buildOrderTransferUrl` (Phase 8); `useDac().meta.hasAddedResults`, `useDac().refreshSearch` and `removeDomainQueries` (Phase 6); `CURRENCY_COUNTRIES`, `useProductSetupCursor`, the save methods and flags on `useBasketProductInline`, the deletion of `useBasketProduct`'s unused methods (they come back), `offersGuestCheckout`, `resolveBillingType`, `composeBillingModel` and the six billing-tab rules (Phase 9). An auth page takes the funnel step when a funnel runs; with none, it emits `resolve` or `reject`, and the app page decides.
-7. **This migration fixes no bug.** Where a move changed behaviour, the behaviour returns to `develop`'s: the basket upsell card shows promotions beside a custom price again; the checkout's setup section shows no form for a product flagged after the checkout opens; a save queued when a basket card closes flushes after the card unmounts. Each bug can be filed on `develop`.
+6. **`headless` stays as `develop` has it.** A `headless` change needs heavy justification: domain logic that more than one surface needs today and that cannot stay in its `develop` home. A behaviour change to an existing `headless` API needs the heaviest. The migration moves code as `develop` has it. Of the 22 changes the phased run made in `headless`, two pass. The first is `commitProductUpdate` (Phase 4). It is additive, it has three importers in three packages, and §6 blocks a shared home outside `headless`. The second is one `usage.md` line that names the consumer's new path (Phase 3). The other 20 go back to their `develop` homes, each on the phase that added it. Phase 2: `useRoutingResolve`, `withPatternExample` and the post-sign-in wait in `useAuth().resolve()`. Phase 3: `defaultWalletAmount` with `usePaymentDetail().amountCreditDefault`, and the pay-later gateway option. Phase 4: `canAddDirectly`, `isSingleSelection`, `toSubproductSelection`, `setSubproductQuantity` and the custom-price guard in `parsePromotionDetails`. Phase 8: `buildOrderTransferUrl`. Phase 6: `useDac().meta.hasAddedResults`, `useDac().refreshSearch` and `removeDomainQueries`. Phase 9: `CURRENCY_COUNTRIES`, `useProductSetupCursor`, the save methods and flags on `useBasketProductInline`, and the deletion of `useBasketProduct`'s unused methods (they come back). Phase 9 also covers `offersGuestCheckout`, `resolveBillingType`, `composeBillingModel` and the six billing-tab rules. An auth page takes the funnel step when a funnel runs. With none, it emits `resolve` or `reject`, and the app page decides.
+7. **This migration fixes no bug.** Where a move changed behaviour, the behaviour returns to `develop`'s. The basket upsell card shows promotions beside a custom price again. The checkout's setup section shows no form for a product flagged after the checkout opens. A save queued when a basket card closes flushes after the card unmounts. Each bug can be filed on `develop`.
 8. **`apps/auth` does nothing after a sign-in.** Its routes mount the organisms as route components, with no listener, and it runs no funnel. It adds no page files.
 
-**Amendment 8, in prop form.** A host that passes no templates, or a record that lacks a name, fails its type-check. At runtime the organism still throws and names the template. No package draws a template. The loading spinner is still the one exception: `auth`'s `loading` slot defaults to the package's own spinner. *Superseded for `auth`: there is no `templates` prop or record to type-check or to miss a name from — the host's own lookup resolves an unrecognised value to its own fallback.*
+**Amendment 8, in prop form.** A host that passes no templates, or a record that lacks a name, fails its type-check. At runtime the organism still throws and names the template. No package draws a template, and the loading spinner is still the one exception: `auth`'s `loading` slot defaults to the package's own spinner. *Superseded for `auth`: there is no `templates` prop or record to type-check or to miss a name from. The host's own lookup resolves an unrecognised value to its own fallback.*
 
-**Why props, not ports.** Every template reader sits in an organism that an app page mounts, or one level below it. The page is app code, so it may import the app's templates; the prop adds no edge. The socket added a provide at each app root, and a host that left a name out found out only when a brand chose that name. *(Superseded by Amendment 16, 2026-10-02, ruling 4, for every package except `auth`.)*
+**Why props, not ports.** Every template reader sits in an organism that an app page mounts, or one level below it. The page is app code, so it may import the app's templates, and the prop adds no edge. The socket added a provide at each app root. A host that left a name out found out only when a brand chose that name. *(Superseded by Amendment 16, 2026-10-02, ruling 4, for every package except `auth`.)*
 
-**Why the renderer inject stays.** One reader and five app-root provides. Thirteen package files mount the form, up to six levels below the page, and 39 components sit on those paths. The product and basket forms render `domain`'s controls, and §3 grants neither package an edge to `domain`. A prop would thread through every one of those components, and a missed hop drops a control with no error. A per-package import would need an edge §3 forbids. So the app assembles the list and injects it once, as Amendment 9 found.
+**Why the renderer inject stays.** One reader and five app-root provides. Thirteen package files mount the form, up to six levels below the page, and 39 components sit on those paths. The product and basket forms render `domain`'s controls, and §3 grants neither package an edge to `domain`. A prop would thread through every one of those components, and a missed hop drops a control with no error. A per-package import would need an edge §3 forbids, so the app assembles the list and injects it once, as Amendment 9 found.
 
-**§3, §5 and §7, corrected.** §3's `catalogue` row gains `domain`: *May import* `+ product, recommendations, domain`. The edge is a dynamic import only. `domain` imports `product`, `foundation` and `headless`, and nothing of `catalogue`, so no cycle appears; §3's topological order puts `domain` before `catalogue`. §5's bullet "reroute it through the provision-field renderer socket" is withdrawn: the hard import comes back as a lazy one. §7's sentence "`catalogue` does **not** import `domain` either" is reversed, and Amendment 9's correction (the widget arrives through a typed port) is reversed with it. `domain` stays optional at run time: `catalogue` loads it only for a category that asks. It is not optional at install time for a host that mounts the catalogue, because `catalogue` declares it. In today's apps the app root already imports `domain`'s renderers for the form, so the lazy import makes no separate chunk there.
+**§3, §5 and §7, corrected.** §3's `catalogue` row gains `domain`: *May import* `+ product, recommendations, domain`. The edge is a dynamic import only. `domain` imports `product`, `foundation` and `headless`, and nothing of `catalogue`, so no cycle appears. The topological order of §3 puts `domain` before `catalogue`.
 
-**Amendment 13, withdrawn in part.** Its ruling sentence, "everything else lives in `headless`", no longer moves code during this migration: ruling 6 applies instead. Its test ("would a second surface need it?") becomes "does a second surface import it today?". Its rows that moved code into `headless` are withdrawn, and so are their **Behaviour** notes: Phase 2 (the funnel-or-route resolver; the pattern-example rule; the wait for the session to hold the user), Phase 3 (the account-credit default; the pay-later choice), Phase 4 (the four product helpers; hiding promotions on a custom price), Phase 6 (the DAC's added-results flag and its cache refresh), Phase 8 (the order-transfer URL) and Phase 9 (the guest-checkout gate, the currency-country table and the billing form's two rules; the billing tabs' six rules; the basket card's save rules and the deleted quantity methods; the checkout's setup cursor). These rows stand: Phase 4's `commitProductUpdate`, and the Phase 5 and Phase 9 rows that call it; and the rows that moved nothing into `headless` (Phase 1's `useBrandConfig` deletion, Phase 2's return-target reader, Phase 6's query keys, Phase 8's `PAYMENT_STATE` re-export). Its "Kept as UI" list stands. *(Superseded in part by Amendment 16, 2026-10-02, rulings 2, 3 and 6: the three `commitProductUpdate` rows are withdrawn, the `PAYMENT_STATE` re-export stays, and the payment-order signed-out gate no longer exists.)*
+The bullet in §5, "reroute it through the provision-field renderer socket", is withdrawn: the hard import comes back as a lazy one. The sentence in §7, "`catalogue` does **not** import `domain` either", is reversed. Amendment 9's correction (the widget arrives through a typed port) is reversed with it.
+
+`domain` stays optional at run time: `catalogue` loads it only for a category that asks. It is not optional at install time for a host that mounts the catalogue, because `catalogue` declares it. In today's apps the app root already imports `domain`'s renderers for the form, so the lazy import makes no separate chunk there.
+
+**Amendment 13, withdrawn in part.** Its ruling sentence, "everything else lives in `headless`", no longer moves code during this migration: ruling 6 applies instead. Its test ("would a second surface need it?") becomes "does a second surface import it today?". Its rows that moved code into `headless` are withdrawn, and so are their **Behaviour** notes:
+
+- Phase 2: the funnel-or-route resolver, the pattern-example rule, and the wait for the session to hold the user.
+- Phase 3: the account-credit default and the pay-later choice.
+- Phase 4: the four product helpers, and hiding promotions on a custom price.
+- Phase 6: the DAC's added-results flag and its cache refresh.
+- Phase 8: the order-transfer URL.
+- Phase 9: the guest-checkout gate, the currency-country table and the billing form's two rules. The billing tabs' six rules. The basket card's save rules and the deleted quantity methods. The checkout's setup cursor.
+
+These rows stand: Phase 4's `commitProductUpdate`, and the Phase 5 and Phase 9 rows that call it. The rows that moved nothing into `headless` stand: Phase 1's `useBrandConfig` deletion, Phase 2's return-target reader, Phase 6's query keys and Phase 8's `PAYMENT_STATE` re-export. Its "Kept as UI" list stands. *(Superseded in part by Amendment 16, 2026-10-02, rulings 2, 3 and 6. The three `commitProductUpdate` rows are withdrawn, and the `PAYMENT_STATE` re-export stays. The payment-order signed-out gate no longer exists.)*
 
 **§2's port note, corrected.** After Amendment 14 and this amendment, `foundation` owns one port: the renderer inject. The open question, whether ports are exempt from the count as a class, rests on one instance.
 
 **§3, spent.** `basket` imports `auth` for one type: the guest-checkout offer's props are `auth`'s slot props. The edge points down, and `auth` imports nothing of `basket`.
 
-**The portal.** Its sign-in, registration and forgotten-password pages keep the portal's seven templates, inside its `auth` layout. The brand's auth template picks one. The templates draw the portal's own chrome: the wordmark, the store shortcut, the legal footer and the platform line. They do not draw the brand's note: the auth page draws it in the template's `markdown` slot, so the portal's copy (`PortalAuthNote`) is deleted, and so is the `logged-out` layout's note block that no page reached. The store shortcut is one app component, shared by the templates and the `logged-out` layout. The portal no longer allows the `GUEST` scope.
+**The portal.** Its sign-in, registration and forgotten-password pages keep the portal's seven templates, inside its `auth` layout. The brand's auth template picks one. The templates draw the portal's own chrome: the wordmark, the store shortcut, the legal footer and the platform line.
+
+The templates do not draw the brand's note. The auth page draws it in the template's `markdown` slot. So the portal's copy (`PortalAuthNote`) is deleted, and so is the `logged-out` layout's note block that no page reached. The store shortcut is one app component, shared by the templates and the `logged-out` layout. The portal no longer allows the `GUEST` scope.
 
 **velia and hosting.** They do not build from Phase 2 until Phase 9a retires them. No release of either is cut while the stack is part-merged.
 
@@ -896,14 +923,16 @@ The tests for each change move with it.
 
 ## Amendment 16 (2026-10-02) — moved code keeps `develop`'s lines; the app page owns the layout; `headless` equals `develop`; no package re-exports another
 
-**Scope.** Records the operator's rulings of 2026-09-30 to 2026-10-02. Replaces Amendment 15 ruling 1 for every package except `auth`. Withdraws the two exceptions in Amendment 15 ruling 6, and the Amendment 13 rows that Amendment 15 kept. Narrows Amendment 2 ruling 2 for velia. Each line above that a ruling here replaces carries a one-line pointer to this amendment. The earlier text stays as it was written. Numbered after Amendment 15. Each ruling lands on the phase it names, so on a lower phase's branch the later rows describe work still to come.
+**Scope.** Records the operator's rulings of 2026-09-30 to 2026-10-02. Replaces Amendment 15 ruling 1 for every package except `auth`. Withdraws the two exceptions in Amendment 15 ruling 6, and the Amendment 13 rows that Amendment 15 kept. Narrows Amendment 2 ruling 2 for velia.
+
+Each line above that a ruling here replaces carries a one-line pointer to this amendment. The earlier text stays as it was written. Numbered after Amendment 15. Each ruling lands on the phase it names, so on a lower phase's branch the later rows describe work still to come.
 
 **The rulings.**
 
-1. **Moved code keeps `develop`'s lines.** A file that the migration moves from `develop` changes only where the move needs it: its import paths, its template pick and the rulings in this amendment. Native calls stay as `develop` has them, for example `value.includes(...)` and `items.value.length`. No lodash sweep runs over moved files. A file that the migration creates uses `lodash-es`. An audit of Phases 4 to 10 found code with no `develop` origin and no ruling. Each item takes `develop`'s lines back, or moves `develop`'s file in place of a copy or a deletion, on the phase that owns it. For example, the portal's `/billing/orders` route is `develop`'s stub again, with no mock order list.
+1. **Moved code keeps `develop`'s lines.** A file that the migration moves from `develop` changes only where the move needs it. Those places are its import paths, its template pick and the rulings in this amendment. Native calls stay as `develop` has them, for example `value.includes(...)` and `items.value.length`. No lodash sweep runs over moved files. A file that the migration creates uses `lodash-es`. An audit of Phases 4 to 10 found code with no `develop` origin and no ruling. Each item takes `develop`'s lines back, or moves `develop`'s file in place of a copy or a deletion, on the phase that owns it. For example, the portal's `/billing/orders` route is `develop`'s stub again, with no mock order list.
 2. **One payment organism holds `develop`'s pay block.** `packages/modules-payment/src/components/Payment.vue`, published as `UpmPayment`, holds the payment lines of `develop`'s order page (`client-vue/src/modules/order/Order.vue`). These are the invoice cell, `await isReady()`, the `orderMeta` fold, the `usePaymentDetail` and `usePaymentChallenge` provides, the availability gate, `PaymentDetails`, `PaymentProcessing` and the scroll-to-top. It takes one prop, `invoiceId`. It has no order part: no order summary, no order-page alerts and no retry. The package holds only components moved from `develop`, plus the code that registers and exports them. It does not publish `StoredPaymentMethods`. The standalone app's page, `apps/payment/src/Pay.vue`, only mounts `<UpmPayment :invoice-id="invoiceId" />`. The app depends on `payment` and the shared bases only (Amendment 1 change 4), and it boots with the `CLIENT` and `GUEST` scopes. No switch stops the basket: the page starts it, as `develop`'s order page does. **Accepted consequences:** the page renders nothing after a successful charge, or for an unknown or signed-out invoice, and a failed payment shows no retry message. The portal has no pay page of its own, and its `/billing/payment-methods` route is `develop`'s stub again.
 3. **`headless` equals `develop`.** `commitProductUpdate` is deleted, with its barrel line, its test, its negative control and its usage section. `product`'s `Configure.vue`, `recommendations`' `Configure.vue` and `basket`'s `Edit.vue` take back `develop`'s own `update().then(…).catch(…)` lines and `develop`'s comment. The `payment-details` `usage.md` path line goes back to `develop`'s bytes. On every phase, a diff against `develop` shows no change under `packages/headless`. Amendment 15 ruling 6 keeps its bar, and it now has no exceptions.
-4. **The app page owns the layout. A package knows no layout.** A main component renders `develop`'s template, block for block. Only `develop`'s outer `<component :is="templateVariant">` changes: it becomes `foundation`'s `LayoutProvider`. Inside it, the default slot (`<slot :template="template" />`) renders the page's layout first. The main component's named blocks then fill that layout. A slot that the page writes on its layout replaces the block with the same name. The rebuilt layout keeps the page's ref, scoped-style id and directives. `LayoutProvider` takes no props. Each `develop` component in a block gets its props one by one, as on `develop`. `develop` hides an empty block itself, with its `v-if` on the block and its layouts' `isEmptySlot`. No region component, context object, `templates` prop or injection key carries the page's content. No main component checks the page's record, and none throws for a template name. A page that changes one block writes that slot on its layout, or uses the main component's own named slot and slot props. A normal page is three lines, for example the portal's order page:
+4. **The app page owns the layout. A package knows no layout.** A main component renders `develop`'s template, block for block. Only `develop`'s outer `<component :is="templateVariant">` changes: it becomes `foundation`'s `LayoutProvider`. Inside it, the default slot (`<slot :template="template" />`) renders the page's layout first. The main component's named blocks then fill that layout. A slot that the page writes on its layout replaces the block with the same name. The rebuilt layout keeps the page's element reference, scoped-style id and directives. `LayoutProvider` takes no props. Each `develop` component in a block gets its props one by one, as on `develop`. `develop` hides an empty block itself, with its `v-if` on the block and its layouts' `isEmptySlot`. No region component, context object, `templates` prop or injection key carries the page's content. No main component checks the page's record, and none throws for a template name. A page that changes one block writes that slot on its layout, or uses the main component's own named slot and slot props. A normal page is three lines, for example the portal's order page:
 
    ```vue
    <UpmOrder v-slot="{ template }">
@@ -911,10 +940,10 @@ The tests for each change move with it.
    </UpmOrder>
    ```
 
-   The main components with this shape are `product`'s `UpmProductConfigure` (Phase 4), `invoice`'s `UpmOrder` (Phase 8), `recommendations`' `UpmRecommendations` and `UpmProductRecommendations` (Phase 5), `catalogue`'s `UpmCatalogue` and `domain`'s `UpmDac` (Phase 6), and `basket`'s `UpmBasket`, `UpmBasketProductEdit`, `UpmBilling`, `UpmCheckout` and `UpmProductSetup` (Phase 9). `auth`'s three pages still take `templates` and pick with `get(props.templates, template.value)`. Amendment 15 ruling 1 stands for them only. A page is free to go one step further and own the record through a named pick function instead of a bare lookup — `basket`'s five pages and `catalogue`'s, `recommendations`' and `domain`'s pages do (`basketTemplate(template)`, `catalogueTemplate(template)`, `recommendationsTemplate(template)`, `domainTemplate(template)`), each falling back to its own default for a name its record does not hold. `invoice` and `product` keep the bare record lookup. Either shape satisfies this ruling: the package draws no layout and owns no name either way.
+   The main components with this shape are `product`'s `UpmProductConfigure` (Phase 4), `invoice`'s `UpmOrder` (Phase 8) and `recommendations`' `UpmRecommendations` and `UpmProductRecommendations` (Phase 5). They also include `catalogue`'s `UpmCatalogue` and `domain`'s `UpmDac` (Phase 6), and `basket`'s `UpmBasket`, `UpmBasketProductEdit`, `UpmBilling`, `UpmCheckout` and `UpmProductSetup` (Phase 9). `auth`'s three pages still take `templates` and pick with `get(props.templates, template.value)`. Amendment 15 ruling 1 stands for them only. A page is free to go one step further and own the record through a named pick function instead of a bare lookup. `basket`'s five pages and `catalogue`'s, `recommendations`' and `domain`'s pages do this (`basketTemplate(template)`, `catalogueTemplate(template)`, `recommendationsTemplate(template)`, `domainTemplate(template)`). Each falls back to its own default for a name its record does not hold. `invoice` and `product` keep the bare record lookup. Either shape satisfies this ruling: the package draws no layout and owns no name either way.
 5. **`createVariantConstants` replaces `parseVariants`.** `develop`'s `client-vue/src/utils/parseVariants.ts` moves to `foundation` on Phase 4 as `createVariantConstants`. `VariantValues` becomes `VariantValue`, and `ParsedVariants` becomes `VariantConstants`. Lodash `toUpper` replaces `upperCase`, so the runtime matches the type: `upperCase` turns `"two-column"` into `"TWO COLUMN"`. Single-word keys do not change. Each later phase that moves a `develop` user imports the new name from `foundation`. `client-vue` keeps its own copy until Phase 10 deletes `client-vue`.
-6. **No package re-exports another package's names.** A package's own barrel is its public surface, not a re-export. `client-vue` publishes no name of a new package. Each re-export file that the migration added to `client-vue` is deleted on the phase that added it: payment (Phase 3), invoice and order (Phase 8), recommendations (Phase 5), catalogue and domain (Phase 6), basket, basket product, billing, checkout and product setup (Phase 9), `utils/isEmptySlot.ts` (Phase 6), and the `foundation` layout tree in `components/index.ts` and `components/shell/index.ts` (Phase 9b). Each importer takes the name from the package that owns it. One re-export stays, for a reason: `invoice`'s `types.ts` re-exports `PAYMENT_STATE` from `headless`, because that line is `develop`'s own, moved byte for byte.
-7. **velia keeps one custom piece: its basket route.** `apps/velia-nuxt` extends `cart-nuxt` (`nuxt.config.ts` `extends: ["../cart-nuxt"]`) and holds three files of its own under `app/`: `funnels/segment.ts` (names the segment: velia's override `BASKET_SEGMENT = "cart"`, and `cart-nuxt`'s default `DEFAULT_BASKET_SEGMENT = "basket"` for the redirect), `router.options.ts` (calls `cart-nuxt`'s own `router.options.ts` for the route list, then rewrites every basket path onto `/order/cart`, keeping the `:segment(basket|cart)` route param so the routing engine still resolves a basket route by its `"basket"` name) and `redirects.ts` (`cart-nuxt`'s redirect middleware, minus the `/order/basket` → `/order/cart` rename it carries for itself, which would loop on velia's own basket route). `redirects.ts` is swapped in for `cart-nuxt`'s `middleware/redirects.global.ts` by an `app:resolve` hook in `nuxt.config.ts`, because a same-named file in the layer would run after `cart-nuxt`'s routing guard rather than in its place. `nuxt.config.ts` also re-points the layer's `~` alias at `cart-nuxt`'s own `app/` directory, because inside a Nuxt layer `~` otherwise resolves to the extending app's own `srcDir`, and `cart-nuxt`'s own `~/` imports need to keep resolving there. The rest of the app is ordinary app shell: `package.json`, the env files, `firebase.json`, the favicons and the web manifest. `cart-nuxt` itself carries no velia-specific code.
+6. **No package re-exports another package's names.** A package's own barrel is its public surface, not a re-export. `client-vue` publishes no name of a new package. Each re-export file that the migration added to `client-vue` is deleted on the phase that added it. These are payment (Phase 3), invoice and order (Phase 8), recommendations (Phase 5), and catalogue and domain (Phase 6). Phase 9 deletes basket, basket product, billing, checkout and product setup. Phase 6 also deletes `utils/isEmptySlot.ts`. Phase 9b deletes the `foundation` layout tree in `components/index.ts` and `components/shell/index.ts`. Each importer takes the name from the package that owns it. One re-export stays, for a reason: `invoice`'s `types.ts` re-exports `PAYMENT_STATE` from `headless`, because that line is `develop`'s own, moved byte for byte.
+7. **velia keeps one custom piece: its basket route.** `apps/velia-nuxt` extends `cart-nuxt` (`nuxt.config.ts` `extends: ["../cart-nuxt"]`) and holds three files of its own under `app/`. `funnels/segment.ts` names the segment: velia's override `BASKET_SEGMENT = "cart"`, and `cart-nuxt`'s default `DEFAULT_BASKET_SEGMENT = "basket"` for the redirect. `router.options.ts` calls `cart-nuxt`'s own `router.options.ts` for the route list, then rewrites every basket path onto `/order/cart`. It keeps the `:segment(basket|cart)` route param, so the routing engine still resolves a basket route by its `"basket"` name. `redirects.ts` is `cart-nuxt`'s redirect middleware, minus the `/order/basket` → `/order/cart` rename it carries for itself. That rename would loop on velia's own basket route. `redirects.ts` is swapped in for `cart-nuxt`'s `middleware/redirects.global.ts` by an `app:resolve` hook in `nuxt.config.ts`. A same-named file in the layer would run after `cart-nuxt`'s routing guard rather than in its place. `nuxt.config.ts` also re-points the layer's `~` alias at `cart-nuxt`'s own `app/` directory. Inside a Nuxt layer, `~` otherwise resolves to the extending app's own `srcDir`. `cart-nuxt`'s own `~/` imports need to keep resolving to that `app/` directory. The rest of the app is ordinary app shell: `package.json`, the env files, `firebase.json`, the favicons and the web manifest. `cart-nuxt` itself carries no velia-specific code.
 8. **The catalogue's DAC widget has no layout of its own.** In widget mode, `UpmDacWidget` (`packages/modules-domain/src/components/DacWidget.vue`) places the DAC's blocks itself, with `develop`'s lines from `DomainWidget.template.vue`. `search` and `results` render where the catalogue shows its widget. `hint` and `resolve` teleport to the catalogue's `#domain-aside-footer` and `#domain-content-footer` targets. The widget takes no templates record. `UpmCatalogue` keeps `develop`'s single `<component :is="widget" …>` line. `products/WidgetDAC.vue` still loads `domain` lazily (Amendment 15 ruling 3), and it passes no props. The catalogue pages pass no domain templates, and the apps' `DOMAIN_TEMPLATES` records have no widget entry.
 
 **Why the page owns the layout.** A layout is the app's choice. The page that picks one is app code, and the record of layouts is the page's input, not the package's. The package gives the content: `develop`'s own blocks, with `develop`'s own conditions. A page with no changes stays three lines, and a page that changes one block writes one slot. No prop threads content down, and no key carries it across.
@@ -937,8 +966,8 @@ The tests for each change move with it.
 
 - Module-foundation docs: `<agent-runner>/workshop-bundle/02-module-foundations/*`
 - Headless reference: `docs/published-docs/developers/reference/headless/*` (`useOrder` = `useInvoice`, `useCheckoutFlows`, `useBasketFlows`, `useRoutingFlows`, …)
-- ADR 001 (scope-based composables) — a separate `headless`-layer initiative; **implemented in `@next-legacy` (`modules/scope/`)**. Does not gate the *package cut*, but its registry's per-request lifetime **IS the SSR fix** (§10 Axis 2), so it **gates enabling SSR**.
+- ADR 001 (scope-based composables) — a separate `headless`-layer initiative. It is **implemented in `@next-legacy` (`modules/scope/`)**. Does not gate the *package cut*, but its registry's per-request lifetime **IS the SSR fix** (§10 Axis 2), so it **gates enabling SSR**.
 - ADR 004 (monorepo structure), ADR 007 (headless architecture), ADR 012 (multi-theme architecture), ADR 017/018 (funnel navigation)
-- **ADR 022 (UI library split — `ui-cart`/`ui-checkout`) — *superseded by this ADR.*** 022 split along a UI-component-library axis; 023 supersedes it with the domain-axis package cut. ADR 021 (testing pyramid) governs the test strategy the Migration leans on.
+- **ADR 022 (UI library split — `ui-cart`/`ui-checkout`) — *superseded by this ADR.*** 022 split along a UI-component-library axis. 023 supersedes it with the domain-axis package cut. ADR 021 (testing pyramid) governs the test strategy the Migration leans on.
 - cart-nuxt scout (2026-06-15): Nuxt 4.2, Vue 3.5, `ssr: false` today, funnels via `UpmindClient.init`, brand resolved client-side via `useBrand`.
 - Design-council session, 2026-06-15 — `~/.claude/councils/2026-06-15-ui-package-architecture/`

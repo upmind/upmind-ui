@@ -11,6 +11,7 @@
 import { DOCUMENT_MODULE_VARIANT } from "./types";
 import type { DocumentActionVariant, DocumentModuleVariant } from "./types";
 import type { ButtonVariants } from "@upmind/ui";
+// -----------------------------------------------------------------------------
 
 /**
  * The document's own frame. On paper it takes the page's full measure on

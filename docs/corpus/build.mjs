@@ -26,8 +26,8 @@
 //   Paths are anchored to the repo root computed from this file's location, so
 //   the build is correct regardless of the cwd pnpm invokes it with.
 
-import { spawnSync } from 'node:child_process';
-import { createHash } from 'node:crypto';
+import { spawnSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import {
   existsSync,
   mkdtempSync,
@@ -36,32 +36,32 @@ import {
   realpathSync,
   rmSync,
   statSync,
-  writeFileSync,
-} from 'node:fs';
-import { tmpdir } from 'node:os';
-import { basename, dirname, join, relative, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
+  writeFileSync
+} from "node:fs";
+import { tmpdir } from "node:os";
+import { basename, dirname, join, relative, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 
 // --- anchors (cwd-independent) ---------------------------------------------
 const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url)); // <root>/docs/corpus
-const DOCS_DIR = resolve(SCRIPT_DIR, '..'); //                <root>/docs
-const ROOT = resolve(DOCS_DIR, '..'); //                      <root>
+const DOCS_DIR = resolve(SCRIPT_DIR, ".."); //                <root>/docs
+const ROOT = resolve(DOCS_DIR, ".."); //                      <root>
 const CORPUS_DIR = SCRIPT_DIR;
 
 const SCHEMA_MAJOR = 1; // bump only on a reflection-shape break (design §9)
-const HEADLESS_PKG = '@upmind-automation/headless';
+const HEADLESS_PKG = "@upmind-automation/headless";
 
-const TYPEDOC_OPTIONS = join(DOCS_DIR, 'typedoc.json');
-const REFLECTION_OUT = join(CORPUS_DIR, '.reflection.json'); // gates reuse this
-const RELATIONS_IN = join(CORPUS_DIR, 'relations.json');
-const GLOSSARY_IN = join(CORPUS_DIR, 'glossary.yaml');
-const CORPUS_OUT = join(CORPUS_DIR, 'corpus.json');
-const GLOSSARY_OUT = join(CORPUS_DIR, 'glossary.json'); // slim discovery-channel artifact (FE-3003)
-const ADR_DIR = join(DOCS_DIR, 'adr');
-const GUIDE_GLOB_ROOT = join(DOCS_DIR, 'guides');
-const MODULE_DOCS_ROOT = join(ROOT, 'packages/headless/src/modules');
+const TYPEDOC_OPTIONS = join(DOCS_DIR, "typedoc.json");
+const REFLECTION_OUT = join(CORPUS_DIR, ".reflection.json"); // gates reuse this
+const RELATIONS_IN = join(CORPUS_DIR, "relations.json");
+const GLOSSARY_IN = join(CORPUS_DIR, "glossary.yaml");
+const CORPUS_OUT = join(CORPUS_DIR, "corpus.json");
+const GLOSSARY_OUT = join(CORPUS_DIR, "glossary.json"); // slim discovery-channel artifact (FE-3003)
+const ADR_DIR = join(DOCS_DIR, "adr");
+const GUIDE_GLOB_ROOT = join(DOCS_DIR, "guides");
+const MODULE_DOCS_ROOT = join(ROOT, "packages/headless/src/modules");
 
-const die = (msg) => {
+const die = msg => {
   console.error(`FAIL (corpus:build): ${msg}`);
   process.exit(1);
 };
@@ -78,18 +78,25 @@ const die = (msg) => {
 // basePath is the git common dir — is collapsed away, so TypeDoc-derived paths
 // and graphify's repo-relative source_file share one id space. In a plain CI
 // checkout the prefix is absent and this is a no-op.
-const TOP_DIRS = ['packages/', 'apps/', 'docs/', 'tests/', 'playgrounds/', 'node_modules/'];
+const TOP_DIRS = [
+  "packages/",
+  "apps/",
+  "docs/",
+  "tests/",
+  "playgrounds/",
+  "node_modules/"
+];
 function toRepoRel(fp) {
-  let s = String(fp ?? '').replace(/\\/g, '/');
+  let s = String(fp ?? "").replace(/\\/g, "/");
   if (!s) return s;
-  if (s.startsWith('/')) s = relative(ROOT, s).replace(/\\/g, '/');
-  s = s.replace(/^\.\//, '').replace(/^(?:\.\.\/)+/, '');
+  if (s.startsWith("/")) s = relative(ROOT, s).replace(/\\/g, "/");
+  s = s.replace(/^\.\//, "").replace(/^(?:\.\.\/)+/, "");
   let best = -1;
   for (const t of TOP_DIRS) {
     let from = 0;
     let idx;
     while ((idx = s.indexOf(t, from)) !== -1) {
-      if (idx === 0 || s[idx - 1] === '/') {
+      if (idx === 0 || s[idx - 1] === "/") {
         if (best === -1 || idx < best) best = idx;
         break;
       }
@@ -101,11 +108,11 @@ function toRepoRel(fp) {
 
 // Normalize a symbol/graphify label to a join key: lowercase, drop any
 // trailing call-parens graphify appends to callable nodes (e.g. "doReject()").
-const normLabelKey = (v) =>
-  String(v ?? '')
+const normLabelKey = v =>
+  String(v ?? "")
     .toLowerCase()
-    .replace(/\s+/g, '')
-    .replace(/\(.*\)$/, '');
+    .replace(/\s+/g, "")
+    .replace(/\(.*\)$/, "");
 
 // Deterministic serialization: sorted keys everywhere, arrays in order, the
 // exact formatting of JSON.stringify(x, null, 2) + trailing newline. The
@@ -113,15 +120,15 @@ const normLabelKey = (v) =>
 // fixed-point rule (design §6.3) holds byte-for-byte.
 function sortDeep(v) {
   if (Array.isArray(v)) return v.map(sortDeep);
-  if (v && typeof v === 'object') {
+  if (v && typeof v === "object") {
     const out = {};
     for (const k of Object.keys(v).sort()) out[k] = sortDeep(v[k]);
     return out;
   }
   return v;
 }
-const stableStringify = (v) => JSON.stringify(sortDeep(v), null, 2) + '\n';
-const sha256 = (buf) => createHash('sha256').update(buf).digest('hex');
+const stableStringify = v => JSON.stringify(sortDeep(v), null, 2) + "\n";
+const sha256 = buf => createHash("sha256").update(buf).digest("hex");
 
 // Module dir for a repo-relative source path (design SymbolEntry.module).
 function deriveModule(repoRel) {
@@ -129,7 +136,7 @@ function deriveModule(repoRel) {
   if (m) return m[1];
   const m2 = /packages\/([^/]+)\/src\/modules\/([^/]+)\//.exec(repoRel);
   if (m2) return m2[2];
-  return '';
+  return "";
 }
 
 // ---------------------------------------------------------------------------
@@ -142,29 +149,33 @@ function deriveModule(repoRel) {
 // ---------------------------------------------------------------------------
 function resolveTypedocBin() {
   const candidates = [
-    join(DOCS_DIR, 'node_modules', '.bin', 'typedoc'),
-    join(ROOT, 'node_modules', '.bin', 'typedoc'),
+    join(DOCS_DIR, "node_modules", ".bin", "typedoc"),
+    join(ROOT, "node_modules", ".bin", "typedoc")
   ];
-  return candidates.find((p) => existsSync(p)) ?? null;
+  return candidates.find(p => existsSync(p)) ?? null;
 }
 
 function runTypedoc() {
-  if (!existsSync(TYPEDOC_OPTIONS)) die(`typedoc config not found at ${TYPEDOC_OPTIONS}`);
+  if (!existsSync(TYPEDOC_OPTIONS))
+    die(`typedoc config not found at ${TYPEDOC_OPTIONS}`);
   const bin = resolveTypedocBin();
-  const throwaway = mkdtempSync(join(tmpdir(), 'corpus-typedoc-'));
+  const throwaway = mkdtempSync(join(tmpdir(), "corpus-typedoc-"));
   const args = [
-    '--options',
+    "--options",
     TYPEDOC_OPTIONS,
-    '--json',
+    "--json",
     REFLECTION_OUT,
-    '--disableSources',
-    'false', // <- panel P2-a fix (load-bearing, design §5.1)
-    '--out',
-    throwaway,
+    "--disableSources",
+    "false", // <- panel P2-a fix (load-bearing, design §5.1)
+    "--out",
+    throwaway
   ];
   const res = bin
-    ? spawnSync(bin, args, { cwd: DOCS_DIR, encoding: 'utf8' })
-    : spawnSync('npx', ['typedoc', ...args], { cwd: DOCS_DIR, encoding: 'utf8' });
+    ? spawnSync(bin, args, { cwd: DOCS_DIR, encoding: "utf8" })
+    : spawnSync("npx", ["typedoc", ...args], {
+        cwd: DOCS_DIR,
+        encoding: "utf8"
+      });
   try {
     rmSync(throwaway, { recursive: true, force: true });
   } catch {
@@ -172,12 +183,15 @@ function runTypedoc() {
   }
   if (res.error) die(`could not launch typedoc — ${res.error.message}`);
   if (res.status !== 0) {
-    process.stderr.write(res.stderr ?? '');
+    process.stderr.write(res.stderr ?? "");
     die(`typedoc exited ${res.status}`);
   }
-  if (!existsSync(REFLECTION_OUT)) die(`typedoc produced no reflection at ${REFLECTION_OUT}`);
-  console.log(`corpus:build: consumed TypeDoc reflection ${toRepoRel(REFLECTION_OUT)}`);
-  return JSON.parse(readFileSync(REFLECTION_OUT, 'utf8'));
+  if (!existsSync(REFLECTION_OUT))
+    die(`typedoc produced no reflection at ${REFLECTION_OUT}`);
+  console.log(
+    `corpus:build: consumed TypeDoc reflection ${toRepoRel(REFLECTION_OUT)}`
+  );
+  return JSON.parse(readFileSync(REFLECTION_OUT, "utf8"));
 }
 
 // ---------------------------------------------------------------------------
@@ -185,79 +199,91 @@ function runTypedoc() {
 //    TSDoc from the reflection. No renderer markup.
 // ---------------------------------------------------------------------------
 const KIND_NAME = {
-  2: 'Module',
-  4: 'Namespace',
-  8: 'Enum',
-  16: 'EnumMember',
-  32: 'Variable',
-  64: 'Function',
-  128: 'Class',
-  256: 'Interface',
-  512: 'Constructor',
-  1024: 'Property',
-  2048: 'Method',
-  4194304: 'TypeAlias',
+  2: "Module",
+  4: "Namespace",
+  8: "Enum",
+  16: "EnumMember",
+  32: "Variable",
+  64: "Function",
+  128: "Class",
+  256: "Interface",
+  512: "Constructor",
+  1024: "Property",
+  2048: "Method",
+  4194304: "TypeAlias"
 };
 
 function typeToString(t, depth = 0) {
-  if (!t || depth > 4) return 'unknown';
+  if (!t || depth > 4) return "unknown";
   switch (t.type) {
-    case 'intrinsic':
-      return t.name ?? 'unknown';
-    case 'literal':
-      return typeof t.value === 'string' ? JSON.stringify(t.value) : String(t.value);
-    case 'reference': {
-      const args = (t.typeArguments ?? []).map((a) => typeToString(a, depth + 1));
-      return `${t.name}${args.length ? `<${args.join(', ')}>` : ''}`;
+    case "intrinsic":
+      return t.name ?? "unknown";
+    case "literal":
+      return typeof t.value === "string"
+        ? JSON.stringify(t.value)
+        : String(t.value);
+    case "reference": {
+      const args = (t.typeArguments ?? []).map(a => typeToString(a, depth + 1));
+      return `${t.name}${args.length ? `<${args.join(", ")}>` : ""}`;
     }
-    case 'array':
+    case "array":
       return `${typeToString(t.elementType, depth + 1)}[]`;
-    case 'union':
-      return (t.types ?? []).map((x) => typeToString(x, depth + 1)).join(' | ');
-    case 'intersection':
-      return (t.types ?? []).map((x) => typeToString(x, depth + 1)).join(' & ');
-    case 'tuple':
-      return `[${(t.elements ?? []).map((x) => typeToString(x, depth + 1)).join(', ')}]`;
-    case 'reflection':
-      return 'object';
-    case 'query':
+    case "union":
+      return (t.types ?? []).map(x => typeToString(x, depth + 1)).join(" | ");
+    case "intersection":
+      return (t.types ?? []).map(x => typeToString(x, depth + 1)).join(" & ");
+    case "tuple":
+      return `[${(t.elements ?? []).map(x => typeToString(x, depth + 1)).join(", ")}]`;
+    case "reflection":
+      return "object";
+    case "query":
       return `typeof ${typeToString(t.queryType, depth + 1)}`;
-    case 'indexedAccess':
+    case "indexedAccess":
       return `${typeToString(t.objectType, depth + 1)}[${typeToString(t.indexType, depth + 1)}]`;
     default:
-      return t.name ?? t.type ?? 'unknown';
+      return t.name ?? t.type ?? "unknown";
   }
 }
 
-const renderComment = (comment) => {
+const renderComment = comment => {
   if (!comment || !Array.isArray(comment.summary)) return null;
-  const text = comment.summary.map((p) => p.text ?? '').join('').trim();
+  const text = comment.summary
+    .map(p => p.text ?? "")
+    .join("")
+    .trim();
   return text.length ? text : null;
 };
 
-const getComment = (c) =>
-  c.comment ?? (c.signatures && c.signatures[0] && c.signatures[0].comment) ?? null;
+const getComment = c =>
+  c.comment ??
+  (c.signatures && c.signatures[0] && c.signatures[0].comment) ??
+  null;
 
 function buildSignature(c) {
   const name = c.name;
   if ((c.kind === 64 || c.kind === 2048) && c.signatures && c.signatures[0]) {
     const sig = c.signatures[0];
     const params = (sig.parameters ?? [])
-      .map((p) => `${p.flags?.isRest ? '...' : ''}${p.name}: ${typeToString(p.type)}`)
-      .join(', ');
+      .map(
+        p => `${p.flags?.isRest ? "..." : ""}${p.name}: ${typeToString(p.type)}`
+      )
+      .join(", ");
     return `${name}(${params}): ${typeToString(sig.type)}`;
   }
   if (c.kind === 32) return `${name}: ${typeToString(c.type)}`;
   if (c.kind === 4194304) return `type ${name} = ${typeToString(c.type)}`;
-  return `${KIND_NAME[c.kind] ?? 'Symbol'} ${name}`;
+  return `${KIND_NAME[c.kind] ?? "Symbol"} ${name}`;
 }
 
 function extractLessons(comment) {
   if (!comment || !Array.isArray(comment.blockTags)) return [];
   const lessons = [];
   for (const tag of comment.blockTags) {
-    if (tag.tag === '@lessons' || tag.tag === '@lesson') {
-      const text = (tag.content ?? []).map((p) => p.text ?? '').join('').trim();
+    if (tag.tag === "@lessons" || tag.tag === "@lesson") {
+      const text = (tag.content ?? [])
+        .map(p => p.text ?? "")
+        .join("")
+        .trim();
       if (text) lessons.push(text);
     }
   }
@@ -265,7 +291,9 @@ function extractLessons(comment) {
 }
 
 export function buildSymbols(reflection) {
-  const pkg = (reflection.children ?? []).find((c) => c.kind === 2 && c.name === HEADLESS_PKG);
+  const pkg = (reflection.children ?? []).find(
+    c => c.kind === 2 && c.name === HEADLESS_PKG
+  );
   if (!pkg) die(`reflection has no ${HEADLESS_PKG} package module`);
   const symbols = {};
   // Join map for the id bridge (design §5.3 step 2): (sourceFile, normLabel) -> SymbolId.
@@ -275,7 +303,7 @@ export function buildSymbols(reflection) {
     const src = c.sources && c.sources[0];
     if (!src || !src.fileName) continue;
     const sourceFile = toRepoRel(src.fileName);
-    if (sourceFile.includes('node_modules')) continue;
+    if (sourceFile.includes("node_modules")) continue;
     const id = `${HEADLESS_PKG}!${c.name}`;
     const comment = getComment(c);
     symbols[id] = {
@@ -284,10 +312,10 @@ export function buildSymbols(reflection) {
       kind: KIND_NAME[c.kind] ?? String(c.kind),
       module: deriveModule(sourceFile),
       sourceFile,
-      sourceLine: typeof src.line === 'number' ? src.line : 0,
+      sourceLine: typeof src.line === "number" ? src.line : 0,
       signature: buildSignature(c),
       tsdoc: renderComment(comment),
-      lessons: extractLessons(comment),
+      lessons: extractLessons(comment)
     };
     const key = `${sourceFile} ${normLabelKey(c.name)}`;
     if (!symbolByFileName.has(key)) symbolByFileName.set(key, id);
@@ -304,16 +332,16 @@ function walkMd(dir, out) {
     const full = join(dir, name);
     const st = statSync(full);
     if (st.isDirectory()) walkMd(full, out);
-    else if (name.endsWith('.md')) out.push(full);
+    else if (name.endsWith(".md")) out.push(full);
   }
   return out;
 }
 
-const headingsOf = (md) =>
+const headingsOf = md =>
   md
-    .split('\n')
-    .filter((l) => /^#{1,6}\s+\S/.test(l))
-    .map((l) => l.replace(/^#{1,6}\s+/, '').trim());
+    .split("\n")
+    .filter(l => /^#{1,6}\s+\S/.test(l))
+    .map(l => l.replace(/^#{1,6}\s+/, "").trim());
 
 const titleOf = (md, fallback) => {
   const m = /^#\s+(.+)$/m.exec(md);
@@ -325,26 +353,26 @@ function buildAdrs() {
   const byNumber = new Map();
   const files = existsSync(ADR_DIR)
     ? readdirSync(ADR_DIR)
-        .filter((f) => f.endsWith('.md'))
+        .filter(f => f.endsWith(".md"))
         .sort()
     : [];
   for (const f of files) {
-    const base = f.replace(/\.md$/, '');
+    const base = f.replace(/\.md$/, "");
     const id = `adr:${base}`;
-    const md = readFileSync(join(ADR_DIR, f), 'utf8');
+    const md = readFileSync(join(ADR_DIR, f), "utf8");
     adrs[id] = {
       id,
       title: titleOf(md, base),
       path: toRepoRel(join(ADR_DIR, f)),
       headings: headingsOf(md),
-      crossRefs: [],
+      crossRefs: []
     };
     const num = /^(\d{3})/.exec(base);
     if (num) byNumber.set(num[1], id);
   }
   // Resolve ADR-NNN cross-references to sibling ADR ids that actually exist.
   for (const id of Object.keys(adrs)) {
-    const md = readFileSync(join(ROOT, adrs[id].path), 'utf8');
+    const md = readFileSync(join(ROOT, adrs[id].path), "utf8");
     const refs = new Set();
     for (const m of md.matchAll(/\bADR-(\d{3})\b/g)) {
       const target = byNumber.get(m[1]);
@@ -363,8 +391,12 @@ function buildAdrs() {
 // Indexed only — emit-mdx.mjs has no guide branch, so the published tree is
 // untouched by either partition.
 function guideSourceFiles() {
-  const authored = walkMd(GUIDE_GLOB_ROOT, []).filter((f) => /-guide\.md$/.test(basename(f)));
-  const moduleDocs = walkMd(MODULE_DOCS_ROOT, []).filter((f) => toRepoRel(f).includes('/docs/'));
+  const authored = walkMd(GUIDE_GLOB_ROOT, []).filter(f =>
+    /-guide\.md$/.test(basename(f))
+  );
+  const moduleDocs = walkMd(MODULE_DOCS_ROOT, []).filter(f =>
+    toRepoRel(f).includes("/docs/")
+  );
   return [...authored, ...moduleDocs];
 }
 
@@ -373,14 +405,14 @@ function buildGuides() {
   const files = guideSourceFiles();
   for (const full of files.sort()) {
     const rel = toRepoRel(full);
-    const id = `guide:${rel.replace(/\.md$/, '')}`;
-    const md = readFileSync(full, 'utf8');
+    const id = `guide:${rel.replace(/\.md$/, "")}`;
+    const md = readFileSync(full, "utf8");
     guides[id] = {
       id,
-      title: titleOf(md, basename(rel, '.md')),
+      title: titleOf(md, basename(rel, ".md")),
       path: rel,
       headings: headingsOf(md),
-      crossRefs: [],
+      crossRefs: []
     };
   }
   return guides;
@@ -393,13 +425,13 @@ function buildRelations(symbolByFileName) {
   if (!existsSync(RELATIONS_IN))
     die(
       `relations snapshot not found at ${toRepoRel(RELATIONS_IN)} — run ` +
-        `extract-relations.mjs first (T2).`,
+        `extract-relations.mjs first (T2).`
     );
   const raw = readFileSync(RELATIONS_IN);
   const relationsSha256 = sha256(raw);
   let snapshot;
   try {
-    snapshot = JSON.parse(raw.toString('utf8'));
+    snapshot = JSON.parse(raw.toString("utf8"));
   } catch (err) {
     die(`relations.json is not valid JSON — ${err.message}`);
   }
@@ -407,14 +439,15 @@ function buildRelations(symbolByFileName) {
   const rawEdges = Array.isArray(snapshot.edges) ? snapshot.edges : [];
 
   const fileExists = new Map();
-  const exists = (repoRel) => {
-    if (!fileExists.has(repoRel)) fileExists.set(repoRel, existsSync(join(ROOT, repoRel)));
+  const exists = repoRel => {
+    if (!fileExists.has(repoRel))
+      fileExists.set(repoRel, existsSync(join(ROOT, repoRel)));
     return fileExists.get(repoRel);
   };
 
   // Bridge a graphify slug to a CorpusId (design §5.3 steps 1-2). Returns null
   // for an unbridgeable slug (no node / no source_file) -> caller prunes.
-  const bridge = (slug) => {
+  const bridge = slug => {
     const node = nodes[slug];
     if (!node || !node.sourceFile) return null;
     const sourceFile = toRepoRel(node.sourceFile);
@@ -440,18 +473,18 @@ function buildRelations(symbolByFileName) {
       from: from.id,
       to: to.id,
       relation: e.relation,
-      granularity: from.isSymbol && to.isSymbol ? 'symbol' : 'file',
-      confidence: typeof e.confidence === 'number' ? e.confidence : 0,
-      sourceFile: toRepoRel(e.sourceFile),
+      granularity: from.isSymbol && to.isSymbol ? "symbol" : "file",
+      confidence: typeof e.confidence === "number" ? e.confidence : 0,
+      sourceFile: toRepoRel(e.sourceFile)
     });
     // Every FileId on a surviving edge must resolve in corpus.index (design §5.3 step 1).
     for (const ep of [from, to]) {
       if (!ep.isSymbol && !fileIndex[ep.id]) {
         fileIndex[ep.id] = {
-          kind: 'file',
+          kind: "file",
           path: ep.sourceFile,
           module: deriveModule(ep.sourceFile),
-          title: basename(ep.sourceFile),
+          title: basename(ep.sourceFile)
         };
       }
     }
@@ -463,20 +496,24 @@ function buildRelations(symbolByFileName) {
       byCodePoint(a.from, b.from) ||
       byCodePoint(a.to, b.to) ||
       byCodePoint(a.relation, b.relation) ||
-      byCodePoint(a.sourceFile, b.sourceFile),
+      byCodePoint(a.sourceFile, b.sourceFile)
   );
 
   // sourcedAt: the graphify snapshot is time-less (relations.json carries no
   // clock, by design §5.3). Read the GRAPH_REPORT date when the local artifact
   // is present; "" otherwise — deterministic in CI where graphify-out is absent.
-  let sourcedAt = '';
-  const report = join(ROOT, 'graphify-out', 'GRAPH_REPORT.md');
+  let sourcedAt = "";
+  const report = join(ROOT, "graphify-out", "GRAPH_REPORT.md");
   if (existsSync(report)) {
-    const m = /(\d{4}-\d{2}-\d{2})/.exec(readFileSync(report, 'utf8'));
+    const m = /(\d{4}-\d{2}-\d{2})/.exec(readFileSync(report, "utf8"));
     if (m) sourcedAt = m[1];
   }
 
-  return { section: { edges, prunedCount, sourcedAt }, relationsSha256, fileIndex };
+  return {
+    section: { edges, prunedCount, sourcedAt },
+    relationsSha256,
+    fileIndex
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -486,15 +523,15 @@ function buildRelations(symbolByFileName) {
 // ---------------------------------------------------------------------------
 const LEGACY_FLOOR = [0, 0, 3]; // docs-v0.0.3 and below are VitePress-era, not anchors
 
-const git = (args) => {
-  const r = spawnSync('git', args, { cwd: ROOT, encoding: 'utf8' });
+const git = args => {
+  const r = spawnSync("git", args, { cwd: ROOT, encoding: "utf8" });
   return r.status === 0 ? r.stdout : null;
 };
 
 function parseDocsVersion(tag) {
   const m = /^docs-v(\d+(?:\.\d+)*)$/.exec(tag);
   if (!m) return null;
-  return m[1].split('.').map((n) => Number(n));
+  return m[1].split(".").map(n => Number(n));
 }
 function cmpVersion(a, b) {
   const n = Math.max(a.length, b.length);
@@ -506,16 +543,19 @@ function cmpVersion(a, b) {
 }
 
 function resolveSourceCommit() {
-  return (git(['rev-parse', 'HEAD']) ?? '').trim();
+  return (git(["rev-parse", "HEAD"]) ?? "").trim();
 }
 
 function buildChangelog(symbols) {
   const bySymbol = {};
-  const tagsOut = git(['tag', '-l', 'docs-v*']);
+  const tagsOut = git(["tag", "-l", "docs-v*"]);
   if (tagsOut == null) return bySymbol; // no git -> empty seed
   let windowStart = null;
   let windowVer = LEGACY_FLOOR;
-  for (const tag of tagsOut.split('\n').map((t) => t.trim()).filter(Boolean)) {
+  for (const tag of tagsOut
+    .split("\n")
+    .map(t => t.trim())
+    .filter(Boolean)) {
     const ver = parseDocsVersion(tag);
     if (!ver || cmpVersion(ver, LEGACY_FLOOR) <= 0) continue; // legacy floor excluded
     if (cmpVersion(ver, windowVer) > 0) {
@@ -533,23 +573,23 @@ function buildChangelog(symbols) {
     if (!symbolsByFile.has(s.sourceFile)) symbolsByFile.set(s.sourceFile, []);
     symbolsByFile.get(s.sourceFile).push(s.id);
   }
-  const REC = '';
+  const REC = "";
   const log = git([
-    'log',
+    "log",
     `${windowStart}..${source}`,
-    '--no-merges',
-    '--name-only',
+    "--no-merges",
+    "--name-only",
     `--format=${REC}%H%x1f%aI%x1f%s%x1f%b`,
-    '--',
-    'packages/*/src',
+    "--",
+    "packages/*/src"
   ]);
   if (log == null) return bySymbol;
   for (const block of log.split(REC).slice(1)) {
-    const [header, ...fileLines] = block.split('\n');
-    const [commit, date, subject, body = ''] = header.split('');
+    const [header, ...fileLines] = block.split("\n");
+    const [commit, date, subject, body = ""] = header.split("");
     const breaking = /!:/.test(subject) || /BREAKING CHANGE/.test(body);
     const entry = { commit, date, subject, breaking };
-    for (const f of fileLines.map((l) => l.trim()).filter(Boolean)) {
+    for (const f of fileLines.map(l => l.trim()).filter(Boolean)) {
       const rel = toRepoRel(f);
       const ids = symbolsByFile.get(rel);
       if (!ids) continue;
@@ -570,7 +610,7 @@ function buildChangelog(symbols) {
 function curatedGlossarySlugs() {
   if (!existsSync(GLOSSARY_IN)) return new Set();
   const slugs = new Set();
-  for (const line of readFileSync(GLOSSARY_IN, 'utf8').split('\n')) {
+  for (const line of readFileSync(GLOSSARY_IN, "utf8").split("\n")) {
     const m = /^([A-Za-z0-9][\w-]*):\s*$/.exec(line);
     if (m) slugs.add(m[1]);
   }
@@ -578,37 +618,46 @@ function curatedGlossarySlugs() {
 }
 
 function parseGlossary() {
-  if (!existsSync(GLOSSARY_IN)) die(`glossary source not found at ${toRepoRel(GLOSSARY_IN)}`);
+  if (!existsSync(GLOSSARY_IN))
+    die(`glossary source not found at ${toRepoRel(GLOSSARY_IN)}`);
   const rel = toRepoRel(GLOSSARY_IN);
-  const bad = (line, why) => die(`${rel}:${line} — malformed glossary entry (${why})`);
+  const bad = (line, why) =>
+    die(`${rel}:${line} — malformed glossary entry (${why})`);
 
-  const lines = readFileSync(GLOSSARY_IN, 'utf8').split('\n');
+  const lines = readFileSync(GLOSSARY_IN, "utf8").split("\n");
   const terms = {};
   let i = 0;
-  const isTop = (l) => /^[A-Za-z0-9][\w-]*:\s*$/.test(l);
-  const parseFlowList = (s) => {
+  const isTop = l => /^[A-Za-z0-9][\w-]*:\s*$/.test(l);
+  const parseFlowList = s => {
     const t = s.trim();
-    if (t === '[]' || t === '') return [];
-    if (!t.startsWith('[') || !t.endsWith(']')) return null;
+    if (t === "[]" || t === "") return [];
+    if (!t.startsWith("[") || !t.endsWith("]")) return null;
     const inner = t.slice(1, -1).trim();
     if (!inner) return [];
-    return inner.split(',').map((x) => x.trim().replace(/^["']|["']$/g, ''));
+    return inner.split(",").map(x => x.trim().replace(/^["']|["']$/g, ""));
   };
 
   while (i < lines.length) {
     const raw = lines[i];
-    if (!raw.trim() || raw.trimStart().startsWith('#')) {
+    if (!raw.trim() || raw.trimStart().startsWith("#")) {
       i++;
       continue;
     }
-    if (!isTop(raw)) bad(i + 1, `expected a top-level "<slug>:" key, got "${raw.trim()}"`);
-    const slug = raw.slice(0, raw.indexOf(':')).trim();
+    if (!isTop(raw))
+      bad(i + 1, `expected a top-level "<slug>:" key, got "${raw.trim()}"`);
+    const slug = raw.slice(0, raw.indexOf(":")).trim();
     i++;
-    const entry = { term: null, kind: null, aliases: [], definition: null, referents: [] };
+    const entry = {
+      term: null,
+      kind: null,
+      aliases: [],
+      definition: null,
+      referents: []
+    };
     // Consume the indented body of this entry.
     while (i < lines.length) {
       const l = lines[i];
-      if (l.trim() === '' || l.trimStart().startsWith('#')) {
+      if (l.trim() === "" || l.trimStart().startsWith("#")) {
         i++;
         continue;
       }
@@ -618,29 +667,31 @@ function parseGlossary() {
       const kv = /^([a-z]+):\s*(.*)$/.exec(line);
       if (!kv) bad(i + 1, `expected "<field>: <value>", got "${line}"`);
       const [, field, rest] = kv;
-      if (field === 'term') {
-        entry.term = rest.replace(/^["']|["']$/g, '').trim() || null;
+      if (field === "term") {
+        entry.term = rest.replace(/^["']|["']$/g, "").trim() || null;
         i++;
-      } else if (field === 'kind') {
+      } else if (field === "kind") {
         const v = rest.trim();
-        if (v !== 'domain' && v !== 'system') bad(i + 1, `kind must be domain|system, got "${v}"`);
+        if (v !== "domain" && v !== "system")
+          bad(i + 1, `kind must be domain|system, got "${v}"`);
         entry.kind = v;
         i++;
-      } else if (field === 'aliases') {
+      } else if (field === "aliases") {
         const list = parseFlowList(rest);
-        if (list == null) bad(i + 1, `aliases must be a flow list [a, b], got "${rest}"`);
+        if (list == null)
+          bad(i + 1, `aliases must be a flow list [a, b], got "${rest}"`);
         entry.aliases = list;
         i++;
-      } else if (field === 'definition') {
+      } else if (field === "definition") {
         // Folded block scalar (>- / >) or an inline value. Continuation lines
         // are only those indented DEEPER than the "definition:" key — a sibling
         // field at the same indent (e.g. "referents:") ends the block.
-        if (rest.startsWith('>') || rest.startsWith('|')) {
+        if (rest.startsWith(">") || rest.startsWith("|")) {
           i++;
           const buf = [];
           while (i < lines.length) {
             const cl = lines[i];
-            if (cl.trim() === '') {
+            if (cl.trim() === "") {
               i++;
               continue;
             }
@@ -648,20 +699,29 @@ function parseGlossary() {
             buf.push(cl.trim());
             i++;
           }
-          entry.definition = buf.join(' ').trim() || null;
+          entry.definition = buf.join(" ").trim() || null;
         } else {
-          entry.definition = rest.replace(/^["']|["']$/g, '').trim() || null;
+          entry.definition = rest.replace(/^["']|["']$/g, "").trim() || null;
           i++;
         }
-      } else if (field === 'referents') {
+      } else if (field === "referents") {
         i++;
         while (i < lines.length && /^\s*-\s*\{/.test(lines[i])) {
-          const m = /\{\s*type:\s*([a-z]+)\s*,\s*id:\s*(.+?)\s*\}/.exec(lines[i]);
-          if (!m) bad(i + 1, `referent must be "{ type: <t>, id: <id> }", got "${lines[i].trim()}"`);
+          const m = /\{\s*type:\s*([a-z]+)\s*,\s*id:\s*(.+?)\s*\}/.exec(
+            lines[i]
+          );
+          if (!m)
+            bad(
+              i + 1,
+              `referent must be "{ type: <t>, id: <id> }", got "${lines[i].trim()}"`
+            );
           const type = m[1];
-          const id = m[2].replace(/^["']|["']$/g, '').trim();
-          if (!['symbol', 'guide', 'adr', 'example'].includes(type))
-            bad(i + 1, `referent type must be symbol|guide|adr|example, got "${type}"`);
+          const id = m[2].replace(/^["']|["']$/g, "").trim();
+          if (!["symbol", "guide", "adr", "example"].includes(type))
+            bad(
+              i + 1,
+              `referent type must be symbol|guide|adr|example, got "${type}"`
+            );
           if (!id) bad(i + 1, `referent id is empty`);
           entry.referents.push({ type, id });
           i++;
@@ -672,7 +732,8 @@ function parseGlossary() {
     }
     if (!entry.term) bad(i, `term "${slug}" is missing required field "term"`);
     if (!entry.kind) bad(i, `term "${slug}" is missing required field "kind"`);
-    if (!entry.definition) bad(i, `term "${slug}" is missing required field "definition"`);
+    if (!entry.definition)
+      bad(i, `term "${slug}" is missing required field "definition"`);
     if (!entry.referents.length) bad(i, `term "${slug}" has no referents`);
     terms[slug] = entry;
   }
@@ -686,15 +747,30 @@ function parseGlossary() {
 function buildIndex({ symbols, guides, adrs, examples, glossary, fileIndex }) {
   const index = { ...fileIndex };
   for (const s of Object.values(symbols))
-    index[s.id] = { kind: 'symbol', path: s.sourceFile, module: s.module, title: s.name };
+    index[s.id] = {
+      kind: "symbol",
+      path: s.sourceFile,
+      module: s.module,
+      title: s.name
+    };
   for (const g of Object.values(guides))
-    index[g.id] = { kind: 'guide', path: g.path, module: '', title: g.title };
+    index[g.id] = { kind: "guide", path: g.path, module: "", title: g.title };
   for (const a of Object.values(adrs))
-    index[a.id] = { kind: 'adr', path: a.path, module: '', title: a.title };
+    index[a.id] = { kind: "adr", path: a.path, module: "", title: a.title };
   for (const [id, e] of Object.entries(examples))
-    index[id] = { kind: 'example', path: e.sourceFile ?? '', module: '', title: e.title };
+    index[id] = {
+      kind: "example",
+      path: e.sourceFile ?? "",
+      module: "",
+      title: e.title
+    };
   for (const [slug, t] of Object.entries(glossary.terms))
-    index[slug] = { kind: 'term', path: toRepoRel(GLOSSARY_IN), module: '', title: t.term };
+    index[slug] = {
+      kind: "term",
+      path: toRepoRel(GLOSSARY_IN),
+      module: "",
+      title: t.term
+    };
   return index;
 }
 
@@ -707,21 +783,39 @@ function main() {
   const {
     section: relations,
     relationsSha256,
-    fileIndex,
+    fileIndex
   } = buildRelations(symbolByFileName);
   const changelog = { bySymbol: buildChangelog(symbols) };
   const glossary = parseGlossary();
   const curated = curatedGlossarySlugs();
-  const widenedSlugs = Object.keys(glossary.terms).filter((slug) => !curated.has(slug));
+  const widenedSlugs = Object.keys(glossary.terms).filter(
+    slug => !curated.has(slug)
+  );
   if (widenedSlugs.length)
     die(
       `corpus.glossary.terms contains slug(s) absent from ${toRepoRel(GLOSSARY_IN)} — the discovery-channel ` +
         `source must stay the curated glossary file, never widened to another partition (P3-7 invariant): ` +
-        widenedSlugs.join(', '),
+        widenedSlugs.join(", ")
     );
-  const index = buildIndex({ symbols, guides, adrs, examples, glossary, fileIndex });
+  const index = buildIndex({
+    symbols,
+    guides,
+    adrs,
+    examples,
+    glossary,
+    fileIndex
+  });
 
-  const content = { symbols, guides, adrs, examples, relations, changelog, glossary, index };
+  const content = {
+    symbols,
+    guides,
+    adrs,
+    examples,
+    relations,
+    changelog,
+    glossary,
+    index
+  };
   const contentHash = sha256(stableStringify(content)).slice(0, 12);
   const corpusVersion = `${SCHEMA_MAJOR}+${contentHash}`;
 
@@ -734,7 +828,7 @@ function main() {
     relationsPruned: relations.prunedCount,
     changelogSymbols: Object.keys(changelog.bySymbol).length,
     glossaryTerms: Object.keys(glossary.terms).length,
-    indexEntries: Object.keys(index).length,
+    indexEntries: Object.keys(index).length
   };
 
   // Fixed-point meta rule (design §6.3): if the committed corpus already carries
@@ -743,8 +837,8 @@ function main() {
   let reusedMeta = false;
   if (existsSync(CORPUS_OUT)) {
     try {
-      const committed = JSON.parse(readFileSync(CORPUS_OUT, 'utf8'));
-      const seg = String(committed?.meta?.corpus_version ?? '').split('+')[1];
+      const committed = JSON.parse(readFileSync(CORPUS_OUT, "utf8"));
+      const seg = String(committed?.meta?.corpus_version ?? "").split("+")[1];
       if (seg === contentHash && committed.meta) {
         meta = committed.meta;
         reusedMeta = true;
@@ -759,7 +853,7 @@ function main() {
       built_at: new Date().toISOString(),
       source_commit: resolveSourceCommit(),
       relationsSha256,
-      counts,
+      counts
     };
   }
 
@@ -777,18 +871,25 @@ function main() {
       if (index[ref.id]) glossaryIndex[ref.id] = index[ref.id];
     }
   }
-  writeFileSync(GLOSSARY_OUT, stableStringify({ glossary, index: glossaryIndex }));
+  writeFileSync(
+    GLOSSARY_OUT,
+    stableStringify({ glossary, index: glossaryIndex })
+  );
 
-  console.log(`corpus:build: wrote ${toRepoRel(CORPUS_OUT)} (${corpusVersion})`);
-  console.log(`corpus:build: wrote ${toRepoRel(GLOSSARY_OUT)} (discovery channel, ${Object.keys(glossaryIndex).length} index entries)`);
+  console.log(
+    `corpus:build: wrote ${toRepoRel(CORPUS_OUT)} (${corpusVersion})`
+  );
+  console.log(
+    `corpus:build: wrote ${toRepoRel(GLOSSARY_OUT)} (discovery channel, ${Object.keys(glossaryIndex).length} index entries)`
+  );
   console.log(
     `corpus:build: relations.prunedCount=${relations.prunedCount} ` +
-      `(${relations.edges.length} edges kept)`,
+      `(${relations.edges.length} edges kept)`
   );
   console.log(
     `corpus:build: counts ${Object.entries(counts)
       .map(([k, v]) => `${k}=${v}`)
-      .join(' ')}${reusedMeta ? ' [meta fixed-point: preserved]' : ''}`,
+      .join(" ")}${reusedMeta ? " [meta fixed-point: preserved]" : ""}`
   );
 }
 

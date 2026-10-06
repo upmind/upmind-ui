@@ -5,7 +5,7 @@ The routing module manages complex, context-sensitive customer journeys (funnels
 ## Quick Start
 
 ```typescript
-import { useRoutingEngine } from "@upmind-automation/client-vue";
+import { useRoutingEngine } from "@upmind-automation/headless";
 
 const { meta, navigate } = useRoutingEngine();
 

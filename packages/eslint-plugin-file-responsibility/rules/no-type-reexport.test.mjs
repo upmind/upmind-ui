@@ -63,6 +63,32 @@ test("no-type-reexport", () => {
       {
         code: `export type { JSONSchema } from "ajv";`,
         filename: "/repo/packages/headless/src/modules/account/index.ts"
+      },
+      // A modules-* package is one module: its own files may re-export types.
+      {
+        code: `export type { Foo } from "./billing.types";`,
+        filename: "/repo/packages/modules-billing/src/index.ts"
+      },
+      {
+        code: `export type { Foo } from "./nested/foo.types";`,
+        filename: "/repo/packages/modules-billing/src/index.ts"
+      },
+      {
+        code: `export type { X } from "../b/b.types";`,
+        filename: "/repo/packages/modules-billing/src/a/index.ts"
+      },
+      {
+        code: `export * from "../b/b.types";`,
+        filename: "/repo/packages/modules-billing/src/a/index.ts"
+      },
+      // A modules-foundation feature folder is one module.
+      {
+        code: `export type { A } from "./auth.types";`,
+        filename: "/repo/packages/modules-foundation/src/auth/index.ts"
+      },
+      {
+        code: `export type { J } from "ajv";`,
+        filename: "/repo/packages/modules-billing/src/index.ts"
       }
     ],
     invalid: [
@@ -94,6 +120,44 @@ test("no-type-reexport", () => {
       {
         code: `export * from "../other/user.types.customer";`,
         filename: "/repo/packages/headless/src/modules/account/index.ts",
+        errors: [{ messageId: "noTypeReexport" }]
+      },
+      // A modules-* package re-exporting another package's types.
+      {
+        code: `export type { Foo } from "../../modules-other/src/other.types";`,
+        filename: "/repo/packages/modules-billing/src/index.ts",
+        errors: [{ messageId: "noTypeReexport" }]
+      },
+      {
+        code: `export { type Foo } from "../../modules-other/src/other.types";`,
+        filename: "/repo/packages/modules-billing/src/index.ts",
+        errors: [{ messageId: "noTypeReexport" }]
+      },
+      {
+        code: `export * from "../../modules-other/src/other.types";`,
+        filename: "/repo/packages/modules-billing/src/index.ts",
+        errors: [{ messageId: "noTypeReexport" }]
+      },
+      {
+        code: `export type { A } from "../../../modules-foundation/src/auth/auth.types";`,
+        filename: "/repo/packages/modules-billing/src/a/index.ts",
+        errors: [{ messageId: "noTypeReexport" }]
+      },
+      // A modules-foundation feature folder re-exporting a sibling feature.
+      {
+        code: `export type { B } from "../billing/billing.types";`,
+        filename: "/repo/packages/modules-foundation/src/auth/index.ts",
+        errors: [{ messageId: "noTypeReexport" }]
+      },
+      {
+        code: `export * from "../billing/billing.types";`,
+        filename: "/repo/packages/modules-foundation/src/auth/index.ts",
+        errors: [{ messageId: "noTypeReexport" }]
+      },
+      // A modules-foundation feature folder re-exporting a modules-* package.
+      {
+        code: `export type { B } from "../../../modules-billing/src/billing.types";`,
+        filename: "/repo/packages/modules-foundation/src/auth/index.ts",
         errors: [{ messageId: "noTypeReexport" }]
       }
     ]

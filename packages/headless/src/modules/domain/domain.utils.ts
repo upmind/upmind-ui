@@ -46,6 +46,7 @@ import {
 import type { BasketProduct } from "../basket-product";
 import type { ProductDetails } from "../product";
 import type { Ref } from "vue";
+// -----------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------
 

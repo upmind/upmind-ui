@@ -18,6 +18,7 @@ import type {
 } from "@upmind-automation/types";
 import type { ErrorObject } from "ajv";
 import type { ActorRef } from "xstate";
+// -----------------------------------------------------------------------------
 
 export {
   PromotionDisplayTypes,

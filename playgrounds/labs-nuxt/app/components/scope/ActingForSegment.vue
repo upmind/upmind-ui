@@ -234,11 +234,11 @@ import type { SessionEntry } from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------
 
-interface ClientOption {
+type ClientOption = {
   id: string;
   name: string;
   email?: string;
-}
+};
 
 const { t } = useI18n();
 const actorScope = useActorScope();

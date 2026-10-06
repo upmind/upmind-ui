@@ -23,9 +23,18 @@ test("simple-template-conditions", () => {
       { code: `<template><div v-if="a ?? b ?? c">x</div></template>` }
     ],
     invalid: [
-      { code: `<template><div v-if="a && b && c">x</div></template>`, errors: [{ messageId: "tooManyClauses" }] },
-      { code: `<template><div v-if="a || b || c">x</div></template>`, errors: [{ messageId: "tooManyClauses" }] },
-      { code: `<template><div v-show="a && b && c">x</div></template>`, errors: [{ messageId: "tooManyClauses" }] }
+      {
+        code: `<template><div v-if="a && b && c">x</div></template>`,
+        errors: [{ messageId: "tooManyClauses" }]
+      },
+      {
+        code: `<template><div v-if="a || b || c">x</div></template>`,
+        errors: [{ messageId: "tooManyClauses" }]
+      },
+      {
+        code: `<template><div v-show="a && b && c">x</div></template>`,
+        errors: [{ messageId: "tooManyClauses" }]
+      }
     ]
   });
 });

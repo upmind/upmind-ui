@@ -11,6 +11,7 @@ import { themeToCss, themes } from "@upmind/tokens";
 import { useColorMode, useLocalStorage } from "@vueuse/core";
 import { computed, nextTick, watchEffect } from "vue";
 import { APP_BRANDS } from "~/portal/brands";
+// -----------------------------------------------------------------------------
 
 /**
  * The app's own brands (`portal/brands.ts`) reach the cascade the same way the

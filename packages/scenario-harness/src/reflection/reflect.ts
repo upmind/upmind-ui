@@ -4,6 +4,7 @@ import type { ReflectedSnapshot } from "./reflection.types";
 import type { ModuleDescriptor } from "../archetype/archetype.types";
 import type { CompositionPort } from "../port/port.types";
 import type { ScopeActor } from "../world/scope-actor";
+// -----------------------------------------------------------------------------
 
 /**
  * True only for a genuine CYCLE — a reference that is an ANCESTOR of the node

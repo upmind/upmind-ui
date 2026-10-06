@@ -48,6 +48,7 @@ import type { ContentRowConfig, RowHeaderControls } from "../content/types";
 import type { DataRef } from "../mock/data-refs";
 import type { ListModuleHeading } from "../modules/list/types";
 import type { ContentConfig, PageKey, SlotAssignment } from "../types";
+// -----------------------------------------------------------------------------
 
 // The listing's table columns — what a product IS, when it was bought, how
 // often it bills and what it costs. The last heading names the status column.

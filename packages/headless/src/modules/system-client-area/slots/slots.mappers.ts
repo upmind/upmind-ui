@@ -2,6 +2,7 @@
 import { useTranslateField, useTranslateName } from "../../../utils";
 import type { ClientTemplateSlot } from "./slots.types";
 import type { IClientTemplateSlot } from "@upmind-automation/types";
+// -----------------------------------------------------------------------------
 
 export function parseClientSlot(raw: IClientTemplateSlot): ClientTemplateSlot {
   return {

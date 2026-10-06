@@ -15,9 +15,9 @@
 diff --git a/packages/headless/src/modules/contract/useContract.ts b/packages/headless/src/modules/contract/useContract.ts
 --- a/packages/headless/src/modules/contract/useContract.ts
 +++ b/packages/headless/src/modules/contract/useContract.ts
-@@ -32,9 +32,7 @@ function createContractForScope(config: ScopeConfig, scopeKey: ScopeKey) {
+@@ -31,9 +31,7 @@ function createContractForScope(config: ScopeConfig, scopeKey: ScopeKey) {
 
-   const actorScope = config.actor as ScopeActorTypes;
+   const actorScope = config.actor;
 
 -  // SINGLE-READ step 3: the id comes from `.withId(id)` — `config.id` — and is
 -  // never re-derived from `config.context` (templates/SINGLE-READ.md).

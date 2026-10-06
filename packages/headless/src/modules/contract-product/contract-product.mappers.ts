@@ -51,6 +51,7 @@ import type {
   ITag,
   ScheduledActionTypes
 } from "@upmind-automation/types";
+// -----------------------------------------------------------------------------
 
 /** `tags` reaches the wire on this record but is undeclared on the shared
  * `IContractProduct` platform type (verify.md B1) — augmented locally. */
@@ -401,10 +402,10 @@ export function mapContractProductPickerItems(
 }
 
 // -----------------------------------------------------------------------------
-// MIGRATION — the dry run and the commit of a change of plan (FE-3206)
+// MIGRATION — the dry run and the commit of a change of product (FE-3206)
 
 /**
- * The dry run of a change of plan: its invoice, its formatted total, and
+ * The dry run of a change of product: its invoice, its formatted total, and
  * whether it costs nothing. The figure is `total_amount_converted`, as legacy
  * reads it [o15].
  */
@@ -417,7 +418,7 @@ export function mapMigrationPreview(raw: IInvoice): MigrationPreview {
 }
 
 /**
- * What a committed change of plan gave. A commit answer with no invoice gives
+ * What a committed change of product gave. A commit answer with no invoice gives
  * no invoice id, nothing unpaid and no payment to make.
  */
 export function mapMigrationResult(raw?: IInvoice): MigrationResult {

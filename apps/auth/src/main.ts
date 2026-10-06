@@ -6,6 +6,7 @@ import { AccessRoleTypes } from "@upmind-automation/types";
 import App from "./App.vue";
 import i18n from "./i18n";
 import router from "./router";
+// -----------------------------------------------------------------------------
 
 // The glyph resolver takes its asset pack before init.
 registerIcons(

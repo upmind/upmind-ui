@@ -1,3 +1,4 @@
+/** @internal */
 import { mapInitials, mapAccount } from "../client";
 import {
   includes,

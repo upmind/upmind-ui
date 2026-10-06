@@ -25,6 +25,7 @@ import { responseCodes } from "../../utils";
 import type { ClientContext, GuestEmailModel } from "./account.types";
 import type { RegisterModel } from "../auth";
 import type { AnyEventObject } from "xstate";
+// -----------------------------------------------------------------------------
 
 const { removeTopLevel: _removeCookie } = useCookies();
 // -----------------------------------------------------------------------------

@@ -1,11 +1,9 @@
 import { computed } from "vue";
 import { useActiveSession } from "../session-store";
 import { isEmpty } from "lodash-es";
-import type {
-  ContractProductListQuery,
-  ContractProductServices
-} from "./contract-product.types";
+import type { ContractProductListQuery } from "./contract-product.types";
 import type { ScopeActorTypes } from "../scope/scope.types";
+import type { ComputedRef } from "vue";
 // -----------------------------------------------------------------------------
 /**
  * @module contract-product/useContractProducts.meta
@@ -14,7 +12,7 @@ import type { ScopeActorTypes } from "../scope/scope.types";
  */
 export function createContractProductsMeta(
   _actorScope: ScopeActorTypes,
-  service: ContractProductServices,
+  clientId: ComputedRef<string | undefined>,
   query: ContractProductListQuery
 ) {
   // Truthiness, not `isEmpty`: a TanStack error is an `Error` instance with no
@@ -25,14 +23,19 @@ export function createContractProductsMeta(
 
   const isEmptyList = computed(() => isEmpty(query.data?.value));
 
-  const { isAvailable: isSessionInitialised, isLoading: isSessionSettling } =
-    useActiveSession().useMeta();
+  const {
+    isAuthenticated,
+    isAvailable: isSessionInitialised,
+    isLoading: isSessionSettling
+  } = useActiveSession().useMeta();
+
+  const isAvailable = computed(() => isAuthenticated.value && !!clientId.value);
 
   // The same settled-unaddressable outcome `isReady()` resolves false on: the
   // guard refuses, no read is sent, so nothing is loading.
   const isRefused = computed(
     () =>
-      !service.isAvailable.value &&
+      !isAvailable.value &&
       (isSessionInitialised.value || !isSessionSettling.value)
   );
 
@@ -48,7 +51,7 @@ export function createContractProductsMeta(
     hasPages: computed(() => query.meta.value.hasPages),
 
     /** True while this scope can address a client — the predicate the request gates call. */
-    isAvailable: service.isAvailable,
+    isAvailable,
 
     /** True if the collection has no items. */
     isEmpty: isEmptyList,

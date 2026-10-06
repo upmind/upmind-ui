@@ -9,8 +9,9 @@
 
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 import type { FormModel } from "@upmind/ui";
+// -----------------------------------------------------------------------------
 
-export interface FormModuleProps {
+export type FormModuleProps = {
   /** The JSON Schema the fields are generated from — a real module's `useSchema()` output, or a local one's. */
   readonly schema: JsonSchema;
   /** The layout over those fields. Absent, the engine generates one. */
@@ -52,7 +53,7 @@ export interface FormModuleProps {
     readonly value: string;
     readonly label: string;
   }[];
-}
+};
 
 export type FormModuleEmits = {
   select: [value: string];

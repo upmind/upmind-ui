@@ -13,6 +13,7 @@ import type {
   RowHeaderConfig,
   RowSurface
 } from "./content/types";
+// -----------------------------------------------------------------------------
 
 // Re-exported so `resolve.ts` (and anything importing the config contract as
 // one module) can keep reading `ContentConfig` from here, the same as every

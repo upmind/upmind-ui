@@ -7,6 +7,7 @@
  */
 
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
+// -----------------------------------------------------------------------------
 /**
  * JSON Schema for the password recovery form.
  */

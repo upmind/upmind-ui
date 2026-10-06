@@ -70,6 +70,11 @@ import OverlayContainer from "../overlays/OverlayContainer.vue";
 import Actions from "./Actions.vue";
 import Skeleton from "./Skeleton.vue";
 import type { ManageRendererProps } from "./types";
+// --- state
+const open = defineModel<boolean>("open");
+
+const touched = defineModel<boolean>("touched");
+
 // -----------------------------------------------------------------------------
 
 const props = defineProps<{
@@ -95,10 +100,6 @@ const emits = defineEmits<{
 const { t } = useI18n();
 
 const formLoadingTestAttrs = useTestAttrs({ key: "form-loading" });
-
-// --- state
-const open = defineModel<boolean>("open");
-const touched = defineModel<boolean>("touched");
 
 const {
   meta,

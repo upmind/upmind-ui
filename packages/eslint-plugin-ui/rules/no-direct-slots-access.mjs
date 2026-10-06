@@ -39,7 +39,10 @@ export default {
     return services.defineTemplateBodyVisitor({
       // `$slots.footer` and `$slots['footer']` — a member access off `$slots`.
       MemberExpression(node) {
-        if (node.object?.type === "Identifier" && node.object.name === "$slots") {
+        if (
+          node.object?.type === "Identifier" &&
+          node.object.name === "$slots"
+        ) {
           context.report({ node, messageId: "directSlotsAccess" });
         }
       }

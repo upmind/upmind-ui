@@ -540,12 +540,12 @@ export function useCancellationUischema(
 }
 
 // -----------------------------------------------------------------------------
-// Change of plan — the configurator form (FE-3206)
+// Change of product — the configurator form (FE-3206)
 
 const MIGRATION_OMITTED_FIELDS = ["provisionFields", "startTrial"];
 
 /**
- * The configurator schema of a change of plan: no provision field and no
+ * The configurator schema of a change of product: no provision field and no
  * trial choice, and neither is required. Legacy draws only the options and the
  * attributes [o36], and FE-3207 owns the trial.
  */
@@ -571,7 +571,7 @@ function isMigrationOmittedScope(scope?: string): boolean {
   );
 }
 
-/** The configurator uischema of a change of plan: each element that draws a provision field or the trial choice is left out. */
+/** The configurator uischema of a change of product: each element that draws a provision field or the trial choice is left out. */
 export function omitMigrationUischema(
   uischema: UISchemaElement | undefined
 ): UISchemaElement | undefined {

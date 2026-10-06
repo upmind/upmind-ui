@@ -66,10 +66,9 @@ import CategoryItem from "./CategoryItem.vue";
 import { isEmpty } from "lodash-es";
 import type { CategoriesProps, CategoriesItemProps } from "./types";
 
+const modelValue = defineModel<CategoriesProps["modelValue"]>("modelValue");
 // -----------------------------------------------------------------------------
 const props = defineProps<CategoriesItemProps>();
-const modelValue = defineModel<CategoriesProps["modelValue"]>("modelValue");
-
 // -----------------------------------------------------------------------------
 const instance =
   inject<UseProductCategories>("useProductCategories") ??

@@ -20,10 +20,10 @@
 //
 // Usage: node docs/corpus/extract-relations.mjs [graph.json] [relations.json]
 
-import { readFileSync, writeFileSync, existsSync } from 'node:fs';
+import { readFileSync, writeFileSync, existsSync } from "node:fs";
 
-const IN = process.argv[2] ?? 'graphify-out/graph.json';
-const OUT = process.argv[3] ?? 'docs/corpus/relations.json';
+const IN = process.argv[2] ?? "graphify-out/graph.json";
+const OUT = process.argv[3] ?? "docs/corpus/relations.json";
 
 // Precondition (T2): graphify-out/ is gitignored and absent in a fresh
 // worktree — fail loud with the remedy rather than silently producing nothing.
@@ -32,14 +32,14 @@ if (!existsSync(IN)) {
     `FAIL: ${IN} not found. graphify-out/ is gitignored (.gitignore:45-46, ` +
       `**/graphify-out/) and absent in a fresh git worktree — copy graphify-out/ ` +
       `in from the primary checkout OR run \`graphify update .\` in the worktree ` +
-      `first, then re-run this extractor.`,
+      `first, then re-run this extractor.`
   );
   process.exit(1);
 }
 
 let graph;
 try {
-  graph = JSON.parse(readFileSync(IN, 'utf8'));
+  graph = JSON.parse(readFileSync(IN, "utf8"));
 } catch (err) {
   console.error(`FAIL: could not parse ${IN} as JSON — ${err.message}`);
   process.exit(1);
@@ -49,7 +49,7 @@ const rawNodes = Array.isArray(graph.nodes) ? graph.nodes : null;
 const rawLinks = Array.isArray(graph.links) ? graph.links : null;
 if (!rawNodes || !rawLinks) {
   console.error(
-    `FAIL: ${IN} is not a graphify graph (expected top-level nodes[] and links[]).`,
+    `FAIL: ${IN} is not a graphify graph (expected top-level nodes[] and links[]).`
   );
   process.exit(1);
 }
@@ -58,8 +58,8 @@ if (!rawNodes || !rawLinks) {
 // slug → { label, normLabel, sourceFile, sourceLine }. Every graphify node
 // carries source_file + source_location (verified 0 missing of 2597, §2.4);
 // source_location is always "L<n>" — parse to a number for the changelog join.
-const parseLine = (loc) => {
-  const m = /^L(\d+)$/.exec(String(loc ?? ''));
+const parseLine = loc => {
+  const m = /^L(\d+)$/.exec(String(loc ?? ""));
   return m ? Number(m[1]) : null;
 };
 
@@ -70,11 +70,12 @@ for (const n of rawNodes) {
     label: n.label ?? null,
     normLabel: n.norm_label ?? null,
     sourceFile: n.source_file ?? null,
-    sourceLine: parseLine(n.source_location),
+    sourceLine: parseLine(n.source_location)
   });
 }
 const nodes = {};
-for (const slug of [...nodeById.keys()].sort()) nodes[slug] = nodeById.get(slug);
+for (const slug of [...nodeById.keys()].sort())
+  nodes[slug] = nodeById.get(slug);
 
 // --- edges ------------------------------------------------------------------
 // _src/_tgt/relation/confidence_score/source_file → {from,to,relation,confidence,sourceFile}.
@@ -92,14 +93,15 @@ for (const l of rawLinks) {
     from: String(l._src),
     to: String(l._tgt),
     relation: String(l.relation),
-    confidence: typeof l.confidence_score === 'number' ? l.confidence_score : null,
-    sourceFile: l.source_file ?? null,
+    confidence:
+      typeof l.confidence_score === "number" ? l.confidence_score : null,
+    sourceFile: l.source_file ?? null
   });
 }
 if (malformed > 0) {
   console.error(
     `FAIL: ${malformed} edge(s) in ${IN} are missing _src/_tgt/relation — ` +
-      `the graph is malformed; regenerate with \`graphify update .\`.`,
+      `the graph is malformed; regenerate with \`graphify update .\`.`
   );
   process.exit(1);
 }
@@ -112,8 +114,8 @@ edges.sort(
     byCodePoint(a.from, b.from) ||
     byCodePoint(a.to, b.to) ||
     byCodePoint(a.relation, b.relation) ||
-    byCodePoint(a.sourceFile ?? '', b.sourceFile ?? '') ||
-    (a.confidence ?? 0) - (b.confidence ?? 0),
+    byCodePoint(a.sourceFile ?? "", b.sourceFile ?? "") ||
+    (a.confidence ?? 0) - (b.confidence ?? 0)
 );
 
 // --- write ------------------------------------------------------------------
@@ -121,15 +123,15 @@ edges.sort(
 // literal insertion; nodes keys were inserted sorted above. JSON.stringify
 // preserves insertion order, so the bytes are a pure function of the graph.
 const out = { edges, nodes };
-writeFileSync(OUT, JSON.stringify(out, null, 2) + '\n');
+writeFileSync(OUT, JSON.stringify(out, null, 2) + "\n");
 
 const relCounts = {};
 for (const e of edges) relCounts[e.relation] = (relCounts[e.relation] ?? 0) + 1;
 const relSummary = Object.entries(relCounts)
   .sort(([a], [b]) => byCodePoint(a, b))
   .map(([k, v]) => `${k}=${v}`)
-  .join(', ');
+  .join(", ");
 console.log(
-  `extract-relations: ${edges.length} edges, ${Object.keys(nodes).length} nodes → ${OUT}`,
+  `extract-relations: ${edges.length} edges, ${Object.keys(nodes).length} nodes → ${OUT}`
 );
 console.log(`  relations: ${relSummary}`);

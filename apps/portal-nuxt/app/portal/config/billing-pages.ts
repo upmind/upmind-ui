@@ -50,6 +50,7 @@ import type {
 } from "../modules/document/types";
 import type { ListModuleHeading } from "../modules/list/types";
 import type { ContentConfig, PageKey, SlotAssignment } from "../types";
+// -----------------------------------------------------------------------------
 
 /** What a panel's heading carries beyond its words: trailing actions, and the control band under them. */
 type PanelHeading = {

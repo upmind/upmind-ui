@@ -41,13 +41,13 @@ import {
 } from "../variants";
 import type { PaymentActionsProps } from "../types";
 
+const props = defineProps<PaymentActionsProps>();
+
 const emit = defineEmits<{
   (e: "resolve"): void;
 }>();
 
 const { t } = useI18n();
-
-const props = defineProps<PaymentActionsProps>();
 
 const meta = computed(() => ({
   hasErrors: props.errors,

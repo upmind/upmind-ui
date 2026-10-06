@@ -34,7 +34,7 @@ export default {
     schema: [],
     messages: {
       stringDefault:
-        "`{{name}}: \"{{value}}\"` defaults rendered copy to English inside the library — pass `undefined` and let the consumer supply the (translated) copy. This rule cannot tell a rendered string from a variant token; if `{{name}}` is a non-rendered token default, silence it with `// eslint-disable-next-line ui/no-english-default -- <reason>`."
+        '`{{name}}: "{{value}}"` defaults rendered copy to English inside the library — pass `undefined` and let the consumer supply the (translated) copy. This rule cannot tell a rendered string from a variant token; if `{{name}}` is a non-rendered token default, silence it with `// eslint-disable-next-line ui/no-english-default -- <reason>`.'
     }
   },
 
@@ -42,7 +42,8 @@ export default {
     return {
       CallExpression(node) {
         const callee = node.callee;
-        if (callee.type !== "Identifier" || callee.name !== "withDefaults") return;
+        if (callee.type !== "Identifier" || callee.name !== "withDefaults")
+          return;
         const defaults = node.arguments[1];
         if (!defaults || defaults.type !== "ObjectExpression") return;
 

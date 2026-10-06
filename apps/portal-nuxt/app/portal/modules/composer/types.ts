@@ -7,7 +7,7 @@
  * store.
  */
 
-export interface ComposerModuleProps {
+export type ComposerModuleProps = {
   /** Accessible label for the field. No English default (CC22). */
   readonly label: string;
   readonly placeholder?: string;
@@ -33,7 +33,7 @@ export interface ComposerModuleProps {
    * reads as Enter, which is what a brand that states nothing else means.
    */
   readonly submitKey?: ComposerSubmitKey;
-}
+};
 
 /** The two keys a reply can be sent with — legacy's `NewLine` pair, inverted. */
 export const COMPOSER_SUBMIT_KEY = {

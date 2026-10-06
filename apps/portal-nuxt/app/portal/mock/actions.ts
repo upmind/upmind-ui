@@ -93,6 +93,7 @@ import type {
 } from "./types";
 import type { FormModel } from "@upmind/ui";
 import { useListViewPreference } from "~/composables/useListViewPreference";
+// -----------------------------------------------------------------------------
 
 export const MOCK_ACTION = {
   VIEW_PRODUCT: "view-product",

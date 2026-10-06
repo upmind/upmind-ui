@@ -28,6 +28,7 @@ import type { Theme } from "./modules/theming";
 import type { IApiPop } from "./utils";
 import type { I18n, Composer } from "vue-i18n";
 import type { Router } from "vue-router";
+// -----------------------------------------------------------------------------
 
 declare global {
   interface Window {
@@ -66,7 +67,7 @@ export enum UpmindStatus {
  * These properties configure various aspects of the headless library, including
  * mode, debugging, analytics, routing, internationalisation, and theming.
  */
-export interface UpmindProps {
+export type UpmindProps = {
   /**
    * The operating mode of the Upmind instance.
    * - `default`: Standard operation with full headless module initialisation.
@@ -190,7 +191,7 @@ export interface UpmindProps {
    * ```
    */
   allowedScopes?: SessionStoreConfig["allowedScopes"];
-}
+};
 
 // -----------------------------------------------------------------------------
 

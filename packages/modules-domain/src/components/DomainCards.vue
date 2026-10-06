@@ -132,14 +132,6 @@ import DomainCardSkeleton from "./DomainCardSkeleton.vue";
 import { find, some, isEmpty } from "lodash-es";
 import type { DomainCardsProps } from "../types";
 
-// -----------------------------------------------------------------------------
-
-const emit = defineEmits<{
-  (e: "add", domain: string): void;
-  (e: "remove", domain: string): void;
-  (e: "search-more"): void;
-}>();
-
 const props = withDefaults(defineProps<DomainCardsProps>(), {
   resultCount: 0,
   skeletonCount: 3,
@@ -149,6 +141,14 @@ const props = withDefaults(defineProps<DomainCardsProps>(), {
   valid: false,
   disabled: false
 });
+
+// -----------------------------------------------------------------------------
+
+const emit = defineEmits<{
+  (e: "add", domain: string): void;
+  (e: "remove", domain: string): void;
+  (e: "search-more"): void;
+}>();
 
 const { t } = useI18n();
 

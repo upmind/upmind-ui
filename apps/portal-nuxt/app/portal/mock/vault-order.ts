@@ -16,6 +16,7 @@
 
 import { orderBy } from "lodash-es";
 import type { MockVaultAsset } from "./types";
+// -----------------------------------------------------------------------------
 
 export function pinnedFirst(
   assets: readonly MockVaultAsset[]

@@ -7,7 +7,6 @@ import { createTicketsInternals } from "./useTickets.internals";
 import { createTicketsMeta } from "./useTickets.meta";
 import type { TicketsScopeMatrix } from "./tickets.types";
 import type { ScopeConfig, ScopeKey } from "../scope";
-import type { ScopeActorTypes } from "../scope/scope.types";
 // -----------------------------------------------------------------------------
 /**
  * @module tickets/useTickets
@@ -26,7 +25,7 @@ import type { ScopeActorTypes } from "../scope/scope.types";
  * actor; the scope builder resolves SELF before this factory runs.
  */
 function createTicketsForScope(config: ScopeConfig, scopeKey: ScopeKey) {
-  const actorScope = config.actor as ScopeActorTypes;
+  const actorScope = config.actor;
 
   /**
    * ONE services instance for this scope. `config.context` carries the

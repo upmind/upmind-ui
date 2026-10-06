@@ -9,6 +9,7 @@
 // category-local badge type exists); the bare-label form is permitted here too.
 import type { BadgeInput } from "../config/schema";
 import type { IProductCategory } from "@upmind-automation/types";
+// -----------------------------------------------------------------------------
 
 export type ProductCategory = {
   id: IProductCategory["id"];

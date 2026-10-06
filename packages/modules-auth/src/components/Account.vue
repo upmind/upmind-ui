@@ -142,17 +142,15 @@ import {
 import { assign } from "lodash-es";
 import type { AuthProps } from "../types";
 import type { FormActionProps } from "@upmind/ui";
-// -----------------------------------------------------------------------------
-
-const emit = defineEmits(["resolve", "reject"]);
-const props = withDefaults(defineProps<Omit<AuthProps, "modelValue">>(), {
-  variant: "primary"
-});
-
 const modelValue = defineModel<AuthProps["modelValue"]>("modelValue", {
   default: AUTH_FORMS.LOGIN
 });
+const props = withDefaults(defineProps<Omit<AuthProps, "modelValue">>(), {
+  variant: "primary"
+});
+// -----------------------------------------------------------------------------
 
+const emit = defineEmits(["resolve", "reject"]);
 const { t } = useI18n();
 const { navigate } = useRoutingEngine();
 

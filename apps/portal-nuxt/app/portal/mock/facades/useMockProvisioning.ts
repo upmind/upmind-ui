@@ -26,6 +26,7 @@ import type {
   MockProvisionFunction,
   MockProvisioning
 } from "../types";
+// -----------------------------------------------------------------------------
 
 /** The provisioning surface as the overview reads it — the seed, plus what this session opened. */
 export type MockProvisioningView = {

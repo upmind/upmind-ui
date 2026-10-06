@@ -12,6 +12,7 @@ import { vi } from "vitest";
 import { defineComponent } from "vue";
 import type { Mock } from "vitest";
 import type { Component } from "vue";
+// -----------------------------------------------------------------------------
 
 export type HostedPage = {
   readonly pageKeys: unknown;

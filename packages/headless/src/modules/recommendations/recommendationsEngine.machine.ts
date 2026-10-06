@@ -46,6 +46,7 @@ import type {
   IProduct
 } from "@upmind-automation/types";
 import type { AnyEventObject } from "xstate";
+// -----------------------------------------------------------------------------
 
 // ---
 export default createMachine(

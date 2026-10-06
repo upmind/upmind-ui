@@ -17,6 +17,7 @@ import type {
 } from "../contracts/client-tickets";
 import type { DataRouteContext } from "../injection";
 import type { MockDataset, MockTicket, MockTicketMessage } from "../types";
+// -----------------------------------------------------------------------------
 
 /**
  * What `client-tickets`'s own new-ticket builders are handed. The product the

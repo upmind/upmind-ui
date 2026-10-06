@@ -86,11 +86,11 @@ import { isString } from "lodash-es";
 import type { HeroProps } from "./types";
 
 const props = defineProps<HeroProps>();
-const slots = defineSlots();
-
 const emit = defineEmits<{
   (e: "action"): void;
 }>();
+
+const slots = defineSlots();
 
 const titleTestAttrs = () =>
   useTestAttrs({ key: "hero-title", dataAttrs: props.dataAttrs });

@@ -1,12 +1,12 @@
 import { createScopedComposable } from "../scope";
 import { createStatsServices } from "./stats.services";
+import { STATS_SCOPE_MATRIX } from "./stats.types";
 import { createStatsActions } from "./useStats.actions";
 import { createStatsContext } from "./useStats.context";
 import { createStatsInternals } from "./useStats.internals";
 import { createStatsMeta } from "./useStats.meta";
 import type { StatsScopeMatrix } from "./stats.types";
 import type { ScopeConfig, ScopeKey } from "../scope";
-import type { ScopeActorTypes } from "../scope/scope.types";
 // -----------------------------------------------------------------------------
 /**
  * @module stats/useStats
@@ -33,7 +33,7 @@ import type { ScopeActorTypes } from "../scope/scope.types";
  * actor; the scope builder resolves SELF before this factory runs.
  */
 function createStatsForScope(config: ScopeConfig, scopeKey: ScopeKey) {
-  const actorScope = config.actor as ScopeActorTypes;
+  const actorScope = config.actor;
 
   /**
    * ONE services instance for this scope, serving BOTH concerns.
@@ -93,7 +93,7 @@ function createStatsForScope(config: ScopeConfig, scopeKey: ScopeKey) {
 export const useStats = createScopedComposable<
   ReturnType<typeof createStatsForScope>,
   StatsScopeMatrix
->("stats", createStatsForScope);
+>("stats", createStatsForScope, STATS_SCOPE_MATRIX);
 
 // Type export for consumers
 export type UseStats = ReturnType<typeof useStats>;

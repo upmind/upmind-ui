@@ -43,7 +43,7 @@ function matchEndpoint(pathStart) {
   const normalised = normalise(pathStart);
   return (
     OWNED_ENDPOINTS.find(
-      (e) =>
+      e =>
         normalised === e.path ||
         normalised.startsWith(`${e.path}/`) ||
         normalised.startsWith(`${e.path}?`)
@@ -85,7 +85,7 @@ export default {
     if (OWNER_DIR.test(filename)) return {};
     const inSessionTransfer = SESSION_TRANSFER_DIR.test(filename);
 
-    const check = (argNode) => {
+    const check = argNode => {
       const pathStart = literalPathStart(argNode);
       if (pathStart == null) return;
       const match = matchEndpoint(pathStart);

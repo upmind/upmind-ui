@@ -62,7 +62,7 @@ export function createContractProductMeta(
     "available.migrating.configuring"
   ]);
 
-  /** The plan list's meta; `undefined` while the list is not built or the change is closed. */
+  /** The product list's meta; `undefined` while the list is not built or the change is closed. */
   const listMeta = computed(() =>
     isMigrationOpen.value ? holders.list.value?.meta.value : undefined
   );
@@ -128,12 +128,12 @@ export function createContractProductMeta(
         !!anniversaryAnchor(contractProduct.value)
     ),
 
-    /** True when the client may start a change of plan: the offer clauses and the start clauses (R14). */
+    /** True when the client may start a change of product: the offer clauses and the start clauses (R14). */
     canMigrate: computed(
       () => !!contractProduct.value && canMigrateProduct(contractProduct.value)
     ),
 
-    /** True when the open change of plan can be committed: a dry run is not in flight, and the configurator can take the commit. Local validation does not gate it; the platform judges it (R8). */
+    /** True when the open change of product can be committed: a dry run is not in flight, and the configurator can take the commit. Local validation does not gate it; the platform judges it (R8). */
     canCommitMigration: computed(
       () =>
         stateMatches(state, [
@@ -148,13 +148,13 @@ export function createContractProductMeta(
       () => !!contextValue<boolean>(state, "contractProduct.proRataPending")
     ),
 
-    /** True if the plan list failed to load. */
+    /** True if the product list failed to load. */
     hasMigrationTargetsError: computed(() => !!listMeta.value?.hasError),
 
-    /** True if the plan list has another page. */
+    /** True if the product list has another page. */
     hasMoreMigrationTargets: computed(() => !!listMeta.value?.hasNextPage),
 
-    /** True if the plan list loaded and holds no plan. */
+    /** True if the product list loaded and holds no product. */
     hasNoMigrationTargets: computed(
       () =>
         !!listMeta.value && !listMeta.value.isLoading && listMeta.value.isEmpty
@@ -248,7 +248,7 @@ export function createContractProductMeta(
       "available.consolidating.available.valid"
     ),
 
-    /** True when the plan list is open. */
+    /** True when the product list is open. */
     isChoosingMigrationTarget: useStateMatches(
       state,
       "available.migrating.choosing"
@@ -284,7 +284,7 @@ export function createContractProductMeta(
       () => !!contextValue<boolean>(state, "migration.preview.isFree")
     ),
 
-    /** True while a change of plan is open: the plan list, or a chosen plan. */
+    /** True while a change of product is open: the product list, or a chosen product. */
     isMigrationOpen,
 
     /** True while the dry run is in flight. */
@@ -293,7 +293,7 @@ export function createContractProductMeta(
       "available.migrating.configuring.previewing"
     ),
 
-    /** True when the dry run of the chosen plan has a cost. */
+    /** True when the dry run of the chosen product has a cost. */
     isMigrationPreviewed: useStateMatches(
       state,
       "available.migrating.configuring.previewed"
@@ -305,24 +305,24 @@ export function createContractProductMeta(
       "available.migrating.configuring.processing"
     ),
 
-    /** True while the chosen plan loads. */
+    /** True while the chosen product loads. */
     isMigrationTargetLoading: useStateMatches(
       state,
       "available.migrating.configuring.loading"
     ),
 
-    /** True when the chosen plan failed to load. */
+    /** True when the chosen product failed to load. */
     isMigrationTargetUnavailable: useStateMatches(
       state,
       "available.migrating.configuring.unavailable"
     ),
 
-    /** True while the plan list loads its first page. */
+    /** True while the product list loads its first page. */
     isMigrationTargetsLoading: computed(
       () => !!listMeta.value?.isLoading && !listMeta.value.isLoadingMore
     ),
 
-    /** True while the plan list loads another page. */
+    /** True while the product list loads another page. */
     isMigrationTargetsLoadingMore: computed(
       () => !!listMeta.value?.isLoadingMore
     ),
@@ -373,7 +373,7 @@ export function createContractProductMeta(
     /** True on `available.status.suspended`. */
     isSuspended: useStateMatches(state, ContractProductState.SUSPENDED),
 
-    /** True when the committed change of plan left an amount to pay. */
+    /** True when the committed change of product left an amount to pay. */
     requiresPayment: computed(
       () =>
         !!contextValue<MigrationResult>(state, "migrationResult")

@@ -38,6 +38,7 @@ import type {
   TraceabilityResult
 } from "./steps.types";
 import type { Feature, RuleChild, Scenario, Step } from "@cucumber/messages";
+// -----------------------------------------------------------------------------
 
 // And/But/`*` carry no kind of their own — Conjunction and the bullet form's
 // Unknown both inherit the nearest preceding Given/When/Then within the same

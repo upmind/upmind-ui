@@ -23,6 +23,7 @@ import { TwofaProviders } from "@upmind-automation/types";
 import { assign, omit } from "lodash-es";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 import type { FormModel } from "@upmind/ui";
+// -----------------------------------------------------------------------------
 
 /** JSON Schema for the 2FA verification form. */
 export const useTwoFASchema = (): JsonSchema => ({

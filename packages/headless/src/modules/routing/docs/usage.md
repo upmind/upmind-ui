@@ -263,7 +263,7 @@ export function doPageFinish(el: Element, route: RouteLocation) {
 
 ```typescript
 import { useRoutingEngine } from "@upmind-automation/headless";
-import { useShell } from "@upmind-automation/client-vue";
+import { useShell } from "@upmind-automation/foundation";
 import { onUnmounted } from "vue";
 
 const { onBeforeLeave } = useRoutingEngine();
@@ -377,7 +377,7 @@ const { navigateNext, navigateBack, meta } = useRoutingEngine();
 
 ```typescript
 import { useRoutingEngine } from "@upmind-automation/headless";
-import { useShell } from "@upmind-automation/client-vue";
+import { useShell } from "@upmind-automation/foundation";
 
 const { onBeforeLeave, onAfterEnter } = useRoutingEngine();
 const shell = useShell();

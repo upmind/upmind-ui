@@ -32,6 +32,7 @@ import type {
   MockAffiliatePayout
 } from "../types";
 import type { FormModel } from "@upmind/ui";
+// -----------------------------------------------------------------------------
 
 /**
  * The shareable link a new referral link is handed out as. The affiliate's

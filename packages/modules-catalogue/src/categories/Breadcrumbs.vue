@@ -37,11 +37,11 @@ import type { CategoriesProps } from "./types";
 import type { UseProductCategories } from "@upmind-automation/headless";
 import type { BreadcrumbVariant } from "@upmind-automation/headless";
 
+const modelValue = defineModel<CategoriesProps["modelValue"]>("modelValue");
+const props = defineProps<Omit<CategoriesProps, "modelValue">>();
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();
-const props = defineProps<Omit<CategoriesProps, "modelValue">>();
-const modelValue = defineModel<CategoriesProps["modelValue"]>("modelValue");
 // -----------------------------------------------------------------------------
 
 const useProductCategories = inject<UseProductCategories>(

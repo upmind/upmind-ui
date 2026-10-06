@@ -37,14 +37,14 @@ const meta: Meta = {
 export default meta;
 type Story = StoryObj;
 
-interface TextureSpec {
+type TextureSpec = {
   /** The full utility class, e.g. `texture-grain`. */
   cls: string;
   /** Display name shown in the chip. */
   name: string;
   /** One-line description of the treatment. */
   blurb: string;
-}
+};
 
 const TEXTURES: TextureSpec[] = [
   {

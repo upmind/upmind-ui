@@ -42,16 +42,6 @@ import type {
 // -----------------------------------------------------------------------------
 const props = defineProps<Omit<FormProps, "ajv">>();
 
-const { t, locale } = useI18n();
-// B: Always ensure we use our internal ajv instance
-const { ajv } = useValidation();
-const { countries, ensureCountries } = useSystem();
-
-// The engine takes its glyph and its reference data from the host: it resolves
-// neither an app icon name-map nor a BE country list itself.
-provideFormIcon(Icon);
-provideFormEngineData({ countries, ensureCountries });
-
 const emits = defineEmits<{
   reject: [];
   resolve: [Record<string, any>];
@@ -63,12 +53,20 @@ const emits = defineEmits<{
     { name: string; model: Record<string, any>; meta: Record<string, any> }
   ];
 }>();
-
 const _slots = defineSlots<{
   additional: FormAdditionalProps;
   footer: FormFooterProps;
   actions: FormActionsProps;
 }>();
+const { t, locale } = useI18n();
+// B: Always ensure we use our internal ajv instance
+const { ajv } = useValidation();
+const { countries, ensureCountries } = useSystem();
+
+// The engine takes its glyph and its reference data from the host: it resolves
+// neither an app icon name-map nor a BE country list itself.
+provideFormIcon(Icon);
+provideFormEngineData({ countries, ensureCountries });
 
 const forwarded = useForwardPropsEmits(props, emits);
 

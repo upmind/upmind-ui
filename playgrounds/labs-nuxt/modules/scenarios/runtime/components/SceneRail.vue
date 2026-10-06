@@ -53,12 +53,12 @@ import { get, map } from "lodash-es";
 import type { SceneRailProps } from "./SceneRail.types";
 import type { StepperStep } from "@upmind/ui";
 import type { ComponentPublicInstance } from "vue";
+/** The playhead, as an index into `scenes` — `-1` before the first scene runs. */
+const playhead = defineModel<number>({ required: true });
+
 // -----------------------------------------------------------------------------
 
 const props = defineProps<SceneRailProps>();
-
-/** The playhead, as an index into `scenes` — `-1` before the first scene runs. */
-const playhead = defineModel<number>({ required: true });
 
 const { t } = useI18n();
 

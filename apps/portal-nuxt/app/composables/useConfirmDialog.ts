@@ -11,6 +11,7 @@
 import { ref } from "vue";
 import type { Ref } from "vue";
 import type { MockActionConfirm } from "~/portal/mock/actions";
+// -----------------------------------------------------------------------------
 
 /** What the shell dispatches when the client accepts — an action value, as any module would emit. */
 type ConfirmCommand = {

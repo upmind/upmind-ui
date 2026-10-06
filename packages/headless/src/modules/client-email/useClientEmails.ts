@@ -10,7 +10,7 @@ import { createClientEmailsContext } from "./useClientEmails.context";
 import { createClientEmailsInternals } from "./useClientEmails.internals";
 import { createClientEmailsMeta } from "./useClientEmails.meta";
 import type { ClientEmailsScopeMatrix } from "./client-email.types";
-import type { ScopeActorTypes, ScopeConfig, ScopeKey } from "../scope";
+import type { ScopeConfig, ScopeKey } from "../scope";
 // -----------------------------------------------------------------------------
 /**
  * @module client-email/useClientEmails
@@ -22,7 +22,7 @@ import type { ScopeActorTypes, ScopeConfig, ScopeKey } from "../scope";
  * carry the differentiation.
  */
 function createClientEmailsForScope(config: ScopeConfig, scopeKey: ScopeKey) {
-  const actorScope = config.actor as ScopeActorTypes;
+  const actorScope = config.actor;
 
   /**
    * ONE services instance for this scope. `config.context` goes in here and

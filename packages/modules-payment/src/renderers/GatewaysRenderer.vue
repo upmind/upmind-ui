@@ -55,19 +55,19 @@ import type { RendererProps } from "@jsonforms/vue";
 // -----------------------------------------------------------------------------
 // The schema's `options` carry a `text` secondary label alongside JSONForms'
 // own EnumOption fields — ours, so declare it rather than assert it.
-interface GatewaySchemaOption {
+type GatewaySchemaOption = {
   value: string;
   label: string;
   text?: string;
   provider?: string;
-}
+};
 
-interface GatewayTile {
+type GatewayTile = {
   value: string;
   label: string;
   secondaryLabel?: string;
   dataAttrs?: Record<string, string>;
-}
+};
 
 const props = defineProps<RendererProps<ControlElement>>();
 

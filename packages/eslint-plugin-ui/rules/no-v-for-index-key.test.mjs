@@ -17,12 +17,22 @@ const ruleTester = new RuleTester({
 test("no-v-for-index-key", () => {
   ruleTester.run("no-v-for-index-key", rule, {
     valid: [
-      { code: `<template><li v-for="(item, i) in items" :key="item.id">{{ item }}</li></template>` },
-      { code: `<template><li v-for="item in items" :key="item.id">{{ item }}</li></template>` }
+      {
+        code: `<template><li v-for="(item, i) in items" :key="item.id">{{ item }}</li></template>`
+      },
+      {
+        code: `<template><li v-for="item in items" :key="item.id">{{ item }}</li></template>`
+      }
     ],
     invalid: [
-      { code: `<template><li v-for="(item, i) in items" :key="i">{{ item }}</li></template>`, errors: [{ messageId: "indexKey" }] },
-      { code: `<template><li v-for="(item, index) in items" :key="index">{{ item }}</li></template>`, errors: [{ messageId: "indexKey" }] }
+      {
+        code: `<template><li v-for="(item, i) in items" :key="i">{{ item }}</li></template>`,
+        errors: [{ messageId: "indexKey" }]
+      },
+      {
+        code: `<template><li v-for="(item, index) in items" :key="index">{{ item }}</li></template>`,
+        errors: [{ messageId: "indexKey" }]
+      }
     ]
   });
 });

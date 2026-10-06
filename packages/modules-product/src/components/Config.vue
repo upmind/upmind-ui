@@ -96,14 +96,6 @@ import {
 import { assign, isEmpty, isEqual, omit, pick, reject } from "lodash-es";
 import type { ConfigProps } from "../types";
 
-// -----------------------------------------------------------------------------
-
-const { t } = useI18n();
-
-const emit = defineEmits(["reject", "resolve"]);
-
-const isValid = ref(true);
-
 const props = withDefaults(defineProps<ConfigProps>(), {
   resolveFields: () => [],
   as: "form",
@@ -113,6 +105,14 @@ const props = withDefaults(defineProps<ConfigProps>(), {
   noHeader: false,
   noFooter: false
 });
+
+const emit = defineEmits(["reject", "resolve"]);
+
+// -----------------------------------------------------------------------------
+
+const { t } = useI18n();
+
+const isValid = ref(true);
 
 const productConfig = inject<UseProductConfig>("useProductConfig");
 if (!productConfig)

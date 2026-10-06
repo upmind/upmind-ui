@@ -9,6 +9,7 @@ import {
   omitMigrationSchema,
   omitMigrationUischema
 } from "./contract-product.schemas";
+import { CONTRACT_PRODUCT_SCOPE_MATRIX } from "./contract-product.types";
 import { createContractProductActions } from "./useContractProduct.actions";
 import { createContractProductContext } from "./useContractProduct.context";
 import { createContractProductInternals } from "./useContractProduct.internals";
@@ -32,14 +33,13 @@ import type {
 } from "./contract-product.types";
 import type { UseActor } from "../../utils";
 import type { ScopeConfig, ScopeKey } from "../scope";
-import type { ScopeActorTypes } from "../scope/scope.types";
 import type { ComputedRef, EffectScope } from "vue";
 import type { ActorRef, AnyEventObject } from "xstate";
 // -----------------------------------------------------------------------------
-/** The page size of the plan list — four plans for each page, as legacy asks [o5]. */
+/** The page size of the product list — four products for each page, as legacy asks [o5]. */
 const MIGRATION_PAGE_SIZE = 4;
 
-/** The members of `useProductConfig` a change of plan does not give. */
+/** The members of `useProductConfig` a change of product does not give. */
 const MIGRATION_CONFIG_OMITTED = [
   "id",
   "state",
@@ -57,10 +57,10 @@ const MIGRATION_CONFIG_OMITTED = [
   "setTrial"
 ];
 
-/** The model keys a change of plan never sets: its form holds no trial and no provision field. */
+/** The model keys a change of product never sets: its form holds no trial and no provision field. */
 const MIGRATION_MODEL_OMITTED = ["startTrial", "provisionFields"];
 
-/** The inputs both plan reads need before their `const` filter leaves can be built. */
+/** The inputs both product reads need before their `const` filter leaves can be built. */
 type MigrationReadInputs = {
   ids: string[];
   currencyId: string;
@@ -108,7 +108,7 @@ function createHolder<TInputs, THolder>(
   };
 }
 
-/** The configurator of the chosen plan, over its child. */
+/** The configurator of the chosen product, over its child. */
 function buildMigrationConfig(
   child: ActorRef<AnyEventObject>
 ): MigrationConfigHolder {
@@ -126,7 +126,7 @@ function buildMigrationConfig(
 }
 
 /**
- * The count, the list and the configurator of one manager. The two plan reads
+ * The count, the list and the configurator of one manager. The two product reads
  * need their ids, currency and account before they can be built, and the list
  * needs the current term too.
  */
@@ -238,8 +238,8 @@ function createMigrationHolders(actor: UseActor): MigrationHolders {
  * `(actor, id)` pair: the product comes from `.withId(id)`,
  * the single-record read form (templates/SINGLE-READ.md). Registered under the same module name as
  * `useContractProducts`; the scope key carries the differentiation. It also owns
- * the three scoped holders of a change of plan (the plan count, the plan list
- * and the configurator of the chosen plan), so every sub-composable reads the
+ * the three scoped holders of a change of product (the product count, the product list
+ * and the configurator of the chosen product), so every sub-composable reads the
  * same instances.
  *
  * @doctrine clause 1 (uniform four-layer default).
@@ -251,7 +251,7 @@ function createContractProductForScope(
 ) {
   const { t } = useI18n();
 
-  const actorScope = config.actor as ScopeActorTypes;
+  const actorScope = config.actor;
 
   // SINGLE-READ step 3: the id comes from `.withId(id)` — `config.id` — and is
   // never re-derived from `config.context` (templates/SINGLE-READ.md).
@@ -320,6 +320,10 @@ function createContractProductForScope(
 export const useContractProduct = createScopedComposable<
   ReturnType<typeof createContractProductForScope>,
   ContractProductScopeMatrix
->("contract-product", createContractProductForScope);
+>(
+  "contract-product",
+  createContractProductForScope,
+  CONTRACT_PRODUCT_SCOPE_MATRIX
+);
 
 export type UseContractProduct = ReturnType<typeof useContractProduct>;

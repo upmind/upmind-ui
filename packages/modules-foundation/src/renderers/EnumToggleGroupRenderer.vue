@@ -63,11 +63,11 @@ import type { RendererProps } from "@jsonforms/vue";
 
 type TaggedOption = EnumOption & { text?: string };
 
-interface Position {
+type Position = {
   key: string;
   label: string;
   tag?: string;
-}
+};
 
 const props = defineProps<RendererProps<ControlElement>>();
 

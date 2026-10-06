@@ -8,8 +8,9 @@ import type {
   ProductModel
 } from "@upmind-automation/headless";
 import type { RouteLocationAsRelativeGeneric } from "vue-router";
+// -----------------------------------------------------------------------------
 
-export interface BasketProductProps extends BasketProduct {
+export type BasketProductProps = BasketProduct & {
   open?: boolean;
   loading?: boolean;
   processing?: boolean;
@@ -17,9 +18,9 @@ export interface BasketProductProps extends BasketProduct {
   editRoute: RouteLocationAsRelativeGeneric;
   // own Card (default) vs flat inside a parent card
   card?: boolean;
-}
+};
 
-export interface BasketProductContentProps {
+export type BasketProductContentProps = {
   id: BasketProduct["id"];
   summary: ProductSummaryDetailWithPrice;
   productDetails: BasketProduct["productDetails"];
@@ -52,40 +53,40 @@ export interface BasketProductContentProps {
   modelValue?: ProductModel;
   // configured inline: suppresses the "add missing data" alert
   configurable?: boolean;
-}
+};
 
-export interface BasketProductSummaryProps {
+export type BasketProductSummaryProps = {
   summary: BasketOptionSummary;
-}
+};
 
-export interface BasketProductSubItemProps {
+export type BasketProductSubItemProps = {
   summary: BasketOptionSummary;
-}
+};
 
-export interface BasketProductUpsellProps {
+export type BasketProductUpsellProps = {
   id: BasketProduct["id"];
   summary: BasketUpsellSummary;
   option: SubproductDetails;
   processing: boolean;
-}
+};
 
-export interface BasketProductConfigDetailsProps {
+export type BasketProductConfigDetailsProps = {
   id: string;
   summary: ProductSummaryDetailWithPrice;
   details: BasketProduct["details"];
   editRoute: RouteLocationAsRelativeGeneric;
-}
+};
 
-export interface BasketProductCardsProps {
+export type BasketProductCardsProps = {
   open?: boolean;
   editRoute: RouteLocationAsRelativeGeneric;
   disabled?: boolean;
-}
+};
 
-export interface BasketProductSkeletonsProps {
+export type BasketProductSkeletonsProps = {
   card?: boolean;
-}
+};
 
-export interface BasketProductSkeletonProps {
+export type BasketProductSkeletonProps = {
   card?: boolean;
-}
+};

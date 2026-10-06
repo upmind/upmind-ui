@@ -19,6 +19,7 @@ import { PAGE_KEY } from "../types";
 import type { ContentRowConfig } from "../content/types";
 import type { DataRef } from "../mock/data-refs";
 import type { ContentConfig, PageKey } from "../types";
+// -----------------------------------------------------------------------------
 
 const CLEAR_LABEL = "Clear";
 

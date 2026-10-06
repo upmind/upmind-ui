@@ -15,12 +15,12 @@ const noAwaitOnlyReturn = {
     type: "suggestion",
     docs: {
       description:
-        "Disallow awaiting a value only to return it — return the promise instead.",
+        "Disallow awaiting a value only to return it — return the promise instead."
     },
     schema: [],
     messages: {
-      awaitOnlyReturn: "return the promise; don't await only to return it",
-    },
+      awaitOnlyReturn: "return the promise; don't await only to return it"
+    }
   },
   create(context) {
     /**
@@ -91,9 +91,9 @@ const noAwaitOnlyReturn = {
       },
       SwitchCase(node) {
         checkStatementList(node.consequent);
-      },
+      }
     };
-  },
+  }
 };
 
 export default noAwaitOnlyReturn;

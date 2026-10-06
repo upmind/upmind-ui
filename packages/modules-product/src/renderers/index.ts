@@ -9,6 +9,7 @@ import { tester as subProductTester } from "./SubProductRenderer.vue";
 import TermsRenderer from "./TermsRenderer.vue";
 import { tester as termsTester } from "./TermsRenderer.vue";
 import type { FormRendererEntry } from "@upmind-automation/foundation";
+// -----------------------------------------------------------------------------
 
 export const productRenderers: FormRendererEntry[] = [
   registerEntry(TermsRenderer, termsTester),

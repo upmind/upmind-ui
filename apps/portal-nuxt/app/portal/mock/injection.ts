@@ -15,6 +15,7 @@ import { isMockDatasetId, useMockData } from "./store";
 import type { MockDataset } from "./types";
 import type { ComputedRef, InjectionKey } from "vue";
 import { usePortalConfig } from "~/composables/usePortalConfig";
+// -----------------------------------------------------------------------------
 
 export const ACTIVE_MOCK_DATA: InjectionKey<
   ComputedRef<MockDataset | undefined>

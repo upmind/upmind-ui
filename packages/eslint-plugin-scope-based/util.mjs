@@ -21,6 +21,9 @@ function escapeRegExp(str) {
  */
 export const ARM_FILENAME_RE = /^(.*)\.(client|staff|guest)\.ts$/;
 
+/** The `<MODULE>_SCOPE_MATRIX` name of a module's actor matrix value. */
+export const SCOPE_MATRIX_NAME_RE = /^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*_SCOPE_MATRIX$/;
+
 /** The basename (final path segment) of a file path. */
 export function basenameOf(file) {
   return file.slice(file.lastIndexOf("/") + 1);
@@ -223,5 +226,123 @@ export function hasCompleteDecisionFor(sourceCode, keyName) {
     block =>
       REQUIRED_DECISION_FIELDS.every(field => block.fields[field]) &&
       nameRe.test(block.text)
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Composable file and factory helpers (the module-law rules below share them).
+// ---------------------------------------------------------------------------
+
+/** Any `.test.` / `.spec.` / fixtures / `__tests__` file — never governed. */
+export function isTestFile(filename) {
+  return /\.(test|spec|int\.test|no-test)\.[cm]?tsx?$|__tests__\/|\.fixtures\.ts$/.test(
+    filename
+  );
+}
+
+/** `use<Module>[.<layer>[.<actor>]].ts`, split into its parts, or null. */
+export function composableFile(filename) {
+  const m = basenameOf(filename).match(
+    /^(use[A-Z][A-Za-z0-9_]*)(?:\.(actions|context|meta|internals))?(?:\.(client|staff|guest))?\.ts$/
+  );
+  if (!m) return null;
+  return { composable: m[1], layer: m[2] ?? null, actor: m[3] ?? null };
+}
+
+/** The module directory (child of `modules/`) a file lives in, or null. */
+export function moduleDirOf(filename) {
+  const m = filename.replace(/\\/g, "/").match(/^(.*\/modules\/[^/]+)\//);
+  return m ? m[1] : null;
+}
+
+/** The own name a top-level function-like node carries, or null. */
+export function topLevelFunctionName(fn) {
+  if (fn.type === "FunctionDeclaration") {
+    const p = fn.parent;
+    const top =
+      p.type === "Program" ||
+      (p.type === "ExportNamedDeclaration" && p.parent.type === "Program") ||
+      (p.type === "ExportDefaultDeclaration" && p.parent.type === "Program");
+    return top && fn.id ? fn.id.name : null;
+  }
+  if (
+    fn.type === "ArrowFunctionExpression" ||
+    fn.type === "FunctionExpression"
+  ) {
+    const d = fn.parent;
+    if (
+      d?.type === "CallExpression" &&
+      d.callee.type === "Identifier" &&
+      d.callee.name === "createScopedComposable" &&
+      d.arguments.includes(fn)
+    ) {
+      return "createScopedComposable";
+    }
+    if (d?.type !== "VariableDeclarator" || d.init !== fn) return null;
+    if (d.id.type !== "Identifier") return null;
+    const decl = d.parent;
+    const top =
+      decl.parent.type === "Program" ||
+      (decl.parent.type === "ExportNamedDeclaration" &&
+        decl.parent.parent.type === "Program");
+    return top ? d.id.name : null;
+  }
+  return null;
+}
+
+/** The nearest enclosing function node of a node, or null. */
+export function enclosingFunction(node) {
+  for (let cur = node.parent; cur; cur = cur.parent) {
+    if (
+      cur.type === "FunctionDeclaration" ||
+      cur.type === "FunctionExpression" ||
+      cur.type === "ArrowFunctionExpression"
+    ) {
+      return cur;
+    }
+  }
+  return null;
+}
+
+/**
+ * Visit each object literal that a top-level factory function returns
+ * directly (`return { ... }` or an arrow body `({ ... })`). Calls
+ * `visit(objectNode, factoryName)`.
+ */
+export function onReturnedObjects(visit) {
+  function handle(objectNode, fn) {
+    const name = topLevelFunctionName(fn);
+    if (name) visit(objectNode, name);
+  }
+  return {
+    ReturnStatement(node) {
+      const arg = node.argument;
+      if (arg?.type !== "ObjectExpression") return;
+      const fn = enclosingFunction(node);
+      if (fn) handle(arg, fn);
+    },
+    ArrowFunctionExpression(node) {
+      if (node.body.type === "ObjectExpression") handle(node.body, node);
+    }
+  };
+}
+
+/** The static name of an object property key, or null. */
+export function propertyKeyName(prop) {
+  if (prop.type !== "Property" || prop.computed) return null;
+  if (prop.key.type === "Identifier") return prop.key.name;
+  if (prop.key.type === "Literal" && typeof prop.key.value === "string") {
+    return prop.key.value;
+  }
+  return null;
+}
+
+/** True for a function-like node. */
+export function isFunctionNode(node) {
+  return (
+    !!node &&
+    (node.type === "FunctionDeclaration" ||
+      node.type === "FunctionExpression" ||
+      node.type === "ArrowFunctionExpression")
   );
 }

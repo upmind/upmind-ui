@@ -14,7 +14,7 @@ import type { FunnelProps } from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------
 
-export default <FunnelProps>{
+export default {
   id: "domains",
   states: {
     /**
@@ -106,4 +106,4 @@ export default <FunnelProps>{
     })
   },
   services
-};
+} as FunnelProps;

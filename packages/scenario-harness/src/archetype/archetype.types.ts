@@ -1,6 +1,7 @@
 import type { ReflectedSnapshot } from "../reflection/reflection.types";
 import type { ScopeActor } from "../world/scope-actor";
 import type { JsonSchema } from "@jsonforms/core";
+// -----------------------------------------------------------------------------
 
 /** The four structural shapes `classify()` resolves to. */
 export const ARCHETYPE = {

@@ -17,6 +17,7 @@
  */
 
 import type { ListModuleColumns, ListModuleMedia } from "./types";
+// -----------------------------------------------------------------------------
 
 const MASONRY_COLUMNS_CLASS: Readonly<Record<ListModuleColumns, string>> = {
   1: "columns-1 sm:columns-1 lg:columns-1",

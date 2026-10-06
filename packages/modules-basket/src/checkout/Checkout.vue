@@ -91,9 +91,6 @@ import { isEqual, includes } from "lodash-es";
 import type { StorefrontRoute } from "@upmind-automation/foundation";
 import type { RouteLocationAsRelativeGeneric } from "vue-router";
 
-/* Fallthrough onto Markdown's root; stripped from PROD builds at the source. */
-const summaryAppendTestAttrs = useTestAttrs({ key: "slots:summary-append" });
-
 // -----------------------------------------------------------------------------
 
 const props = withDefaults(
@@ -108,6 +105,9 @@ const props = withDefaults(
     hideSlots: () => []
   }
 );
+
+/* Fallthrough onto Markdown's root; stripped from PROD builds at the source. */
+const summaryAppendTestAttrs = useTestAttrs({ key: "slots:summary-append" });
 
 const { t } = useI18n();
 const { navigateNext, navigateBack } = useRoutingEngine();

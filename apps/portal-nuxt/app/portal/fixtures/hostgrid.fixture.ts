@@ -19,6 +19,7 @@ import { defineProductGroup } from "../routes";
 import { map } from "lodash-es";
 import type { CommandModuleItem } from "../modules/command/types";
 import type { ProductGroup } from "../types";
+// -----------------------------------------------------------------------------
 
 /** The single generic bucket — legacy's "Products & Services" pillar, one non-reserved slug. */
 const GROUP_NAV: readonly { group: ProductGroup; icon: typeof Package }[] = [

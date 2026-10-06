@@ -9,8 +9,9 @@
  */
 
 import type { TabsProps } from "@upmind/ui";
+// -----------------------------------------------------------------------------
 
-export interface TabsModuleTab {
+export type TabsModuleTab = {
   readonly value: string;
   readonly label: string;
   /**
@@ -26,9 +27,9 @@ export interface TabsModuleTab {
    * shareable — legacy's tabs were distinct routes.
    */
   readonly action?: string;
-}
+};
 
-export interface TabsModuleProps {
+export type TabsModuleProps = {
   readonly tabs: readonly TabsModuleTab[];
   readonly variant?: TabsProps["variant"];
   /** Only meaningful with `variant: "pills"` (tasks.md 5.1). */
@@ -38,7 +39,7 @@ export interface TabsModuleProps {
   /** Empty-state heading when `tabs` is empty (tasks.md 5.6). No English default (CC22). */
   readonly emptyTitle: string;
   readonly emptyDescription?: string;
-}
+};
 
 export type TabsModuleEmits = {
   /** The picked tab's action value — the seam every module's actions ride. */

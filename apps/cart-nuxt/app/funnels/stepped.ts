@@ -10,7 +10,7 @@ import type { FunnelProps } from "@upmind-automation/headless";
 // to billing / product setup only where a guard rejects.
 // -----------------------------------------------------------------------------
 
-export default <FunnelProps>{
+export default {
   id: "stepped",
   extends: FUNNEL.CART,
   states: {
@@ -25,4 +25,4 @@ export default <FunnelProps>{
       always: [{ target: ROUTE.BASKET }]
     }
   }
-};
+} as FunnelProps;

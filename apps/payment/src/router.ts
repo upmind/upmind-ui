@@ -5,6 +5,7 @@
 import { createRouter, createWebHistory } from "vue-router";
 import NoInvoice from "./NoInvoice.vue";
 import { paymentRoutes } from "./routes";
+// -----------------------------------------------------------------------------
 
 export const LANDING_ROUTE = {
   name: "no-invoice",

@@ -2,13 +2,14 @@ import type {
   Product,
   ProductSummaryDetail
 } from "@upmind-automation/headless";
+// -----------------------------------------------------------------------------
 
-export interface PricingItemProps extends ProductSummaryDetail {
+export type PricingItemProps = ProductSummaryDetail & {
   i18nCategory?: string;
   icon?: string;
-}
+};
 
-export interface PricingListProps {
+export type PricingListProps = {
   pricing: Product["pricing"];
   details: Product["details"];
   processing?: boolean;
@@ -17,4 +18,4 @@ export interface PricingListProps {
   title?: string;
   options?: boolean;
   fields?: boolean;
-}
+};

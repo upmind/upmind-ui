@@ -2,6 +2,7 @@ import type {
   ITemplateCategory,
   IClientTemplateSlot
 } from "@upmind-automation/types";
+// -----------------------------------------------------------------------------
 
 export type ClientTemplateSlot = {
   id: IClientTemplateSlot["id"];

@@ -1,4 +1,5 @@
 import type { ScopeActor } from "./scope-actor";
+// -----------------------------------------------------------------------------
 
 /** Names a recorded journey; each world resolves it via the `defineJourney` fixture pool. */
 export type SeedRef = { journey: string };

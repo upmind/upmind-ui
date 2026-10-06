@@ -5,6 +5,7 @@ import {
 import { COLUMN_ITEMS, COLUMN_JUSTIFY } from "@upmind-automation/foundation";
 import { RIBBON_BACKGROUND } from "@upmind-automation/foundation";
 import { variants } from "./variants";
+// -----------------------------------------------------------------------------
 
 export const FOOTER_POSITION = createVariantConstants(variants.position);
 export const FOOTER_BACKGROUND = RIBBON_BACKGROUND;

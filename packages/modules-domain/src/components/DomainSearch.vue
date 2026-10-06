@@ -56,6 +56,8 @@ import { isMobile } from "@upmind-automation/foundation";
 import { isEmpty } from "lodash-es";
 import type { DomainSlotProps } from "../types";
 
+const inputValue = defineModel<string>("modelValue");
+
 // ----------------------------------------------------------------------------
 
 const props = defineProps<DomainSlotProps>();
@@ -71,8 +73,6 @@ const { t } = useI18n();
 const meta = computed(() => ({
   isSearching: props.searching
 }));
-
-const inputValue = defineModel<string>("modelValue");
 
 const placeholder = computed(() => {
   if (isMobile.value) return t("domain.search");

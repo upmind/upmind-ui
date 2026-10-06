@@ -21,6 +21,7 @@ import type {
   MockPersonaAccount
 } from "../types";
 import type { FormModel } from "@upmind/ui";
+// -----------------------------------------------------------------------------
 
 /** The accounts this sign-in may act for; a persona with none acts for itself alone. */
 export function personaAccounts(

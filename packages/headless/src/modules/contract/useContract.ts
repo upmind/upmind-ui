@@ -2,6 +2,7 @@ import { interpret } from "xstate";
 import { createScopedComposable } from "../scope/scope.builder";
 import { useI18n } from "../system-localisation";
 import contractMachine from "./contract.machine";
+import { CONTRACT_SCOPE_MATRIX } from "./contract.types";
 import { createContractActions } from "./useContract.actions";
 import { createContractContext } from "./useContract.context";
 import { createContractInternals } from "./useContract.internals";
@@ -14,7 +15,6 @@ import {
 } from "../../utils";
 import type { ContractScopeMatrix } from "./contract.types";
 import type { ScopeConfig, ScopeKey } from "../scope";
-import type { ScopeActorTypes } from "../scope/scope.types";
 // -----------------------------------------------------------------------------
 /**
  * @module contract/useContract
@@ -30,7 +30,7 @@ import type { ScopeActorTypes } from "../scope/scope.types";
 function createContractForScope(config: ScopeConfig, scopeKey: ScopeKey) {
   const { t } = useI18n();
 
-  const actorScope = config.actor as ScopeActorTypes;
+  const actorScope = config.actor;
 
   // SINGLE-READ step 3: the id comes from `.withId(id)` — `config.id` — and is
   // never re-derived from `config.context` (templates/SINGLE-READ.md).
@@ -85,6 +85,6 @@ function createContractForScope(config: ScopeConfig, scopeKey: ScopeKey) {
 export const useContract = createScopedComposable<
   ReturnType<typeof createContractForScope>,
   ContractScopeMatrix
->("contract", createContractForScope);
+>("contract", createContractForScope, CONTRACT_SCOPE_MATRIX);
 
 export type UseContract = ReturnType<typeof useContract>;

@@ -146,20 +146,6 @@ import type { ProductSortProps, ProductsProps } from "./types";
 import type { Product } from "@upmind-automation/headless";
 import type { RouteLocationAsRelativeGeneric } from "vue-router";
 
-// -----------------------------------------------------------------------------
-
-const props = defineProps<{
-  configureRoute: RouteLocationAsRelativeGeneric;
-}>();
-
-const { meta: pendingMeta } = useBasketProductsPending();
-
-const categoryInstance =
-  inject<UseProductCategories>("useProductCategories") ??
-  useProductCategories();
-
-const container = useTemplateRef<HTMLDivElement>("container");
-
 const categoryId = defineModel<ProductsProps["categoryId"] | undefined>(
   "categoryId"
 );
@@ -173,6 +159,20 @@ const sortBy = defineModel<ProductSortProps["property"] | undefined>("sort", {
 const direction = defineModel<ProductSortProps["direction"]>("direction", {
   default: RequestSortDirection.ASC
 });
+
+// -----------------------------------------------------------------------------
+
+const props = defineProps<{
+  configureRoute: RouteLocationAsRelativeGeneric;
+}>();
+
+const { meta: pendingMeta } = useBasketProductsPending();
+
+const categoryInstance =
+  inject<UseProductCategories>("useProductCategories") ??
+  useProductCategories();
+
+const container = useTemplateRef<HTMLDivElement>("container");
 
 // ---------------------------------------------------------------------------
 

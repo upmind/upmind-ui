@@ -3,6 +3,7 @@ import type { AnimatedIconVariants } from "@upmind/ui";
 import type { IconProps } from "@upmind-automation/foundation";
 import type { ICurrency } from "@upmind-automation/types";
 import type { RouteLocationAsRelativeGeneric } from "vue-router";
+// -----------------------------------------------------------------------------
 
 // Mirrors @upmind/ui AnimatedIcon's public props (the lib doesn't
 // export them as a type). Config shape for a basket modal's animated icon.
@@ -34,7 +35,7 @@ type AvatarConfig = {
   shape?: string;
 };
 
-export interface BasketModalProps {
+export type BasketModalProps = {
   modal?: boolean;
   open?: boolean;
   // ---
@@ -47,28 +48,28 @@ export interface BasketModalProps {
   to?: string;
   // ---
   size?: string;
-}
+};
 
-export interface CurrencySelectProps {
+export type CurrencySelectProps = {
   /** The selected currency code. */
   modelValue?: ICurrency["code"];
   /** The currencies offered in the list. */
   currencies?: ICurrency[];
   disabled?: boolean;
-}
+};
 
-export interface BasketCheckoutProps {
+export type BasketCheckoutProps = {
   disabled: boolean;
   loading: boolean;
-}
+};
 
-export interface BasketProductsProps {
+export type BasketProductsProps = {
   editRoute: RouteLocationAsRelativeGeneric;
   configurable?: boolean;
   disabled?: boolean;
-}
+};
 
-export interface SummaryProps {
+export type SummaryProps = {
   /** Itemise each product's configuration instead of listing plain totals. */
   showBreakdown?: boolean;
   /** Links each product back to the step where it is configured. Breakdown only. */
@@ -79,15 +80,15 @@ export interface SummaryProps {
   /** The basket aside shows a checkout button below the summary, so its loading
    * skeleton includes a button stand-in; the checkout summary has none. */
   showButton?: boolean;
-}
+};
 
-export interface BasketHeroProps {
+export type BasketHeroProps = {
   loading?: boolean;
-}
+};
 
-export interface SummarySkeletonProps {
+export type SummarySkeletonProps = {
   showBreakdown?: boolean;
   showProducts?: boolean;
   showButton?: boolean;
   card?: boolean;
-}
+};

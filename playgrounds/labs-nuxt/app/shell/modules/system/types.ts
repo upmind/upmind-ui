@@ -11,6 +11,6 @@ import type { InterstitialProps } from "@upmind/ui";
 /** Loading defaults closeLabel, so callers override any subset of the interstitial. */
 export type LoadingProps = Partial<InterstitialProps>;
 
-export interface RouteViewProps {
+export type RouteViewProps = {
   loadingProps?: LoadingProps;
-}
+};

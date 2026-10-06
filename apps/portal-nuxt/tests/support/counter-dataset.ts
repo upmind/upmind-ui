@@ -15,6 +15,7 @@ import { assign } from "lodash-es";
 import type { MockDataset } from "~/portal/mock/types";
 import { HOSTGRID_MOCK_DATASET } from "~/portal/mock/hostgrid";
 import { fillerChildAccount, padTo } from "~/portal/mock/hostgrid.filler";
+// -----------------------------------------------------------------------------
 
 /**
  * The shipped seed with legacy's gates OFF and a child account present — the

@@ -1,6 +1,5 @@
 import dayjs from "dayjs";
-import { watch } from "vue";
-import { assign, sendParent } from "xstate";
+import { assign, sendParent, spawn } from "xstate";
 import {
   CancellationRequestStatusCodes,
   ContractStatusCodes,
@@ -9,6 +8,7 @@ import {
   InvoiceStatusGroups,
   ProductTypes
 } from "@upmind-automation/types";
+import { productMachine } from "../product";
 import { useI18n } from "../system-localisation";
 import {
   ContractProductCancelOption,
@@ -32,6 +32,7 @@ import {
   isNumber,
   isUndefined,
   map,
+  uniqueId,
   without
 } from "lodash-es";
 import type {
@@ -47,16 +48,32 @@ import type {
 } from "./contract-product.types";
 import type { ProductConfigContext, ProductModel } from "../product";
 import type { ScopeContext } from "../scope/scope.types";
-import type { ComputedRef } from "vue";
 import type { AnyEventObject, InvokeCallback } from "xstate";
 // -----------------------------------------------------------------------------
 /**
  * @module contract-product/contract-product.utils
  * @description Pure predicates, the three node selectors the machine's entry
  * order reads, the delegated force-set, the forced hide-one-time seam, the
- * future-cancellation anniversary maths, and the change-of-plan rule, body,
+ * future-cancellation anniversary maths, and the change-of-product rule, body,
  * seed and child overrides. No HTTP, no state reads.
  */
+
+/** The 404 a contract-product request rejects with when a required id is missing. */
+export function notAvailableError(
+  context: ContractProductContext
+): DetailedError {
+  const { t } = useI18n();
+
+  return new DetailedError(
+    t("error.contract_product_not_available"),
+    responseCodes.Not_Found,
+    ErrorOrigin.Headless,
+    {
+      contractId: context.contractId,
+      contractProductId: context.contractProductId
+    }
+  );
+}
 
 // -----------------------------------------------------------------------------
 // Node selectors — flow.md §3 "Entry order"
@@ -203,21 +220,6 @@ export function resolveExcludeDelegated(
   if (scopeContext?.type === ContractProductsContextTypes.DELEGATED) return 0;
   if (!hasDelegatedProducts) return 1;
   return preference === true ? 1 : 0;
-}
-
-/** Resolves once the stored show-delegated preference has settled — held, or known absent. */
-export function whenPreferenceSettles(
-  isSettled: ComputedRef<boolean>
-): Promise<void> {
-  if (isSettled.value) return Promise.resolve();
-
-  return new Promise<void>(resolve => {
-    const stop = watch(isSettled, settled => {
-      if (!settled) return;
-      stop();
-      resolve();
-    });
-  });
 }
 
 /**
@@ -373,7 +375,7 @@ export async function validateForm({
 }
 
 // -----------------------------------------------------------------------------
-// Change of plan — the gate, the body, the seed, the child overrides (FE-3206)
+// Change of product — the gate, the body, the seed, the child overrides (FE-3206)
 
 /** The wire status code of a product, as the record read gave it. */
 function statusCode(product: Pick<ContractProduct, "status">) {
@@ -381,7 +383,7 @@ function statusCode(product: Pick<ContractProduct, "status">) {
 }
 
 /**
- * True when the client may start a change of plan: the six offer clauses of
+ * True when the client may start a change of product: the six offer clauses of
  * legacy `canUpgradeDowngradeAsClient` [o1] and the three start clauses of its
  * menu [o2]. The "not admin" clause is constant true for a client.
  *
@@ -462,7 +464,7 @@ function optionPrice(
 
 /**
  * The `PUT contracts/{c}/products/{p}/change` body from the child model, the
- * child's raw plan and the contract's old options [o9]-[o12]. The dry run and
+ * child's raw product and the contract's old options [o9]-[o12]. The dry run and
  * the commit send the same body. No product quantity and no provision field
  * goes.
  */
@@ -496,7 +498,7 @@ export function buildChangeProductBody(
 }
 
 /**
- * The seed of the configurator child: the chosen plan on the current term, in
+ * The seed of the configurator child: the chosen product on the current term, in
  * the contract currency, with no promotions and no coupons [o7], [o8]. It sets
  * no basket, no client and no basket product. `promotions: false` is the
  * product load's own "omit promotions" value (R12).
@@ -518,8 +520,21 @@ export function buildMigrationSeed(
   return seed as unknown as ProductConfigContext;
 }
 
+/** Spawns the stock product machine for a chosen product, with the change-of-product overrides. */
+export function spawnMigrationChild(
+  context: ContractProductContext,
+  target: MigrationTarget
+) {
+  return spawn(
+    productMachine
+      .withContext(buildMigrationSeed(context, target))
+      .withConfig(migrationTargetConfig),
+    { name: uniqueId("migrationTarget-") }
+  );
+}
+
 /**
- * The child's model and raw plan, as the two request overrides send them to
+ * The child's model and raw product, as the two request overrides send them to
  * the manager. The model is a copy: the editors change the child's nested
  * options in place, and the manager compares the next model with this one.
  */
@@ -531,7 +546,7 @@ function migrationChange({
 }
 
 /**
- * The invoked callback of `configuring`: reports the chosen plan's configurator
+ * The invoked callback of `configuring`: reports the chosen product's configurator
  * failing to load, or failing later, as `MIGRATION.UNAVAILABLE`. The cleanup
  * unsubscribes and leaves the child running: the machine stops it.
  */
@@ -553,7 +568,7 @@ export function watchMigrationTarget({
 }
 
 /**
- * The action overrides of the stock product machine for a change of plan (R6,
+ * The action overrides of the stock product machine for a change of product (R6,
  * R16). `setBasketHelper` connects nothing to the basket and spawns nothing.
  * `calculate` and `update` hand the model to the manager, which sends the dry
  * run and the commit. `refreshContext` keeps the contract currency.

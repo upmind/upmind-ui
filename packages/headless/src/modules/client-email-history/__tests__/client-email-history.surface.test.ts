@@ -31,6 +31,7 @@ import {
   useClientReceivedEmail,
   useClientReceivedEmails
 } from "..";
+import { RECEIVED_EMAIL_SCOPE_MATRIX } from "../client-email-history.types";
 import { ScopeActorTypes } from "../../scope/scope.types";
 import type {
   SentEmail,
@@ -95,13 +96,12 @@ describe("client-email-history barrel — the single read declares no leaf-recor
     expect(barrel).not.toHaveProperty("RECEIVED_EMAIL_SCOPE_MATRIX");
   });
 
-  it("advertises no single-read scope matrix on the composable itself", () => {
-    // `createScopedComposable` carries a module's matrix onto the returned
-    // composable as a VALUE — `useClientEmails.scopeMatrix` is the live receipt
-    // that the mechanism is wired and used — and that value is what the
-    // acting-for picker reads. The single read passes none, so it advertises
-    // none.
-    expect(useClientReceivedEmail.scopeMatrix).toBeUndefined();
+  it("advertises its scope matrix on the composable itself", () => {
+    // The acting-for picker reads `scopeMatrix` off the reference before it
+    // ever invokes the composable, so the value must be there.
+    expect(useClientReceivedEmail.scopeMatrix).toBe(
+      RECEIVED_EMAIL_SCOPE_MATRIX
+    );
   });
 
   it("names the record with .withId, at every builder position", () => {

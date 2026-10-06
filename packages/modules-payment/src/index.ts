@@ -5,6 +5,7 @@
  */
 import { registerFormRenderers } from "@upmind-automation/foundation";
 import { paymentRenderers } from "./renderers";
+// -----------------------------------------------------------------------------
 
 registerFormRenderers(paymentRenderers);
 

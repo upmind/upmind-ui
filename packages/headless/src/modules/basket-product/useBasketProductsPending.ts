@@ -34,6 +34,7 @@ import {
 import type { ProductModel, ProductProps } from "../product";
 import type { IBasket } from "@upmind-automation/types";
 import type { ActorRef, State, Subscription } from "xstate";
+// -----------------------------------------------------------------------------
 
 type PendingProduct = ReturnType<typeof useBasketProductPending>;
 

@@ -69,7 +69,8 @@ export default {
       // `defineProps<{ ... }>()` — an INLINE object-type literal only.
       CallExpression(node) {
         const callee = node.callee;
-        if (callee.type !== "Identifier" || callee.name !== "defineProps") return;
+        if (callee.type !== "Identifier" || callee.name !== "defineProps")
+          return;
         const typeArgs = node.typeArguments;
         if (!typeArgs || typeArgs.params.length === 0) return;
         const first = typeArgs.params[0];
@@ -87,12 +88,15 @@ export default {
 
       "Program:exit"() {
         if (sources.length === 0) return;
-        const hasNamingProp = sources.some((source) =>
-          source.names.some((name) => NAMING_PROPS.has(name))
+        const hasNamingProp = sources.some(source =>
+          source.names.some(name => NAMING_PROPS.has(name))
         );
         if (hasNamingProp) return;
         // Report once, on the first inspectable source.
-        context.report({ node: sources[0].node, messageId: "missingAccessibleName" });
+        context.report({
+          node: sources[0].node,
+          messageId: "missingAccessibleName"
+        });
       }
     };
   }

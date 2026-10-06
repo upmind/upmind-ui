@@ -107,8 +107,8 @@ import { useScenarioTransport } from "../runtime/composables/useScenarioTranspor
 import { useScenarioWorld } from "../runtime/composables/useScenarioWorld";
 import { registry } from "../runtime/registry";
 import scenario, { STATS_SCENARIO } from "./stats.scenario";
-import { useActorScope } from "~/composables/scope";
 import type { ScopeActor } from "@upmind-automation/scenario-harness";
+import { useActorScope } from "~/composables/scope";
 
 // NO `name`, `path` or `nav` here: the registrar owns all three, off the
 // declaration beside this file.

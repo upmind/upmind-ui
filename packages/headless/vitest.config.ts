@@ -2,6 +2,7 @@ import { fileURLToPath } from "node:url";
 import { mergeConfig, defineConfig, configDefaults } from "vitest/config";
 import { workerPool } from "../../vitest.workers";
 import viteConfig from "./vite.config";
+// -----------------------------------------------------------------------------
 
 const root = fileURLToPath(new URL("./", import.meta.url));
 

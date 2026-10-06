@@ -7,11 +7,12 @@ import type {
   ContractProductListQuery,
   ContractProductServices,
   FilterModel,
+  ShowDelegatedPreference,
   SortModel
 } from "./contract-product.types";
 import type { ScopeActorTypes } from "../scope/scope.types";
 import type { ICProdGroup } from "@upmind-automation/types";
-import type { Ref } from "vue";
+import type { ComputedRef, Ref } from "vue";
 // -----------------------------------------------------------------------------
 /**
  * @module contract-product/useContractProducts.actions
@@ -26,19 +27,23 @@ export function createContractProductsActions(
   service: ContractProductServices,
   query: ContractProductListQuery,
   scopeKey: string,
-  groupedCounts: Ref<ICProdGroup[]>
+  groupedCounts: Ref<ICProdGroup[]>,
+  clientId: ComputedRef<string | undefined>,
+  preference: ShowDelegatedPreference
 ) {
-  const { isAvailable: isSessionInitialised, isLoading: isSessionSettling } =
-    useActiveSession().useMeta();
+  const {
+    isAuthenticated,
+    isAvailable: isSessionInitialised,
+    isLoading: isSessionSettling
+  } = useActiveSession().useMeta();
 
   /**
    * This scope's settled addressability outcome, or `undefined` while the
-   * session is still settling. Reads `service.isAvailable` — the same predicate
-   * the query's `enabled` and `guard` call — so "ready to read" and "will ever
-   * fetch" are the same question.
+   * session is still settling. The same check the query's `enabled` and
+   * `guard` make, so "ready to read" and "will ever fetch" are the same question.
    */
   function addressableOutcome(): boolean | undefined {
-    if (service.isAvailable.value) return true;
+    if (isAuthenticated.value && clientId.value) return true;
     if (isSessionInitialised.value || !isSessionSettling.value) return false;
     return undefined;
   }
@@ -49,7 +54,7 @@ export function createContractProductsActions(
 
     return new Promise<boolean>(resolve => {
       const stop = watch(
-        [service.isAvailable, isSessionInitialised, isSessionSettling],
+        [isAuthenticated, clientId, isSessionInitialised, isSessionSettling],
         () => {
           const outcome = addressableOutcome();
           if (outcome === undefined) return;
@@ -90,7 +95,8 @@ export function createContractProductsActions(
   async function refresh(): Promise<void> {
     // TanStack's `refetch()` resolves with the error on the result rather
     // than rejecting, so a forced read has to be wrapped to reject at all.
-    if (!service.isAvailable.value) throw new NotAuthenticatedError();
+    if (!isAuthenticated.value || !clientId.value)
+      throw new NotAuthenticatedError();
 
     const { error } = await query.refetch();
     if (error instanceof NotAuthenticatedError) throw error;
@@ -105,7 +111,7 @@ export function createContractProductsActions(
   }
 
   function destroy(): void {
-    service.destroyPreference();
+    preference.destroy();
     removeFromRegistry(scopeKey);
   }
 

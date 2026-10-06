@@ -15,7 +15,10 @@
  * @module packages/eslint-plugin-endpoint-ownership/rules/no-direct-tanstack-query
  */
 
-const FORBIDDEN_SOURCES = new Set(["@tanstack/vue-query", "@tanstack/query-core"]);
+const FORBIDDEN_SOURCES = new Set([
+  "@tanstack/vue-query",
+  "@tanstack/query-core"
+]);
 
 const FORBIDDEN_SPECIFIERS = new Set([
   "useQuery",

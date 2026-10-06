@@ -5,6 +5,7 @@
  */
 
 import type { Component } from "vue";
+// -----------------------------------------------------------------------------
 
 export type BottomNavModuleItem = {
   readonly to: string;
@@ -12,7 +13,7 @@ export type BottomNavModuleItem = {
   readonly icon: Component;
 };
 
-export interface BottomNavModuleProps {
+export type BottomNavModuleProps = {
   /**
    * Config-owned destinations (design.md §D5) — a curated 3-5, never a reflow
    * of the sidebar's menu (tasks.md 3.3). Never hardcoded here, so a later
@@ -21,4 +22,4 @@ export interface BottomNavModuleProps {
   readonly items: readonly BottomNavModuleItem[];
   /** Accessible name of the wrapped `<nav>` landmark. No English default (CC22) — the consumer names their own portal's navigation. */
   readonly label: string;
-}
+};

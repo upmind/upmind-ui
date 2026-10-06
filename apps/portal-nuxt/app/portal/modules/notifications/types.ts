@@ -7,14 +7,15 @@
  */
 
 import type { ListModuleItem } from "../list/types";
+// -----------------------------------------------------------------------------
 
 /** One choice on the dropdown's own rail — legacy's all / unread / read. */
-export interface NotificationsModuleFilter {
+export type NotificationsModuleFilter = {
   readonly value: string;
   readonly label: string;
-}
+};
 
-export interface NotificationsModuleProps {
+export type NotificationsModuleProps = {
   readonly items: readonly ListModuleItem[];
   /** The unread badge's count — hidden at zero. */
   readonly count: number;
@@ -49,7 +50,7 @@ export interface NotificationsModuleProps {
   readonly viewAllTo: string;
   /** The "view all" link's label. No English default (CC22). */
   readonly viewAllLabel: string;
-}
+};
 
 export type NotificationsModuleEmits = {
   select: [value: string];

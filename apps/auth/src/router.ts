@@ -7,6 +7,7 @@ import { QUERY_PARAMS, useActiveSession } from "@upmind-automation/headless";
 import { AUTH_ROUTE, authRoutes } from "./routes";
 import SignedIn from "./SignedIn.vue";
 import type { RouteLocationNormalized } from "vue-router";
+// -----------------------------------------------------------------------------
 
 async function isSignedIn() {
   const session = useActiveSession();

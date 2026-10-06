@@ -9,6 +9,7 @@ import { isEmpty, toSafeInteger } from "lodash-es";
 import type { Product } from "../product";
 import type { ProductDetails, TermDetails } from "../product";
 import type { IProduct } from "@upmind-automation/types";
+// -----------------------------------------------------------------------------
 
 // ---------------------------------------------------------------------------
 

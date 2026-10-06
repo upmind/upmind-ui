@@ -28,6 +28,7 @@ import type {
   UISchemaElement
 } from "@jsonforms/core";
 import type { FormModel } from "@upmind/ui";
+// -----------------------------------------------------------------------------
 
 /** What the enrolment dialog states — the key, and the link that carries it. */
 export type TwoFactorEnrolment = {

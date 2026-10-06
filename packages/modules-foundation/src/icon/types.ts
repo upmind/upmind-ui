@@ -5,6 +5,7 @@
  */
 
 import type { HTMLAttributes } from "vue";
+// -----------------------------------------------------------------------------
 
 // --- Icon size scale: monotonic + icon-appropriate (2xs=12px … 3xl=64px) ---
 export type IconSize =

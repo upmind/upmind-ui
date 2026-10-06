@@ -72,15 +72,15 @@ import BasketProductSkeletons from "./BasketProductSkeletons.vue";
 import { every, reduce, set } from "lodash-es";
 import type { BasketProductCardsProps } from "./types";
 
-// --- types
-
-const { card: sectionCard } = useSection();
-
 const props = withDefaults(defineProps<BasketProductCardsProps>(), {
   open: false
 });
 
 const emits = defineEmits(["update:open", "resolve"]);
+
+// --- types
+
+const { card: sectionCard } = useSection();
 
 const { t } = useI18n();
 const { meta, products, updateQuantity, remove } = useBasketProducts();

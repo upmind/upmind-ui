@@ -38,6 +38,8 @@ import BasketFieldsSection from "./BasketFieldsSection.vue";
 // --- types
 import type { BasketProductsProps } from "./types";
 
+const open = defineModel<boolean>("open", { default: false });
+
 // -----------------------------------------------------------------------------
 const props = withDefaults(defineProps<BasketProductsProps>(), {
   configurable: false
@@ -48,8 +50,6 @@ const emits = defineEmits(["resolve"]);
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();
-
-const open = defineModel<boolean>("open", { default: false });
 
 const { meta: productsMeta } = useBasketProducts();
 

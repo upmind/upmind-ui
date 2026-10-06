@@ -120,10 +120,10 @@ import type {
   UseMetaResult
 } from "@upmind-automation/headless";
 
-// -----------------------------------------------------------------------------
-
-// `modelValue` and its update event are declared by defineModel below.
-const emit = defineEmits(["update:quantity"]);
+const modelValue = defineModel<string | string[]>("modelValue", {
+  get: value => safeValue(value),
+  set: value => safeValue(value)
+});
 
 const props = defineProps<{
   subproduct: SubproductDetails;
@@ -134,6 +134,11 @@ const props = defineProps<{
   disabled?: boolean;
   processing?: boolean;
 }>();
+
+// -----------------------------------------------------------------------------
+
+// `modelValue` and its update event are declared by defineModel below.
+const emit = defineEmits(["update:quantity"]);
 
 const { t } = useI18n();
 const { ui } = props.meta.with({ optionGroup: () => props.subproduct });
@@ -151,18 +156,13 @@ function safeValue(value: unknown): string | string[] {
   return (safeArray ?? []).filter(Boolean);
 }
 
-const modelValue = defineModel<string | string[]>("modelValue", {
-  get: value => safeValue(value),
-  set: value => safeValue(value)
-});
-
 // The dropdown's option list; an unrequired subproduct leads with None.
-interface SubproductSelectOption {
+type SubproductSelectOption = {
   value: string;
   label?: string;
   textValue?: string;
   opt?: SubproductOption;
-}
+};
 const selectOptions = computed<SubproductSelectOption[]>(() => {
   const options = optionsWithConfig.value.map(opt => ({
     value: opt.id,

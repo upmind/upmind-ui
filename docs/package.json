@@ -6,7 +6,9 @@
   "scripts": {
     "corpus:build": "node corpus/build.mjs",
     "corpus:emit": "node corpus/emit-mdx.mjs",
-    "corpus:refresh": "pnpm run corpus:build && pnpm run corpus:emit"
+    "corpus:refresh": "pnpm run corpus:build && pnpm run corpus:emit",
+    "gate:prose": "node corpus/gates/gate-prose.mjs",
+    "gate:prose:baseline": "node corpus/gates/gate-prose.mjs --update-baseline"
   },
   "keywords": [],
   "author": "",

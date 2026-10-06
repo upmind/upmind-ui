@@ -84,9 +84,8 @@ import {
 import type { ProductCardSkeletonProps } from "./types";
 import type { ImageProps } from "@upmind/ui";
 
-const { t } = useI18n();
 defineProps<ProductCardSkeletonProps>();
-
+const { t } = useI18n();
 const { ui } = useConfig();
 
 const stylesMeta = computed(() => ({

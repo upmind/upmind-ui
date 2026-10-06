@@ -4,6 +4,7 @@ import { useI18n } from "vue-i18n";
 import { useValidationTranslator } from "@upmind-automation/headless";
 import { assign, isEmpty, isFunction, trimStart } from "lodash-es";
 import type { FormI18n } from "./useFormI18n.types";
+// -----------------------------------------------------------------------------
 
 export type { FormI18n } from "./useFormI18n.types";
 

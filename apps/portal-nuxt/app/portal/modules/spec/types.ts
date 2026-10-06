@@ -9,8 +9,9 @@
  */
 
 import type { BadgeVariants } from "@upmind/ui";
+// -----------------------------------------------------------------------------
 
-export interface SpecModuleItem {
+export type SpecModuleItem = {
   readonly id: string;
   /** The row's term. No English default (CC22). */
   readonly label: string;
@@ -34,7 +35,7 @@ export interface SpecModuleItem {
    * `copyable` is set — a value you cannot read is one you can only copy.
    */
   readonly secret?: boolean;
-}
+};
 
 export const SPEC_MODULE_VARIANT = {
   /** Plain sentence-case terms — Assets' "Your plan / Starter". */
@@ -46,7 +47,7 @@ export const SPEC_MODULE_VARIANT = {
 export type SpecModuleVariant =
   (typeof SPEC_MODULE_VARIANT)[keyof typeof SPEC_MODULE_VARIANT];
 
-export interface SpecModuleProps {
+export type SpecModuleProps = {
   readonly items: readonly SpecModuleItem[];
   /** Which term treatment renders; a brand's look is chosen in CONFIG, never baked into the module. */
   readonly variant?: SpecModuleVariant;
@@ -62,7 +63,7 @@ export interface SpecModuleProps {
   /** The Show-all control's labels — required wherever `maxItems` is. No English default (CC22). */
   readonly moreLabel?: string;
   readonly lessLabel?: string;
-}
+};
 
 export type SpecModuleEmits = {
   select: [value: string];

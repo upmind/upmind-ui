@@ -112,12 +112,12 @@ const activeBrand = computed(() =>
   brandScope.value.mode === "brand" ? brandScope.value.brandId : "org"
 );
 
-interface BrandChoice {
+type BrandChoice = {
   value: string;
   label: string;
   icon: string;
   color?: string;
-}
+};
 
 /**
  * A brand's own hex, or nothing. `brand_color` is API-configured data reaching
@@ -212,9 +212,9 @@ async function select(value: string): Promise<void> {
   );
 }
 
-interface BrandMenuItem extends MenuItem {
+type BrandMenuItem = MenuItem & {
   color?: string;
-}
+};
 
 const items = computed<BrandMenuItem[]>(() =>
   map(choices.value, choice => ({

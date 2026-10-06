@@ -25,7 +25,9 @@ test("controlled-boolean-undefined", () => {
   ruleTester.run("controlled-boolean-undefined", rule, {
     valid: [
       // The law: a controlled boolean falls through as `undefined`.
-      { code: `const props = withDefaults(defineProps<P>(), { open: undefined });` },
+      {
+        code: `const props = withDefaults(defineProps<P>(), { open: undefined });`
+      },
       // `true` is a real default, not a pinned controlled `false`.
       { code: `const props = withDefaults(defineProps<P>(), { loop: true });` },
       // Non-boolean defaults are out of scope for this rule.

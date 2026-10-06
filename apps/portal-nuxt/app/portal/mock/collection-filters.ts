@@ -31,6 +31,7 @@ import type {
   ListControlsFilterKind,
   ListControlsFilterOption
 } from "../modules/list-controls/types";
+// -----------------------------------------------------------------------------
 
 /**
  * One narrowing a panel offers, as its definition declares it. The applied

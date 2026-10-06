@@ -49,8 +49,6 @@ import { isArray, isNil, toNumber } from "lodash-es";
 import type { TermDetails } from "@upmind-automation/headless";
 import type { HTMLAttributes } from "vue";
 
-// -----------------------------------------------------------------------------
-const emits = defineEmits(["update:modelValue"]);
 const props = withDefaults(
   defineProps<{
     as?: string;
@@ -81,7 +79,8 @@ const props = withDefaults(
     visible: true
   }
 );
-
+// -----------------------------------------------------------------------------
+const emits = defineEmits(["update:modelValue"]);
 const { t } = useI18n();
 
 const hasItems = computed(() => {

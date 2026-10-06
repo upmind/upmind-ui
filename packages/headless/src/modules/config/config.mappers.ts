@@ -24,6 +24,7 @@ import {
   first
 } from "lodash-es";
 import type { UIMetaSchema as UISchema, DataSchema } from "./schema";
+// -----------------------------------------------------------------------------
 
 /** Get value for a scope from input items */
 export function getScopeValue(

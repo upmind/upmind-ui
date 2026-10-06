@@ -1,4 +1,3 @@
-import type { Meta, StoryObj } from "@storybook/vue3-vite";
 import { themes } from "@upmind/tokens";
 import {
   Bell,
@@ -14,6 +13,7 @@ import {
   scopedTokenStyle,
   useThemeTick
 } from "./foundation-helpers.ts";
+import type { Meta, StoryObj } from "@storybook/vue3-vite";
 
 /**
  * Upmind UI icons are lucide-vue-next only, drawn at a theme-controlled stroke:

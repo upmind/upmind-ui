@@ -245,23 +245,23 @@ export type ContractProduct = {
   /** The display name — the shared product title over this contract product: "Starter Hosting (testdomain.com)". */
   title: string;
   canCancel: IContractProduct["can_cancel"];
-  /** A pro-rata invoice from a product change is still unpaid; cancelling and changing plan are held back. */
+  /** A pro-rata invoice from a product change is still unpaid; cancelling and changing product are held back. */
   proRataPending: IContractProduct["pro_rata_pending"];
-  /** The platform lets the client modify the product (`can_modify`); a change of plan needs it. */
+  /** The platform lets the client modify the product (`can_modify`); a change of product needs it. */
   canModify: boolean;
-  /** `product.product_type` — a change of plan is offered for a single product only. */
+  /** `product.product_type` — a change of product is offered for a single product only. */
   productType?: ProductTypes;
-  /** The plans the product's plan allows a change to (`allowed_migrations`). */
+  /** The products the current product allows a change to (`allowed_migrations`). */
   allowedMigrations: IProductMigration[];
-  /** The contract's own option lines, for the option price rule of a change of plan. */
+  /** The contract's own option lines, for the option price rule of a change of product. */
   currentOptions: ContractProductOption[];
-  /** The contract currency id — a change of plan loads and prices in it. */
+  /** The contract currency id — a change of product loads and prices in it. */
   contractCurrencyId?: IContract["currency_id"];
   /** The contract currency code. */
   contractCurrencyCode?: string;
-  /** The contract account id — the plan reads are scoped to it. */
+  /** The contract account id — the product reads are scoped to it. */
   contractAccountId?: IContract["account_id"];
-  /** The contract tax type, for the option editors of a change of plan. */
+  /** The contract tax type, for the option editors of a change of product. */
   contractTaxType?: IContract["tax_type"];
   /** The owning contract's translated billing-cycle label (`contract.billing_cycle_months`) — the product record's "Contract billing cycle" (FE-3206). `undefined` when the contract relation is absent. */
   contractBillingCycleLabel?: string;
@@ -369,10 +369,10 @@ export type ContractProductContext = {
   /** The open consolidation form. */
   consolidation?: ContractProductForm;
 
-  /** The open change of plan. */
+  /** The open change of product. */
   migration?: ContractProductMigration;
 
-  /** The invoice the last committed change of plan raised; outside the form slot, so the re-read keeps it. */
+  /** The invoice the last committed change of product raised; outside the form slot, so the re-read keeps it. */
   migrationResult?: MigrationResult | null;
 };
 
@@ -393,7 +393,7 @@ export type ContractProductForm = {
 // MIGRATION — the `migrating` region (FE-3206)
 // -----------------------------------------------------------------------------
 
-/** The chosen plan: its id and its row of the plan list. */
+/** The chosen product: its id and its row of the product list. */
 export type MigrationTarget = {
   id: IProduct["id"];
   product: Product;
@@ -405,14 +405,14 @@ export type MigrationChange = {
   rawProduct?: IProduct;
 };
 
-/** One open change of plan: the chosen plan, its configurator and what was last priced. */
+/** One open change of product: the chosen product, its configurator and what was last priced. */
 export type ContractProductMigration = {
   target?: MigrationTarget;
   /** The spawned configurator child. */
   ref?: ActorRef<AnyEventObject>;
   /** The last child model that went to a request. */
   model?: ProductModel;
-  /** The raw plan of that model, for the option price rule. */
+  /** The raw product of that model, for the option price rule. */
   rawProduct?: IProduct;
   /** The dry run of `model`. */
   preview?: MigrationPreview;
@@ -428,7 +428,7 @@ export type MigrationPreview = {
   isFree: boolean;
 };
 
-/** What a committed change of plan gave. */
+/** What a committed change of product gave. */
 export type MigrationResult = {
   invoiceId?: IInvoice["id"];
   unpaidAmount: number;
@@ -469,7 +469,7 @@ export type ChangeProductInput = {
 };
 
 /**
- * The configurator of the chosen plan: a subset of `useProductConfig` over the
+ * The configurator of the chosen product: a subset of `useProductConfig` over the
  * child. It has no `service`, no term setter, no quantity member, no provision
  * member and no trial setter, so a commit cannot skip `migrate()`. Its
  * `setConfig` drops `startTrial` and `provisionFields`. Its `schema` and
@@ -507,11 +507,11 @@ export type MigrationConfigHolder = {
  * when the inputs go incomplete, and on `dispose`.
  */
 export type MigrationHolders = {
-  /** The count of the plans the product's plan allows. */
+  /** The count of the products the current product allows. */
   count: ShallowRef<UseProductCatalogue | null>;
-  /** The paged list of those plans on the current term. */
+  /** The paged list of those products on the current term. */
   list: ShallowRef<UseProductCatalogue | null>;
-  /** The configurator of the chosen plan. */
+  /** The configurator of the chosen product. */
   config: ShallowRef<MigrationConfigHolder | null>;
   /** The child matches `available`; false when no child is spawned. */
   isMigrationTargetReady: ComputedRef<boolean>;
@@ -729,22 +729,31 @@ export type ContractProductListQuery = ListQuery<
   QueryModel
 >;
 
+/**
+ * The show-delegated preference of one collection scope (design 8.5), minted
+ * once in `useContractProducts.ts` and handed to the services factory.
+ */
+export type ShowDelegatedPreference = {
+  /** The `exclude_delegated` force-set the reads send, read at fire time. */
+  excludeDelegated: ComputedRef<0 | 1>;
+  /** True once the stored preference is read, or at once for the `DELEGATED` context. */
+  isSettled: ComputedRef<boolean>;
+  /** Resolves once `isSettled` is true. */
+  whenSettled: () => Promise<void>;
+  /** Stops the scoped preference reader. */
+  destroy: () => void;
+};
+
 /** The contract `createContractProductServices` resolves to. */
 export type ContractProductServices = {
   /** The module's base cache key; every write invalidates it whole (design 8.4). */
   queryKey: QueryKey;
-  /** The target client this scope resolved. */
-  clientId: ComputedRef<string | undefined>;
-  /** The ONE addressability predicate the collection's request gates call. */
-  isAvailable: ComputedRef<boolean>;
   /** The collection's list query; its request state is the declared query schema. */
   loadList: () => ContractProductListQuery;
   /** The dashboard's grouped counts (design 8.1, ADR-4). */
   loadGroupedCounts: () => Promise<ICProdGroup[]>;
   /** The purchased categories (R10, ADR-20). */
   loadPurchasedCategories: () => Promise<IProductCategory[]>;
-  /** Stops the scoped show-delegated preference reader (design 8.5). */
-  destroyPreference: () => void;
   /** The `contractProductPicker`'s own lookups (R38 item 2), one per pickable record. */
   lookups: {
     contractProduct: ContractProductPickerLookupService;

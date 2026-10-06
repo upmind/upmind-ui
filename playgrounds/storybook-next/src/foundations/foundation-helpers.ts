@@ -120,11 +120,11 @@ export const SpecimenInput = {
   `
 };
 
-export interface SpecimenMenuItem {
+export type SpecimenMenuItem = {
   label: string;
   selected?: boolean;
   tone?: "danger";
-}
+};
 
 /** Default item set: the invoice actions menu used across the foundations. */
 export const MENU_ITEMS: SpecimenMenuItem[] = [

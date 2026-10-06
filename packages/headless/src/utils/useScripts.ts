@@ -3,14 +3,15 @@ import { computed } from "vue";
 import { useI18n } from "../modules/system-localisation";
 import { DetailedError, ErrorOrigin, responseCodes } from "./useError";
 import { first, has, isFunction, omit, set } from "lodash-es";
+// -----------------------------------------------------------------------------
 
 // --- types
 
-export interface Scripts {
+export type Scripts = {
   errored: Record<string, boolean>;
   loaded: Record<string, string>;
   loading: Record<string, Promise<void>>;
-}
+};
 // -----------------------------------------------------------------------------
 
 const loadingStore = new Store<Scripts["loading"]>({});

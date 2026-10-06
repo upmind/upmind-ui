@@ -34,6 +34,7 @@ import {
   uniq
 } from "lodash-es";
 import type { MockDataset, MockMoney, MockWalletTransaction } from "./types";
+// -----------------------------------------------------------------------------
 
 /** Two decimal places, the minor unit every seeded currency trades in. */
 const MONEY_PRECISION = 2;

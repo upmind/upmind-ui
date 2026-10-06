@@ -33,13 +33,13 @@ import type { RendererProps } from "@jsonforms/vue";
 import "filepond/dist/filepond.min.css";
 import "filepond-plugin-image-preview/dist/filepond-plugin-image-preview.min.css";
 
+const props = defineProps<RendererProps<ControlElement>>();
 const { t } = useI18n();
 const FilePond = vueFilePond(
   FilePondPluginFileValidateType,
   FilePondPluginImagePreview
 );
 
-const props = defineProps<RendererProps<ControlElement>>();
 const fileTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
 
 const {

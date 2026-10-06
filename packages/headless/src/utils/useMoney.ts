@@ -1,4 +1,5 @@
 import { useI18n } from "vue-i18n";
+// -----------------------------------------------------------------------------
 
 /** Removes `.00` or `,00` from a formatted price — "£10.00" → "£10". Setup-context free. */
 export function removeTrailingZeroes(val?: string) {

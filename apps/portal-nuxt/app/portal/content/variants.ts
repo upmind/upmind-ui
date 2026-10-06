@@ -10,6 +10,7 @@
 
 import { MODULE_CLUSTER_GAP } from "../variants";
 import type { RowMeasure, RowSurface } from "./types";
+// -----------------------------------------------------------------------------
 
 /**
  * The `controls` band under a panel's description (`RowHeaderControls`): ONE

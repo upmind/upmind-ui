@@ -1,6 +1,7 @@
 import { compact } from "lodash-es";
 import type { JsonSchema, JsonSchema7, UISchemaElement } from "@jsonforms/core";
 import type { FormModel } from "@upmind/ui";
+// -----------------------------------------------------------------------------
 
 /**
  * Legacy's sensitive-action chain (`useSensitiveActionChain`): the current

@@ -6,6 +6,7 @@
  */
 
 import type { AlertProps } from "@upmind/ui";
+// -----------------------------------------------------------------------------
 
 export const BANNER_VARIANT = {
   /** A page-level announcement band, over `AnnouncementBar`. */
@@ -17,7 +18,7 @@ export const BANNER_VARIANT = {
 export type BannerVariant =
   (typeof BANNER_VARIANT)[keyof typeof BANNER_VARIANT];
 
-export interface BannerModuleProps {
+export type BannerModuleProps = {
   /** The registered module variant (registry.ts) — which of the two forms renders. */
   readonly variant?: BannerVariant;
   /** The message body, read by both forms. No English default (CC22) — the consumer supplies its own copy. */
@@ -52,7 +53,7 @@ export interface BannerModuleProps {
     readonly value: string;
     readonly label: string;
   };
-}
+};
 
 export type BannerModuleEmits = {
   select: [value: string];

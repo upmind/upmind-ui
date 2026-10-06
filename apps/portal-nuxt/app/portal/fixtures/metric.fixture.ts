@@ -5,6 +5,7 @@
  */
 
 import type { StatItem } from "@upmind/ui";
+// -----------------------------------------------------------------------------
 
 export const METRIC_FIXTURE: readonly StatItem[] = [
   { label: "Active services", value: "6", description: "Across 1 domain" },

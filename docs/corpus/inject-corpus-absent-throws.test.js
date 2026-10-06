@@ -3,10 +3,7 @@ const assert = require("node:assert/strict");
 const { execFileSync } = require("node:child_process");
 const path = require("node:path");
 
-const SCRIPT = path.resolve(
-  __dirname,
-  "glossary-inject.mjs"
-);
+const SCRIPT = path.resolve(__dirname, "glossary-inject.mjs");
 
 test("a missing corpus.json degrades silently (exit 0, empty stdout) and never throws", () => {
   const out = execFileSync(

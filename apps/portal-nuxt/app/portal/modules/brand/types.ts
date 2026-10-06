@@ -21,7 +21,7 @@ export const BRAND_MARK = {
 
 export type BrandMark = (typeof BRAND_MARK)[keyof typeof BRAND_MARK];
 
-export interface BrandModuleProps {
+export type BrandModuleProps = {
   /** The wordmark. No English default (CC22). */
   readonly label: string;
   /** Which mark renders (BRAND_MARK). Absent = monogram. */
@@ -43,4 +43,4 @@ export interface BrandModuleProps {
   readonly markOnly?: boolean;
   /** The sidebar rail's collapsed state; the wordmark hides while collapsed, the mark stays. */
   readonly collapsed?: boolean;
-}
+};

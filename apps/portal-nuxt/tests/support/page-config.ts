@@ -12,6 +12,7 @@
 import { isObject, isString } from "lodash-es";
 import type { DataRefId } from "~/portal/mock/data-refs";
 import { isDataRef } from "~/portal/mock/data-refs";
+// -----------------------------------------------------------------------------
 
 export type ConfigNode = Readonly<Record<string, unknown>>;
 

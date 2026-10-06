@@ -25,6 +25,7 @@ import type { VaultAssetScope } from "../contracts/client-vault";
 import type { MockDataset } from "../types";
 import type { MockVaultAsset } from "../types";
 import type { FormModel } from "@upmind/ui";
+// -----------------------------------------------------------------------------
 
 /**
  * Whether the account is still being imported. Legacy hung EVERY vault control

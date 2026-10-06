@@ -1,3 +1,4 @@
+/** @internal */
 import { ScopeActorTypes } from "../scope/scope.types";
 import type { DetailedError } from "../../utils";
 import type { Account } from "../client";

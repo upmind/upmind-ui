@@ -30,6 +30,7 @@ import type {
   NotificationPreferencesContext
 } from "../contracts/user-notifications";
 import type { MockAffiliate, MockDataset } from "../types";
+// -----------------------------------------------------------------------------
 
 /**
  * What `client-delegates`'s own invite builders are handed — everything a

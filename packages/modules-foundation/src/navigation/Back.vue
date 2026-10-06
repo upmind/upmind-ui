@@ -37,13 +37,13 @@ import { RouterLink } from "vue-router";
 import { Icon } from "../icon";
 import type { BackProps } from "./types";
 
-const { t } = useI18n();
-
 // The retired lib's Link collapsed md and lg both onto 16px; here that is md.
 const props = withDefaults(defineProps<BackProps>(), {
   size: "md",
   color: "muted"
 });
+
+const { t } = useI18n();
 
 const safeLabel = computed(() => props.label || t("action.back_to_basket"));
 </script>

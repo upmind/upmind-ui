@@ -17,7 +17,17 @@ Binds the base skill's generic placeholders to this repo's concrete systems. The
 
 ## Module path glob (Step 1b)
 
-The base's `<module-path>` for the `stateMatches`/`machineMatches` grep binds to `packages/headless/src/modules/<module>/`.
+The base's `<module-path>` for the state-path grep binds to `packages/headless/src/modules/<module>/`. The state-read helpers to grep beside `.matches(` are `stateMatches` and `machineMatches`:
+
+```bash
+grep -rn 'stateMatches\|machineMatches\|\.matches(' packages/headless/src/modules/<module>/ --include='*.ts'
+```
+
+The lints `scope-based/state-paths-resolve` (a matched path exists, by name) and `xstate/canonical-state-read` (state is read through `stateMatches`, `useContext` and `contextValue`, never raw `.context` or `.matches()`) carry the decidable half.
+
+## Extra convention check (Step 2 "Repo conventions")
+
+The Lodash collection-utility mandate has no lint yet. Run the check in `complete.companion.md` (Step 3) over the changed files.
 
 ## Legacy oracle + identity model (Step 2c)
 

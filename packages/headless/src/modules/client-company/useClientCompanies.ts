@@ -1,12 +1,12 @@
 import { createScopedComposable } from "../scope/scope.builder";
 import createClientCompanyServices from "./client-company.services";
+import { CLIENT_COMPANIES_SCOPE_MATRIX } from "./client-company.types";
 import { createClientCompaniesActions } from "./useClientCompanies.actions";
 import { createClientCompaniesContext } from "./useClientCompanies.context";
 import { createClientCompaniesInternals } from "./useClientCompanies.internals";
 import { createClientCompaniesMeta } from "./useClientCompanies.meta";
 import type { ClientCompaniesScopeMatrix } from "./client-company.types";
 import type { ScopeConfig, ScopeKey } from "../scope";
-import type { ScopeActorTypes } from "../scope/scope.types";
 // -----------------------------------------------------------------------------
 /**
  * @module client-company/useClientCompanies
@@ -25,7 +25,7 @@ function createClientCompaniesForScope(
   config: ScopeConfig,
   scopeKey: ScopeKey
 ) {
-  const actorScope = config.actor as ScopeActorTypes;
+  const actorScope = config.actor;
 
   /**
    * ONE services instance for this scope. `config.context` goes in here and
@@ -81,7 +81,11 @@ function createClientCompaniesForScope(
 export const useClientCompanies = createScopedComposable<
   ReturnType<typeof createClientCompaniesForScope>,
   ClientCompaniesScopeMatrix
->("client-company", createClientCompaniesForScope);
+>(
+  "client-company",
+  createClientCompaniesForScope,
+  CLIENT_COMPANIES_SCOPE_MATRIX
+);
 
 // Type export for consumers
 export type UseClientCompanies = ReturnType<typeof useClientCompanies>;

@@ -62,7 +62,7 @@ import type { HTMLAttributes } from "vue";
 
 // -----------------------------------------------------------------------------
 
-export interface OverlayContainerProps {
+export type OverlayContainerProps = {
   type?: OverlayType | string;
   open?: boolean;
   modal?: boolean;
@@ -76,20 +76,18 @@ export interface OverlayContainerProps {
   class?: HTMLAttributes["class"];
   classContent?: HTMLAttributes["class"];
   classHeader?: HTMLAttributes["class"];
-}
+};
 
-const { t } = useI18n();
 const props = withDefaults(defineProps<OverlayContainerProps>(), {
   // A modal overlay dims the page; default true so reka renders the backdrop
   // (an undefined `modal` forwarded to reka skips the overlay entirely).
   modal: true,
   dismissable: true
 });
-
 const emit = defineEmits<{
   "update:open": [boolean];
 }>();
-
+const { t } = useI18n();
 const isModal = computed(
   () => props.type === OverlayType.MODAL || props.type === "modal"
 );

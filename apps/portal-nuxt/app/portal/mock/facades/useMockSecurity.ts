@@ -18,6 +18,7 @@ import { assign, size } from "lodash-es";
 import type { MockActionReceipt } from "./facade";
 import type { MockSecurity } from "../types";
 import type { FormModel } from "@upmind/ui";
+// -----------------------------------------------------------------------------
 
 /** How long an authenticator code is — the real twofa schema's own `\d{6}`. */
 const TWO_FACTOR_CODE_LENGTH = 6;

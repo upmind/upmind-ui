@@ -1,15 +1,12 @@
 /** @internal */
-import { computed } from "vue";
 import { useBrand } from "../brand";
 import {
   ClientCustomFieldsContextTypes,
   useClientCustomFields
 } from "../client-custom-fields";
-import { usePersonalDetails } from "../client-personal-details";
 import { invalidateQueryByKey, useQuery, useQueryCriteria } from "../query";
 import { ScopeActorTypes } from "../scope/scope.types";
-import { resolveClientId, useActiveSession } from "../session-store";
-import { useI18n } from "../system-localisation";
+import { useActiveSession } from "../session-store";
 import {
   mapContractProductPickerItems,
   mapContractProducts,
@@ -23,22 +20,13 @@ import {
   useGroupedCountsQuerySchema,
   useQuerySchema
 } from "./contract-product.schemas";
-import { ContractProductsContextTypes } from "./contract-product.types";
 import {
   buildChangeProductBody,
-  resolveExcludeDelegated,
+  notAvailableError,
   validateForm,
-  watchMigrationTarget,
-  whenPreferenceSettles
+  watchMigrationTarget
 } from "./contract-product.utils";
-import {
-  DEBOUNCE_DELAY,
-  DetailedError,
-  ErrorOrigin,
-  NotAuthenticatedError,
-  responseCodes,
-  useTime
-} from "../../utils";
+import { DEBOUNCE_DELAY, NotAuthenticatedError, useTime } from "../../utils";
 import { join, reject, startsWith } from "lodash-es";
 import type {
   CancellationModel,
@@ -52,7 +40,8 @@ import type {
   ContractProductPickerQueryModel,
   ContractProductServices,
   QueryModel,
-  SetConsolidationModel
+  SetConsolidationModel,
+  ShowDelegatedPreference
 } from "./contract-product.types";
 import type { LookupItem } from "../lookup";
 import type { ProductModel } from "../product";
@@ -144,61 +133,6 @@ const CONTRACT_PRODUCT_WITH = join(
   ","
 );
 
-/** Resolves true only for an authenticated session with an addressable client. */
-function isAddressable(clientId?: string): boolean {
-  const { isAuthenticated } = useActiveSession().useMeta();
-
-  return isAuthenticated.value && !!clientId;
-}
-
-/**
- * The show-delegated preference seam (design 8.5). `client-personal-details`
- * owns the channel; this module owns the meaning of the key. Constructed ONCE
- * per collection scope with `.fresh()`, so it never collides with a consumer's
- * own profile editor. The `DELEGATED` selector context forces the value and
- * never reads the preference.
- */
-function createShowDelegatedPreference(scopeContext?: ScopeContext): {
-  preference: ComputedRef<boolean | undefined>;
-  isSettled: ComputedRef<boolean>;
-  destroy: () => void;
-} {
-  if (scopeContext?.type === ContractProductsContextTypes.DELEGATED) {
-    return {
-      preference: computed(() => undefined),
-      isSettled: computed(() => true),
-      destroy: () => undefined
-    };
-  }
-
-  const manager = usePersonalDetails().as(ScopeActorTypes.CLIENT).fresh();
-  manager.useActions().filterFields(["excludeDelegatedProducts"]);
-
-  return {
-    preference: computed(
-      () => manager.useContext().model.value?.excludeDelegatedProducts
-    ),
-    isSettled: computed(() => !manager.useMeta().isLoading.value),
-    destroy: () => manager.useActions().destroy()
-  };
-}
-
-/** The reactive delegated force-set — read at FIRE time, never snapshotted at mint. */
-function excludeDelegatedFor(
-  scopeContext: ScopeContext | undefined,
-  preference: ComputedRef<boolean | undefined>
-): ComputedRef<0 | 1> {
-  const { hasDelegatedProducts } = useActiveSession().useMeta();
-
-  return computed(() =>
-    resolveExcludeDelegated(
-      scopeContext,
-      preference.value,
-      hasDelegatedProducts.value
-    )
-  );
-}
-
 // -----------------------------------------------------------------------------
 // COLLECTION
 
@@ -209,13 +143,12 @@ function excludeDelegatedFor(
  * built, so the wire carries the value resolved at fire time.
  */
 function loadList(
-  scopeContext: ScopeContext | undefined,
-  preference: ComputedRef<boolean | undefined>,
-  isPreferenceSettled: ComputedRef<boolean>
+  clientId: ComputedRef<string | undefined>,
+  preference: ShowDelegatedPreference
 ): ContractProductListQuery {
   const { list, useUrl } = useQuery();
-  const clientId = resolveClientId(scopeContext);
-  const excludeDelegated = excludeDelegatedFor(scopeContext, preference);
+  const { isAuthenticated } = useActiveSession().useMeta();
+  const { excludeDelegated } = preference;
   const { taxType } = useBrand();
   const url = useUrl("contracts_products", {
     with: join(CONTRACT_PRODUCTS_LIST_WITH, ","),
@@ -235,8 +168,10 @@ function loadList(
     // The split count reads through this guard un-gated by `enabled`, so it
     // waits here for the stored preference the page read is enabled on.
     guard: async () => {
-      if (!isAddressable(clientId.value)) throw new NotAuthenticatedError();
-      await whenPreferenceSettles(isPreferenceSettled);
+      if (!isAuthenticated.value || !clientId.value) {
+        throw new NotAuthenticatedError();
+      }
+      await preference.whenSettled();
       url.searchParams.set("exclude_delegated", `${excludeDelegated.value}`);
       return true;
     },
@@ -245,18 +180,19 @@ function loadList(
     select: raw => mapContractProducts(raw, taxType.value),
     staleTime: useTime().DAY,
     retryDelay: DEBOUNCE_DELAY,
-    enabled: () => isAddressable(clientId.value) && isPreferenceSettled.value
+    enabled: () =>
+      isAuthenticated.value && !!clientId.value && preference.isSettled.value
   });
 }
 
 /** The dashboard's grouped counts (design 8.1, ADR-4). No `exclude_delegated`. */
 async function loadGroupedCounts(
-  scopeContext?: ScopeContext
+  clientId: ComputedRef<string | undefined>
 ): Promise<ICProdGroup[]> {
   const { request, useUrl } = useQuery();
-  const clientId = resolveClientId(scopeContext);
+  const { isAuthenticated } = useActiveSession().useMeta();
 
-  if (!isAddressable(clientId.value)) {
+  if (!isAuthenticated.value || !clientId.value) {
     return Promise.reject(new NotAuthenticatedError());
   }
 
@@ -284,14 +220,14 @@ async function loadGroupedCounts(
 
 /** The purchased categories (R10, ADR-20) — the SAME force-set the list sends. */
 async function loadPurchasedCategories(
-  scopeContext: ScopeContext | undefined,
-  preference: ComputedRef<boolean | undefined>
+  clientId: ComputedRef<string | undefined>,
+  preference: ShowDelegatedPreference
 ): Promise<IProductCategory[]> {
   const { get, useUrl } = useQuery();
-  const clientId = resolveClientId(scopeContext);
-  const excludeDelegated = excludeDelegatedFor(scopeContext, preference);
+  const { isAuthenticated } = useActiveSession().useMeta();
+  const { excludeDelegated } = preference;
 
-  if (!isAddressable(clientId.value)) {
+  if (!isAuthenticated.value || !clientId.value) {
     return Promise.reject(new NotAuthenticatedError());
   }
 
@@ -325,12 +261,12 @@ async function loadPurchasedCategories(
  *   platform then returns delegated products whatever the preference).
  */
 function loadContractProductPickerLookup(
-  scopeContext: ScopeContext | undefined,
-  preference: ComputedRef<boolean | undefined>
+  clientId: ComputedRef<string | undefined>,
+  preference: ShowDelegatedPreference
 ): ContractProductPickerLookupQuery {
   const { listInfinite, useUrl } = useQuery();
-  const clientId = resolveClientId(scopeContext);
-  const excludeDelegated = excludeDelegatedFor(scopeContext, preference);
+  const { isAuthenticated } = useActiveSession().useMeta();
+  const { excludeDelegated } = preference;
   const url = useUrl("contracts_products", { client_id: clientId.value });
 
   return listInfinite<
@@ -350,7 +286,7 @@ function loadContractProductPickerLookup(
     withAccessToken: true,
     guard: async () =>
       new Promise((resolve, reject) => {
-        if (!isAddressable(clientId.value)) {
+        if (!isAuthenticated.value || !clientId.value) {
           reject(new NotAuthenticatedError());
           return;
         }
@@ -359,7 +295,7 @@ function loadContractProductPickerLookup(
       }),
     select: mapContractProductPickerItems,
     retryDelay: DEBOUNCE_DELAY,
-    enabled: () => isAddressable(clientId.value)
+    enabled: () => isAuthenticated.value && !!clientId.value
   }) as unknown as ContractProductPickerLookupQuery;
 }
 
@@ -382,32 +318,25 @@ function scopedServices(
 }
 
 /**
- * Services factory — the concrete actor and the context it acts upon arrive
- * first, at construction. `useContractProducts.ts` calls it once per scope.
+ * Services factory — the concrete actor, the context it acts upon, and the
+ * client id and preference `useContractProducts.ts` resolves for that scope.
+ * `useContractProducts.ts` calls it once per scope.
  */
 export const createContractProductServices = (
   scopeActor: ScopeActorTypes,
-  scopeContext?: ScopeContext
+  scopeContext: ScopeContext | undefined,
+  clientId: ComputedRef<string | undefined>,
+  preference: ShowDelegatedPreference
 ): ContractProductServices => {
-  const clientId = resolveClientId(scopeContext);
-  const {
-    preference,
-    isSettled: isPreferenceSettled,
-    destroy: destroyPreference
-  } = createShowDelegatedPreference(scopeContext);
-
   return {
     queryKey,
-    clientId,
-    isAvailable: computed(() => isAddressable(clientId.value)),
-    loadList: () => loadList(scopeContext, preference, isPreferenceSettled),
-    loadGroupedCounts: () => loadGroupedCounts(scopeContext),
+    loadList: () => loadList(clientId, preference),
+    loadGroupedCounts: () => loadGroupedCounts(clientId),
     loadPurchasedCategories: () =>
-      loadPurchasedCategories(scopeContext, preference),
-    destroyPreference,
+      loadPurchasedCategories(clientId, preference),
     lookups: {
       contractProduct: () =>
-        loadContractProductPickerLookup(scopeContext, preference)
+        loadContractProductPickerLookup(clientId, preference)
     },
     ...scopedServices(scopeActor, scopeContext)
   };
@@ -418,20 +347,6 @@ export default createContractProductServices;
 // -----------------------------------------------------------------------------
 // Machine services (manager half) — each returns the RAW record; the machine maps
 
-function notAvailable(context: ContractProductContext): DetailedError {
-  const { t } = useI18n();
-
-  return new DetailedError(
-    t("error.contract_product_not_available"),
-    responseCodes.Not_Found,
-    ErrorOrigin.Headless,
-    {
-      contractId: context.contractId,
-      contractProductId: context.contractProductId
-    }
-  );
-}
-
 /**
  * `loading` — the 35-member client detail read (design 8.1, ADR-29) plus its
  * reused CANCEL_REQUEST field lookups, settled together. The lookup degrades to
@@ -441,7 +356,8 @@ async function load(
   context: ContractProductContext
 ): Promise<ContractProductLoaded> {
   const { get, useUrl } = useQuery();
-  if (!context.contractProductId) return Promise.reject(notAvailable(context));
+  if (!context.contractProductId)
+    return Promise.reject(notAvailableError(context));
 
   const [record, lookups] = await Promise.all([
     get<IContractProduct>({
@@ -491,6 +407,9 @@ async function validateConsolidation({
 }
 
 /**
+ * `processing.stoppingRenewal.updating` (SOFT) — `{ renew: false }` plus what
+ * the form carried.
+ *
  * @decision
  * what: every write below is contract-scoped, `contracts/{c}/products/{p}/…`.
  * why: the legacy `apiPath({ contractId, contractProductId }).contextual`
@@ -502,32 +421,20 @@ async function validateConsolidation({
  *   form (corrected 2026-09-22) — this block's earlier "stale against the
  *   oracle" note was itself wrong and is withdrawn.
  */
-function productUrl(
-  context: ContractProductContext,
-  action: string
-): Promise<URL> {
-  const { useUrl } = useQuery();
-  if (!context.contractId || !context.contractProductId) {
-    return Promise.reject(notAvailable(context));
-  }
-
-  return Promise.resolve(
-    useUrl(
-      `contracts/${context.contractId}/products/${context.contractProductId}/${action}`
-    )
-  );
-}
-
-/** `processing.stoppingRenewal.updating` (SOFT) — `{ renew: false }` plus what the form carried. */
 async function requestSoftCancel(
   context: ContractProductContext
 ): Promise<IContractProduct | undefined> {
-  const { put } = useQuery();
+  const { put, useUrl } = useQuery();
+  if (!context.contractId || !context.contractProductId) {
+    return Promise.reject(notAvailableError(context));
+  }
   const model = context.cancellation?.model as CancellationModel;
 
   return put<IContractProduct>({
     mutationKey: [...queryKey, context.contractProductId, "modify-renew"],
-    url: await productUrl(context, "modify_renew"),
+    url: useUrl(
+      `contracts/${context.contractId}/products/${context.contractProductId}/modify_renew`
+    ),
     data: toSoftCancelBody({
       renew: false,
       reason: model?.reason,
@@ -541,11 +448,16 @@ async function requestSoftCancel(
 async function abortSoftCancel(
   context: ContractProductContext
 ): Promise<IContractProduct | undefined> {
-  const { put } = useQuery();
+  const { put, useUrl } = useQuery();
+  if (!context.contractId || !context.contractProductId) {
+    return Promise.reject(notAvailableError(context));
+  }
 
   return put<IContractProduct>({
     mutationKey: [...queryKey, context.contractProductId, "resume-renew"],
-    url: await productUrl(context, "modify_renew"),
+    url: useUrl(
+      `contracts/${context.contractId}/products/${context.contractProductId}/modify_renew`
+    ),
     data: toSoftCancelBody({ renew: true }),
     withAccessToken: true
   }).then(invalidateQueryByKey(queryKey, { exact: false }));
@@ -555,12 +467,17 @@ async function abortSoftCancel(
 async function setConsolidation(
   context: ContractProductContext
 ): Promise<IContractProduct | undefined> {
-  const { put } = useQuery();
+  const { put, useUrl } = useQuery();
+  if (!context.contractId || !context.contractProductId) {
+    return Promise.reject(notAvailableError(context));
+  }
   const model = context.consolidation?.model as SetConsolidationModel;
 
   return put<IContractProduct>({
     mutationKey: [...queryKey, context.contractProductId, "consolidation"],
-    url: await productUrl(context, "properties"),
+    url: useUrl(
+      `contracts/${context.contractId}/products/${context.contractProductId}/properties`
+    ),
     data: toConsolidationBody(model),
     withAccessToken: true
   }).then(invalidateQueryByKey(queryKey, { exact: false }));
@@ -570,12 +487,17 @@ async function setConsolidation(
 async function scheduleCancellation(
   context: ContractProductContext
 ): Promise<IContractProduct | undefined> {
-  const { put } = useQuery();
+  const { put, useUrl } = useQuery();
+  if (!context.contractId || !context.contractProductId) {
+    return Promise.reject(notAvailableError(context));
+  }
   const model = context.cancellation?.model as CancellationModel;
 
   return put<IContractProduct>({
     mutationKey: [...queryKey, context.contractProductId, "schedule-cancel"],
-    url: await productUrl(context, "schedule-cancel"),
+    url: useUrl(
+      `contracts/${context.contractId}/products/${context.contractProductId}/schedule-cancel`
+    ),
     data: toScheduleCancellationBody({
       futureCancellationDate: model?.futureCancellationDate ?? "",
       reason: model?.reason,
@@ -595,7 +517,7 @@ async function requestCancellation(
 ): Promise<IContractProduct | undefined> {
   const { post, useUrl } = useQuery();
   if (!context.contractId || !context.contractProductId) {
-    return Promise.reject(notAvailable(context));
+    return Promise.reject(notAvailableError(context));
   }
   const model = context.cancellation?.model as CancellationModel;
 
@@ -622,7 +544,7 @@ async function withdrawCancellation(
   const { del, useUrl } = useQuery();
   const requestId = context.contractProduct?.contractRequest?.id;
   if (!context.contractId || !requestId) {
-    return Promise.reject(notAvailable(context));
+    return Promise.reject(notAvailableError(context));
   }
 
   return del<IContractProduct>({
@@ -637,7 +559,10 @@ async function withdrawCancellation(
 async function revokeScheduledCancellation(
   context: ContractProductContext
 ): Promise<IContractProduct | undefined> {
-  const { put } = useQuery();
+  const { put, useUrl } = useQuery();
+  if (!context.contractId || !context.contractProductId) {
+    return Promise.reject(notAvailableError(context));
+  }
 
   return put<IContractProduct>({
     mutationKey: [
@@ -645,57 +570,66 @@ async function revokeScheduledCancellation(
       context.contractProductId,
       "schedule-cancel-revoke"
     ],
-    url: await productUrl(context, "schedule-cancel-revoke"),
+    url: useUrl(
+      `contracts/${context.contractId}/products/${context.contractProductId}/schedule-cancel-revoke`
+    ),
     withAccessToken: true
   }).then(invalidateQueryByKey(queryKey, { exact: false }));
-}
-
-/**
- * The change body of the open change of plan: the last model that went to a
- * request, its raw plan and the contract's old options. The dry run and the
- * commit send the same body.
- */
-async function changeBody(context: ContractProductContext) {
-  const { migration, contractProduct } = context;
-  if (!context.contractId || !context.contractProductId) {
-    return Promise.reject(notAvailable(context));
-  }
-
-  return buildChangeProductBody({
-    contractId: context.contractId,
-    contractProductId: context.contractProductId,
-    targetId: migration?.target?.id as string,
-    model: migration?.model as ProductModel,
-    rawProduct: migration?.rawProduct,
-    currentOptions: contractProduct?.currentOptions,
-    currencyId: contractProduct?.contractCurrencyId
-  });
 }
 
 /** `configuring.previewing` — the dry run: the platform prices the change and commits nothing. */
 async function previewMigration(
   context: ContractProductContext
 ): Promise<IInvoice> {
-  const { put } = useQuery();
+  const { put, useUrl } = useQuery();
+  if (!context.contractId || !context.contractProductId) {
+    return Promise.reject(notAvailableError(context));
+  }
 
   return put<IInvoice>({
     mutationKey: [...queryKey, context.contractProductId, "change", "preview"],
-    url: await productUrl(context, "change"),
-    data: { ...(await changeBody(context)), dry_run: true },
+    url: useUrl(
+      `contracts/${context.contractId}/products/${context.contractProductId}/change`
+    ),
+    data: {
+      ...buildChangeProductBody({
+        contractId: context.contractId,
+        contractProductId: context.contractProductId,
+        targetId: context.migration?.target?.id as string,
+        model: context.migration?.model as ProductModel,
+        rawProduct: context.migration?.rawProduct,
+        currentOptions: context.contractProduct?.currentOptions,
+        currencyId: context.contractProduct?.contractCurrencyId
+      }),
+      dry_run: true
+    },
     withAccessToken: true
   });
 }
 
-/** `configuring.processing.sending` (AC-31) — the commit of the change of plan. */
+/** `configuring.processing.sending` (AC-31) — the commit of the change of product. */
 async function migrate(
   context: ContractProductContext
 ): Promise<IInvoice | undefined> {
-  const { put } = useQuery();
+  const { put, useUrl } = useQuery();
+  if (!context.contractId || !context.contractProductId) {
+    return Promise.reject(notAvailableError(context));
+  }
 
   return put<IInvoice>({
     mutationKey: [...queryKey, context.contractProductId, "change"],
-    url: await productUrl(context, "change"),
-    data: await changeBody(context),
+    url: useUrl(
+      `contracts/${context.contractId}/products/${context.contractProductId}/change`
+    ),
+    data: buildChangeProductBody({
+      contractId: context.contractId,
+      contractProductId: context.contractProductId,
+      targetId: context.migration?.target?.id as string,
+      model: context.migration?.model as ProductModel,
+      rawProduct: context.migration?.rawProduct,
+      currentOptions: context.contractProduct?.currentOptions,
+      currencyId: context.contractProduct?.contractCurrencyId
+    }),
     withAccessToken: true
   }).then(invalidateQueryByKey(queryKey, { exact: false }));
 }

@@ -70,6 +70,7 @@ import { brandNoteRow } from "./pager";
 import { NEEDS_SETUP_ROW, productPages } from "./product-pages";
 import { supportPages } from "./support-pages";
 import type { PortalConfig, UtilityConfig } from "../types";
+// -----------------------------------------------------------------------------
 
 /**
  * Legacy's account sidebar summary: the avatar and display name over the

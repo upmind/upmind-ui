@@ -1,0 +1,23 @@
+{
+  "name": "@upmind-automation/eslint-plugin-code-quality",
+  "version": "1.0.0",
+  "description": "ESLint rules for cross-cutting TypeScript quality and file hygiene: literal unions, casts, comments, import and header layout, collection passes.",
+  "private": true,
+  "type": "module",
+  "main": "index.mjs",
+  "exports": {
+    ".": "./index.mjs"
+  },
+  "scripts": {
+    "test:unit": "node --test"
+  },
+  "dependencies": {
+    "@typescript-eslint/parser": "8.50.0"
+  },
+  "peerDependencies": {
+    "eslint": ">=9"
+  },
+  "devDependencies": {
+    "eslint": "9.39.2"
+  }
+}

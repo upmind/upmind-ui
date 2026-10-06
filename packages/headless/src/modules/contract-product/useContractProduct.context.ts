@@ -61,7 +61,7 @@ export function createContractProductContext(
   );
 
   return {
-    /** The plans the product's plan allows a change to. */
+    /** The products the current product allows a change to. */
     allowedMigrations,
 
     /** The open cancellation form: `schema`, `uischema` and the parsed `model`. */
@@ -103,7 +103,7 @@ export function createContractProductContext(
     /** The earliest selectable future-cancellation date, as a wire date string. */
     minFutureCancellationDate,
 
-    /** The configurator of the chosen plan, `null` when no plan is chosen. It gives no provision field and no trial choice. */
+    /** The configurator of the chosen product, `null` when no product is chosen. It gives no provision field and no trial choice. */
     migrationConfig: computed(() => holders.config.value?.config ?? null),
 
     /** The cost the last dry run gave, `undefined` while none is shown. */
@@ -112,21 +112,21 @@ export function createContractProductContext(
       "migration.preview"
     ),
 
-    /** The invoice the last committed change of plan raised; `null` before the first commit and after `openMigration`. */
+    /** The invoice the last committed change of product raised; `null` before the first commit and after `openMigration`. */
     migrationResult: computed<MigrationResult | null>(
       () => contextValue<MigrationResult>(state, "migrationResult") ?? null
     ),
 
-    /** The chosen plan, `undefined` when none is chosen. */
+    /** The chosen product, `undefined` when none is chosen. */
     migrationTarget: useContext<MigrationTarget | undefined>(
       state,
       "migration.target"
     ),
 
-    /** The plans of the current page set, one row each. */
+    /** The products of the current page set, one row each. */
     migrationTargets: computed(() => holders.list.value?.data.value ?? []),
 
-    /** How many plans the platform counted; 0 until the count lands. */
+    /** How many products the platform counted; 0 until the count lands. */
     migrationsCount: computed(
       () => holders.count.value?.pagination.value.total ?? 0
     ),

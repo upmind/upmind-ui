@@ -37,6 +37,7 @@ import {
 import { assign } from "lodash-es";
 import type { ContentRowConfig, RowHeaderControls } from "../content/types";
 import type { ContentConfig, PageKey, SlotAssignment } from "../types";
+// -----------------------------------------------------------------------------
 
 /** Legacy's one header action on this panel — the way in to a new conversation. */
 const NEW_TICKET_ACTION = moduleRef(BUTTON_MODULE_ID, {

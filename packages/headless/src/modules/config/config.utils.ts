@@ -68,6 +68,7 @@ import type {
   ConditionState
 } from "./config.types";
 import type { UIMetaSchema as UISchema, DataSchema } from "./schema";
+// -----------------------------------------------------------------------------
 
 // --- Initialization ---
 

@@ -5,6 +5,7 @@
  */
 import type { AuthRoutes } from "@upmind-automation/auth";
 import type { RouteLocationAsRelativeGeneric } from "vue-router";
+// -----------------------------------------------------------------------------
 
 export const AUTH_ROUTES: AuthRoutes = {
   loginRoute: { name: "login" },

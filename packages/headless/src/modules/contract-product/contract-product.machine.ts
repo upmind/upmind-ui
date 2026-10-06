@@ -5,7 +5,6 @@ import {
   ContractStatusCodes,
   TrialEndActionTypes
 } from "@upmind-automation/types";
-import { productMachine } from "../product";
 import { authSubscription } from "../session-store";
 import { useI18n } from "../system-localisation";
 import {
@@ -22,13 +21,12 @@ import {
 import { contractProductMachineServices as services } from "./contract-product.services";
 import { ContractProductState } from "./contract-product.types";
 import {
-  buildMigrationSeed,
   canConsolidate,
   canMigrateProduct,
   cancellationOptions,
   hasHardCancellationRequest,
-  migrationTargetConfig,
-  minFutureCancellationDate
+  minFutureCancellationDate,
+  spawnMigrationChild
 } from "./contract-product.utils";
 import {
   DetailedError,
@@ -39,7 +37,7 @@ import {
   useModelParser,
   useValidationParser
 } from "../../utils";
-import { isEmpty, isEqual, some, uniqueId } from "lodash-es";
+import { isEmpty, isEqual, some } from "lodash-es";
 import type {
   ContractProductContext,
   ContractProductLoaded,
@@ -57,19 +55,6 @@ import type { AnyEventObject } from "xstate";
  * the auth-shaped write forms, so an open form never leaves the status node.
  * `unavailable` holds staged · cancelled · lapsed · fraud.
  */
-
-/** Spawns the stock product machine for a chosen plan, with the change-of-plan overrides. */
-function spawnMigrationChild(
-  context: ContractProductContext,
-  target: MigrationTarget
-) {
-  return spawn(
-    productMachine
-      .withContext(buildMigrationSeed(context, target))
-      .withConfig(migrationTargetConfig),
-    { name: uniqueId("migrationTarget-") }
-  );
-}
 
 export const contractProductMachine = createMachine(
   {

@@ -18,6 +18,7 @@ import {
 import { get, isNil } from "lodash-es";
 import type { CurrencyContext, CurrencyModel } from "./basket-currency.types";
 import type { AnyActorRef } from "xstate";
+// -----------------------------------------------------------------------------
 
 // Ceiling for waiting on the currency actor to spawn and settle. Normal boots
 // resolve near-instantly; this only bounds the pathological case where the

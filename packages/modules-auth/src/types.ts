@@ -84,15 +84,15 @@ export type AuthViewEmits = {
   reject: [];
 };
 
-export interface AuthSummarySlotProps {
+export type AuthSummarySlotProps = {
   showWhileLoading: boolean;
-}
+};
 
-export interface AuthGuestCheckoutSlotProps {
+export type AuthGuestCheckoutSlotProps = {
   registerAsGuest: () => void;
   isRegistering?: boolean;
   class?: string;
-}
+};
 
 export type AuthActionProps = AuthRoutes & {
   shape?: string;

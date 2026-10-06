@@ -3,6 +3,7 @@ import type { ScenarioRegistry } from "./registry.types";
 import type { ModuleDescriptor } from "../archetype/archetype.types";
 import type { CompositionPort } from "../port/port.types";
 import type { ScopeActor } from "../world/scope-actor";
+// -----------------------------------------------------------------------------
 
 /**
  * The registry-typed surface `createHarness` hands back — every member is

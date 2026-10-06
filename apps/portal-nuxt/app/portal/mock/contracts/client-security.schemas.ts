@@ -19,6 +19,7 @@
 
 import type { JsonSchema7, VerticalLayout } from "@jsonforms/core";
 import type { FormModel } from "@upmind/ui";
+// -----------------------------------------------------------------------------
 
 /** The platform's own floor — `@upmind/ui` `src/form/password.ts` scores against it. */
 const PASSWORD_MIN_LENGTH = 8;

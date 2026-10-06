@@ -7,6 +7,7 @@ import type {
 } from "./archetype.types";
 import type { ReflectedSnapshot } from "../reflection/reflection.types";
 import type { JsonSchema } from "@jsonforms/core";
+// -----------------------------------------------------------------------------
 
 /**
  * The Form guard: a non-null plain object typed `"object"`,

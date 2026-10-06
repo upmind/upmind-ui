@@ -19,7 +19,11 @@ record at all. Supplying an id here mirrors a shape a related, previously
 landed contract also declares — it does not describe a working capability.
 
 ```ts
-import { ScopeActorTypes, useClientCustomPages } from "@upmind-automation/headless";
+import {
+  ClientCustomPagesContextTypes,
+  ScopeActorTypes,
+  useClientCustomPages
+} from "@upmind-automation/headless";
 
 const someClientId = "3f1c8a04-9d2b-4c77-8f31-6b0e5a2d9c14";
 
@@ -27,7 +31,7 @@ const someClientId = "3f1c8a04-9d2b-4c77-8f31-6b0e5a2d9c14";
 // nothing about which pages are returned.
 const retargeted = useClientCustomPages()
   .as(ScopeActorTypes.CLIENT)
-  .for(ScopeActorTypes.CLIENT, someClientId);
+  .for(ClientCustomPagesContextTypes.CLIENT, someClientId);
 // retargeted.useContext().data is the SAME brand-wide page list every other
 // caller reading this brand sees — the id has no effect on the request.
 
@@ -134,9 +138,15 @@ demonstration:
   were captured against has none.
 
 ```ts
-import { useClientCustomPage, useClientCustomPages } from "@upmind-automation/headless";
+import {
+  ScopeActorTypes,
+  useClientCustomPage,
+  useClientCustomPages
+} from "@upmind-automation/headless";
 
-const pages = useClientCustomPages().as("client");
+declare const slug: string;
+
+const pages = useClientCustomPages().as(ScopeActorTypes.CLIENT);
 await pages.useActions().isReady();
 
 // If `slug` already resolves on `pages`, this issues no further request and
@@ -161,9 +171,9 @@ case, and mirrors a two-flag split the legacy provider this module replaces
 also kept.
 
 ```ts
-import { useClientCustomPages } from "@upmind-automation/headless";
+import { ScopeActorTypes, useClientCustomPages } from "@upmind-automation/headless";
 
-const pages = useClientCustomPages().as("client");
+const pages = useClientCustomPages().as(ScopeActorTypes.CLIENT);
 const { isLoading, isReloading } = pages.useMeta();
 
 // A spinner that only checks isLoading shows nothing while a background
@@ -184,6 +194,9 @@ performs itself.
 
 ```ts
 import { useClientCustomPage } from "@upmind-automation/headless";
+
+declare const slug: string;
+
 // Rendering surface reused as-is, keyed by the resolved page's id — this
 // module mints no renderer of its own:
 // useClientTemplate({ code: CUSTOM_PAGE_SLOT_CODE, objectId: page.id })
@@ -205,7 +218,7 @@ Neither composable can create, edit, or remove a page. Both exist purely to
 read pages a brand administrator has already configured elsewhere.
 
 ```ts
-import { useClientCustomPages } from "@upmind-automation/headless";
+import { ScopeActorTypes, useClientCustomPages } from "@upmind-automation/headless";
 
 // ⚠️ Wrong: there is no create()/update()/remove() anywhere in this module,
 // so none of these even type-check:
@@ -213,7 +226,7 @@ import { useClientCustomPages } from "@upmind-automation/headless";
 //   useClientCustomPage().withId(slug).useActions().update(...);
 
 // ✅ Right: this module reads what a brand has already configured
-const { data } = useClientCustomPages().as("client").useContext();
+const { data } = useClientCustomPages().as(ScopeActorTypes.CLIENT).useContext();
 ```
 
 > **🧪 For Testers:** Asserting a mutation-shaped member on either

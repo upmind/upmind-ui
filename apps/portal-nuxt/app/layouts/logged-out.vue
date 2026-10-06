@@ -1,3 +1,31 @@
+<template>
+  <TooltipProvider>
+    <AuthShell variant="centered" skip-label="Skip to content">
+      <template #header>
+        <PortalBrand :label="brandName" to="/login" />
+        <PortalAuthStore />
+      </template>
+
+      <div :class="LOGGED_OUT_COLUMN_CLASS">
+        <Card :ui="{ content: LOGGED_OUT_CARD_CONTENT_CLASS }">
+          <slot />
+        </Card>
+      </div>
+
+      <template #footer>
+        <Markdown
+          v-if="footerMarkdown"
+          tag="div"
+          :model-value="footerMarkdown"
+          :class="PORTAL_FOOTER_PROSE_CLASS"
+        />
+        <PortalUpmind v-if="hasUpmindBranding" />
+      </template>
+    </AuthShell>
+    <Toaster />
+  </TooltipProvider>
+</template>
+
 <script setup lang="ts">
 // -----------------------------------------------------------------------------
 /**
@@ -59,31 +87,3 @@ watch(activeConfig, config => setTheme(config.theme ?? "upmind"), {
   immediate: true
 });
 </script>
-
-<template>
-  <TooltipProvider>
-    <AuthShell variant="centered" skip-label="Skip to content">
-      <template #header>
-        <PortalBrand :label="brandName" to="/login" />
-        <PortalAuthStore />
-      </template>
-
-      <div :class="LOGGED_OUT_COLUMN_CLASS">
-        <Card :ui="{ content: LOGGED_OUT_CARD_CONTENT_CLASS }">
-          <slot />
-        </Card>
-      </div>
-
-      <template #footer>
-        <Markdown
-          v-if="footerMarkdown"
-          tag="div"
-          :model-value="footerMarkdown"
-          :class="PORTAL_FOOTER_PROSE_CLASS"
-        />
-        <PortalUpmind v-if="hasUpmindBranding" />
-      </template>
-    </AuthShell>
-    <Toaster />
-  </TooltipProvider>
-</template>

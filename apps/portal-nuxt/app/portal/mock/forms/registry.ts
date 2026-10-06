@@ -170,6 +170,7 @@ import type { FormId } from "./ids";
 import type { MockDataset, MockEmail, MockVaultAsset } from "../types";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 import type { FormModel } from "@upmind/ui";
+// -----------------------------------------------------------------------------
 
 /** One registered form, resolved against the live dataset and the row it addresses. */
 export type MockFormEntry = {

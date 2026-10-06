@@ -21,6 +21,7 @@ import type {
   PortalConfig,
   ProductGroup
 } from "./types";
+// -----------------------------------------------------------------------------
 
 /**
  * The compile-time-checked way to declare a product group: `slug` must not

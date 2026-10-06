@@ -12,6 +12,7 @@ import { PACKAGE_STUB_TITLE, packageStubProse } from "../mock/package-stub";
 import { EMPTY_STATE_MODULE_ID, moduleRef } from "../registry";
 import type { ContentRowConfig } from "../content/types";
 import type { ContentConfig } from "../types";
+// -----------------------------------------------------------------------------
 
 export { PACKAGE_STUB_TITLE, packageStubProse };
 

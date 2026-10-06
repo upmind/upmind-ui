@@ -5,6 +5,7 @@ import type {
   ProductProps
 } from "@upmind-automation/headless";
 import type { RouteLocationAsRelativeGeneric } from "vue-router";
+// -----------------------------------------------------------------------------
 
 export type RecommendationsProps = {
   items?: Recommendation[];

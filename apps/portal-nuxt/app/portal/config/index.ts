@@ -15,6 +15,7 @@
 
 import { hostgridConfig } from "./hostgrid";
 import type { PortalConfig } from "../types";
+// -----------------------------------------------------------------------------
 
 export const PORTAL_CONFIG_ID = {
   HOSTGRID: "hostgrid"

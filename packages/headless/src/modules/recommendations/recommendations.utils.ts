@@ -41,6 +41,7 @@ import type {
 import type { ConditionalValue } from "../config/config.types";
 import type { ProductDetails, TermDetails, IProductConfig } from "../product";
 import type { IBasket, IBasketProduct } from "@upmind-automation/types";
+// -----------------------------------------------------------------------------
 
 // ---------------------------------------------------------------------------
 

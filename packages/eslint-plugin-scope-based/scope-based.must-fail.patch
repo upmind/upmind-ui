@@ -22,3 +22,18 @@ index b84fbeee5..a27f4b08b 100644
  }
  
  /**
+
+Negative control for scope-based/scoped-factory (third-argument check).
+
+The mutation makes the missing-third-argument branch unreachable, so a
+createScopedComposable call with no matrix value is no longer reported and
+the matrixValue invalid spec goes RED.
+
+diff --git a/packages/eslint-plugin-scope-based/rules/scoped-factory.mjs b/packages/eslint-plugin-scope-based/rules/scoped-factory.mjs
+--- a/packages/eslint-plugin-scope-based/rules/scoped-factory.mjs
++++ b/packages/eslint-plugin-scope-based/rules/scoped-factory.mjs
+@@ -122,3 +122,3 @@
+           const matrix = call.arguments[2];
+-          if (!matrix) {
++          if (false) {
+             context.report({

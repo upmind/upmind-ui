@@ -4,6 +4,7 @@
  */
 import type { FormProps } from "@upmind/ui";
 import type { ShallowRef } from "vue";
+// -----------------------------------------------------------------------------
 
 export type FormRendererEntry = NonNullable<
   FormProps["additionalRenderers"]

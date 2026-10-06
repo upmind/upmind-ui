@@ -30,6 +30,7 @@ import {
   Wallet
 } from "lucide-vue-next";
 import type { MenuItem } from "../modules/menu/types";
+// -----------------------------------------------------------------------------
 
 /**
  * Legacy `billing/menu.ts` — its items, WITHOUT legacy's children (operator

@@ -17,6 +17,7 @@ import type {
   IPromotion
 } from "@upmind-automation/types";
 import type { ActorRef } from "xstate";
+// -----------------------------------------------------------------------------
 
 /**
  * Visibility state for conditional recommendations.

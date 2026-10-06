@@ -21,6 +21,7 @@ import type { MockDataset } from "../types";
 import type { JsonSchema7, VerticalLayout } from "@jsonforms/core";
 import type { FormModel } from "@upmind/ui";
 import type { CustomField } from "@upmind-automation/headless";
+// -----------------------------------------------------------------------------
 
 /** The i18n prefix the real consumers pass; absent translations fall back to the key. */
 const CUSTOM_FIELDS_I18N_KEY = "fields";

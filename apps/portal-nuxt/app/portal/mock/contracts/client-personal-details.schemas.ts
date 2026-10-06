@@ -38,6 +38,7 @@ import type {
 import type { FormModel } from "@upmind/ui";
 import type { ProfileContext } from "@upmind-automation/headless";
 import type { ILanguage } from "@upmind-automation/types";
+// -----------------------------------------------------------------------------
 
 type LanguageOption = { label: string; value: string; disabled?: boolean };
 

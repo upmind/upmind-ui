@@ -50,6 +50,7 @@ import type {
   MockWallet
 } from "../types";
 import type { AlertProps } from "@upmind/ui";
+// -----------------------------------------------------------------------------
 
 /** The credit limit as the panel reads it — what is granted, what is spent, what is left. */
 export type MockWalletCreditLimit = MockCreditLimit & {

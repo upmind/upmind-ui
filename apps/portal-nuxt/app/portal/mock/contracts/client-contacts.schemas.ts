@@ -19,6 +19,7 @@ import type {
   VerticalLayout
 } from "@jsonforms/core";
 import type { FormModel } from "@upmind/ui";
+// -----------------------------------------------------------------------------
 
 /** Legacy's verification mail carries a six-digit code. */
 export const VERIFICATION_CODE_PATTERN = "^\\d{6}$";

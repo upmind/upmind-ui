@@ -311,11 +311,11 @@ import type { Product } from "@upmind-automation/headless";
 
 // New DescriptionList is compositional; the old lib's DescriptionItem type (now
 // a component name) no longer applies — describe the row data locally.
-interface SummaryItem {
+type SummaryItem = {
   term?: string;
   description: string;
   dataAttrs?: Record<string, string>;
-}
+};
 
 const props = withDefaults(defineProps<SummaryProps>(), {
   showBreakdown: false,

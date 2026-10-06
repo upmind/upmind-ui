@@ -27,7 +27,6 @@ import type {
   InvoiceScopeMatrix
 } from "./invoices.types";
 import type { ResponseError } from "../../utils";
-import type { ScopeActorTypes } from "../scope/scope.types";
 import type { ScopeConfig, ScopeKey } from "../scope/scope.types";
 // -----------------------------------------------------------------------------
 /**
@@ -46,7 +45,7 @@ import type { ScopeConfig, ScopeKey } from "../scope/scope.types";
  * @private
  */
 function createInvoiceForScope(config: ScopeConfig, scopeKey: ScopeKey) {
-  const actorScope = config.actor as ScopeActorTypes;
+  const actorScope = config.actor;
   const invoiceId = config.id as string;
   const { t } = useI18n();
   const { getParam, setParam } = useQueryParams();

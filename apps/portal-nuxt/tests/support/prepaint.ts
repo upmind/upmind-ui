@@ -1,4 +1,5 @@
 import { JSDOM } from "jsdom";
+// -----------------------------------------------------------------------------
 
 export type PrepaintRun = {
   script: string;

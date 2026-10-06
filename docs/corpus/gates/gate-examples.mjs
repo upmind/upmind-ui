@@ -70,19 +70,19 @@ import {
   mkdtempSync,
   readFileSync,
   rmSync,
-  writeFileSync,
-} from 'node:fs';
-import { spawnSync } from 'node:child_process';
-import { dirname, isAbsolute, join, relative, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
+  writeFileSync
+} from "node:fs";
+import { spawnSync } from "node:child_process";
+import { dirname, isAbsolute, join, relative, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 
-const SELF = 'gate:examples';
+const SELF = "gate:examples";
 
 // --- anchors -----------------------------------------------------------------
 // WORKSPACE_ROOT is ALWAYS this script's real repo location — never overridden
 // by a fixture `<root>` (see header: packages must stay real).
 const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url)); // <root>/docs/corpus/gates
-const WORKSPACE_ROOT = resolve(SCRIPT_DIR, '..', '..', '..'); // <root>
+const WORKSPACE_ROOT = resolve(SCRIPT_DIR, "..", "..", ".."); // <root>
 
 // --- args --------------------------------------------------------------------
 function parseArgs(argv) {
@@ -90,21 +90,24 @@ function parseArgs(argv) {
   let corpusPath = null;
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
-    if (a === '--root') root = argv[++i] ?? null;
-    else if (a === '--corpus') corpusPath = argv[++i] ?? null;
-    else if (!a.startsWith('-') && root === null) root = a;
+    if (a === "--root") root = argv[++i] ?? null;
+    else if (a === "--corpus") corpusPath = argv[++i] ?? null;
+    else if (!a.startsWith("-") && root === null) root = a;
   }
   const corpusRoot = root ? resolve(process.cwd(), root) : WORKSPACE_ROOT;
   const resolvedCorpusPath = corpusPath
     ? isAbsolute(corpusPath)
       ? corpusPath
       : resolve(process.cwd(), corpusPath)
-    : join(corpusRoot, 'docs/corpus/corpus.json');
+    : join(corpusRoot, "docs/corpus/corpus.json");
   return { corpusRoot, corpusPath: resolvedCorpusPath };
 }
-const { corpusRoot, corpusPath: CORPUS_PATH } = parseArgs(process.argv.slice(2));
+const { corpusRoot, corpusPath: CORPUS_PATH } = parseArgs(
+  process.argv.slice(2)
+);
 
-const toRel = (fp, base = WORKSPACE_ROOT) => relative(base, fp).replace(/\\/g, '/') || fp;
+const toRel = (fp, base = WORKSPACE_ROOT) =>
+  relative(base, fp).replace(/\\/g, "/") || fp;
 
 function die(msg) {
   console.error(`${SELF}: FAIL — ${msg}`);
@@ -118,16 +121,17 @@ function die(msg) {
 // reinvented, design §4 ethos).
 // ---------------------------------------------------------------------------
 const WORKSPACE_PACKAGES = [
-  { name: '@upmind-automation/types', dir: 'packages/types' },
-  { name: '@upmind-automation/i18n', dir: 'packages/i18n' },
-  { name: '@upmind-automation/headless', dir: 'packages/headless' },
-  { name: '@upmind-automation/icons', dir: 'packages/icons' },
-  { name: '@upmind/ui', dir: 'design-system/packages/ui' },
+  { name: "@upmind-automation/types", dir: "packages/types" },
+  { name: "@upmind-automation/i18n", dir: "packages/i18n" },
+  { name: "@upmind-automation/headless", dir: "packages/headless" },
+  { name: "@upmind-automation/foundation", dir: "packages/modules-foundation" },
+  { name: "@upmind-automation/icons", dir: "packages/icons" },
+  { name: "@upmind/ui", dir: "design-system/packages/ui" },
   // The 7th package. Its package.json exposes src/index.ts through `exports`
   // only, which moduleResolution:"node" ignores, so a path mapping is the only
   // way it resolves — mirroring packages/client-vue/tsconfig.json.
-  { name: '@upmind/tokens', dir: 'design-system/packages/tokens' },
-  { name: '@upmind-automation/client-vue', dir: 'packages/client-vue' },
+  { name: "@upmind/tokens", dir: "design-system/packages/tokens" },
+  { name: "@upmind-automation/client-vue", dir: "packages/client-vue" }
 ];
 
 // Every real package's own committed tsconfig(.build).json + the app-level
@@ -140,19 +144,25 @@ const WORKSPACE_PACKAGES = [
 function readAmbientTypes(tsconfigAbsPath) {
   if (!existsSync(tsconfigAbsPath)) return [];
   try {
-    const json = JSON.parse(readFileSync(tsconfigAbsPath, 'utf8'));
+    const json = JSON.parse(readFileSync(tsconfigAbsPath, "utf8"));
     const t = json?.compilerOptions?.types;
-    return Array.isArray(t) ? t.map((x) => String(x).replace(/^@types\//, '')) : [];
+    return Array.isArray(t)
+      ? t.map(x => String(x).replace(/^@types\//, ""))
+      : [];
   } catch {
     return [];
   }
 }
 function collectAmbientTypes() {
   const seen = new Set();
-  for (const t of readAmbientTypes(join(WORKSPACE_ROOT, 'tsconfig/vue-app.json'))) seen.add(t);
+  for (const t of readAmbientTypes(
+    join(WORKSPACE_ROOT, "tsconfig/vue-app.json")
+  ))
+    seen.add(t);
   for (const { dir } of WORKSPACE_PACKAGES) {
-    for (const file of ['tsconfig.build.json', 'tsconfig.json']) {
-      for (const t of readAmbientTypes(join(WORKSPACE_ROOT, dir, file))) seen.add(t);
+    for (const file of ["tsconfig.build.json", "tsconfig.json"]) {
+      for (const t of readAmbientTypes(join(WORKSPACE_ROOT, dir, file)))
+        seen.add(t);
     }
   }
   return [...seen].sort();
@@ -163,42 +173,68 @@ function collectAmbientTypes() {
 // never a silent pass).
 // ---------------------------------------------------------------------------
 if (!existsSync(CORPUS_PATH))
-  die(`corpus not found at ${toRel(CORPUS_PATH, corpusRoot)} — run \`pnpm --filter docs corpus:build\` first`);
+  die(
+    `corpus not found at ${toRel(CORPUS_PATH, corpusRoot)} — run \`pnpm --filter docs corpus:build\` first`
+  );
 let corpus;
 try {
-  corpus = JSON.parse(readFileSync(CORPUS_PATH, 'utf8'));
+  corpus = JSON.parse(readFileSync(CORPUS_PATH, "utf8"));
 } catch (err) {
   die(`${toRel(CORPUS_PATH, corpusRoot)} is not valid JSON — ${err.message}`);
 }
-if (!corpus.examples || typeof corpus.examples !== 'object' || Array.isArray(corpus.examples))
-  die(`${toRel(CORPUS_PATH, corpusRoot)} — corpus.examples is missing or not an object`);
+if (
+  !corpus.examples ||
+  typeof corpus.examples !== "object" ||
+  Array.isArray(corpus.examples)
+)
+  die(
+    `${toRel(CORPUS_PATH, corpusRoot)} — corpus.examples is missing or not an object`
+  );
 
 // ---------------------------------------------------------------------------
 // Snippet materialization, source 1 — corpus.examples (design §5, ExampleEntry).
 // ---------------------------------------------------------------------------
-const LANG_EXT = { ts: 'ts', typescript: 'ts', tsx: 'tsx', js: 'js', javascript: 'js', jsx: 'jsx', vue: 'vue' };
-const slugify = (s) =>
+const LANG_EXT = {
+  ts: "ts",
+  typescript: "ts",
+  tsx: "tsx",
+  js: "js",
+  javascript: "js",
+  jsx: "jsx",
+  vue: "vue"
+};
+const slugify = s =>
   String(s)
-    .replace(/^(example|guide|adr):/, '')
-    .replace(/[^A-Za-z0-9_-]+/g, '_')
-    .replace(/^_+|_+$/g, '')
-    .slice(0, 80) || 'snippet';
+    .replace(/^(example|guide|adr):/, "")
+    .replace(/[^A-Za-z0-9_-]+/g, "_")
+    .replace(/^_+|_+$/g, "")
+    .slice(0, 80) || "snippet";
 
 function materializeExamples(findings) {
   const out = [];
   for (const id of Object.keys(corpus.examples).sort()) {
     const entry = corpus.examples[id];
-    const origin = entry?.sourceFile ? `${entry.sourceFile}` : toRel(CORPUS_PATH, corpusRoot);
-    const ext = LANG_EXT[String(entry?.lang ?? '').toLowerCase()];
+    const origin = entry?.sourceFile
+      ? `${entry.sourceFile}`
+      : toRel(CORPUS_PATH, corpusRoot);
+    const ext = LANG_EXT[String(entry?.lang ?? "").toLowerCase()];
     if (!ext) {
-      findings.push(`${origin} — example '${id}' has non-type-checkable lang "${entry?.lang}" (expected ${LANGS})`);
+      findings.push(
+        `${origin} — example '${id}' has non-type-checkable lang "${entry?.lang}" (expected ${LANGS})`
+      );
       continue;
     }
-    if (typeof entry?.code !== 'string' || !entry.code.trim()) {
+    if (typeof entry?.code !== "string" || !entry.code.trim()) {
       findings.push(`${origin} — example '${id}' has no code to materialize`);
       continue;
     }
-    out.push({ id, origin, ext, code: entry.code, file: `examples/${slugify(id)}.${ext}` });
+    out.push({
+      id,
+      origin,
+      ext,
+      code: entry.code,
+      file: `examples/${slugify(id)}.${ext}`
+    });
   }
   return out;
 }
@@ -215,17 +251,17 @@ function materializeExamples(findings) {
 const MARKER_RE = /^<!--\s*corpus-example\s*-->\s*$/;
 const SKIP_RE = /^<!--\s*corpus-example:\s*skip\b/;
 const FENCE_OPEN_RE = /^(`{3,})([A-Za-z0-9]*)\s*$/;
-const LANGS = Object.keys(LANG_EXT).join('|');
+const LANGS = Object.keys(LANG_EXT).join("|");
 
 function scanDocSnippets(docId, absPath, findings) {
   const out = [];
   let text;
   try {
-    text = readFileSync(absPath, 'utf8');
+    text = readFileSync(absPath, "utf8");
   } catch {
     return out; // best-effort — see header note
   }
-  const lines = text.split('\n');
+  const lines = text.split("\n");
   let n = 0;
   for (let i = 0; i < lines.length; i++) {
     const open = FENCE_OPEN_RE.exec(lines[i].trim());
@@ -235,8 +271,8 @@ function scanDocSnippets(docId, absPath, findings) {
     const ext = LANG_EXT[lang];
     // The opt-in/opt-out marker is the nearest non-blank line above the fence.
     let p = i - 1;
-    while (p >= 0 && lines[p].trim() === '') p--;
-    const prev = p >= 0 ? lines[p].trim() : '';
+    while (p >= 0 && lines[p].trim() === "") p--;
+    const prev = p >= 0 ? lines[p].trim() : "";
     const optedIn = MARKER_RE.test(prev);
     const origin = `${toRel(absPath, corpusRoot)}:${i + 1}`;
     // A fence closes on a run of at least as many backticks and nothing else —
@@ -249,12 +285,15 @@ function scanDocSnippets(docId, absPath, findings) {
         break;
       }
     if (close === -1) {
-      if (ext || optedIn) findings.push(`${origin} — fenced code block never closes`);
+      if (ext || optedIn)
+        findings.push(`${origin} — fenced code block never closes`);
       break; // everything past an unterminated fence is inside it
     }
     if (!ext) {
       if (optedIn)
-        findings.push(`${origin} — marked snippet has non-type-checkable fence language "${lang || '(none)'}" (expected ${LANGS})`);
+        findings.push(
+          `${origin} — marked snippet has non-type-checkable fence language "${lang || "(none)"}" (expected ${LANGS})`
+        );
       i = close;
       continue;
     }
@@ -264,7 +303,13 @@ function scanDocSnippets(docId, absPath, findings) {
     }
     n++;
     const id = `${docId}#${n}`;
-    out.push({ id, origin, ext, code: lines.slice(i + 1, close).join('\n'), file: `marked/${slugify(id)}.${ext}` });
+    out.push({
+      id,
+      origin,
+      ext,
+      code: lines.slice(i + 1, close).join("\n"),
+      file: `marked/${slugify(id)}.${ext}`
+    });
     i = close;
   }
   return out;
@@ -272,7 +317,9 @@ function scanDocSnippets(docId, absPath, findings) {
 
 function materializeMarked(findings) {
   const out = [];
-  const docSets = [corpus.guides, corpus.adrs].filter((s) => s && typeof s === 'object');
+  const docSets = [corpus.guides, corpus.adrs].filter(
+    s => s && typeof s === "object"
+  );
   for (const set of docSets) {
     for (const docId of Object.keys(set).sort()) {
       const entry = set[docId];
@@ -286,7 +333,10 @@ function materializeMarked(findings) {
 }
 
 const findings = [];
-const materialized = [...materializeExamples(findings), ...materializeMarked(findings)];
+const materialized = [
+  ...materializeExamples(findings),
+  ...materializeMarked(findings)
+];
 
 // slugify() truncates at 80 chars, so two long doc ids can produce the same temp
 // filename and silently overwrite each other's snippet — disambiguate instead.
@@ -296,7 +346,7 @@ for (const s of materialized) {
     usedFiles.add(s.file);
     continue;
   }
-  const dot = s.file.lastIndexOf('.');
+  const dot = s.file.lastIndexOf(".");
   let k = 2;
   let cand;
   do {
@@ -311,10 +361,14 @@ for (const s of materialized) {
 if (materialized.length === 0) {
   if (findings.length) {
     for (const f of findings) console.error(f);
-    console.error(`${SELF}: ${findings.length} blocking finding(s) (no snippets were type-checkable).`);
+    console.error(
+      `${SELF}: ${findings.length} blocking finding(s) (no snippets were type-checkable).`
+    );
     process.exit(1);
   }
-  console.log(`${SELF}: OK — 0 example snippet(s) to type-check (empty-set; the FE-2754 seam is not yet populated).`);
+  console.log(
+    `${SELF}: OK — 0 example snippet(s) to type-check (empty-set; the FE-2754 seam is not yet populated).`
+  );
   process.exit(0);
 }
 
@@ -324,35 +378,37 @@ if (materialized.length === 0) {
 // ---------------------------------------------------------------------------
 function resolveVueTscBin() {
   const candidates = [
-    join(WORKSPACE_ROOT, 'node_modules', '.bin', 'vue-tsc'),
-    join(WORKSPACE_ROOT, 'docs', 'node_modules', '.bin', 'vue-tsc'),
+    join(WORKSPACE_ROOT, "node_modules", ".bin", "vue-tsc"),
+    join(WORKSPACE_ROOT, "docs", "node_modules", ".bin", "vue-tsc")
   ];
-  return candidates.find((p) => existsSync(p)) ?? null;
+  return candidates.find(p => existsSync(p)) ?? null;
 }
 
 function runTypeCheck() {
-  mkdirSync(join(WORKSPACE_ROOT, 'docs/corpus'), { recursive: true });
-  const tmp = mkdtempSync(join(WORKSPACE_ROOT, 'docs/corpus', '.gate-examples-tmp-'));
+  mkdirSync(join(WORKSPACE_ROOT, "docs/corpus"), { recursive: true });
+  const tmp = mkdtempSync(
+    join(WORKSPACE_ROOT, "docs/corpus", ".gate-examples-tmp-")
+  );
   try {
     const byFile = new Map(); // relPath (posix, from tmp) -> snippet
     for (const s of materialized) {
       const abs = join(tmp, s.file);
       mkdirSync(dirname(abs), { recursive: true });
-      writeFileSync(abs, s.code.endsWith('\n') ? s.code : `${s.code}\n`);
+      writeFileSync(abs, s.code.endsWith("\n") ? s.code : `${s.code}\n`);
       byFile.set(s.file, s);
     }
 
     const paths = {};
     for (const { name, dir } of WORKSPACE_PACKAGES)
-      paths[name] = [join(WORKSPACE_ROOT, dir, 'src', 'index.ts')];
+      paths[name] = [join(WORKSPACE_ROOT, dir, "src", "index.ts")];
     // A doc snippet may import a framework package the real code imports (`vue`,
     // `vue-router`, `lodash-es`, …). pnpm's isolated linking installs those under
     // the depending package, never at the repo root, so Node's ancestor walk from
     // the temp dir never finds them — this fallback points at the real copies.
-    paths['*'] = [
-      join(WORKSPACE_ROOT, 'packages/headless/node_modules', '*'),
-      join(WORKSPACE_ROOT, 'packages/client-vue/node_modules', '*'),
-      join(WORKSPACE_ROOT, 'node_modules', '*'),
+    paths["*"] = [
+      join(WORKSPACE_ROOT, "packages/headless/node_modules", "*"),
+      join(WORKSPACE_ROOT, "packages/client-vue/node_modules", "*"),
+      join(WORKSPACE_ROOT, "node_modules", "*")
     ];
 
     // typeRoots: every workspace package's own node_modules/@types (pnpm's
@@ -362,11 +418,15 @@ function runTypeCheck() {
     // vue-app.json's "vite/client" resolves against the real `vite` package
     // there, not under an `@types` directory — dropping this entry silently
     // breaks that resolution (verified empirically; do not remove).
-    const typeRoots = [join(WORKSPACE_ROOT, 'node_modules', '@types'), join(WORKSPACE_ROOT, 'node_modules')];
-    for (const { dir } of WORKSPACE_PACKAGES) typeRoots.push(join(WORKSPACE_ROOT, dir, 'node_modules', '@types'));
+    const typeRoots = [
+      join(WORKSPACE_ROOT, "node_modules", "@types"),
+      join(WORKSPACE_ROOT, "node_modules")
+    ];
+    for (const { dir } of WORKSPACE_PACKAGES)
+      typeRoots.push(join(WORKSPACE_ROOT, dir, "node_modules", "@types"));
 
     const tsconfig = {
-      extends: join(WORKSPACE_ROOT, 'tsconfig', 'vue-app.json'),
+      extends: join(WORKSPACE_ROOT, "tsconfig", "vue-app.json"),
       compilerOptions: {
         types: collectAmbientTypes(),
         typeRoots,
@@ -376,37 +436,44 @@ function runTypeCheck() {
         // this an import-less snippet is a script — illegal under the inherited
         // `isolatedModules`, and its top-level names collide with every other
         // import-less snippet in the same program.
-        moduleDetection: 'force',
+        moduleDetection: "force"
       },
-      include: ['examples/**/*', 'marked/**/*'],
+      include: ["examples/**/*", "marked/**/*"]
     };
-    const tsconfigPath = join(tmp, 'tsconfig.json');
+    const tsconfigPath = join(tmp, "tsconfig.json");
     writeFileSync(tsconfigPath, JSON.stringify(tsconfig, null, 2));
 
     const bin = resolveVueTscBin();
     if (!bin) {
-      findings.push(`${toRel(join(WORKSPACE_ROOT, 'node_modules/.bin/vue-tsc'))} — vue-tsc not found; run \`pnpm install\` first`);
+      findings.push(
+        `${toRel(join(WORKSPACE_ROOT, "node_modules/.bin/vue-tsc"))} — vue-tsc not found; run \`pnpm install\` first`
+      );
       return;
     }
-    const res = spawnSync(bin, ['-p', tsconfigPath, '--noEmit'], { cwd: tmp, encoding: 'utf8' });
+    const res = spawnSync(bin, ["-p", tsconfigPath, "--noEmit"], {
+      cwd: tmp,
+      encoding: "utf8"
+    });
     if (res.error) {
-      findings.push(`${SELF} — could not execute vue-tsc: ${res.error.message}`);
+      findings.push(
+        `${SELF} — could not execute vue-tsc: ${res.error.message}`
+      );
       return;
     }
 
     const DIAG_RE = /^(.+?)\((\d+),(\d+)\):\s*error\s*(TS\d+):\s*(.+)$/;
-    const raw = `${res.stdout ?? ''}${res.stderr ?? ''}`;
+    const raw = `${res.stdout ?? ""}${res.stderr ?? ""}`;
     let matched = false;
-    for (const line of raw.split('\n')) {
+    for (const line of raw.split("\n")) {
       const m = DIAG_RE.exec(line.trim());
       if (!m) continue;
       matched = true;
       const [, file, ln, col, code, message] = m;
-      const relFile = file.replace(/\\/g, '/').replace(/^\.\//, '');
+      const relFile = file.replace(/\\/g, "/").replace(/^\.\//, "");
       const snippet = byFile.get(relFile);
       if (snippet) {
         findings.push(
-          `${snippet.origin} — example '${snippet.id}' fails vue-tsc type-check against real workspace packages: ${code} ${message} (${relFile}:${ln}:${col})`,
+          `${snippet.origin} — example '${snippet.id}' fails vue-tsc type-check against real workspace packages: ${code} ${message} (${relFile}:${ln}:${col})`
         );
       } else {
         // A diagnostic outside any materialized snippet file (e.g. a real,
@@ -416,8 +483,10 @@ function runTypeCheck() {
       }
     }
     if (res.status !== 0 && !matched) {
-      const tail = raw.trim().split('\n').slice(-5).join(' | ');
-      findings.push(`${SELF} — vue-tsc exited ${res.status} with no parseable diagnostic${tail ? `: ${tail}` : ''}`);
+      const tail = raw.trim().split("\n").slice(-5).join(" | ");
+      findings.push(
+        `${SELF} — vue-tsc exited ${res.status} with no parseable diagnostic${tail ? `: ${tail}` : ""}`
+      );
     }
   } finally {
     try {
@@ -437,9 +506,13 @@ findings.sort((a, b) => (a < b ? -1 : a > b ? 1 : 0));
 for (const f of findings) console.error(f);
 
 if (findings.length) {
-  console.error(`${SELF}: ${findings.length} blocking finding(s) — ${materialized.length} snippet(s) materialized.`);
+  console.error(
+    `${SELF}: ${findings.length} blocking finding(s) — ${materialized.length} snippet(s) materialized.`
+  );
   process.exit(1);
 }
 
-console.log(`${SELF}: OK — ${materialized.length} example snippet(s) compiled clean against real workspace packages.`);
+console.log(
+  `${SELF}: OK — ${materialized.length} example snippet(s) compiled clean against real workspace packages.`
+);
 process.exit(0);

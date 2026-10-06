@@ -1,53 +1,30 @@
-// -----------------------------------------------------------------------------
-/**
- * TEMPLATE FILE — doctrine wins over this skeleton and its named worked
- * example. Authority: `code-composables.md` Part B "Implementation Pattern" +
- * "TanStack Query variant" + `code-composables.companion.md` "Variance law"
- * clauses 1/2/4. A disagreement between this skeleton, its worked example,
- * and the doctrine is a surfaced finding, never silently resolved toward
- * either.
- *
- * `@precedent` citations point at `client-email/` — the only query-backed scoped
- * module, and the FE-2824 implementation this bundle's anti-cosplay law was
- * written about. Cite it for facts; never copy its shape.
- */
-
+// TEMPLATE FILE — scaffolded by the factory; replace every placeholder.
 import { createScopedComposable } from "../scope";
+import { resolveClientId } from "../session-store";
 import createModuleServices from "./module.services";
 import { createModuleActions } from "./useModule.actions";
 import { createModuleContext } from "./useModule.context";
 import { createModuleInternals } from "./useModule.internals";
 import { createModuleMeta } from "./useModule.meta";
 import type { ModuleScopeMatrix } from "./module.types";
-import { ScopeActorTypes } from "../scope";
-import type { ScopeConfig, ScopeKey } from "../scope";
+import type { ScopeActorTypes, ScopeConfig, ScopeKey } from "../scope";
 // -----------------------------------------------------------------------------
 /**
  * @module module/useModule
- * @description Scoped, query-backed collection composable (no machine): one
- * TanStack query per concrete `(actor, context)` scope, minted once at
- * construction so it survives component lifecycles. Returns ONLY the four
- * sub-composable factories — no direct props.
- *
- * @doctrine clause 1 (uniform four-layer default) — same return shape as the
- * machine variant.
- * @doctrine clause 4 (`.as('self')` builder-owned) — `config.actor` arriving
- * here is ALREADY a concrete actor.
- * @precedent `client-email/useClientEmails.ts`.
+ * @description Scoped, query-backed module collection: one list query per
+ * scope, minted once and handed to every layer.
  */
+
 function createModuleForScope(config: ScopeConfig, scopeKey: ScopeKey) {
   const actorScope = config.actor as ScopeActorTypes;
-
-  const service = createModuleServices(actorScope, config.context);
-
-  // Mint the list query ONCE per scope — a `service.loadList()` inside a layer
-  // factory mints a second query, with its own refs, key and effect scope.
-  const query = service.loadList({ pagination: { limit: 0 } });
+  const clientId = resolveClientId(config.context);
+  const service = createModuleServices(actorScope, config.context, clientId);
+  const query = service.loadList();
 
   return {
-    // --- Sub-composables (no direct props — clause 1 / Part B Four-Layer Return Shape)
     /** Sub-composable for collection actions (mutations, refresh, lifecycle). */
-    useActions: () => createModuleActions(actorScope, service, query, scopeKey),
+    useActions: () =>
+      createModuleActions(actorScope, service, query, scopeKey, clientId),
 
     /** Sub-composable for collection context (reactive data + lookups). */
     useContext: () => createModuleContext(actorScope, query),
@@ -56,18 +33,11 @@ function createModuleForScope(config: ScopeConfig, scopeKey: ScopeKey) {
     useInternals: () => createModuleInternals(actorScope, query),
 
     /** Sub-composable for collection meta (state flags). */
-    useMeta: () => createModuleMeta(actorScope, query)
+    useMeta: () => createModuleMeta(actorScope, query, clientId)
   };
 }
 // -----------------------------------------------------------------------------
-/**
- * Scoped composable — replace this JSDoc with the module's real usage example.
- *
- * @example
- * ```ts
- * const module = useModule().as('self')
- * ```
- */
+/** Scoped module collection, e.g. `useModule().as("self")`. */
 export const useModule = createScopedComposable<
   ReturnType<typeof createModuleForScope>,
   ModuleScopeMatrix

@@ -5,10 +5,7 @@ const { mkdtempSync, writeFileSync, rmSync } = require("node:fs");
 const { tmpdir } = require("node:os");
 const path = require("node:path");
 
-const SCRIPT = path.resolve(
-  __dirname,
-  "glossary-resolve.mjs"
-);
+const SCRIPT = path.resolve(__dirname, "glossary-resolve.mjs");
 
 const FIXTURE = {
   glossary: {

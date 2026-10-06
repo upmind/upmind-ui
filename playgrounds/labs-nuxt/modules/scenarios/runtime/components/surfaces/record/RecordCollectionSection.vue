@@ -90,11 +90,11 @@ import RecordFieldGrid from "./RecordFieldGrid.vue";
 import { castArray, find, get, isNil, kebabCase, map } from "lodash-es";
 import type { RecordSectionProps } from "./record.types";
 import type { RecordCollectionSection } from "../../../scenario.types";
+const props = defineProps<RecordSectionProps<RecordCollectionSection>>();
+
 // -----------------------------------------------------------------------------
 
 const SKELETON_ROWS = 3;
-
-const props = defineProps<RecordSectionProps<RecordCollectionSection>>();
 
 const { t } = useI18n();
 

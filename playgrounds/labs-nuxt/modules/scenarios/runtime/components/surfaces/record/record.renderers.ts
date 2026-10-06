@@ -7,11 +7,11 @@
  * `RecordSurface`.
  */
 
+import { openNotice } from "./record.utils";
 import RecordAlertSection from "./RecordAlertSection.vue";
 import RecordCollectionSection from "./RecordCollectionSection.vue";
 import RecordFieldsSection from "./RecordFieldsSection.vue";
 import RecordThreadSection from "./RecordThreadSection.vue";
-import { openNotice } from "./record.utils";
 import { find } from "lodash-es";
 import type { RecordSectionEntry } from "./record.types";
 import type {

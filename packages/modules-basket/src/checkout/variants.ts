@@ -1,4 +1,5 @@
 import { cva } from "class-variance-authority";
+// -----------------------------------------------------------------------------
 
 // The setup step's inline copy and CTA, plus the load-state bars standing in
 // for the setup form.

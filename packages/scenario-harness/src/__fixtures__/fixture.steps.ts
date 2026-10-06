@@ -2,6 +2,7 @@ import { defineSteps } from "../steps/step-catalog";
 import { SCOPE_ACTOR } from "../world/scope-actor";
 import { FIXTURE_KEY } from "./fixture-registry";
 import type { World } from "../world/world.types";
+// -----------------------------------------------------------------------------
 
 /**
  * The @AC-5 exemplar's step definitions — engine-free: every body speaks

@@ -1,3 +1,4 @@
+/** @internal */
 /**
  * @graphify-citation see `tickets.types.ts`'s head citation
  * (`graphify-out/graph.json`, 2026-09-14) — no prior tickets schema construct

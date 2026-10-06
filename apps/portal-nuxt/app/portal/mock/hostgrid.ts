@@ -116,6 +116,7 @@ import type {
   MockAffiliateReferral,
   MockVaultAsset
 } from "./types";
+// -----------------------------------------------------------------------------
 
 /**
  * The topics a SINGLE address may be subscribed to — legacy's per-address

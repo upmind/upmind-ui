@@ -1,3 +1,4 @@
+/** @internal */
 import { STATS_ALL_CURRENCY_CODE } from "@upmind-automation/types";
 import type {
   StatCurrencyResponseData,

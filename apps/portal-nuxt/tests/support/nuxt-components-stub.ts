@@ -1,4 +1,5 @@
 import { defineComponent, h } from "vue";
+// -----------------------------------------------------------------------------
 
 /**
  * Stands in for Nuxt's build-time `#components` virtual module, which the

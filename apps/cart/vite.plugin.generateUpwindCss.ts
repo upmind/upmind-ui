@@ -1,4 +1,5 @@
 import type { Plugin } from "vite";
+// -----------------------------------------------------------------------------
 
 /**
  * Vite plugin to generate an upmind CSS file that imports the index CSS file.

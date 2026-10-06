@@ -37,6 +37,8 @@ import type { ControlElement } from "@jsonforms/core";
 import type { JsonFormsSubStates } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
 import type { SubproductDetails } from "@upmind-automation/headless";
+const props = defineProps<RendererProps<ControlElement>>();
+
 // --- external
 
 // -----------------------------------------------------------------------------
@@ -45,7 +47,6 @@ const SubproductSelector = defineAsyncComponent(
   () => import("../components/subproduct/SubproductSelector.vue")
 );
 
-const props = defineProps<RendererProps<ControlElement>>();
 const { t } = useI18n();
 
 const { control, appliedOptions, formFieldProps, onInput } =

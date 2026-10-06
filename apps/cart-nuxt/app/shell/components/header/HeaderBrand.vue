@@ -31,13 +31,13 @@ import {
 } from "./variants";
 import type { StorefrontRoute } from "@upmind-automation/foundation";
 
-const { name, image } = useBrand();
-
 // -----------------------------------------------------------------------------
 const props = defineProps<{
   logo?: string;
   storefrontRoute?: StorefrontRoute;
 }>();
+
+const { name, image } = useBrand();
 
 const logo = computed(
   () => props.logo ?? `${image.value?.full_url}?size=400x400`

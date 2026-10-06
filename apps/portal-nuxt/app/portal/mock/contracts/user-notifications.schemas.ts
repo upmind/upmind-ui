@@ -31,6 +31,7 @@ import type {
   NotificationPreferencesModel
 } from "./user-notifications";
 import type { GroupLayout, JsonSchema7, VerticalLayout } from "@jsonforms/core";
+// -----------------------------------------------------------------------------
 
 /** What separates a topic from its channel in one cell's key. */
 const KEY_SEPARATOR = "__";

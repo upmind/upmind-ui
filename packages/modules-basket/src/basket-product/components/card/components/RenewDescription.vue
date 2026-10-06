@@ -42,11 +42,12 @@ import {
 import { isNil } from "lodash-es";
 import type { RenewDescriptionProps } from "./types";
 
+const props = defineProps<RenewDescriptionProps>();
+
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();
 
-const props = defineProps<RenewDescriptionProps>();
 // NB: value is stringified because useTestAttrs discards non-string values
 const renewalTermTestAttrs = (cycle?: number) =>
   useTestAttrs({ key: "renewal-term-label", value: String(cycle) });

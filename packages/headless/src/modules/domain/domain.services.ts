@@ -53,6 +53,7 @@ import type {
   IDomainSuggestionResultProduct,
   IProduct
 } from "@upmind-automation/types";
+// -----------------------------------------------------------------------------
 
 // Shared `with` parameter for API calls to include full product/price data
 const DOMAIN_WITH_RELATIONS = "prices,options,options.prices,attributes";

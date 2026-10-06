@@ -9,6 +9,7 @@ import Login from "./pages/Login.vue";
 import Recover from "./pages/Recover.vue";
 import Register from "./pages/Register.vue";
 import type { RouteRecordRaw } from "vue-router";
+// -----------------------------------------------------------------------------
 
 export const AUTH_ROUTE = {
   ROOT: "auth",

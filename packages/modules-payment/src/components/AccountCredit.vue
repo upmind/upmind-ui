@@ -55,11 +55,6 @@ import { useI18n } from "vue-i18n";
 import FormModal from "./FormModal.vue";
 import type { AccountCreditProps } from "../types";
 
-// -----------------------------------------------------------------------------
-const props = defineProps<AccountCreditProps>();
-
-const open = ref(false);
-
 const model = defineModel("modelValue", {
   get() {
     return {
@@ -70,6 +65,11 @@ const model = defineModel("modelValue", {
     return value.wallet_amount;
   }
 });
+
+// -----------------------------------------------------------------------------
+const props = defineProps<AccountCreditProps>();
+
+const open = ref(false);
 
 const checked = computed({
   get: () => (props.modelValue ? ["account-credit"] : []),

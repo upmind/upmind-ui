@@ -6,6 +6,7 @@ import type {
   StepKind,
   StepRegistrar
 } from "./steps.types";
+// -----------------------------------------------------------------------------
 
 /**
  * Collects a `<module>.steps.ts`'s `Given`/`When`/`Then` registrations into a

@@ -24,7 +24,7 @@ function findKeyBinding(element) {
   const attrs = element.startTag?.attributes ?? [];
   return (
     attrs.find(
-      (attr) =>
+      attr =>
         attr.directive === true &&
         attr.key?.name?.name === "bind" &&
         attr.key?.argument?.name === "key"
@@ -36,7 +36,7 @@ function findKeyBinding(element) {
 function findForIndexName(element) {
   const attrs = element.startTag?.attributes ?? [];
   const forAttr = attrs.find(
-    (attr) => attr.directive === true && attr.key?.name?.name === "for"
+    attr => attr.directive === true && attr.key?.name?.name === "for"
   );
   const expression = forAttr?.value?.expression;
   if (!expression || expression.type !== "VForExpression") return null;

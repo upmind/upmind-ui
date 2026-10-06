@@ -16,6 +16,7 @@ import { compact } from "lodash-es";
 import type { CancellationContext, ContractCancelOption } from "../contracts";
 import type { ProvisioningSetupContext } from "../contracts/contract-product-provisioning";
 import type { MockDataset, MockProduct } from "../types";
+// -----------------------------------------------------------------------------
 
 /**
  * What `contract-product-provisioning`'s own setup builders are handed — the

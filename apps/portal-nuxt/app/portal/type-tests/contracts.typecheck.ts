@@ -156,6 +156,7 @@ import type {
   IVaultAsset,
   IWalletTransaction
 } from "@upmind-automation/types";
+// -----------------------------------------------------------------------------
 
 /**
  * The dataset a facade resolves against. Declared rather than seeded: this

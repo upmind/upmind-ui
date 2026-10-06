@@ -20,11 +20,11 @@ import type { BasketCheckoutProps } from "./types";
 // --- types
 const props = defineProps<BasketCheckoutProps>();
 
-const { t } = useI18n();
-
 const emit = defineEmits<{
   (e: "resolve"): void;
 }>();
+
+const { t } = useI18n();
 
 function doResolve() {
   emit("resolve");

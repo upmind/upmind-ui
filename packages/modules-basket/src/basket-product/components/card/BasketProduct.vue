@@ -139,9 +139,9 @@ const props = withDefaults(defineProps<Product & BasketProductProps>(), {
   card: true
 });
 
-const { t } = useI18n();
-
 const emits = defineEmits(["update:open", "remove"]);
+
+const { t } = useI18n();
 
 const open = useVModel(props, "open", emits);
 

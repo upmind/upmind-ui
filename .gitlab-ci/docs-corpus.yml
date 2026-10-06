@@ -201,6 +201,51 @@ gate:symbols:
       fi
 
 #------------------------------------------------------------------------------
+# gate:prose: the docs prose and shape gate (STE sentence length, semicolons,
+# filler words, template section order, changelog format, and the rest of the
+# mechanical docs rules). Existing hits sit in docs/corpus/gates/gate-prose.baseline.json;
+# a new hit fails the MR. It reads Markdown only, so it needs no corpus:build and it
+# runs on any MR that touches a Markdown file.
+#------------------------------------------------------------------------------
+gate:prose:
+  stage: test
+  interruptible: true
+  image: ${NODE_IMAGE}
+  needs:
+    - dependencies
+  allow_failure: false
+  rules:
+    - if: '$DOCS_CORPUS_CI_ENABLED != "true"'
+      when: never
+    - if: $SKIP_DOCS_CORPUS == "true"
+      when: never
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes:
+        - "**/*.md"
+        - docs/corpus/gates/gate-prose*
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      changes:
+        - "**/*.md"
+        - docs/corpus/gates/gate-prose*
+  variables:
+    DOCS_CORPUS_CI_ENABLED: "true"
+  artifacts:
+    when: always
+    expire_in: 7 days
+    paths:
+      - gate-prose.log
+  script:
+    - |
+      set -o pipefail
+      if node docs/corpus/gates/gate-prose.mjs 2>&1 | tee gate-prose.log; then
+        echo "[gate:prose] GREEN — no new docs prose or shape finding."
+      else
+        status=$?
+        echo "[gate:prose] RED — a new docs prose or shape finding (named above)."
+        exit "$status"
+      fi
+
+#------------------------------------------------------------------------------
 # gate:authorship: the authorship guard (FE-2950), in --pages mode (FE-3271). It
 # checks the corpus.json and relations.json integrity pins, the provenance keys of
 # the fresh pages in .corpus-fresh, and that no committed hand-authored page carries

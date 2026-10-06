@@ -69,16 +69,14 @@ import { forEach, some } from "lodash-es";
 import type { RecommendationsProps } from "./types";
 import type { CarouselApi } from "@upmind/ui";
 import type { Product } from "@upmind-automation/headless";
-// -----------------------------------------------------------------------------
-
-const { t } = useI18n();
 const props = withDefaults(defineProps<RecommendationsProps>(), {});
-
 const emit = defineEmits<{
   (e: "resolve", id: string): void;
   (e: "fetch", id: string): void;
 }>();
+// -----------------------------------------------------------------------------
 
+const { t } = useI18n();
 // ---
 
 function doResolve(id: string) {

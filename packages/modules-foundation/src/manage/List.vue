@@ -83,6 +83,11 @@ import Item from "./Item.vue";
 import { find, map } from "lodash-es";
 import type { ManageRendererProps } from "./types";
 
+const modelValue = defineModel<string>("modelValue", {});
+
+// -----------------------------------------------------------------------------
+const open = defineModel<boolean>("open", {});
+
 // -----------------------------------------------------------------------------
 
 const props = defineProps<{
@@ -109,11 +114,6 @@ const { t } = useI18n();
 const { data, meta, default: _defaultItem, isReady } = props.useList();
 
 await isReady();
-
-const modelValue = defineModel<string>("modelValue", {});
-
-// -----------------------------------------------------------------------------
-const open = defineModel<boolean>("open", {});
 
 const parsedValues = computed(() =>
   map(data?.value ?? [], (item: any, index: number) => ({

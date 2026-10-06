@@ -15,6 +15,7 @@
 
 import type { BadgeVariants } from "@upmind/ui";
 import type { Component } from "vue";
+// -----------------------------------------------------------------------------
 
 export const LIST_MODULE_VARIANT = {
   COMPACT: "compact",
@@ -51,19 +52,19 @@ export type ListModuleColumns = 1 | 2 | 3 | 4;
  * columns. Generic like every other member here: a value and how it reads,
  * never a domain field.
  */
-export interface ListModuleCell {
+export type ListModuleCell = {
   readonly value: string;
   /** Right-aligned tabular figures — amounts, counts, ids (`TableCell`'s own `numeric`). */
   readonly numeric?: boolean;
-}
+};
 
 /** One heading of the `table` variant's header row, in render order. */
-export interface ListModuleHeading {
+export type ListModuleHeading = {
   readonly label: string;
   readonly numeric?: boolean;
-}
+};
 
-export interface ListModuleItem {
+export type ListModuleItem = {
   readonly id: string;
   readonly title: string;
   /** Navigates when set — the row's destination (a product's detail page, an invoice). */
@@ -175,7 +176,7 @@ export interface ListModuleItem {
    * renders it.
    */
   readonly groupWithPrevious?: boolean;
-}
+};
 
 /** `cards` only — the media block's shape. A grid of sessions and a grid of product tiles want different ones. */
 export const LIST_MODULE_MEDIA = {
@@ -189,7 +190,7 @@ export const LIST_MODULE_MEDIA = {
 export type ListModuleMedia =
   (typeof LIST_MODULE_MEDIA)[keyof typeof LIST_MODULE_MEDIA];
 
-export interface ListModuleProps {
+export type ListModuleProps = {
   readonly variant: ListModuleVariant;
   readonly items: readonly ListModuleItem[];
   /**
@@ -242,7 +243,7 @@ export interface ListModuleProps {
   readonly revealLabel?: string;
   /** Accessible name for a row's copy control. No English default (CC22). */
   readonly copyLabel?: string;
-}
+};
 
 export type ListModuleEmits = {
   select: [value: string];

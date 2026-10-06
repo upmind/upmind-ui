@@ -101,7 +101,9 @@ export default {
       // violation: a services file carries no type declarations, exported or
       // not. A derived alias stays exempt; a function-scoped local type is an
       // implementation detail and is not top-level, so it is untouched.
-      "TSTypeAliasDeclaration, TSInterfaceDeclaration, TSEnumDeclaration"(node) {
+      "TSTypeAliasDeclaration, TSInterfaceDeclaration, TSEnumDeclaration"(
+        node
+      ) {
         if (node.id && node.id.type === "Identifier") {
           localTypeDecls.set(node.id.name, node);
         }
@@ -147,7 +149,10 @@ export default {
         // non-exported one — unless it is exported via a specifier above, which
         // has already reported it.
         for (const node of localTopLevelTypes) {
-          if (node.id?.type === "Identifier" && exportedByName.has(node.id.name)) {
+          if (
+            node.id?.type === "Identifier" &&
+            exportedByName.has(node.id.name)
+          ) {
             continue;
           }
           context.report({

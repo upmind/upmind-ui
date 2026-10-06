@@ -3,10 +3,7 @@ const assert = require("node:assert/strict");
 const { execFileSync } = require("node:child_process");
 const path = require("node:path");
 
-const SCRIPT = path.resolve(
-  __dirname,
-  "glossary-resolve.mjs"
-);
+const SCRIPT = path.resolve(__dirname, "glossary-resolve.mjs");
 
 test("an unknown term or alias exits non-zero and names the miss on stderr", () => {
   assert.throws(

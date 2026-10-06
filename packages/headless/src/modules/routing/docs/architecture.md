@@ -90,7 +90,7 @@ There is exactly one selection point: **`defaultFunnel`, at registration.**
 `initRouter()` runs after `useBrand()`, `useSystem()` and `useSession()` have all resolved, so brand config is fully available when the app's `registerFunnels()` executes. A brand-conditional starting funnel is therefore a plain read at that moment:
 
 ```typescript
-import { useBrand } from "@upmind-automation/client-vue";
+import { useBrand } from "@upmind-automation/headless";
 import { BrandConfigKeys, CheckoutFlows } from "@upmind-automation/types";
 import type { FunnelProps, FunnelWatcher } from "@upmind-automation/headless";
 
@@ -196,7 +196,7 @@ The routing engine exposes lifecycle hooks for coordinating UI effects with navi
 
 ```typescript
 import { useRoutingEngine } from "@upmind-automation/headless";
-import { useShell } from "@upmind-automation/client-vue";
+import { useShell } from "@upmind-automation/foundation";
 
 declare function scrollToTop(): void;
 
@@ -208,10 +208,10 @@ onAfterEnter(() => scrollToTop());
 
 ## Integration Points
 
-| Component          | Role                     | File                                         |
-| ------------------ | ------------------------ | -------------------------------------------- |
-| `useRoutingEngine` | Composable API for apps  | `useRoutingEngine.ts`                        |
-| `useRouting`       | Router integration       | `useRouting.ts`                              |
-| `useOverlayRoute`  | Overlay close/dismiss    | `packages/client-vue/.../useOverlayRoute.ts` |
-| `useQueryParams`   | Type-safe query access   | `useQueryParams.ts`                          |
-| `useShell`         | Shell component tracking | `packages/client-vue/.../useShell.ts`        |
+| Component          | Role                     | File                                                     |
+| ------------------ | ------------------------ | -------------------------------------------------------- |
+| `useRoutingEngine` | Composable API for apps  | `useRoutingEngine.ts`                                    |
+| `useRouting`       | Router integration       | `useRouting.ts`                                          |
+| `useOverlayRoute`  | Overlay close/dismiss    | host app: `shell/components/overlays/useOverlayRoute.ts` |
+| `useQueryParams`   | Type-safe query access   | `useQueryParams.ts`                                      |
+| `useShell`         | Shell component tracking | `packages/modules-foundation/src/shell/useShell.ts`      |

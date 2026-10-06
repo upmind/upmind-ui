@@ -4,6 +4,7 @@ import { dataManagerMachine } from "../data-manager";
 import { createScopedComposable } from "../scope";
 import { useI18n } from "../system-localisation";
 import createClientBillingSettingsServices from "./client-billing-settings.services";
+import { CLIENT_BILLING_SETTINGS_SCOPE_MATRIX } from "./client-billing-settings.types";
 import { createBillingSettingsActions } from "./useBillingSettings.actions";
 import { createBillingSettingsContext } from "./useBillingSettings.context";
 import { createBillingSettingsInternals } from "./useBillingSettings.internals";
@@ -18,7 +19,6 @@ import {
 } from "../../utils";
 import type { ClientBillingSettingsScopeMatrix } from "./client-billing-settings.types";
 import type { ScopeConfig, ScopeKey } from "../scope";
-import type { ScopeActorTypes } from "../scope/scope.types";
 // -----------------------------------------------------------------------------
 /**
  * @module client-billing-settings/useBillingSettings
@@ -60,7 +60,7 @@ function createBillingSettingsForScope(
 ) {
   const { t } = useI18n();
 
-  const actorScope = config.actor as ScopeActorTypes;
+  const actorScope = config.actor;
 
   /**
    * ONE services instance for this scope, threaded into the machine config.
@@ -164,7 +164,11 @@ function createBillingSettingsForScope(
 export const useBillingSettings = createScopedComposable<
   ReturnType<typeof createBillingSettingsForScope>,
   ClientBillingSettingsScopeMatrix
->("client-billing-settings", createBillingSettingsForScope);
+>(
+  "client-billing-settings",
+  createBillingSettingsForScope,
+  CLIENT_BILLING_SETTINGS_SCOPE_MATRIX
+);
 
 // Type export for consumers
 export type UseBillingSettings = ReturnType<typeof useBillingSettings>;

@@ -58,9 +58,9 @@ rejecting calls the funnel's own next/back step directly. With no funnel running
 emits `resolve` or `reject` and leaves the decision to whatever mounted it. A host with no
 funnel and no listener on these events does not navigate at all.
 
-Resolving waits for the active session to hold the signed-in user before it settles (`UpmAuth`'s
-own resolve path, and `UpmAccount`'s guest-upgrade branch); a failed user load rejects instead of
-hanging.
+Resolving waits for the active session to hold the signed-in user before it settles. This
+holds for `UpmAuth`'s own resolve path and for `UpmAccount`'s guest-upgrade branch. A failed
+user load rejects instead of hanging.
 
 ## Exports
 

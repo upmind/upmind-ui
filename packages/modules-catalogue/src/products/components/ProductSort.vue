@@ -32,10 +32,6 @@ import {
 import { find, isEmpty } from "lodash-es";
 import type { ProductSortProps } from "../types";
 
-// -----------------------------------------------------------------------------
-
-const { t } = useI18n();
-
 const property = defineModel<ProductSortProps["property"]>("property", {
   default: ProductSortableProperties.DEFAULT
 });
@@ -43,6 +39,10 @@ const property = defineModel<ProductSortProps["property"]>("property", {
 const direction = defineModel<ProductSortProps["direction"]>("direction", {
   default: RequestSortDirection.ASC
 });
+
+// -----------------------------------------------------------------------------
+
+const { t } = useI18n();
 
 const items = computed(() => [
   {

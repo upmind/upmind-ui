@@ -10,6 +10,7 @@ import type {
   PaymentDetailsContext
 } from "@upmind-automation/headless";
 import type { HtmlHTMLAttributes } from "vue";
+// -----------------------------------------------------------------------------
 
 // --- internal
 
@@ -21,13 +22,13 @@ export type PaymentProps = {
   invoiceId: string;
 };
 
-export interface FormModalProps extends Omit<FormProps, "ajv"> {
+export type FormModalProps = Omit<FormProps, "ajv"> & {
   open?: boolean;
   title?: string;
   description?: string;
   label?: string;
   cancelLabel?: string;
-}
+};
 
 export type PaymentDetailsProps = {
   class?: HtmlHTMLAttributes["class"];

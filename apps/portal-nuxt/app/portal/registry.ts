@@ -53,6 +53,7 @@ import type {
   SlotAssignment
 } from "./types";
 import type { Component } from "vue";
+// -----------------------------------------------------------------------------
 
 export type ModuleDescriptor<
   Id extends string = string,

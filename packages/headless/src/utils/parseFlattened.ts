@@ -1,4 +1,5 @@
 import { set, isPlainObject, forEach } from "lodash-es";
+// -----------------------------------------------------------------------------
 
 /**
  * Expands an object that contains both regular properties and dot-notation string keys.

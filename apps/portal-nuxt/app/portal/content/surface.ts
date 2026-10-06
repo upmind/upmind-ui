@@ -14,6 +14,7 @@ import { computed, inject, provide } from "vue";
 import { ROW_SURFACE } from "./types";
 import type { RowSurface } from "./types";
 import type { ComputedRef, InjectionKey } from "vue";
+// -----------------------------------------------------------------------------
 
 export const ROW_SURFACE_KEY: InjectionKey<
   ComputedRef<RowSurface | undefined>
