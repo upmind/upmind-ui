@@ -40,10 +40,11 @@ describe("AC-28: the filter writers", () => {
     actions.search("QA-INV-1");
     await vi.advanceTimersByTimeAsync(100);
     actions.search("QA-INV-2");
-    await vi.advanceTimersByTimeAsync(100);
+    await vi.advanceTimersByTimeAsync(249);
+    await nextTick();
     expect(view().query.filters?.number).toBeUndefined();
 
-    await vi.advanceTimersByTimeAsync(250);
+    await vi.advanceTimersByTimeAsync(1);
     await nextTick();
     expect(view().query.filters?.number).toEqual({ eq: "QA-INV-2" });
     expect(writes).toHaveLength(1);
