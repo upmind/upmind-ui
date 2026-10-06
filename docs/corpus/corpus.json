@@ -2905,6 +2905,144 @@
       "path": "packages/headless/src/modules/client-custom-fields/docs/usage.md",
       "title": "client-custom-fields — Usage"
     },
+    "guide:packages/headless/src/modules/client-custom-pages/docs/CHANGELOG": {
+      "crossRefs": [],
+      "headings": [
+        "Changelog",
+        "[Unreleased]",
+        "Added",
+        "Design notes",
+        "Fixed",
+        "Known limitations in what could be demonstrated",
+        "Recorded fixtures",
+        "Notes"
+      ],
+      "id": "guide:packages/headless/src/modules/client-custom-pages/docs/CHANGELOG",
+      "path": "packages/headless/src/modules/client-custom-pages/docs/CHANGELOG.md",
+      "title": "Changelog"
+    },
+    "guide:packages/headless/src/modules/client-custom-pages/docs/README": {
+      "crossRefs": [],
+      "headings": [
+        "client-custom-pages",
+        "What Is This?",
+        "Quick Start",
+        "Features",
+        "Key Concepts",
+        "Two surfaces, one identity seam",
+        "The collection accepts a client-scoping id that does nothing",
+        "The read-only module",
+        "There is no page body here",
+        "Errors are state — the module raises nothing",
+        "Documentation",
+        "Playground"
+      ],
+      "id": "guide:packages/headless/src/modules/client-custom-pages/docs/README",
+      "path": "packages/headless/src/modules/client-custom-pages/docs/README.md",
+      "title": "client-custom-pages"
+    },
+    "guide:packages/headless/src/modules/client-custom-pages/docs/architecture": {
+      "crossRefs": [],
+      "headings": [
+        "client-custom-pages — Architecture",
+        "Overview",
+        "Data Flow",
+        "Instantiation — the collection",
+        "Instantiation — the single page",
+        "Read flow — the collection",
+        "Read flow — the single page",
+        "Sub-composables",
+        "Services",
+        "Errors",
+        "Dependencies",
+        "This module reads from",
+        "Modules that read from this one",
+        "Platform additions this build required",
+        "Integration Points",
+        "Module boundary"
+      ],
+      "id": "guide:packages/headless/src/modules/client-custom-pages/docs/architecture",
+      "path": "packages/headless/src/modules/client-custom-pages/docs/architecture.md",
+      "title": "client-custom-pages — Architecture"
+    },
+    "guide:packages/headless/src/modules/client-custom-pages/docs/foundation": {
+      "crossRefs": [],
+      "headings": [
+        "Module: client-custom-pages",
+        "What it is",
+        "Core concepts",
+        "Operations",
+        "Data shape",
+        "Dependencies",
+        "Dependants — modules that read from this one",
+        "This module's own dependencies",
+        "API endpoints",
+        "GET /custom_pages",
+        "GET /custom_pages/{slug}",
+        "Failure modes",
+        "Unknown slug — a typed absence, not a thrown error",
+        "Not captured",
+        "Flows",
+        "Opening one page by slug",
+        "Listing the collection with an accurate total",
+        "Lessons (hard-won)"
+      ],
+      "id": "guide:packages/headless/src/modules/client-custom-pages/docs/foundation",
+      "path": "packages/headless/src/modules/client-custom-pages/docs/foundation.md",
+      "title": "Module: client-custom-pages"
+    },
+    "guide:packages/headless/src/modules/client-custom-pages/docs/gotchas": {
+      "crossRefs": [],
+      "headings": [
+        "client-custom-pages — Gotchas",
+        "1. `.for('client', otherId)` on the collection type-checks — and retargets nothing",
+        "2. The `0` in `limit=0` / `offset=0` is not \"no pagination\" — it is a real request",
+        "3. Whether the menu-visibility filter narrows the wire response is unconfirmed",
+        "4. Opening an already-listed page by slug is built to skip a second request — proving the skip itself needs a page that does not exist yet",
+        "5. `isLoading` and `isReloading` are two different signals, not one",
+        "6. The resource has no page body — the module owes only the identifier",
+        "7. There is no mutation surface",
+        "8. Errors are state — nothing here raises feedback on your behalf"
+      ],
+      "id": "guide:packages/headless/src/modules/client-custom-pages/docs/gotchas",
+      "path": "packages/headless/src/modules/client-custom-pages/docs/gotchas.md",
+      "title": "client-custom-pages — Gotchas"
+    },
+    "guide:packages/headless/src/modules/client-custom-pages/docs/usage": {
+      "crossRefs": [],
+      "headings": [
+        "client-custom-pages — Usage",
+        "Getting an instance",
+        "The collection — `useClientCustomPages`",
+        "Collection actions — `useActions()`",
+        "`filters.showOnMenu(value?)`",
+        "`filters.slug(value?)`",
+        "`sort(property?, direction?)`",
+        "`nextPage()` / `prevPage()`",
+        "`isReady()` — waiting for the list",
+        "`refresh()`",
+        "`invalidate()`",
+        "`destroy()` — releasing the collection",
+        "Collection context — `useContext()`",
+        "Collection meta — `useMeta()`",
+        "Collection internals — `useInternals()`",
+        "The single page — `useClientCustomPage`",
+        "Single-read actions — `useActions()`",
+        "`isReady()` — waiting for the page",
+        "`refresh()`",
+        "`invalidate()`",
+        "`destroy()` — releasing the read",
+        "Single-read context — `useContext()`",
+        "Single-read meta — `useMeta()`",
+        "Single-read internals — `useInternals()`",
+        "Errors are state, never announcements",
+        "Rendering a page's body",
+        "Types"
+      ],
+      "id": "guide:packages/headless/src/modules/client-custom-pages/docs/usage",
+      "path": "packages/headless/src/modules/client-custom-pages/docs/usage.md",
+      "title": "client-custom-pages — Usage"
+    },
     "guide:packages/headless/src/modules/client-email-history/docs/CHANGELOG": {
       "crossRefs": [],
       "headings": [
@@ -6297,6 +6435,12 @@
       "path": "packages/headless/src/modules/client-custom-fields/client-custom-fields.types.ts",
       "title": "CLIENT_CUSTOM_FIELD_IMAGE_SCOPE_MATRIX"
     },
+    "@upmind-automation/headless!CLIENT_CUSTOM_PAGES_SCOPE_MATRIX": {
+      "kind": "symbol",
+      "module": "client-custom-pages",
+      "path": "packages/headless/src/modules/client-custom-pages/client-custom-pages.types.ts",
+      "title": "CLIENT_CUSTOM_PAGES_SCOPE_MATRIX"
+    },
     "@upmind-automation/headless!CLIENT_EMAILS_SCOPE_MATRIX": {
       "kind": "symbol",
       "module": "client-email",
@@ -6470,6 +6614,18 @@
       "module": "client-custom-fields",
       "path": "packages/headless/src/modules/client-custom-fields/client-custom-fields.types.ts",
       "title": "ClientCustomFieldsScopeMatrix"
+    },
+    "@upmind-automation/headless!ClientCustomPagesContextTypes": {
+      "kind": "symbol",
+      "module": "client-custom-pages",
+      "path": "packages/headless/src/modules/client-custom-pages/client-custom-pages.types.ts",
+      "title": "ClientCustomPagesContextTypes"
+    },
+    "@upmind-automation/headless!ClientCustomPagesScopeMatrix": {
+      "kind": "symbol",
+      "module": "client-custom-pages",
+      "path": "packages/headless/src/modules/client-custom-pages/client-custom-pages.types.ts",
+      "title": "ClientCustomPagesScopeMatrix"
     },
     "@upmind-automation/headless!ClientEmailContextTypes": {
       "kind": "symbol",
@@ -6764,6 +6920,42 @@
       "module": "client-custom-fields",
       "path": "packages/headless/src/modules/client-custom-fields/client-custom-fields.types.ts",
       "title": "CustomFieldModel"
+    },
+    "@upmind-automation/headless!CustomPage": {
+      "kind": "symbol",
+      "module": "client-custom-pages",
+      "path": "packages/headless/src/modules/client-custom-pages/client-custom-pages.types.ts",
+      "title": "CustomPage"
+    },
+    "@upmind-automation/headless!CustomPagesFilterModel": {
+      "kind": "symbol",
+      "module": "client-custom-pages",
+      "path": "packages/headless/src/modules/client-custom-pages/client-custom-pages.types.ts",
+      "title": "CustomPagesFilterModel"
+    },
+    "@upmind-automation/headless!CustomPagesFilters": {
+      "kind": "symbol",
+      "module": "client-custom-pages",
+      "path": "packages/headless/src/modules/client-custom-pages/client-custom-pages.types.ts",
+      "title": "CustomPagesFilters"
+    },
+    "@upmind-automation/headless!CustomPagesSortEntry": {
+      "kind": "symbol",
+      "module": "client-custom-pages",
+      "path": "packages/headless/src/modules/client-custom-pages/client-custom-pages.types.ts",
+      "title": "CustomPagesSortEntry"
+    },
+    "@upmind-automation/headless!CustomPagesSortModel": {
+      "kind": "symbol",
+      "module": "client-custom-pages",
+      "path": "packages/headless/src/modules/client-custom-pages/client-custom-pages.types.ts",
+      "title": "CustomPagesSortModel"
+    },
+    "@upmind-automation/headless!CustomPagesSortableProperties": {
+      "kind": "symbol",
+      "module": "client-custom-pages",
+      "path": "packages/headless/src/modules/client-custom-pages/client-custom-pages.types.ts",
+      "title": "CustomPagesSortableProperties"
     },
     "@upmind-automation/headless!DATA_DEFINITIONS": {
       "kind": "symbol",
@@ -9321,6 +9513,66 @@
       "path": "packages/headless/src/modules/client-custom-fields/useClientCustomFields.meta.ts",
       "title": "UseClientCustomFieldsMeta"
     },
+    "@upmind-automation/headless!UseClientCustomPage": {
+      "kind": "symbol",
+      "module": "client-custom-pages",
+      "path": "packages/headless/src/modules/client-custom-pages/useClientCustomPage.ts",
+      "title": "UseClientCustomPage"
+    },
+    "@upmind-automation/headless!UseClientCustomPageActions": {
+      "kind": "symbol",
+      "module": "client-custom-pages",
+      "path": "packages/headless/src/modules/client-custom-pages/useClientCustomPage.actions.ts",
+      "title": "UseClientCustomPageActions"
+    },
+    "@upmind-automation/headless!UseClientCustomPageContext": {
+      "kind": "symbol",
+      "module": "client-custom-pages",
+      "path": "packages/headless/src/modules/client-custom-pages/useClientCustomPage.context.ts",
+      "title": "UseClientCustomPageContext"
+    },
+    "@upmind-automation/headless!UseClientCustomPageInternals": {
+      "kind": "symbol",
+      "module": "client-custom-pages",
+      "path": "packages/headless/src/modules/client-custom-pages/useClientCustomPage.internals.ts",
+      "title": "UseClientCustomPageInternals"
+    },
+    "@upmind-automation/headless!UseClientCustomPageMeta": {
+      "kind": "symbol",
+      "module": "client-custom-pages",
+      "path": "packages/headless/src/modules/client-custom-pages/useClientCustomPage.meta.ts",
+      "title": "UseClientCustomPageMeta"
+    },
+    "@upmind-automation/headless!UseClientCustomPages": {
+      "kind": "symbol",
+      "module": "client-custom-pages",
+      "path": "packages/headless/src/modules/client-custom-pages/useClientCustomPages.ts",
+      "title": "UseClientCustomPages"
+    },
+    "@upmind-automation/headless!UseClientCustomPagesActions": {
+      "kind": "symbol",
+      "module": "client-custom-pages",
+      "path": "packages/headless/src/modules/client-custom-pages/useClientCustomPages.actions.ts",
+      "title": "UseClientCustomPagesActions"
+    },
+    "@upmind-automation/headless!UseClientCustomPagesContext": {
+      "kind": "symbol",
+      "module": "client-custom-pages",
+      "path": "packages/headless/src/modules/client-custom-pages/useClientCustomPages.context.ts",
+      "title": "UseClientCustomPagesContext"
+    },
+    "@upmind-automation/headless!UseClientCustomPagesInternals": {
+      "kind": "symbol",
+      "module": "client-custom-pages",
+      "path": "packages/headless/src/modules/client-custom-pages/useClientCustomPages.internals.ts",
+      "title": "UseClientCustomPagesInternals"
+    },
+    "@upmind-automation/headless!UseClientCustomPagesMeta": {
+      "kind": "symbol",
+      "module": "client-custom-pages",
+      "path": "packages/headless/src/modules/client-custom-pages/useClientCustomPages.meta.ts",
+      "title": "UseClientCustomPagesMeta"
+    },
     "@upmind-automation/headless!UseClientEmailManager": {
       "kind": "symbol",
       "module": "client-email",
@@ -11078,6 +11330,18 @@
       "module": "client-custom-fields",
       "path": "packages/headless/src/modules/client-custom-fields/useClientCustomFields.ts",
       "title": "useClientCustomFields"
+    },
+    "@upmind-automation/headless!useClientCustomPage": {
+      "kind": "symbol",
+      "module": "client-custom-pages",
+      "path": "packages/headless/src/modules/client-custom-pages/useClientCustomPage.ts",
+      "title": "useClientCustomPage"
+    },
+    "@upmind-automation/headless!useClientCustomPages": {
+      "kind": "symbol",
+      "module": "client-custom-pages",
+      "path": "packages/headless/src/modules/client-custom-pages/useClientCustomPages.ts",
+      "title": "useClientCustomPages"
     },
     "@upmind-automation/headless!useClientEmailManager": {
       "kind": "symbol",
@@ -15543,6 +15807,42 @@
       "path": "packages/headless/src/modules/client-custom-fields/docs/usage.md",
       "title": "client-custom-fields — Usage"
     },
+    "guide:packages/headless/src/modules/client-custom-pages/docs/CHANGELOG": {
+      "kind": "guide",
+      "module": "",
+      "path": "packages/headless/src/modules/client-custom-pages/docs/CHANGELOG.md",
+      "title": "Changelog"
+    },
+    "guide:packages/headless/src/modules/client-custom-pages/docs/README": {
+      "kind": "guide",
+      "module": "",
+      "path": "packages/headless/src/modules/client-custom-pages/docs/README.md",
+      "title": "client-custom-pages"
+    },
+    "guide:packages/headless/src/modules/client-custom-pages/docs/architecture": {
+      "kind": "guide",
+      "module": "",
+      "path": "packages/headless/src/modules/client-custom-pages/docs/architecture.md",
+      "title": "client-custom-pages — Architecture"
+    },
+    "guide:packages/headless/src/modules/client-custom-pages/docs/foundation": {
+      "kind": "guide",
+      "module": "",
+      "path": "packages/headless/src/modules/client-custom-pages/docs/foundation.md",
+      "title": "Module: client-custom-pages"
+    },
+    "guide:packages/headless/src/modules/client-custom-pages/docs/gotchas": {
+      "kind": "guide",
+      "module": "",
+      "path": "packages/headless/src/modules/client-custom-pages/docs/gotchas.md",
+      "title": "client-custom-pages — Gotchas"
+    },
+    "guide:packages/headless/src/modules/client-custom-pages/docs/usage": {
+      "kind": "guide",
+      "module": "",
+      "path": "packages/headless/src/modules/client-custom-pages/docs/usage.md",
+      "title": "client-custom-pages — Usage"
+    },
     "guide:packages/headless/src/modules/client-email-history/docs/CHANGELOG": {
       "kind": "guide",
       "module": "",
@@ -16385,21 +16685,21 @@
     }
   },
   "meta": {
-    "built_at": "2026-10-06T13:24:02.068Z",
-    "corpus_version": "1+3200eaf057fb",
+    "built_at": "2026-10-06T15:40:25.660Z",
+    "corpus_version": "1+79ffab5f2fcf",
     "counts": {
       "adrs": 35,
       "changelogSymbols": 0,
       "examples": 0,
       "glossaryTerms": 27,
-      "guides": 186,
-      "indexEntries": 1746,
+      "guides": 192,
+      "indexEntries": 1773,
       "relationEdges": 4073,
       "relationsPruned": 3464,
-      "symbols": 940
+      "symbols": 961
     },
     "relationsSha256": "9a6f85296b647222228f20f54141377046925e9862437ca4617d3a6a8b87e391",
-    "source_commit": "2715d6a83090b2ee61256d73c9a3492a7c814463"
+    "source_commit": "bb3f39e90313bcdc30579f8ef60d270e3f7cf165"
   },
   "relations": {
     "edges": [
@@ -49707,6 +50007,17 @@
       "sourceLine": 153,
       "tsdoc": "Scope matrix for `useClientCustomFieldImage`. Separate from the\ncollection's — the two composables scope on different things and cannot\nshare one."
     },
+    "@upmind-automation/headless!CLIENT_CUSTOM_PAGES_SCOPE_MATRIX": {
+      "id": "@upmind-automation/headless!CLIENT_CUSTOM_PAGES_SCOPE_MATRIX",
+      "kind": "Variable",
+      "lessons": [],
+      "module": "client-custom-pages",
+      "name": "CLIENT_CUSTOM_PAGES_SCOPE_MATRIX",
+      "signature": "CLIENT_CUSTOM_PAGES_SCOPE_MATRIX: object",
+      "sourceFile": "packages/headless/src/modules/client-custom-pages/client-custom-pages.types.ts",
+      "sourceLine": 121,
+      "tsdoc": null
+    },
     "@upmind-automation/headless!CLIENT_EMAILS_SCOPE_MATRIX": {
       "id": "@upmind-automation/headless!CLIENT_EMAILS_SCOPE_MATRIX",
       "kind": "Variable",
@@ -50025,6 +50336,28 @@
       "sourceFile": "packages/headless/src/modules/client-custom-fields/client-custom-fields.types.ts",
       "sourceLine": 134,
       "tsdoc": "Scope matrix type for `useClientCustomFields` (derived from the runtime const)."
+    },
+    "@upmind-automation/headless!ClientCustomPagesContextTypes": {
+      "id": "@upmind-automation/headless!ClientCustomPagesContextTypes",
+      "kind": "Enum",
+      "lessons": [],
+      "module": "client-custom-pages",
+      "name": "ClientCustomPagesContextTypes",
+      "signature": "Enum ClientCustomPagesContextTypes",
+      "sourceFile": "packages/headless/src/modules/client-custom-pages/client-custom-pages.types.ts",
+      "sourceLine": 51,
+      "tsdoc": "Context types for the COLLECTION — the landed portal contract's own set\n(`apps/portal-nuxt/app/portal/mock/contracts/client-custom-pages.ts:32-39`).\nOne member: reading the brand's pages as a signed-in client."
+    },
+    "@upmind-automation/headless!ClientCustomPagesScopeMatrix": {
+      "id": "@upmind-automation/headless!ClientCustomPagesScopeMatrix",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "client-custom-pages",
+      "name": "ClientCustomPagesScopeMatrix",
+      "signature": "Symbol ClientCustomPagesScopeMatrix",
+      "sourceFile": "packages/headless/src/modules/client-custom-pages/client-custom-pages.types.ts",
+      "sourceLine": 129,
+      "tsdoc": "Scope matrix type for `useClientCustomPages` (derived from the runtime const)."
     },
     "@upmind-automation/headless!ClientEmailContextTypes": {
       "id": "@upmind-automation/headless!ClientEmailContextTypes",
@@ -50564,6 +50897,72 @@
       "sourceFile": "packages/headless/src/modules/client-custom-fields/client-custom-fields.types.ts",
       "sourceLine": 264,
       "tsdoc": "The code-keyed value record — the S-1 request shape and the model's\n`customFields` branch (seam A-2). Fills the pre-existing empty stub."
+    },
+    "@upmind-automation/headless!CustomPage": {
+      "id": "@upmind-automation/headless!CustomPage",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "client-custom-pages",
+      "name": "CustomPage",
+      "signature": "Symbol CustomPage",
+      "sourceFile": "packages/headless/src/modules/client-custom-pages/client-custom-pages.types.ts",
+      "sourceLine": 217,
+      "tsdoc": "One custom page, mapped from the wire `ICustomPage`. `title` / `menuLabel`\ncarry the `*_translated || *` fallback (AC7) resolved in the mapper, so no\nconsumer repeats it."
+    },
+    "@upmind-automation/headless!CustomPagesFilterModel": {
+      "id": "@upmind-automation/headless!CustomPagesFilterModel",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "client-custom-pages",
+      "name": "CustomPagesFilterModel",
+      "signature": "Symbol CustomPagesFilterModel",
+      "sourceFile": "packages/headless/src/modules/client-custom-pages/client-custom-pages.types.ts",
+      "sourceLine": 188,
+      "tsdoc": "The nested filter model — the `filters` branch of CustomPagesQueryModel."
+    },
+    "@upmind-automation/headless!CustomPagesFilters": {
+      "id": "@upmind-automation/headless!CustomPagesFilters",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "client-custom-pages",
+      "name": "CustomPagesFilters",
+      "signature": "Symbol CustomPagesFilters",
+      "sourceFile": "packages/headless/src/modules/client-custom-pages/client-custom-pages.types.ts",
+      "sourceLine": 232,
+      "tsdoc": "The collection's named filters — an absent value clears that key. Mirrors\nthe landed portal contract's `ClientCustomPagesFilters`\n(`apps/portal-nuxt/app/portal/mock/contracts/client-custom-pages.ts:74-79`)."
+    },
+    "@upmind-automation/headless!CustomPagesSortEntry": {
+      "id": "@upmind-automation/headless!CustomPagesSortEntry",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "client-custom-pages",
+      "name": "CustomPagesSortEntry",
+      "signature": "Symbol CustomPagesSortEntry",
+      "sourceFile": "packages/headless/src/modules/client-custom-pages/client-custom-pages.types.ts",
+      "sourceLine": 193,
+      "tsdoc": "One sort entry — the MODEL's ordered form; precedence is position."
+    },
+    "@upmind-automation/headless!CustomPagesSortModel": {
+      "id": "@upmind-automation/headless!CustomPagesSortModel",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "client-custom-pages",
+      "name": "CustomPagesSortModel",
+      "signature": "Symbol CustomPagesSortModel",
+      "sourceFile": "packages/headless/src/modules/client-custom-pages/client-custom-pages.types.ts",
+      "sourceLine": 199,
+      "tsdoc": "The ordered sort model — the `sort` branch of CustomPagesQueryModel."
+    },
+    "@upmind-automation/headless!CustomPagesSortableProperties": {
+      "id": "@upmind-automation/headless!CustomPagesSortableProperties",
+      "kind": "Enum",
+      "lessons": [],
+      "module": "client-custom-pages",
+      "name": "CustomPagesSortableProperties",
+      "signature": "Enum CustomPagesSortableProperties",
+      "sourceFile": "packages/headless/src/modules/client-custom-pages/client-custom-pages.types.ts",
+      "sourceLine": 161,
+      "tsdoc": "Wire columns the custom-page list can be sorted by."
     },
     "@upmind-automation/headless!DATA_DEFINITIONS": {
       "id": "@upmind-automation/headless!DATA_DEFINITIONS",
@@ -55251,6 +55650,116 @@
       "sourceLine": 65,
       "tsdoc": null
     },
+    "@upmind-automation/headless!UseClientCustomPage": {
+      "id": "@upmind-automation/headless!UseClientCustomPage",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "client-custom-pages",
+      "name": "UseClientCustomPage",
+      "signature": "Symbol UseClientCustomPage",
+      "sourceFile": "packages/headless/src/modules/client-custom-pages/useClientCustomPage.ts",
+      "sourceLine": 163,
+      "tsdoc": null
+    },
+    "@upmind-automation/headless!UseClientCustomPageActions": {
+      "id": "@upmind-automation/headless!UseClientCustomPageActions",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "client-custom-pages",
+      "name": "UseClientCustomPageActions",
+      "signature": "Symbol UseClientCustomPageActions",
+      "sourceFile": "packages/headless/src/modules/client-custom-pages/useClientCustomPage.actions.ts",
+      "sourceLine": 107,
+      "tsdoc": null
+    },
+    "@upmind-automation/headless!UseClientCustomPageContext": {
+      "id": "@upmind-automation/headless!UseClientCustomPageContext",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "client-custom-pages",
+      "name": "UseClientCustomPageContext",
+      "signature": "Symbol UseClientCustomPageContext",
+      "sourceFile": "packages/headless/src/modules/client-custom-pages/useClientCustomPage.context.ts",
+      "sourceLine": 79,
+      "tsdoc": null
+    },
+    "@upmind-automation/headless!UseClientCustomPageInternals": {
+      "id": "@upmind-automation/headless!UseClientCustomPageInternals",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "client-custom-pages",
+      "name": "UseClientCustomPageInternals",
+      "signature": "Symbol UseClientCustomPageInternals",
+      "sourceFile": "packages/headless/src/modules/client-custom-pages/useClientCustomPage.internals.ts",
+      "sourceLine": 23,
+      "tsdoc": null
+    },
+    "@upmind-automation/headless!UseClientCustomPageMeta": {
+      "id": "@upmind-automation/headless!UseClientCustomPageMeta",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "client-custom-pages",
+      "name": "UseClientCustomPageMeta",
+      "signature": "Symbol UseClientCustomPageMeta",
+      "sourceFile": "packages/headless/src/modules/client-custom-pages/useClientCustomPage.meta.ts",
+      "sourceLine": 127,
+      "tsdoc": null
+    },
+    "@upmind-automation/headless!UseClientCustomPages": {
+      "id": "@upmind-automation/headless!UseClientCustomPages",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "client-custom-pages",
+      "name": "UseClientCustomPages",
+      "signature": "Symbol UseClientCustomPages",
+      "sourceFile": "packages/headless/src/modules/client-custom-pages/useClientCustomPages.ts",
+      "sourceLine": 76,
+      "tsdoc": null
+    },
+    "@upmind-automation/headless!UseClientCustomPagesActions": {
+      "id": "@upmind-automation/headless!UseClientCustomPagesActions",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "client-custom-pages",
+      "name": "UseClientCustomPagesActions",
+      "signature": "Symbol UseClientCustomPagesActions",
+      "sourceFile": "packages/headless/src/modules/client-custom-pages/useClientCustomPages.actions.ts",
+      "sourceLine": 186,
+      "tsdoc": null
+    },
+    "@upmind-automation/headless!UseClientCustomPagesContext": {
+      "id": "@upmind-automation/headless!UseClientCustomPagesContext",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "client-custom-pages",
+      "name": "UseClientCustomPagesContext",
+      "signature": "Symbol UseClientCustomPagesContext",
+      "sourceFile": "packages/headless/src/modules/client-custom-pages/useClientCustomPages.context.ts",
+      "sourceLine": 95,
+      "tsdoc": null
+    },
+    "@upmind-automation/headless!UseClientCustomPagesInternals": {
+      "id": "@upmind-automation/headless!UseClientCustomPagesInternals",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "client-custom-pages",
+      "name": "UseClientCustomPagesInternals",
+      "signature": "Symbol UseClientCustomPagesInternals",
+      "sourceFile": "packages/headless/src/modules/client-custom-pages/useClientCustomPages.internals.ts",
+      "sourceLine": 23,
+      "tsdoc": null
+    },
+    "@upmind-automation/headless!UseClientCustomPagesMeta": {
+      "id": "@upmind-automation/headless!UseClientCustomPagesMeta",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "client-custom-pages",
+      "name": "UseClientCustomPagesMeta",
+      "signature": "Symbol UseClientCustomPagesMeta",
+      "sourceFile": "packages/headless/src/modules/client-custom-pages/useClientCustomPages.meta.ts",
+      "sourceLine": 94,
+      "tsdoc": null
+    },
     "@upmind-automation/headless!UseClientEmailManager": {
       "id": "@upmind-automation/headless!UseClientEmailManager",
       "kind": "2097152",
@@ -58473,6 +58982,28 @@
       "sourceFile": "packages/headless/src/modules/client-custom-fields/useClientCustomFields.ts",
       "sourceLine": 158,
       "tsdoc": null
+    },
+    "@upmind-automation/headless!useClientCustomPage": {
+      "id": "@upmind-automation/headless!useClientCustomPage",
+      "kind": "Variable",
+      "lessons": [],
+      "module": "client-custom-pages",
+      "name": "useClientCustomPage",
+      "signature": "useClientCustomPage: ScopedComposable<object, object>",
+      "sourceFile": "packages/headless/src/modules/client-custom-pages/useClientCustomPage.ts",
+      "sourceLine": 157,
+      "tsdoc": "Scoped composable for one of the brand's client-area custom pages, read in\nfull by its slug.\n\nThe actor defaults to SELF, so `.as()` is optional."
+    },
+    "@upmind-automation/headless!useClientCustomPages": {
+      "id": "@upmind-automation/headless!useClientCustomPages",
+      "kind": "Variable",
+      "lessons": [],
+      "module": "client-custom-pages",
+      "name": "useClientCustomPages",
+      "signature": "useClientCustomPages: ScopedComposable<object, object>",
+      "sourceFile": "packages/headless/src/modules/client-custom-pages/useClientCustomPages.ts",
+      "sourceLine": 70,
+      "tsdoc": "Scoped composable for the brand's client-area custom pages."
     },
     "@upmind-automation/headless!useClientEmailManager": {
       "id": "@upmind-automation/headless!useClientEmailManager",
