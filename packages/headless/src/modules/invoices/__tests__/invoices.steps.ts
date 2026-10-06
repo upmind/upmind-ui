@@ -22,6 +22,7 @@
  */
 
 import { defineSteps } from "@upmind-automation/scenario-harness";
+import { expect } from "vitest";
 import { InvoiceCategoryCode, InvoiceStatus } from "@upmind-automation/types";
 import { ScopeActorTypes } from "../../scope/scope.types";
 import delegatedDetailRecording from "./scenarios/a-delegated-invoice-is-not-mine-to-settle/02/get-invoices-id-with-staged-imports-1.json";
@@ -61,7 +62,24 @@ import ac9ShownRecording from "./scenarios/read-the-next-charge-date-of-an-invoi
 import retargetRecording from "./scenarios/retarget-my-reading-at-an-entitled-client/03/get-invoices-client-id.json";
 import consolidatableCountRecording from "./scenarios/see-how-many-of-my-invoices-could-be-consolidated/01/get-invoices-221d7f0d.json";
 import creditNoteRecording from "./scenarios/tie-a-credit-note-back-to-the-invoice-it-credits/02/get-invoices-id-with-staged-imports-1.json";
-import { findLast, first, map, split, values } from "lodash-es";
+import ac19DefaultListRecording from "./scenarios/list-only-the-orders-i-placed/01/get-invoices.json";
+import ac19UnpaidProbeRecording from "./scenarios/list-only-the-orders-i-placed/01/get-invoices-filter-client-id-filter-status-code-invoice-unpaid-invoice-overdue-invoice-adjusted.json";
+import ac19OrderListRecording from "./scenarios/list-only-the-orders-i-placed/03/get-invoices-filter-category-slug-new-contract.json";
+import {
+  latestSent,
+  markWire,
+  sentInWindow,
+  sentSinceMark
+} from "./invoices.wire";
+import {
+  every,
+  findLast,
+  first,
+  isEmpty,
+  map,
+  split,
+  values
+} from "lodash-es";
 import type { World } from "@upmind-automation/scenario-harness";
 
 // -----------------------------------------------------------------------------
@@ -396,6 +414,63 @@ const AC18_DELEGATED_PROBES = {
     ac18ccUnpaidNarrowedRecording as CountRecording
   )
 } as const;
+
+
+// --- the order history (FE-3237), read off each scenario's own recordings ---
+
+type ListRecording = {
+  request: { path: string };
+  response: {
+    body: {
+      total: number;
+      data: Array<{
+        id: string;
+        number: string;
+        category?: { slug?: string };
+        status?: { code?: string };
+      }>;
+    };
+  };
+};
+
+const ORDER_CATEGORY = InvoiceCategoryCode.NEW_CONTRACT;
+
+/** The order-history context the `@collection` order scenarios read. */
+const ORDER_HISTORY = {
+  actor: ScopeActorTypes.CLIENT,
+  context: { type: ORDER_CATEGORY }
+} as const;
+
+/** The session client the probes address, read off a recorded probe request. */
+const SESSION_CLIENT_ID = paramOf(
+  (ac19UnpaidProbeRecording as ListRecording).request.path,
+  "filter[client_id]"
+);
+
+/** A list read of the collection, never one of its limit=1 probes. */
+const isListRead = (request: URL): boolean =>
+  request.pathname.endsWith("/api/invoices") &&
+  request.searchParams.get("limit") !== "1";
+
+/** One of the collection's limit=1 probes (unpaid check, consolidatable count). */
+const isProbe = (request: URL): boolean =>
+  request.pathname.endsWith("/api/invoices") &&
+  request.searchParams.get("limit") === "1";
+
+/** The rows of a recorded list read, as the context publishes them. */
+const recordedRows = (recording: ListRecording) =>
+  map(recording.response.body.data, ({ id, number }) => ({ id, number }));
+
+const AC19 = {
+  defaultTotal: (ac19DefaultListRecording as ListRecording).response.body.total,
+  order: ac19OrderListRecording as ListRecording,
+  unpaidTotal: (ac19UnpaidProbeRecording as ListRecording).response.body.total
+} as const;
+
+async function openOrderHistory(world: World): Promise<void> {
+  markWire();
+  await openCollection(world, ORDER_HISTORY);
+}
 
 const SETTLE_ATTEMPTS = 40;
 const SETTLE_INTERVAL_MS = 250;
@@ -1160,6 +1235,68 @@ export const invoicesSteps = defineSteps(({ Given, When, Then }) => {
   Then("no invoice request is made", world =>
     world.expectMeta({ isAvailable: false })
   );
+
+  // === FE-3237 AC1 — THE ORDER HISTORY LISTS ONLY MY PLACED ORDERS ==========
+
+  Given("I have placed orders and I have other invoices", () => {
+    if (
+      !AC19.order.response.body.total ||
+      AC19.order.response.body.total >= AC19.defaultTotal
+    )
+      throw new Error(
+        "the recording must hold placed orders and other invoices; re-record."
+      );
+  });
+
+  When("I open my order history", world => openOrderHistory(world));
+
+  Then(
+    "only my new-contract invoices are returned, ten on the first page",
+    async world => {
+      const rows = AC19.order.response.body.data;
+      if (rows.length !== 10 || !every(rows, ["category.slug", ORDER_CATEGORY]))
+        throw new Error("the order recording must hold ten placed orders.");
+      await settles(() =>
+        world.expectContext({
+          data: map(rows, ({ id }) => ({
+            id,
+            category: { slug: ORDER_CATEGORY }
+          })),
+          pagination: { page: 1, total: AC19.order.response.body.total }
+        })
+      );
+      const list = latestSent(isListRead);
+      expect(list?.searchParams.get("filter[category.slug]")).toBe(
+        ORDER_CATEGORY
+      );
+      expect(list?.searchParams.get("limit")).toBe("10");
+    }
+  );
+
+  Then("no client identifier is sent with the list", () => {
+    const lists = sentSinceMark(isListRead);
+    expect(lists).not.toHaveLength(0);
+    for (const request of lists) {
+      expect(request.searchParams.has("client_id")).toBe(false);
+      expect(request.searchParams.has("filter[client_id]")).toBe(false);
+    }
+  });
+
+  Then("my unpaid check counts only my own invoices", async world => {
+    await settles(() =>
+      world.expectMeta({ hasUnpaid: AC19.unpaidTotal > 0, hasError: false })
+    );
+    const probes = sentSinceMark(isProbe);
+    expect(probes).not.toHaveLength(0);
+    for (const probe of probes) {
+      expect(probe.searchParams.get("filter[client_id]")).toBe(
+        SESSION_CLIENT_ID
+      );
+      expect(
+        probe.searchParams.get("filter[category.slug]")
+      ).not.toBe(ORDER_CATEGORY);
+    }
+  });
 });
 
 export default invoicesSteps;

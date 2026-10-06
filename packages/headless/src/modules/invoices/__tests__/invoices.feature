@@ -404,6 +404,216 @@ Feature: A client reads and manages their invoices
     Then that filtering is refused rather than silently ignored or silently applied
     And no filter ever reaches the platform outside what my declared criteria produced
 
+  # === THE ORDER HISTORY — MY PLACED ORDERS (client×self) — FE-3237 ==========
+  # An order is an invoice of the new-contract category. The @collection
+  # scenarios below read useInvoices().as('client').for('new_contract'); the
+  # @detail scenarios read one order through useInvoice().withId(id).
+
+  # FE-3237 AC1
+  @AC-19 @client @cell:client-self @collection
+  Scenario: List only the orders I placed
+    Given I have placed orders and I have other invoices
+    When I open my order history
+    Then only my new-contract invoices are returned, ten on the first page
+    And no client identifier is sent with the list
+    And my unpaid check counts only my own invoices
+
+  # FE-3237 AC2
+  @AC-20 @client @cell:client-self @collection @todo
+  Scenario: Read my order list with its brand and item counts
+    Given I have placed orders with several items
+    When I open my order history
+    Then each order carries its brand and its item count
+
+  # FE-3237 AC3
+  @AC-21 @client @cell:client-self @collection @todo
+  Scenario: Page through my orders and choose the page size
+    Given I have more orders than fit on one page
+    When I go to the next page, then to page three, then back one page, then choose five orders a page
+    Then each move gives me the orders of that page and keeps my page size
+    And at each step I am told if a next page, a previous page and more than one page exist
+    And choosing a page size takes me back to page one
+
+  # FE-3237 AC3
+  @AC-21 @client @cell:client-self @collection @todo
+  Scenario: Read a search of my orders that matches nothing as empty
+    Given no order of mine has the number I search for
+    When I search my orders for that number
+    Then my order history is empty, with a total of zero
+
+  # FE-3237 AC4
+  @AC-22 @client @cell:client-self @collection @todo
+  Scenario: Go back to the first page when my page has no orders
+    Given my orders are narrowed to none
+    When I ask for page two
+    Then I am taken back to page one
+
+  # FE-3237 AC24, divergence 3
+  @AC-22 @client @cell:client-self @collection @todo
+  Scenario: Land on the last page when I ask for a page past it
+    Given I have orders on three pages
+    When I ask for page nine
+    Then I am given the last page of my orders
+
+  # FE-3237 AC6
+  @AC-23 @client @cell:client-self @collection @todo
+  Scenario: Read the row of each of my orders
+    Given I have a paid, a cancelled, a delegated and a refund-changed order
+    When I open my order history
+    Then each row carries its number, total, items, dates, status, brand and markers
+
+  # FE-3237 AC7, AC24 divergence 1
+  @AC-24 @client @cell:client-self @collection @todo
+  Scenario: Narrow my orders by item, category, service, number and amount
+    Given I am on page two of my orders of several products and amounts
+    When I narrow my orders by item name, product category, service, number or total
+    Then only the orders that match each filter I set are returned
+    And each narrowing takes me back to page one
+    And each equal comparison is sent with its explicit equal operator
+    And a second filter on one text column replaces the first
+
+  # FE-3237 AC8
+  @AC-25 @client @cell:client-self @collection @todo
+  Scenario: Narrow my orders by when I placed or paid them
+    Given I have orders placed and paid on different dates
+    When I narrow my orders to the last seven days, or to a date I give
+    Then only the orders placed or paid in that period are returned
+
+  # FE-3237 AC9
+  @AC-26 @client @cell:client-self @collection @todo
+  Scenario: Narrow my orders by status
+    Given I have paid, unpaid and adjusted orders
+    When I narrow my orders to the unpaid ones, then to all but the paid ones
+    Then the unpaid choice gives the unpaid and the adjusted orders together
+    And the second choice replaces the first
+
+  # FE-3237 AC9
+  @AC-26 @client @cell:client-self @collection @todo
+  Scenario: Refuse an equal and a not-equal status narrowing together
+    Given my orders are narrowed to the unpaid ones
+    When I ask for the unpaid ones and all but the paid ones in one narrowing
+    Then the narrowing is refused and nothing is read
+    And my orders stay narrowed to the unpaid ones
+
+  # FE-3237 AC10
+  @AC-27 @client @cell:client-self @collection @todo
+  Scenario: Sort my orders and stay on my page
+    Given I am on page two of my orders, newest first
+    When I sort my orders by total, then by status, then by order number
+    Then each sort gives me page two of my orders in that order
+
+  # FE-3237 AC11
+  @AC-28 @client @cell:client-self @collection @todo
+  Scenario: Find one order by its number while a filter is on
+    Given my orders are narrowed to the unpaid ones and then to one product category, and I am on page two
+    When I search for one order number
+    Then I get that order on page one
+    And both filters stay on
+
+  # FE-3237 AC11, AC24 divergence 2
+  @AC-36 @client @cell:client-self @collection @todo
+  Scenario: Only my last number search or number filter narrows my orders
+    Given I have two orders, A and B
+    When I filter my orders to the number of A, then search for B, then filter to the number of A again
+    Then after each write only the number of that write is sent
+    And after each write only that order is returned
+
+  # FE-3237 AC12
+  @AC-29 @client @cell:client-self @collection @todo
+  Scenario: Keep my order history to the orders I placed
+    Given my order history is open
+    When I narrow it by a filter, then by the credit-notes narrowing, then by a search, then by a raw criteria write that names another category
+    Then each write sends one new read
+    And each read still asks for my placed orders only
+    And the narrowing to credit notes or to another category is dropped
+    And no error is reported
+
+  # FE-3237 AC13
+  @AC-30 @client @cell:client-self @detail @todo
+  Scenario: Open one of my orders
+    Given one of my orders and an order number that does not exist
+    When I open each of them, then reload the first
+    Then the first opens with its staged imports and is read again on reload
+    And the second is reported as not available
+
+  # FE-3237 AC14
+  @AC-31 @client @cell:client-self @detail @todo
+  Scenario: Read the details of one of my orders
+    Given one of my orders with notes, custom fields and a referrer
+    When I open that order
+    Then I see its number, status, totals, dates, contract, notes, custom fields and referrer
+
+  # FE-3237 AC15
+  @AC-32 @client @cell:client-self @detail @todo
+  Scenario: Read the items of one of my orders
+    Given one of my orders with a subscription, options and a snapshot
+    When I open that order
+    Then I see each item from the snapshot, with its term, billing cycle name, tags and sub-items
+
+  # FE-3237 AC16
+  @AC-33 @client @cell:client-self @detail @todo
+  Scenario: See the catalogue image of each item I ordered
+    Given one of my orders whose snapshot items have catalogue images
+    When I open that order
+    Then each item shows its catalogue image, or its product image when it has none
+
+  # FE-3237 AC18
+  @AC-34 @client @cell:client-self @detail @todo
+  Scenario: Read an unpaid order as due and payable
+    Given one of my orders is unpaid
+    When I open that order
+    Then it reads as due, payable and cancellable, the pay gate is open and the cancel gate is open
+    And every other condition reads as its truth-table row
+
+  # FE-3237 AC18
+  @AC-34 @client @cell:client-self @detail @todo
+  Scenario: Read an overdue order as overdue
+    Given one of my orders is overdue
+    When I open that order
+    Then it reads as overdue, due, payable and cancellable
+    And every other condition reads as its truth-table row
+
+  # FE-3237 AC18
+  @AC-34 @client @cell:client-self @detail @todo
+  Scenario: Read a paid order as paid
+    Given one of my orders is paid
+    When I open that order
+    Then it reads as paid, the pay gate is closed and the cancel gate is closed
+    And every other condition reads as its truth-table row
+
+  # FE-3237 AC18
+  @AC-34 @client @cell:client-self @detail @todo
+  Scenario: Read a partly paid order as partly paid
+    Given one of my orders is partly paid
+    When I open that order
+    Then it reads as partly paid, due, payable and cancellable
+    And every other condition reads as its truth-table row
+
+  # FE-3237 AC18
+  @AC-34 @client @cell:client-self @detail @todo
+  Scenario: Read a cancelled order as cancelled
+    Given one of my orders is cancelled
+    When I open that order
+    Then it reads as cancelled, the pay gate is closed and the cancel gate is closed
+    And every other condition reads as its truth-table row
+
+  # FE-3237 AC19
+  @AC-35 @client @cell:client-self @detail @todo
+  Scenario: Read an order with a payment in flight as pending
+    Given one of my orders has a payment that has not settled
+    When I open that order
+    Then it reads as having a pending payment
+
+  # FE-3237 AC19
+  # The house delegated scenario "A delegated invoice is not mine to settle" is
+  # @cell:client-client. This one stays @cell:client-self: the delegated marker
+  # is a field of my own order read, and parity.yaml lists it under client x self.
+  @AC-35 @client @cell:client-self @detail @todo
+  Scenario: Read an order of a client who delegated to me as delegated
+    Given a client delegated one of their orders to me
+    When I open that order
+    Then it reads as delegated
+
 # === DRIVEN CATALOG ========================================================
 # `invoices.steps.ts` drives every scenario in this feature, and
 # `invoices.replay.int.test.ts` replays each against its own

@@ -3007,3 +3007,107 @@ describe("Invoices FE-3145-resume scenario recordings", () => {
     });
   });
 });
+
+// -----------------------------------------------------------------------------
+// THE ORDER HISTORY (FE-3237) — the `new_contract` selector context of the
+// client cell. Each request is the one the design names (design 8.1, 8.3): the
+// list read carries the static `filter[category.slug]=new_contract`, the list
+// relations with `tags`, and no client id. The probes keep the client-level
+// criteria (D-5). A state staging does not hold is arranged with the staff
+// account and reset after the recording.
+// -----------------------------------------------------------------------------
+
+const ORDER_LIST_WITH = `${LOAD_LIST_WITH},tags`;
+
+describe("Invoices order-history scenario recordings", () => {
+  let clientToken: IToken;
+  let clientId: string;
+  const prepared = new Set<string>();
+
+  const UNPAID_STATUS = "invoice_unpaid,invoice_overdue,invoice_adjusted";
+
+  const defaultListUrl = (): string =>
+    `/api/invoices?${ORDER_LIST_WITH}&with_count=products` +
+    "&order=-create_datetime&limit=10&offset=0";
+
+  /** The order-history list read: the static category, then the given criteria. */
+  const orderListUrl = (
+    extra = "",
+    { limit = 10, offset = 0, order = "-create_datetime" } = {}
+  ): string =>
+    `/api/invoices?${ORDER_LIST_WITH}&with_count=products` +
+    `&filter[category.slug]=${InvoiceCategoryCode.NEW_CONTRACT}` +
+    `&order=${order}&limit=${limit}&offset=${offset}${extra}`;
+
+  const unpaidCountUrl = (): string =>
+    `/api/invoices?order=-create_datetime&limit=1` +
+    `&filter[status.code]=${UNPAID_STATUS}&filter[client_id]=${clientId}`;
+
+  const consolidatableCountUrl = (): string =>
+    `/api/invoices?order=-create_datetime&limit=1` +
+    `&filter[status.code]=${UNPAID_STATUS}&filter[is_consolidation]=0` +
+    `&filter[category.slug]=recurrent&filter[paid_amount]=0` +
+    `&filter[client_id]=${clientId}`;
+
+  const recordProbes = async (generator: Generator): Promise<void> => {
+    await generator.get(unpaidCountUrl());
+    await generator.get(consolidatableCountUrl());
+  };
+
+  /** The default collection boot the Background reads. */
+  const recordBoot = async (generator: Generator): Promise<void> => {
+    await generator.get(defaultListUrl());
+    await recordProbes(generator);
+  };
+
+  /** The order-history boot: its list read and its client-level probes. */
+  const recordOrderBoot =
+    (extra = "") =>
+    async (generator: Generator): Promise<void> => {
+      await generator.get(orderListUrl(extra));
+      await recordProbes(generator);
+    };
+
+  async function recordStep(
+    scenario: string,
+    step: string,
+    requests: (generator: Generator) => Promise<unknown>
+  ): Promise<void> {
+    if (!prepared.has(scenario)) {
+      prepareScenarioDirs(import.meta.dirname, scenarioFeature, scenario);
+      prepared.add(scenario);
+    }
+    const generator = new Generator(API_URL, {
+      recordingsDir: recordedStepDir(
+        import.meta.dirname,
+        scenarioFeature,
+        scenario,
+        step
+      ),
+      origin: ORIGIN,
+      source: "case",
+      name: "invoices"
+    });
+    generator.setBearerToken(clientToken.access_token);
+    await requests(generator);
+    generator.save();
+  }
+
+  beforeAll(async () => {
+    clientToken = await mintClientToken();
+    clientId = await resolveClientId(clientToken.access_token);
+    if (!clientId)
+      throw new Error(
+        "Could not resolve the client id from /self — cannot record the " +
+          "order-history scenarios."
+      );
+  }, 60000);
+
+  describe("List only the orders I placed", () => {
+    const scenario = "List only the orders I placed";
+
+    it(BG, () => recordStep(scenario, BG, recordBoot));
+    it("I open my order history", () =>
+      recordStep(scenario, "I open my order history", recordOrderBoot()));
+  });
+});

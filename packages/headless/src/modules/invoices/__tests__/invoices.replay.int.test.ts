@@ -31,6 +31,7 @@ import {
   startScenarioReplay
 } from "@upmind-automation/test-fixtures/replay-server";
 import { useInvoice, useInvoices } from "..";
+import { observeRequests } from "../../../__tests__/criteria-int-kit";
 import { replayFeature } from "../../../testing/replay-feature";
 import {
   scenarioDir,
@@ -48,6 +49,7 @@ import {
   INVOICES_SCENARIO,
   invoicesSteps
 } from "./invoices.steps";
+import { closeWire, openWire } from "./invoices.wire";
 import { server } from "./setup.integration";
 import { forEach, includes, reject } from "lodash-es";
 import type { NodeComposable } from "../../../testing";
@@ -79,6 +81,7 @@ async function arrangeScenario(scenario: FeatureScenario): Promise<void> {
     );
 
   replay = startScenarioReplay(server);
+  openWire(observeRequests(server, "/api/"));
   await seedSessionFor(scenario, seedClientSession, seedGuestSession);
 }
 
@@ -89,6 +92,7 @@ async function arrangeScenario(scenario: FeatureScenario): Promise<void> {
  */
 function cleanupScenario(): void {
   resetInvoiceScopes();
+  closeWire();
 
   const [gap] = replay?.gaps() ?? [];
   replay = undefined;
