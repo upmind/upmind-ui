@@ -12,11 +12,21 @@
     <template #content>
       <slot name="products" />
       <slot v-if="isMobile" name="errors" />
-      <slot v-if="isMobile" name="pricing" />
+      <slot
+        v-if="isMobile"
+        name="pricing"
+        :show-checkout="false"
+        :show-total="false"
+      />
     </template>
 
     <template #aside>
-      <slot v-if="!isMobile" name="pricing" />
+      <slot
+        v-if="!isMobile"
+        name="pricing"
+        :show-checkout="false"
+        :show-total="false"
+      />
       <slot name="custom-price" />
       <slot name="markdown" />
     </template>

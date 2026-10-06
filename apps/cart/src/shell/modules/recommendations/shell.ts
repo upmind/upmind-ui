@@ -4,7 +4,7 @@
  * @description The one page template this app hands `@upmind-automation/recommendations`.
  */
 
-import { validateTemplate } from "@upmind-automation/headless";
+import { resolveTemplate } from "@upmind-automation/foundation";
 import RecommendationsFullTemplate from "./templates/RecommendationsFull.template.vue";
 import { RECOMMENDATIONS_TEMPLATE } from "./types";
 import type { Component } from "vue";
@@ -16,12 +16,7 @@ export const RECOMMENDATIONS_TEMPLATES: Record<
   [RECOMMENDATIONS_TEMPLATE.FULL]: RecommendationsFullTemplate
 };
 
-export function recommendationsTemplate(template?: string): Component {
-  return RECOMMENDATIONS_TEMPLATES[
-    validateTemplate(
-      template,
-      RECOMMENDATIONS_TEMPLATE,
-      RECOMMENDATIONS_TEMPLATE.FULL
-    )
-  ];
-}
+export const recommendationsTemplate = resolveTemplate(
+  RECOMMENDATIONS_TEMPLATES,
+  RECOMMENDATIONS_TEMPLATE.FULL
+);

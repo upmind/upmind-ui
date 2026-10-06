@@ -20,5 +20,4 @@ export {
 } from "./variants";
 
 // --- Export Types
-export { ORDER_TEMPLATE } from "./types";
-export type { OrderProps, OrderTemplates } from "./types";
+export type { OrderProps } from "./types";

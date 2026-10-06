@@ -1,16 +1,10 @@
 <template>
-  <component :is="templateVariant" v-bind="templateProps" v-if="!isResolving">
-    <template #back>
+  <LayoutProvider v-if="!isResolving">
+    <slot :template="ui.template.value" />
+
+    <template #back="{ compact = false }">
       <slot name="back">
-        <!-- One-page uses the compact "← Back" per the designs; other templates
-             keep the default "Back to login". -->
-        <Back
-          :label="meta.isInset ? t('action.back') : t('action.back_to_login')"
-          :icon="meta.isInset ? 'arrow-narrow-left' : 'arrow-left'"
-          size="md"
-          :color="meta.isInset ? 'muted' : 'default'"
-          @click.prevent="doReject"
-        />
+        <Back v-bind="backLink(compact)" size="md" @click.prevent="doReject" />
       </slot>
     </template>
 
@@ -38,17 +32,16 @@
       </slot>
     </template>
 
-    <template #form>
+    <template #form="{ card = false }">
       <slot name="form">
-        <!-- One-page renders the form as a titled card; other templates keep the
-             plain section. The Back button already returns to login, so no header
-             cross-link is needed either way. -->
+        <!-- The Back button already returns to login, so no header cross-link
+             is needed, carded or not. -->
         <Section
-          :card="meta.isInset"
+          :card="card"
           :label="t('action.recover_password')"
           icon="user-03"
           v-show="!isAuthenticated"
-          :class="sessionFormWidthVariants({ inset: meta.isInset })"
+          :class="sessionFormWidthVariants({ card })"
         >
           <Auth
             class="rounded-card w-full max-w-5xl items-start"
@@ -65,32 +58,31 @@
     <template #summary>
       <slot name="summary" v-bind="summarySlot" />
     </template>
-  </component>
+  </LayoutProvider>
 </template>
 
 <script lang="ts" setup>
-import { Link } from "@upmind/ui";
-import { computed, ref } from "vue";
+import { Link, type LinkVariants } from "@upmind/ui";
+import { ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { Hero } from "@upmind-automation/foundation";
 import { Back } from "@upmind-automation/foundation";
 import { Section } from "@upmind-automation/foundation";
+import { LayoutProvider } from "@upmind-automation/foundation";
 import {
   useRoutingEngine,
   useActiveSession,
   UIContext
 } from "@upmind-automation/headless";
-import { useConfig, validateTemplate } from "@upmind-automation/headless";
-import {
-  type AuthProps,
-  type AuthRecoverViewProps,
-  type AuthSummarySlotProps,
-  type AuthViewEmits,
-  AUTH_TEMPLATE
-} from "../types";
+import { useConfig } from "@upmind-automation/headless";
 import { sessionFormWidthVariants } from "../variants";
 import Auth from "./Auth.vue";
-import { get, omit } from "lodash-es";
+import type {
+  AuthProps,
+  AuthRecoverViewProps,
+  AuthSummarySlotProps,
+  AuthViewEmits
+} from "../types";
 
 // -----------------------------------------------------------------------------
 
@@ -120,22 +112,25 @@ await isReady();
 
 const isResolving = ref(false);
 
-const template = computed(() =>
-  validateTemplate(
-    ui.template.value || props.template,
-    AUTH_TEMPLATE,
-    AUTH_TEMPLATE.TWO_COLUMN_LTR
-  )
-);
-
-const meta = computed(() => ({
-  isInset: template.value === AUTH_TEMPLATE.INSET
-}));
-
-const templateVariant = computed(() => get(props.templates, template.value));
-const templateProps = computed(() => omit(props, ["templates"]));
-
 const summarySlot: AuthSummarySlotProps = { showWhileLoading: false };
+
+function backLink(compact: boolean): {
+  label: string;
+  icon: string;
+  color: LinkVariants["color"];
+} {
+  if (compact)
+    return {
+      label: t("action.back"),
+      icon: "arrow-narrow-left",
+      color: "muted"
+    };
+  return {
+    label: t("action.back_to_login"),
+    icon: "arrow-left",
+    color: "default"
+  };
+}
 
 function doUpdate(value: AuthProps["modelValue"]) {
   if (value === "login") {

@@ -49,7 +49,6 @@ import { basketProductActionsVariants } from "../basket-product.variants";
 defineProps<{
   product: Product;
   meta: UseProductConfigMeta;
-  template?: string;
 }>();
 
 const emits = defineEmits(["resolve", "update:quantity"]);

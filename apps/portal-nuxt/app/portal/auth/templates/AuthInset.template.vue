@@ -2,12 +2,16 @@
   <AuthShell skip-label="Skip to content">
     <template #header>
       <PortalAuthBrand />
-      <slot name="back" />
+      <slot name="back" :compact="true" />
       <PortalAuthStore />
     </template>
 
     <Card>
-      <slot name="form" />
+      <slot
+        name="form"
+        :card="true"
+        :guest-spacing="GUEST_CHECKOUT_SPACING.NONE"
+      />
     </Card>
 
     <template #footer>
@@ -25,9 +29,7 @@ import PortalAuthBrand from "../PortalAuthBrand.vue";
 import PortalAuthLegal from "../PortalAuthLegal.vue";
 import PortalAuthStore from "../PortalAuthStore.vue";
 import PortalUpmind from "~/portal/shell/PortalUpmind.vue";
-import type { AuthRoutes } from "@upmind-automation/auth";
-
-defineProps<AuthRoutes>();
+import { GUEST_CHECKOUT_SPACING } from "@upmind-automation/auth";
 
 defineOptions({ inheritAttrs: false });
 

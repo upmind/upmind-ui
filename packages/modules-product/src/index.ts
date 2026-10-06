@@ -42,10 +42,4 @@ export * from "./components/card";
 export * from "./renderers";
 
 // --- Export Types
-export { PRODUCT_TEMPLATE } from "./types";
-export type {
-  ConfigProps,
-  ConfigureProps,
-  Item,
-  ProductTemplates
-} from "./types";
+export type { ConfigProps, ConfigureProps, Item } from "./types";

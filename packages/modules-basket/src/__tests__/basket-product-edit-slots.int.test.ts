@@ -9,13 +9,13 @@
  * it is handed gets `UpmBasketProductEdit`'s own content in every slot develop
  * fills: the product details, the image, the configuration, the pricing, the
  * actions, the errors, the total and the terms. The page hiding the product
- * details removes that slot, and a slot the page writes on its layout replaces
- * only that slot's content.
+ * details removes that slot, a slot the page writes on its layout replaces only
+ * that slot's content, and the layout's options turn the hero and the pricing.
  *
  * ## What Breaks If These Fail
  * A guest editing a basket product loses its form, its errors or its confirm
- * button, a hidden header still takes its place, or a page override pushes out
- * the content around it.
+ * button, a hidden header still takes its place, a page override pushes out the
+ * content around it, or a template's hero or pricing takes another's shape.
  */
 
 import { afterEach, beforeAll, beforeEach, describe, expect, it } from "vitest";
@@ -23,29 +23,31 @@ import { h } from "vue";
 import {
   Config,
   ConfigErrors,
+  PRODUCT_HERO_DIRECTION,
   PricingTotal,
   ProductHero
 } from "@upmind-automation/product";
-import { BASKET_PRODUCT_TEMPLATE, UpmBasketProductEdit } from "../index";
+import { UpmBasketProductEdit } from "../index";
 import {
   BOOT_BUDGET,
   inFrame,
-  layoutOf,
-  layoutsFor,
+  layoutFor,
   mountPage,
   ROUTES,
   seedBasket,
   seedGuestSession,
   slotsOf,
+  templateOf,
   unmountPages
 } from "./mount-page";
 import {
   installBootRoutes,
   recordedBasketId,
-  recordedBasketProductId
+  recordedBasketProductId,
+  recordedTemplate
 } from "./recorded-pool";
-import { values } from "lodash-es";
-import type { PageWrapper } from "./mount-page";
+import { concat } from "lodash-es";
+import type { PageWrapper, SlotOptions } from "./mount-page";
 import type { RawSlots } from "vue";
 
 // -----------------------------------------------------------------------------
@@ -61,10 +63,10 @@ const DEVELOP_BLOCKS = [
   "terms"
 ];
 
-const EDIT_LAYOUTS = layoutsFor(BASKET_PRODUCT_TEMPLATE, [
-  ...DEVELOP_BLOCKS,
-  "markdown"
-]);
+const LAYOUT_BLOCKS = concat(DEVELOP_BLOCKS, "markdown");
+
+const PRICED_TOTAL = "text.total";
+const CONFIRM = "action.confirm";
 
 const drawsConfig = (wrapper: PageWrapper) =>
   wrapper.findComponent(Config).exists();
@@ -72,6 +74,7 @@ const drawsConfig = (wrapper: PageWrapper) =>
 const openBasketProduct = (options?: {
   hideSlots?: string[];
   overrides?: RawSlots;
+  slotOptions?: SlotOptions;
 }) =>
   mountPage({
     organism: UpmBasketProductEdit,
@@ -79,7 +82,7 @@ const openBasketProduct = (options?: {
       storefrontRoute: { to: { name: ROUTES.CATALOGUE } },
       hideSlots: options?.hideSlots
     },
-    layouts: EDIT_LAYOUTS,
+    layout: layoutFor(LAYOUT_BLOCKS, options?.slotOptions),
     path: `/order/basket/${recordedBasketId}/edit/${recordedBasketProductId}`,
     until: drawsConfig,
     overrides: options?.overrides
@@ -101,11 +104,11 @@ describe("the basket product page's layout, for the recorded basket product", ()
   afterEach(unmountPages);
 
   it(
-    "hands the layout every block develop fills",
+    "hands the layout the brand's own template and every block develop fills",
     async () => {
       const wrapper = await openBasketProduct();
 
-      expect(values(BASKET_PRODUCT_TEMPLATE)).toContain(layoutOf(wrapper));
+      expect(templateOf(wrapper)).toBe(recordedTemplate);
       expect(slotsOf(wrapper)).toEqual(expect.arrayContaining(DEVELOP_BLOCKS));
     },
     BOOT_BUDGET
@@ -170,6 +173,60 @@ describe("the basket product page's layout, for the recorded basket product", ()
       expect(
         inFrame(wrapper, "product-details").findComponent(ProductHero).exists()
       ).toBe(true);
+    },
+    BOOT_BUDGET
+  );
+
+  it(
+    "draws a wide hero with its image until the layout turns it",
+    async () => {
+      const wide = await openBasketProduct();
+      expect(
+        inFrame(wide, "product-details").findComponent(ProductHero).props()
+      ).toMatchObject({
+        direction: PRODUCT_HERO_DIRECTION.HORIZONTAL,
+        image: true
+      });
+      unmountPages();
+
+      const tall = await openBasketProduct({
+        slotOptions: {
+          "product-details": {
+            direction: PRODUCT_HERO_DIRECTION.VERTICAL,
+            heroImage: false
+          }
+        }
+      });
+      expect(
+        inFrame(tall, "product-details").findComponent(ProductHero).props()
+      ).toMatchObject({
+        direction: PRODUCT_HERO_DIRECTION.VERTICAL,
+        image: false
+      });
+    },
+    BOOT_BUDGET
+  );
+
+  it(
+    "keeps the total and the confirm out of the pricing until the layout asks for each",
+    async () => {
+      const bare = await openBasketProduct();
+      expect(inFrame(bare, "pricing").text()).not.toContain(PRICED_TOTAL);
+      expect(inFrame(bare, "pricing").text()).not.toContain(CONFIRM);
+      unmountPages();
+
+      const totalled = await openBasketProduct({
+        slotOptions: { pricing: { showTotal: true } }
+      });
+      expect(inFrame(totalled, "pricing").text()).toContain(PRICED_TOTAL);
+      expect(inFrame(totalled, "pricing").text()).not.toContain(CONFIRM);
+      unmountPages();
+
+      const actionable = await openBasketProduct({
+        slotOptions: { pricing: { showActions: true } }
+      });
+      expect(inFrame(actionable, "pricing").text()).toContain(CONFIRM);
+      expect(inFrame(actionable, "pricing").text()).not.toContain(PRICED_TOTAL);
     },
     BOOT_BUDGET
   );

@@ -5,7 +5,7 @@
     </template>
 
     <template #content>
-      <slot name="content" />
+      <slot name="content" :inline="false" />
       <slot v-if="isMobile" name="content-footer" />
     </template>
 

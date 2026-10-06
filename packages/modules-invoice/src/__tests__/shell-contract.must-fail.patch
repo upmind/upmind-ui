@@ -1,20 +1,18 @@
 # Negative control — the order page hands its page the full template, not the
-# one it is given. The page's own record is read, but every page draws the same
-# arrangement.
+# brand's. Every host draws the same arrangement whatever the brand picks.
 #
 # Intended RED:
 #   packages/modules-invoice/src/__tests__/shell-contract.test.ts
-#     "draws the host's %s template when the page is given it" (every arrangement but full)
+#     "hands its default slot the brand's raw template"
 
 diff --git a/packages/modules-invoice/src/components/Order.vue b/packages/modules-invoice/src/components/Order.vue
-index 326fa8b..88fa0fc 100644
 --- a/packages/modules-invoice/src/components/Order.vue
 +++ b/packages/modules-invoice/src/components/Order.vue
 @@ -1,6 +1,6 @@
  <template>
    <LayoutProvider>
--    <slot :template="template" />
-+    <slot :template="ORDER_TEMPLATE.FULL" />
+-    <slot :template="configMeta.ui.template.value" />
++    <slot template="full" />
  
      <template #order-summary>
        <Hero

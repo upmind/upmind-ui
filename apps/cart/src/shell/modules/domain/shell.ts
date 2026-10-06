@@ -5,20 +5,15 @@
  */
 
 import { DOMAIN_TEMPLATE } from "@upmind-automation/domain";
+import { resolveTemplate } from "@upmind-automation/foundation";
 import DomainFullTemplate from "./templates/DomainFull.template.vue";
-import { get } from "lodash-es";
 import type { Component } from "vue";
 
 export const DOMAIN_TEMPLATES: Record<DOMAIN_TEMPLATE.FULL, Component> = {
   [DOMAIN_TEMPLATE.FULL]: DomainFullTemplate
 };
 
-export function domainTemplate(
-  template: string = DOMAIN_TEMPLATE.FULL
-): Component {
-  return get(
-    DOMAIN_TEMPLATES,
-    template,
-    DOMAIN_TEMPLATES[DOMAIN_TEMPLATE.FULL]
-  );
-}
+export const domainTemplate = resolveTemplate(
+  DOMAIN_TEMPLATES,
+  DOMAIN_TEMPLATE.FULL
+);

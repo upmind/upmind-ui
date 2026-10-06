@@ -9,36 +9,39 @@
  * handed gets `UpmBasket`'s own content in every slot develop fills: the
  * summary, the products, the pricing, the total, the markdown, the checkout
  * and the custom-price notice. The page hiding the summary removes that slot,
- * and a slot the page writes on its layout replaces only that slot's content.
+ * a slot the page writes on its layout replaces only that slot's content, and
+ * the layout's pricing options turn the pricing's total and checkout off.
  *
  * ## What Breaks If These Fail
  * A guest's basket shows no products or no way to checkout, a hidden summary
- * still takes its place, or a page override pushes out the content around it.
+ * still takes its place, a page override pushes out the content around it, or
+ * an enclosed or right-to-left basket draws its checkout twice.
  */
 
 import { afterEach, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { h } from "vue";
-import { BASKET_TEMPLATE, UpmBasket } from "../index";
+import { UpmBasket } from "../index";
 import {
   BOOT_BUDGET,
   inFrame,
-  layoutOf,
-  layoutsFor,
+  layoutFor,
   mountPage,
   readableText,
   ROUTES,
   seedBasket,
   seedGuestSession,
   slotsOf,
+  templateOf,
   unmountPages
 } from "./mount-page";
 import {
   installBootRoutes,
   recordedBasketId,
-  recordedProductNames
+  recordedProductNames,
+  recordedTemplate
 } from "./recorded-pool";
-import { every, values } from "lodash-es";
-import type { PageWrapper } from "./mount-page";
+import { every } from "lodash-es";
+import type { PageWrapper, SlotOptions } from "./mount-page";
 import type { RawSlots } from "vue";
 
 // -----------------------------------------------------------------------------
@@ -53,12 +56,14 @@ const DEVELOP_BLOCKS = [
   "custom-price"
 ];
 
-const BASKET_LAYOUTS = layoutsFor(BASKET_TEMPLATE, DEVELOP_BLOCKS);
-
 const showsProducts = (wrapper: PageWrapper) =>
   every(recordedProductNames, name => readableText(wrapper).includes(name));
 
-const openBasket = (options?: { hideSlots?: string[]; overrides?: RawSlots }) =>
+const openBasket = (options?: {
+  hideSlots?: string[];
+  overrides?: RawSlots;
+  slotOptions?: SlotOptions;
+}) =>
   mountPage({
     organism: UpmBasket,
     props: {
@@ -66,7 +71,7 @@ const openBasket = (options?: { hideSlots?: string[]; overrides?: RawSlots }) =>
       storefrontRoute: { to: { name: ROUTES.CATALOGUE } },
       hideSlots: options?.hideSlots
     },
-    layouts: BASKET_LAYOUTS,
+    layout: layoutFor(DEVELOP_BLOCKS, options?.slotOptions),
     path: `/order/basket/${recordedBasketId}`,
     until: showsProducts,
     overrides: options?.overrides
@@ -88,11 +93,11 @@ describe("the basket page's layout, for the recorded guest basket", () => {
   afterEach(unmountPages);
 
   it(
-    "hands the layout every block develop fills",
+    "hands the layout the brand's own template and every block develop fills",
     async () => {
       const wrapper = await openBasket();
 
-      expect(values(BASKET_TEMPLATE)).toContain(layoutOf(wrapper));
+      expect(templateOf(wrapper)).toBe(recordedTemplate);
       expect(slotsOf(wrapper)).toEqual(expect.arrayContaining(DEVELOP_BLOCKS));
     },
     BOOT_BUDGET
@@ -150,6 +155,33 @@ describe("the basket page's layout, for the recorded guest basket", () => {
       for (const name of recordedProductNames) {
         expect(inFrame(wrapper, "products").text()).toContain(name);
       }
+    },
+    BOOT_BUDGET
+  );
+
+  it(
+    "draws the pricing's total and checkout until the layout turns each off",
+    async () => {
+      const PRICED_TOTAL = "text.basket_total";
+      const CHECKOUT = "action.proceed_to_checkout";
+
+      const pricing = await openBasket();
+      expect(inFrame(pricing, "pricing").text()).toContain(PRICED_TOTAL);
+      expect(inFrame(pricing, "pricing").text()).toContain(CHECKOUT);
+      unmountPages();
+
+      const noCheckout = await openBasket({
+        slotOptions: { pricing: { showCheckout: false } }
+      });
+      expect(inFrame(noCheckout, "pricing").text()).toContain(PRICED_TOTAL);
+      expect(inFrame(noCheckout, "pricing").text()).not.toContain(CHECKOUT);
+      unmountPages();
+
+      const noTotal = await openBasket({
+        slotOptions: { pricing: { showTotal: false } }
+      });
+      expect(inFrame(noTotal, "pricing").text()).toContain(CHECKOUT);
+      expect(inFrame(noTotal, "pricing").text()).not.toContain(PRICED_TOTAL);
     },
     BOOT_BUDGET
   );

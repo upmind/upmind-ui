@@ -1,21 +1,23 @@
 <template>
   <LayoutProvider>
-    <slot :template="template" />
+    <slot :template="ui.template.value" />
 
-    <template #back>
+    <template #back="{ compact = false }">
       <slot name="back">
         <Back
+          v-if="compact"
           v-show="showCheckout"
-          :label="backLabel"
-          :icon="backIcon"
+          :label="t('action.back')"
+          icon="arrow-narrow-left"
           @click.prevent="navigateBack"
         />
+        <Back v-else v-show="showCheckout" @click.prevent="navigateBack" />
       </slot>
     </template>
 
     <template v-if="!isSlotHidden('summary')" #summary>
       <slot name="summary">
-        <CheckoutHero v-show="showCheckout" :template="props.template" />
+        <CheckoutHero v-show="showCheckout" />
       </slot>
     </template>
 
@@ -78,14 +80,13 @@ import {
   useRoutingEngine,
   useDataLayer
 } from "@upmind-automation/headless";
-import { useConfig, validateTemplate } from "@upmind-automation/headless";
+import { useConfig } from "@upmind-automation/headless";
 import { UIContext } from "@upmind-automation/headless";
 import CheckoutContent from "./components/CheckoutContent.vue";
 import CheckoutErrors from "./components/CheckoutErrors.vue";
 import CheckoutHero from "./components/CheckoutHero.vue";
 import CheckoutPricing from "./components/CheckoutPricing.vue";
 import CheckoutProcessing from "./components/CheckoutProcessing.vue";
-import { CHECKOUT_TEMPLATE } from "./types";
 import { isEqual, includes } from "lodash-es";
 import type { StorefrontRoute } from "@upmind-automation/foundation";
 import type { RouteLocationAsRelativeGeneric } from "vue-router";
@@ -97,7 +98,6 @@ const summaryAppendTestAttrs = useTestAttrs({ key: "slots:summary-append" });
 
 const props = withDefaults(
   defineProps<{
-    template?: CHECKOUT_TEMPLATE;
     hideSlots?: string[];
     editRoute: RouteLocationAsRelativeGeneric;
     billingRoute: RouteLocationAsRelativeGeneric;
@@ -135,30 +135,10 @@ const showCheckout = computed(
   () => !meta.value.isCheckout && !meta.value.isComplete
 );
 
-// Everything below derives from the template, not the flow.
-const template = computed(() =>
-  validateTemplate(
-    ui.template.value || props.template,
-    CHECKOUT_TEMPLATE,
-    CHECKOUT_TEMPLATE.TWO_COLUMN_LTR
-  )
-);
-
 // An itemised summary links its products back to the basket step, where they're
 // configured; a plain totals summary has nothing to link.
 const summaryProductRoute = computed(() => {
   if (ui.basketSummaryDetails.isVisible) return props.fieldsRoute;
-  return undefined;
-});
-
-// One-page uses a compact "Back" with a leading arrow per the designs; other
-// templates keep the default "Back to basket" (no icon).
-const backLabel = computed(() => {
-  if (template.value === CHECKOUT_TEMPLATE.INSET) return t("action.back");
-  return undefined;
-});
-const backIcon = computed(() => {
-  if (template.value === CHECKOUT_TEMPLATE.INSET) return "arrow-narrow-left";
   return undefined;
 });
 

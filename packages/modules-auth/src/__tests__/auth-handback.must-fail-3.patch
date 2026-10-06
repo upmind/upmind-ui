@@ -8,12 +8,12 @@
 diff --git a/packages/modules-auth/src/components/Auth.vue b/packages/modules-auth/src/components/Auth.vue
 --- a/packages/modules-auth/src/components/Auth.vue
 +++ b/packages/modules-auth/src/components/Auth.vue
-@@ -271,7 +271,7 @@ function doResolve(model: unknown) {
+@@ -271,7 +271,7 @@
      // re-read session-scoped state on resolve, so hand control back only once
      // the session is actually authenticated. RECOVER never authenticates, so
      // it emits immediately.
 -    if (authenticates) {
 +    if (authenticates || !authenticates) {
-       try {
-         await session.useActions().whenAuthenticated();
-       } catch {
+       // Token issued but the user load failed — escalate to the reject path
+       // rather than hang the overlay waiting for a user that never loads.
+       return session

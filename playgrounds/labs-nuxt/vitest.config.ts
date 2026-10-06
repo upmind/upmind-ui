@@ -170,6 +170,7 @@ export default defineConfig({
               "app/funnels/**/__tests__/**/*.spec.ts",
               "app/layouts/**/__tests__/**/*.spec.ts",
               "app/pages/**/__tests__/**/*.spec.ts",
+              "app/shell/**/__tests__/**/*.spec.ts",
               // A Nuxt plugin renders nothing, but it boots the domain packages
               // and the ui plugin set, so it needs a document — not the node lane
               // its "not a component" shape suggests.

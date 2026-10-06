@@ -7,7 +7,6 @@
     </template>
 
     <slot name="hero" />
-    <slot name="markdown" />
     <slot name="form" />
     <slot name="summary" />
 
@@ -26,9 +25,6 @@ import PortalAuthBrand from "../PortalAuthBrand.vue";
 import PortalAuthLegal from "../PortalAuthLegal.vue";
 import PortalAuthStore from "../PortalAuthStore.vue";
 import PortalUpmind from "~/portal/shell/PortalUpmind.vue";
-import type { AuthRoutes } from "@upmind-automation/auth";
-
-defineProps<AuthRoutes>();
 
 defineOptions({ inheritAttrs: false });
 

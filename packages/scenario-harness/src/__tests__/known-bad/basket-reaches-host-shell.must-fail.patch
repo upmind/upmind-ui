@@ -1,6 +1,6 @@
 # Negative control — `basket` reaches into an app's shell for the basket page
-# templates instead of taking them from its `templates` prop. ADR 023
-# Amendment 1 change 3 makes page templates app-owned; they live in
+# templates instead of handing its page the brand's raw template to pick from.
+# ADR 023 Amendment 1 change 3 makes page templates app-owned; they live in
 # `apps/cart/src/shell`. A package reaching them points a package at an app, an
 # edge no row of §3's grant matrix carries.
 #
@@ -10,23 +10,26 @@
 # Intended RED under lint:
 #   Import a workspace package by its published specifier — its internals are
 #   private. ("../../../../apps/cart/src/shell/modules/basket/shell" resolves into apps/cart)
+
 diff --git a/packages/modules-basket/src/components/Basket.vue b/packages/modules-basket/src/components/Basket.vue
-index 7dcfd8c..b723316 100644
 --- a/packages/modules-basket/src/components/Basket.vue
 +++ b/packages/modules-basket/src/components/Basket.vue
-@@ -1,6 +1,6 @@
+@@ -1,6 +1,9 @@
  <template>
    <LayoutProvider>
--    <slot :template="template" />
-+    <slot :template="template" :layout="BASKET_TEMPLATES[template]" />
+-    <slot :template="ui.template.value" />
++    <slot
++      :template="ui.template.value"
++      :layout="basketTemplate(ui.template.value)"
++    />
  
      <template v-if="!isSlotHidden('summary')" #summary>
        <slot name="summary">
-@@ -129,6 +129,7 @@ import BasketHero from "./BasketHero.vue";
+@@ -120,6 +123,7 @@
  import BasketPricing from "./BasketPricing.vue";
  import BasketProducts from "./BasketProducts.vue";
  import BasketTotal from "./BasketTotal.vue";
-+import { BASKET_TEMPLATES } from "../../../../apps/cart/src/shell/modules/basket/shell";
++import { basketTemplate } from "../../../../apps/cart/src/shell/modules/basket/shell";
  import { includes } from "lodash-es";
  import type { StorefrontRoute } from "@upmind-automation/foundation";
  import type { RouteLocationAsRelativeGeneric } from "vue-router";

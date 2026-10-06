@@ -25,8 +25,7 @@ const CARRIED_OVER = [
   "detailsSkeletonTotalRowVariants",
   "detailsTotalLabelVariants",
   "detailsTotalRootVariants",
-  "detailsTotalValueVariants",
-  "ORDER_TEMPLATE"
+  "detailsTotalValueVariants"
 ];
 
 const HEADLESS_SYMBOLS = ["useOrder", "useInvoice", "PAYMENT_STATE"];
@@ -62,22 +61,8 @@ describe("the invoice package's curated public barrel", () => {
   });
 });
 
-describe("the template constant a consumer switches on", () => {
-  it("carries the five page templates by their published values", () => {
-    expect(barrel.ORDER_TEMPLATE.FULL).toBe("full");
-    expect(barrel.ORDER_TEMPLATE.TWO_COLUMN_LTR).toBe("two-column-ltr");
-    expect(barrel.ORDER_TEMPLATE.TWO_COLUMN_RTL).toBe("two-column-rtl");
-    expect(barrel.ORDER_TEMPLATE.ENCLOSED).toBe("enclosed");
-    expect(barrel.ORDER_TEMPLATE.INSET).toBe("inset");
-  });
-
-  it("carries no template beyond those five", () => {
-    expect(Object.values(barrel.ORDER_TEMPLATE).sort()).toEqual([
-      "enclosed",
-      "full",
-      "inset",
-      "two-column-ltr",
-      "two-column-rtl"
-    ]);
+describe("the template names", () => {
+  it("leaves them to the host, which picks the layout for the brand's raw template", () => {
+    expect(exported).not.toContain("ORDER_TEMPLATE");
   });
 });

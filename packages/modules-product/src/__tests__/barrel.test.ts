@@ -34,8 +34,7 @@ const OPEN_Q3 = [
   "PricingTotal",
   "TermRow",
   "ProductCard",
-  "ProductCardSkeleton",
-  "PRODUCT_TEMPLATE"
+  "ProductCardSkeleton"
 ];
 
 const AMENDMENT_1 = ["Promotion"];
@@ -50,12 +49,7 @@ const RENDERERS = ["productRenderers"];
 
 const PUBLISHED = [...OPEN_Q3, ...AMENDMENT_1, ...ORGANISMS, ...RENDERERS];
 
-const PUBLISHED_TYPES = [
-  "ConfigProps",
-  "ConfigureProps",
-  "Item",
-  "ProductTemplates"
-];
+const PUBLISHED_TYPES = ["ConfigProps", "ConfigureProps", "Item"];
 
 const PUBLIC_COMPONENTS = [...OPEN_Q3, ...AMENDMENT_1, ...ORGANISMS];
 
@@ -216,7 +210,7 @@ describe("the product package's curated public barrel", () => {
   it("publishes real components behind the component names", () => {
     const components = PUBLIC_COMPONENTS.filter(
       name => /^[A-Z][a-z]/.test(name) || name.startsWith("Upm")
-    ).filter(name => name !== "PRODUCT_TEMPLATE");
+    );
 
     for (const name of components) {
       const value: unknown = barrel[name as keyof typeof barrel];
@@ -265,15 +259,9 @@ describe("the product package's curated public barrel", () => {
   });
 });
 
-describe("the template and direction constants a consumer switches on", () => {
-  it("carries the five page templates by their published values", () => {
-    expect(Object.values(barrel.PRODUCT_TEMPLATE).sort()).toEqual([
-      "enclosed",
-      "full",
-      "inset",
-      "two-column-ltr",
-      "two-column-rtl"
-    ]);
+describe("the constants a consumer switches on", () => {
+  it("leaves the template names to the host, which picks the layout for the brand's raw template", () => {
+    expect(exported).not.toContain("PRODUCT_TEMPLATE");
   });
 
   it("carries both hero directions", () => {

@@ -9,9 +9,9 @@
 diff --git a/apps/cart/src/pages/session/Login.vue b/apps/cart/src/pages/session/Login.vue
 --- a/apps/cart/src/pages/session/Login.vue
 +++ b/apps/cart/src/pages/session/Login.vue
-@@ -6,9 +6,6 @@
-     :register-route="{ name: ROUTE.SESSION_REGISTER }"
-   >
+@@ -8,9 +8,6 @@
+       <component :is="sessionTemplate(template)" />
+     </template>
      <template #loading><UpmLoading /></template>
 -    <template #summary="summary">
 -      <SessionSummary v-bind="summary" />

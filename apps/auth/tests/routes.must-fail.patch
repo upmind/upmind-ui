@@ -1,17 +1,17 @@
 # Negative control — the recovery route mounts its page with no props. The page
-# has no templates record to draw from and no routes to link to.
+# has no routes to link to.
 #
 # Intended RED:
 #   apps/auth/tests/routes.test.ts
-#     "hands every sign-in route this app's templates, its three routes, and no landing"
+#     "hands every sign-in route its three routes, and no landing"
 
 diff --git a/apps/auth/src/routes.ts b/apps/auth/src/routes.ts
 --- a/apps/auth/src/routes.ts
 +++ b/apps/auth/src/routes.ts
-@@ -76,7 +76,6 @@ export const authRoutes: RouteRecordRaw[] = [
+@@ -71,7 +71,6 @@
          path: "recover",
          name: AUTH_ROUTE.RECOVER,
-         component: UpmAuthRecoverPassword,
+         component: Recover,
 -        props: recoverRouteProps,
          meta: signInMeta
        },

@@ -26,25 +26,29 @@ login control) that read the active session.
 
 ## Templates
 
-Each page organism takes a required `templates` prop: a record keyed by `AUTH_TEMPLATE`
-(`split`, `enclosed`, `canvas-card`, `surface-box`, `two-column-ltr`, `two-column-rtl`, `inset`),
-each value a component. The host page passes the record; nothing reaches the organism through
-an app-root injection. The organism reads the brand's chosen template name (or the page's own
-`template` prop as a fallback) and renders the matching component from the record. A name
-missing from the record throws at render time, naming the missing key — the type also makes
-the record required at compile time, so a host that leaves out a key fails its type-check.
+`UpmAuthLogin`, `UpmAuthRegister` and `UpmAuthRecoverPassword` resolve the brand's chosen
+template value and hand it to their own default slot (`v-slot="{ template }"`). The package
+names no layout of its own and keeps no record of one — the host page reads that value, looks
+it up against its own template enum and component map, falls back to its own default, and
+mounts the result inside the slot. Nothing reaches the organism through an app-root injection.
+`UpmAuthLogout` and the session-status components take no template at all.
 
 ## Slots
 
-Every page organism exposes named slots with a default, so a host may fill or leave each one:
+Every page organism exposes named slots with a default, so a host may fill or leave each one.
+The host's own template component — the one its default slot mounted — is what actually fills
+them, and may set a slot's own display option with a bound attribute on the call
+(`<slot name="form" :card="true" />`, never a bare `card`); the organism reads each option with
+its own fallback.
 
-| Slot | Default | Notes |
+| Slot | Default | Options a template may set |
 | --- | --- | --- |
-| `loading` | `UpmAuthLoading` | Shown while the page organism is mid-resolve |
-| `back` | The funnel "back" link | Only rendered when the host runs a funnel |
-| `hero` | The page's title + subtitle | |
-| `form` | The tabbed `UpmAuth` (or `UpmAccount` for a guest upgrade) | |
+| `loading` | `UpmAuthLoading` | — (`UpmAuthLogin`, `UpmAuthRegister` only; `UpmAuthRecoverPassword` renders nothing while it resolves) |
+| `back` | The funnel "back" link | `compact` — the short "Back" over the full "Back to basket"/"Back to login" label |
+| `hero` | The page's title + subtitle | — |
+| `form` | The tabbed `UpmAuth` (or `UpmAccount` for a guest upgrade) | `card` — wraps the form in a titled, tab-framed card; `active` — shows that tab header and the brand's note inside the form, `UpmAuthLogin`/`UpmAuthRegister` only; `guestSpacing` — the gap around `guest-checkout`, `UpmAuthRegister` only (one of the `GUEST_CHECKOUT_SPACING` values) |
 | `summary` | — | Basket summary beside the form, shown only when the host's config marks it visible |
+| `markdown` | The brand's own note for the page, when one is set | `flush` — drops the note's own spacing; `UpmAuthLogin`/`UpmAuthRegister` only, `UpmAuthRecoverPassword` has no `markdown` slot |
 | `guest-checkout` | — | `UpmAuthRegister` only; fills with `{ registerAsGuest, isRegistering, class }`, a slot-props type this package owns |
 
 ## Navigation
@@ -60,9 +64,10 @@ hanging.
 
 ## Exports
 
-`AUTH_FORMS`, `AUTH_TEMPLATE` and every prop/emit/slot-prop type (`AuthProps`, `AuthViewProps`,
-`AuthViewEmits`, `AuthTemplates`, `AuthRoutes`, `AuthSummarySlotProps`,
-`AuthGuestCheckoutSlotProps`, `AuthActionProps`, `AuthExpiredProps`) live in `types.ts`.
+`AUTH_FORMS` and `GUEST_CHECKOUT_SPACING` (the `guestSpacing` slot option's values) live in
+`types.ts`, alongside every prop/emit/slot-prop type (`AuthProps`, `AuthViewProps`,
+`AuthViewEmits`, `AuthRoutes`, `AuthSummarySlotProps`, `AuthGuestCheckoutSlotProps`,
+`AuthActionProps`, `AuthExpiredProps`).
 
 ## Dependencies
 

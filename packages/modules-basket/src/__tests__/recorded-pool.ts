@@ -76,6 +76,12 @@ export const recordedBasketProductId = /\/products\/([^/?]+)/.exec(
   )
 )?.[1];
 
+export const recordedTemplate = (
+  getFixture("get-brand-settings", { recordingsDir: BRAND }).response.body as {
+    data?: { meta?: { cart?: Record<string, unknown> } };
+  }
+).data?.meta?.cart?.["@context.*.template"];
+
 export const recordedClaimedBasketId = (
   getFixture(CLAIMED_ORDER_KEY, { recordingsDir: BASKET_BILLING }).response
     .body as { data?: { id?: string; client_id?: string } }
@@ -122,12 +128,14 @@ if (
   !recordedClaimedBasketId ||
   !recordedBasketId ||
   recordedBasketProducts.length === 0 ||
-  !recordedBasketProductId
+  !recordedBasketProductId ||
+  typeof recordedTemplate !== "string"
 ) {
   throw new Error(
     "The recorded pools no longer hold the journey's basket with its " +
-      "products and a configured basket product, or the client's claimed " +
-      "basket. Re-run `pnpm fixtures:generate product-setup` and " +
-      "`pnpm fixtures:generate basket-billing`."
+      "products and a configured basket product, the client's claimed basket, " +
+      "or the brand's page template. Re-run `pnpm fixtures:generate " +
+      "product-setup`, `pnpm fixtures:generate basket-billing` and " +
+      "`pnpm fixtures:generate brand`."
   );
 }

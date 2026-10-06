@@ -1,14 +1,12 @@
 <template>
-  <UpmAuthLogin
-    v-bind="AUTH_ROUTES"
-    :templates="PORTAL_AUTH_TEMPLATES"
-    @resolve="onResolve"
-  />
+  <UpmAuthLogin v-bind="AUTH_ROUTES" @resolve="onResolve" v-slot="{ template }">
+    <component :is="authTemplate(template)" />
+  </UpmAuthLogin>
 </template>
 
 <script setup lang="ts">
 import { UpmAuthLogin } from "@upmind-automation/auth";
-import { PORTAL_AUTH_TEMPLATES } from "~/portal/auth/shell";
+import { authTemplate } from "~/portal/auth/shell";
 import { AUTH_LANDING, AUTH_ROUTES } from "~/portal/auth-routes";
 
 definePageMeta({

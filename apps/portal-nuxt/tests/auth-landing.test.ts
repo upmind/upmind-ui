@@ -5,7 +5,8 @@
  * ## Job To Be Done
  * The portal runs no funnel, so each auth page listens for the screen's hand-back:
  * a sign-in or registration lands on `AUTH_LANDING`, recovery's back returns to
- * sign-in. Each page hands its screen the portal's own templates and cross-links.
+ * sign-in. Each page hands its screen the portal's cross-links, and draws the
+ * portal's own layout for the raw template the screen hands back.
  *
  * ## What Breaks If These Fail
  * A client signs in and stays on the sign-in screen with no way forward, or
@@ -28,8 +29,7 @@ import {
   map,
   sortBy
 } from "lodash-es";
-import type { Component } from "vue";
-import { PORTAL_AUTH_TEMPLATES } from "~/portal/auth/shell";
+import type { Component, Slot } from "vue";
 import { AUTH_LANDING, AUTH_ROUTES } from "~/portal/auth-routes";
 
 // -----------------------------------------------------------------------------
@@ -42,6 +42,43 @@ type Seated = {
 
 const seen: Seated[] = [];
 
+/** The raw template each stood-in screen hands its page's default slot. */
+const screenTemplate = { value: "" };
+
+const { layoutStub } = vi.hoisted(() => ({
+  layoutStub: async (name: string) => {
+    const { defineComponent: define, h } = await import("vue");
+    return {
+      default: define({
+        name: `Layout-${name}`,
+        render: () => h("div", { "data-layout": name })
+      })
+    };
+  }
+}));
+
+vi.mock("~/portal/auth/templates/AuthSplit.template.vue", () =>
+  layoutStub("split")
+);
+vi.mock("~/portal/auth/templates/AuthEnclosed.template.vue", () =>
+  layoutStub("enclosed")
+);
+vi.mock("~/portal/auth/templates/AuthCanvasCard.template.vue", () =>
+  layoutStub("canvas-card")
+);
+vi.mock("~/portal/auth/templates/AuthSurfaceBox.template.vue", () =>
+  layoutStub("surface-box")
+);
+vi.mock("~/portal/auth/templates/AuthLTR.template.vue", () =>
+  layoutStub("two-column-ltr")
+);
+vi.mock("~/portal/auth/templates/AuthRTL.template.vue", () =>
+  layoutStub("two-column-rtl")
+);
+vi.mock("~/portal/auth/templates/AuthInset.template.vue", () =>
+  layoutStub("inset")
+);
+
 function recorder(name: string): Component {
   return defineComponent({
     name,
@@ -49,17 +86,19 @@ function recorder(name: string): Component {
     props: {
       loginRoute: { type: Object, default: undefined },
       registerRoute: { type: Object, default: undefined },
-      recoverRoute: { type: Object, default: undefined },
-      templates: { type: Object, default: undefined }
+      recoverRoute: { type: Object, default: undefined }
     },
     emits: ["resolve", "reject"],
-    setup(props, { attrs, emit }) {
+    setup(props, { attrs, emit, slots }) {
       seen.push({
         props: assign({}, props),
         attrs: assign({}, attrs),
         emit: event => emit(event)
       });
-      return () => undefined;
+      return () => {
+        const page: Slot | undefined = slots.default;
+        return page?.({ template: screenTemplate.value });
+      };
     }
   });
 }
@@ -77,9 +116,19 @@ const PAGES = join(import.meta.dirname, "..", "app", "pages");
 
 const CROSS_LINKS = ["loginRoute", "registerRoute", "recoverRoute"];
 
-async function screenSeatedBy(load: () => Promise<{ default: Component }>) {
+const SCREENS = [
+  ["sign-in", () => import("~/pages/login.vue")],
+  ["registration", () => import("~/pages/register.vue")],
+  ["recovery", () => import("~/pages/forgotten-password.vue")]
+] as const;
+
+async function mountPage(load: () => Promise<{ default: Component }>) {
   const page = await load();
-  mount(page.default);
+  return mount(page.default);
+}
+
+async function screenSeatedBy(load: () => Promise<{ default: Component }>) {
+  await mountPage(load);
 
   const recorded = last(seen);
   if (isUndefined(recorded)) throw new Error("the page seated no screen");
@@ -95,6 +144,7 @@ function navigateTo() {
 describe("where this app sends a client when an auth screen hands back", () => {
   beforeEach(() => {
     seen.length = 0;
+    screenTemplate.value = "";
     stubPageGlobals();
   });
 
@@ -134,18 +184,27 @@ describe("where this app sends a client when an auth screen hands back", () => {
     expect(navigateTo()).not.toHaveBeenCalled();
   });
 
-  it.each([
-    ["sign-in", () => import("~/pages/login.vue")],
-    ["registration", () => import("~/pages/register.vue")],
-    ["recovery", () => import("~/pages/forgotten-password.vue")]
-  ])(
-    "hands the %s screen the portal's templates and its cross-links",
+  it.each(SCREENS)(
+    "hands the %s screen its cross-links, and no record or landing",
     async (_name, load) => {
       const screen = await screenSeatedBy(load);
 
-      expect(screen.props.templates).toBe(PORTAL_AUTH_TEMPLATES);
       expect(screen.props).toMatchObject(AUTH_ROUTES);
+      expect(screen.attrs).not.toHaveProperty("templates");
       expect(screen.attrs).not.toHaveProperty("landingRoute");
+    }
+  );
+
+  it.each(SCREENS)(
+    "draws the portal's layout for the raw template the %s screen hands back",
+    async (_name, load) => {
+      screenTemplate.value = "inset";
+
+      const page = await mountPage(load);
+
+      expect(page.find("[data-layout]").attributes("data-layout")).toBe(
+        "inset"
+      );
     }
   );
 

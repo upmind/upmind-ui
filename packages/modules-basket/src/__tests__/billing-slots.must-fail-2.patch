@@ -1,0 +1,19 @@
+# Negative control — billing draws its form carded unless the layout says
+# otherwise, so every billing page but the inset one boxes its form twice.
+#
+# Intended RED:
+#   packages/modules-basket/src/__tests__/billing-slots.int.test.ts
+#     "hands the form an inline, uncarded, stepped layout until the layout says otherwise"
+
+diff --git a/packages/modules-basket/src/billing/Billing.vue b/packages/modules-basket/src/billing/Billing.vue
+--- a/packages/modules-basket/src/billing/Billing.vue
++++ b/packages/modules-basket/src/billing/Billing.vue
+@@ -39,7 +39,7 @@
+       </slot>
+     </template>
+ 
+-    <template #content="{ card = false, inline = true, inlineEditing = false }">
++    <template #content="{ card = true, inline = true, inlineEditing = false }">
+       <slot name="content">
+         <BillingForm
+           expand

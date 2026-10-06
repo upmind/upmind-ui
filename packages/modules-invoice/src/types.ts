@@ -1,22 +1,9 @@
 import type { StorefrontRoute } from "@upmind-automation/foundation";
-import type { Component } from "vue";
 import type { RouteLocationAsRelativeGeneric } from "vue-router";
 
 export { PAYMENT_STATE, type PaymentState } from "@upmind-automation/headless";
 
-export enum ORDER_TEMPLATE {
-  FULL = "full",
-  TWO_COLUMN_LTR = "two-column-ltr",
-  TWO_COLUMN_RTL = "two-column-rtl",
-  ENCLOSED = "enclosed",
-  INSET = "inset"
-}
-
-/** The host's page templates, one per `ORDER_TEMPLATE`. */
-export type OrderTemplates = Record<ORDER_TEMPLATE, Component>;
-
 export type OrderProps = {
-  template?: ORDER_TEMPLATE;
   storefrontRoute?: StorefrontRoute;
   /** Internal route a guest client is sent to in order to register/upgrade. */
   registerRoute?: RouteLocationAsRelativeGeneric;

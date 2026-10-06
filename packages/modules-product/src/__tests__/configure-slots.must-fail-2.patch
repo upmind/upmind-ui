@@ -1,0 +1,19 @@
+# Negative control — pricing ignores the total the layout asks for on the
+# pricing slot. A layout that shows the total beside the price list draws none.
+#
+# Intended RED:
+#   packages/modules-product/src/__tests__/configure-slots.int.test.ts
+#     "leaves the total and the actions out of pricing by default, and adds them where the layout says"
+
+diff --git a/packages/modules-product/src/components/Configure.vue b/packages/modules-product/src/components/Configure.vue
+--- a/packages/modules-product/src/components/Configure.vue
++++ b/packages/modules-product/src/components/Configure.vue
+@@ -127,7 +127,7 @@
+             v-if="product && productMeta?.isAvailable"
+             :product="product"
+             :meta="productMeta"
+-            :total="showTotal"
++            :total="false"
+             :title="configMeta.data.productName || product.productDetails.title"
+             :options="configMeta.ui.productConfigOptionsSummary.isVisible"
+             :fields="configMeta.ui.productConfigFieldsSummary.isVisible"

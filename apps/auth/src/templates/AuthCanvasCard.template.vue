@@ -8,7 +8,11 @@
     <slot name="markdown" />
 
     <Card>
-      <slot name="form" />
+      <slot
+        name="form"
+        :active="false"
+        :guest-spacing="GUEST_CHECKOUT_SPACING.BELOW"
+      />
     </Card>
 
     <slot name="summary" />
@@ -22,9 +26,7 @@
 <script lang="ts" setup>
 import { AuthShell, Card } from "@upmind/ui";
 import { useI18n } from "vue-i18n";
-import type { AuthRoutes } from "@upmind-automation/auth";
-
-defineProps<AuthRoutes>();
+import { GUEST_CHECKOUT_SPACING } from "@upmind-automation/auth";
 
 defineOptions({ inheritAttrs: false });
 

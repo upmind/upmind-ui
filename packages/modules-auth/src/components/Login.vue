@@ -1,16 +1,14 @@
 <template>
   <slot v-if="isResolving" name="loading"><AuthLoading /></slot>
-  <component :is="templateVariant" v-bind="templateProps" v-else>
-    <template #back>
+  <LayoutProvider v-else>
+    <slot :template="ui.template.value" />
+
+    <template #back="{ compact = false }">
       <slot name="back">
-        <!-- One-page uses the compact "← Back" per the designs; other templates
-             keep the default "Back to basket". -->
         <Back
           v-if="routingMeta.hasFunnels"
-          :label="meta.isInset ? t('action.back') : t('action.back_to_basket')"
-          :icon="meta.isInset ? 'arrow-narrow-left' : undefined"
+          v-bind="backLink(compact)"
           size="md"
-          :color="meta.isInset ? 'muted' : 'default'"
           @click.prevent="doReject"
         />
       </slot>
@@ -36,21 +34,18 @@
       </slot>
     </template>
 
-    <template #form>
+    <template #form="{ card = false, active = true }">
       <slot name="form">
-        <!-- One-page titles the form "Log in" as a card with a "Create Account"
-             header cross-link (one-page drops the hero); other templates keep the
-             plain section. -->
         <Section
-          :card="meta.isInset"
+          :card="card"
           :label="t('action.login')"
           value="log-in"
           icon="user-03"
           v-show="!isAuthenticated"
-          :class="sessionFormWidthVariants({ inset: meta.isInset })"
-          :active="templateMeta.hasActiveSection"
+          :class="sessionFormWidthVariants({ card })"
+          :active="active"
         >
-          <template v-if="meta.isInset" #actions>
+          <template v-if="card" #actions>
             <Link
               color="muted"
               size="sm"
@@ -60,7 +55,7 @@
           </template>
 
           <Markdown
-            v-if="templateMeta.hasActiveSection && loginTemplate?.body"
+            v-if="active && loginTemplate?.body"
             tag="section"
             :model-value="loginTemplate.body"
           />
@@ -80,26 +75,24 @@
       <slot name="summary" v-bind="summarySlot" />
     </template>
 
-    <template
-      v-if="loginTemplate?.body && templateMeta.hasMarkdownSlot"
-      #markdown
-    >
+    <template v-if="loginTemplate?.body" #markdown="{ flush = false }">
       <Markdown
         tag="section"
-        :class="templateMeta.isSplit ? '' : markdownVariants()"
+        :class="markdownVariants({ flush })"
         :model-value="loginTemplate.body"
       />
     </template>
-  </component>
+  </LayoutProvider>
 </template>
 
 <script lang="ts" setup>
-import { Link, Markdown } from "@upmind/ui";
-import { computed, ref } from "vue";
+import { Link, Markdown, type LinkVariants } from "@upmind/ui";
+import { ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { Hero } from "@upmind-automation/foundation";
 import { Back } from "@upmind-automation/foundation";
 import { Section } from "@upmind-automation/foundation";
+import { LayoutProvider } from "@upmind-automation/foundation";
 import {
   useRoutingEngine,
   useActiveSession,
@@ -108,22 +101,18 @@ import {
 } from "@upmind-automation/headless";
 import {
   useConfig,
-  validateTemplate,
   useClientTemplate,
   useBrand
 } from "@upmind-automation/headless";
-import { useAuthTemplates } from "../auth.utils";
-import {
-  type AuthProps,
-  type AuthSummarySlotProps,
-  type AuthViewEmits,
-  type AuthViewProps,
-  AUTH_TEMPLATE
-} from "../types";
 import { markdownVariants, sessionFormWidthVariants } from "../variants";
 import Auth from "./Auth.vue";
 import AuthLoading from "./AuthLoading.vue";
-import { get, omit } from "lodash-es";
+import type {
+  AuthProps,
+  AuthSummarySlotProps,
+  AuthViewEmits,
+  AuthViewProps
+} from "../types";
 
 // -----------------------------------------------------------------------------
 
@@ -158,23 +147,21 @@ await isReady();
 
 const isResolving = ref(false);
 
-const template = computed(() =>
-  validateTemplate(
-    ui.template.value || props.template,
-    AUTH_TEMPLATE,
-    AUTH_TEMPLATE.TWO_COLUMN_LTR
-  )
-);
-
-const meta = computed(() => ({
-  isInset: template.value === AUTH_TEMPLATE.INSET
-}));
-
-const templateVariant = computed(() => get(props.templates, template.value));
-const templateProps = computed(() => omit(props, ["templates"]));
-
 const summarySlot: AuthSummarySlotProps = { showWhileLoading: false };
-const { meta: templateMeta } = useAuthTemplates(template);
+
+function backLink(compact: boolean): {
+  label: string;
+  icon?: string;
+  color: LinkVariants["color"];
+} {
+  if (compact)
+    return {
+      label: t("action.back"),
+      icon: "arrow-narrow-left",
+      color: "muted"
+    };
+  return { label: t("action.back_to_basket"), color: "default" };
+}
 
 function doUpdate(value: AuthProps["modelValue"]) {
   if (value === "login") {

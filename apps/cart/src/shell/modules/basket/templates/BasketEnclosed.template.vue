@@ -9,7 +9,7 @@
     </template>
 
     <template #aside>
-      <slot name="pricing" />
+      <slot name="pricing" :show-checkout="false" />
       <slot name="checkout" />
       <slot name="errors" />
       <slot name="custom-price" />

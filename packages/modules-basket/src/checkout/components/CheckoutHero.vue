@@ -8,33 +8,20 @@
         total: summary?.total ?? 0
       })
     "
-    :badge="
-      showBadge
-        ? {
-            label: t('text.fully_encrypted_title'),
-            icon: 'lock-04',
-            variant: 'neutral',
-            appearance: 'outline'
-          }
-        : undefined
-    "
+    :badge="{
+      label: t('text.fully_encrypted_title'),
+      icon: 'lock-04',
+      variant: 'neutral',
+      appearance: 'outline'
+    }"
   />
 </template>
 
 <script lang="ts" setup>
-import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { Hero } from "@upmind-automation/foundation";
 import { useBasket } from "@upmind-automation/headless";
-import { CHECKOUT_TEMPLATE } from "../types";
-import type { CheckoutHeroProps } from "../types";
 
 const { t } = useI18n();
 const { summary, products } = useBasket();
-
-const props = defineProps<CheckoutHeroProps>();
-
-const showBadge = computed(() => {
-  return props.template !== CHECKOUT_TEMPLATE.TWO_COLUMN_LTR;
-});
 </script>

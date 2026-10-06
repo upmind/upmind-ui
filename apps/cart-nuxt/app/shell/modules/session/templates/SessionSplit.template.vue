@@ -5,8 +5,12 @@
     </template>
 
     <template #content>
-      <slot name="markdown" />
-      <slot name="form" />
+      <slot name="markdown" :flush="true" />
+      <slot
+        name="form"
+        :active="false"
+        :guest-spacing="GUEST_CHECKOUT_SPACING.BELOW"
+      />
     </template>
   </Layout>
 </template>
@@ -19,11 +23,7 @@ import { useFooter } from "../../../components/footer/useFooter";
 import { Layout } from "@upmind-automation/foundation";
 import { useSection } from "@upmind-automation/foundation";
 import { LAYOUT_VARIANTS } from "@upmind-automation/foundation";
-import type { AuthRoutes } from "@upmind-automation/auth";
-
-// -----------------------------------------------------------------------------
-
-const props = defineProps<AuthRoutes>();
+import { GUEST_CHECKOUT_SPACING } from "@upmind-automation/auth";
 
 // -----------------------------------------------------------------------------
 

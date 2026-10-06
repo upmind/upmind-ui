@@ -1,7 +1,7 @@
 <template>
   <InsetLayout>
     <template #back>
-      <slot name="back" />
+      <slot name="back" :compact="true" />
     </template>
 
     <template #content>

@@ -6,7 +6,11 @@
 
     <template #content>
       <slot name="markdown" />
-      <slot name="form" />
+      <slot
+        name="form"
+        :active="false"
+        :guest-spacing="GUEST_CHECKOUT_SPACING.AROUND"
+      />
     </template>
   </Layout>
 </template>
@@ -19,15 +23,11 @@ import { useHeader } from "../../../components/header/useHeader";
 import { Layout } from "@upmind-automation/foundation";
 import { useSection } from "@upmind-automation/foundation";
 import { LAYOUT_VARIANTS } from "@upmind-automation/foundation";
-import type { AuthRoutes } from "@upmind-automation/auth";
+import { GUEST_CHECKOUT_SPACING } from "@upmind-automation/auth";
 import {
   FOOTER_LAYOUT,
   FOOTER_BACKGROUND
 } from "../../../components/footer/types";
-
-// -----------------------------------------------------------------------------
-
-const props = defineProps<AuthRoutes>();
 
 // -----------------------------------------------------------------------------
 

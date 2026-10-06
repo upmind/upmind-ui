@@ -13,7 +13,7 @@
  */
 
 import { describe, expect, it } from "vitest";
-import { AUTH_TEMPLATE } from "@upmind-automation/auth";
+import { AUTH_TEMPLATE } from "../src/shell/modules/session/types";
 import { includes, keys, sortBy, values } from "lodash-es";
 
 // -----------------------------------------------------------------------------

@@ -6,7 +6,7 @@
       @product-details="handleProductDetails"
       v-slot="{ template }"
     >
-      <component :is="BASKET_PRODUCT_TEMPLATES[template]" />
+      <component :is="basketProductTemplate(template)" />
     </UpmBasketProductEdit>
   </Transitions>
 </template>
@@ -15,11 +15,11 @@
 import { useI18n } from "vue-i18n";
 import { UpmBasketProductEdit } from "@upmind-automation/basket";
 import { useBrand } from "@upmind-automation/headless";
+import type { ProductDetails } from "@upmind-automation/headless";
 import { useStorefrontRoute } from "../../../../../composables/useStorefrontRoute";
 import { ROUTE } from "../../../../../funnels/types";
 import Transitions from "../../../../../shell/components/transition/Transition.vue";
-import { BASKET_PRODUCT_TEMPLATES } from "../../../../../shell/modules/basket-product/shell";
-import type { ProductDetails } from "@upmind-automation/headless";
+import { basketProductTemplate } from "../../../../../shell/modules/basket-product/shell";
 
 const { t } = useI18n();
 const { name: brandName, currency } = useBrand();

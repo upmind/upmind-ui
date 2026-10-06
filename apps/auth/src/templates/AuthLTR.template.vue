@@ -8,7 +8,6 @@
     <slot name="form" />
 
     <template #brand>
-      <slot name="markdown" />
       <slot name="summary" />
     </template>
 
@@ -21,9 +20,6 @@
 <script lang="ts" setup>
 import { AuthShell } from "@upmind/ui";
 import { useI18n } from "vue-i18n";
-import type { AuthRoutes } from "@upmind-automation/auth";
-
-defineProps<AuthRoutes>();
 
 defineOptions({ inheritAttrs: false });
 

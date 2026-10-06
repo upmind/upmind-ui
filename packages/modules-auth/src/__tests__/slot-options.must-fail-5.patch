@@ -1,0 +1,19 @@
+# Negative control — the sign-in page ignores the flush markdown the layout
+# asks for, so the brand's copy keeps a gap the layout removed.
+#
+# Intended RED:
+#   packages/modules-auth/src/__tests__/slot-options.test.ts
+#     "sets the 'login' page's markdown apart by default, and flush where the layout says"
+
+diff --git a/packages/modules-auth/src/components/Login.vue b/packages/modules-auth/src/components/Login.vue
+--- a/packages/modules-auth/src/components/Login.vue
++++ b/packages/modules-auth/src/components/Login.vue
+@@ -79,7 +79,7 @@
+     <template v-if="loginTemplate?.body" #markdown="{ flush = false }">
+       <Markdown
+         tag="section"
+-        :class="markdownVariants({ flush })"
++        :class="markdownVariants()"
+         :model-value="loginTemplate.body"
+       />
+     </template>

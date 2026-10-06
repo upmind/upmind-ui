@@ -1,16 +1,14 @@
 <template>
   <slot v-if="isResolving" name="loading"><AuthLoading /></slot>
-  <component :is="templateVariant" v-bind="templateProps" v-else>
-    <template #back>
+  <LayoutProvider v-else>
+    <slot :template="ui.template.value" />
+
+    <template #back="{ compact = false }">
       <slot name="back">
-        <!-- One-page uses the compact "← Back" per the designs; other templates
-             keep the default "Back to basket". -->
         <Back
           v-if="routingMeta.hasFunnels"
-          :label="meta.isInset ? t('action.back') : t('action.back_to_basket')"
-          :icon="meta.isInset ? 'arrow-narrow-left' : undefined"
+          v-bind="backLink(compact)"
           size="md"
-          :color="meta.isInset ? 'muted' : 'default'"
           @click.prevent="doReject"
         />
       </slot>
@@ -51,37 +49,44 @@
       </slot>
     </template>
 
-    <template #form>
+    <template
+      #form="{
+        card = false,
+        active = true,
+        guestSpacing = GUEST_CHECKOUT_SPACING.FLUSH
+      }"
+    >
       <slot name="form">
         <!-- One register form for new sign-ups AND guest-client upgrades; Auth
              picks the right form from the session machine (a guest client's
              upgrade form is owned by the client machine). Shown unless the user
-             is a fully-registered client. One-page titles it "Create Account" as
-             a card with a "Log in" cross-link (one-page drops the hero); other
-             templates keep the plain section titled "Register". -->
+             is a fully-registered client. A carded form is titled "Create
+             Account" with a "Log in" cross-link. -->
         <Section
-          :card="meta.isInset"
-          :label="
-            meta.isInset ? t('action.create_account') : t('action.register')
-          "
+          :card="card"
+          :label="t(card ? 'action.create_account' : 'action.register')"
           icon="user-03"
-          :class="sessionFormWidthVariants({ inset: meta.isInset })"
+          :class="sessionFormWidthVariants({ card })"
           v-show="!isAuthenticated || isGuestClient"
-          :active="templateMeta.hasActiveSection"
+          :active="active"
         >
-          <template v-if="meta.isInset && !isGuestClient" #actions>
+          <template v-if="card && !isGuestClient" #actions>
             <Link color="muted" size="sm" @click.prevent="doUpdate('login')">{{
               t("action.login")
             }}</Link>
           </template>
 
           <Markdown
-            v-if="templateMeta.hasActiveSection && registerTemplate?.body"
+            v-if="active && registerTemplate?.body"
             tag="div"
             :model-value="registerTemplate.body"
           />
 
-          <slot name="guest-checkout" v-bind="guestCheckoutSlot" />
+          <slot
+            name="guest-checkout"
+            v-bind="guestCheckoutSlot"
+            :class="guestCheckoutVariants({ spacing: guestSpacing })"
+          />
 
           <Account
             v-if="isGuestClient"
@@ -153,27 +158,25 @@
       <slot name="summary" v-bind="summarySlot" />
     </template>
 
-    <template
-      v-if="registerTemplate?.body && templateMeta.hasMarkdownSlot"
-      #markdown
-    >
+    <template v-if="registerTemplate?.body" #markdown="{ flush = false }">
       <Markdown
         tag="div"
-        :class="templateMeta.isSplit ? '' : markdownVariants()"
+        :class="markdownVariants({ flush })"
         :model-value="registerTemplate.body"
       />
     </template>
-  </component>
+  </LayoutProvider>
 </template>
 
 <script lang="ts" setup>
-import { Link, Markdown } from "@upmind/ui";
+import { Link, Markdown, type LinkVariants } from "@upmind/ui";
 import { Skeleton } from "@upmind/ui";
 import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { Hero } from "@upmind-automation/foundation";
 import { Back } from "@upmind-automation/foundation";
 import { Section } from "@upmind-automation/foundation";
+import { LayoutProvider } from "@upmind-automation/foundation";
 import {
   useRoutingEngine,
   useActiveSession,
@@ -184,18 +187,16 @@ import {
 } from "@upmind-automation/headless";
 import {
   useConfig,
-  validateTemplate,
   useClientTemplate,
   useBrand
 } from "@upmind-automation/headless";
-import { useAuthTemplates } from "../auth.utils";
 import {
   type AuthGuestCheckoutSlotProps,
   type AuthProps,
   type AuthSummarySlotProps,
   type AuthViewEmits,
   type AuthViewProps,
-  AUTH_TEMPLATE
+  GUEST_CHECKOUT_SPACING
 } from "../types";
 import {
   guestCheckoutVariants,
@@ -206,7 +207,6 @@ import {
 import Account from "./Account.vue";
 import Auth from "./Auth.vue";
 import AuthLoading from "./AuthLoading.vue";
-import { get, omit } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 
@@ -250,28 +250,25 @@ await isReady();
 
 const isResolving = ref(false);
 
-const template = computed(() =>
-  validateTemplate(
-    ui.template.value || props.template,
-    AUTH_TEMPLATE,
-    AUTH_TEMPLATE.TWO_COLUMN_LTR
-  )
-);
-
-const meta = computed(() => ({
-  isInset: template.value === AUTH_TEMPLATE.INSET
-}));
-
-const templateVariant = computed(() => get(props.templates, template.value));
-const templateProps = computed(() => omit(props, ["templates"]));
-
 const summarySlot: AuthSummarySlotProps = { showWhileLoading: true };
 const guestCheckoutSlot = computed<AuthGuestCheckoutSlotProps>(() => ({
   registerAsGuest,
-  isRegistering: isRegisteringAsGuest.value,
-  class: guestCheckoutVariants({ template: template.value })
+  isRegistering: isRegisteringAsGuest.value
 }));
-const { meta: templateMeta } = useAuthTemplates(template);
+
+function backLink(compact: boolean): {
+  label: string;
+  icon?: string;
+  color: LinkVariants["color"];
+} {
+  if (compact)
+    return {
+      label: t("action.back"),
+      icon: "arrow-narrow-left",
+      color: "muted"
+    };
+  return { label: t("action.back_to_basket"), color: "default" };
+}
 
 function doUpdate(value: AuthProps["modelValue"]) {
   if (value === "login") {

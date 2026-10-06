@@ -1,6 +1,6 @@
 <template>
   <LayoutProvider>
-    <slot :template="template" />
+    <slot :template="configMeta.ui.template.value" />
 
     <template #configuration>
       <slot
@@ -119,7 +119,6 @@ import {
   useProductSetup,
   useConfig,
   useRoutingEngine,
-  validateTemplate,
   DetailedError,
   responseCodes,
   ErrorOrigin
@@ -129,9 +128,9 @@ import {
   type Product,
   type UseProductConfigMeta
 } from "@upmind-automation/headless";
-import { PRODUCT_SETUP_TEMPLATE, type ProductSetupProps } from "../types";
 import ProductSetupForm from "./ProductSetupForm.vue";
 import { get } from "lodash-es";
+import type { ProductSetupProps } from "../types";
 import type { ActorRef } from "xstate";
 
 // -----------------------------------------------------------------------------
@@ -153,7 +152,7 @@ const emit = defineEmits<{
 }>();
 
 defineSlots<{
-  default(props: { template: PRODUCT_SETUP_TEMPLATE }): void;
+  default(props: { template?: string }): void;
   configuration(props: {
     product: Product | undefined;
     basketProduct: ActorRef<any, any> | undefined;
@@ -199,14 +198,6 @@ const configMeta = useConfig({
   product: () => product.value,
   provide: true
 });
-
-const template = computed(() =>
-  validateTemplate(
-    configMeta.ui.template.value || props.template,
-    PRODUCT_SETUP_TEMPLATE,
-    PRODUCT_SETUP_TEMPLATE.TWO_COLUMN_RTL
-  )
-);
 
 const currentProductTitle = computed(() =>
   get(

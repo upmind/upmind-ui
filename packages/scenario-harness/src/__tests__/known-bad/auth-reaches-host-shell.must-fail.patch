@@ -1,5 +1,5 @@
-# Negative control — `auth` reaches into an app's shell for the sign-in page
-# templates instead of taking them from its `templates` prop. Page templates are
+# Negative control — `auth` reaches into an app's shell for the sign-in layout
+# instead of handing its page the brand's raw template. Page layouts are
 # app-owned (ADR 023 Amendment 1 change 3); a package reaching them points a
 # package at an app, an edge no row of §3's grant matrix carries.
 #
@@ -9,23 +9,27 @@
 # Intended RED under lint:
 #   Import a workspace package by its published specifier — its internals are
 #   private. ("../../../../apps/cart/src/shell/modules/session/shell" resolves into apps/cart)
+
 diff --git a/packages/modules-auth/src/components/Login.vue b/packages/modules-auth/src/components/Login.vue
 --- a/packages/modules-auth/src/components/Login.vue
 +++ b/packages/modules-auth/src/components/Login.vue
-@@ -97,6 +97,7 @@
- import { Link, Markdown } from "@upmind/ui";
- import { computed, ref } from "vue";
- import { useI18n } from "vue-i18n";
-+import { SESSION_TEMPLATES } from "../../../../apps/cart/src/shell/modules/session/shell";
- import { Hero } from "@upmind-automation/foundation";
- import { Back } from "@upmind-automation/foundation";
- import { Section } from "@upmind-automation/foundation";
-@@ -170,7 +171,7 @@
-   isInset: template.value === AUTH_TEMPLATE.INSET
- }));
+@@ -1,7 +1,10 @@
+ <template>
+   <slot v-if="isResolving" name="loading"><AuthLoading /></slot>
+   <LayoutProvider v-else>
+-    <slot :template="ui.template.value" />
++    <slot
++      :template="ui.template.value"
++      :layout="sessionTemplate(ui.template.value)"
++    />
  
--const templateVariant = computed(() => get(props.templates, template.value));
-+const templateVariant = computed(() => get(SESSION_TEMPLATES, template.value));
- const templateProps = computed(() => omit(props, ["templates"]));
- 
- const summarySlot: AuthSummarySlotProps = { showWhileLoading: false };
+     <template #back="{ compact = false }">
+       <slot name="back">
+@@ -108,6 +111,7 @@
+ import { markdownVariants, sessionFormWidthVariants } from "../variants";
+ import Auth from "./Auth.vue";
+ import AuthLoading from "./AuthLoading.vue";
++import { sessionTemplate } from "../../../../apps/cart/src/shell/modules/session/shell";
+ import type {
+   AuthProps,
+   AuthSummarySlotProps,

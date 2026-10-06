@@ -5,7 +5,7 @@
     @product-details="handleProductDetails"
     v-slot="{ template }"
   >
-    <component :is="PRODUCT_TEMPLATES[template]" />
+    <component :is="productTemplate(template)" />
   </UpmProductConfigure>
 </template>
 
@@ -15,7 +15,7 @@ import { useBrand } from "@upmind-automation/headless";
 import { UpmProductConfigure } from "@upmind-automation/product";
 import { useStorefrontRoute } from "../../../composables/useStorefrontRoute";
 import { ROUTE } from "../../../funnels/types";
-import { PRODUCT_TEMPLATES } from "../../../shell/modules/product/shell";
+import { productTemplate } from "../../../shell/modules/product/shell";
 import type { ProductDetails } from "@upmind-automation/headless";
 
 const { t } = useI18n();

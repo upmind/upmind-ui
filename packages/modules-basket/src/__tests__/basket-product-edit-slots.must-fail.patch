@@ -1,0 +1,19 @@
+# Negative control — the basket product hero ignores the layout's direction, so
+# the right-to-left template's hero stays wide instead of stacking.
+#
+# Intended RED:
+#   packages/modules-basket/src/__tests__/basket-product-edit-slots.int.test.ts
+#     "draws a wide hero with its image until the layout turns it"
+
+diff --git a/packages/modules-basket/src/basket-product/Edit.vue b/packages/modules-basket/src/basket-product/Edit.vue
+--- a/packages/modules-basket/src/basket-product/Edit.vue
++++ b/packages/modules-basket/src/basket-product/Edit.vue
+@@ -19,7 +19,7 @@
+           v-if="productMeta?.isAvailable && product?.productDetails"
+           :product-details="product.productDetails"
+           :product-image="productImage()"
+-          :direction="direction"
++          :direction="PRODUCT_HERO_DIRECTION.HORIZONTAL"
+           :image="heroImage && configMeta.ui.productImages.isVisible"
+           :meta="configMeta"
+         >

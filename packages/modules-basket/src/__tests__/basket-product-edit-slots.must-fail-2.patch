@@ -1,0 +1,19 @@
+# Negative control — the basket product pricing draws its confirm unless the
+# layout turns it off, so every template draws a second confirm in its pricing.
+#
+# Intended RED:
+#   packages/modules-basket/src/__tests__/basket-product-edit-slots.int.test.ts
+#     "keeps the total and the confirm out of the pricing until the layout asks for each"
+
+diff --git a/packages/modules-basket/src/basket-product/Edit.vue b/packages/modules-basket/src/basket-product/Edit.vue
+--- a/packages/modules-basket/src/basket-product/Edit.vue
++++ b/packages/modules-basket/src/basket-product/Edit.vue
+@@ -105,7 +105,7 @@
+       </slot>
+     </template>
+ 
+-    <template #pricing="{ showTotal = false, showActions = false }">
++    <template #pricing="{ showTotal = false, showActions = true }">
+       <Section :label="t('text.configuration_summary')" icon="shopping-bag-02">
+         <slot
+           name="pricing"

@@ -1,6 +1,11 @@
+import {
+  createVariantConstants,
+  type VariantValue
+} from "@upmind-automation/foundation";
+import { guestCheckoutSpacing } from "./variants";
 import type { ButtonVariants } from "@upmind/ui";
 import type { CxOptions } from "class-variance-authority";
-import type { Component, HTMLAttributes } from "vue";
+import type { HTMLAttributes } from "vue";
 import type { RouteLocationAsRelativeGeneric } from "vue-router";
 // -----------------------------------------------------------------------------
 
@@ -69,13 +74,7 @@ export type AuthRoutes = {
   recoverRoute: RouteLocationAsRelativeGeneric;
 };
 
-/** The page templates the host hands the organisms, one per `AUTH_TEMPLATE`. */
-export type AuthTemplates = Record<AUTH_TEMPLATE, Component>;
-
-export type AuthRecoverViewProps = AuthRoutes & {
-  template?: AUTH_TEMPLATE;
-  templates: AuthTemplates;
-};
+export type AuthRecoverViewProps = AuthRoutes;
 
 export type AuthViewProps = AuthRecoverViewProps;
 
@@ -99,12 +98,9 @@ export type AuthActionProps = AuthRoutes & {
   shape?: string;
 };
 
-export enum AUTH_TEMPLATE {
-  SPLIT = "split",
-  ENCLOSED = "enclosed",
-  CANVAS_CARD = "canvas-card",
-  SURFACE_BOX = "surface-box",
-  TWO_COLUMN_LTR = "two-column-ltr",
-  TWO_COLUMN_RTL = "two-column-rtl",
-  INSET = "inset"
-}
+export const GUEST_CHECKOUT_SPACING =
+  createVariantConstants(guestCheckoutSpacing);
+
+export type GUEST_CHECKOUT_SPACING = VariantValue<
+  typeof GUEST_CHECKOUT_SPACING
+>;

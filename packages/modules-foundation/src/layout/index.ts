@@ -8,6 +8,7 @@ export { default as Container } from "./components/container/Container.vue";
 export { default as Ribbon } from "./components/ribbon/Ribbon.vue";
 
 export { useLayout } from "./useLayout";
+export { resolveTemplate } from "./resolveTemplate";
 
 export { LAYOUT_VARIANTS, LAYOUT_MODE, LAYOUT_OVERFLOW } from "./types";
 export type { LayoutProps, UseLayoutProps } from "./types";

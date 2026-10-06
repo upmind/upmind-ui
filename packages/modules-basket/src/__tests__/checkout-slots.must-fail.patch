@@ -1,0 +1,20 @@
+# Negative control — checkout draws the compact back link unless the layout
+# says otherwise, so every checkout but the inset one loses its "back to basket".
+#
+# Intended RED:
+#   packages/modules-basket/src/__tests__/checkout-slots.int.test.ts
+#     "draws the full back link until the layout asks for the compact one"
+#     "draws the back link, the sections and the priced products, each in its own frame"
+
+diff --git a/packages/modules-basket/src/checkout/Checkout.vue b/packages/modules-basket/src/checkout/Checkout.vue
+--- a/packages/modules-basket/src/checkout/Checkout.vue
++++ b/packages/modules-basket/src/checkout/Checkout.vue
+@@ -2,7 +2,7 @@
+   <LayoutProvider>
+     <slot :template="ui.template.value" />
+ 
+-    <template #back="{ compact = false }">
++    <template #back="{ compact = true }">
+       <slot name="back">
+         <Back
+           v-if="compact"

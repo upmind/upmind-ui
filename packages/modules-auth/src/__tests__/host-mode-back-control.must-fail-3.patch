@@ -9,10 +9,10 @@ diff --git a/packages/modules-auth/src/components/Register.vue b/packages/module
 --- a/packages/modules-auth/src/components/Register.vue
 +++ b/packages/modules-auth/src/components/Register.vue
 @@ -6,7 +6,6 @@
-         <!-- One-page uses the compact "← Back" per the designs; other templates
-              keep the default "Back to basket". -->
+     <template #back="{ compact = false }">
+       <slot name="back">
          <Back
 -          v-if="routingMeta.hasFunnels"
-           :label="meta.isInset ? t('action.back') : t('action.back_to_basket')"
-           :icon="meta.isInset ? 'arrow-narrow-left' : undefined"
+           v-bind="backLink(compact)"
            size="md"
+           @click.prevent="doReject"

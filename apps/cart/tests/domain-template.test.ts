@@ -40,7 +40,8 @@ describe("domainTemplate", () => {
 
   it.each([
     ["a template only other pages carry", "two-column-rtl"],
-    ["a name no layout carries", "not-a-template"]
+    ["a name no layout carries", "not-a-template"],
+    ["a name every object inherits", "constructor"]
   ])("draws the full layout for %s", (_case, template) => {
     expect(domainTemplate(template)).toBe(DomainFull);
   });

@@ -1,9 +1,10 @@
 // -----------------------------------------------------------------------------
 /**
  * @module __tests__/support/auth-host
- * @description Mounts one auth page the way a host page does: a `templates`
- * record, the three route props, optional slot fills, and `headless` stood in
- * for by the state below. The test file installs the mocks with
+ * @description Mounts one auth page the way a host page does: the three route
+ * props, a default slot that draws the layout the host picks for the brand's
+ * raw template, optional slot fills, and `headless` stood in for by the state
+ * below. The test file installs the mocks with
  * `vi.mock(..., () => import("./support/auth-host").then(...))`.
  */
 
@@ -12,17 +13,16 @@ import { vi } from "vitest";
 import { Suspense, computed, defineComponent, h, reactive, ref } from "vue";
 import { createI18n } from "vue-i18n";
 import { createMemoryHistory, createRouter } from "vue-router";
-import { AUTH_TEMPLATE } from "../../types";
 import {
   assign,
   forEach,
   get,
   includes,
   isString,
+  isUndefined,
   map,
   startsWith
 } from "lodash-es";
-import type { AuthTemplates } from "../../types";
 import type { VueWrapper } from "@vue/test-utils";
 import type { Component, Slot } from "vue";
 
@@ -59,13 +59,15 @@ type HostState = {
   brandTemplate: string;
   basketSummaryVisible: boolean;
   isRegisteringAsGuest: boolean;
+  clientTemplateBody: string | undefined;
 };
 
 const HOST_DEFAULTS: HostState = {
   hasFunnels: true,
   brandTemplate: "",
   basketSummaryVisible: false,
-  isRegisteringAsGuest: false
+  isRegisteringAsGuest: false,
+  clientTemplateBody: undefined
 };
 
 /** What the stood-in `headless` answers; reset with `resetHost()`. */
@@ -120,6 +122,12 @@ function metaBag(): Record<string, unknown> {
       }
     }
   );
+}
+
+/** The brand's client template for the page, when the host gives it a body. */
+function clientTemplate(): { body: string } | undefined {
+  if (isUndefined(host.clientTemplateBody)) return undefined;
+  return { body: host.clientTemplateBody };
 }
 
 /** Replaces the `headless` composables the auth pages read. */
@@ -189,7 +197,7 @@ export function headlessOverrides(): Record<string, unknown> {
     useClientTemplate: () => ({
       isReady: () => Promise.resolve(true),
       meta: computed(() => ({ isAvailable: false })),
-      data: computed(() => undefined),
+      data: computed(() => clientTemplate()),
       template: computed(() => undefined),
       content: computed(() => undefined)
     }),
@@ -225,55 +233,38 @@ export function routingEngine() {
 
 // -----------------------------------------------------------------------------
 
-export type SeenTemplate = {
-  name: string;
-  props: Record<string, unknown>;
-  attrs: Record<string, unknown>;
-};
+export type Region = (typeof REGIONS)[number];
 
-export const seen: SeenTemplate[] = [];
+export type SlotOptions = Partial<Record<Region, Record<string, unknown>>>;
 
-/** A template that marks itself and draws every region the pages fill. */
-export function recordingTemplate(name: string): Component {
+/** Every raw template value the page handed its default slot, in order. */
+export const handed: unknown[] = [];
+
+/** A layout that marks itself and draws each region the page fills with the options given for it. */
+export function recordingLayout(
+  name: string,
+  options: SlotOptions = {}
+): Component {
   return defineComponent({
-    name: `Template-${name}`,
-    inheritAttrs: false,
-    props: {
-      loginRoute: { type: Object, default: undefined },
-      registerRoute: { type: Object, default: undefined },
-      recoverRoute: { type: Object, default: undefined },
-      template: { type: String, default: undefined }
-    },
-    setup(props, { attrs, slots }) {
-      seen.push({ name, props: assign({}, props), attrs: assign({}, attrs) });
+    name: `Layout-${name}`,
+    setup(_props, { slots }) {
       return () =>
         h(
           "div",
           { [TEMPLATE_KEY]: name },
           map(REGIONS, region => {
             const slot: Slot | undefined = get(slots, region);
-            return slot ? h("section", { [REGION_KEY]: region }, slot()) : null;
+            return slot
+              ? h(
+                  "section",
+                  { [REGION_KEY]: region },
+                  slot(get(options, region, {}))
+                )
+              : null;
           })
         );
     }
   });
-}
-
-/** One recording template per `AUTH_TEMPLATE` name. */
-export function recordingTemplates(): AuthTemplates {
-  return {
-    [AUTH_TEMPLATE.SPLIT]: recordingTemplate(AUTH_TEMPLATE.SPLIT),
-    [AUTH_TEMPLATE.ENCLOSED]: recordingTemplate(AUTH_TEMPLATE.ENCLOSED),
-    [AUTH_TEMPLATE.CANVAS_CARD]: recordingTemplate(AUTH_TEMPLATE.CANVAS_CARD),
-    [AUTH_TEMPLATE.SURFACE_BOX]: recordingTemplate(AUTH_TEMPLATE.SURFACE_BOX),
-    [AUTH_TEMPLATE.TWO_COLUMN_LTR]: recordingTemplate(
-      AUTH_TEMPLATE.TWO_COLUMN_LTR
-    ),
-    [AUTH_TEMPLATE.TWO_COLUMN_RTL]: recordingTemplate(
-      AUTH_TEMPLATE.TWO_COLUMN_RTL
-    ),
-    [AUTH_TEMPLATE.INSET]: recordingTemplate(AUTH_TEMPLATE.INSET)
-  };
 }
 
 // -----------------------------------------------------------------------------
@@ -294,15 +285,16 @@ export type Rendered = {
   errors: unknown[];
 };
 
+/** Draws `view` as a host page does; `layout` replaces the recording layout named after the raw template. */
 export async function renderPage(
   view: Component,
   options: {
-    templates?: AuthTemplates;
+    layout?: Component;
     slots?: Record<string, Slot>;
     props?: Record<string, unknown>;
   } = {}
 ): Promise<Rendered> {
-  seen.length = 0;
+  handed.length = 0;
   const errors: unknown[] = [];
   const router = createRouter({
     history: createMemoryHistory(),
@@ -316,7 +308,10 @@ export async function renderPage(
   await router.push(START);
   await router.isReady();
 
-  const templates = options.templates ?? recordingTemplates();
+  const pageSlot = ({ template }: { template?: unknown }) => {
+    handed.push(template);
+    return h(options.layout ?? recordingLayout(String(template)));
+  };
   const Host = defineComponent({
     setup() {
       return () =>
@@ -324,8 +319,8 @@ export async function renderPage(
           default: () =>
             h(
               view,
-              assign({}, ROUTES, { templates }, options.props),
-              options.slots
+              assign({}, ROUTES, options.props),
+              assign({ default: pageSlot }, options.slots)
             ),
           fallback: () => h("div", { "data-suspended": "" })
         });
@@ -362,6 +357,6 @@ export function templateDrawn(rendered: Rendered): string | undefined {
   return drawn.attributes(TEMPLATE_KEY);
 }
 
-export function region(rendered: Rendered, name: (typeof REGIONS)[number]) {
+export function region(rendered: Rendered, name: Region) {
   return rendered.wrapper.find(`[${REGION_KEY}="${name}"]`);
 }

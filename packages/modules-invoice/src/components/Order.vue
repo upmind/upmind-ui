@@ -1,6 +1,6 @@
 <template>
   <LayoutProvider>
-    <slot :template="template" />
+    <slot :template="configMeta.ui.template.value" />
 
     <template #order-summary>
       <Hero
@@ -213,7 +213,6 @@ import {
   useTransfer,
   useInvoice,
   useUrl,
-  validateTemplate,
   QUERY_PARAMS,
   ScopeActorTypes,
   UIContext,
@@ -223,7 +222,6 @@ import {
 import { useConfig } from "@upmind-automation/headless";
 import { UpmPaymentDetails } from "@upmind-automation/payment";
 import { UpmPaymentProcessing } from "@upmind-automation/payment";
-import { ORDER_TEMPLATE } from "../types";
 import {
   detailsTotalRootVariants,
   detailsTotalLabelVariants,
@@ -314,14 +312,6 @@ const configMeta = useConfig({
   context: UIContext.CONFIRMATION,
   provide: true
 });
-
-const template = computed(() =>
-  validateTemplate(
-    props.template || configMeta.ui.template.value,
-    ORDER_TEMPLATE,
-    ORDER_TEMPLATE.TWO_COLUMN_RTL
-  )
-);
 
 const badge = computed<Badge>(() => {
   if (orderMeta.value.isComplete)

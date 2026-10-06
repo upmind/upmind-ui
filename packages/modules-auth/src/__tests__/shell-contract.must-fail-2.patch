@@ -1,0 +1,19 @@
+# Negative control — the sign-in page draws its form under a slot name no layout
+# carries, so the layout the host picks shows no form.
+#
+# Intended RED:
+#   packages/modules-auth/src/__tests__/shell-contract.test.ts
+#     "the login page > draws its own form and hero inside the layout the host picks"
+
+diff --git a/packages/modules-auth/src/components/Login.vue b/packages/modules-auth/src/components/Login.vue
+--- a/packages/modules-auth/src/components/Login.vue
++++ b/packages/modules-auth/src/components/Login.vue
+@@ -34,7 +34,7 @@
+       </slot>
+     </template>
+ 
+-    <template #form="{ card = false, active = true }">
++    <template #login-form="{ card = false, active = true }">
+       <slot name="form">
+         <Section
+           :card="card"

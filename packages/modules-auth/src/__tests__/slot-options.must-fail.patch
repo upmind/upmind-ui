@@ -1,0 +1,19 @@
+# Negative control — the sign-in page ignores the compact back link the layout
+# asks for and always draws the long one.
+#
+# Intended RED:
+#   packages/modules-auth/src/__tests__/slot-options.test.ts
+#     "draws the 'login' page's full back link by default, and the compact one where the layout says"
+
+diff --git a/packages/modules-auth/src/components/Login.vue b/packages/modules-auth/src/components/Login.vue
+--- a/packages/modules-auth/src/components/Login.vue
++++ b/packages/modules-auth/src/components/Login.vue
+@@ -7,7 +7,7 @@
+       <slot name="back">
+         <Back
+           v-if="routingMeta.hasFunnels"
+-          v-bind="backLink(compact)"
++          v-bind="backLink(false)"
+           size="md"
+           @click.prevent="doReject"
+         />

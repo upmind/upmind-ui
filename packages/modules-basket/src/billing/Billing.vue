@@ -1,6 +1,6 @@
 <template>
   <LayoutProvider>
-    <slot :template="template" />
+    <slot :template="ui.template.value" />
 
     <template v-if="!isSlotHidden('hero')" #hero>
       <slot name="hero">
@@ -25,12 +25,12 @@
       </slot>
     </template>
 
-    <template #back>
+    <template #back="{ showBack = false }">
       <slot name="back">
         <!-- One-page reaches billing as a checkout sub-step, so it needs a Back;
              stepped billing templates never showed one. -->
         <Back
-          v-if="template === BILLING_TEMPLATE.INSET"
+          v-if="showBack"
           :label="t('action.back')"
           icon="arrow-narrow-left"
           size="md"
@@ -39,18 +39,14 @@
       </slot>
     </template>
 
-    <template #content>
+    <template #content="{ card = false, inline = true, inlineEditing = false }">
       <slot name="content">
         <BillingForm
           expand
           :auto-update="false"
-          :card="template === BILLING_TEMPLATE.INSET"
-          :inline="
-            template === BILLING_TEMPLATE.INSET ||
-            template === BILLING_TEMPLATE.ENCLOSED ||
-            template === BILLING_TEMPLATE.FULL
-          "
-          :inline-editing="template === BILLING_TEMPLATE.INSET"
+          :card="card"
+          :inline="inline"
+          :inline-editing="inlineEditing"
           @resolve="navigateNext()"
         />
       </slot>
@@ -70,15 +66,7 @@
 
     <template #content-footer>
       <slot name="content-footer">
-        <div
-          id="billing-actions"
-          :class="
-            template === BILLING_TEMPLATE.ENCLOSED ||
-            template === BILLING_TEMPLATE.FULL
-              ? 'max-w-3xl'
-              : ''
-          "
-        />
+        <div id="billing-actions" />
       </slot>
     </template>
   </LayoutProvider>
@@ -87,19 +75,13 @@
 <script lang="ts" setup>
 import { useTestAttrs } from "@upmind/ui";
 import { Markdown } from "@upmind/ui";
-import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { Hero } from "@upmind-automation/foundation";
 import { Back } from "@upmind-automation/foundation";
 import { LayoutProvider } from "@upmind-automation/foundation";
-import {
-  useConfig,
-  useRoutingEngine,
-  validateTemplate
-} from "@upmind-automation/headless";
+import { useConfig, useRoutingEngine } from "@upmind-automation/headless";
 import { UIContext } from "@upmind-automation/headless";
 import BillingForm from "./components/BillingForm.vue";
-import { BILLING_TEMPLATE } from "./types";
 import { includes } from "lodash-es";
 import type { BillingProps } from "./types";
 
@@ -120,12 +102,4 @@ const { ui, data } = useConfig({
 const isSlotHidden = (name: string) => includes(props.hideSlots, name);
 
 const summaryAppendTestAttrs = useTestAttrs({ key: "slots:summary-append" });
-
-const template = computed(() =>
-  validateTemplate(
-    ui.template.value || props.template,
-    BILLING_TEMPLATE,
-    BILLING_TEMPLATE.TWO_COLUMN_RTL
-  )
-);
 </script>

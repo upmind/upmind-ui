@@ -1,9 +1,8 @@
 Negative control for catalogue-template.test.ts.
 
-Looks the brand's template up in the layout record unchecked, so the full
-layout is no longer the fallback: no template, an empty one, or a name no
-catalogue layout carries draws no layout, and an inherited name such as
-`constructor` draws a non-layout. The full template still draws its own layout.
+Declares the pick with a fallback its record does not carry, so a brand with no
+template, an empty one, or a name the page does not lay out gets no layout
+instead of the full one. The full template still draws its own layout.
 
 Intended RED (catalogue-template.test.ts, "catalogueTemplate"):
   draws the full layout for no template
@@ -12,25 +11,15 @@ Intended RED (catalogue-template.test.ts, "catalogueTemplate"):
   draws the full layout for a name no layout carries
   draws the full layout for a name every object inherits
 Intended GREEN:
-  draws the layout the full template carries
+  draws the layout the <each> template carries
 
 diff --git a/apps/cart-nuxt/app/shell/modules/catalogue/shell.ts b/apps/cart-nuxt/app/shell/modules/catalogue/shell.ts
 --- a/apps/cart-nuxt/app/shell/modules/catalogue/shell.ts
 +++ b/apps/cart-nuxt/app/shell/modules/catalogue/shell.ts
-@@ -4,7 +4,6 @@
-  * @description The catalogue page template this app hands `@upmind-automation/catalogue`.
-  */
+@@ -15,5 +15,5 @@
  
--import { validateTemplate } from "@upmind-automation/headless";
- import CatalogueFullTemplate from "./templates/CatalogueFull.template.vue";
- import { CATALOGUE_TEMPLATE } from "./types";
- import type { Component } from "vue";
-@@ -14,7 +13,5 @@ export const CATALOGUE_TEMPLATES: Record<CATALOGUE_TEMPLATE, Component> = {
- };
- 
- export function catalogueTemplate(template?: string): Component {
--  return CATALOGUE_TEMPLATES[
--    validateTemplate(template, CATALOGUE_TEMPLATE, CATALOGUE_TEMPLATE.FULL)
--  ];
-+  return CATALOGUE_TEMPLATES[template as CATALOGUE_TEMPLATE];
- }
+ export const catalogueTemplate = resolveTemplate(
+   CATALOGUE_TEMPLATES,
+-  CATALOGUE_TEMPLATE.FULL
++  "two-column-rtl" as CATALOGUE_TEMPLATE
+ );

@@ -22,33 +22,17 @@ export { default as UpmGuestCheckoutOffer } from "./checkout/components/GuestChe
 export { default as UpmCheckoutPricing } from "./checkout/components/CheckoutPricing.vue";
 
 // --- Export Types
-export { BASKET_TEMPLATE } from "./types";
-export type { BasketTemplates } from "./types";
+export type { BillingFormProps, BillingProps } from "./billing/types";
 
-export { BASKET_PRODUCT_TEMPLATE } from "./basket-product/types";
-export type { BasketProductTemplates } from "./basket-product/types";
-
-export { BILLING_TEMPLATE } from "./billing/types";
-export type {
-  BillingFormProps,
-  BillingProps,
-  BillingTemplates
-} from "./billing/types";
-
-export { CHECKOUT_TEMPLATE } from "./checkout/types";
 export type {
   CheckoutBillingProps,
   CheckoutContentProps,
-  CheckoutHeroProps,
   CheckoutPricingProps,
   CheckoutProductSetupProps,
-  CheckoutTemplates,
   GuestEmailProps
 } from "./checkout/types";
 
-export { PRODUCT_SETUP_TEMPLATE } from "./product-setup/types";
 export type {
   ProductSetupFormProps,
-  ProductSetupProps,
-  ProductSetupTemplates
+  ProductSetupProps
 } from "./product-setup/types";

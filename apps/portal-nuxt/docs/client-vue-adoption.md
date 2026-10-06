@@ -18,10 +18,11 @@ Ruled 2026-09-07: "we don't need to mock the client-vue components, as they are 
 | `/register`                                                          | `UpmAuthRegister` (`@upmind-automation/auth`)                                                | `auth`                                                             | none: `pages/register.vue` mounts it  |
 | `/forgotten-password`                                                | `UpmAuthRecoverPassword` (`@upmind-automation/auth`)                                         | `auth`                                                             | none: `pages/forgotten-password.vue` mounts it |
 | `/logout`                                                            | none: `pages/logout.vue` calls `useActiveSession().useActions().logout()`                    | `session-store`                                                    | none                                  |
-| `/billing/payment-methods`                                           | `PaymentDetails`, `StoredPaymentMethods`                                                     | `payment-details`, `payment-gateways`                              | `config/billing-pages.ts`             |
+| `/billing/payment-methods`                                           | none: no package draws a saved-cards manager (see Payment below)                             | `payment-details`, `payment-gateways`                              | `config/billing-pages.ts`             |
 | invoice Pay (document control, list row, `?init=pay`)                | `PaymentDetails`, `PaymentAmount`, `AccountCredit`, `PaymentGateways`                        | `payment`, `invoices`                                              | `MOCK_ACTION.PAY_INVOICE` → prose     |
 | product settings — payment method                                    | `StoredPaymentMethods`                                                                       | `payment-details`                                                  | `config/product-pages.ts`             |
-| `/billing/orders`, `/billing/orders/[id]`                            | `UpmOrder` (`Order`, `OrderProducts`)                                                        | `orders`                                                           | `config/billing-pages.ts`             |
+| `/billing/orders`                                                    | none: no package draws an order list (see Orders below)                                      | `invoices`                                                         | `config/billing-pages.ts`             |
+| `/billing/orders/[oid]`                                              | `UpmOrder` (`@upmind-automation/invoice`)                                                    | `invoices`                                                         | none: `pages/billing/orders/[oid].vue` mounts it |
 | product `setup` area                                                 | **mocked** — `UpmProductSetup` is basket-only and never served this page (see below)        | `product-setup`                                                    | `config/product-pages.ts`             |
 | billing entity — "Add company" door                                  | `UpmBilling` company form                                                                    | `client-company`                                                   | `MOCK_ACTION.CLIENT_VUE_STUB` → prose |
 
@@ -64,6 +65,11 @@ portal ships the family.
 
 ### Payment
 
+`/billing/payment-methods` renders the stub. The sandbox does not mock the saved-cards
+manager, because the payment family is not mocked. No package publishes one either:
+`@upmind-automation/payment` keeps `StoredPaymentMethods` internal, as the card chooser
+inside `PaymentDetails`. The stored-card lines below are the gap.
+
 - Pay an invoice in another currency the brand publishes a rate for; refuse a currency
   without one.
 - Partial payments behind `PARTIAL_PAYMENTS_ENABLED`, with a minimum, and an additional
@@ -85,6 +91,10 @@ portal ships the family.
   delegated document and while a payment clears.
 
 ### Orders
+
+`/billing/orders` renders the stub. `UpmOrder` shows one order, so no package draws the
+list, and the sandbox draws no mock list in its place. `/billing/orders/[oid]` mounts the
+real `UpmOrder`. The list lines below are the gap.
 
 - The order list with search, status filter and sort; standing per order (paid, pending
   payment, payment failed, partly paid, not paid, not paid with no gateways).

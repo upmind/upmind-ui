@@ -1,7 +1,7 @@
 // -----------------------------------------------------------------------------
 /**
  * @module product/__tests__/mount-configure
- * @description The shared harness the recorded integration specs mount the product page through, in the page's short form: `UpmProductConfigure` with the brand template's layout, self-closing, in its slot; the layout skips an empty slot as develop's layouts do.
+ * @description The shared harness the recorded integration specs mount the product page through, in the page's short form: `UpmProductConfigure` with one self-closing layout in its slot, named for the raw template the organism hands it; the layout sets each slot's options as given, and skips an empty slot as develop's layouts do.
  */
 
 import { mount } from "@vue/test-utils";
@@ -14,10 +14,20 @@ import {
   useRoutingEngine,
   useSessionStore
 } from "@upmind-automation/headless";
-import { PRODUCT_TEMPLATE, UpmProductConfigure } from "../index";
-import { assign, every, filter, has, isEmpty, map, reject } from "lodash-es";
-import type { ConfigureProps, ProductTemplates } from "../index";
-import type { RawSlots, Slots, VNode } from "vue";
+import { UpmProductConfigure } from "../index";
+import {
+  assign,
+  every,
+  filter,
+  get,
+  has,
+  isEmpty,
+  join,
+  map,
+  reject
+} from "lodash-es";
+import type { ConfigureProps } from "../index";
+import type { RawSlots, VNode } from "vue";
 
 // -----------------------------------------------------------------------------
 
@@ -37,38 +47,39 @@ const isBlank = (vnode: VNode) =>
   vnode.type === Comment ||
   (vnode.type === Fragment && isEmpty(vnode.children));
 
+export type SlotOptions = Record<string, Record<string, unknown>>;
+
+/** Every raw template the organism handed its slot, in order. */
+export const handed: unknown[] = [];
+
 /** Empty as develop's layouts judge a slot (its `isEmptySlot`): absent, no vnodes, or only comments and empty fragments. */
-function isEmptySlot(name: string, slots: Slots): boolean {
-  const vnodes = slots[name]?.();
+function isEmptySlot(vnodes: VNode[] | undefined): boolean {
   return isEmpty(vnodes) || every(vnodes, isBlank);
 }
 
-/** One template's layout: it lists every slot it receives, and draws a frame for each one that is not empty. */
-const layoutFor = (template: PRODUCT_TEMPLATE) =>
+/** The page's layout: it lists every slot it receives, renders each with its options, and draws a frame for each one that is not empty. */
+const layoutWith = (options: SlotOptions) =>
   defineComponent({
-    setup(_props, { slots }) {
+    props: { template: { type: String, required: true } },
+    setup(props, { slots }) {
       return () => {
-        const handed = filter(LAYOUT_SLOTS, name => has(slots, name));
-        const drawn = reject(handed, name => isEmptySlot(name, slots));
+        const received = filter(LAYOUT_SLOTS, name => has(slots, name));
+        const rendered = map(received, name => ({
+          name,
+          vnodes: slots[name]?.(get(options, name, {}))
+        }));
+        const drawn = reject(rendered, slot => isEmptySlot(slot.vnodes));
 
         return h(
           "div",
-          { "data-layout": template, "data-slots": handed.join(" ") },
-          map(drawn, name =>
-            h("section", { "data-frame": name }, slots[name]?.())
+          { "data-layout": props.template, "data-slots": join(received, " ") },
+          map(drawn, slot =>
+            h("section", { "data-frame": slot.name }, slot.vnodes)
           )
         );
       };
     }
   });
-
-const PRODUCT_LAYOUTS: ProductTemplates = {
-  [PRODUCT_TEMPLATE.FULL]: layoutFor(PRODUCT_TEMPLATE.FULL),
-  [PRODUCT_TEMPLATE.TWO_COLUMN_LTR]: layoutFor(PRODUCT_TEMPLATE.TWO_COLUMN_LTR),
-  [PRODUCT_TEMPLATE.TWO_COLUMN_RTL]: layoutFor(PRODUCT_TEMPLATE.TWO_COLUMN_RTL),
-  [PRODUCT_TEMPLATE.ENCLOSED]: layoutFor(PRODUCT_TEMPLATE.ENCLOSED),
-  [PRODUCT_TEMPLATE.INSET]: layoutFor(PRODUCT_TEMPLATE.INSET)
-};
 
 export const BOOTED = 30000;
 
@@ -93,9 +104,15 @@ export type MountOptions = {
   props?: Pick<ConfigureProps, "hideSlots" | "hideTerms">;
   /** The page's own slots on the layout; with none the layout is self-closing. */
   overrides?: RawSlots;
+  /** The options the layout sets on each slot it renders. */
+  slotOptions?: SlotOptions;
 };
 
-export function mountConfigure({ props = {}, overrides }: MountOptions = {}) {
+export function mountConfigure({
+  props = {},
+  overrides,
+  slotOptions = {}
+}: MountOptions = {}) {
   const i18n = createI18n({
     legacy: false,
     locale: "en",
@@ -114,6 +131,8 @@ export function mountConfigure({ props = {}, overrides }: MountOptions = {}) {
   });
 
   const captured: unknown[] = [];
+  const Layout = layoutWith(slotOptions);
+  handed.length = 0;
 
   const Host = defineComponent({
     errorCaptured(error) {
@@ -135,8 +154,10 @@ export function mountConfigure({ props = {}, overrides }: MountOptions = {}) {
                 props
               ),
               {
-                default: ({ template }: { template: PRODUCT_TEMPLATE }) =>
-                  h(PRODUCT_LAYOUTS[template], null, overrides)
+                default: ({ template }: { template?: unknown }) => {
+                  handed.push(template);
+                  return h(Layout, { template: String(template) }, overrides);
+                }
               }
             ),
           fallback: () => h("div", { "data-test-key": "configure-pending" })
