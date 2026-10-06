@@ -20,6 +20,7 @@ import { tester as imageTester } from "./ImageRenderer.vue";
 import LookupRenderer from "./LookupRenderer.vue";
 import { tester as lookupTester } from "./LookupRenderer.vue";
 import type { FormRendererEntry } from "./types";
+// -----------------------------------------------------------------------------
 
 export type { FormRendererEntry } from "./types";
 export * from "./useFormRenderers";

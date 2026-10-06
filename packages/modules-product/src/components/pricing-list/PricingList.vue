@@ -46,18 +46,18 @@ import type {
 
 // New DescriptionList is compositional, so the row data is plain shape — the
 // old lib's DescriptionItem type (now a component name) no longer applies.
-interface SummaryItem {
+type SummaryItem = {
   term?: string;
   description: string;
   dataAttrs?: Record<string, string>;
-}
-
-const { t: _t } = useI18n();
+};
 
 const props = withDefaults(defineProps<PricingListProps>(), {
   options: true,
   fields: true
 });
+
+const { t: _t } = useI18n();
 
 const summary = computed<SummaryItem[]>(() => {
   let details = omitBy(props.details, (detail: ProductSummaryDetail) =>

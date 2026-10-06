@@ -16,6 +16,7 @@
 
 import { PRIMITIVE_ID } from "../../types";
 import type { AreaOverride } from "../../types";
+// -----------------------------------------------------------------------------
 
 export const DETAIL_AREA_OVERRIDE: AreaOverride = {
   [PRIMITIVE_ID.UTILITY]: false

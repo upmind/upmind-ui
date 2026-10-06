@@ -196,6 +196,8 @@ const skipDocument = A.docsDone === true;
 // behaviour escalates to the operator rather than cycling again.
 const MAX_CYCLES = 3;
 
+const MODULE_GATE_CMD = `node etc/ci/lint/factory-module-gate.mjs --module ${target}`;
+const MODULE_GATE_BRIEF = `Run \`${MODULE_GATE_CMD}\` from the worktree root, exactly as written, after your last change, and report it as moduleGate: the command you ran, its exit code, and every RED row. Every lint error it reports is yours to fix, old or new: a pre-existing error in this module is in scope. Never add an eslint-disable line or a suppression-ledger entry to make it pass.`;
 const FACTS = `Story: ${id}. Worktree: ${worktree}. Module: ${target}. Mode: ${mode}. Variant: ${variant}. Cells: ${cells}.`;
 
 // Every seat brief states the JTBD verbatim and frames its gate field as
@@ -247,6 +249,20 @@ const GATE = {
 // landed parity table, never by trusting the recorded block. A mismatch is a
 // gate failure surfaced with BOTH determinations shown, never a silent pick
 // (rules/agent-behavior.md §1 — contradiction escalates).
+// The factory module gate (etc/ci/lint/factory-module-gate.mjs, FE-3227 G5):
+// the repo's own lint over the module with NO suppressions ledger, plus the
+// checks ESLint cannot see. A seat runs it and reports it verbatim; the lane
+// checks the command it ran, so a narrowed command is caught.
+const MODULE_GATE_RESULT = {
+  type: "object",
+  properties: {
+    command: { type: "string" },
+    exit: { type: "number" },
+    rows: { type: "array", items: { type: "string" } }
+  },
+  required: ["command", "exit", "rows"]
+};
+
 const CODE_GATE = {
   type: "object",
   properties: {
@@ -265,7 +281,8 @@ const CODE_GATE = {
         violations: { type: "array", items: { type: "string" } }
       },
       required: ["exit", "violations"]
-    }
+    },
+    moduleGate: MODULE_GATE_RESULT
   },
   required: [
     "pass",
@@ -273,7 +290,8 @@ const CODE_GATE = {
     "diffFileCount",
     "handOffFiled",
     "buildExit",
-    "templateConformance"
+    "templateConformance",
+    "moduleGate"
   ]
 };
 
@@ -321,6 +339,13 @@ const VERDICT_GATE = {
     ...FINDINGS
   },
   required: ["verdict", "summary"]
+};
+
+// Verify also re-runs the module gate on the commit it grades.
+const VERIFY_GATE = {
+  ...VERDICT_GATE,
+  properties: { ...VERDICT_GATE.properties, moduleGate: MODULE_GATE_RESULT },
+  required: [...VERDICT_GATE.required, "moduleGate"]
 };
 
 // Review: pass-and-surface — a deviation carrying a complete @decision is not a
@@ -615,7 +640,7 @@ if (!planApproved) {
 if (!skipCode) {
   phase("Code");
   results.code = await agent(
-    `Invoke /upmind-agent:code for story ${id}. ${FACTS} ${JTBD} ${INPUTS} ${BOUNDS} ${DOCTRINE} Spec: ${sddDir}. Template: ${templateDir}. Machine: ${machine}. The template is the shape contract: run the plugin's ci/scaffold-module.mjs against it before your first write (never hand-copy), fill the slots only, and run ci/lint-template-conformance.mjs against the landed module before reporting — report its exit code and every violation row as templateConformance. THREE things bind this stage. (1) Re-derive the arms determination independently from the landed parity table against the variance-law clauses themselves — never by trusting the recorded block; report armsMismatch with both determinations if they differ, and stop. (2) The scope block comes from the ORACLE, never the template's placeholder enum: where the oracle names entities the actor may act for, mint the context enum and matrix from exactly those; where it names none and the composable reads one record by id, mint NO context enum and an all-never item matrix you still pass as TMatrix; where it names none and it is not a single-record read, STOP and ask the operator rather than minting a context type to fill the slot. A minted context with no oracle behind it is a claimed capability that does not exist. (3) The criteria schema owns ALL request state — filters, sort, pagination, limit — and every one reaches the wire only through list({ criteria: { schema } }); a hand-rolled filter ref, a filter[...] string or a raw sort/limit literal beside the channel is a defect here. Author every negative-control mutant yourself as <spec-basename>.must-fail.patch beside the spec it must flip — you know the mutated line; the prover applies them blind. File the public-surface hand-off for the prover. The hand-off IS the HANDOFF block in your reply (agents/developer.md step 5), never a file under docs/: set handOffFiled true once your reply carries it. A decision you may not file under docs/ goes in your reply under DECISIONS; the door files it. Run the FULL monorepo build and report its exit code. Work only in the worktree. Commit as you go.`,
+    `Invoke /upmind-agent:code for story ${id}. ${FACTS} ${JTBD} ${INPUTS} ${BOUNDS} ${DOCTRINE} Spec: ${sddDir}. Template: ${templateDir}. Machine: ${machine}. The template is the shape contract: run the plugin's ci/scaffold-module.mjs against it before your first write (never hand-copy), fill the slots only, and run ci/lint-template-conformance.mjs against the landed module before reporting — report its exit code and every violation row as templateConformance. THREE things bind this stage. (1) Re-derive the arms determination independently from the landed parity table against the variance-law clauses themselves — never by trusting the recorded block; report armsMismatch with both determinations if they differ, and stop. (2) The scope block comes from the ORACLE, never the template's placeholder enum: where the oracle names entities the actor may act for, mint the context enum and matrix from exactly those; where it names none and the composable reads one record by id, mint NO context enum and an all-never item matrix you still pass as TMatrix; where it names none and it is not a single-record read, STOP and ask the operator rather than minting a context type to fill the slot. A minted context with no oracle behind it is a claimed capability that does not exist. (3) The criteria schema owns ALL request state — filters, sort, pagination, limit — and every one reaches the wire only through list({ criteria: { schema } }); a hand-rolled filter ref, a filter[...] string or a raw sort/limit literal beside the channel is a defect here. Author every negative-control mutant yourself as <spec-basename>.must-fail.patch beside the spec it must flip — you know the mutated line; the prover applies them blind. File the public-surface hand-off for the prover. The hand-off IS the HANDOFF block in your reply (agents/developer.md step 5), never a file under docs/: set handOffFiled true once your reply carries it. A decision you may not file under docs/ goes in your reply under DECISIONS; the door files it. Run the FULL monorepo build and report its exit code. Work only in the worktree. Commit as you go. ${MODULE_GATE_BRIEF}`,
     {
       agentType: "upmind-agent:developer",
       model: "sonnet",
@@ -639,6 +664,23 @@ if (!skipCode) {
   // A red conformance lint does not halt: its rows go to the Template review,
   // which grades every member and repairs them all in one round.
   results.violations = results.code.templateConformance.violations ?? [];
+  // The module gate: unrun or narrowed is a stop; red is work, not a stop.
+  // Its rows join the Template review's repair list (ruling D8: every lint
+  // error is fixed, and a red lint never passes a stage).
+  const gate = results.code.moduleGate;
+  if (!gate) {
+    results.stopped = "module-gate-unrun";
+    return results;
+  }
+  if (gate.command.trim() !== MODULE_GATE_CMD) {
+    results.stopped = "module-gate-altered";
+    results.moduleGate = gate;
+    return results;
+  }
+  if (gate.exit !== 0)
+    results.violations.push(
+      ...(gate.rows.length ? gate.rows : [`module gate exit ${gate.exit}`])
+    );
   if (!(results.code.diffFileCount > 0)) {
     results.stopped = "code-empty-diff";
     return results;
@@ -865,12 +907,12 @@ if (!skipVerify) {
     );
 
     const raw = await agent(
-      `Invoke /upmind-agent:review (verify lane) for story ${id}. ${FACTS} Bind to the CURRENT HEAD of the working branch — on a re-verify after a repair, grade the repaired commit, never the one you graded last cycle. ${JTBD} ${INPUTS} ${BOUNDS} Grade the JTBD's surface against the oracle — for a conversion, every composable surface of the implementation being replaced — never only the parity table's in-scope list. Where the run's diff touches __tests__/fixtures/, re-capture against the real system yourself and compare structurally (keys, shapes, enums — not volatile values); a stored receipt is forgeable and is not evidence, only the live re-capture is.\n\nCHECK THE WHOLE SURFACE, every capability the oracle offers, start to finish. ${EXHAUSTIVE} Return verdict PRESENT or ABSENT — ABSENT only with the blockers that make it so itemised in \`blockers\` — and whether every new negative control ran green.${verifyDifferential}`,
+      `Invoke /upmind-agent:review (verify lane) for story ${id}. ${FACTS} Bind to the CURRENT HEAD of the working branch — on a re-verify after a repair, grade the repaired commit, never the one you graded last cycle. ${JTBD} ${INPUTS} ${BOUNDS} Grade the JTBD's surface against the oracle — for a conversion, every composable surface of the implementation being replaced — never only the parity table's in-scope list. Where the run's diff touches __tests__/fixtures/, re-capture against the real system yourself and compare structurally (keys, shapes, enums — not volatile values); a stored receipt is forgeable and is not evidence, only the live re-capture is.\n\nCHECK THE WHOLE SURFACE, every capability the oracle offers, start to finish. ${EXHAUSTIVE} Return verdict PRESENT or ABSENT — ABSENT only with the blockers that make it so itemised in \`blockers\` — and whether every new negative control ran green. ${MODULE_GATE_BRIEF} A RED module gate is a blocker: list each of its rows in \`blockers\`.${verifyDifferential}`,
       {
         agentType: "upmind-agent:verifier",
         model: "opus",
         phase: "Verify",
-        schema: VERDICT_GATE,
+        schema: VERIFY_GATE,
         label: `verify:${id}#${cycle}`
       }
     );
@@ -900,7 +942,20 @@ if (!skipVerify) {
     // an exit code, not a finding — so it gates on every cycle.
     const gatingFindings =
       (verdict.blockers ?? []).length + (verdict.warnings ?? []).length;
+    // The module gate is mechanical like a negative control: an exit code,
+    // checked on every cycle, and its command must be the lane's own.
+    const gateRed =
+      !raw.moduleGate ||
+      raw.moduleGate.command.trim() !== MODULE_GATE_CMD ||
+      raw.moduleGate.exit !== 0;
+    if (gateRed && !(verdict.blockers ?? []).length)
+      verdict.blockers = raw.moduleGate?.rows?.length
+        ? [...raw.moduleGate.rows]
+        : [
+            "the module gate was not run with the lane's command, or exited non-zero"
+          ];
     const absent =
+      gateRed ||
       verdict.negativeControlsGreen === false ||
       (cycle === 1 ? verdict.verdict !== "PRESENT" : gatingFindings > 0);
     if (!absent) break;
@@ -1027,7 +1082,7 @@ if (!skipReview) {
       `factory-composable ${id}: review cycle ${cycle} blocked — developer fixing`
     );
     const fixed = await agent(
-      `Invoke /upmind-agent:code for story ${id}. ${FACTS} ${BOUNDS} ${DOCTRINE} The diff was reviewed and blocked. Below is the WHOLE verdict — every blocker AND every warning the reviewer found. Close ALL of it in this one pass: a fix that answers some of the list fails the next cycle on the rest. A warning you neither close nor disposition with a stated reason comes back next cycle as a blocker. Fix these findings, green the suite and the full monorepo build, then commit. A tolerated exception is an in-place native eslint-disable line carrying its reason, never a loosened rule:\n\n${gapList(verdict)}`,
+      `Invoke /upmind-agent:code for story ${id}. ${FACTS} ${BOUNDS} ${DOCTRINE} The diff was reviewed and blocked. Below is the WHOLE verdict — every blocker AND every warning the reviewer found. Close ALL of it in this one pass: a fix that answers some of the list fails the next cycle on the rest. A warning you neither close nor disposition with a stated reason comes back next cycle as a blocker. Fix these findings, green the suite and the full monorepo build, then commit. Every lint error is fixed, old or new; never add an eslint-disable line, a suppression entry or a loosened rule (ruling D8):\n\n${gapList(verdict)}`,
       {
         agentType: "upmind-agent:developer",
         model: "sonnet",

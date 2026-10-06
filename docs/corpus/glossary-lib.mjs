@@ -4,12 +4,15 @@
 //
 // Plain node ESM, no runtime deps (matching the docs/corpus/*.mjs siblings).
 
-import { existsSync, readdirSync } from 'node:fs';
-import { basename, relative, resolve } from 'node:path';
+import { existsSync, readdirSync } from "node:fs";
+import { basename, relative, resolve } from "node:path";
 
-export const norm = (s) => String(s ?? '').trim().toLowerCase();
+export const norm = s =>
+  String(s ?? "")
+    .trim()
+    .toLowerCase();
 
-export const escapeRegExp = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+export const escapeRegExp = s => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 // Resolves a term's `referents` array through `corpus.index`, splitting into
 // referents that resolve (each paired with its index entry) and the ids of
@@ -38,20 +41,22 @@ export function classifyReferents(referents, index) {
 //   cwd; the resolver passes the repo root). An absolute filePath ignores it.
 export function moduleDocsFor(filePath, baseDir) {
   if (!filePath) return null;
-  const norm = String(filePath).replace(/\\/g, '/');
+  const norm = String(filePath).replace(/\\/g, "/");
   const m = norm.match(/^(.*\/modules\/[^/]+)\//);
   if (!m) return null;
   const base = baseDir ?? process.cwd();
-  const docsDir = resolve(base, m[1], 'docs');
+  const docsDir = resolve(base, m[1], "docs");
   let files;
   try {
     if (!existsSync(docsDir)) return null;
-    files = readdirSync(docsDir).filter((f) => f.endsWith('.md')).sort();
+    files = readdirSync(docsDir)
+      .filter(f => f.endsWith(".md"))
+      .sort();
   } catch {
     return null;
   }
   if (!files.length) return null;
-  const relDir = relative(base, docsDir).replace(/\\/g, '/') || docsDir;
+  const relDir = relative(base, docsDir).replace(/\\/g, "/") || docsDir;
   return { moduleName: basename(m[1]), relDir, files };
 }
 
@@ -65,10 +70,10 @@ export function parseCorpusArgs(argv, defaultCorpusPath) {
   let error = null;
   const positional = [];
   for (let i = 0; i < argv.length; i++) {
-    if (argv[i] === '--corpus') {
+    if (argv[i] === "--corpus") {
       const val = argv[++i];
       if (val == null) {
-        error = '--corpus requires a file path';
+        error = "--corpus requires a file path";
         continue;
       }
       corpusPath = resolve(process.cwd(), val);

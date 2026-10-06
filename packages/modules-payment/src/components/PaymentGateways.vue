@@ -18,9 +18,6 @@ import { computed } from "vue";
 import { Form } from "@upmind-automation/foundation";
 import type { PaymentGatewaysProps } from "../types";
 
-// -----------------------------------------------------------------------------
-const props = defineProps<PaymentGatewaysProps>();
-
 const model = defineModel("modelValue", {
   get(value) {
     return { gateway_id: value };
@@ -29,6 +26,9 @@ const model = defineModel("modelValue", {
     return value.gateway_id;
   }
 });
+
+// -----------------------------------------------------------------------------
+const props = defineProps<PaymentGatewaysProps>();
 
 const meta = computed(() => {
   return {

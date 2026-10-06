@@ -1,4 +1,5 @@
 import { cva, type VariantProps } from "class-variance-authority";
+// -----------------------------------------------------------------------------
 
 // Column variants (token utilities) + the in-component cva class-organiser
 // (ADR-024 D-3 — replaces the retired useStyles/*.config.ts shape). The raw

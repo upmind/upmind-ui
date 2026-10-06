@@ -28,6 +28,7 @@ import { useConfig } from "@upmind-automation/headless";
 import type { ControlElement } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
 import type { TermDetails } from "@upmind-automation/headless";
+const props = defineProps<RendererProps<ControlElement>>();
 // --- external
 
 // -----------------------------------------------------------------------------
@@ -39,7 +40,6 @@ const TermsSelect = defineAsyncComponent(
   () => import("../components/terms/TermsSelect.vue")
 );
 
-const props = defineProps<RendererProps<ControlElement>>();
 const { t } = useI18n();
 
 const { control, appliedOptions, formFieldProps, onInput } =

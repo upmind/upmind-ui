@@ -81,6 +81,7 @@ import type {
   MockVaultAsset,
   MockWalletTransaction
 } from "./types";
+// -----------------------------------------------------------------------------
 
 /**
  * Rows per results list — THREE pages at the platform's page size of 10

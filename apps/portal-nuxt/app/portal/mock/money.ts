@@ -12,6 +12,7 @@
  */
 
 import type { MockMoney } from "./types";
+// -----------------------------------------------------------------------------
 
 /** The mock brand trades in one locale — the portal has no i18n yet (plan R14). */
 const MONEY_LOCALE = "en-GB";

@@ -27,11 +27,10 @@ import type {
   ModuleStateNoticeProps
 } from "./ModuleStateNotice.types";
 
-const moduleStateNotice = moduleStateNoticeStyles.moduleStateNotice;
 // -----------------------------------------------------------------------------
 
 const props = defineProps<ModuleStateNoticeProps>();
-
+const moduleStateNotice = moduleStateNoticeStyles.moduleStateNotice;
 const { t } = useI18n();
 
 const content = computed<ModuleStateContent>(() => {

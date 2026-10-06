@@ -1,13 +1,13 @@
 import { ref } from "vue";
 import { createScopedComposable } from "../scope";
 import createLegacyInvoicesServices from "./legacy-invoices.services";
+import { LEGACY_INVOICE_SCOPE_MATRIX } from "./legacy-invoices.types";
 import { createLegacyInvoiceActions } from "./useLegacyInvoice.actions";
 import { createLegacyInvoiceContext } from "./useLegacyInvoice.context";
 import { createLegacyInvoiceInternals } from "./useLegacyInvoice.internals";
 import { createLegacyInvoiceMeta } from "./useLegacyInvoice.meta";
 import type { LegacyInvoiceScopeMatrix } from "./legacy-invoices.types";
 import type { ScopeConfig, ScopeKey } from "../scope";
-import type { ScopeActorTypes } from "../scope/scope.types";
 // -----------------------------------------------------------------------------
 /**
  * @module legacy-invoices/useLegacyInvoice
@@ -42,7 +42,7 @@ import type { ScopeActorTypes } from "../scope/scope.types";
  * (section 5.1) and the exemplar's own naming convention both refuse.
  */
 function createLegacyInvoiceForScope(config: ScopeConfig, scopeKey: ScopeKey) {
-  const actorScope = config.actor as ScopeActorTypes;
+  const actorScope = config.actor;
 
   /** ONE services instance for this scope — the same factory the collection calls. */
   const service = createLegacyInvoicesServices(actorScope);
@@ -95,7 +95,7 @@ function createLegacyInvoiceForScope(config: ScopeConfig, scopeKey: ScopeKey) {
 export const useLegacyInvoice = createScopedComposable<
   ReturnType<typeof createLegacyInvoiceForScope>,
   LegacyInvoiceScopeMatrix
->("legacy-invoices", createLegacyInvoiceForScope);
+>("legacy-invoices", createLegacyInvoiceForScope, LEGACY_INVOICE_SCOPE_MATRIX);
 
 // Type export for consumers
 export type UseLegacyInvoice = ReturnType<typeof useLegacyInvoice>;

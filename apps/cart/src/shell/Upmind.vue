@@ -93,16 +93,15 @@ import UpmRouteView from "./modules/system/RouteView.vue";
 import { useTheme, useThemes } from "./modules/theming";
 import type { LoadingProps } from "./modules/system/types";
 import type { StorefrontRoute } from "@upmind-automation/foundation";
-// -----------------------------------------------------------------------------
-
-const { t } = useI18n();
 const props = defineProps<{
   theme?: string;
   logo?: string;
   loadingProps?: LoadingProps;
   storefrontRoute?: StorefrontRoute;
 }>();
+// -----------------------------------------------------------------------------
 
+const { t } = useI18n();
 // -----------------------------------------------------------------------------
 const { set } = useThemes();
 const { meta: routingMeta } = useRoutingEngine();

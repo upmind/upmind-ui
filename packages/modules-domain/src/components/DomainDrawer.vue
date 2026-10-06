@@ -42,14 +42,14 @@ defineOptions({
   inheritAttrs: false
 });
 
-const emit = defineEmits<{
-  (e: "reset"): void;
-  (e: "update:open", value: boolean): void;
-}>();
-
 const props = defineProps<{
   open?: boolean;
   loading?: boolean;
+}>();
+
+const emit = defineEmits<{
+  (e: "reset"): void;
+  (e: "update:open", value: boolean): void;
 }>();
 
 const { t } = useI18n();

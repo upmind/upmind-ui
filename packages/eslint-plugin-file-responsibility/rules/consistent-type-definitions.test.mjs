@@ -45,6 +45,12 @@ test("consistent-type-definitions", () => {
         output: `type X = { a: number }`,
         errors: [{ messageId: "preferType" }]
       },
+      // A `declare` interface keeps the `declare`, swaps the keyword.
+      {
+        code: `declare interface Options { a: number }`,
+        output: `declare type Options = { a: number }`,
+        errors: [{ messageId: "preferType" }]
+      },
       // An exported interface keeps the `export`, swaps the keyword.
       {
         code: `export interface Props { id: string }`,

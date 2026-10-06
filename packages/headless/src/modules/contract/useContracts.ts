@@ -7,7 +7,6 @@ import { createContractsInternals } from "./useContracts.internals";
 import { createContractsMeta } from "./useContracts.meta";
 import type { ContractsScopeMatrix } from "./contract.types";
 import type { ScopeConfig, ScopeKey } from "../scope";
-import type { ScopeActorTypes } from "../scope/scope.types";
 // -----------------------------------------------------------------------------
 /**
  * @module contract/useContracts
@@ -18,7 +17,7 @@ import type { ScopeActorTypes } from "../scope/scope.types";
  * differentiation.
  */
 function createContractsForScope(config: ScopeConfig, scopeKey: ScopeKey) {
-  const actorScope = config.actor as ScopeActorTypes;
+  const actorScope = config.actor;
 
   const service = createContractServices(actorScope, config.context);
 

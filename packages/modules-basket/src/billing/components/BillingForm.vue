@@ -93,15 +93,16 @@ import type { BillingFormProps } from "../types";
 import type { SectionItem } from "@upmind-automation/foundation";
 import type { BillingModel } from "@upmind-automation/headless";
 
+const modelValue = defineModel<BillingFormProps["modelValue"]>("modelValue");
+
+const touched = defineModel<BillingFormProps["touched"]>("touched");
+
 // -----------------------------------------------------------------------------
 
 const props = withDefaults(defineProps<BillingFormProps>(), {
   autoUpdate: true,
   inline: false
 });
-
-const modelValue = defineModel<BillingFormProps["modelValue"]>("modelValue");
-const touched = defineModel<BillingFormProps["touched"]>("touched");
 
 const emit = defineEmits<{
   resolve: [];

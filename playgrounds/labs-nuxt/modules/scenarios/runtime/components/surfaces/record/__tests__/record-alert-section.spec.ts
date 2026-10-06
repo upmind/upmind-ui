@@ -15,8 +15,8 @@
 
 import { describe, expect, it } from "vitest";
 import { resolveRecordSection } from "../record.renderers";
-import type { RecordGateReader } from "../record.types";
 import type { RecordSectionDeclaration } from "../../../../scenario.types";
+import type { RecordGateReader } from "../record.types";
 
 // -----------------------------------------------------------------------------
 

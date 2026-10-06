@@ -52,6 +52,8 @@ chmod -R a-w repos/monorepo
 - `<MODULE_ROOT>` = `repos/monorepo/packages/headless/src/modules`.
 - Per-module files: `[MODULE].machine.ts` (state machine), `use[Module].ts` (composable),
   `[MODULE].types.ts` (types), services alongside.
+- Patterns most at risk when a module's own `docs/` go unread (base step 3b): the
+  actor/context scoping (ADR-001) and the brand-setting reads. Incident 2026-08-19 re-broke both.
 
 ## Parity axes (step 3g)
 

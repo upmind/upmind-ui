@@ -46,13 +46,15 @@ export default {
     messages: {
       classString:
         "This class string belongs in the `<template>` (on the element, via `class`/`cn()`) or in `variants.ts`, not in a script const (CC26). If this really is not a class list, silence it with `// eslint-disable-next-line ui/class-strings-placement -- <reason>`.",
+      classTernary:
+        "A `:class` ternary of two class-string literals belongs in a `cva` variant in `variants.ts` (CC26). If this is deliberate, silence it with `<!-- eslint-disable-next-line ui/class-strings-placement -- <reason> -->`.",
       classRecord:
         "This record of class strings belongs in `variants.ts`, not in a script const (CC26). If these really are not class lists, silence it with `// eslint-disable-next-line ui/class-strings-placement -- <reason>`."
     }
   },
 
   create(context) {
-    return {
+    const scriptVisitor = {
       VariableDeclaration(node) {
         if (node.kind !== "const") return;
 
@@ -69,7 +71,7 @@ export default {
           // `const SIZES = { sm: "p-2 text-sm", lg: "p-4 text-lg" };`
           if (init.type === "ObjectExpression") {
             const hasTailwindValue = init.properties.some(
-              (prop) =>
+              prop =>
                 prop.type === "Property" &&
                 prop.value.type === "Literal" &&
                 looksTailwind(prop.value.value)
@@ -81,5 +83,29 @@ export default {
         }
       }
     };
+
+    const services = context.sourceCode.parserServices;
+    if (!services || !services.defineTemplateBodyVisitor) return scriptVisitor;
+
+    // `:class="open ? 'p-4 flex' : 'p-2 grid'"` — two class-string literals
+    // chosen by a ternary belong in a `cva` variant (CC26).
+    return services.defineTemplateBodyVisitor(
+      {
+        "VAttribute[directive=true][key.argument.name='class'] ConditionalExpression"(
+          node
+        ) {
+          const { consequent, alternate } = node;
+          if (
+            consequent.type === "Literal" &&
+            alternate.type === "Literal" &&
+            typeof consequent.value === "string" &&
+            typeof alternate.value === "string"
+          ) {
+            context.report({ node, messageId: "classTernary" });
+          }
+        }
+      },
+      scriptVisitor
+    );
   }
 };

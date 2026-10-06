@@ -7,14 +7,14 @@
  * destination rides the `navigate:` verb.
  */
 
-export interface CommandModuleItem {
+export type CommandModuleItem = {
   readonly value: string;
   readonly label: string;
   /** The keycap hint beside the row ("⌘I"). Absent renders none. */
   readonly shortcut?: string;
-}
+};
 
-export interface CommandModuleProps {
+export type CommandModuleProps = {
   /** The trigger's own copy, and the palette's accessible name. No English default (CC22). */
   readonly label: string;
   /** Visually hidden dialog title — the palette's accessible name for a screen reader. */
@@ -25,7 +25,7 @@ export interface CommandModuleProps {
   /** Heading above the rows. Absent renders an unheaded run. */
   readonly heading?: string;
   readonly items: readonly CommandModuleItem[];
-}
+};
 
 export type CommandModuleEmits = {
   select: [value: string];

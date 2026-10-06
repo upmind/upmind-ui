@@ -6,8 +6,9 @@
  */
 
 import type { SearchItem, SearchProps } from "@upmind/ui";
+// -----------------------------------------------------------------------------
 
-export interface SearchModuleProps {
+export type SearchModuleProps = {
   /** The full fixture dataset the module filters locally — never fetched (tasks.md 5.7). */
   readonly items: readonly SearchItem[];
   readonly placeholder?: SearchProps["placeholder"];
@@ -15,4 +16,4 @@ export interface SearchModuleProps {
   /** Empty-state heading when `items` (the fixture dataset) is empty. No English default (CC22). */
   readonly emptyTitle: string;
   readonly emptyDescription?: string;
-}
+};

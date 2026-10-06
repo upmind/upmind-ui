@@ -16,7 +16,6 @@ import type {
   ScopeKey,
   ScopedComposable
 } from "../scope";
-import type { ScopeActorTypes } from "../scope/scope.types";
 // -----------------------------------------------------------------------------
 /**
  * @module client-custom-fields/useClientCustomFields
@@ -49,7 +48,7 @@ function createClientCustomFieldsForScope(
   config: ScopeConfig,
   scopeKey: ScopeKey
 ) {
-  const actorScope = config.actor as ScopeActorTypes;
+  const actorScope = config.actor;
 
   /**
    * ONE services instance for this scope. `config.context` goes in here and

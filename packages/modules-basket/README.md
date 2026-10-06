@@ -9,8 +9,8 @@ checkout is a flow inside the basket, not a module of its own. The package reuse
 ## Public barrel
 
 `src/index.ts` is the only entry. It publishes this package's own components and types. Read
-state from `@upmind-automation/headless` directly. The package knows no template names: it
-draws none of its own pages' layouts, and exports none of their names either — the host app
+state from `@upmind-automation/headless` directly. The package knows no template names. It
+draws none of its own pages' layouts, and exports none of their names either. The host app
 owns every layout a basket page renders (see below).
 
 | Export | What it is |
@@ -31,12 +31,13 @@ owns every layout a basket page renders (see below).
 
 ## Render a main component on a page
 
-Each main component wraps its template in `foundation`'s `LayoutProvider`: the page's layout
+Each main component wraps its template in `foundation`'s `LayoutProvider`. The page's layout
 renders through the component's default slot, and the component's own named blocks fill that
-layout's slots. The brand's evaluated template value is the only thing the default slot
-carries — the component reads it from the brand config and picks no layout itself. The host
-app owns the record of layouts for each page and a function that picks from it, with its own
-fallback for a name the record does not hold. A normal basket page is three lines:
+layout's slots. The default slot carries only the brand's evaluated template value. The
+component reads that value from the brand config and picks no layout itself.
+
+The host app owns the record of layouts for each page and a function that picks from it. That
+function has its own fallback for a name the record does not hold. A normal basket page is three lines:
 
 ```vue
 <UpmBasket :edit-route="{ name: ROUTE.BASKET_PRODUCT_EDIT }" v-slot="{ template }">
@@ -44,9 +45,9 @@ fallback for a name the record does not hold. A normal basket page is three line
 </UpmBasket>
 ```
 
-`basketTemplate` is the host's own function: it looks `template` up in its own record of
+`basketTemplate` is the host's own function. It looks `template` up in its own record of
 layouts and falls back to its own default for a name the record does not hold. Each of this
-package's five pages works the same way, each with its own record and its own pick function
+package's five pages works the same way. Each has its own record and its own pick function
 (for example `checkoutTemplate`, `billingTemplate`, `productSetupTemplate` and
 `basketProductTemplate`):
 
@@ -80,7 +81,7 @@ To replace one block, write that slot on the layout. The other blocks stay:
 Some blocks pass the layout scoped-slot props the host's own layout can read and override —
 `UpmBasket`'s `pricing` block offers `showCheckout`/`showTotal`, and `UpmBasketProductEdit`'s
 offers `showTotal`/`showActions`. A layout overrides one by binding it with `:` on the named
-slot it writes, for example `<slot name="pricing" :show-total="false" />`; a bare, unbound
+slot it writes, for example `<slot name="pricing" :show-total="false" />`. A bare, unbound
 attribute sends nothing.
 
 `UpmBasket`, `UpmBasketProductEdit` and `UpmProductSetup` wait for the basket in their setup,

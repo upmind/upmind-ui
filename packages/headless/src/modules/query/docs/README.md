@@ -151,6 +151,44 @@ const response = query<IProduct[], number, ProductQueryModel>({
 
 This is how the product catalogue's `loadCount` reads its totals.
 
+## Several entries, one `select`
+
+A screen that needs two reads for one question gives `query()` or `list()` several entries. Pass `queries` in place of `url`, `init` and `queryKey`. Every other option is shared and applies to each entry: `criteria`, `guard`, `withAccessToken`, `withCurrency`, `staleTime`, `enabled`. The entries run in parallel through TanStack's `useQueries`, and `select` is its `combine`: it receives every entry's `data` first and every entry's response envelope second, both in entry order, and returns the one `data` the handle publishes. Without `select`, `data` is every entry's `data` in entry order.
+
+```ts
+import { useQuery } from "@upmind-automation/headless";
+
+type Country = { id: string; name: string; code: string };
+
+const { query, useUrl } = useQuery();
+
+const countUrl = useUrl("countries");
+countUrl.searchParams.set("limit", "count");
+
+const countries = query<Country[], { rows: Country[]; total: number }>({
+  queries: [
+    { url: useUrl("countries"), queryKey: ["countries"] },
+    { url: countUrl, queryKey: ["countries", "count"] }
+  ],
+  select: ([rows], [, count]) => ({ rows, total: count.total ?? 0 })
+});
+
+countries.data; // ComputedRef<{ rows, total }>
+countries.isPending; // true until EVERY entry has answered
+```
+
+The handle keeps the same shape as a single read. `isPending`, `isLoading`, `isFetching`, `isError` and `isPlaceholderData` are true when any entry is. `isSuccess` and `isFetched` are true when every entry is. `error` is the first entry's error.
+
+`refetch` refetches every entry. `resetQuery` resets every entry's cache. `data` stays empty until every entry has data, so `select` never sees a half answer.
+
+`list({ queries })` keeps everything `list()` does. The criteria's sort, filters and page window reach every entry's wire, so the entries page together. Entry one's envelope supplies `total`, and so the pager. `fetchNextPage` moves every entry to the next page.
+
+`listInfinite()` takes one entry only. TanStack has no infinite form of `useQueries`.
+
+> **👩‍💻 For Developers:** an entry's `select` is not per entry. In TanStack, `select` maps one query and `combine` joins several. Our `select` is the join, so it is the one place that stitches. A module never joins two handles by hand in a layer (`comp-single-query`).
+
+## The one door to TanStack
+
 > **Rule:** never call a TanStack hook outside `modules/query`. A value import of `useQuery`, `useQueries`, `useInfiniteQuery`, `useMutation`, `useQueryClient`, `QueryClient` or `queryOptions` from `@tanstack/vue-query` (or `@tanstack/query-core`) in any other module is a lint error (`endpoint-ownership/no-direct-tanstack-query`). A module that needs data goes through `query()` or `download()` (or `list()` / `listInfinite()` for pages), so caching, auth and criteria behave the same everywhere. Type-only imports are allowed, and the two helpers modules import in practice are `type QueryKey` and `keepPreviousData`.
 
 ## Where it fits
@@ -180,7 +218,7 @@ import {
 
 ### A filter's wire column can differ from its model property
 
-A filter branch's wire column defaults to its own property name, but a branch may declare a `column` keyword to bind it to a different one — for an API whose filterable column is spelt differently from the name the model reads and writes. `client-phone`'s query schema is the concrete case: the model property is `number` (what a consumer filters by), but the branch declares `column: "phone"`, because the API's own `filter[phone|like]` is what the server actually accepts — `filter[number|like]` answers with an HTTP 500. `translateQuery` reads the branch's `column` when present and falls back to the property name when it isn't; a module never has to rename its own model property to match an oddly-spelt wire column.
+A filter branch's wire column defaults to its own property name, but a branch may declare a `column` keyword to bind it to a different one — for an API whose filterable column is spelt differently from the name the model reads and writes. `client-phone`'s query schema is the concrete case: the model property is `number` (what a consumer filters by), but the branch declares `column: "phone"`, because the API's own `filter[phone|like]` is what the server actually accepts — `filter[number|like]` answers with an HTTP 500. `translateQuery` reads the branch's `column` when present, and otherwise it uses the property name. A module never has to rename its own model property to match an oddly-spelt wire column.
 
 ## See it driven live
 

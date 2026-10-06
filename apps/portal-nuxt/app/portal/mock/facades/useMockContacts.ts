@@ -60,6 +60,7 @@ import type {
 import type { FormModel } from "@upmind/ui";
 import type { Email } from "@upmind-automation/headless";
 import type { MaybeRef } from "vue";
+// -----------------------------------------------------------------------------
 
 /** How long the code the verification mail carries is — the account module's own six. */
 const VERIFICATION_CODE_LENGTH = 6;

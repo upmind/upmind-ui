@@ -5,6 +5,7 @@ import { waitFor } from "xstate/lib/waitFor";
 import paymentMachine from "./payment.machine";
 import { stateMatches, useContext } from "../../utils";
 import type { PaymentArgs, PaymentContext } from "./payment.types";
+// -----------------------------------------------------------------------------
 
 // --- types
 export * from "./payment.types";

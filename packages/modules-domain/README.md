@@ -2,8 +2,8 @@
 
 Domain search and the domain availability check (DAC). The client searches for a domain name,
 sees which names are available, and adds them to the basket. The package holds the DAC page,
-the DAC widget that the catalogue shows, the domain search drawer, the smart domain field, and
-two form controls that bring the domain search into a product form.
+the DAC widget that the catalogue shows, the domain search drawer and the smart domain field. It
+also holds two form controls that bring the domain search into a product form.
 
 ## Public barrel
 
@@ -23,7 +23,7 @@ types. Read state from `@upmind-automation/headless` directly.
 
 ## Render the main component on a page
 
-`UpmDac` wraps its template in `foundation`'s `LayoutProvider`: the page's layout renders
+`UpmDac` wraps its template in `foundation`'s `LayoutProvider`. The page's layout renders
 through the component's default slot, and the component's own named blocks then fill that
 layout's slots. A normal page is three lines:
 
@@ -33,8 +33,8 @@ layout's slots. A normal page is three lines:
 </UpmDac>
 ```
 
-`domainTemplate` is the host app's own function: it looks the page's `template` up in its own
-record of layouts, keyed by `DOMAIN_TEMPLATE`, and falls back to its own default for a name the
+`domainTemplate` is the host app's own function. It looks the page's `template` up in its own
+record of layouts, keyed by `DOMAIN_TEMPLATE`. It falls back to its own default for a name the
 record does not hold. The blocks are `hero`, `search`, `tabs`, `results`, `hint` and `resolve`.
 The `hint` block does not render on a small screen.
 
@@ -52,7 +52,7 @@ To replace one block, write that slot on the layout. The other blocks stay:
 
 Props (`DacProps`): `template` (default `DOMAIN_TEMPLATE.FULL`), `type`, `touched` and `tlds`.
 Unlike this package's siblings, `UpmDac` does not read the brand's configured template for
-itself — a plain page leaves `template` at its default, and a caller that needs a specific
+itself. A plain page leaves `template` at its default. A caller that needs a specific
 arrangement (the widget, the drawer) sets it directly. The setup waits for the search state, so
 the component renders inside a `<Suspense>` boundary.
 

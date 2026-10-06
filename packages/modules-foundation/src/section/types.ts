@@ -1,5 +1,6 @@
 import type { DataAttrs, InterstitialProps, LinkVariants } from "@upmind/ui";
 import type { HTMLAttributes } from "vue";
+// -----------------------------------------------------------------------------
 
 export type I18nText = {
   key: string;
@@ -22,14 +23,14 @@ export type SectionActionProps = LinkVariants & {
   dataAttrs?: DataAttrs;
 };
 
-export interface SectionItem {
+export type SectionItem = {
   label: string;
   value: string;
   icon?: string;
   eager?: boolean;
   dataAttrs?: DataAttrs;
   actions?: SectionActionProps[];
-}
+};
 
 export type SectionsProps = {
   card?: boolean;

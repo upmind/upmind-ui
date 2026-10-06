@@ -9,8 +9,9 @@
  */
 
 import type { TimelineIntent } from "@upmind/ui";
+// -----------------------------------------------------------------------------
 
-export interface TimelineModuleItem {
+export type TimelineModuleItem = {
   readonly id: string;
   readonly title: string;
   readonly description?: string;
@@ -32,15 +33,15 @@ export interface TimelineModuleItem {
     readonly value: string;
     readonly label: string;
   };
-}
+};
 
 export type TimelineModuleEmits = {
   select: [value: string];
 };
 
-export interface TimelineModuleProps {
+export type TimelineModuleProps = {
   readonly items: readonly TimelineModuleItem[];
   /** Heading shown when `items` is empty. No English default (CC22). */
   readonly emptyTitle: string;
   readonly emptyDescription?: string;
-}
+};

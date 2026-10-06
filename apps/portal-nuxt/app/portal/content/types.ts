@@ -14,6 +14,7 @@ import type {
 } from "../resolve";
 import type { PageKey, SlotAssignment, UtilitySide } from "../types";
 import type { HTMLAttributes, VNode } from "vue";
+// -----------------------------------------------------------------------------
 
 /**
  * The board's row-layout tokens (design.md §D7), verbatim. The board's
@@ -217,14 +218,14 @@ export type ContentConfig = {
   readonly footer?: boolean;
 };
 
-export interface PortalRowProps {
+export type PortalRowProps = {
   layout: RowLayout;
   /** Only read when `layout` is `ROW_LAYOUT.FULL` — every other layout ignores it. */
   measure?: RowMeasure;
   class?: HTMLAttributes["class"];
-}
+};
 
-export interface PortalRowSlots {
+export type PortalRowSlots = {
   /** `row-full` — the row's only content. */
   default?: () => VNode[];
   /** `row-1-1` / `row-1-1-1` — the first (equal) slot. */
@@ -237,7 +238,7 @@ export interface PortalRowSlots {
   main?: () => VNode[];
   /** `row-2-1` / `row-1-2` — the narrow column (one part of the row's proportional grid). */
   aside?: () => VNode[];
-}
+};
 
 /**
  * Which of `PortalRowSlots`' named slots each `ContentRowConfig.slots`
@@ -256,20 +257,20 @@ export const ROW_SLOT_NAMES: Readonly<
   [ROW_LAYOUT.TRIPLE_EQUAL]: ["start", "middle", "end"]
 };
 
-export interface PortalSectionProps {
+export type PortalSectionProps = {
   /** Absent renders the row bare — no wrapper, exactly as before this existed. */
   readonly surface?: RowSurface;
   readonly header?: ResolvedRowHeader;
   readonly footer?: ResolvedSlot;
   /** The row's fragment id, where its config declared one. */
   readonly anchor?: string;
-}
+};
 
 /**
  * The thin page host every route renders (`PortalPageHost.vue`) — the one
  * place `resolve()` meets a page. Pages differ only by these props.
  */
-export interface PortalPageHostProps {
+export type PortalPageHostProps = {
   /** Candidate content keys, most-specific first (`resolve.ts` `PortalRoute.pageKeys`). Absent = the singular `content` fallback. */
   readonly pageKeys?: readonly PageKey[];
   /** Route-aware title override (the catch-all's group/area label). Absent = the resolved content's own `title`. */
@@ -278,9 +279,9 @@ export interface PortalPageHostProps {
   readonly routeContext?: DataRouteContext;
   /** Accessible name for the page-level aside landmark — required by `PortalContent`. */
   readonly asideLabel: string;
-}
+};
 
-export interface PortalContentProps {
+export type PortalContentProps = {
   /** The resolved row list (`resolve()`'s own `ResolvedContent.rows`) — `PortalContent` renders exactly this, one container per row, in the configured order (AC5.1). */
   readonly rows: readonly ResolvedContentRow[];
   /** The page-level aside's resolved rows; empty renders no aside track at all. */
@@ -291,4 +292,4 @@ export interface PortalContentProps {
   readonly asideSide?: UtilitySide;
   /** Accessible name for the aside landmark — required by `PageAside`. No English default (CC22). */
   readonly asideLabel: string;
-}
+};

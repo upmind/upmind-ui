@@ -15,13 +15,13 @@ import { UpmAuth } from "@upmind-automation/auth";
 import { get } from "lodash-es";
 import type { AuthProps } from "@upmind-automation/auth";
 
-// -----------------------------------------------------------------------------
-
-const route = useRoute();
-
 const emit = defineEmits<{
   close: [];
 }>();
+
+// -----------------------------------------------------------------------------
+
+const route = useRoute();
 
 /** Initialize mode from ?mode=login|register query param */
 const mode = ref(get(route, "query.mode", "login") as AuthProps["modelValue"]);

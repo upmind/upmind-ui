@@ -8,6 +8,7 @@
 import type { MenuItem } from "../modules/menu/types";
 import type { ResolvedShell, ResolvedSlot } from "../resolve";
 import type { HTMLAttributes, VNode } from "vue";
+// -----------------------------------------------------------------------------
 
 /** Which of the three stacked chrome bars a `ShellHeader` is (§D4). */
 export const CHROME_LEVEL = {
@@ -31,7 +32,7 @@ export const ACTION_PANE_VARIANT = {
 export type ActionPaneVariant =
   (typeof ACTION_PANE_VARIANT)[keyof typeof ACTION_PANE_VARIANT];
 
-export interface PortalActionPaneProps {
+export type PortalActionPaneProps = {
   readonly variant: ActionPaneVariant;
   /** id of the pane element — the trigger's `aria-controls` target. */
   readonly paneId: string;
@@ -41,7 +42,7 @@ export interface PortalActionPaneProps {
   readonly closeLabel: string;
   /** Off-canvas state — the consumer's, bound with `v-model:open`. */
   readonly open: boolean;
-}
+};
 
 export type PortalActionPaneEmits = {
   "update:open": [open: boolean];
@@ -56,7 +57,7 @@ export type PortalSidebarNavFocus =
   | { readonly kind: "back" }
   | { readonly kind: "row"; readonly label: string };
 
-export interface PortalSidebarNavProps {
+export type PortalSidebarNavProps = {
   /** The whole tree; `path` names which level of it renders. */
   readonly items: readonly MenuItem[];
   /** The labels drilled into, outermost first. Controlled by the consumer. */
@@ -67,13 +68,13 @@ export interface PortalSidebarNavProps {
   readonly backLabel: string;
   /** The sidebar rail's collapsed state, threaded from `ShellSidebar`'s slot scope. */
   readonly collapsed?: boolean;
-}
+};
 
 export type PortalSidebarNavEmits = {
   "update:path": [path: string[]];
 };
 
-export interface PortalFrameProps {
+export type PortalFrameProps = {
   /** The output of `resolve(config, route)` (design.md §D5) — PortalFrame renders exactly this, and nothing it was not given. */
   shell: ResolvedShell;
   /** Accessible name of the sidebar's wrapped `<nav>` landmark, and its mobile-drawer title. No English default (CC22) — the consumer names their own portal's navigation. */
@@ -95,9 +96,9 @@ export interface PortalFrameProps {
   /** The skip-to-content link's visible and accessible text. */
   skipLabel: string;
   class?: HTMLAttributes["class"];
-}
+};
 
-export interface PortalFrameSlots {
+export type PortalFrameSlots = {
   /** Page content — mounted in `ShellMain`. */
   default?: () => VNode[];
   /** Brand mark, mounted above the config-driven sidebar slots. The board's slot vocabulary has no "identity" home for it yet outside a registered module (Task 5). */
@@ -108,9 +109,9 @@ export interface PortalFrameSlots {
   "sidebar-footer"?: (props: { collapsed: boolean }) => VNode[];
   /** Global shell footer. Renders only when provided. */
   footer?: () => VNode[];
-}
+};
 
-export interface PortalSlotContentProps {
+export type PortalSlotContentProps = {
   /**
    * The resolved slot to render: absent renders nothing, `rejected` dev-logs
    * and renders nothing, `module` mounts the registry's component, `group`
@@ -122,32 +123,32 @@ export interface PortalSlotContentProps {
   resolvedSlot?: ResolvedSlot;
   /** The sidebar rail's collapsed state (tasks.md 2.7) — PortalFrame's own `ShellSidebar` slot scope, never `injectShellContext`: the mobile drawer passes `false` here through that SAME scope precisely because a drawer is never a rail. Absent for non-sidebar slots. */
   collapsed?: boolean;
-}
+};
 
-export interface PortalConfirmDialogProps {
+export type PortalConfirmDialogProps = {
   /** The dismissing button's label — no English default (CC22); the dialog's own copy arrives with each confirmation. */
   cancelLabel: string;
-}
+};
 
-export interface PortalFormDialogProps {
+export type PortalFormDialogProps = {
   /** Accessible label for the dialog's close button — no English default (CC22). */
   closeLabel: string;
-}
+};
 
-export interface PortalProseDialogProps {
+export type PortalProseDialogProps = {
   /** Accessible label for the dialog's close button — no English default (CC22). */
   closeLabel: string;
-}
+};
 
 /** What the form engine hands its glyph component (`@upmind/ui` `FormIcon`). */
-export interface PortalFormIconProps {
+export type PortalFormIconProps = {
   /** The name to render — a bare string, or the engine's `{ name, path }` bag. */
   readonly icon?: string | { readonly name?: string; readonly path?: string };
   /** `xs` where the glyph stands alone; omitted where a parent sizes it. */
   readonly size?: string;
-}
+};
 
-export interface FixtureMarkerProps {
+export type FixtureMarkerProps = {
   /** The resolved variant name, if the slot assignment named one — rendered as text so a screenshot can tell which config produced it. */
   variant?: string;
-}
+};

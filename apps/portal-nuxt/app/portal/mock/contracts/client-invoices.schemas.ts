@@ -34,6 +34,7 @@ import type {
   Rule,
   VerticalLayout
 } from "@jsonforms/core";
+// -----------------------------------------------------------------------------
 
 /** The smallest payment the ledger records — the facade refuses the same figure. */
 const PAYMENT_MINIMUM = 0.01;

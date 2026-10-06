@@ -18,6 +18,7 @@ import { assign, find, remove } from "lodash-es";
 import type { MockActionReceipt } from "./facade";
 import type { ClientRelationToggleKeys } from "../contracts";
 import type { MockChildAccount, MockPersona } from "../types";
+// -----------------------------------------------------------------------------
 
 /** The child, as the persona the portal then renders as. */
 function personaFor(child: MockChildAccount): MockPersona {

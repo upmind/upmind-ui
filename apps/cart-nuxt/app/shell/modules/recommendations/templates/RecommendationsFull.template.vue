@@ -27,7 +27,10 @@ import { useLayout } from "@upmind-automation/foundation";
 import { useSection } from "@upmind-automation/foundation";
 import { isMobile } from "@upmind-automation/foundation";
 import { Layout } from "@upmind-automation/foundation";
-import { LAYOUT_VARIANTS, LAYOUT_OVERFLOW } from "@upmind-automation/foundation";
+import {
+  LAYOUT_VARIANTS,
+  LAYOUT_OVERFLOW
+} from "@upmind-automation/foundation";
 import Transitions from "../../../components/transition/Transition.vue";
 
 defineOptions({

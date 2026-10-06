@@ -20,8 +20,8 @@ template name of its own — the host app owns the page's record of layouts (see
 
 ## Render the main component on a page
 
-`UpmCatalogue` wraps its template in `foundation`'s `LayoutProvider`: the page's layout renders
-through the component's default slot, carrying the brand's evaluated template value, and the
+`UpmCatalogue` wraps its template in `foundation`'s `LayoutProvider`. The page's layout renders
+through the component's default slot, carrying the brand's evaluated template value. The
 component's own named blocks then fill that layout's slots. The host app owns the record of
 layouts and a function that picks from it, with its own fallback. A normal page is three lines:
 
@@ -31,7 +31,7 @@ layouts and a function that picks from it, with its own fallback. A normal page 
 </UpmCatalogue>
 ```
 
-`catalogueTemplate` is the host's own function: it looks `template` up in its own record of
+`catalogueTemplate` is the host's own function. It looks `template` up in its own record of
 layouts and falls back to its own default for a name the record does not hold. The blocks are
 `content-header` (the categories and breadcrumbs) and `content` (the facets and the product
 grid or the domain search). While the domain search shows, the `aside-footer` and
@@ -59,7 +59,7 @@ query parameter.
 `UpmCatalogue` shows the domain search when the category's `uiMeta.widgets.dac` is set, or when
 the brand's product-list style is `DAC`. `products/WidgetDAC.vue` then loads `UpmDacWidget`
 with a dynamic import, so the `domain` code sits in its own chunk. A catalogue that never shows
-the search never loads it. The widget takes no props and places its own blocks; it reads no
+the search never loads it. The widget takes no props and places its own blocks. It reads no
 record of layouts, from the host or from this package.
 
 ## Styles

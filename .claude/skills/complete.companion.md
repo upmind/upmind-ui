@@ -13,6 +13,18 @@ test -d "$(ls -d docs/sdd/FE-XXXX*/evidence 2>/dev/null | head -1)" \
   || echo "❌ No evidence directory filed"
 ```
 
+## Extra convention check (Step 3)
+
+The collection-utility mandate (Lodash, `lodash-es`) has no lint yet: its lint needs typed linting. Until it lands, run this check over the story's files after the lint. The composed components in `design-system/packages/ui` are exempt; `ui/no-lodash-in-components` enforces that carve-out.
+
+```bash
+git diff --name-only "$(git merge-base HEAD develop)" -- '*.ts' '*.vue' \
+  | xargs -I {} grep -n -E 'Object\.(keys|values|entries)|Array\.isArray|\.map\(|\.filter\(|\.find\(|\.reduce\(' {} \
+  || echo "✅ No native collection calls"
+```
+
+Fix a hit with the `lodash-es` equivalent (`keys`, `values`, `map`, `filter`, `find`, `reduce`, `isArray`). Never use `lodash.get` on state or context; `code-quality/no-lodash-get-state` reports it.
+
 ## Issue-tracker binding (Step 6.5)
 
 Linear. The base "move the completed story to the review state" is the review-pending role in `linear-lifecycle.md`; `id` is the issue UUID from `get_issue`, never the `FE-XXXX` identifier.

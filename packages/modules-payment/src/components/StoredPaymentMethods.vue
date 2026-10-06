@@ -30,9 +30,6 @@ import { Icon } from "@upmind-automation/foundation";
 import { storedRootVariants } from "../variants";
 import type { StoredPaymentMethodProps } from "../types";
 
-// -----------------------------------------------------------------------------
-const props = defineProps<StoredPaymentMethodProps>();
-
 const model = defineModel("modelValue", {
   get(value) {
     return { payment_details_id: value };
@@ -41,6 +38,9 @@ const model = defineModel("modelValue", {
     return value.payment_details_id;
   }
 });
+
+// -----------------------------------------------------------------------------
+const props = defineProps<StoredPaymentMethodProps>();
 
 const { t } = useI18n();
 

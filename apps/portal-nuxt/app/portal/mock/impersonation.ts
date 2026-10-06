@@ -12,6 +12,7 @@
 import { computed, ref } from "vue";
 import type { MockPersona } from "./types";
 import type { ComputedRef, Ref } from "vue";
+// -----------------------------------------------------------------------------
 
 type MockImpersonationState = {
   /** Whose portal is showing — the ribbon's name. */

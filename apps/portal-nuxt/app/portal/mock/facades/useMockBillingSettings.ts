@@ -19,6 +19,7 @@ import { assign, find, includes, size, values } from "lodash-es";
 import type { MockActionReceipt } from "./facade";
 import type { MockBillingSettings, MockDataset } from "../types";
 import type { FormModel } from "@upmind/ui";
+// -----------------------------------------------------------------------------
 
 /** The settings and the lists behind them — one read for the whole page. */
 export type MockBillingSettingsView = {

@@ -19,6 +19,7 @@ import {
 import { UnifiedType, type UnifiedContext } from "./types";
 import { find, get, set } from "lodash-es";
 import type { JsonSchema7, Layout, UISchemaElement } from "@jsonforms/core";
+// -----------------------------------------------------------------------------
 
 export const useSchema = ({
   clientId: _clientId,

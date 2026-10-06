@@ -35,6 +35,7 @@ import {
 import type { MockActionReceipt } from "./facade";
 import type { MockDataset, MockDelegate, MockDelegateObject } from "../types";
 import type { FormModel } from "@upmind/ui";
+// -----------------------------------------------------------------------------
 
 /** Whether this delegate reaches one named object — the switch's own checked state. */
 export function hasDelegateObject(

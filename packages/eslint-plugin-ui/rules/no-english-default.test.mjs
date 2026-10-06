@@ -25,9 +25,13 @@ test("no-english-default", () => {
   ruleTester.run("no-english-default", rule, {
     valid: [
       // The law: rendered copy defaults to `undefined`.
-      { code: `const props = withDefaults(defineProps<P>(), { label: undefined });` },
+      {
+        code: `const props = withDefaults(defineProps<P>(), { label: undefined });`
+      },
       // Empty string is explicitly allowed.
-      { code: `const props = withDefaults(defineProps<P>(), { placeholder: "" });` },
+      {
+        code: `const props = withDefaults(defineProps<P>(), { placeholder: "" });`
+      },
       // A non-string default is out of scope.
       { code: `const props = withDefaults(defineProps<P>(), { count: 3 });` },
       // A string literal outside a withDefaults defaults object is untouched.

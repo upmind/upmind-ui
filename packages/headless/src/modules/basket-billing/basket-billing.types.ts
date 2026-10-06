@@ -2,6 +2,7 @@ import type { ResponseError } from "../../utils";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 import type { BrandConfigKeys } from "@upmind-automation/types";
 import type { IBasket } from "@upmind-automation/types";
+// -----------------------------------------------------------------------------
 
 export { UnifiedType } from "./unified/types";
 // --- internal

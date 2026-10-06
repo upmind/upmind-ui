@@ -18,9 +18,9 @@ template name of its own — the host app owns the page's record of layouts (see
 
 ## Render a main component on a page
 
-Each main component wraps its template in `foundation`'s `LayoutProvider`: the page's layout
-renders through the component's default slot, carrying the brand's evaluated template value,
-and the component's own named blocks then fill that layout's slots. The host app owns the
+Each main component wraps its template in `foundation`'s `LayoutProvider`. The page's layout
+renders through the component's default slot, carrying the brand's evaluated template value.
+The component's own named blocks then fill that layout's slots. The host app owns the
 record of layouts and a function that picks from it, with its own fallback. A normal page is
 three lines:
 
@@ -30,7 +30,7 @@ three lines:
 </UpmRecommendations>
 ```
 
-`recommendationsTemplate` is the host's own function: it looks `template` up in its own record
+`recommendationsTemplate` is the host's own function. It looks `template` up in its own record
 of layouts and falls back to its own default for a name the record does not hold. The blocks
 are `hero`, `cards`, `configure` and `footer`. The `footer` block renders only when there are
 recommendations.

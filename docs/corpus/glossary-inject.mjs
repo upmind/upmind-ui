@@ -38,15 +38,21 @@
 // Usage (as a hook): node docs/corpus/glossary-inject.mjs   (reads JSON from stdin)
 // Usage (fixture):   node docs/corpus/glossary-inject.mjs --corpus <file>   (stdin as above)
 
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { tmpdir } from 'node:os';
-import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
-import { classifyReferents, escapeRegExp, moduleDocsFor, norm, parseCorpusArgs } from './glossary-lib.mjs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
+import {
+  classifyReferents,
+  escapeRegExp,
+  moduleDocsFor,
+  norm,
+  parseCorpusArgs
+} from "./glossary-lib.mjs";
 
 const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url)); // <root>/docs/corpus
-const DEFAULT_GLOSSARY_PATH = join(SCRIPT_DIR, 'glossary.json'); // slim projection of corpus.json (FE-3003 W5)
-const SESSION_STATE_DIR = join(tmpdir(), 'upmind-glossary-inject-sessions');
+const DEFAULT_GLOSSARY_PATH = join(SCRIPT_DIR, "glossary.json"); // slim projection of corpus.json (FE-3003 W5)
+const SESSION_STATE_DIR = join(tmpdir(), "upmind-glossary-inject-sessions");
 
 const MAX_TERMS_PER_INJECT = 3;
 const MAX_DEFINITION_CHARS = 160;
@@ -56,16 +62,16 @@ const MAX_STDIN_BYTES = 1_048_576; // 1 MB, measured in BYTES; big enough that a
 // so an untrusted payload can never traverse out of the session-state dir.
 const SESSION_ID_RE = /^[\w-]+$/;
 
-const FILE_TOOLS = new Set(['Read', 'Edit', 'Write', 'NotebookEdit']);
+const FILE_TOOLS = new Set(["Read", "Edit", "Write", "NotebookEdit"]);
 
 function readStdinJson() {
   try {
-    const raw = readFileSync(0, 'utf8');
+    const raw = readFileSync(0, "utf8");
     if (!raw.trim()) return null;
     // Bounded in BYTES (not UTF-16 code units): a normal Write/Edit payload
     // carries real file content and must still parse so its file_path injects;
     // only a genuinely huge payload is skipped, never parsed. Never throws.
-    if (Buffer.byteLength(raw, 'utf8') > MAX_STDIN_BYTES) return null;
+    if (Buffer.byteLength(raw, "utf8") > MAX_STDIN_BYTES) return null;
     return JSON.parse(raw);
   } catch {
     return null;
@@ -78,7 +84,10 @@ function readStdinJson() {
 function loadInjectedSlugs(sessionId) {
   if (!sessionId) return new Set();
   try {
-    const raw = readFileSync(join(SESSION_STATE_DIR, `${sessionId}.json`), 'utf8');
+    const raw = readFileSync(
+      join(SESSION_STATE_DIR, `${sessionId}.json`),
+      "utf8"
+    );
     return new Set(JSON.parse(raw));
   } catch {
     return new Set();
@@ -89,7 +98,10 @@ function saveInjectedSlugs(sessionId, slugs) {
   if (!sessionId) return;
   try {
     mkdirSync(SESSION_STATE_DIR, { recursive: true });
-    writeFileSync(join(SESSION_STATE_DIR, `${sessionId}.json`), JSON.stringify([...slugs]));
+    writeFileSync(
+      join(SESSION_STATE_DIR, `${sessionId}.json`),
+      JSON.stringify([...slugs])
+    );
   } catch {
     /* best-effort only */
   }
@@ -98,15 +110,18 @@ function saveInjectedSlugs(sessionId, slugs) {
 function loadCorpus(corpusPath) {
   if (!existsSync(corpusPath)) return null;
   try {
-    return JSON.parse(readFileSync(corpusPath, 'utf8'));
+    return JSON.parse(readFileSync(corpusPath, "utf8"));
   } catch {
     return null;
   }
 }
 
 function touchedFilePath(toolName, toolInput) {
-  if (!FILE_TOOLS.has(toolName)) return '';
-  return String(toolInput?.file_path ?? toolInput?.notebook_path ?? '').replace(/\\/g, '/');
+  if (!FILE_TOOLS.has(toolName)) return "";
+  return String(toolInput?.file_path ?? toolInput?.notebook_path ?? "").replace(
+    /\\/g,
+    "/"
+  );
 }
 
 // Path-triggered module-docs pointer: when a tool touches a file inside a module
@@ -120,8 +135,11 @@ function moduleDocsPointer(filePath) {
   const info = moduleDocsFor(filePath, process.cwd());
   if (!info) return null;
   const shown = info.files.slice(0, MAX_DOC_FILES);
-  const more = info.files.length > shown.length ? `, +${info.files.length - shown.length} more` : '';
-  const text = `module "${info.moduleName}" has its own docs — read before designing changes to it: ${shown.join(', ')}${more} (in ${info.relDir}/)`;
+  const more =
+    info.files.length > shown.length
+      ? `, +${info.files.length - shown.length} more`
+      : "";
+  const text = `module "${info.moduleName}" has its own docs — read before designing changes to it: ${shown.join(", ")}${more} (in ${info.relDir}/)`;
   return { key: `mod:${info.relDir}`, text };
 }
 
@@ -129,9 +147,10 @@ function moduleDocsPointer(filePath) {
 // path is matched exclusively via the referent-path hit below, never as text).
 function touchedText(toolName, toolInput) {
   const ti = toolInput ?? {};
-  if (toolName === 'Grep' || toolName === 'Glob') return [ti.pattern, ti.path].filter(Boolean).join(' ');
-  if (toolName === 'Bash') return String(ti.command ?? '');
-  return '';
+  if (toolName === "Grep" || toolName === "Glob")
+    return [ti.pattern, ti.path].filter(Boolean).join(" ");
+  if (toolName === "Bash") return String(ti.command ?? "");
+  return "";
 }
 
 // A single common word (`system`, `client`, `order`, ...) matched anywhere in
@@ -142,7 +161,8 @@ function touchedText(toolName, toolInput) {
 function mentionsPhrase(text, tokens, phrase) {
   const p = norm(phrase);
   if (!p) return false;
-  if (p.includes(' ')) return new RegExp(`\\b${escapeRegExp(p)}\\b`, 'i').test(text);
+  if (p.includes(" "))
+    return new RegExp(`\\b${escapeRegExp(p)}\\b`, "i").test(text);
   return tokens.includes(p);
 }
 
@@ -151,12 +171,17 @@ function mentionsPhrase(text, tokens, phrase) {
 function matchTerms(terms, index, toolName, toolInput) {
   const filePath = touchedFilePath(toolName, toolInput);
   const text = touchedText(toolName, toolInput);
-  const tokens = text ? text.split(/\s+/).map((t) => norm(t).replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N}]+$/gu, '')).filter(Boolean) : [];
+  const tokens = text
+    ? text
+        .split(/\s+/)
+        .map(t => norm(t).replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N}]+$/gu, ""))
+        .filter(Boolean)
+    : [];
   const pathHits = [];
   const textHits = [];
   for (const [slug, term] of Object.entries(terms)) {
     if (filePath) {
-      const isPathHit = (term.referents ?? []).some((ref) => {
+      const isPathHit = (term.referents ?? []).some(ref => {
         const p = index[ref.id]?.path;
         return p && (filePath === p || filePath.endsWith(`/${p}`));
       });
@@ -167,7 +192,8 @@ function matchTerms(terms, index, toolName, toolInput) {
     }
     if (text) {
       const candidates = [term.term, slug, ...(term.aliases ?? [])];
-      if (candidates.some((c) => mentionsPhrase(text, tokens, c))) textHits.push(slug);
+      if (candidates.some(c => mentionsPhrase(text, tokens, c)))
+        textHits.push(slug);
     }
   }
   pathHits.sort();
@@ -180,24 +206,34 @@ function digestLine(slug, term, index) {
   if (unresolved.length) {
     // Never silently drop a corpus-integrity gap — surface it on stderr without
     // failing the hook (a hook must never throw; gate:symbols is the CI stop).
-    console.error(`glossary-inject: term "${slug}" has unresolved referent id(s): ${unresolved.join(', ')}`);
+    console.error(
+      `glossary-inject: term "${slug}" has unresolved referent id(s): ${unresolved.join(", ")}`
+    );
   }
   const paths = [...new Set(resolved.map(({ entry }) => entry.path))];
-  const aliasPart = term.aliases?.length ? ` [${term.aliases.join(', ')}]` : '';
-  const rawDef = String(term.definition ?? '');
-  const def = rawDef.length > MAX_DEFINITION_CHARS ? `${rawDef.slice(0, MAX_DEFINITION_CHARS - 1)}…` : rawDef;
-  const refPart = paths.length ? ` (${paths.join(', ')})` : '';
+  const aliasPart = term.aliases?.length ? ` [${term.aliases.join(", ")}]` : "";
+  const rawDef = String(term.definition ?? "");
+  const def =
+    rawDef.length > MAX_DEFINITION_CHARS
+      ? `${rawDef.slice(0, MAX_DEFINITION_CHARS - 1)}…`
+      : rawDef;
+  const refPart = paths.length ? ` (${paths.join(", ")})` : "";
   return `${term.term}${aliasPart}: ${def}${refPart}`;
 }
 
 function main() {
-  const { corpusPath } = parseCorpusArgs(process.argv.slice(2), DEFAULT_GLOSSARY_PATH);
+  const { corpusPath } = parseCorpusArgs(
+    process.argv.slice(2),
+    DEFAULT_GLOSSARY_PATH
+  );
 
   const payload = readStdinJson();
   if (!payload || !payload.tool_name) process.exit(0);
   // Sanitise the session id before it becomes part of a filesystem path (W6):
   // an unsafe value disables dedup rather than traversing outside the state dir.
-  const sessionId = SESSION_ID_RE.test(String(payload.session_id ?? '')) ? payload.session_id : null;
+  const sessionId = SESSION_ID_RE.test(String(payload.session_id ?? ""))
+    ? payload.session_id
+    : null;
 
   const corpus = loadCorpus(corpusPath);
   const terms = corpus?.glossary?.terms;
@@ -209,20 +245,36 @@ function main() {
   // Push 1 — the touched module's own docs, keyed off the file path (once per
   // module per session). Independent of any term match: an agent opening a
   // module file is pointed at that module's docs even when no term fires.
-  const docs = moduleDocsPointer(touchedFilePath(payload.tool_name, payload.tool_input));
+  const docs = moduleDocsPointer(
+    touchedFilePath(payload.tool_name, payload.tool_input)
+  );
   const emitDocs = docs && !alreadyInjected.has(docs.key);
 
   // Push 2 — the bounded glossary term digest (once per term per session).
-  const candidates = matchTerms(terms, index, payload.tool_name, payload.tool_input);
-  const slugs = candidates.filter((slug) => !alreadyInjected.has(slug)).slice(0, MAX_TERMS_PER_INJECT);
+  const candidates = matchTerms(
+    terms,
+    index,
+    payload.tool_name,
+    payload.tool_input
+  );
+  const slugs = candidates
+    .filter(slug => !alreadyInjected.has(slug))
+    .slice(0, MAX_TERMS_PER_INJECT);
 
   if (!emitDocs && !slugs.length) process.exit(0);
 
   const parts = [];
   if (emitDocs) parts.push(docs.text);
-  if (slugs.length) parts.push(`glossary: ${slugs.map((slug) => digestLine(slug, terms[slug], index)).join(' | ')}`);
-  const additionalContext = parts.join('\n');
-  console.log(JSON.stringify({ hookSpecificOutput: { hookEventName: 'PreToolUse', additionalContext } }));
+  if (slugs.length)
+    parts.push(
+      `glossary: ${slugs.map(slug => digestLine(slug, terms[slug], index)).join(" | ")}`
+    );
+  const additionalContext = parts.join("\n");
+  console.log(
+    JSON.stringify({
+      hookSpecificOutput: { hookEventName: "PreToolUse", additionalContext }
+    })
+  );
 
   const injected = new Set([...alreadyInjected, ...slugs]);
   if (emitDocs) injected.add(docs.key);

@@ -13,6 +13,7 @@ import { CHROME_LEVEL } from "./types";
 import type { ChromeLevel } from "./types";
 import type { ContentGutter, ContentMeasure } from "../content/types";
 import type { ChromeTone, GroupAxis, TopbarHeight, TopbarSpan } from "../types";
+// -----------------------------------------------------------------------------
 
 const PORTAL_GROUP_AXIS_CLASS: Readonly<Record<GroupAxis, string>> = {
   // `flex-nowrap`: a horizontal group in a chrome bar must stay on one line —

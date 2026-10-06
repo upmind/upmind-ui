@@ -66,13 +66,14 @@ import {
 import { isString } from "lodash-es";
 import type { CategoriesProps } from "./types";
 
+defineModel<CategoriesProps["modelValue"]>("modelValue");
+
 // -----------------------------------------------------------------------------
 
 const props = defineProps<
   ProductCategory & Omit<CategoriesProps, "modelValue">
 >();
 
-defineModel<CategoriesProps["modelValue"]>("modelValue");
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();

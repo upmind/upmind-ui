@@ -5,6 +5,7 @@
 
 import { resolve } from "path";
 import tailwindcss from "@tailwindcss/vite";
+// -----------------------------------------------------------------------------
 
 // Enable typeCheck only during build (not dev) to avoid spawn EBADF error on macOS
 const isBuild =

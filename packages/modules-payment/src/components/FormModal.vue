@@ -72,6 +72,10 @@ import { Form } from "@upmind-automation/foundation";
 import type { FormModalProps } from "../types";
 import type { FormFooterProps, FormActionsProps } from "@upmind/ui";
 
+const open = defineModel<boolean>("open", {});
+
+const modelValue = defineModel<Record<string, any>>("modelValue", {});
+
 // -----------------------------------------------------------------------------
 const props = defineProps<FormModalProps>();
 
@@ -88,20 +92,16 @@ const emits = defineEmits<{
   ];
 }>();
 
-const forwarded = useForwardPropsEmits(props, emits);
-
-const open = defineModel<boolean>("open", {});
-
-const modelValue = defineModel<Record<string, any>>("modelValue", {});
-
-const isValid = ref(true);
-
-const { t, locale } = useI18n();
-
 const _slots = defineSlots<{
   footer: FormFooterProps;
   actions: FormActionsProps;
 }>();
+
+const forwarded = useForwardPropsEmits(props, emits);
+
+const isValid = ref(true);
+
+const { t, locale } = useI18n();
 
 function doResolve() {
   emits("resolve", modelValue.value ?? {});

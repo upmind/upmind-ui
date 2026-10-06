@@ -202,6 +202,7 @@ Start
 
 ## Further Reading
 
-- [`.claude/rules/code-services.companion.md`](../../.claude/rules/code-services.companion.md) — Service-actor authoring + split decision criteria
+- [`.claude/rules/svc-split.md`](../../.claude/rules/svc-split.md) — Split decision criteria for services two actors share
+- [`.claude/rules/svc-factory-fns.md`](../../.claude/rules/svc-factory-fns.md) — Service factory authoring
 - [ADR-001](../adr/001-scope-based-composables.md) — How to structure scoped composables
 - [Auth module](../../packages/headless/src/modules/auth/) — Reference implementation

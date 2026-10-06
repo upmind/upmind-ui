@@ -8,6 +8,7 @@
  * public. No duplicate to consume, so minting here is warranted.
  */
 import type { World } from "../world/world.types";
+// -----------------------------------------------------------------------------
 
 /** Gherkin's exact wire strings for the three step kinds. */
 export const STEP_KIND = {

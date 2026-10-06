@@ -6,6 +6,7 @@ import { generateScopeKey } from "./scope.utils";
 import type {
   ActorContextMatrix,
   BareContextsForActor,
+  ConcreteActorTypes,
   ContextsForActor,
   IdContextsForActor,
   ScopeActor,
@@ -32,9 +33,7 @@ import type {
  * @param actor - The actor to resolve
  * @returns The resolved actor type (never SELF)
  */
-export function resolveSelfActor(
-  actor: ScopeActor
-): Exclude<ScopeActor, `${ScopeActorTypes.SELF}`> {
+export function resolveSelfActor(actor: ScopeActor): ConcreteActorTypes {
   if (actor !== ScopeActorTypes.SELF) {
     return actor;
   }
@@ -42,7 +41,14 @@ export function resolveSelfActor(
   const session = useSessionStore();
   const { activeActor } = session.useContext();
 
-  return activeActor.value ?? AccessRoleTypes.GUEST;
+  switch (activeActor.value) {
+    case AccessRoleTypes.CLIENT:
+      return ScopeActorTypes.CLIENT;
+    case AccessRoleTypes.STAFF:
+      return ScopeActorTypes.STAFF;
+    default:
+      return ScopeActorTypes.GUEST;
+  }
 }
 
 /**

@@ -235,11 +235,11 @@ import OrderProducts from "./OrderProducts.vue";
 import { capitalize, first, omit } from "lodash-es";
 import type { OrderProps } from "../types";
 
-interface OrderItem {
+type OrderItem = {
   term?: string;
   description: string;
   dataAttrs?: Record<string, string>;
-}
+};
 
 const props = defineProps<OrderProps>();
 

@@ -5,7 +5,8 @@
  */
 
 import type { RouteLocationAsRelativeGeneric } from "vue-router";
+// -----------------------------------------------------------------------------
 
-export interface BasketActionProps {
+export type BasketActionProps = {
   basketRoute?: RouteLocationAsRelativeGeneric;
-}
+};

@@ -28,8 +28,6 @@ import type {
   ProductLookupService
 } from "./client-notes.types";
 import type { ScopeConfig, ScopeKey } from "../scope";
-import type { ScopedComposable } from "../scope/scope.builder";
-import type { ScopeActorTypes } from "../scope/scope.types";
 // -----------------------------------------------------------------------------
 /**
  * @module client-notes/useClientNoteManager
@@ -55,7 +53,7 @@ function createClientNoteManagerForScope(
 ) {
   const { t } = useI18n();
 
-  const actorScope = config.actor as ScopeActorTypes;
+  const actorScope = config.actor;
 
   /**
    * The asset being edited is carried by the scope context; absent
@@ -188,39 +186,7 @@ function createClientNoteManagerForScope(
 export const useClientNoteManager = createScopedComposable<
   ReturnType<typeof createClientNoteManagerForScope>,
   ClientNoteScopeMatrix
->("client-notes", createClientNoteManagerForScope);
-
-/**
- * @decision B3 — publish `scopeMatrix` on the EXPORTED composable, reading
- * the module's own `CLIENT_NOTE_SCOPE_MATRIX` constant, following the
- * `client-custom-fields` AC-37 precedent
- * (`useClientCustomFields.ts` — "publish `scopeMatrix` on the EXPORTED
- * wrapper").
- * what: this composable passes NO third runtime argument to
- *   `createScopedComposable` (the deliberate collection/manager asymmetry,
- *   design.md §7); `composable.scopeMatrix = scopeMatrix` inside
- *   `scope.builder.ts` therefore assigns `undefined` there. This line
- *   assigns the matrix VALUE afterwards, directly onto the exported
- *   `useClientNoteManager` reference — no second `createScopedComposable`
- *   call, so none of the import-cycle risk `useClientCustomFields`'s
- *   deferred-registration wrapper exists to avoid (this module's export is
- *   not deferred).
- * why: `useModulePort.ts` reads `composable.scopeMatrix` off the reference a
- *   page declaration names, BEFORE ever invoking it, and `servesActor`
- *   (`scope/scope-utils.ts`) treats an absent matrix as "no refusal" — so
- *   with no third argument and no follow-up assignment, the port opens for
- *   every actor, including the STAFF/GUEST cells this module's matrix pins
- *   `never` (B3).
- * rejected: passing `CLIENT_NOTE_SCOPE_MATRIX` as `createScopedComposable`'s
- *   third argument instead — preserves runtime correctness but erases the
- *   collection/manager asymmetry design.md §7 records as deliberate.
- */
-(
-  useClientNoteManager as ScopedComposable<
-    ReturnType<typeof createClientNoteManagerForScope>,
-    ClientNoteScopeMatrix
-  >
-).scopeMatrix = CLIENT_NOTE_SCOPE_MATRIX;
+>("client-notes", createClientNoteManagerForScope, CLIENT_NOTE_SCOPE_MATRIX);
 
 // Type export for consumers
 export type UseClientNoteManager = ReturnType<typeof useClientNoteManager>;

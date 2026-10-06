@@ -82,9 +82,9 @@ type LookupControlOptions = {
   options?: LookupItem[];
 };
 
-const SEARCH_DEBOUNCE = 300;
-
 const props = defineProps<RendererProps<ControlElement>>();
+
+const SEARCH_DEBOUNCE = 300;
 
 const { control, appliedOptions, onInput, formFieldProps } =
   useUpmindUIRenderer(useJsonFormsOneOfEnumControl(props));

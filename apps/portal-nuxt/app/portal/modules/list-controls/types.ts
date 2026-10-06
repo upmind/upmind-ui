@@ -43,17 +43,17 @@ export const LIST_CONTROLS_FILTER_ANY = "any";
 /** The two halves of a date-range value, joined — `2026-01-01..2026-03-31`. */
 export const LIST_CONTROLS_RANGE_SEPARATOR = "..";
 
-export interface ListControlsFilterOption {
+export type ListControlsFilterOption = {
   readonly value: string;
   readonly label: string;
-}
+};
 
 /**
  * One narrowing the panel offers. The selector authors every word of it; the
  * module renders the control its `kind` names and emits `${action}:${value}`,
  * an empty value clearing.
  */
-export interface ListControlsFilter {
+export type ListControlsFilter = {
   /** The collection's own filter key — the criteria this control writes. */
   readonly key: string;
   /** Its visible name, and the control's accessible name. */
@@ -65,15 +65,15 @@ export interface ListControlsFilter {
   readonly value?: string;
   /** Emit prefix `collection-filter:<collectionId>:<key>`; the module appends `:<value>`. */
   readonly action: string;
-}
+};
 
-export interface ListControlsSortOption {
+export type ListControlsSortOption = {
   readonly value: string;
   readonly label: string;
-}
+};
 
 /** The grid/table switch legacy put over its products listing. */
-export interface ListControlsView {
+export type ListControlsView = {
   /** The showing view's value. */
   readonly value: string;
   /** Emit prefix `set-view`; the module appends `:<value>`. */
@@ -81,9 +81,9 @@ export interface ListControlsView {
   /** Accessible name for the switch. The selector authors it (CC22). */
   readonly label: string;
   readonly options: readonly ListControlsFilterOption[];
-}
+};
 
-export interface ListControlsState {
+export type ListControlsState = {
   /** The applied query the field opens with — the ACTIVE tab's own. */
   readonly searchValue?: string;
   /** Emit prefix for search: `collection-search:<id>`; the module appends `:<text>`. */
@@ -98,9 +98,9 @@ export interface ListControlsState {
   readonly sortOptions?: readonly ListControlsSortOption[];
   /** The view switch, on the one listing that offers it. */
   readonly view?: ListControlsView;
-}
+};
 
-export interface ListControlsProps {
+export type ListControlsProps = {
   /** The live feed; absent (or empty of every concern) renders nothing. */
   readonly state?: ListControlsState;
   /** Renders this concern alone. Absent renders every one the state carries. */
@@ -110,7 +110,7 @@ export interface ListControlsProps {
   readonly searchLabel: string;
   /** Accessible name for the sort select. No English default (CC22). */
   readonly sortLabel: string;
-}
+};
 
 export type ListControlsEmits = {
   /** An action value — the same seam every module's actions ride. */

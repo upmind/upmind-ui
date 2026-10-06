@@ -1,210 +1,113 @@
 /** @internal */
-// -----------------------------------------------------------------------------
-/**
- * TEMPLATE FILE — doctrine wins over this skeleton and its named worked
- * example. Authority: `code-services.md` (service-authoring, actor-split
- * decision) + `code-composables.companion.md` "Variance law" clauses 2/3. A
- * disagreement between this skeleton, its worked example, and the doctrine is
- * a surfaced finding, never silently resolved toward either.
- */
-
-import { computed } from "vue";
+// TEMPLATE FILE — scaffolded by the factory; replace every placeholder.
 import { useQuery } from "../query";
-import { ScopeActorTypes } from "../scope";
-import { useQuerySchema } from "./module.schemas";
 import { useActiveSession } from "../session-store";
+import { useI18n } from "../system-localisation";
 import { map{Module}, map{Module}s } from "./module.mappers";
-import { ModuleContextTypes } from "./module.types";
-import { useTime, NotAuthenticatedError, DEBOUNCE_DELAY } from "../../utils";
-import type { QueryParams } from "../query";
-import type { ScopeContext } from "../scope";
-import type { QueryModel } from "./module.types";
-import type { {Module}, ModuleServices } from "./module.types";
+import { useQuerySchema } from "./module.schemas";
+import {
+  DEBOUNCE_DELAY,
+  DetailedError,
+  ErrorOrigin,
+  NotAuthenticatedError,
+  responseCodes,
+  useTime
+} from "../../utils";
+import type { ScopeActorTypes, ScopeContext } from "../scope";
+import type {
+  {Module},
+  ModuleModel,
+  ModuleServices,
+  QueryModel
+} from "./module.types";
+import type { QueryKey } from "@tanstack/vue-query";
 import type { I{Module} } from "@upmind-automation/types";
+import type { ComputedRef } from "vue";
 // -----------------------------------------------------------------------------
 /**
- * @internal
  * @module module/module.services
- * @description Module TanStack Query services (list + mutations).
- * Shared services are defined here, actor-specific services in their respective
- * files. Uses a matrix lookup pattern for scalable service resolution.
- *
- * Data is mapped here via `select`, never in `useModule.context.ts`
- * (`code-composables.md` Part B "TanStack Query variant").
- *
- * WARNING: Do not import directly. Resolve via `useModule.ts` only.
+ * @description Module requests and the services factory.
  */
-// -----------------------------------------------------------------------------
-// Shared Services
-// These are identical for all scopeActor types
 
-/**
- * Base cache key. Exported so an arm overriding `loadList` extends the SAME
- * key rather than inventing a parallel one — two arms must never collide in
- * the cache, and must never diverge from the shared base.
- */
-export const queryKey = ["module", "items"];
+export const queryKey: QueryKey = ["module", "items"];
 
-/**
- * Shared list fetch — the canonical services-layer override candidate. The URL,
- * the auth scope and the cache key are all actor-dependent the moment a second
- * actor can read this collection, so an arm overriding `loadList` is the
- * expected shape, not an exception. See `module.services.{actor}.ts`.
- */
-function loadList(
-  params: Partial<QueryParams<I{Module}[], {Module}[]>> = {
-    pagination: { limit: 0 }
-  },
-  scopeContext?: ScopeContext
-) {
-  const { isAuthenticated } = useActiveSession().useMeta();
-  const { activeUser } = useActiveSession().useContext();
+function loadList(clientId: ComputedRef<string | undefined>) {
   const { list, useUrl } = useQuery();
-
-  // `.for('client', id)` names the client being read — a STAFF scope has no
-  // other route to it, and reading `activeUser` there fetches the staff user's
-  // own collection instead (the FE-2824 drop).
-  const clientId = computed(() =>
-    scopeContext?.type === ModuleContextTypes.CLIENT
-      ? scopeContext.id
-      : activeUser.value?.id
-  );
+  const { isAuthenticated } = useActiveSession().useMeta();
 
   return list<I{Module}[], {Module}[], QueryModel>({
-    ...params,
-    // THE criteria channel. The module's query schema owns ALL request state —
-    // filters, sort, pagination, limit — and `list()` builds the wire params
-    // from it. Nothing else may reach the wire: a hand-rolled filter ref, a
-    // `filter[...]` string or a raw sort/limit literal beside this line is the
-    // criteria-subversion defect (door SKILL.md). Deleting this line strips the
-    // module's whole filter/sort/page surface and the page that renders off it.
-    criteria: { schema: useQuerySchema() },
-    queryKey: [...queryKey, { client: clientId.value }],
     url: useUrl(`clients/${clientId.value}/module-items`),
-    // `enabled:` below only stops the query starting; this rejects a `refetch()`
-    // on a dead session with the typed error every collection surfaces, instead
-    // of a raw 401 (`client-phone/client-phone.services.ts:42-50`).
-    guard: async () =>
-      new Promise((resolve, reject) => {
-        if (isAuthenticated.value && !!clientId.value) {
-          resolve(true);
-        } else {
-          reject(new NotAuthenticatedError());
-        }
-      }),
-    withAccessToken: true,
+    queryKey: [...queryKey, { client: clientId.value }],
+    criteria: { schema: useQuerySchema() },
+    enabled: () => isAuthenticated.value && !!clientId.value,
+    guard: async () => {
+      if (!isAuthenticated.value || !clientId.value)
+        throw new NotAuthenticatedError();
+      return true;
+    },
+    retryDelay: DEBOUNCE_DELAY,
     select: map{Module}s,
     staleTime: useTime().DAY,
-    retryDelay: DEBOUNCE_DELAY,
-    enabled: () => isAuthenticated.value && !!clientId.value
+    withAccessToken: true
   });
 }
 
-/**
- * SINGLE-RECORD READ — one record by its id, minted once per scope by
- * `useModuleItem.ts`. Delete this function (and its `ModuleServices` member) for
- * a module with no single-record read.
- *
- * The `id` is the scope builder's `.withId(id)`, relayed off `config.id` — NOT a
- * scope context, and never re-derived from one (`templates/SINGLE-READ.md`).
- * `scopeContext` still arrives, because WHOSE record it is remains an actor
- * question: a staff scope acting `.for('client', id)` addresses that client, and
- * a self scope falls through to the session's own — the same seam `loadList`
- * uses, so the two halves cannot disagree.
- *
- * An ABSENT id issues NO request: it is the un-addressed state, not a fetch of
- * `.../undefined`. Its presence is what fires exactly one request, which is the
- * single load-bearing assertion a single-read test makes.
- */
-function loadOne(id?: {Module}["id"], scopeContext?: ScopeContext) {
-  const { isAuthenticated } = useActiveSession().useMeta();
-  const { activeUser } = useActiveSession().useContext();
+function loadOne(clientId: ComputedRef<string | undefined>, id?: {Module}["id"]) {
   const { query, useUrl } = useQuery();
-
-  const clientId = computed(() =>
-    scopeContext?.type === ModuleContextTypes.CLIENT
-      ? scopeContext.id
-      : activeUser.value?.id
-  );
+  const { isAuthenticated } = useActiveSession().useMeta();
+  const { t } = useI18n();
 
   return query<I{Module}, {Module}>({
-    queryKey: [...queryKey, "item", id, { client: clientId.value }],
     url: useUrl(`module-items/${id}`),
-    guard: async () =>
-      new Promise((resolve, reject) => {
-        if (id && isAuthenticated.value && !!clientId.value) {
-          resolve(true);
-        } else {
-          reject(new NotAuthenticatedError());
-        }
-      }),
-    withAccessToken: true,
+    queryKey: [...queryKey, "item", id, { client: clientId.value }],
+    enabled: () => !!id && isAuthenticated.value && !!clientId.value,
+    guard: async () => {
+      if (!isAuthenticated.value || !clientId.value)
+        throw new NotAuthenticatedError();
+      if (!id)
+        throw new DetailedError(
+          t("error.module_not_found"),
+          responseCodes.Not_Found,
+          ErrorOrigin.Headless
+        );
+      return true;
+    },
     select: map{Module},
     staleTime: useTime().DAY,
-    enabled: () => !!id && isAuthenticated.value && !!clientId.value
+    withAccessToken: true
   });
 }
 
-/**
- * Shared domain mutation — the wire call `useModule.actions.ts`'s `login`
- * awaits, and the one the actions arm's own `login` override also drives
- * (`useModule.actions.{actor}.ts`): that override diverges in the ACTION's
- * composition, not in this call.
- */
-function login(model: Record<string, unknown>): Promise<unknown> {
+function login(model: ModuleModel): Promise<unknown> {
   const { post, useUrl } = useQuery();
-  // Replace with the request this module's parity table names.
+
   return post({
+    mutationKey: [...queryKey, "login"],
     url: useUrl("module-items/login"),
     data: model,
     withAccessToken: true
   });
 }
-
 // -----------------------------------------------------------------------------
-// Service Factory
-
-/**
- * Service matrix: maps scopeActor types to their service implementations.
- * Actor-specific services are created via factories, shared services are merged in.
- * The shape is the same armed or armless — an armless module has only the
- * `default:` case, so nothing here or downstream changes when an arm is earned.
- */
-function scopedServices(
-  scopeActor: ScopeActorTypes,
-  scopeContext?: ScopeContext
-): Partial<ModuleServices> {
+function scopedServices(scopeActor: ScopeActorTypes): Partial<ModuleServices> {
   switch (scopeActor) {
-    // case ScopeActorTypes.CLIENT:
-    //   return createClientModuleServices(scopeContext) ;
     default:
-      // Empty because this module is armless: no actor has earned an arm yet, so
-      // there is nothing to merge over the shared members. Only arm-specific
-      // members ever appear here — the shared ones are spread in below.
       return {};
   }
 }
 
-// -----------------------------------------------------------------------------
-// Scope-Ready Services
-// These wrappers delegate to the correct implementation
-
-/**
- * Services factory — same shape as the other three layers: the concrete actor
- * and the context it acts upon arrive first, at construction, and `useModule.ts`
- * calls it once. The machine variant reads the same two values off
- * `context.scopeActor` / `context.scopeContext` per call instead, because a
- * machine has no construction-time seam to close over.
- */
-export const createModuleServices = (
+export function createModuleServices(
   scopeActor: ScopeActorTypes,
-  scopeContext?: ScopeContext
-): ModuleServices => ({
-  queryKey,
-  loadList: params => loadList(params, scopeContext),
-  loadOne: id => loadOne(id, scopeContext),
-  login,
-  ...scopedServices(scopeActor, scopeContext)
-});
+  scopeContext: ScopeContext | undefined,
+  clientId: ComputedRef<string | undefined>
+): ModuleServices {
+  return {
+    loadList: () => loadList(clientId),
+    loadOne: id => loadOne(clientId, id),
+    login,
+    queryKey,
+    ...scopedServices(scopeActor)
+  };
+}
 
 export default createModuleServices;

@@ -4,6 +4,7 @@ import { dataManagerMachine } from "../data-manager";
 import { createScopedComposable } from "../scope";
 import { useI18n } from "../system-localisation";
 import createClientPersonalDetailsServices from "./client-personal-details.services";
+import { PERSONAL_DETAILS_SCOPE_MATRIX } from "./client-personal-details.types";
 import { createPersonalDetailsActions } from "./usePersonalDetails.actions";
 import { createPersonalDetailsContext } from "./usePersonalDetails.context";
 import { createPersonalDetailsInternals } from "./usePersonalDetails.internals";
@@ -18,7 +19,6 @@ import {
 } from "../../utils";
 import type { PersonalDetailsScopeMatrix } from "./client-personal-details.types";
 import type { ScopeConfig, ScopeKey } from "../scope";
-import type { ScopeActorTypes } from "../scope/scope.types";
 // -----------------------------------------------------------------------------
 /**
  * @module client-personal-details/usePersonalDetails
@@ -65,7 +65,7 @@ function createPersonalDetailsForScope(
 ) {
   const { t } = useI18n();
 
-  const actorScope = config.actor as ScopeActorTypes;
+  const actorScope = config.actor;
 
   /**
    * ONE services instance for this scope, threaded into the machine config.
@@ -172,7 +172,11 @@ function createPersonalDetailsForScope(
 export const usePersonalDetails = createScopedComposable<
   ReturnType<typeof createPersonalDetailsForScope>,
   PersonalDetailsScopeMatrix
->("client-personal-details", createPersonalDetailsForScope);
+>(
+  "client-personal-details",
+  createPersonalDetailsForScope,
+  PERSONAL_DETAILS_SCOPE_MATRIX
+);
 
 // Type export for consumers
 export type UsePersonalDetails = ReturnType<typeof usePersonalDetails>;

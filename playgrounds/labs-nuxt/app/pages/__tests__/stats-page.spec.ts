@@ -64,6 +64,7 @@
 
 import { join } from "node:path";
 import { mount } from "@vue/test-utils";
+import { http, HttpResponse } from "msw";
 import {
   afterAll,
   afterEach,
@@ -76,7 +77,6 @@ import {
 } from "vitest";
 import { Suspense, defineComponent, h } from "vue";
 import { createRouter, createWebHistory } from "vue-router";
-import { http, HttpResponse } from "msw";
 import { getFixtureBody } from "@upmind-automation/test-fixtures";
 import { startReplayServer } from "@upmind-automation/test-fixtures/replay-server";
 import { first } from "lodash-es";

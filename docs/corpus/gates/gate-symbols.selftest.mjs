@@ -31,39 +31,39 @@
 //   node docs/corpus/gates/gate-symbols.selftest.mjs             # run every case
 //   node docs/corpus/gates/gate-symbols.selftest.mjs --case <id> # run one case
 
-import { spawnSync } from 'node:child_process';
-import fs from 'node:fs';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { spawnSync } from "node:child_process";
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url)); // docs/corpus/gates
-const DOCS_DIR = path.resolve(HERE, '..', '..'); // -> docs/
-const CORPUS_JSON_PATH = path.join(DOCS_DIR, 'corpus', 'corpus.json');
-const FIXTURES = path.join(DOCS_DIR, 'corpus', 'fixtures');
+const DOCS_DIR = path.resolve(HERE, "..", ".."); // -> docs/
+const CORPUS_JSON_PATH = path.join(DOCS_DIR, "corpus", "corpus.json");
+const FIXTURES = path.join(DOCS_DIR, "corpus", "fixtures");
 
 function assert(cond, message) {
   if (!cond) throw new Error(message);
 }
 
 function runGate() {
-  return spawnSync(process.execPath, ['corpus/gates/gate-symbols.mjs'], {
+  return spawnSync(process.execPath, ["corpus/gates/gate-symbols.mjs"], {
     cwd: DOCS_DIR,
-    encoding: 'utf8',
+    encoding: "utf8"
   });
 }
 
 function combinedOutput(result) {
-  return `${result.stdout || ''}\n${result.stderr || ''}`;
+  return `${result.stdout || ""}\n${result.stderr || ""}`;
 }
 
 function readCorpus() {
-  return JSON.parse(fs.readFileSync(CORPUS_JSON_PATH, 'utf8'));
+  return JSON.parse(fs.readFileSync(CORPUS_JSON_PATH, "utf8"));
 }
 
 // Backs up corpus.json, hands a mutable clone to `mutate`, writes it, runs the
 // gate, and restores the original bytes unconditionally.
 function withMutatedCorpus(mutate, run) {
-  const original = fs.readFileSync(CORPUS_JSON_PATH, 'utf8');
+  const original = fs.readFileSync(CORPUS_JSON_PATH, "utf8");
   try {
     const corpus = JSON.parse(original);
     mutate(corpus);
@@ -81,7 +81,7 @@ function caseCleanGreen() {
   const result = runGate();
   assert(
     result.status === 0,
-    `expected gate:symbols to exit 0 on the clean tree (B14 / 2753-AC1), got exit ${result.status}\n${combinedOutput(result)}`,
+    `expected gate:symbols to exit 0 on the clean tree (B14 / 2753-AC1), got exit ${result.status}\n${combinedOutput(result)}`
   );
 }
 
@@ -91,41 +91,38 @@ function caseCleanGreen() {
 // ---------------------------------------------------------------------------
 function caseRenamedExportRed() {
   const defect = JSON.parse(
-    fs.readFileSync(path.join(FIXTURES, 'drift-renamed-export.json'), 'utf8'),
+    fs.readFileSync(path.join(FIXTURES, "drift-renamed-export.json"), "utf8")
   );
-  const result = withMutatedCorpus(
-    (corpus) => {
-      const victimId = Object.keys(corpus.symbols)[0];
-      assert(victimId, 'real corpus.json has no symbols to rename');
-      const victim = corpus.symbols[victimId];
-      delete corpus.symbols[victimId];
-      delete corpus.index[victimId];
-      corpus.symbols[defect.renamedId] = {
-        ...victim,
-        id: defect.renamedId,
-        name: defect.renamedName,
-      };
-      corpus.index[defect.renamedId] = {
-        kind: 'symbol',
-        path: victim.sourceFile,
-        module: victim.module,
-        title: defect.renamedName,
-      };
-    },
-    runGate,
-  );
+  const result = withMutatedCorpus(corpus => {
+    const victimId = Object.keys(corpus.symbols)[0];
+    assert(victimId, "real corpus.json has no symbols to rename");
+    const victim = corpus.symbols[victimId];
+    delete corpus.symbols[victimId];
+    delete corpus.index[victimId];
+    corpus.symbols[defect.renamedId] = {
+      ...victim,
+      id: defect.renamedId,
+      name: defect.renamedName
+    };
+    corpus.index[defect.renamedId] = {
+      kind: "symbol",
+      path: victim.sourceFile,
+      module: victim.module,
+      title: defect.renamedName
+    };
+  }, runGate);
   const combined = combinedOutput(result);
   assert(
     result.status !== 0,
-    `expected gate:symbols to exit non-zero on a renamed/dead documented symbol (B6 / 2753-AC1), got exit ${result.status}\n${combined}`,
+    `expected gate:symbols to exit non-zero on a renamed/dead documented symbol (B6 / 2753-AC1), got exit ${result.status}\n${combined}`
   );
   assert(
     combined.includes(defect.renamedId),
-    `RED-for-the-right-reason: expected the finding to name the dead id "${defect.renamedId}" (2753-AC4), got:\n${combined}`,
+    `RED-for-the-right-reason: expected the finding to name the dead id "${defect.renamedId}" (2753-AC4), got:\n${combined}`
   );
   assert(
     /no longer resolves|renamed\/removed/i.test(combined),
-    `expected the finding to state the symbol no longer resolves, got:\n${combined}`,
+    `expected the finding to state the symbol no longer resolves, got:\n${combined}`
   );
 }
 
@@ -136,37 +133,37 @@ function caseRenamedExportRed() {
 function caseDeadGlossaryReferentRed() {
   const defect = JSON.parse(
     fs.readFileSync(
-      path.join(FIXTURES, 'drift-dead-glossary-referent.json'),
-      'utf8',
-    ),
+      path.join(FIXTURES, "drift-dead-glossary-referent.json"),
+      "utf8"
+    )
   );
   let targetedTerm = null;
-  const result = withMutatedCorpus(
-    (corpus) => {
-      const slug = Object.keys(corpus.glossary.terms).find((s) =>
-        corpus.glossary.terms[s].referents.some((r) => r.type === 'symbol'),
-      );
-      assert(slug, 'seed glossary has no term carrying a symbol-type referent to mutate');
-      targetedTerm = corpus.glossary.terms[slug].term;
-      corpus.glossary.terms[slug].referents[0] = {
-        type: defect.type,
-        id: defect.deadReferentId,
-      };
-    },
-    runGate,
-  );
+  const result = withMutatedCorpus(corpus => {
+    const slug = Object.keys(corpus.glossary.terms).find(s =>
+      corpus.glossary.terms[s].referents.some(r => r.type === "symbol")
+    );
+    assert(
+      slug,
+      "seed glossary has no term carrying a symbol-type referent to mutate"
+    );
+    targetedTerm = corpus.glossary.terms[slug].term;
+    corpus.glossary.terms[slug].referents[0] = {
+      type: defect.type,
+      id: defect.deadReferentId
+    };
+  }, runGate);
   const combined = combinedOutput(result);
   assert(
     result.status !== 0,
-    `expected gate:symbols to exit non-zero on a dead glossary referent (B12 / 3003-AC2), got exit ${result.status}\n${combined}`,
+    `expected gate:symbols to exit non-zero on a dead glossary referent (B12 / 3003-AC2), got exit ${result.status}\n${combined}`
   );
   assert(
     combined.includes(defect.deadReferentId),
-    `RED-for-the-right-reason: expected the finding to name the dead referent id "${defect.deadReferentId}", got:\n${combined}`,
+    `RED-for-the-right-reason: expected the finding to name the dead referent id "${defect.deadReferentId}", got:\n${combined}`
   );
   assert(
     targetedTerm && combined.includes(targetedTerm),
-    `expected the finding to name the offending term "${targetedTerm}" (3003-AC2), got:\n${combined}`,
+    `expected the finding to name the offending term "${targetedTerm}" (3003-AC2), got:\n${combined}`
   );
 }
 
@@ -174,18 +171,19 @@ function caseDeadGlossaryReferentRed() {
 // fail-closed — a malformed corpus.json must fail the gate, not pass silently.
 // ---------------------------------------------------------------------------
 function caseFailClosedOnCorruptCorpus() {
-  const original = fs.readFileSync(CORPUS_JSON_PATH, 'utf8');
+  const original = fs.readFileSync(CORPUS_JSON_PATH, "utf8");
   try {
-    fs.writeFileSync(CORPUS_JSON_PATH, '{ this is not valid json ][');
+    fs.writeFileSync(CORPUS_JSON_PATH, "{ this is not valid json ][");
     const result = runGate();
     const combined = combinedOutput(result);
     assert(
       result.status !== 0,
-      `fail-closed: expected gate:symbols to exit non-zero on an unreadable corpus.json, got exit ${result.status}\n${combined}`,
+      `fail-closed: expected gate:symbols to exit non-zero on an unreadable corpus.json, got exit ${result.status}\n${combined}`
     );
     assert(
-      /corpus\.json/.test(combined) && /not valid json|fail-closed/i.test(combined),
-      `fail-closed: expected the failure to name corpus.json and the parse failure, got:\n${combined}`,
+      /corpus\.json/.test(combined) &&
+        /not valid json|fail-closed/i.test(combined),
+      `fail-closed: expected the failure to name corpus.json and the parse failure, got:\n${combined}`
     );
   } finally {
     fs.writeFileSync(CORPUS_JSON_PATH, original);
@@ -196,21 +194,33 @@ function caseFailClosedOnCorruptCorpus() {
 // Runner
 // ---------------------------------------------------------------------------
 const CASES = [
-  { id: 'b14-clean-green', bdd: 'B14 / 2753-AC1', fn: caseCleanGreen },
-  { id: 'b6-renamed-export-red', bdd: 'B6 / 2753-AC1, 2753-AC4', fn: caseRenamedExportRed },
-  { id: 'b12-dead-glossary-referent-red', bdd: 'B12 / 3003-AC2', fn: caseDeadGlossaryReferentRed },
-  { id: 'fail-closed-corrupt-corpus', bdd: 'fail-closed / design §7.1', fn: caseFailClosedOnCorruptCorpus },
+  { id: "b14-clean-green", bdd: "B14 / 2753-AC1", fn: caseCleanGreen },
+  {
+    id: "b6-renamed-export-red",
+    bdd: "B6 / 2753-AC1, 2753-AC4",
+    fn: caseRenamedExportRed
+  },
+  {
+    id: "b12-dead-glossary-referent-red",
+    bdd: "B12 / 3003-AC2",
+    fn: caseDeadGlossaryReferentRed
+  },
+  {
+    id: "fail-closed-corrupt-corpus",
+    bdd: "fail-closed / design §7.1",
+    fn: caseFailClosedOnCorruptCorpus
+  }
 ];
 
 function main() {
   const args = process.argv.slice(2);
-  const caseFlagIdx = args.indexOf('--case');
+  const caseFlagIdx = args.indexOf("--case");
   const onlyCase = caseFlagIdx !== -1 ? args[caseFlagIdx + 1] : null;
 
-  const toRun = onlyCase ? CASES.filter((c) => c.id === onlyCase) : CASES;
+  const toRun = onlyCase ? CASES.filter(c => c.id === onlyCase) : CASES;
   if (onlyCase && toRun.length === 0) {
     console.error(
-      `FAIL: unknown --case "${onlyCase}". Known cases: ${CASES.map((c) => c.id).join(', ')}`,
+      `FAIL: unknown --case "${onlyCase}". Known cases: ${CASES.map(c => c.id).join(", ")}`
     );
     process.exit(1);
   }
@@ -223,10 +233,14 @@ function main() {
       console.log(`PASS  ${c.id}  (${c.bdd})  ${Date.now() - startedAt}ms`);
     } catch (err) {
       failures += 1;
-      console.error(`FAIL  ${c.id}  (${c.bdd})  ${Date.now() - startedAt}ms\n  ${err.message}`);
+      console.error(
+        `FAIL  ${c.id}  (${c.bdd})  ${Date.now() - startedAt}ms\n  ${err.message}`
+      );
     }
   }
-  console.log(`\n${toRun.length - failures}/${toRun.length} gate-symbols.selftest.mjs cases passed`);
+  console.log(
+    `\n${toRun.length - failures}/${toRun.length} gate-symbols.selftest.mjs cases passed`
+  );
   process.exit(failures ? 1 : 0);
 }
 

@@ -256,17 +256,19 @@ import RequiredAlert from "./components/RequiredAlert.vue";
 import { filter, isEmpty, includes } from "lodash-es";
 import type { BasketProductContentProps } from "./types";
 
-// -----------------------------------------------------------------------------
+const open = defineModel<boolean>("open");
 
-const { t } = useI18n();
+const quantity = defineModel<ProductModel["quantity"]>("quantity");
+
+const term = defineModel<ProductModel["term"]>("term");
 
 const props = defineProps<BasketProductContentProps>();
 
 const emits = defineEmits(["remove", "update:open"]);
 
-const open = defineModel<boolean>("open");
-const quantity = defineModel<ProductModel["quantity"]>("quantity");
-const term = defineModel<ProductModel["term"]>("term");
+// -----------------------------------------------------------------------------
+
+const { t } = useI18n();
 
 const { ui, data } = useConfig().with({
   basketProduct: () => props

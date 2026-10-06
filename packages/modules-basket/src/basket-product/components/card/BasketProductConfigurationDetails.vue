@@ -28,9 +28,9 @@ defineOptions({
   inheritAttrs: false
 });
 
-const { t } = useI18n();
-
 const props = defineProps<BasketProductConfigDetailsProps>();
+
+const { t } = useI18n();
 
 function getCategory(group: BasketProductConfigDetailsProps["details"]) {
   const groupCategory = first(group)?.category;

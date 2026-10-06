@@ -1,5 +1,6 @@
 import { keys, zipObject, toUpper, map } from "lodash-es";
 import type { VariantConstants } from "./types";
+// -----------------------------------------------------------------------------
 
 /**
  * Turns the keys of a style variant map into named constants, so that code

@@ -25,12 +25,12 @@ import type { DomainSlotProps } from "../types";
 
 const props = defineProps<DomainSlotProps>();
 
-const { t } = useI18n();
-
 const emit = defineEmits<{
   (e: "update:modelValue", value: string): void;
   (e: "reset"): void;
 }>();
+
+const { t } = useI18n();
 
 const query = useVModel(props, "modelValue", emit);
 </script>

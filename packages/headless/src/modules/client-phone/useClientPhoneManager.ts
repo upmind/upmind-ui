@@ -6,7 +6,10 @@ import { dataManagerMachine } from "../data-manager";
 import { createScopedComposable } from "../scope/scope.builder";
 import { useI18n } from "../system-localisation";
 import createClientPhoneServices from "./client-phone.services";
-import { ClientPhoneContextTypes } from "./client-phone.types";
+import {
+  CLIENT_PHONE_SCOPE_MATRIX,
+  ClientPhoneContextTypes
+} from "./client-phone.types";
 import { createClientPhoneManagerActions } from "./useClientPhoneManager.actions";
 import { createClientPhoneManagerContext } from "./useClientPhoneManager.context";
 import { createClientPhoneManagerInternals } from "./useClientPhoneManager.internals";
@@ -21,7 +24,6 @@ import {
 } from "../../utils";
 import type { ClientPhoneScopeMatrix } from "./client-phone.types";
 import type { ScopeConfig, ScopeKey } from "../scope";
-import type { ScopeActorTypes } from "../scope/scope.types";
 // -----------------------------------------------------------------------------
 /**
  * @module client-phone/useClientPhoneManager
@@ -47,7 +49,7 @@ function createClientPhoneManagerForScope(
 ) {
   const { t } = useI18n();
 
-  const actorScope = config.actor as ScopeActorTypes;
+  const actorScope = config.actor;
 
   /**
    * The phone being edited is carried by the scope context; absent
@@ -169,7 +171,7 @@ function createClientPhoneManagerForScope(
 export const useClientPhoneManager = createScopedComposable<
   ReturnType<typeof createClientPhoneManagerForScope>,
   ClientPhoneScopeMatrix
->("client-phone", createClientPhoneManagerForScope);
+>("client-phone", createClientPhoneManagerForScope, CLIENT_PHONE_SCOPE_MATRIX);
 
 // Type export for consumers
 export type UseClientPhoneManager = ReturnType<typeof useClientPhoneManager>;

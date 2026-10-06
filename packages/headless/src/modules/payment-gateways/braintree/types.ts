@@ -1,5 +1,6 @@
 import type { GatewayContext } from "../payment-gateways.types";
 import type { Dropin } from "braintree-web-drop-in";
+// -----------------------------------------------------------------------------
 
 // --- types
 

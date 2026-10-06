@@ -48,6 +48,7 @@ import type {
   WalletTransactionTypes,
   GatewayTypes
 } from "@upmind-automation/types";
+// -----------------------------------------------------------------------------
 
 /**
  * The product tags this layer WRITES rather than merely carries. A tag that

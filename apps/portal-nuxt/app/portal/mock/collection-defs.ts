@@ -102,6 +102,7 @@ import type {
 import type { PaginationInfo } from "@upmind-automation/headless";
 import type { InvoiceStatus } from "@upmind-automation/types";
 import type { ComputedRef } from "vue";
+// -----------------------------------------------------------------------------
 
 type NoFilters = Record<string, never>;
 

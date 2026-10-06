@@ -4,7 +4,10 @@ import { dataManagerMachine } from "../data-manager";
 import { createScopedComposable } from "../scope/scope.builder";
 import { useI18n } from "../system-localisation";
 import createClientAddressServices from "./client-address.services";
-import { ClientAddressContextTypes } from "./client-address.types";
+import {
+  CLIENT_ADDRESS_SCOPE_MATRIX,
+  ClientAddressContextTypes
+} from "./client-address.types";
 import { createClientAddressManagerActions } from "./useClientAddressManager.actions";
 import { createClientAddressManagerContext } from "./useClientAddressManager.context";
 import { createClientAddressManagerInternals } from "./useClientAddressManager.internals";
@@ -19,7 +22,6 @@ import {
 } from "../../utils";
 import type { ClientAddressScopeMatrix } from "./client-address.types";
 import type { ScopeConfig, ScopeKey } from "../scope";
-import type { ScopeActorTypes } from "../scope/scope.types";
 // -----------------------------------------------------------------------------
 /**
  * @module client-address/useClientAddressManager
@@ -48,7 +50,7 @@ function createClientAddressManagerForScope(
 ) {
   const { t } = useI18n();
 
-  const actorScope = config.actor as ScopeActorTypes;
+  const actorScope = config.actor;
 
   /**
    * The address being edited is carried by the scope context; absent
@@ -174,7 +176,11 @@ function createClientAddressManagerForScope(
 export const useClientAddressManager = createScopedComposable<
   ReturnType<typeof createClientAddressManagerForScope>,
   ClientAddressScopeMatrix
->("client-address", createClientAddressManagerForScope);
+>(
+  "client-address",
+  createClientAddressManagerForScope,
+  CLIENT_ADDRESS_SCOPE_MATRIX
+);
 
 // Type export for consumers
 export type UseClientAddressManager = ReturnType<

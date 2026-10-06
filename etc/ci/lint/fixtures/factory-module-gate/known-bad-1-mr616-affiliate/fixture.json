@@ -1,0 +1,19 @@
+{
+  "case": "known-bad-1-mr616-affiliate",
+  "incident": "FE-3227, MR !616 — the net-new affiliate module rejected for a full rebuild (docs/sdd/FE-3227/handover-plugin-factory.md)",
+  "ref": "91779b28e8cadd6faf38034d3e486306da604ef4",
+  "fetch": "git fetch origin 91779b28e8cadd6faf38034d3e486306da604ef4",
+  "module": "packages/headless/src/modules/affiliate",
+  "base": "origin/develop",
+  "config": "today",
+  "expect": {
+    "exit": 1,
+    "firstRed": "gate-1",
+    "firstRedRules": [
+      "async-discipline/no-promise-try-catch",
+      "endpoint-ownership/owned-endpoint-boundary",
+      "endpoint-ownership/no-direct-tanstack-query"
+    ],
+    "red": [1, 2, 3, 4, 5, 7]
+  }
+}

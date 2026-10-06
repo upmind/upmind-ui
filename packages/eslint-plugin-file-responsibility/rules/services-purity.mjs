@@ -41,7 +41,11 @@
  * @module packages/eslint-plugin-file-responsibility/rules/services-purity
  */
 
-import { isServicesFile, isMachineServiceFn, asFunctionNode } from "../util.mjs";
+import {
+  isServicesFile,
+  isMachineServiceFn,
+  asFunctionNode
+} from "../util.mjs";
 
 /** Query-seam callees that mark a request function. */
 const QUERY_ENTRIES = new Set(["useQuery", "useMutation"]);
@@ -171,10 +175,14 @@ function isFactory(fnNode) {
  */
 function returnsServicesType(fnNode) {
   if (!fnNode.returnType) return false;
-  const refs = collectNodes(fnNode.returnType, n => n.type === "TSTypeReference");
+  const refs = collectNodes(
+    fnNode.returnType,
+    n => n.type === "TSTypeReference"
+  );
   return refs.some(
     ref =>
-      ref.typeName?.type === "Identifier" && ref.typeName.name.endsWith("Services")
+      ref.typeName?.type === "Identifier" &&
+      ref.typeName.name.endsWith("Services")
   );
 }
 
@@ -186,10 +194,7 @@ function returnsServicesType(fnNode) {
  */
 function collectDynamicDelegateNames(fnNode) {
   const names = new Set();
-  const decls = collectNodes(
-    fnNode.body,
-    n => n.type === "VariableDeclarator"
-  );
+  const decls = collectNodes(fnNode.body, n => n.type === "VariableDeclarator");
   for (const d of decls) {
     let init = d.init;
     if (init?.type === "AwaitExpression") init = init.argument;
@@ -300,9 +305,12 @@ export default {
       "Program:exit"(program) {
         const delegateNames = collectDelegateNames(program.body);
         const localFnNames = collectLocalFunctionNames(program.body);
-        for (const { fnNode, name, reportNode, exported } of collectTopLevelFunctions(
-          program.body
-        )) {
+        for (const {
+          fnNode,
+          name,
+          reportNode,
+          exported
+        } of collectTopLevelFunctions(program.body)) {
           if (!isAllowed(fnNode, delegateNames, localFnNames)) {
             context.report({
               node: reportNode,

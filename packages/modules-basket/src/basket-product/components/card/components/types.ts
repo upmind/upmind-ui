@@ -8,17 +8,17 @@ import type { RouteLocationAsRelativeGeneric } from "vue-router";
 
 // -----------------------------------------------------------------------------
 
-export interface DetailsGroupProps {
+export type DetailsGroupProps = {
   id: string;
   category?: string;
   items: Product["details"];
-}
+};
 
-export interface DetailsItemProps extends ProductSummaryDetail {
+export type DetailsItemProps = ProductSummaryDetail & {
   price?: PriceDetail;
-}
+};
 
-export interface QuantityFieldProps {
+export type QuantityFieldProps = {
   id: string;
   quantifiable?: boolean;
   min?: number;
@@ -26,14 +26,14 @@ export interface QuantityFieldProps {
   step?: number;
   quantity?: number;
   disabled?: boolean;
-}
+};
 
-export interface RequiredAlertProps {
+export type RequiredAlertProps = {
   id: string;
   editRoute: RouteLocationAsRelativeGeneric;
-}
+};
 
-export interface TermSelectorProps {
+export type TermSelectorProps = {
   /** Available billing terms. */
   terms: TermDetails[];
   /** Currently selected term cycle in months. */
@@ -42,13 +42,13 @@ export interface TermSelectorProps {
   disabled?: boolean;
   /** Whether an update is processing. */
   processing?: boolean;
-}
+};
 
-export interface RenewDescriptionProps {
+export type RenewDescriptionProps = {
   cycle?: number;
   discounted?: boolean;
   freeTrial?: boolean;
   oneoff?: boolean;
   regularPrice?: string;
   renewalPrice?: string;
-}
+};

@@ -307,8 +307,8 @@ export function createContractProductActions(
   }
 
   /**
-   * Opens the change of plan: the plan list starts to load.
-   * @returns true once the list is open; false when the product cannot change plan.
+   * Opens the change of product: the product list starts to load.
+   * @returns true once the list is open; false when the product cannot change product.
    */
   function openMigration(): boolean {
     send({ type: "MIGRATION" });
@@ -316,8 +316,8 @@ export function createContractProductActions(
   }
 
   /**
-   * Chooses one plan of the loaded list; its configurator starts to load.
-   * @returns false, with nothing sent, when the loaded list holds no plan of that id.
+   * Chooses one product of the loaded list; its configurator starts to load.
+   * @returns false, with nothing sent, when the loaded list holds no product of that id.
    */
   async function selectMigrationTarget(id: string): Promise<boolean> {
     const row = find(holders.list.value?.data.value, ["id", id]);
@@ -327,23 +327,23 @@ export function createContractProductActions(
     return stateMatches(state, "available.migrating.configuring");
   }
 
-  /** Loads the next page of the plan list. */
+  /** Loads the next page of the product list. */
   async function loadMoreMigrationTargets(): Promise<void> {
     await holders.list.value?.nextPage();
   }
 
-  /** Loads the chosen plan again, from the start, after it failed to load. */
+  /** Loads the chosen product again, from the start, after it failed to load. */
   function reloadMigrationTarget(): void {
     send({ type: "MIGRATION.RELOAD" });
   }
 
-  /** Closes the change of plan. The chosen plan's configurator stops. */
+  /** Closes the change of product. The chosen product's configurator stops. */
   function cancelMigration(): void {
     send({ type: "CANCEL.MIGRATION" });
   }
 
   /**
-   * Commits the change of plan. The platform judges the commit, not the local
+   * Commits the change of product. The platform judges the commit, not the local
    * validation.
    * @returns the invoice the change raised, or `false` when the commit is not
    *   offered now: no dry run or refused state, or the configurator is not ready.
@@ -410,7 +410,7 @@ export function createContractProductActions(
     cancelForm,
 
     /**
-     * Closes the change of plan.
+     * Closes the change of product.
      * @scenario-include
      */
     cancelMigration,
@@ -428,13 +428,13 @@ export function createContractProductActions(
     isReady,
 
     /**
-     * Loads the next page of the plan list.
+     * Loads the next page of the product list.
      * @scenario-include
      */
     loadMoreMigrationTargets,
 
     /**
-     * Commits the change of plan and resolves the invoice it raised.
+     * Commits the change of product and resolves the invoice it raised.
      * @scenario-include
      */
     migrate,
@@ -459,7 +459,7 @@ export function createContractProductActions(
     openConsolidation,
 
     /**
-     * Opens the change of plan.
+     * Opens the change of product.
      * @scenario-include
      */
     openMigration,
@@ -471,7 +471,7 @@ export function createContractProductActions(
     refresh,
 
     /**
-     * Loads the chosen plan again after it failed to load.
+     * Loads the chosen product again after it failed to load.
      * @scenario-include
      */
     reloadMigrationTarget,
@@ -507,7 +507,7 @@ export function createContractProductActions(
     scheduleCancellation,
 
     /**
-     * Chooses one plan of the loaded list.
+     * Chooses one product of the loaded list.
      * @scenario-include
      */
     selectMigrationTarget,

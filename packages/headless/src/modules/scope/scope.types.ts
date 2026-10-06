@@ -47,7 +47,7 @@ export type ConcreteActorTypes = Exclude<ScopeActorTypes, ScopeActorTypes.SELF>;
  * Actor type for scope-based composables.
  * Includes SELF for dynamic resolution.
  */
-export type ScopeActor = `${ScopeActorTypes}`;
+export type ScopeActor = ScopeActorTypes;
 
 /**
  * The two mutually exclusive context patterns a matrix member may declare.

@@ -253,13 +253,13 @@ import {
 import DomainDescription from "./DomainDescription.vue";
 import type { DomainCardProps } from "../types";
 
+const props = defineProps<DomainCardProps>();
+
 // -----------------------------------------------------------------------------
 const emit = defineEmits<{
   (e: "add", domain: string): void;
   (e: "remove", domain: string): void;
 }>();
-
-const props = defineProps<DomainCardProps>();
 
 // -----------------------------------------------------------------------------
 

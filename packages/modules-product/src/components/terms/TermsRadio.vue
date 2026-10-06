@@ -43,8 +43,6 @@ import { isNil, toNumber } from "lodash-es";
 import type { TermDetails } from "@upmind-automation/headless";
 import type { HTMLAttributes } from "vue";
 
-// -----------------------------------------------------------------------------
-const emits = defineEmits(["update:modelValue"]);
 const props = withDefaults(
   defineProps<{
     as?: string;
@@ -78,7 +76,8 @@ const props = withDefaults(
     summary: true
   }
 );
-
+// -----------------------------------------------------------------------------
+const emits = defineEmits(["update:modelValue"]);
 const isRows = computed(() => props.type === TERM_SELECTOR.RADIO_ROWS);
 
 const layout = computed(() => {

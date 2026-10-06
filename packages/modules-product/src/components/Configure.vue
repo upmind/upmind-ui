@@ -273,6 +273,11 @@ const props = withDefaults(defineProps<ConfigureProps>(), {
   hideSlots: () => []
 });
 
+// Emit productDetails when it loads/changes for parent components (e.g., SEO, schema)
+const emit = defineEmits<{
+  productDetails: [payload: ProductDetails];
+}>();
+
 const { t } = useI18n();
 
 const { navigateBack, navigateNext } = useRoutingEngine();
@@ -383,11 +388,6 @@ const handleShare = () => {
 onUnmounted(() => {
   remove(productId);
 });
-
-// Emit productDetails when it loads/changes for parent components (e.g., SEO, schema)
-const emit = defineEmits<{
-  productDetails: [payload: ProductDetails];
-}>();
 
 watch(
   () => product.value?.productDetails,

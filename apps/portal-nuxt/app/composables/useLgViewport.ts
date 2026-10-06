@@ -13,6 +13,7 @@
 
 import { onBeforeUnmount, onMounted, ref } from "vue";
 import type { Ref } from "vue";
+// -----------------------------------------------------------------------------
 
 /** Tailwind's `lg` — the same query the library's chrome switches on. */
 export const LG_MEDIA_QUERY = "(min-width: 64rem)";

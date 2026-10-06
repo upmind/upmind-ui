@@ -14,6 +14,7 @@ import type {
   VerticalLayout
 } from "@jsonforms/core";
 import type { FormModel } from "@upmind/ui";
+// -----------------------------------------------------------------------------
 
 const PASSWORD_MIN_LENGTH = 8;
 

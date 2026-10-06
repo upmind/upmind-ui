@@ -9,6 +9,7 @@ import { tester as addressTester } from "./AddressRenderer.vue";
 import ManageRenderer from "./ManageRenderer.vue";
 import { tester as manageTester } from "./ManageRenderer.vue";
 import type { FormRendererEntry } from "@upmind-automation/foundation";
+// -----------------------------------------------------------------------------
 
 export const clientRenderers: FormRendererEntry[] = [
   registerEntry(AddressRenderer, addressTester),

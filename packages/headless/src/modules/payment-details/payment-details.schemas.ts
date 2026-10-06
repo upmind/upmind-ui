@@ -21,6 +21,7 @@ import type {
   PaymentDetail,
   PaymentDetailsContext
 } from "./payment-details.types";
+// -----------------------------------------------------------------------------
 
 /**
  * The stored-card pick list — one `enum` member per stored payment method,

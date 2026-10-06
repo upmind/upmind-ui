@@ -1,0 +1,24 @@
+{
+  "name": "@upmind-automation/eslint-plugin-tests",
+  "version": "1.0.0",
+  "description": "ESLint rules enforcing the test rules (code-tests, code-tests-e2e) for unit, integration and e2e test files, the journeys suite and the test-id contract.",
+  "private": true,
+  "type": "module",
+  "main": "index.mjs",
+  "exports": {
+    ".": "./index.mjs"
+  },
+  "scripts": {
+    "test:unit": "node --test"
+  },
+  "dependencies": {
+    "@typescript-eslint/parser": "8.50.0",
+    "vue-eslint-parser": "10.2.0"
+  },
+  "peerDependencies": {
+    "eslint": ">=9"
+  },
+  "devDependencies": {
+    "eslint": "9.39.2"
+  }
+}

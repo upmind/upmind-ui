@@ -4,6 +4,7 @@ import service from "./slots.services";
 import { useCollection } from "../../../utils";
 import { isEmpty, isArray } from "lodash-es";
 import type { ClientTemplateSlot } from "./slots.types";
+// -----------------------------------------------------------------------------
 
 /**
  * Composable function to provide reactive state and methods to manage and interact with client area templates (slots).

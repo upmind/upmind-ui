@@ -1,5 +1,6 @@
 import { experimental_createQueryPersister } from "@tanstack/query-persist-client-core";
 import { CancelledError } from "@tanstack/vue-query";
+import { toRef } from "vue";
 import { isString } from "xstate/lib/utils";
 import {
   type Message,
@@ -22,20 +23,28 @@ import {
 } from "../../utils";
 import {
   assign,
+  every,
   filter,
+  find,
+  first,
+  invoke,
   isArray,
   isBoolean,
   isEmpty,
+  isFunction,
   isNil,
+  isUndefined,
   includes,
   isObject,
   join,
   map,
+  mapValues,
   merge,
   omit,
   reduce,
   set,
   size,
+  some,
   toNumber,
   values,
   get
@@ -50,9 +59,16 @@ import type {
   RequestPagination
 } from "./query.types";
 import type { JsonSchema } from "@jsonforms/core";
-import type { InvalidateQueryFilters, QueryKey } from "@tanstack/vue-query";
+import type {
+  DefaultError,
+  InvalidateQueryFilters,
+  QueryKey,
+  QueryObserverResult,
+  UseQueryReturnType
+} from "@tanstack/vue-query";
 import type { AnyUpdater } from "@tanstack/vue-store";
 import type { Store } from "@tanstack/vue-store";
+import type { Ref } from "vue";
 
 // --- constants
 
@@ -657,4 +673,59 @@ export function toPaginationInfo(
     from: !total ? 0 : limit * (page - 1) + 1,
     to: !limit ? total : Math.min(limit * page, total)
   };
+}
+
+// --- multi-entry reads
+
+/**
+ * ONE result for a multi-entry read, in the shape a single `useQuery`
+ * publishes, by TanStack's `combine` pattern: entry one's result is the base,
+ * each status flag aggregates across every entry, and `data` is `stitch` over
+ * every entry's data once every entry has data.
+ *
+ * `refetch` refetches every entry and resolves to the combined result.
+ */
+export function combineQueryResults<TQueryFnData, TData>(
+  results: QueryObserverResult<TQueryFnData>[],
+  stitch: (data: TQueryFnData[]) => TData
+): QueryObserverResult<TData> {
+  const data = map(results, "data") as (TQueryFnData | undefined)[];
+  const isError = some(results, "isError");
+  const isPending = some(results, "isPending");
+  const combined = {
+    ...first(results),
+    data: some(data, isUndefined) ? undefined : stitch(data as TQueryFnData[]),
+    error: find(results, "isError")?.error ?? null,
+    status: isError ? "error" : isPending ? "pending" : "success",
+    isError,
+    isPending,
+    isSuccess: every(results, "isSuccess"),
+    isLoading: some(results, "isLoading"),
+    isFetching: some(results, "isFetching"),
+    isRefetching: some(results, "isRefetching"),
+    isFetched: every(results, "isFetched"),
+    isPlaceholderData: some(results, "isPlaceholderData"),
+    refetch: (options?: Parameters<QueryObserverResult["refetch"]>[0]) =>
+      Promise.all(map(results, result => result.refetch(options))).then(
+        refetched => combineQueryResults(refetched, stitch)
+      )
+  } as unknown as QueryObserverResult<TData>;
+  return combined;
+}
+
+/**
+ * The per-field refs a single `useQuery` returns, read off the ONE ref
+ * `useQueries` returns: each field is a getter ref over the current combined
+ * result, and each method calls through to the current one. `suspense` is not
+ * published, because `useQueries` has none.
+ */
+export function toQueryRefs<TData>(
+  result: Readonly<Ref<QueryObserverResult<TData>>>
+): UseQueryReturnType<TData, DefaultError> {
+  const refs = mapValues(result.value, (field, key) =>
+    isFunction(field)
+      ? (...args: unknown[]): unknown => invoke(result.value, key, ...args)
+      : toRef(() => get(result.value, key))
+  ) as unknown as UseQueryReturnType<TData, DefaultError>;
+  return refs;
 }

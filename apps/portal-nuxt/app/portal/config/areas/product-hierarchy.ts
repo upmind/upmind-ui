@@ -19,6 +19,7 @@ import { MENU_MODULE_ID, moduleRef } from "../../registry";
 import { PRIMITIVE_ID } from "../../types";
 import type { MenuItem } from "../../modules/menu/types";
 import type { AreaOverride } from "../../types";
+// -----------------------------------------------------------------------------
 
 /** Quick jumps for a page already inside one product — not the six-item primary nav the base sidebar carries. */
 const QUICK_CATEGORY_ITEMS: readonly MenuItem[] = [

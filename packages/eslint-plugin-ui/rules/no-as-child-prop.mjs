@@ -21,8 +21,7 @@ export default {
   meta: {
     type: "problem",
     docs: {
-      description:
-        "Disallow an `asChild` prop on a composed main (CC19).",
+      description: "Disallow an `asChild` prop on a composed main (CC19).",
       recommended: true
     },
     schema: [],
@@ -73,7 +72,8 @@ export default {
       // `withDefaults(defineProps<Props>(), { asChild: false })`
       CallExpression(node) {
         const callee = node.callee;
-        if (callee.type !== "Identifier" || callee.name !== "withDefaults") return;
+        if (callee.type !== "Identifier" || callee.name !== "withDefaults")
+          return;
 
         const defaults = node.arguments[1];
         if (!defaults || defaults.type !== "ObjectExpression") return;

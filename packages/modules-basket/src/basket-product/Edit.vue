@@ -274,6 +274,11 @@ const props = withDefaults(defineProps<BasketProductEditProps>(), {
   hideSlots: () => []
 });
 
+// Emit productDetails when it loads/changes for parent components (e.g., SEO, schema)
+const emit = defineEmits<{
+  productDetails: [payload: ProductDetails];
+}>();
+
 const { t } = useI18n();
 
 const { navigateBack, navigateNext } = useRoutingEngine();
@@ -379,11 +384,6 @@ const configurationActions = computed(() => {
 const handleShare = () => {
   copy(shareUrl.value || window.location.href);
 };
-
-// Emit productDetails when it loads/changes for parent components (e.g., SEO, schema)
-const emit = defineEmits<{
-  productDetails: [payload: ProductDetails];
-}>();
 
 watch(
   () => product.value?.productDetails,

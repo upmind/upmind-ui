@@ -3,6 +3,7 @@
  */
 import type { ButtonVariants, LinkVariants } from "@upmind/ui";
 import type { RouteLocationAsRelativeGeneric } from "vue-router";
+// -----------------------------------------------------------------------------
 
 /**
  * A storefront navigation target, spread straight onto `<Link>`. The `never`

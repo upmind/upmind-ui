@@ -86,9 +86,6 @@ import { Icon } from "@upmind-automation/foundation";
 import { useActiveSession } from "@upmind-automation/headless";
 import { isEmpty, isFunction } from "lodash-es";
 import type { AuthExpiredProps } from "../types";
-// -----------------------------------------------------------------------------
-
-const { t } = useI18n();
 const props = withDefaults(defineProps<AuthExpiredProps>(), {
   modal: true,
   size: "2xl",
@@ -106,7 +103,9 @@ const props = withDefaults(defineProps<AuthExpiredProps>(), {
     auto: true
   })
 });
+// -----------------------------------------------------------------------------
 
+const { t } = useI18n();
 const { isExpired } = useActiveSession().useMeta();
 
 const processing = ref(false);

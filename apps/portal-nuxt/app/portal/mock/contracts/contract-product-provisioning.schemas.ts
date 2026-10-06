@@ -12,6 +12,7 @@ import { assign, filter, fromPairs, map } from "lodash-es";
 import type { MockProvisionField } from "../types";
 import type { JsonSchema7, VerticalLayout } from "@jsonforms/core";
 import type { FormModel } from "@upmind/ui";
+// -----------------------------------------------------------------------------
 
 /** The fields the blueprint asks for, in the provider's order. */
 export function setupFields(

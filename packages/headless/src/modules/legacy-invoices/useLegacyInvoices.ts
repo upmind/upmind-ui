@@ -1,12 +1,12 @@
 import { createScopedComposable } from "../scope";
 import createLegacyInvoicesServices from "./legacy-invoices.services";
+import { LEGACY_INVOICES_SCOPE_MATRIX } from "./legacy-invoices.types";
 import { createLegacyInvoicesActions } from "./useLegacyInvoices.actions";
 import { createLegacyInvoicesContext } from "./useLegacyInvoices.context";
 import { createLegacyInvoicesInternals } from "./useLegacyInvoices.internals";
 import { createLegacyInvoicesMeta } from "./useLegacyInvoices.meta";
 import type { LegacyInvoicesScopeMatrix } from "./legacy-invoices.types";
 import type { ScopeConfig, ScopeKey } from "../scope";
-import type { ScopeActorTypes } from "../scope/scope.types";
 // -----------------------------------------------------------------------------
 /**
  * @module legacy-invoices/useLegacyInvoices
@@ -22,7 +22,7 @@ import type { ScopeActorTypes } from "../scope/scope.types";
  * actor; the scope builder resolves SELF before this factory runs.
  */
 function createLegacyInvoicesForScope(config: ScopeConfig, scopeKey: ScopeKey) {
-  const actorScope = config.actor as ScopeActorTypes;
+  const actorScope = config.actor;
 
   /** ONE services instance for this scope. */
   const service = createLegacyInvoicesServices(actorScope);
@@ -78,7 +78,11 @@ function createLegacyInvoicesForScope(config: ScopeConfig, scopeKey: ScopeKey) {
 export const useLegacyInvoices = createScopedComposable<
   ReturnType<typeof createLegacyInvoicesForScope>,
   LegacyInvoicesScopeMatrix
->("legacy-invoices", createLegacyInvoicesForScope);
+>(
+  "legacy-invoices",
+  createLegacyInvoicesForScope,
+  LEGACY_INVOICES_SCOPE_MATRIX
+);
 
 // Type export for consumers
 export type UseLegacyInvoices = ReturnType<typeof useLegacyInvoices>;

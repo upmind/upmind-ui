@@ -25,6 +25,7 @@ import type {
   AnyInterpreter,
   AnyState
 } from "xstate";
+// -----------------------------------------------------------------------------
 
 /**
  * A value resolvable to an actor or machine state via safeState().

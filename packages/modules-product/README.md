@@ -1,8 +1,8 @@
 # @upmind-automation/product
 
 The product configure page and the product rendering kit. The page reads a product, lets the
-client configure it, and adds it to the basket. The kit is the part that other domain packages
-reuse: the config form, the hero, the price atoms, the price list, the term rows and the
+client configure it, and adds it to the basket. Other domain packages reuse the kit.
+It holds the config form, the hero, the price atoms, the price list, the term rows and the
 product card. The package also holds two form controls: the term choice and the sub-product
 choice.
 
@@ -36,8 +36,8 @@ page is three lines:
 ```
 
 `UpmProductConfigure` resolves the brand's chosen template value and hands it to its own default
-slot. The host page owns `productTemplate`: a pick function, over its own template enum and
-component map, that falls back to its own default for a name the map does not hold. Inside
+slot. The host page owns `productTemplate`, a pick function over its own template enum and
+component map. It falls back to its own default for a name the map does not hold. Inside
 `LayoutProvider` (from `foundation`), the package's own blocks then fill the layout's slots:
 `product-details`, `image`, `configuration`, `pricing`, `markdown`, `actions`, `errors`, `total`
 and `terms`. An empty block draws no frame: the block's own `v-if`, or the layout's empty-slot

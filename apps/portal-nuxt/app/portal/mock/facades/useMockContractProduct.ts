@@ -71,6 +71,7 @@ import type {
   MockProvisionField
 } from "../types";
 import type { FormModel } from "@upmind/ui";
+// -----------------------------------------------------------------------------
 
 /** The states a product may be moved onto another from — a product not running is not changing. */
 const MIGRATABLE_STATUSES: readonly ContractStatusCodes[] = [

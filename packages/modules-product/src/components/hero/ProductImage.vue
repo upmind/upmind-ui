@@ -45,11 +45,10 @@ import { isArray, isEmpty } from "lodash-es";
 import type { ProductImageProps } from "./types";
 import type { ImageItem } from "@upmind/ui";
 
-const { t } = useI18n();
 const props = withDefaults(defineProps<ProductImageProps>(), {
   previewSize: "original"
 });
-
+const { t } = useI18n();
 const { ui } = useConfig().with({
   product: () => props
 });

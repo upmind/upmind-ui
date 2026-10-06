@@ -3,6 +3,9 @@
  * @module packages/eslint-plugin-file-responsibility/util
  */
 
+import { existsSync } from "node:fs";
+import { dirname, resolve } from "node:path";
+
 /** A `*.services.ts` or an actor variant `*.services.<actor>.ts`. */
 export function isServicesFile(filename) {
   return /\.services(\.[A-Za-z0-9-]+)*\.ts$/.test(filename);
@@ -16,6 +19,75 @@ export function isSchemasFile(filename) {
 /** A `*.mappers.ts` (or actor variant). */
 export function isMappersFile(filename) {
   return /\.mappers(\.[A-Za-z0-9-]+)*\.ts$/.test(filename);
+}
+
+/** A `*.utils.ts` (or actor variant). */
+export function isUtilsFile(filename) {
+  return /\.utils(\.[A-Za-z0-9-]+)*\.ts$/.test(filename);
+}
+
+/** A `*.machine.ts` (or context variant). */
+export function isMachineFile(filename) {
+  return /\.machine(\.[A-Za-z0-9-]+)*\.ts$/.test(filename);
+}
+
+/** A module barrel: a file named `index.ts`. */
+export function isBarrelFile(filename) {
+  return /(^|\/)index\.ts$/.test(filename);
+}
+
+/**
+ * Resolve a relative import or re-export specifier to a file on disk, trying
+ * the repo's extension conventions and the `/index.ts` barrel. Null when the
+ * specifier is not relative or nothing matches.
+ */
+export function resolveRelative(importerFile, specifier) {
+  if (typeof specifier !== "string" || !specifier.startsWith(".")) return null;
+  const base = resolve(dirname(importerFile), specifier);
+  const candidates = [
+    base,
+    `${base}.ts`,
+    `${base}.tsx`,
+    `${base}.vue`,
+    resolve(base, "index.ts"),
+    resolve(base, "index.vue")
+  ];
+  for (const candidate of candidates) {
+    if (/\.(ts|tsx|vue)$/.test(candidate) && existsSync(candidate)) {
+      return candidate;
+    }
+  }
+  return null;
+}
+
+/**
+ * The internal-file set of the module visibility law: `*.machine.ts`,
+ * `*.services.ts`, `*.mappers.ts`, `*.schemas.ts` (and actor variants) and
+ * `session-store.*`, as regular-expression sources matched on the path.
+ */
+export const INTERNAL_FILE_PATTERNS = [
+  "\\.(machine|services|mappers|schemas)(\\.[A-Za-z0-9-]+)*\\.ts$",
+  "(^|/)session-store\\.[^/]*$"
+];
+
+/** True when the file path names a file of the internal set. */
+export function isInternalByName(absPath) {
+  if (!absPath) return false;
+  const norm = absPath.replace(/\\/g, "/");
+  return INTERNAL_FILE_PATTERNS.some(source => new RegExp(source).test(norm));
+}
+
+/**
+ * The module directory of a file: the immediate child of a `modules/` folder,
+ * or a feature folder directly under `packages/modules-foundation/src/`.
+ * Null when the file belongs to no module.
+ */
+export function moduleDirOf(filename) {
+  const norm = filename.replace(/\\/g, "/");
+  const m =
+    norm.match(/^(.*\/modules\/[^/]+)\//) ??
+    norm.match(/^(.*\/packages\/modules-foundation\/src\/[^/]+)\//);
+  return m ? m[1] : null;
 }
 
 /** A `*.types.ts`, an actor variant, or a bare `types.ts`. */
@@ -43,12 +115,13 @@ function paramTypeName(param) {
 function isContextParam(param) {
   if (!param) return false;
   // `context` / `_context`, however typed.
-  if (param.type === "Identifier" && /^_?context$/.test(param.name)) return true;
+  if (param.type === "Identifier" && /^_?context$/.test(param.name))
+    return true;
   // The `fn({ context, event })` shape — a `context` property in the destructure.
   if (param.type === "ObjectPattern") {
     if (
       param.properties.some(
-        (p) =>
+        p =>
           p.type === "Property" &&
           p.key?.type === "Identifier" &&
           /^_?context$/.test(p.key.name)

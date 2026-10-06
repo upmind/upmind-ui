@@ -131,12 +131,12 @@ import type { ContextItem } from "./usePlaygroundSheet.types";
 import type { DescriptionListOption } from "@upmind/ui";
 import { CodeBlock } from "~/components/code";
 import { resolveMatrixContexts } from "~/composables/scope/scope-utils";
+const props = defineProps<DebugPaneProps>();
+
 // -----------------------------------------------------------------------------
 
 /** What a credential reads as once the pane has taken it out. */
 const REDACTED = "[redacted]";
-
-const props = defineProps<DebugPaneProps>();
 
 const { t } = useI18n();
 

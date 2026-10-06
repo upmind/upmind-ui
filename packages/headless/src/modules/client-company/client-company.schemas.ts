@@ -1,3 +1,4 @@
+/** @internal */
 /**
  * @public
  * @schema-fragment

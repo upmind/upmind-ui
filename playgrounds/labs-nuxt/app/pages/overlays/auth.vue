@@ -172,6 +172,10 @@ import {
 import { ADD_SESSION_PARAM } from "~/funnels/labs.constants";
 import { ROUTE } from "~/funnels/types";
 
+const emit = defineEmits<{
+  close: [];
+}>();
+
 // -----------------------------------------------------------------------------
 
 /**
@@ -189,10 +193,6 @@ const route = useRoute();
 const router = useRouter();
 
 const { t } = useI18n();
-
-const emit = defineEmits<{
-  close: [];
-}>();
 
 /** The url's own scope, for an overlay reached without a target behind it. */
 const scope = useActorScope();

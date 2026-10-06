@@ -1,9 +1,9 @@
-interface Currency {
+type Currency = {
   code: string;
   name: string;
   country: string;
   country_code: string;
-}
+};
 export default {
   AED: {
     code: "AED",

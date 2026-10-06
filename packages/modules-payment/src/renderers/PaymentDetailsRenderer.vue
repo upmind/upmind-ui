@@ -59,13 +59,13 @@ import type { RendererProps } from "@jsonforms/vue";
 // --- external
 
 // -----------------------------------------------------------------------------
-interface PaymentTile {
+type PaymentTile = {
   value: string;
   label: string;
   text?: string;
   isDefault?: boolean;
   appendIcon?: { name: string };
-}
+};
 
 const props = defineProps<RendererProps<ControlElement>>();
 

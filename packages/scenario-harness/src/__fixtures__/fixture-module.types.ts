@@ -1,4 +1,5 @@
 import type { ScopeActor } from "../world/scope-actor";
+// -----------------------------------------------------------------------------
 
 /**
  * The @AC-5 exemplar module's plain-TS state shape and its

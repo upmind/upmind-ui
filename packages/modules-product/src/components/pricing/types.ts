@@ -5,11 +5,12 @@ import type {
   PromotionDetails
 } from "@upmind-automation/headless";
 import type { CxOptions, VariantProps } from "class-variance-authority";
+// -----------------------------------------------------------------------------
 
 export type ExVariantProps = VariantProps<typeof exVariants>;
 export type CurrentVariantProps = VariantProps<typeof currentVariants>;
 
-interface BasePrice {
+type BasePrice = {
   is?: string;
   cycle?: ProductSummaryDetailWithPrice["cycle"];
   // meta?: ProductSummaryDetailWithPrice["meta"];
@@ -23,25 +24,25 @@ interface BasePrice {
       current?: CxOptions;
     };
   };
-}
+};
 
-export interface ExPriceProps extends BasePrice {
+export type ExPriceProps = BasePrice & {
   regularPrice: string;
   monthlyFromRegularPrice: string;
   discounted: boolean;
   /** True when the BE has returned a custom (manually overridden) price (may be higher or lower than the pricelist price). */
   custom?: boolean;
-}
+};
 
-export interface CurrentPriceProps extends BasePrice {
+export type CurrentPriceProps = BasePrice & {
   currentPrice: string;
   monthlyFromCurrentPrice?: string;
   free?: boolean;
-}
+};
 
-export interface PricingProps extends ExPriceProps, CurrentPriceProps {}
+export type PricingProps = ExPriceProps & CurrentPriceProps & {};
 
-export interface PromotionProps extends PromotionDetails {
+export type PromotionProps = PromotionDetails & {
   disabled?: boolean;
   size?: BadgeVariants["size"];
-}
+};

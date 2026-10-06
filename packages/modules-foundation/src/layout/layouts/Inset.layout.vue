@@ -137,15 +137,15 @@ import {
 } from "../variants";
 import type { InsetProps } from "../types";
 
+defineOptions({
+  inheritAttrs: false
+});
+
 // -----------------------------------------------------------------------------
 
 const props = withDefaults(defineProps<InsetProps>(), {
   aside: true,
   centered: false
-});
-
-defineOptions({
-  inheritAttrs: false
 });
 
 const meta = computed(() => ({

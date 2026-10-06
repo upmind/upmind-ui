@@ -17,6 +17,7 @@
 
 import type { VaultAssetModel } from "./client-vault";
 import type { JsonSchema7, VerticalLayout } from "@jsonforms/core";
+// -----------------------------------------------------------------------------
 
 /** The platform's own modifying keyword rides beside the core ones (`mock/forms/ajv.ts`). */
 type SchemaProperty = JsonSchema7 & { trim?: boolean };

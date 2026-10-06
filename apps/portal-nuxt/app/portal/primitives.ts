@@ -8,6 +8,7 @@
 
 import { ACCEPT_TAG, PRIMITIVE_ID } from "./types";
 import type { AcceptTag, PrimitiveId } from "./types";
+// -----------------------------------------------------------------------------
 
 export type PrimitiveSlotDescriptor = {
   readonly id: string;

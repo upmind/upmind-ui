@@ -195,6 +195,7 @@
   "recaptcha_not_available": "Recaptcha not available",
   "region_not_available": "Region id or code not available",
   "regions_not_available": "Regions not available",
+  "request_not_allowed": "This request is not allowed",
   "request_process_failed": "We experienced an error processing your request",
   "route_resolve_failed": "await Resolved Route failed",
   "routing_engine_not_available": "Routing engine not available",

@@ -1,16 +1,26 @@
-import { ref } from "vue";
+import { computed, ref, watch } from "vue";
+import { usePersonalDetails } from "../client-personal-details";
 // Deep path, never the `../scope` barrel — the aggregator-barrel `export *`
 // hazard (code-quality.companion.md); `scope.builder` alone has no such cycle.
 import { createScopedComposable } from "../scope/scope.builder";
+import { ScopeActorTypes } from "../scope/scope.types";
+import { resolveClientId, useActiveSession } from "../session-store";
 import createContractProductServices from "./contract-product.services";
-import { CONTRACT_PRODUCTS_SCOPE_MATRIX } from "./contract-product.types";
+import {
+  CONTRACT_PRODUCTS_SCOPE_MATRIX,
+  ContractProductsContextTypes
+} from "./contract-product.types";
+import { resolveExcludeDelegated } from "./contract-product.utils";
 import { createContractProductsActions } from "./useContractProducts.actions";
 import { createContractProductsContext } from "./useContractProducts.context";
 import { createContractProductsInternals } from "./useContractProducts.internals";
 import { createContractProductsMeta } from "./useContractProducts.meta";
-import type { ContractProductsScopeMatrix } from "./contract-product.types";
+import type {
+  ContractProductsScopeMatrix,
+  ShowDelegatedPreference
+} from "./contract-product.types";
 import type { ScopeConfig, ScopeKey } from "../scope";
-import type { ScopeActorTypes } from "../scope/scope.types";
+import type { ScopeContext } from "../scope/scope.types";
 import type { ICProdGroup } from "@upmind-automation/types";
 // -----------------------------------------------------------------------------
 /**
@@ -26,13 +36,66 @@ import type { ICProdGroup } from "@upmind-automation/types";
  * @doctrine clause 4 — `config.actor` arriving here is ALREADY a concrete
  * actor; the scope builder resolves SELF before this factory runs.
  */
+/**
+ * The show-delegated preference seam (design 8.5). `client-personal-details`
+ * owns the channel; this module owns the meaning of the key. Constructed ONCE
+ * per collection scope with `.fresh()`, so it never collides with a consumer's
+ * own profile editor. The `DELEGATED` selector context forces the value and
+ * never reads the preference.
+ */
+function createShowDelegatedPreference(
+  scopeContext?: ScopeContext
+): ShowDelegatedPreference {
+  const { hasDelegatedProducts } = useActiveSession().useMeta();
+  const isDelegated =
+    scopeContext?.type === ContractProductsContextTypes.DELEGATED;
+  const manager = isDelegated
+    ? undefined
+    : usePersonalDetails().as(ScopeActorTypes.CLIENT).fresh();
+  manager?.useActions().filterFields(["excludeDelegatedProducts"]);
+
+  const isSettled = computed(
+    () => !manager || !manager.useMeta().isLoading.value
+  );
+
+  return {
+    excludeDelegated: computed(() =>
+      resolveExcludeDelegated(
+        scopeContext,
+        manager?.useContext().model.value?.excludeDelegatedProducts,
+        hasDelegatedProducts.value
+      )
+    ),
+    isSettled,
+    whenSettled: () => {
+      if (isSettled.value) return Promise.resolve();
+
+      return new Promise<void>(resolve => {
+        const stop = watch(isSettled, settled => {
+          if (!settled) return;
+          stop();
+          resolve();
+        });
+      });
+    },
+    destroy: () => manager?.useActions().destroy()
+  };
+}
+
 function createContractProductsForScope(
   config: ScopeConfig,
   scopeKey: ScopeKey
 ) {
-  const actorScope = config.actor as ScopeActorTypes;
+  const actorScope = config.actor;
 
-  const service = createContractProductServices(actorScope, config.context);
+  const clientId = resolveClientId(config.context);
+  const preference = createShowDelegatedPreference(config.context);
+  const service = createContractProductServices(
+    actorScope,
+    config.context,
+    clientId,
+    preference
+  );
 
   // Mint the list query ONCE per scope — a `service.loadList()` inside a layer
   // factory mints a second query, with its own refs, key and effect scope.
@@ -48,7 +111,9 @@ function createContractProductsForScope(
     service,
     query,
     scopeKey,
-    groupedCounts
+    groupedCounts,
+    clientId,
+    preference
   );
 
   return {
@@ -64,7 +129,7 @@ function createContractProductsForScope(
     useInternals: () => createContractProductsInternals(actorScope, query),
 
     /** Sub-composable for collection meta (state flags). */
-    useMeta: () => createContractProductsMeta(actorScope, service, query)
+    useMeta: () => createContractProductsMeta(actorScope, clientId, query)
   };
 }
 // -----------------------------------------------------------------------------

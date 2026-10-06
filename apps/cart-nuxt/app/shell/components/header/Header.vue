@@ -75,13 +75,13 @@ import {
 } from "./variants";
 import type { StorefrontRoute } from "@upmind-automation/foundation";
 
-// -----------------------------------------------------------------------------
-const { meta } = useHeader();
-
 const props = defineProps<{
   logo?: string;
   storefrontRoute?: StorefrontRoute;
 }>();
+
+// -----------------------------------------------------------------------------
+const { meta } = useHeader();
 
 const shouldShow = ref(true);
 

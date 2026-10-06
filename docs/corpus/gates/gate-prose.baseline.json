@@ -1,0 +1,1456 @@
+{
+  ".factory/RESUME.md": {
+    "no-semicolon": 6,
+    "ste-sentence-length": 3
+  },
+  "README.md": {
+    "fence-language": 2,
+    "paragraph-length": 1,
+    "ste-sentence-length": 4
+  },
+  "STORYBOOK.md": {
+    "fence-language": 1
+  },
+  "apps/cart/README copy.md": {
+    "ste-sentence-length": 2
+  },
+  "apps/portal-nuxt/README.md": {
+    "no-semicolon": 4,
+    "ste-sentence-length": 14
+  },
+  "apps/portal-nuxt/docs/architecture.md": {
+    "architecture-sections": 5,
+    "filler-word": 4,
+    "no-semicolon": 18,
+    "ste-sentence-length": 88
+  },
+  "apps/portal-nuxt/docs/changelog.md": {
+    "filler-word": 1,
+    "no-semicolon": 53,
+    "ste-sentence-length": 71
+  },
+  "apps/portal-nuxt/docs/client-vue-adoption.md": {
+    "no-semicolon": 12,
+    "paragraph-length": 1,
+    "ste-sentence-length": 12
+  },
+  "apps/portal-nuxt/docs/client-vue-placeholder-audit.md": {
+    "no-semicolon": 4,
+    "ste-sentence-length": 19
+  },
+  "apps/portal-nuxt/docs/forms.md": {
+    "filler-word": 1,
+    "no-semicolon": 19,
+    "ste-sentence-length": 48
+  },
+  "apps/portal-nuxt/docs/gotchas.md": {
+    "filler-word": 7,
+    "no-semicolon": 32,
+    "ste-sentence-length": 87
+  },
+  "apps/portal-nuxt/docs/legacy-parity-account.md": {
+    "no-semicolon": 2
+  },
+  "apps/portal-nuxt/docs/legacy-parity-billing.md": {
+    "no-semicolon": 3
+  },
+  "apps/portal-nuxt/docs/legacy-parity-products.md": {
+    "no-semicolon": 1,
+    "ste-sentence-length": 1
+  },
+  "apps/portal-nuxt/docs/legacy-parity-support.md": {
+    "no-semicolon": 2
+  },
+  "apps/portal-nuxt/ui-gaps.md": {
+    "no-semicolon": 1,
+    "ste-sentence-length": 1
+  },
+  "docs/README.md": {
+    "no-semicolon": 2,
+    "ste-sentence-length": 1
+  },
+  "docs/adr/001-scope-based-composables.md": {
+    "fence-language": 1,
+    "framework-words": 14,
+    "link-resolves": 3,
+    "no-semicolon": 6,
+    "ste-sentence-length": 10
+  },
+  "docs/adr/002-session-and-service-architecture.md": {
+    "fence-language": 1,
+    "framework-words": 3
+  },
+  "docs/adr/003-shared-icons-package.md": {
+    "link-resolves": 2,
+    "no-semicolon": 1
+  },
+  "docs/adr/004-monorepo-structure.md": {
+    "fence-language": 1,
+    "filler-word": 1
+  },
+  "docs/adr/005-xstate-state-management.md": {
+    "link-resolves": 3
+  },
+  "docs/adr/006-tanstack-query.md": {
+    "framework-words": 3
+  },
+  "docs/adr/007-headless-architecture.md": {
+    "fence-language": 2
+  },
+  "docs/adr/008-internationalization.md": {
+    "fence-language": 5,
+    "filler-word": 2,
+    "json-parses": 2
+  },
+  "docs/adr/009-shared-types-package.md": {
+    "fence-language": 1
+  },
+  "docs/adr/010-lodash-utilities.md": {
+    "link-resolves": 1,
+    "no-semicolon": 1
+  },
+  "docs/adr/011-composable-coding-standards.md": {
+    "framework-words": 1,
+    "link-resolves": 11,
+    "no-semicolon": 1
+  },
+  "docs/adr/012-multi-theme-architecture.md": {
+    "fence-language": 1
+  },
+  "docs/adr/013-testing-strategy.md": {
+    "fence-language": 1,
+    "link-resolves": 1
+  },
+  "docs/adr/014-service-layer-pattern.md": {
+    "fence-language": 1,
+    "framework-words": 1
+  },
+  "docs/adr/015-payment-gateway-abstractions.md": {
+    "fence-language": 1
+  },
+  "docs/adr/016-schema-based-validation.md": {
+    "fence-language": 1,
+    "no-semicolon": 1
+  },
+  "docs/adr/017-funnel-navigation-via-state-meta.md": {
+    "filler-word": 1,
+    "framework-words": 1,
+    "no-semicolon": 1,
+    "ste-sentence-length": 2
+  },
+  "docs/adr/018-funnel-reactive-watchers.md": {
+    "fence-language": 2,
+    "framework-words": 5,
+    "ste-sentence-length": 1
+  },
+  "docs/adr/019-module-doc-shape.md": {
+    "filler-word": 1,
+    "link-resolves": 1,
+    "no-semicolon": 4,
+    "ste-sentence-length": 4
+  },
+  "docs/adr/020-gherkin-test-planning.md": {
+    "filler-word": 3,
+    "link-resolves": 5,
+    "no-semicolon": 16,
+    "ste-sentence-length": 18
+  },
+  "docs/adr/021-testing-pyramid-and-agentic-workflow.md": {
+    "framework-words": 1,
+    "link-resolves": 5,
+    "no-semicolon": 26,
+    "paragraph-length": 2,
+    "ste-sentence-length": 21
+  },
+  "docs/adr/022-ui-testing-strategy.md": {
+    "fence-language": 1,
+    "link-resolves": 2,
+    "no-semicolon": 15,
+    "ste-sentence-length": 11
+  },
+  "docs/adr/023-ui-domain-package-architecture.md": {
+    "filler-word": 4,
+    "framework-words": 2,
+    "no-semicolon": 76,
+    "paragraph-length": 9,
+    "ste-sentence-length": 120
+  },
+  "docs/adr/024-adopt-new-upmind-ui-in-tree.md": {
+    "no-semicolon": 15,
+    "ste-sentence-length": 21,
+    "link-resolves": 6
+  },
+  "docs/adr/025-colocated-journey-units.md": {
+    "fence-language": 1,
+    "filler-word": 2,
+    "no-semicolon": 41,
+    "ste-sentence-length": 22
+  },
+  "docs/adr/026-mintlify-docs-platform.md": {
+    "framework-words": 1,
+    "no-semicolon": 20,
+    "paragraph-length": 1,
+    "ste-sentence-length": 9
+  },
+  "docs/adr/027-flow-factory-playground-generation.md": {
+    "framework-words": 1,
+    "link-resolves": 1,
+    "no-semicolon": 33,
+    "ste-sentence-length": 27
+  },
+  "docs/adr/028-headless-vanilla-core-split.md": {
+    "framework-words": 10,
+    "no-semicolon": 33,
+    "paragraph-length": 1,
+    "ste-sentence-length": 39
+  },
+  "docs/adr/029-agent-plugin-seat-separation-and-anti-cosplay.md": {
+    "no-semicolon": 7,
+    "ste-sentence-length": 3,
+    "link-resolves": 2
+  },
+  "docs/adr/030-shell-state-architecture.md": {
+    "filler-word": 1,
+    "no-semicolon": 4,
+    "ste-sentence-length": 5
+  },
+  "docs/adr/031-product-setup-over-domain-registrant.md": {
+    "filler-word": 2
+  },
+  "docs/adr/032-schema-family-for-scoped-collections.md": {
+    "filler-word": 1,
+    "framework-words": 9,
+    "no-semicolon": 31,
+    "ste-sentence-length": 68
+  },
+  "docs/adr/033-scenario-declaration-contract.md": {
+    "filler-word": 1,
+    "no-semicolon": 12,
+    "ste-sentence-length": 45
+  },
+  "docs/adr/034-funnel-inheritance.md": {
+    "no-semicolon": 6,
+    "ste-sentence-length": 14
+  },
+  "docs/adr/035-one-scenario-one-recording.md": {
+    "no-semicolon": 9,
+    "ste-sentence-length": 6
+  },
+  "docs/corpus/README.md": {
+    "fence-language": 4,
+    "filler-word": 2,
+    "no-semicolon": 7,
+    "ste-sentence-length": 16
+  },
+  "docs/reference/service-splitting-examples.md": {
+    "fence-language": 1,
+    "no-semicolon": 1,
+    "ste-sentence-length": 2
+  },
+  "packages/headless/README.md": {
+    "fence-language": 1,
+    "ste-sentence-length": 2
+  },
+  "packages/headless/docs/integration-testing.md": {
+    "fence-language": 2,
+    "link-resolves": 5,
+    "no-semicolon": 2,
+    "ste-sentence-length": 2
+  },
+  "packages/headless/docs/product-config-validation-migration.md": {
+    "ste-sentence-length": 1
+  },
+  "packages/headless/src/modules/account/docs/CHANGELOG.md": {
+    "changelog-format": 2,
+    "no-semicolon": 2,
+    "ste-sentence-length": 2
+  },
+  "packages/headless/src/modules/account/docs/README.md": {
+    "filler-word": 1,
+    "no-semicolon": 3,
+    "quickstart-length": 1,
+    "ste-sentence-length": 1
+  },
+  "packages/headless/src/modules/account/docs/architecture.md": {
+    "no-semicolon": 1,
+    "persona-callout": 2,
+    "ste-sentence-length": 3
+  },
+  "packages/headless/src/modules/account/docs/foundation.md": {
+    "endpoint-entry": 4,
+    "no-semicolon": 18,
+    "ste-sentence-length": 18
+  },
+  "packages/headless/src/modules/account/docs/gotchas.md": {
+    "filler-word": 1,
+    "gotchas-shape": 10,
+    "no-semicolon": 4,
+    "persona-callout": 9,
+    "ste-sentence-length": 3
+  },
+  "packages/headless/src/modules/account/docs/usage.md": {
+    "no-semicolon": 9,
+    "persona-callout": 11,
+    "ste-sentence-length": 2
+  },
+  "packages/headless/src/modules/auth/README.md": {
+    "fence-language": 1,
+    "filler-word": 1,
+    "no-semicolon": 2,
+    "ste-sentence-length": 1
+  },
+  "packages/headless/src/modules/auth/docs/CHANGELOG.md": {
+    "changelog-format": 1,
+    "no-semicolon": 2
+  },
+  "packages/headless/src/modules/auth/docs/README.md": {
+    "filler-word": 2,
+    "no-semicolon": 3,
+    "quickstart-length": 1
+  },
+  "packages/headless/src/modules/auth/docs/architecture.md": {
+    "no-semicolon": 4,
+    "persona-callout": 2,
+    "ste-sentence-length": 4
+  },
+  "packages/headless/src/modules/auth/docs/foundation.md": {
+    "endpoint-entry": 7,
+    "foundation-process": 1,
+    "no-semicolon": 30,
+    "ste-sentence-length": 11
+  },
+  "packages/headless/src/modules/auth/docs/gotchas.md": {
+    "filler-word": 2,
+    "gotchas-shape": 11,
+    "no-semicolon": 9,
+    "persona-callout": 11,
+    "ste-sentence-length": 14
+  },
+  "packages/headless/src/modules/auth/docs/guide.md": {
+    "filler-word": 1,
+    "guide-sections": 8,
+    "link-resolves": 2
+  },
+  "packages/headless/src/modules/auth/docs/usage.md": {
+    "no-semicolon": 5,
+    "persona-callout": 4,
+    "ste-sentence-length": 1
+  },
+  "packages/headless/src/modules/basket-billing/README.md": {
+    "ste-sentence-length": 4
+  },
+  "packages/headless/src/modules/basket-billing/docs/architecture.md": {
+    "no-semicolon": 3,
+    "ste-sentence-length": 2
+  },
+  "packages/headless/src/modules/basket-billing/docs/changelog.md": {
+    "changelog-format": 3,
+    "no-semicolon": 2,
+    "ste-sentence-length": 2
+  },
+  "packages/headless/src/modules/basket-billing/docs/foundation.md": {
+    "filler-word": 1,
+    "no-semicolon": 15,
+    "ste-sentence-length": 14
+  },
+  "packages/headless/src/modules/basket-billing/docs/gotchas.md": {
+    "gotchas-shape": 2,
+    "no-semicolon": 3,
+    "persona-callout": 1,
+    "ste-sentence-length": 1
+  },
+  "packages/headless/src/modules/basket-currency/docs/CHANGELOG.md": {
+    "changelog-format": 2
+  },
+  "packages/headless/src/modules/basket-currency/docs/README.md": {
+    "link-resolves": 1,
+    "no-semicolon": 2,
+    "quickstart-length": 1,
+    "ste-sentence-length": 1
+  },
+  "packages/headless/src/modules/basket-currency/docs/architecture.md": {
+    "architecture-sections": 1,
+    "fence-language": 2,
+    "link-resolves": 1,
+    "persona-callout": 1,
+    "ste-sentence-length": 3
+  },
+  "packages/headless/src/modules/basket-currency/docs/gotchas.md": {
+    "gotchas-shape": 8,
+    "link-resolves": 2,
+    "no-semicolon": 2,
+    "persona-callout": 8,
+    "ste-sentence-length": 1
+  },
+  "packages/headless/src/modules/basket-product/docs/README.md": {
+    "quickstart-length": 1,
+    "readme-sections": 1
+  },
+  "packages/headless/src/modules/basket-product/docs/architecture.md": {
+    "architecture-sections": 3
+  },
+  "packages/headless/src/modules/basket-product/docs/foundation.md": {
+    "filler-word": 2,
+    "framework-words": 1,
+    "link-resolves": 1,
+    "no-semicolon": 22,
+    "ste-sentence-length": 49
+  },
+  "packages/headless/src/modules/basket-product/docs/gotchas.md": {
+    "gotchas-shape": 4,
+    "persona-callout": 2,
+    "ste-sentence-length": 1
+  },
+  "packages/headless/src/modules/basket-product/docs/inline-editing.md": {
+    "link-resolves": 1,
+    "persona-callout": 6,
+    "ste-sentence-length": 1
+  },
+  "packages/headless/src/modules/basket/README.md": {
+    "no-semicolon": 1,
+    "ste-sentence-length": 2
+  },
+  "packages/headless/src/modules/basket/docs/foundation.md": {
+    "core-concepts-count": 1,
+    "filler-word": 3,
+    "json-parses": 5,
+    "link-resolves": 1,
+    "no-semicolon": 35,
+    "paragraph-length": 1,
+    "ste-sentence-length": 56
+  },
+  "packages/headless/src/modules/brand/README.md": {
+    "ste-sentence-length": 1
+  },
+  "packages/headless/src/modules/brand/docs/architecture.md": {
+    "architecture-sections": 2,
+    "no-semicolon": 3,
+    "ste-sentence-length": 8
+  },
+  "packages/headless/src/modules/brand/docs/changelog.md": {
+    "changelog-format": 2
+  },
+  "packages/headless/src/modules/brand/docs/foundation.md": {
+    "filler-word": 1,
+    "framework-words": 1,
+    "json-parses": 1,
+    "no-semicolon": 4,
+    "ste-sentence-length": 11
+  },
+  "packages/headless/src/modules/brand/docs/guide.md": {
+    "filler-word": 1,
+    "guide-sections": 8,
+    "link-resolves": 3
+  },
+  "packages/headless/src/modules/brand/docs/usage.md": {
+    "filler-word": 1,
+    "no-semicolon": 5,
+    "ste-sentence-length": 6
+  },
+  "packages/headless/src/modules/client-address/docs/CHANGELOG.md": {
+    "changelog-format": 11,
+    "no-semicolon": 7,
+    "ste-sentence-length": 15
+  },
+  "packages/headless/src/modules/client-address/docs/README.md": {
+    "filler-word": 1,
+    "no-semicolon": 2,
+    "quickstart-length": 1,
+    "ste-sentence-length": 11
+  },
+  "packages/headless/src/modules/client-address/docs/architecture.md": {
+    "architecture-sections": 1,
+    "no-semicolon": 5,
+    "ste-sentence-length": 31
+  },
+  "packages/headless/src/modules/client-address/docs/foundation.md": {
+    "filler-word": 2,
+    "flow-form": 1,
+    "foundation-sections": 1,
+    "no-semicolon": 9,
+    "ste-sentence-length": 23
+  },
+  "packages/headless/src/modules/client-address/docs/gotchas.md": {
+    "filler-word": 2,
+    "gotchas-shape": 16,
+    "no-semicolon": 4,
+    "persona-callout": 12,
+    "ste-sentence-length": 35
+  },
+  "packages/headless/src/modules/client-address/docs/usage.md": {
+    "filler-word": 1,
+    "no-semicolon": 9,
+    "persona-callout": 19,
+    "ste-sentence-length": 20
+  },
+  "packages/headless/src/modules/client-billing-settings/docs/CHANGELOG.md": {
+    "changelog-format": 8,
+    "filler-word": 1,
+    "no-semicolon": 6,
+    "ste-sentence-length": 8
+  },
+  "packages/headless/src/modules/client-billing-settings/docs/README.md": {
+    "no-semicolon": 3,
+    "ste-sentence-length": 8
+  },
+  "packages/headless/src/modules/client-billing-settings/docs/architecture.md": {
+    "architecture-sections": 2,
+    "no-semicolon": 5,
+    "ste-sentence-length": 14
+  },
+  "packages/headless/src/modules/client-billing-settings/docs/dropped-capabilities.md": {
+    "filler-word": 1,
+    "no-semicolon": 1,
+    "ste-sentence-length": 11
+  },
+  "packages/headless/src/modules/client-billing-settings/docs/foundation.md": {
+    "core-concepts-count": 1,
+    "endpoint-entry": 1,
+    "filler-word": 2,
+    "framework-words": 1,
+    "no-semicolon": 10,
+    "ste-sentence-length": 39
+  },
+  "packages/headless/src/modules/client-billing-settings/docs/gotchas.md": {
+    "filler-word": 3,
+    "gotchas-shape": 10,
+    "no-semicolon": 4,
+    "persona-callout": 8,
+    "ste-sentence-length": 17
+  },
+  "packages/headless/src/modules/client-billing-settings/docs/usage.md": {
+    "no-semicolon": 3,
+    "persona-callout": 7,
+    "ste-sentence-length": 9
+  },
+  "packages/headless/src/modules/client-company/docs/CHANGELOG.md": {
+    "changelog-format": 12,
+    "no-semicolon": 10,
+    "ste-sentence-length": 16
+  },
+  "packages/headless/src/modules/client-company/docs/README.md": {
+    "no-semicolon": 2,
+    "quickstart-length": 1,
+    "ste-sentence-length": 8
+  },
+  "packages/headless/src/modules/client-company/docs/architecture.md": {
+    "architecture-sections": 1,
+    "no-semicolon": 5,
+    "ste-sentence-length": 15
+  },
+  "packages/headless/src/modules/client-company/docs/foundation.md": {
+    "flow-form": 1,
+    "no-semicolon": 10,
+    "ste-sentence-length": 21
+  },
+  "packages/headless/src/modules/client-company/docs/gotchas.md": {
+    "filler-word": 1,
+    "gotchas-shape": 15,
+    "no-semicolon": 10,
+    "persona-callout": 16,
+    "ste-sentence-length": 47
+  },
+  "packages/headless/src/modules/client-company/docs/usage.md": {
+    "no-semicolon": 13,
+    "persona-callout": 22,
+    "ste-sentence-length": 26
+  },
+  "packages/headless/src/modules/client-custom-fields/docs/CHANGELOG.md": {
+    "changelog-format": 8,
+    "no-semicolon": 9,
+    "ste-sentence-length": 10
+  },
+  "packages/headless/src/modules/client-custom-fields/docs/README.md": {
+    "no-semicolon": 2,
+    "quickstart-length": 1,
+    "ste-sentence-length": 8
+  },
+  "packages/headless/src/modules/client-custom-fields/docs/architecture.md": {
+    "architecture-sections": 2,
+    "filler-word": 1,
+    "no-semicolon": 3,
+    "ste-sentence-length": 10
+  },
+  "packages/headless/src/modules/client-custom-fields/docs/foundation.md": {
+    "core-concepts-count": 1,
+    "filler-word": 1,
+    "no-semicolon": 16,
+    "ste-sentence-length": 32
+  },
+  "packages/headless/src/modules/client-custom-fields/docs/gotchas.md": {
+    "filler-word": 7,
+    "gotchas-shape": 8,
+    "no-semicolon": 7,
+    "persona-callout": 8,
+    "ste-sentence-length": 27
+  },
+  "packages/headless/src/modules/client-custom-fields/docs/usage.md": {
+    "no-semicolon": 5,
+    "persona-callout": 9,
+    "ste-sentence-length": 7
+  },
+  "packages/headless/src/modules/client-custom-pages/docs/CHANGELOG.md": {
+    "changelog-format": 4,
+    "no-semicolon": 8,
+    "ste-sentence-length": 11
+  },
+  "packages/headless/src/modules/client-custom-pages/docs/README.md": {
+    "module-docs-scope": 2,
+    "quickstart-length": 1,
+    "ste-sentence-length": 6
+  },
+  "packages/headless/src/modules/client-custom-pages/docs/architecture.md": {
+    "architecture-sections": 1,
+    "no-semicolon": 4,
+    "paragraph-length": 1,
+    "ste-sentence-length": 12
+  },
+  "packages/headless/src/modules/client-custom-pages/docs/foundation.md": {
+    "endpoint-entry": 2,
+    "filler-word": 1,
+    "no-semicolon": 11,
+    "ste-sentence-length": 33
+  },
+  "packages/headless/src/modules/client-custom-pages/docs/gotchas.md": {
+    "gotchas-shape": 8,
+    "no-semicolon": 4,
+    "persona-callout": 8,
+    "ste-sentence-length": 15
+  },
+  "packages/headless/src/modules/client-custom-pages/docs/usage.md": {
+    "no-semicolon": 3,
+    "persona-callout": 10,
+    "ste-sentence-length": 5
+  },
+  "packages/headless/src/modules/client-email-history/docs/CHANGELOG.md": {
+    "changelog-format": 11,
+    "no-semicolon": 14,
+    "ste-sentence-length": 22
+  },
+  "packages/headless/src/modules/client-email-history/docs/README.md": {
+    "no-semicolon": 2,
+    "quickstart-length": 1,
+    "ste-sentence-length": 9
+  },
+  "packages/headless/src/modules/client-email-history/docs/architecture.md": {
+    "architecture-sections": 1,
+    "no-semicolon": 5,
+    "paragraph-length": 1,
+    "ste-sentence-length": 12
+  },
+  "packages/headless/src/modules/client-email-history/docs/foundation.md": {
+    "no-semicolon": 9,
+    "ste-sentence-length": 20
+  },
+  "packages/headless/src/modules/client-email-history/docs/gotchas.md": {
+    "filler-word": 3,
+    "gotchas-shape": 13,
+    "no-semicolon": 4,
+    "persona-callout": 13,
+    "ste-sentence-length": 26
+  },
+  "packages/headless/src/modules/client-email-history/docs/usage.md": {
+    "no-semicolon": 6,
+    "paragraph-length": 1,
+    "persona-callout": 14,
+    "ste-sentence-length": 11
+  },
+  "packages/headless/src/modules/client-email/docs/CHANGELOG.md": {
+    "changelog-format": 11,
+    "no-semicolon": 7,
+    "ste-sentence-length": 11
+  },
+  "packages/headless/src/modules/client-email/docs/README.md": {
+    "no-semicolon": 1,
+    "quickstart-length": 1,
+    "ste-sentence-length": 5
+  },
+  "packages/headless/src/modules/client-email/docs/architecture.md": {
+    "architecture-sections": 1,
+    "no-semicolon": 4,
+    "ste-sentence-length": 12
+  },
+  "packages/headless/src/modules/client-email/docs/foundation.md": {
+    "filler-word": 1,
+    "no-semicolon": 9,
+    "ste-sentence-length": 23
+  },
+  "packages/headless/src/modules/client-email/docs/gotchas.md": {
+    "filler-word": 1,
+    "gotchas-shape": 17,
+    "no-semicolon": 5,
+    "persona-callout": 18,
+    "ste-sentence-length": 12
+  },
+  "packages/headless/src/modules/client-email/docs/usage.md": {
+    "no-semicolon": 16,
+    "persona-callout": 23,
+    "ste-sentence-length": 22
+  },
+  "packages/headless/src/modules/client-notifications/docs/CHANGELOG.md": {
+    "changelog-format": 6,
+    "no-semicolon": 8,
+    "ste-sentence-length": 17
+  },
+  "packages/headless/src/modules/client-notifications/docs/README.md": {
+    "no-semicolon": 4,
+    "quickstart-length": 1,
+    "ste-sentence-length": 7
+  },
+  "packages/headless/src/modules/client-notifications/docs/architecture.md": {
+    "architecture-sections": 2,
+    "no-semicolon": 7,
+    "ste-sentence-length": 14
+  },
+  "packages/headless/src/modules/client-notifications/docs/foundation.md": {
+    "core-concepts-count": 1,
+    "no-semicolon": 7,
+    "ste-sentence-length": 28
+  },
+  "packages/headless/src/modules/client-notifications/docs/gotchas.md": {
+    "filler-word": 1,
+    "gotchas-shape": 11,
+    "no-semicolon": 4,
+    "persona-callout": 2,
+    "ste-sentence-length": 28
+  },
+  "packages/headless/src/modules/client-notifications/docs/usage.md": {
+    "no-semicolon": 1,
+    "ste-sentence-length": 5
+  },
+  "packages/headless/src/modules/client-personal-details/docs/CHANGELOG.md": {
+    "changelog-format": 8,
+    "no-semicolon": 6,
+    "ste-sentence-length": 13
+  },
+  "packages/headless/src/modules/client-personal-details/docs/README.md": {
+    "no-semicolon": 1,
+    "quickstart-length": 1,
+    "ste-sentence-length": 11
+  },
+  "packages/headless/src/modules/client-personal-details/docs/architecture.md": {
+    "architecture-sections": 2,
+    "no-semicolon": 2,
+    "ste-sentence-length": 11
+  },
+  "packages/headless/src/modules/client-personal-details/docs/dropped-capabilities.md": {
+    "filler-word": 1,
+    "no-semicolon": 2,
+    "ste-sentence-length": 13
+  },
+  "packages/headless/src/modules/client-personal-details/docs/foundation.md": {
+    "core-concepts-count": 1,
+    "endpoint-entry": 1,
+    "filler-word": 1,
+    "framework-words": 1,
+    "no-semicolon": 11,
+    "ste-sentence-length": 27
+  },
+  "packages/headless/src/modules/client-personal-details/docs/gotchas.md": {
+    "filler-word": 2,
+    "gotchas-shape": 9,
+    "no-semicolon": 4,
+    "paragraph-length": 1,
+    "persona-callout": 7,
+    "ste-sentence-length": 20
+  },
+  "packages/headless/src/modules/client-personal-details/docs/usage.md": {
+    "no-semicolon": 7,
+    "persona-callout": 8,
+    "ste-sentence-length": 11
+  },
+  "packages/headless/src/modules/client-phone/docs/CHANGELOG.md": {
+    "changelog-format": 10,
+    "no-semicolon": 5,
+    "ste-sentence-length": 13
+  },
+  "packages/headless/src/modules/client-phone/docs/README.md": {
+    "no-semicolon": 2,
+    "quickstart-length": 1,
+    "ste-sentence-length": 4
+  },
+  "packages/headless/src/modules/client-phone/docs/architecture.md": {
+    "architecture-sections": 1,
+    "no-semicolon": 5,
+    "ste-sentence-length": 19
+  },
+  "packages/headless/src/modules/client-phone/docs/foundation.md": {
+    "core-concepts-count": 1,
+    "flow-form": 1,
+    "no-semicolon": 11,
+    "ste-sentence-length": 17
+  },
+  "packages/headless/src/modules/client-phone/docs/gotchas.md": {
+    "filler-word": 2,
+    "gotchas-shape": 14,
+    "no-semicolon": 2,
+    "persona-callout": 12,
+    "ste-sentence-length": 39
+  },
+  "packages/headless/src/modules/client-phone/docs/usage.md": {
+    "no-semicolon": 11,
+    "persona-callout": 19,
+    "ste-sentence-length": 18
+  },
+  "packages/headless/src/modules/client/docs/foundation.md": {
+    "core-concepts-count": 1,
+    "filler-word": 2,
+    "framework-words": 1,
+    "json-parses": 4,
+    "no-semicolon": 38,
+    "operations-rows": 1,
+    "ste-sentence-length": 33
+  },
+  "packages/headless/src/modules/contract-product/docs/CHANGELOG.md": {
+    "changelog-format": 1,
+    "filler-word": 1,
+    "no-semicolon": 6,
+    "ste-sentence-length": 9
+  },
+  "packages/headless/src/modules/contract-product/docs/README.md": {
+    "filler-word": 1,
+    "no-semicolon": 4,
+    "quickstart-length": 1,
+    "ste-sentence-length": 8
+  },
+  "packages/headless/src/modules/contract-product/docs/architecture.md": {
+    "no-semicolon": 9,
+    "paragraph-length": 1,
+    "ste-sentence-length": 11
+  },
+  "packages/headless/src/modules/contract-product/docs/foundation.md": {
+    "core-concepts-count": 1,
+    "endpoint-entry": 10,
+    "filler-word": 2,
+    "framework-words": 1,
+    "no-semicolon": 17,
+    "operations-rows": 1,
+    "ste-sentence-length": 45
+  },
+  "packages/headless/src/modules/contract-product/docs/gotchas.md": {
+    "filler-word": 1,
+    "gotchas-shape": 5,
+    "no-semicolon": 4,
+    "persona-callout": 1,
+    "ste-sentence-length": 15
+  },
+  "packages/headless/src/modules/contract-product/docs/usage.md": {
+    "no-semicolon": 4,
+    "ste-sentence-length": 10
+  },
+  "packages/headless/src/modules/contract/docs/CHANGELOG.md": {
+    "changelog-format": 2,
+    "no-semicolon": 5,
+    "ste-sentence-length": 5
+  },
+  "packages/headless/src/modules/contract/docs/README.md": {
+    "no-semicolon": 2,
+    "quickstart-length": 1,
+    "ste-sentence-length": 3
+  },
+  "packages/headless/src/modules/contract/docs/architecture.md": {
+    "no-semicolon": 6,
+    "ste-sentence-length": 8
+  },
+  "packages/headless/src/modules/contract/docs/foundation.md": {
+    "endpoint-entry": 3,
+    "filler-word": 1,
+    "no-semicolon": 9,
+    "ste-sentence-length": 27
+  },
+  "packages/headless/src/modules/contract/docs/gotchas.md": {
+    "gotchas-shape": 3,
+    "no-semicolon": 1,
+    "persona-callout": 1,
+    "ste-sentence-length": 8
+  },
+  "packages/headless/src/modules/contract/docs/usage.md": {
+    "no-semicolon": 2,
+    "paragraph-length": 1,
+    "ste-sentence-length": 11
+  },
+  "packages/headless/src/modules/delegates/README.md": {
+    "quickstart-length": 1,
+    "ste-sentence-length": 2
+  },
+  "packages/headless/src/modules/delegates/docs/CHANGELOG.md": {
+    "changelog-format": 4,
+    "no-semicolon": 4,
+    "ste-sentence-length": 3
+  },
+  "packages/headless/src/modules/delegates/docs/architecture.md": {
+    "architecture-sections": 2,
+    "filler-word": 1,
+    "no-semicolon": 6,
+    "ste-sentence-length": 7
+  },
+  "packages/headless/src/modules/delegates/docs/foundation.md": {
+    "endpoint-entry": 2,
+    "no-semicolon": 11,
+    "ste-sentence-length": 14
+  },
+  "packages/headless/src/modules/delegates/docs/gotchas.md": {
+    "filler-word": 1,
+    "gotchas-shape": 8,
+    "no-semicolon": 3,
+    "persona-callout": 6,
+    "ste-sentence-length": 5
+  },
+  "packages/headless/src/modules/delegates/docs/usage.md": {
+    "no-semicolon": 3,
+    "persona-callout": 3,
+    "ste-sentence-length": 2
+  },
+  "packages/headless/src/modules/invoices/docs/CHANGELOG.md": {
+    "changelog-format": 3,
+    "no-semicolon": 2,
+    "ste-sentence-length": 10
+  },
+  "packages/headless/src/modules/invoices/docs/README.md": {
+    "no-semicolon": 4,
+    "quickstart-length": 1,
+    "ste-sentence-length": 8
+  },
+  "packages/headless/src/modules/invoices/docs/architecture.md": {
+    "architecture-sections": 1,
+    "paragraph-length": 1,
+    "ste-sentence-length": 6
+  },
+  "packages/headless/src/modules/invoices/docs/audit/docs-review-module-invoices-2026-08-31-r2.md": {
+    "module-docs-scope": 1,
+    "no-semicolon": 8,
+    "ste-sentence-length": 3
+  },
+  "packages/headless/src/modules/invoices/docs/audit/docs-review-module-invoices-2026-08-31.md": {
+    "no-semicolon": 5,
+    "ste-sentence-length": 2
+  },
+  "packages/headless/src/modules/invoices/docs/audit/docs-review-module-invoices-2026-09-08.md": {
+    "module-docs-scope": 1,
+    "no-semicolon": 6,
+    "ste-sentence-length": 8
+  },
+  "packages/headless/src/modules/invoices/docs/foundation.md": {
+    "core-concepts-count": 1,
+    "filler-word": 4,
+    "json-parses": 1,
+    "no-semicolon": 30,
+    "operations-rows": 1,
+    "state-model-words": 1,
+    "ste-sentence-length": 59
+  },
+  "packages/headless/src/modules/invoices/docs/gotchas.md": {
+    "gotchas-shape": 3,
+    "no-semicolon": 6,
+    "persona-callout": 1,
+    "ste-sentence-length": 12
+  },
+  "packages/headless/src/modules/invoices/docs/usage.md": {
+    "no-semicolon": 4,
+    "persona-callout": 1,
+    "ste-sentence-length": 7
+  },
+  "packages/headless/src/modules/invoices/invoice.machine.contract.md": {
+    "fence-language": 14,
+    "no-semicolon": 1
+  },
+  "packages/headless/src/modules/legacy-invoices/README.md": {
+    "no-semicolon": 10,
+    "ste-sentence-length": 15
+  },
+  "packages/headless/src/modules/legacy-invoices/docs/CHANGELOG.md": {
+    "changelog-format": 2,
+    "no-semicolon": 3,
+    "ste-sentence-length": 2
+  },
+  "packages/headless/src/modules/legacy-invoices/docs/README.md": {
+    "no-semicolon": 3,
+    "quickstart-length": 1,
+    "ste-sentence-length": 1
+  },
+  "packages/headless/src/modules/legacy-invoices/docs/architecture.md": {
+    "architecture-sections": 1,
+    "no-semicolon": 3,
+    "ste-sentence-length": 4
+  },
+  "packages/headless/src/modules/legacy-invoices/docs/foundation.md": {
+    "framework-words": 2,
+    "no-semicolon": 16,
+    "ste-sentence-length": 18
+  },
+  "packages/headless/src/modules/legacy-invoices/docs/gotchas.md": {
+    "filler-word": 1,
+    "gotchas-shape": 6,
+    "no-semicolon": 9,
+    "persona-callout": 1,
+    "ste-sentence-length": 19
+  },
+  "packages/headless/src/modules/legacy-invoices/docs/usage.md": {
+    "no-semicolon": 1,
+    "ste-sentence-length": 1
+  },
+  "packages/headless/src/modules/payment-details/docs/CHANGELOG.md": {
+    "changelog-format": 3,
+    "no-semicolon": 4,
+    "ste-sentence-length": 11
+  },
+  "packages/headless/src/modules/payment-details/docs/GATEWAY_VERIFICATION_PLAYBOOK.md": {
+    "filler-word": 2,
+    "link-resolves": 1,
+    "persona-callout": 2
+  },
+  "packages/headless/src/modules/payment-details/docs/README.md": {
+    "no-semicolon": 2,
+    "quickstart-length": 1,
+    "ste-sentence-length": 6
+  },
+  "packages/headless/src/modules/payment-details/docs/architecture.md": {
+    "fence-language": 1,
+    "no-semicolon": 6,
+    "ste-sentence-length": 4
+  },
+  "packages/headless/src/modules/payment-details/docs/foundation.md": {
+    "core-concepts-count": 1,
+    "filler-word": 3,
+    "framework-words": 3,
+    "no-semicolon": 27,
+    "ste-sentence-length": 53
+  },
+  "packages/headless/src/modules/payment-details/docs/gotchas.md": {
+    "filler-word": 2,
+    "gotchas-shape": 5,
+    "no-semicolon": 8,
+    "ste-sentence-length": 25
+  },
+  "packages/headless/src/modules/payment-details/docs/usage.md": {
+    "filler-word": 1,
+    "no-semicolon": 5,
+    "ste-sentence-length": 13
+  },
+  "packages/headless/src/modules/payment-gateways/README.md": {
+    "no-semicolon": 1,
+    "quickstart-length": 1,
+    "ste-sentence-length": 9
+  },
+  "packages/headless/src/modules/payment-gateways/docs/architecture.md": {
+    "fence-language": 1,
+    "filler-word": 1,
+    "no-semicolon": 4,
+    "ste-sentence-length": 10
+  },
+  "packages/headless/src/modules/payment-gateways/docs/changelog.md": {
+    "changelog-format": 3,
+    "no-semicolon": 3,
+    "ste-sentence-length": 9
+  },
+  "packages/headless/src/modules/payment-gateways/docs/foundation.md": {
+    "filler-word": 2,
+    "framework-words": 3,
+    "no-semicolon": 11,
+    "ste-sentence-length": 35
+  },
+  "packages/headless/src/modules/payment-gateways/docs/gotchas.md": {
+    "filler-word": 1,
+    "gotchas-shape": 5,
+    "no-semicolon": 1,
+    "persona-callout": 1,
+    "ste-sentence-length": 12
+  },
+  "packages/headless/src/modules/payment-gateways/docs/usage.md": {
+    "filler-word": 2,
+    "no-semicolon": 1,
+    "ste-sentence-length": 9
+  },
+  "packages/headless/src/modules/payment/docs/CHANGELOG.md": {
+    "changelog-format": 4,
+    "filler-word": 1,
+    "no-semicolon": 5,
+    "ste-sentence-length": 6
+  },
+  "packages/headless/src/modules/payment/docs/README.md": {
+    "no-semicolon": 1,
+    "quickstart-length": 1,
+    "ste-sentence-length": 3
+  },
+  "packages/headless/src/modules/payment/docs/architecture.md": {
+    "fence-language": 1,
+    "no-semicolon": 5,
+    "ste-sentence-length": 2
+  },
+  "packages/headless/src/modules/payment/docs/foundation.md": {
+    "filler-word": 1,
+    "framework-words": 1,
+    "link-resolves": 1,
+    "no-semicolon": 18,
+    "ste-sentence-length": 22
+  },
+  "packages/headless/src/modules/payment/docs/gotchas.md": {
+    "fence-language": 2,
+    "filler-word": 1,
+    "gotchas-shape": 3,
+    "no-semicolon": 1,
+    "ste-sentence-length": 4
+  },
+  "packages/headless/src/modules/payment/docs/usage.md": {
+    "no-semicolon": 1
+  },
+  "packages/headless/src/modules/product-catalogue/docs/foundation.md": {
+    "filler-word": 2,
+    "framework-words": 1,
+    "link-resolves": 3,
+    "no-semicolon": 21,
+    "paragraph-length": 1,
+    "ste-sentence-length": 35
+  },
+  "packages/headless/src/modules/product-categories/docs/foundation.md": {
+    "framework-words": 1,
+    "link-resolves": 1,
+    "no-semicolon": 19,
+    "ste-sentence-length": 21
+  },
+  "packages/headless/src/modules/product/docs/foundation.md": {
+    "core-concepts-count": 1,
+    "filler-word": 2,
+    "framework-words": 2,
+    "link-resolves": 2,
+    "no-semicolon": 19,
+    "ste-sentence-length": 32
+  },
+  "packages/headless/src/modules/product/notes-product:basket.md": {
+    "filler-word": 1,
+    "no-semicolon": 4,
+    "paragraph-length": 1,
+    "ste-sentence-length": 2
+  },
+  "packages/headless/src/modules/query/docs/CHANGELOG.md": {
+    "changelog-format": 1
+  },
+  "packages/headless/src/modules/query/docs/README.md": {
+    "no-semicolon": 3,
+    "quickstart-length": 1,
+    "readme-sections": 2,
+    "ste-sentence-length": 35
+  },
+  "packages/headless/src/modules/recommendations/README.md": {
+    "no-semicolon": 4,
+    "ste-sentence-length": 1
+  },
+  "packages/headless/src/modules/routing/README.md": {
+    "ste-sentence-length": 1
+  },
+  "packages/headless/src/modules/routing/docs/CHANGELOG.md": {
+    "changelog-format": 3,
+    "no-semicolon": 2
+  },
+  "packages/headless/src/modules/routing/docs/README.md": {
+    "quickstart-length": 1,
+    "readme-sections": 1,
+    "ste-sentence-length": 1
+  },
+  "packages/headless/src/modules/routing/docs/architecture.md": {
+    "architecture-sections": 1,
+    "link-resolves": 5,
+    "no-semicolon": 1,
+    "ste-sentence-length": 6
+  },
+  "packages/headless/src/modules/routing/docs/gotchas.md": {
+    "filler-word": 1,
+    "gotchas-shape": 3,
+    "persona-callout": 2,
+    "ste-sentence-length": 3
+  },
+  "packages/headless/src/modules/routing/docs/overlay-routes.md": {
+    "fence-language": 1,
+    "persona-callout": 2,
+    "ste-sentence-length": 3
+  },
+  "packages/headless/src/modules/routing/docs/usage.md": {
+    "no-semicolon": 2,
+    "ste-sentence-length": 2
+  },
+  "packages/headless/src/modules/routing/docs/watchers.md": {
+    "no-semicolon": 2,
+    "persona-callout": 3,
+    "ste-sentence-length": 3
+  },
+  "packages/headless/src/modules/routing/funnels.examples.md": {
+    "no-semicolon": 2,
+    "ste-sentence-length": 2
+  },
+  "packages/headless/src/modules/scope/README.md": {
+    "no-semicolon": 3,
+    "ste-sentence-length": 7
+  },
+  "packages/headless/src/modules/scope/docs/CHANGELOG.md": {
+    "changelog-format": 3,
+    "no-semicolon": 2,
+    "ste-sentence-length": 6
+  },
+  "packages/headless/src/modules/scope/docs/architecture.md": {
+    "architecture-sections": 2,
+    "no-semicolon": 2,
+    "ste-sentence-length": 11
+  },
+  "packages/headless/src/modules/scope/docs/foundation.md": {
+    "core-concepts-count": 1,
+    "filler-word": 1,
+    "foundation-sections": 2,
+    "no-semicolon": 7,
+    "ste-sentence-length": 18
+  },
+  "packages/headless/src/modules/scope/docs/gotchas.md": {
+    "gotchas-shape": 4,
+    "no-semicolon": 8,
+    "persona-callout": 1,
+    "ste-sentence-length": 5
+  },
+  "packages/headless/src/modules/scope/docs/usage.md": {
+    "no-semicolon": 10,
+    "ste-sentence-length": 6
+  },
+  "packages/headless/src/modules/session-store/docs/CHANGELOG.md": {
+    "changelog-format": 14,
+    "no-semicolon": 8,
+    "ste-sentence-length": 10
+  },
+  "packages/headless/src/modules/session-store/docs/FE-2825-note.md": {
+    "filler-word": 1,
+    "no-semicolon": 2,
+    "ste-sentence-length": 4
+  },
+  "packages/headless/src/modules/session-store/docs/README.md": {
+    "filler-word": 1,
+    "no-semicolon": 1,
+    "quickstart-length": 1,
+    "ste-sentence-length": 6
+  },
+  "packages/headless/src/modules/session-store/docs/architecture.md": {
+    "architecture-sections": 1,
+    "filler-word": 3,
+    "no-semicolon": 2,
+    "ste-sentence-length": 6
+  },
+  "packages/headless/src/modules/session-store/docs/foundation.md": {
+    "endpoint-entry": 1,
+    "filler-word": 3,
+    "framework-words": 1,
+    "no-semicolon": 15,
+    "ste-sentence-length": 26
+  },
+  "packages/headless/src/modules/session-store/docs/gotchas.md": {
+    "filler-word": 3,
+    "gotchas-shape": 16,
+    "no-semicolon": 15,
+    "persona-callout": 22,
+    "ste-sentence-length": 35
+  },
+  "packages/headless/src/modules/session-store/docs/usage.md": {
+    "no-semicolon": 8,
+    "persona-callout": 6,
+    "ste-sentence-length": 4
+  },
+  "packages/headless/src/modules/stats/docs/CHANGELOG.md": {
+    "changelog-format": 3,
+    "no-semicolon": 3,
+    "ste-sentence-length": 7
+  },
+  "packages/headless/src/modules/stats/docs/README.md": {
+    "module-docs-scope": 4,
+    "no-semicolon": 2,
+    "quickstart-length": 1,
+    "ste-sentence-length": 8
+  },
+  "packages/headless/src/modules/stats/docs/architecture.md": {
+    "architecture-sections": 1,
+    "no-semicolon": 3,
+    "ste-sentence-length": 9
+  },
+  "packages/headless/src/modules/stats/docs/foundation.md": {
+    "filler-word": 3,
+    "framework-words": 2,
+    "no-semicolon": 14,
+    "ste-sentence-length": 25
+  },
+  "packages/headless/src/modules/stats/docs/gotchas.md": {
+    "gotchas-shape": 6,
+    "no-semicolon": 3,
+    "persona-callout": 1,
+    "ste-sentence-length": 16
+  },
+  "packages/headless/src/modules/stats/docs/usage.md": {
+    "ste-sentence-length": 1
+  },
+  "packages/headless/src/modules/system/docs/CHANGELOG.md": {
+    "changelog-format": 1,
+    "link-resolves": 1,
+    "ste-sentence-length": 2
+  },
+  "packages/headless/src/modules/system/docs/README.md": {
+    "link-resolves": 9,
+    "quickstart-length": 1,
+    "readme-sections": 2,
+    "ste-sentence-length": 1
+  },
+  "packages/headless/src/modules/system/docs/architecture.md": {
+    "architecture-sections": 2,
+    "no-semicolon": 4
+  },
+  "packages/headless/src/modules/system/docs/foundation.md": {
+    "json-parses": 4,
+    "no-semicolon": 8,
+    "ste-sentence-length": 6
+  },
+  "packages/headless/src/modules/system/docs/gotchas.md": {
+    "filler-word": 1,
+    "persona-callout": 1,
+    "ste-sentence-length": 4
+  },
+  "packages/headless/src/modules/system/docs/guide.md": {
+    "guide-sections": 8,
+    "link-resolves": 3
+  },
+  "packages/headless/src/modules/tickets/docs/CHANGELOG.md": {
+    "changelog-format": 16,
+    "no-semicolon": 17,
+    "ste-sentence-length": 16
+  },
+  "packages/headless/src/modules/tickets/docs/README.md": {
+    "no-semicolon": 1,
+    "quickstart-length": 1,
+    "ste-sentence-length": 7
+  },
+  "packages/headless/src/modules/tickets/docs/architecture.md": {
+    "architecture-sections": 2,
+    "no-semicolon": 9,
+    "ste-sentence-length": 20
+  },
+  "packages/headless/src/modules/tickets/docs/foundation.md": {
+    "core-concepts-count": 1,
+    "endpoint-entry": 18,
+    "filler-word": 1,
+    "flow-form": 8,
+    "json-parses": 1,
+    "no-semicolon": 13,
+    "operations-rows": 1,
+    "ste-sentence-length": 20
+  },
+  "packages/headless/src/modules/tickets/docs/gotchas.md": {
+    "filler-word": 1,
+    "gotchas-shape": 22,
+    "no-semicolon": 16,
+    "persona-callout": 6,
+    "ste-sentence-length": 25
+  },
+  "packages/headless/src/modules/tickets/docs/usage.md": {
+    "no-semicolon": 7,
+    "ste-sentence-length": 5
+  },
+  "packages/i18n/README.md": {
+    "no-semicolon": 1,
+    "ste-sentence-length": 3
+  },
+  "packages/modules-auth/README.md": {
+    "no-semicolon": 1,
+    "ste-sentence-length": 3
+  },
+  "packages/modules-foundation/README.md": {
+    "ste-sentence-length": 2
+  },
+  "packages/scenario-harness/README.md": {
+    "filler-word": 2,
+    "link-resolves": 1,
+    "no-semicolon": 16,
+    "ste-sentence-length": 47
+  },
+  "playgrounds/labs-nuxt/README.md": {
+    "no-semicolon": 12,
+    "ste-sentence-length": 38
+  },
+  "playgrounds/labs-nuxt/modules/scenarios/docs/CHANGELOG.md": {
+    "changelog-format": 2,
+    "no-semicolon": 16,
+    "ste-sentence-length": 36
+  },
+  "playgrounds/labs-nuxt/modules/scenarios/docs/README.md": {
+    "filler-word": 1,
+    "no-semicolon": 3,
+    "ste-sentence-length": 11
+  },
+  "playgrounds/labs-nuxt/modules/scenarios/docs/architecture.md": {
+    "architecture-sections": 4,
+    "filler-word": 3,
+    "no-semicolon": 21,
+    "paragraph-length": 1,
+    "ste-sentence-length": 54
+  },
+  "playgrounds/labs-nuxt/modules/scenarios/docs/foundation.md": {
+    "core-concepts-count": 1,
+    "filler-word": 1,
+    "foundation-sections": 4,
+    "framework-words": 1,
+    "no-semicolon": 2,
+    "ste-sentence-length": 12
+  },
+  "playgrounds/labs-nuxt/modules/scenarios/docs/gotchas.md": {
+    "filler-word": 2,
+    "gotchas-shape": 20,
+    "no-semicolon": 3,
+    "ste-sentence-length": 22
+  },
+  "playgrounds/labs-nuxt/modules/scenarios/docs/record.md": {
+    "no-semicolon": 18,
+    "ste-sentence-length": 9
+  },
+  "playgrounds/labs-nuxt/modules/scenarios/docs/usage.md": {
+    "filler-word": 4,
+    "module-docs-scope": 3,
+    "no-semicolon": 6,
+    "ste-sentence-length": 25
+  },
+  "tests/allure/docs/08-allure-dashboard.md": {
+    "fence-language": 3,
+    "filler-word": 1,
+    "no-semicolon": 2,
+    "ste-sentence-length": 2
+  },
+  "tests/docs/13-schema-driven-form-filling.md": {
+    "link-resolves": 1,
+    "no-semicolon": 3,
+    "ste-sentence-length": 5
+  },
+  "tests/docs/15-url-assertions.md": {
+    "link-resolves": 4,
+    "no-semicolon": 2,
+    "ste-sentence-length": 1
+  },
+  "tests/features/10-feature-style.md": {
+    "fence-language": 2,
+    "filler-word": 1,
+    "link-resolves": 3,
+    "no-semicolon": 2,
+    "paragraph-length": 1,
+    "ste-sentence-length": 4
+  },
+  "tests/features/README.md": {
+    "fence-language": 1,
+    "no-semicolon": 3,
+    "ste-sentence-length": 5
+  },
+  "tests/fixtures/README.md": {
+    "no-semicolon": 6,
+    "ste-sentence-length": 9
+  },
+  "tests/fixtures/imports/README.md": {
+    "no-semicolon": 8,
+    "ste-sentence-length": 6
+  },
+  "tests/journeys/storefront/oneoff-checkout/storefront-guest-oneoff-checkout-stripe/README.md": {
+    "no-semicolon": 7,
+    "ste-sentence-length": 8
+  },
+  "tests/quarantine/docs/14-quarantine-tooling.md": {
+    "fence-language": 1,
+    "no-semicolon": 6,
+    "ste-sentence-length": 3
+  }
+}

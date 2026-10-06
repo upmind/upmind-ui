@@ -48,7 +48,10 @@ const REGISTRAR = "createScopedComposable";
 function calleeName(node) {
   const { callee } = node;
   if (callee.type === "Identifier") return callee.name;
-  if (callee.type === "MemberExpression" && callee.property.type === "Identifier") {
+  if (
+    callee.type === "MemberExpression" &&
+    callee.property.type === "Identifier"
+  ) {
     return callee.property.name;
   }
   return undefined;

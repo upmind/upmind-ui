@@ -33,6 +33,7 @@ import type {
   DefaultPaymentPeriod,
   UpmindModuleCodes
 } from "@upmind-automation/types";
+// -----------------------------------------------------------------------------
 
 /**
  * Context to let us understand if we need to refetch on the initial use of Brand settings

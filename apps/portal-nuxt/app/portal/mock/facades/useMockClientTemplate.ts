@@ -11,6 +11,7 @@ import { defineMockFacade } from "./facade";
 import { find } from "lodash-es";
 import type { MockTemplateSlot } from "../types";
 import type { IClientTemplateSlot } from "@upmind-automation/types";
+// -----------------------------------------------------------------------------
 
 /** The body the brand wrote into one slot, or an empty string where it wrote none. */
 export function templateSlotBody(

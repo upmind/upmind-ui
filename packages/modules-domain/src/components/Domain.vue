@@ -127,14 +127,12 @@ import { get } from "lodash-es";
 import type { DomainProps } from "../types";
 import type { DomainTypes } from "@upmind-automation/headless";
 
-const supportedTemplates = {
-  [DOMAIN_TEMPLATE.DRAWER]: DomainDrawerTemplate
-};
-
 // -----------------------------------------------------------------------------
 defineOptions({
   inheritAttrs: false
 });
+
+const modelValue = defineModel<string>("modelValue");
 
 const props = withDefaults(defineProps<DomainProps>(), {
   template: DOMAIN_TEMPLATE.DRAWER,
@@ -148,7 +146,9 @@ const emit = defineEmits<{
   (e: "reset"): void;
 }>();
 
-const modelValue = defineModel<string>("modelValue");
+const supportedTemplates = {
+  [DOMAIN_TEMPLATE.DRAWER]: DomainDrawerTemplate
+};
 
 const { t } = useI18n();
 

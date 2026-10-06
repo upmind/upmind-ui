@@ -38,7 +38,7 @@ import type {
   NotificationsContext,
   NotificationsModel
 } from "./client-notifications.types";
-import type { ScopeActorTypes, ScopeConfig, ScopeKey } from "../scope";
+import type { ScopeConfig, ScopeKey } from "../scope";
 // -----------------------------------------------------------------------------
 
 function createClientNotificationsManagerForScope(
@@ -46,7 +46,7 @@ function createClientNotificationsManagerForScope(
   scopeKey: ScopeKey
 ) {
   const { t } = useI18n();
-  const actorScope = config.actor as ScopeActorTypes;
+  const actorScope = config.actor;
 
   /**
    * ONE services instance for this scope, threaded into the machine config.

@@ -308,11 +308,10 @@ defineOptions({ name: "PortalFrame" });
 
 const props = defineProps<PortalFrameProps>();
 
+defineSlots<PortalFrameSlots>();
 // The data-ref seam's inputs for the nested rail's own props read (below).
 const activeData = injectActiveMockData();
 const routeContext = injectRouteContext();
-
-defineSlots<PortalFrameSlots>();
 
 const slots = useSlots();
 

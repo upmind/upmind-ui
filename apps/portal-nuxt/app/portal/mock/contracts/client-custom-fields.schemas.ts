@@ -40,6 +40,7 @@ import type {
   CustomField,
   CustomFieldModel
 } from "@upmind-automation/headless";
+// -----------------------------------------------------------------------------
 
 /** A translated field label where the wire carries one, else the plain field. */
 function useTranslateField(item: unknown, field: string): unknown {

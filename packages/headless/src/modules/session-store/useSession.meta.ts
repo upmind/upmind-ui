@@ -5,6 +5,7 @@ import { getExpiresAt } from "./session-store.utils";
 import { useSessionStore } from ".";
 import { has } from "lodash-es";
 import type { ComputedRef } from "vue";
+// -----------------------------------------------------------------------------
 /** Threshold in ms before expiry to consider "about to expire" (5 minutes) */
 const EXPIRY_WARNING_THRESHOLD_MS = 5 * 60 * 1000;
 // -----------------------------------------------------------------------------

@@ -2,6 +2,7 @@ import { parse, type ParsedDomain } from "psl";
 import { isEnabled, getCookie, setCookie, removeCookie } from "tiny-cookie";
 import useUpmind from "../useUpmind";
 import { isEmpty, set, forEach } from "lodash-es";
+// -----------------------------------------------------------------------------
 
 // --- types
 /**
@@ -10,7 +11,7 @@ import { isEmpty, set, forEach } from "lodash-es";
  */
 export type CookieChangeCallback = (event: CookieChangeEvent) => void;
 
-declare interface CookieOptions {
+declare type CookieOptions = {
   domain?: string;
   path?: string;
   expires?: Date | string | number;
@@ -18,7 +19,7 @@ declare interface CookieOptions {
   secure?: boolean;
   samesite?: string;
   partitioned?: boolean;
-}
+};
 
 declare type Encoder<T> = (value: T) => string;
 declare type Decoder<T> = (value: string) => T;

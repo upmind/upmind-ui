@@ -14,6 +14,7 @@ import "@upmind-automation/product";
 import { AccessRoleTypes } from "@upmind-automation/types";
 import { defineNuxtPlugin, useRouter, useRuntimeConfig } from "#app";
 import i18n from "~/portal/i18n";
+// -----------------------------------------------------------------------------
 
 registerFormRenderers(foundationRenderers);
 

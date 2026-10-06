@@ -13,6 +13,7 @@ import { useFieldsSchemaParser, useFieldsUischemaParser } from "../../utils";
 import { get } from "lodash-es";
 import type { CustomField } from "../client-custom-fields";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
+// -----------------------------------------------------------------------------
 /**
  * JSON Schema for the registration form.
  * Includes custom fields from brand configuration.

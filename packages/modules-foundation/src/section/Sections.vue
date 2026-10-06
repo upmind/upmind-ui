@@ -130,6 +130,8 @@ import {
 import type { SectionActionProps, SectionsProps } from "./types";
 import type { TabItem } from "@upmind/ui";
 
+const modelValue = defineModel<SectionsProps["modelValue"]>("modelValue", {});
+
 // -----------------------------------------------------------------------------
 const props = withDefaults(defineProps<SectionsProps>(), {
   active: true,
@@ -146,8 +148,6 @@ const emits = defineEmits<{
   click: [Event];
   action: [{ name: string; event: Event }];
 }>();
-
-const modelValue = defineModel<SectionsProps["modelValue"]>("modelValue", {});
 
 const { card, border, inset: insetDefault } = useSection();
 const slots = useSlots();

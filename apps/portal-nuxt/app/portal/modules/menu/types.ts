@@ -6,6 +6,7 @@
 
 import type { NavEmphasis } from "../../variants";
 import type { Component } from "vue";
+// -----------------------------------------------------------------------------
 
 export type MenuItem = {
   /** The destination, path plus pinned query ("/products?type=sub"). ABSENT = a non-navigating group label above its children (the products rail's "Browse by category"). */
@@ -30,7 +31,7 @@ export const MENU_VARIANT = {
 
 export type MenuVariant = (typeof MENU_VARIANT)[keyof typeof MENU_VARIANT];
 
-export interface MenuProps {
+export type MenuProps = {
   /** Config-owned route list (design.md §D5) — never hardcoded in the component, so a later config renders its own labels (tasks.md Task 6). */
   readonly items: readonly MenuItem[];
   /** The sidebar rail's collapsed state, threaded by `PortalSlotContent` from `ShellSidebar`'s own slot scope — never read via `injectShellContext`, which reports the RAIL and is wrong for a mobile drawer (tasks.md 2.7). */
@@ -55,4 +56,4 @@ export interface MenuProps {
   readonly navLabel?: string;
   /** `horizontal` only — which item weighting renders (portal/variants.ts). */
   readonly emphasis?: NavEmphasis;
-}
+};

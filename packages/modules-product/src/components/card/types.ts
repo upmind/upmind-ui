@@ -14,10 +14,11 @@ import type {
 import type { VariantProps } from "class-variance-authority";
 import type { HTMLAttributes } from "vue";
 import type { RouteLocationAsRelativeGeneric } from "vue-router";
+// -----------------------------------------------------------------------------
 
 export type RootVariants = VariantProps<typeof cardRootVariants>;
 
-export interface ProductCardProps extends Omit<Product, "price" | "pricing"> {
+export type ProductCardProps = Omit<Product, "price" | "pricing"> & {
   configureRoute: RouteLocationAsRelativeGeneric;
   /**
    * Overrides the card's root `data-test-key`. Recommendations key this off the
@@ -60,9 +61,9 @@ export interface ProductCardProps extends Omit<Product, "price" | "pricing"> {
   ratio?: ImageProps["ratio"];
   /** Replaces the basket call-to-action label, for a card that does not add to a basket. */
   actionLabel?: string;
-}
+};
 
-export interface ProductInfo {
+export type ProductInfo = {
   configureRoute: RouteLocationAsRelativeGeneric;
   id?: string;
   title: string;
@@ -77,33 +78,33 @@ export interface ProductInfo {
   processing?: boolean;
   selectedTerm?: string;
   hideAnchorPrice?: boolean;
-}
+};
 
-export interface ProductBenefits {
+export type ProductBenefits = {
   benefits?: Benefit[];
-}
+};
 
-export interface ProductPrice extends TermDetails {
+export type ProductPrice = TermDetails & {
   hideTermSummary?: boolean;
-}
+};
 
-export interface ProductTerm {
+export type ProductTerm = {
   modelValue?: string;
   prices?: ProductSummaryDetailWithPrice[];
-}
+};
 
-export interface ProductCardSkeletonProps {
+export type ProductCardSkeletonProps = {
   hideTerms?: boolean;
-}
+};
 
-export interface ProductPriceProps extends Omit<ProductPrice, "name"> {
+export type ProductPriceProps = Omit<ProductPrice, "name"> & {
   hidePrice?: boolean;
   hideTermSummary?: boolean;
-}
+};
 
-export interface ProductDescriptionProps {
+export type ProductDescriptionProps = {
   description?: Product["productDetails"]["description"];
   lineclamp?: boolean;
   lines?: number;
   class?: HTMLAttributes["class"];
-}
+};

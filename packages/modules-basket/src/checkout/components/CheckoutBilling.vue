@@ -64,11 +64,11 @@ import { billingSkeletonDetailVariants } from "../variants";
 // --- types
 import type { CheckoutBillingProps } from "../types";
 
+const editing = defineModel<boolean>("editing", { default: false });
+
 // -----------------------------------------------------------------------------
 
 const props = defineProps<CheckoutBillingProps>();
-
-const editing = defineModel<boolean>("editing", { default: false });
 
 const { t } = useI18n();
 const { meta: basketMeta } = useBasket();

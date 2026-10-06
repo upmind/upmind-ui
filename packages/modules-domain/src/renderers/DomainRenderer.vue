@@ -24,14 +24,14 @@ import { useI18n } from "vue-i18n";
 import { castArray, includes, trim } from "lodash-es";
 import type { ControlElement } from "@jsonforms/core";
 import type { RendererProps } from "@jsonforms/vue";
+const props = defineProps<RendererProps<ControlElement>>();
+
 // --- external
 
 // -----------------------------------------------------------------------------
 const SmartDomainField = defineAsyncComponent(
   () => import("../components/SmartDomainField.vue")
 );
-
-const props = defineProps<RendererProps<ControlElement>>();
 
 const { t } = useI18n();
 

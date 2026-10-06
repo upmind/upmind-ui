@@ -49,6 +49,7 @@ import type {
   MockTicketMessage
 } from "../types";
 import type { FormModel } from "@upmind/ui";
+// -----------------------------------------------------------------------------
 
 /** Whether the thread is finished — the composer and the close control both read it. */
 export function isTicketClosed(ticket: MockTicket): boolean {

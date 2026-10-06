@@ -2,6 +2,7 @@ import type { FixtureModule } from "./fixture-module.types";
 import type { ScenarioRegistry } from "../registry/registry.types";
 import type { ScopeActor } from "../world/scope-actor";
 import type { World, WorldScope } from "../world/world.types";
+// -----------------------------------------------------------------------------
 
 function readAction(
   module: FixtureModule,

@@ -1,4 +1,5 @@
 import { some } from "lodash-es";
+// -----------------------------------------------------------------------------
 
 // useTime FIRST — it is a dependency-free leaf, while util members below
 // (useError, useCalculate) import the app `modules` graph that cycles back

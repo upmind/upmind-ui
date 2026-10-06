@@ -14,6 +14,7 @@
  */
 
 import type { ResolvedTheme } from "@upmind/tokens";
+// -----------------------------------------------------------------------------
 
 /** Every brand this app defines for itself, in picker order. */
 export const APP_BRANDS: readonly ResolvedTheme[] = [];

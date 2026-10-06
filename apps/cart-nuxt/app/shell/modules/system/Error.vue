@@ -53,20 +53,6 @@ type ErrorAction = {
   to?: RouteLocationAsRelativeGeneric;
   href?: string;
 };
-// -----------------------------------------------------------------------------
-
-const { t } = useI18n();
-const router = useRouter();
-
-// Pre-cache the error animations so they stay available even when asset URLs
-// go stale after a deploy (this is the page shown when things fail). Action
-// icons are lucide components bundled in JS, so they need no preload.
-onBeforeMount(() => {
-  loadAnimation("error");
-  loadAnimation("unavailable");
-  loadAnimation("refresh");
-});
-
 const props = withDefaults(
   defineProps<{
     title?: Message["title"];
@@ -82,10 +68,22 @@ const props = withDefaults(
     modal: true
   }
 );
-
 const emit = defineEmits<{
   dismiss: [];
 }>();
+// -----------------------------------------------------------------------------
+
+const { t } = useI18n();
+const router = useRouter();
+
+// Pre-cache the error animations so they stay available even when asset URLs
+// go stale after a deploy (this is the page shown when things fail). Action
+// icons are lucide components bundled in JS, so they need no preload.
+onBeforeMount(() => {
+  loadAnimation("error");
+  loadAnimation("unavailable");
+  loadAnimation("refresh");
+});
 
 const title = computed(() => {
   switch (props.status) {

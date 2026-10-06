@@ -16,8 +16,8 @@
  */
 
 import { unref } from "vue";
-import { mapValues } from "lodash-es";
 import { useAuth } from "@upmind-automation/headless";
+import { mapValues } from "lodash-es";
 import type { ScopeActorTypes } from "@upmind-automation/headless";
 import type { CompositionPort } from "@upmind-automation/scenario-harness";
 

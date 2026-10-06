@@ -8,6 +8,7 @@
  */
 
 import type { SpecModuleVariant } from "./types";
+// -----------------------------------------------------------------------------
 
 const SPEC_TERM_CLASS: Readonly<Record<SpecModuleVariant, string>> = {
   default: "",

@@ -225,7 +225,8 @@ function maskCommentsAndStrings(content) {
       blank(i);
       blank(i + 1);
       i += 2;
-      while (i < n && !(content[i] === "*" && content[i + 1] === "/")) blank(i++);
+      while (i < n && !(content[i] === "*" && content[i + 1] === "/"))
+        blank(i++);
       if (i < n) {
         blank(i);
         blank(i + 1);

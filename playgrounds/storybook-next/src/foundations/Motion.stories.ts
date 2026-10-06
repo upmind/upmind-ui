@@ -1,8 +1,8 @@
-import type { Meta, StoryObj } from "@storybook/vue3-vite";
 import { Spinner } from "@upmind/ui/components/spinner/index.ts";
 import { Check } from "lucide-vue-next";
 import { computed, onUnmounted, ref, type PropType } from "vue";
 import { readToken, SpecimenMenu, useThemeTick } from "./foundation-helpers.ts";
+import type { Meta, StoryObj } from "@storybook/vue3-vite";
 
 /**
  * Motion in Upmind UI is a token vocabulary, not a free-for-all: four durations
@@ -184,7 +184,7 @@ export const DurationsAndEasings: Story = {
   })
 };
 
-interface ChoreoRow {
+type ChoreoRow = {
   surface: string;
   enter: string;
   exit: string;
@@ -193,7 +193,7 @@ interface ChoreoRow {
   scrimEnter?: string;
   scrimExit?: string;
   note?: string;
-}
+};
 
 const CHOREOGRAPHY: ChoreoRow[] = [
   {

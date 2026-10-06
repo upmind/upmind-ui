@@ -34,6 +34,7 @@ import type {
   MockPayoutStatus
 } from "./types";
 import type { BadgeVariants, TimelineIntent } from "@upmind/ui";
+// -----------------------------------------------------------------------------
 
 /** The badge tone a status wears — the design system's own variants. */
 export type StatusTone = BadgeVariants["variant"];

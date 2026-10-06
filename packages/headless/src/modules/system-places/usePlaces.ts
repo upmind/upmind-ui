@@ -19,6 +19,7 @@ import type {
   PlacePredictions,
   PlaceService
 } from "./system-places.types";
+// -----------------------------------------------------------------------------
 
 // Private places instance
 let places: PlaceService | undefined;

@@ -3,6 +3,7 @@
  * @description This app's own pay path.
  */
 import type { RouteRecordRaw } from "vue-router";
+// -----------------------------------------------------------------------------
 
 export const PAYMENT_ROUTE = {
   PAY: "payment-pay"

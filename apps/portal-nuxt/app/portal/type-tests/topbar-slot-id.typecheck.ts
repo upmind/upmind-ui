@@ -12,6 +12,7 @@
 
 import { PRIMITIVE_ID } from "../types";
 import type { TopbarConfig } from "../types";
+// -----------------------------------------------------------------------------
 
 export const topbarRejectsAnUndeclaredSlotId: TopbarConfig = {
   primitive: PRIMITIVE_ID.TOPBAR,

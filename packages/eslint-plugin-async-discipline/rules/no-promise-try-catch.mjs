@@ -94,13 +94,13 @@ const noPromiseTryCatch = {
     type: "problem",
     docs: {
       description:
-        "Disallow wrapping promises/await in try/catch — use .catch()/.then()/.finally() instead.",
+        "Disallow wrapping promises/await in try/catch — use .catch()/.then()/.finally() instead."
     },
     schema: [],
     messages: {
       promiseTryCatch:
-        "Do not wrap a promise/await in try/catch — use .catch()/.then()/.finally() instead.",
-    },
+        "Do not wrap a promise/await in try/catch — use .catch()/.then()/.finally() instead."
+    }
   },
   create(context) {
     return {
@@ -127,9 +127,9 @@ const noPromiseTryCatch = {
         if (flagged) {
           context.report({ node, messageId: "promiseTryCatch" });
         }
-      },
+      }
     };
-  },
+  }
 };
 
 export default noPromiseTryCatch;

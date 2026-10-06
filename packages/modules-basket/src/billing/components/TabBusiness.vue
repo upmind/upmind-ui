@@ -115,6 +115,10 @@ type ScopedPhoneManager = ScopeBuilderActorWithContexts<
   never
 >;
 
+const modelValue = defineModel<BillingModel>("modelValue", {});
+
+const touched = defineModel<boolean>("touched");
+
 // -----------------------------------------------------------------------------
 
 const props = defineProps<{
@@ -125,11 +129,7 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{ formResolve: [] }>();
-const modelValue = defineModel<BillingModel>("modelValue", {});
-
 const showForm = ref(false);
-const touched = defineModel<boolean>("touched");
-
 // -----------------------------------------------------------------------------
 const { t } = useI18n();
 

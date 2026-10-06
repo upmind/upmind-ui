@@ -38,6 +38,8 @@ import { Checkbox, Skeleton } from "@upmind/ui";
 import { useI18n } from "vue-i18n";
 import type { BasketProduct } from "@upmind-automation/headless";
 
+const selected = defineModel<string[]>({ default: () => [] });
+
 // -----------------------------------------------------------------------------
 
 defineProps<{
@@ -45,8 +47,6 @@ defineProps<{
   disabled?: boolean;
   loading?: boolean;
 }>();
-
-const selected = defineModel<string[]>({ default: () => [] });
 
 const groupTestAttrs = useTestAttrs({ key: "apply-to-others-group" });
 

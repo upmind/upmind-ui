@@ -274,9 +274,8 @@ defineOptions({ name: "PortalDocument" });
 
 const props = defineProps<DocumentModuleProps>();
 
-const areLinesExpanded = ref(false);
 const emits = defineEmits<DocumentModuleEmits>();
-
+const areLinesExpanded = ref(false);
 function optionItems(
   options: NonNullable<DocumentModuleAction["options"]>
 ): MenuItem[] {

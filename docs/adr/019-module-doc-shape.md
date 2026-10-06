@@ -15,7 +15,7 @@
 
 In preparation for the Contabo 2-day workshop, we needed framework-agnostic reference docs for each core module — readable by architects and senior devs who know how to build software but don't know Upmind's platform. The docs had to describe *behaviour, data, relationships, and gotchas* without leaking our implementation choices (XState, Vue reactivity, scoped composables, TanStack Query).
 
-A doc-shape proposal was drafted and walked through, then locked in May 2026. After 7 module reviews (`session` → `client` → `basket` → `basketProduct` → `product` → `productCatalogue` → `productCategories` → ...), the patterns were lifted into [`.agent/rules/docs-modules.md`](../../.agent/rules/docs-modules.md), which is now the living canonical rule. This ADR preserves the original decisions and their rationale.
+A doc-shape proposal was drafted and walked through, then locked in May 2026. After 7 module reviews (`session` → `client` → `basket` → `basketProduct` → `product` → `productCatalogue` → `productCategories` → ...), the patterns were lifted into `.agent/rules/docs-modules.md`, which is now the living canonical rule. This ADR preserves the original decisions and their rationale.
 
 ---
 
@@ -67,6 +67,6 @@ Added between Side effects and Flows. Documents helpers, subscriptions, sequenci
 
 ## Where the live version lives
 
-The `docs-modules` agent-plugin rule plus [`.claude/rules/docs-modules.companion.md`](../../.claude/rules/docs-modules.companion.md) are the authoritative current rule (`.agent/rules/docs-modules.md` does not exist in this checkout). It has been sharpened across 7 review cycles with additional guidance: meta-note conditional, producer-side strip list, sibling-module scope boundaries, dependants table direction, capability count overflow guidance, and three lesson-pattern examples. Refer to that rule when writing or reviewing docs.
+The `docs-modules` agent-plugin rule plus the `docs-mod-*` companions under [`.claude/rules/`](../../.claude/rules/) are the authoritative current rule (`.agent/rules/docs-modules.md` does not exist in this checkout). It has been sharpened across 7 review cycles with additional guidance: meta-note conditional, producer-side strip list, sibling-module scope boundaries, dependants table direction, capability count overflow guidance, and three lesson-pattern examples. Refer to that rule when writing or reviewing docs.
 
 This ADR holds the *why*. The rule holds the *how*.

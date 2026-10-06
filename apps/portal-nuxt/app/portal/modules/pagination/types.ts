@@ -12,7 +12,7 @@
  * `resolveDataRefProps` resolves refs per prop VALUE: a built object needs a
  * single prop to land in.
  */
-export interface PaginationModuleState {
+export type PaginationModuleState = {
   /** How many items the collection spans. */
   readonly total: number;
   /** Items per page — the facade's `pagination.limit`. */
@@ -31,9 +31,9 @@ export interface PaginationModuleState {
   readonly pageSizeLabel?: string;
   /** Rendered verbatim; the selector authors them. */
   readonly pageSizeOptions?: readonly { value: string; label: string }[];
-}
+};
 
-export interface PaginationModuleProps {
+export type PaginationModuleProps = {
   /**
    * The live feed. Present, it drives the pager (and wins over the flat
    * props); the pager self-hides at one page. Absent, the flat props render
@@ -51,7 +51,7 @@ export interface PaginationModuleProps {
    * (`2 / 6`) — digits, never untranslated copy invented in the library.
    */
   readonly info?: string;
-}
+};
 
 export type PaginationModuleEmits = {
   /** An arrow's action value — the same seam every module's actions ride. */

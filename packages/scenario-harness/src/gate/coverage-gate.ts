@@ -1,5 +1,6 @@
 import { GATE_CAUSE, GATE_STATUS, TAG_KIND } from "./gate.types";
 import type { GateInput, GateReport, GateVerdict } from "./gate.types";
+// -----------------------------------------------------------------------------
 
 /**
  * The pure coverage-gate verdict function. Tags are read as data

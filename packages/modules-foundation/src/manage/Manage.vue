@@ -67,6 +67,10 @@ import { isFunction } from "lodash-es";
 import { get } from "lodash-es";
 import type { ManageRendererProps } from "./types";
 
+const touched = defineModel<boolean>("touched");
+
+const modelValue = defineModel<string>("modelValue");
+
 // -----------------------------------------------------------------------------
 
 const props = withDefaults(
@@ -101,11 +105,8 @@ const emits = defineEmits<{
   (e: "resolve", add: boolean, id?: string): void;
 }>();
 
-const touched = defineModel<boolean>("touched");
 // -----------------------------------------------------------------------------
 const { meta, isReady } = props.manage.useList();
-
-const modelValue = defineModel<string>("modelValue");
 
 // -----------------------------------------------------------------------------
 const open = ref(props.forceOpen);

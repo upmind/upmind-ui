@@ -28,6 +28,7 @@ import type {
   BadgeInput,
   LabelContent
 } from "./types";
+// -----------------------------------------------------------------------------
 
 export type UISchema = {
   // --- Categories

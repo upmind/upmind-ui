@@ -2,6 +2,7 @@ import { createFixtureModule } from "./fixture-module";
 import type { FixtureModule } from "./fixture-module.types";
 import type { ScenarioRegistry } from "../registry/registry.types";
 import type { ScopeActor } from "../world/scope-actor";
+// -----------------------------------------------------------------------------
 
 /**
  * This package's own fixture manifest — local to `__fixtures__`, never

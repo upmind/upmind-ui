@@ -1,5 +1,6 @@
 import type { FixtureModule, FixtureState } from "./fixture-module.types";
 import type { ScopeActor } from "../world/scope-actor";
+// -----------------------------------------------------------------------------
 
 /**
  * The @AC-5 exemplar module — a plain-TS stand-in for a real

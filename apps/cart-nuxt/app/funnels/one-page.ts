@@ -18,7 +18,7 @@ import type {
 // inherited unchanged.
 // -----------------------------------------------------------------------------
 
-export default <FunnelProps>{
+export default {
   id: "one-page",
   extends: FUNNEL.CART,
   states: {
@@ -97,4 +97,4 @@ export default <FunnelProps>{
       }
     }
   }
-};
+} as FunnelProps;

@@ -324,6 +324,7 @@ import {
   LIST_VIEW,
   useListViewPreference
 } from "~/composables/useListViewPreference";
+// -----------------------------------------------------------------------------
 
 export const DATA_REF_ID = {
   ACTIVE_PRODUCT_ITEMS: "active-product-items",

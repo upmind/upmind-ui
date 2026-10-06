@@ -21,6 +21,7 @@ import { find } from "lodash-es";
 import type { DataRouteContext } from "./injection";
 import type { MockDataset } from "./types";
 import type { ComputedRef } from "vue";
+// -----------------------------------------------------------------------------
 
 export type MockDetail = {
   /** The page's route context — stable while the route is; the data refs key off `entityId`. */

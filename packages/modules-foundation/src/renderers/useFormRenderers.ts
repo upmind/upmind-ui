@@ -1,6 +1,7 @@
 import { shallowRef } from "vue";
 import { concat } from "lodash-es";
 import type { FormRendererEntry, UseFormRenderers } from "./types";
+// -----------------------------------------------------------------------------
 
 const renderers = shallowRef<FormRendererEntry[]>([]);
 

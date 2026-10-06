@@ -117,6 +117,16 @@ import {
 import { map } from "lodash-es";
 import type { UseDomain } from "@upmind-automation/headless";
 
+// NB: we keep modelvalue and select separate as they need to trigger different updates in the parent
+// even thought they have the same value
+const modelValue = defineModel<UseDomain["model"]["value"]>("modelValue");
+
+const selected = defineModel<UseDomain["model"]["value"]>("selected");
+
+const query = defineModel<UseDomain["query"]["value"]>("query");
+
+const type = defineModel<UseDomain["type"]["value"]>("type");
+
 // -----------------------------------------------------------------------------
 
 const props = defineProps<{
@@ -140,13 +150,6 @@ const props = defineProps<{
   showDac?: boolean;
   showExisting?: boolean;
 }>();
-
-// NB: we keep modelvalue and select separate as they need to trigger different updates in the parent
-// even thought they have the same value
-const modelValue = defineModel<UseDomain["model"]["value"]>("modelValue");
-const selected = defineModel<UseDomain["model"]["value"]>("selected");
-const query = defineModel<UseDomain["query"]["value"]>("query");
-const type = defineModel<UseDomain["type"]["value"]>("type");
 
 // -----------------------------------------------------------------------------
 

@@ -22,6 +22,7 @@ import {
 } from "lodash-es";
 import type { MockDataset } from "./types";
 import type { CustomArea, PortalConfig } from "../types";
+// -----------------------------------------------------------------------------
 
 /** The dataset's pages as configured areas, in seeded order. */
 export function datasetCustomAreas(

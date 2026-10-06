@@ -1,6 +1,7 @@
 import {
   keepPreviousData,
   useMutation,
+  useQueries as vueUseQueries,
   useQuery as vueUseQuery,
   useInfiniteQuery as vueUseInfiniteQuery
 } from "@tanstack/vue-query";
@@ -19,8 +20,10 @@ import {
   PAGINATION,
   cleanQueryKey,
   canRetryAuthorization,
+  combineQueryResults,
   resolvePageTotal,
   toPaginationInfo,
+  toQueryRefs,
   withPageWindow
 } from "./query.utils";
 import { useQueryCriteria } from "./useQueryCriteria";
@@ -34,6 +37,7 @@ import {
 import {
   assign,
   cloneDeep,
+  first,
   flatMap,
   forEach,
   get,
@@ -61,9 +65,19 @@ import type {
   ListQuery,
   SimpleQuery,
   InfiniteListQuery,
-  MutationResult
+  MutationResult,
+  QueryEntry,
+  QueryInput,
+  QueriesParams,
+  QueriesSelect
 } from "./query.types";
-import type { DefaultError, MutationKey, QueryKey } from "@tanstack/vue-query";
+import type {
+  DefaultError,
+  MutationKey,
+  QueryKey,
+  QueryObserverResult,
+  UseQueryOptions
+} from "@tanstack/vue-query";
 
 // -----------------------------------------------------------------------------
 
@@ -298,8 +312,25 @@ export const useQuery = () => {
    * @param withoutLocale Whether to exclude the locale from the request.
    * @param withAccessToken The access token to use for the request. It can be a string or a boolean.
    * @param criteria The collection's declared query schema (and optional starting model). Sort and filters are the criteria's alone — spelling either raw beside it is a compile error. NO PAGE WINDOW: a plain GET has no cursor, so a declared `pagination` branch is honoured in the model and dropped at the wire. A collection that declares none of the branches declares no criteria and simply has nothing to write.
+   * @param queries Several request targets in place of `url`/`init`/`queryKey`. They run in parallel through TanStack's `useQueries`, every shared option applies to each, and `select` receives every entry's data and envelope in entry order (it is TanStack's `combine`).
    * @param options Additional options to pass to TanStack query.
    */
+  function query<
+    TQueryFnData = unknown,
+    TData = TQueryFnData,
+    TModel extends Record<string, unknown> = Record<string, unknown>
+  >(
+    params: Omit<QueryParams<TQueryFnData, TData>, "pagination"> &
+      CriteriaInput<TModel>
+  ): SimpleQuery<TQueryFnData, TData, TModel>;
+  function query<
+    TQueryFnData = unknown,
+    TData = TQueryFnData[],
+    TModel extends Record<string, unknown> = Record<string, unknown>
+  >(
+    params: Omit<QueriesParams<TQueryFnData, TData>, "pagination"> &
+      CriteriaInput<TModel>
+  ): SimpleQuery<TQueryFnData, TData, TModel>;
   function query<
     TQueryFnData = unknown,
     TData = TQueryFnData,
@@ -307,6 +338,7 @@ export const useQuery = () => {
   >({
     url,
     init,
+    queries,
     guard,
     select,
     queryKey,
@@ -316,12 +348,19 @@ export const useQuery = () => {
     withAccessToken,
     criteria: declaration,
     ...options
-  }: Omit<QueryParams<TQueryFnData, TData>, "pagination"> &
+  }: Omit<QueryInput<TQueryFnData, TData>, "pagination"> &
     CriteriaInput<TModel>): SimpleQuery<TQueryFnData, TData, TModel> {
     // ensure we have a scope, in case we call this outside of a setup function
     // Check if current scope is active - stopped scopes cause scope.run() to return undefined
     const currentScope = getCurrentScope();
     const scope = currentScope?.active ? currentScope : effectScope(true);
+
+    const entries: QueryEntry[] = queries ?? [
+      { url: url as URL, init, queryKey: queryKey as QueryKey }
+    ];
+    const lead = first(entries) as QueryEntry;
+    const selectOne = select as QueryParams<TQueryFnData, TData>["select"];
+    const selectAll = select as QueriesSelect<TQueryFnData, TData> | undefined;
 
     // Constructed here, never handed in — the same law `list()` holds to. No
     // page window is merged under the declaration: this entry point owns no
@@ -356,47 +395,83 @@ export const useQuery = () => {
       reactiveKeys.basketId = basketId;
     }
 
-    const response = scope.run(() =>
-      vueUseQuery<TQueryFnData, DefaultError, TData>(
-        {
-          queryKey: [...queryKey, reactiveKeys],
-          queryFn: async ({ signal }) => {
-            const hasGuard = isPromise(guard);
-            const safeguard: Promise<void | boolean> = hasGuard
-              ? guard()
-              : Promise.resolve();
+    const fetchEntry = (
+      entry: QueryEntry,
+      signal: AbortSignal
+    ): Promise<QueryResponse<TQueryFnData>> => {
+      const safeguard: Promise<void | boolean> = isPromise(guard)
+        ? guard()
+        : Promise.resolve();
 
-            return safeguard.then(() => {
-              return request<TQueryFnData>({
-                url,
-                sort: sort.value,
-                filters: filters.value,
-                query: quickSearch.value,
-                withCurrency,
-                withBasket,
-                withoutLocale,
-                init: {
-                  ...init,
-                  signal // Pass the new signal to the request to allow cancellation
-                },
-                withAccessToken
-              }).then(response => {
-                if (isFunction(select))
-                  return select(response.data!, response) as TData;
-                return response.data as TQueryFnData;
-              });
-            });
+      return safeguard.then(() =>
+        request<TQueryFnData>({
+          url: entry.url,
+          sort: sort.value,
+          filters: filters.value,
+          query: quickSearch.value,
+          withCurrency,
+          withBasket,
+          withoutLocale,
+          init: {
+            ...entry.init,
+            signal // Pass the new signal to the request to allow cancellation
           },
-          ...(options as any)
-        },
-        queryClient
-      )
+          withAccessToken
+        })
+      );
+    };
+
+    const response = scope.run(() =>
+      size(entries) === 1
+        ? vueUseQuery<TQueryFnData, DefaultError, TData>(
+            {
+              queryKey: [...lead.queryKey, reactiveKeys],
+              queryFn: ({ signal }) =>
+                fetchEntry(lead, signal).then(response => {
+                  if (isFunction(selectOne))
+                    return selectOne(response.data!, response) as TData;
+                  return response.data as TQueryFnData;
+                }),
+              ...(options as any)
+            },
+            queryClient
+          )
+        : toQueryRefs(
+            vueUseQueries<
+              UseQueryOptions<QueryResponse<TQueryFnData>>[],
+              QueryObserverResult<TData>
+            >(
+              {
+                queries: map(entries, entry => ({
+                  queryKey: [...entry.queryKey, reactiveKeys],
+                  queryFn: ({ signal }: { signal: AbortSignal }) =>
+                    fetchEntry(entry, signal),
+                  ...(options as any)
+                })),
+                combine: results =>
+                  combineQueryResults(results, responses =>
+                    isFunction(selectAll)
+                      ? selectAll(
+                          map(responses, "data") as TQueryFnData[],
+                          responses
+                        )
+                      : (map(responses, "data") as TData)
+                  )
+              },
+              queryClient
+            )
+          )
     );
 
     return {
       ...response,
       data: computed((): TData => response?.data?.value ?? ([] as TData)),
-      resetQuery: () => queryClient.resetQueries({ queryKey }),
+      resetQuery: () =>
+        Promise.all(
+          map(entries, entry =>
+            queryClient.resetQueries({ queryKey: entry.queryKey })
+          )
+        ).then(noop),
 
       // --- criteria
 
@@ -423,8 +498,23 @@ export const useQuery = () => {
    * @param withoutLocale Whether to exclude the locale from the request.
    * @param withAccessToken The access token to use for the request. It can be a string or a boolean.
    * @param criteria The collection's declared query schema (and optional starting model). Sort, filters and pagination are the criteria's alone — spelling any of them raw beside it is a compile error. PAGING WRITES THROUGH IT: `fetchNextPage`/`fetchPreviousPage`/`resetQuery` move `pagination.offset` in the model, which is the cursor the wire carries. A collection with none of the three declares no criteria and simply has nothing to write.
+   * @param queries Several request targets in place of `url`/`init`/`queryKey`. They run in parallel through TanStack's `useQueries`, every shared option and the page window apply to each, entry one's envelope supplies `total`, and `select` receives every entry's data and envelope in entry order (it is TanStack's `combine`).
    * @param options Additional options to pass to TanStack query.
    */
+  function list<
+    TQueryFnData = unknown,
+    TData = TQueryFnData,
+    TModel extends Record<string, unknown> = Record<string, unknown>
+  >(
+    params: QueryParams<TQueryFnData, TData> & CriteriaInput<TModel>
+  ): ListQuery<TQueryFnData, TData, TModel>;
+  function list<
+    TQueryFnData = unknown,
+    TData = TQueryFnData[],
+    TModel extends Record<string, unknown> = Record<string, unknown>
+  >(
+    params: QueriesParams<TQueryFnData, TData> & CriteriaInput<TModel>
+  ): ListQuery<TQueryFnData, TData, TModel>;
   function list<
     TQueryFnData = unknown,
     TData = TQueryFnData,
@@ -432,6 +522,7 @@ export const useQuery = () => {
   >({
     url,
     init,
+    queries,
     guard,
     select,
     queryKey,
@@ -443,7 +534,7 @@ export const useQuery = () => {
     withSplitCount,
     criteria: declaration,
     ...options
-  }: QueryParams<TQueryFnData, TData> & CriteriaInput<TModel>): ListQuery<
+  }: QueryInput<TQueryFnData, TData> & CriteriaInput<TModel>): ListQuery<
     TQueryFnData,
     TData,
     TModel
@@ -452,6 +543,13 @@ export const useQuery = () => {
     // Check if current scope is active - stopped scopes cause scope.run() to return undefined
     const currentScope = getCurrentScope();
     const scope = currentScope?.active ? currentScope : effectScope(true);
+
+    const entries: QueryEntry[] = queries ?? [
+      { url: url as URL, init, queryKey: queryKey as QueryKey }
+    ];
+    const lead = first(entries) as QueryEntry;
+    const selectOne = select as QueryParams<TQueryFnData, TData>["select"];
+    const selectAll = select as QueriesSelect<TQueryFnData, TData> | undefined;
 
     const currencyCode = withoutBasket
       ? undefined
@@ -511,77 +609,102 @@ export const useQuery = () => {
     if (withCurrency) reactiveKeys.currencyCode = currencyCode;
     if (withBasket) reactiveKeys.basketId = basketId;
 
-    const response = scope.run(() =>
-      vueUseQuery<TQueryFnData, DefaultError, QueryResponse<TData>>(
-        {
-          queryKey: [...queryKey, reactiveKeys],
-          queryFn: async ({ signal }) => {
-            const hasGuard = isPromise(guard);
-            const safeguard: Promise<void | boolean> = hasGuard
-              ? guard()
-              : Promise.resolve();
-            return safeguard.then(async () => {
-              // define our request parameters for easy reuse
-              if (withSplitCount) url.searchParams.set("skip_count", "1");
+    const fetchEntry = (
+      entry: QueryEntry,
+      signal: AbortSignal
+    ): Promise<QueryResponse<TQueryFnData>> => {
+      const safeguard: Promise<void | boolean> = isPromise(guard)
+        ? guard()
+        : Promise.resolve();
+      return safeguard.then(() => {
+        if (withSplitCount) entry.url.searchParams.set("skip_count", "1");
 
-              const params = {
-                url,
-                sort: sort.value,
-                filters: filters.value,
-                query: quickSearch.value,
-                pagination: {
-                  limit: limit.value,
-                  offset: offset.value
-                },
-                withCurrency,
-                withBasket,
-                withoutLocale,
-                init: {
-                  ...init,
-                  signal // Pass the new signal to the request to allow cancellation
-                },
-                withAccessToken
-              };
-
-              return (
-                request<TQueryFnData>(params)
-                  // NB: we need to ensure that if we are given an offset that is greater than the total number of pages, we adjust it accordingly
-                  .then(response => {
-                    if (response.total && offset.value >= response.total) {
-                      // modify the params and re-request with the new offset
-                      // Calculate the correct offset for the last page so it doesn't exceed the total
-                      const safeOffset = Math.max(
-                        0,
-                        response.total -
-                          (response.total % limit.value || limit.value)
-                      );
-                      params.pagination.offset = safeOffset;
-                      pageIndex.value =
-                        Math.floor(safeOffset / limit.value) + 1;
-                      return request<TQueryFnData>(params);
-                    }
-                    return response;
-                  })
-                  // NB: we need to ensure that we parse the data correctly prior to applying the select function
-                  //     this ensures the cache stores the parsed data and not the raw data
-                  .then(response => {
-                    if (isFunction(select)) {
-                      return {
-                        ...response,
-                        data: select(response.data!, response)
-                      };
-                    }
-                    return response;
-                  })
-              );
-            });
+        const params = {
+          url: entry.url,
+          sort: sort.value,
+          filters: filters.value,
+          query: quickSearch.value,
+          pagination: {
+            limit: limit.value,
+            offset: offset.value
           },
+          withCurrency,
+          withBasket,
+          withoutLocale,
+          init: {
+            ...entry.init,
+            signal // Pass the new signal to the request to allow cancellation
+          },
+          withAccessToken
+        };
 
-          placeholderData: keepPreviousData,
-          ...(options as any)
-        },
-        queryClient
-      )
+        // NB: we need to ensure that if we are given an offset that is greater than the total number of pages, we adjust it accordingly
+        return request<TQueryFnData>(params).then(response => {
+          if (response.total && offset.value >= response.total) {
+            // modify the params and re-request with the new offset
+            // Calculate the correct offset for the last page so it doesn't exceed the total
+            const safeOffset = Math.max(
+              0,
+              response.total - (response.total % limit.value || limit.value)
+            );
+            params.pagination.offset = safeOffset;
+            pageIndex.value = Math.floor(safeOffset / limit.value) + 1;
+            return request<TQueryFnData>(params);
+          }
+          return response;
+        });
+      });
+    };
+
+    const response = scope.run(() =>
+      size(entries) === 1
+        ? vueUseQuery<TQueryFnData, DefaultError, QueryResponse<TData>>(
+            {
+              queryKey: [...lead.queryKey, reactiveKeys],
+              // NB: we need to ensure that we parse the data correctly prior to applying the select function
+              //     this ensures the cache stores the parsed data and not the raw data
+              queryFn: ({ signal }) =>
+                fetchEntry(lead, signal).then(response => {
+                  if (isFunction(selectOne)) {
+                    return {
+                      ...response,
+                      data: selectOne(response.data!, response)
+                    };
+                  }
+                  return response;
+                }),
+              placeholderData: keepPreviousData,
+              ...(options as any)
+            },
+            queryClient
+          )
+        : toQueryRefs(
+            vueUseQueries<
+              UseQueryOptions<QueryResponse<TQueryFnData>>[],
+              QueryObserverResult<QueryResponse<TData>>
+            >(
+              {
+                queries: map(entries, entry => ({
+                  queryKey: [...entry.queryKey, reactiveKeys],
+                  queryFn: ({ signal }: { signal: AbortSignal }) =>
+                    fetchEntry(entry, signal),
+                  placeholderData: keepPreviousData,
+                  ...(options as any)
+                })),
+                combine: results =>
+                  combineQueryResults(results, responses => ({
+                    ...(first(responses) as QueryResponse<TQueryFnData>),
+                    data: isFunction(selectAll)
+                      ? selectAll(
+                          map(responses, "data") as TQueryFnData[],
+                          responses
+                        )
+                      : (map(responses, "data") as TData)
+                  }))
+              },
+              queryClient
+            )
+          )
     );
 
     // The split total reads the SAME source the list does, and keeps reading
@@ -601,15 +724,15 @@ export const useQuery = () => {
           safeguard
             .then(() =>
               countRequest({
-                queryKey,
-                url,
+                queryKey: lead.queryKey,
+                url: lead.url,
                 sort: sort.value,
                 filters: filters.value,
                 query: quickSearch.value,
                 withCurrency,
                 withoutLocale,
                 init: {
-                  ...init
+                  ...lead.init
                 },
                 withAccessToken
               })
@@ -724,7 +847,11 @@ export const useQuery = () => {
 
       resetQuery: () => {
         pageIndex.value = 1;
-        return queryClient.resetQueries({ queryKey });
+        return Promise.all(
+          map(entries, entry =>
+            queryClient.resetQueries({ queryKey: entry.queryKey })
+          )
+        ).then(noop);
       },
 
       // --- criteria

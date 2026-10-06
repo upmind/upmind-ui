@@ -1,3 +1,4 @@
+/** @internal */
 import { Store } from "@tanstack/vue-store";
 import { ref } from "vue";
 import { AccessRoleTypes } from "@upmind-automation/types";

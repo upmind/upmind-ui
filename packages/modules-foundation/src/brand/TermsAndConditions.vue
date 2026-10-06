@@ -68,16 +68,16 @@ import { useI18n } from "vue-i18n";
 import { useTermsAndConditions, useBrand } from "@upmind-automation/headless";
 import type { TermsAndConditionsProps } from "./types";
 
+const open = defineModel<boolean>("open", {
+  default: false
+});
+
 // -----------------------------------------------------------------------------
 
 const props = withDefaults(defineProps<TermsAndConditionsProps>(), {
   label: "action.continue_label",
   action: "text.terms_and_conditions",
   close: "action.close"
-});
-
-const open = defineModel<boolean>("open", {
-  default: false
 });
 
 const { t } = useI18n();

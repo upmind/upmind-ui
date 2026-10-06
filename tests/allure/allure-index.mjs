@@ -24,9 +24,9 @@ function listPrefixes(path) {
     const stripped = `gs://${BUCKET}/`;
     return out
       .split("\n")
-      .map((line) => line.trim())
-      .filter((line) => line.endsWith("/") && line !== `gs://${BUCKET}/${path}`)
-      .map((line) => line.replace(stripped, ""));
+      .map(line => line.trim())
+      .filter(line => line.endsWith("/") && line !== `gs://${BUCKET}/${path}`)
+      .map(line => line.replace(stripped, ""));
   } catch {
     return [];
   }
@@ -43,10 +43,10 @@ const localBranches = listPrefixes(`${PREFIX}/local/`).map(leafName).sort();
 const now = new Date().toISOString();
 
 const localSection = localBranches
-  .map((branch) => {
+  .map(branch => {
     const users = listPrefixes(`${PREFIX}/local/${branch}/`).map(leafName);
     const userItems = users
-      .map((user) => {
+      .map(user => {
         // Newest run first
         const runs = listPrefixes(`${PREFIX}/local/${branch}/${user}/`)
           .map(leafName)
@@ -54,7 +54,7 @@ const localSection = localBranches
           .reverse();
         const runItems = runs
           .map(
-            (ts) =>
+            ts =>
               `<li><a href="${PREFIX}/local/${branch}/${user}/${ts}/report/index.html">${ts}</a></li>`
           )
           .join("");
@@ -92,7 +92,7 @@ const html = `<!doctype html>
       ? '<p class="empty">No CI runs yet.</p>'
       : `<ul>${ciBranches
           .map(
-            (b) =>
+            b =>
               `<li><a href="${PREFIX}/ci/${b}/latest/report/index.html">${b}</a></li>`
           )
           .join("")}</ul>`

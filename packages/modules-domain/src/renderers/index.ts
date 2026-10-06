@@ -9,6 +9,7 @@ import { tester as domainTester } from "./DomainRenderer.vue";
 import SLDRenderer from "./SLDRenderer.vue";
 import { tester as sldTester } from "./SLDRenderer.vue";
 import type { FormRendererEntry } from "@upmind-automation/foundation";
+// -----------------------------------------------------------------------------
 
 export const domainRenderers: FormRendererEntry[] = [
   registerEntry(DomainRenderer, domainTester),

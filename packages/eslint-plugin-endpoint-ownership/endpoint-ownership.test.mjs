@@ -49,8 +49,16 @@ test("owned-endpoint-boundary", () => {
     ],
     invalid: [
       { code: `useUrl("config/brand/values");`, filename: OTHER, errors: 1 },
-      { code: `const opts = { url: "/api/currencies" };`, filename: OTHER, errors: 1 },
-      { code: "useUrl(`countries/${id}/regions`);", filename: OTHER, errors: 1 },
+      {
+        code: `const opts = { url: "/api/currencies" };`,
+        filename: OTHER,
+        errors: 1
+      },
+      {
+        code: "useUrl(`countries/${id}/regions`);",
+        filename: OTHER,
+        errors: 1
+      },
       { code: `fetch("statuses");`, filename: OTHER, errors: 1 },
       { code: `useUrl("currencies");`, filename: SESSION_TRANSFER, errors: 1 }
     ]
@@ -60,22 +68,69 @@ test("owned-endpoint-boundary", () => {
 test("no-direct-tanstack-query", () => {
   ruleTester.run("no-direct-tanstack-query", noDirectTanstackQuery, {
     valid: [
-      { code: `import { useQuery } from "@tanstack/vue-query";`, filename: QUERY },
-      { code: `import type { QueryKey } from "@tanstack/vue-query";`, filename: OTHER },
-      { code: `import { type UseQueryReturnType } from "@tanstack/vue-query";`, filename: OTHER },
-      { code: `import { useQuery } from "@tanstack/react-query";`, filename: OTHER },
-      { code: `import { skipToken } from "@tanstack/vue-query";`, filename: OTHER },
+      {
+        code: `import { useQuery } from "@tanstack/vue-query";`,
+        filename: QUERY
+      },
+      {
+        code: `import type { QueryKey } from "@tanstack/vue-query";`,
+        filename: OTHER
+      },
+      {
+        code: `import { type UseQueryReturnType } from "@tanstack/vue-query";`,
+        filename: OTHER
+      },
+      {
+        code: `import { useQuery } from "@tanstack/react-query";`,
+        filename: OTHER
+      },
+      {
+        code: `import { skipToken } from "@tanstack/vue-query";`,
+        filename: OTHER
+      },
       { code: `import { useQuery } from "../query";`, filename: OTHER }
     ],
     invalid: [
-      { code: `import { useQuery } from "@tanstack/vue-query";`, filename: OTHER, errors: 1 },
-      { code: `import { useQuery as vueUseQuery } from "@tanstack/vue-query";`, filename: OTHER, errors: 1 },
-      { code: `import { queryOptions } from "@tanstack/query-core";`, filename: OTHER, errors: 1 },
-      { code: `import { QueryClient } from "@tanstack/vue-query";`, filename: OTHER, errors: 1 },
-      { code: `import { useMutation, useQueryClient } from "@tanstack/vue-query";`, filename: OTHER, errors: 2 },
-      { code: `import { type QueryKey, useQuery } from "@tanstack/vue-query";`, filename: OTHER, errors: 1 },
-      { code: `import { useQueries } from "@tanstack/vue-query";`, filename: OTHER, errors: 1 },
-      { code: `import { useInfiniteQuery } from "@tanstack/vue-query";`, filename: OTHER, errors: 1 }
+      {
+        code: `import { useQuery } from "@tanstack/vue-query";`,
+        filename: OTHER,
+        errors: 1
+      },
+      {
+        code: `import { useQuery as vueUseQuery } from "@tanstack/vue-query";`,
+        filename: OTHER,
+        errors: 1
+      },
+      {
+        code: `import { queryOptions } from "@tanstack/query-core";`,
+        filename: OTHER,
+        errors: 1
+      },
+      {
+        code: `import { QueryClient } from "@tanstack/vue-query";`,
+        filename: OTHER,
+        errors: 1
+      },
+      {
+        code: `import { useMutation, useQueryClient } from "@tanstack/vue-query";`,
+        filename: OTHER,
+        errors: 2
+      },
+      {
+        code: `import { type QueryKey, useQuery } from "@tanstack/vue-query";`,
+        filename: OTHER,
+        errors: 1
+      },
+      {
+        code: `import { useQueries } from "@tanstack/vue-query";`,
+        filename: OTHER,
+        errors: 1
+      },
+      {
+        code: `import { useInfiniteQuery } from "@tanstack/vue-query";`,
+        filename: OTHER,
+        errors: 1
+      }
     ]
   });
 });

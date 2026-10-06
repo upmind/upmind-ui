@@ -36,11 +36,10 @@ import type {
   UseProductCategories
 } from "@upmind-automation/headless";
 
+const modelValue = defineModel<CategoriesProps["modelValue"]>("modelValue");
 // -----------------------------------------------------------------------------
 
 const props = defineProps<CategoriesFacetProps>();
-const modelValue = defineModel<CategoriesProps["modelValue"]>("modelValue");
-
 const useProductCategories = inject<UseProductCategories>(
   "useProductCategories"
 );

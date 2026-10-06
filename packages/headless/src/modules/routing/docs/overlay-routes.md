@@ -45,8 +45,9 @@ const returnUrl = getParam(QUERY_PARAMS.RETURN_URL);
 
 ## `useOverlayRoute` Composable
 
+<!-- corpus-example: skip — useOverlayRoute is a host-app composable (shell/components/overlays/useOverlayRoute.ts in each app). No workspace package exports it, so the import resolves only inside the app -->
 ```typescript
-import { useOverlayRoute } from "@upmind-automation/client-vue";
+import { useOverlayRoute } from "@/shell/components/overlays/useOverlayRoute";
 
 const {
   isOpen, // Whether an overlay is currently active

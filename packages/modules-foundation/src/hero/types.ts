@@ -1,6 +1,7 @@
 import type { heroRootVariants } from "./variants";
 import type { BadgeInput } from "@upmind-automation/headless";
 import type { VariantProps } from "class-variance-authority";
+// -----------------------------------------------------------------------------
 
 type HeroVariantProps = VariantProps<typeof heroRootVariants>;
 

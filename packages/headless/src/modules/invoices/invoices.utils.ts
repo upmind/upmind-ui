@@ -4,6 +4,7 @@ import {
 } from "./invoices.types";
 import { get } from "lodash-es";
 import type { ScopeContext } from "../scope";
+// -----------------------------------------------------------------------------
 
 /** The static request param a relationship `.for()` context adds to every read; none for a client or no context. */
 export function scopeWireParams(

@@ -27,6 +27,7 @@ import type {
   VerticalLayout
 } from "@jsonforms/core";
 import type { FormModel } from "@upmind/ui";
+// -----------------------------------------------------------------------------
 
 /** One pick-list choice as the UI renderers read it — not a core schema keyword. */
 type SchemaChoice = { label: string; value: string | number };

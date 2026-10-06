@@ -38,6 +38,7 @@ import {
 import type { JsonSchema7, JsonSchema } from "@jsonforms/core";
 import type { ErrorObject } from "ajv";
 import type Ajv from "ajv";
+// -----------------------------------------------------------------------------
 
 // Allows: example.com, foo.bar.example.solutions
 // Disallows: -foo.com, foo-.com, foo..com, foo.com-

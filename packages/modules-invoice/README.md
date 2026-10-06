@@ -1,8 +1,8 @@
 # @upmind-automation/invoice
 
 The order page. An order is a type of invoice, so the package is named `invoice`. The page shows
-one order after checkout: its status, the pay block while payment is due, its details, its
-products and, for a guest client, the offer to register. The pay block comes from
+one order after checkout. It shows the order's status, the pay block while payment is due, and
+the order's details and products. For a guest client, it also shows the offer to register. The pay block comes from
 `@upmind-automation/payment`, and the guest registration form from `@upmind-automation/auth`.
 
 ## Public barrel
@@ -29,8 +29,8 @@ page is three lines:
 ```
 
 `UpmOrder` resolves the brand's chosen template value and hands it to its own default slot. The
-host page owns `orderTemplate`: a pick function, over its own template enum and component map,
-that falls back to its own default for a name the map does not hold. Inside `LayoutProvider`
+host page owns `orderTemplate`, a pick function over its own template enum and component map. It
+falls back to its own default for a name the map does not hold. Inside `LayoutProvider`
 (from `foundation`), the package's own blocks then fill the layout's slots: `order-summary`,
 `order-payment-details`, `order-details`, `order-products` and `guest-registration`. A block
 that has nothing to show for the order's state renders no slot.

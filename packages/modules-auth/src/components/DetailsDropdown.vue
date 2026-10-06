@@ -37,9 +37,9 @@ import { Icon } from "@upmind-automation/foundation";
 import { useActiveSession } from "@upmind-automation/headless";
 import type { MenuItem } from "@upmind/ui";
 
-interface AuthMenuItem extends MenuItem {
+type AuthMenuItem = MenuItem & {
   icon: string;
-}
+};
 
 const emit = defineEmits<{
   register: [];

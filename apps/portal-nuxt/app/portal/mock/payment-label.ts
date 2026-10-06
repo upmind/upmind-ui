@@ -7,6 +7,7 @@
  */
 
 import type { MockPaymentMethod } from "./types";
+// -----------------------------------------------------------------------------
 
 /** The card as the gateway names it — the brand and its last four. */
 export function cardName(method: MockPaymentMethod): string {

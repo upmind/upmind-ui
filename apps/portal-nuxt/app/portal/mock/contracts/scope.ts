@@ -11,6 +11,7 @@
 
 import { AccessRoleTypes } from "@upmind-automation/types";
 import type { ScopeActorTypes } from "@upmind-automation/headless";
+// -----------------------------------------------------------------------------
 
 /** Actor keys for a scope matrix — the values of headless `ScopeActorTypes`. */
 export const SCOPE_ACTOR = {

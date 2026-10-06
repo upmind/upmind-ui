@@ -1,6 +1,7 @@
 import { fileURLToPath } from "node:url";
 import vue from "@vitejs/plugin-vue";
 import { defineConfig } from "vitest/config";
+// -----------------------------------------------------------------------------
 
 const appRoot = fileURLToPath(new URL("../", import.meta.url));
 const appDir = fileURLToPath(new URL("../app/", import.meta.url));

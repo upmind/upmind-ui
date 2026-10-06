@@ -347,6 +347,7 @@ import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 import type { AlertProps } from "@upmind/ui";
 import type { FormModel } from "@upmind/ui";
 import type { IClientTemplateSlot } from "@upmind-automation/types";
+// -----------------------------------------------------------------------------
 
 /** An ISO stamp read as a day — the leading `YYYY-MM-DD`. */
 const ISO_DATE_LENGTH = 10;

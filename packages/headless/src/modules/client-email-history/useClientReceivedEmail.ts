@@ -1,12 +1,12 @@
 import { createScopedComposable } from "../scope";
 import createClientEmailHistoryServices from "./client-email-history.services";
+import { RECEIVED_EMAIL_SCOPE_MATRIX } from "./client-email-history.types";
 import { createClientReceivedEmailActions } from "./useClientReceivedEmail.actions";
 import { createClientReceivedEmailContext } from "./useClientReceivedEmail.context";
 import { createClientReceivedEmailInternals } from "./useClientReceivedEmail.internals";
 import { createClientReceivedEmailMeta } from "./useClientReceivedEmail.meta";
 import type { ReceivedEmailScopeMatrix } from "./client-email-history.types";
 import type { ScopeConfig, ScopeKey } from "../scope";
-import type { ScopeActorTypes } from "../scope/scope.types";
 // -----------------------------------------------------------------------------
 /**
  * @module client-email-history/useClientReceivedEmail
@@ -32,7 +32,7 @@ function createClientReceivedEmailForScope(
   config: ScopeConfig,
   scopeKey: ScopeKey
 ) {
-  const actorScope = config.actor as ScopeActorTypes;
+  const actorScope = config.actor;
 
   /**
    * ONE services instance for this scope. `config.context` goes in here and
@@ -86,7 +86,11 @@ function createClientReceivedEmailForScope(
 export const useClientReceivedEmail = createScopedComposable<
   ReturnType<typeof createClientReceivedEmailForScope>,
   ReceivedEmailScopeMatrix
->("client-email-history", createClientReceivedEmailForScope);
+>(
+  "client-email-history",
+  createClientReceivedEmailForScope,
+  RECEIVED_EMAIL_SCOPE_MATRIX
+);
 
 // Type export for consumers
 export type UseClientReceivedEmail = ReturnType<typeof useClientReceivedEmail>;

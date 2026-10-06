@@ -23,14 +23,14 @@ import { createClientNotificationsContext } from "./useClientNotifications.conte
 import { createClientNotificationsInternals } from "./useClientNotifications.internals";
 import { createClientNotificationsMeta } from "./useClientNotifications.meta";
 import type { ClientNotificationsScopeMatrix } from "./client-notifications.types";
-import type { ScopeActorTypes, ScopeConfig, ScopeKey } from "../scope";
+import type { ScopeConfig, ScopeKey } from "../scope";
 // -----------------------------------------------------------------------------
 
 function createClientNotificationsForScope(
   config: ScopeConfig,
   scopeKey: ScopeKey
 ) {
-  const actorScope = config.actor as ScopeActorTypes;
+  const actorScope = config.actor;
 
   const service = createClientNotificationsServices(actorScope, config);
 

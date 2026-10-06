@@ -51,6 +51,7 @@ import type {
   TopbarSpan,
   UtilitySide
 } from "./types";
+// -----------------------------------------------------------------------------
 
 export type PortalRoute = {
   /** The overriding area's primitive config, resolved by the caller (§D8). Absent = the base config applies unmodified. */

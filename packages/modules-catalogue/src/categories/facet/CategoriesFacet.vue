@@ -35,10 +35,9 @@ import {
 import CategoriesFacetDrillDown from "./CategoriesFacetDrillDown.vue";
 import type { CategoriesProps } from "../types";
 
+const modelValue = defineModel<CategoriesProps["modelValue"]>("modelValue");
 // -----------------------------------------------------------------------------
 const props = defineProps<Omit<CategoriesProps, "modelValue">>();
-const modelValue = defineModel<CategoriesProps["modelValue"]>("modelValue");
-
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();

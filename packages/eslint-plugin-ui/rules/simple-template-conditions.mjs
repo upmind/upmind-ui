@@ -24,17 +24,28 @@ const GUARDED = new Set(["if", "else-if", "show"]);
 function countBooleanJoins(node) {
   let count = 0;
   const seen = new Set();
-  const walk = (n) => {
+  const walk = n => {
     if (!n || typeof n.type !== "string" || seen.has(n)) return;
     seen.add(n);
-    if (n.type === "LogicalExpression" && (n.operator === "&&" || n.operator === "||")) {
+    if (
+      n.type === "LogicalExpression" &&
+      (n.operator === "&&" || n.operator === "||")
+    ) {
       count += 1;
     }
     for (const key of Object.keys(n)) {
-      if (key === "parent" || key === "loc" || key === "range" || key === "start" || key === "end") continue;
+      if (
+        key === "parent" ||
+        key === "loc" ||
+        key === "range" ||
+        key === "start" ||
+        key === "end"
+      )
+        continue;
       const value = n[key];
       if (Array.isArray(value)) {
-        for (const child of value) if (child && typeof child.type === "string") walk(child);
+        for (const child of value)
+          if (child && typeof child.type === "string") walk(child);
       } else if (value && typeof value.type === "string") {
         walk(value);
       }
@@ -72,7 +83,11 @@ export default {
         const expression = node.value?.expression;
         if (!expression) return;
         if (countBooleanJoins(expression) > 1) {
-          context.report({ node, messageId: "tooManyClauses", data: { directive: name } });
+          context.report({
+            node,
+            messageId: "tooManyClauses",
+            data: { directive: name }
+          });
         }
       }
     });

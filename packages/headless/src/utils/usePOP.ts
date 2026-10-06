@@ -1,13 +1,14 @@
 import { useValidation } from "./useValidation";
 import { isEmpty, get, defaultsDeep, omitBy } from "lodash-es";
+// -----------------------------------------------------------------------------
 
 // --- types
 
-export interface IApiPop {
+export type IApiPop = {
   apiUrl?: string;
   name?: string;
   region?: string;
-}
+};
 
 // -----------------------------------------------------------------------------
 

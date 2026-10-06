@@ -1,3 +1,4 @@
+/** @internal */
 /**
  * @public
  * @schema-fragment
@@ -57,6 +58,7 @@ import type {
   JsonSchema7,
   UISchemaElement
 } from "@jsonforms/core";
+// -----------------------------------------------------------------------------
 
 export function useSchemaDefinitions({
   regions,

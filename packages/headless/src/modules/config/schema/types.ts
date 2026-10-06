@@ -1,5 +1,6 @@
 import type { UISchema, DataSchema } from "./schema";
 import type { Benefit } from "../../product/product.types";
+// -----------------------------------------------------------------------------
 
 export type { Benefit };
 

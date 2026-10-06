@@ -1,4 +1,3 @@
-import type { Meta, StoryObj } from "@storybook/vue3-vite";
 import { Button } from "@upmind/ui/components/button/index.ts";
 import { computed } from "vue";
 import {
@@ -7,6 +6,7 @@ import {
   scopedTokenStyle,
   useThemeTick
 } from "./foundation-helpers.ts";
+import type { Meta, StoryObj } from "@storybook/vue3-vite";
 
 /**
  * Spacing in Upmind UI is density-aware: the Tailwind spacing unit is

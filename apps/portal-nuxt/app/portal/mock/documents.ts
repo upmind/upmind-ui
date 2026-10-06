@@ -16,6 +16,7 @@ import { mockMoney } from "./money";
 import { includes } from "lodash-es";
 import type { MockMoney, MockTaxLine } from "./types";
 import type { InvoiceStatus } from "@upmind-automation/types";
+// -----------------------------------------------------------------------------
 
 /** The rate the brand charges tax at — one band, the locale's own (plan R14: one locale). */
 export const DOCUMENT_TAX_RATE = 20;

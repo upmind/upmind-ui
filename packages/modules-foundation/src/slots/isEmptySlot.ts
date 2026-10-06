@@ -1,5 +1,6 @@
 import { Comment, Fragment, type Slots, type VNode } from "vue";
 import { isEmpty } from "lodash-es";
+// -----------------------------------------------------------------------------
 
 /**
  * Determines if a given slot is empty.

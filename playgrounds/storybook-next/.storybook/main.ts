@@ -1,10 +1,10 @@
-import type { StorybookConfig } from "@storybook/vue3-vite";
 import tailwindcss from "@tailwindcss/vite";
 import vue from "@vitejs/plugin-vue";
-import type { PluginOption } from "vite";
 
 // Upmind badge (coral rounded square + white mark), matching the docs favicon.
 import { UPMIND_BADGE_FAVICON } from "./upmind-badge.ts";
+import type { StorybookConfig } from "@storybook/vue3-vite";
+import type { PluginOption } from "vite";
 
 const config: StorybookConfig = {
   stories: [

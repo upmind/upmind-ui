@@ -26,6 +26,7 @@ import { money, SEED_CURRENCY } from "./hostgrid.filler";
 import { MOCK_ENTER_KEY_ACTION, MOCK_TRIAL_END_ACTION } from "./types";
 import { assign, filter, map, omit, take } from "lodash-es";
 import type { MockDataset } from "./types";
+// -----------------------------------------------------------------------------
 
 /** One active product — the "a client with almost nothing" surface every empty state is written for. */
 const ACTIVE_PRODUCTS = 1;

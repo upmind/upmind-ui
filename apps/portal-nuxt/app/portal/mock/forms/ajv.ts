@@ -31,6 +31,7 @@ import {
 import type Ajv from "ajv";
 import type { FormatDefinition, KeywordDefinition } from "ajv";
 import type { CountryCode, PhoneNumber } from "libphonenumber-js";
+// -----------------------------------------------------------------------------
 
 /**
  * A hostname, ASCII only. Allows `example.com` and `foo.bar.example.solutions`;

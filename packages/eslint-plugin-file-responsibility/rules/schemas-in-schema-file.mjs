@@ -42,7 +42,7 @@ export default {
     // A schemas file is the correct home; test files are never governed.
     if (isTestFile(filename) || isSchemasFile(filename)) return {};
 
-    const check = (idNode) => {
+    const check = idNode => {
       if (!idNode || idNode.type !== "Identifier") return;
       const name = idNode.name;
       if (isSchemaName(name)) {
@@ -68,7 +68,8 @@ export default {
           // Program:exit so a hoisted export before its declaration is caught.
           if (node.source) return; // re-export — the binding lives elsewhere.
           for (const spec of node.specifiers) {
-            if (spec.local?.type === "Identifier") pendingLocalExports.push(spec);
+            if (spec.local?.type === "Identifier")
+              pendingLocalExports.push(spec);
           }
           return;
         }

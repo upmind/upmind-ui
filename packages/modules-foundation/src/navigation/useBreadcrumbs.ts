@@ -4,17 +4,18 @@ import { BreadcrumbVariant, QUERY_PARAMS } from "@upmind-automation/headless";
 import { has } from "lodash-es";
 import type { StorefrontRoute } from "./types";
 import type { RouteLocationAsRelativeGeneric } from "vue-router";
+// -----------------------------------------------------------------------------
 
 // The new UI lib's Breadcrumb is compositional and exposes no variant type, so
 // the old "visible | condensed | parent | hidden" vocabulary lives here now.
 type UIBreadcrumbVariant = "visible" | "condensed" | "parent" | "hidden";
 
-export interface BreadcrumbCategory {
+export type BreadcrumbCategory = {
   id: string;
   label: string;
-}
+};
 
-export interface UseBreadcrumbItemsOptions {
+export type UseBreadcrumbItemsOptions = {
   categories: MaybeRefOrGetter<BreadcrumbCategory[]>;
   route: MaybeRefOrGetter<RouteLocationAsRelativeGeneric | undefined>;
   storefrontRoute?: MaybeRefOrGetter<StorefrontRoute | undefined>;
@@ -25,7 +26,7 @@ export interface UseBreadcrumbItemsOptions {
   showStorefront?: MaybeRefOrGetter<boolean>;
   showLastCategory?: MaybeRefOrGetter<boolean>;
   onSelect?: (category: BreadcrumbCategory) => void;
-}
+};
 
 export const useBreadcrumbs = (options: UseBreadcrumbItemsOptions) => {
   const uiVariant = computed<UIBreadcrumbVariant>(() => {

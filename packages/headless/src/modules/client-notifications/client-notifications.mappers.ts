@@ -18,6 +18,7 @@ import type {
   INotificationTopic,
   IOptOut
 } from "@upmind-automation/types";
+// -----------------------------------------------------------------------------
 
 export const mapTopics = (
   raw: INotificationTopic | INotificationTopic[]

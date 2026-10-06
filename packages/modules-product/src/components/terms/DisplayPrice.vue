@@ -43,14 +43,14 @@ import {
 } from "@upmind-automation/headless";
 import { has } from "lodash-es";
 import type { TermDetails } from "@upmind-automation/headless";
+const props = defineProps<Omit<TermDetails, "name">>();
+
 // -----------------------------------------------------------------------------
 
 const { t } = useI18n();
 
 const { formatPrice } = useMoney();
 const { ui: _ui, data } = useConfig();
-
-const props = defineProps<Omit<TermDetails, "name">>();
 
 const calculatedN = computed(() => {
   // One-off
