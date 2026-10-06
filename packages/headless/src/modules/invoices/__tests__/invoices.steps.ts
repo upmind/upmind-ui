@@ -24,61 +24,6 @@
 import { defineSteps } from "@upmind-automation/scenario-harness";
 import { InvoiceCategoryCode, InvoiceStatus } from "@upmind-automation/types";
 import { ScopeActorTypes } from "../../scope/scope.types";
-import delegatedDetailRecording from "./scenarios/a-delegated-invoice-is-not-mine-to-settle/02/get-invoices-id-with-staged-imports-1.json";
-import ownDetailRecording from "./scenarios/a-delegated-invoice-is-not-mine-to-settle/05/get-invoices-id-with-staged-imports-1.json";
-import ac4AssignTargetRecording from "./scenarios/assign-a-payment-method-to-an-invoice/02/get-invoices-id-with-staged-imports-1.json";
-import ac4AssignPatchRecording from "./scenarios/assign-a-payment-method-to-an-invoice/03/patch-invoices-id-payment-details.json";
-import comingledRecording from "./scenarios/attribute-each-invoice-in-a-co-mingled-list/02/get-invoices.json";
-import ac4AssignedRecording from "./scenarios/clear-the-assigned-payment-method-back-to-none-selected/02/get-invoices-id-with-staged-imports-1.json";
-import creditNotePdfDetailRecording from "./scenarios/download-a-credit-notes-pdf-document-the-same-way/01/get-invoices-id-with-staged-imports-1.json";
-import invoicePdfDetailRecording from "./scenarios/download-an-invoices-pdf-document/01/get-invoices-id-with-staged-imports-1.json";
-import payPartlyPaidDetailRecording from "./scenarios/i-cannot-change-the-pay-currency-of-a-partly-paid-invoice/02/get-invoices-id-with-staged-imports-1.json";
-import payPartlyPaidCurrenciesRecording from "./scenarios/i-cannot-change-the-pay-currency-of-a-partly-paid-invoice/03/get-currencies.json";
-import largeBundleRecording from "./scenarios/know-a-bundle-is-large-without-counting-a-truncated-line-item-array/02/get-invoices-id-with-staged-imports-1.json";
-import ac7CreditNoteRecording from "./scenarios/label-a-consolidation-credit-note-as-a-consolidation-not-a-refund/02/get-invoices-id-with-staged-imports-1.json";
-import ac18ConsolidatablePreNarrowRecording from "./scenarios/narrow-my-invoice-list-to-one-contract-products-invoices/01/get-invoices-221d7f0d.json";
-import ac18UnpaidPreNarrowRecording from "./scenarios/narrow-my-invoice-list-to-one-contract-products-invoices/01/get-invoices-filter-client-id-filter-status-code-invoice-unpaid-invoice-overdue-invoice-adjusted.json";
-import ac18UnfilteredRecording from "./scenarios/narrow-my-invoice-list-to-one-contract-products-invoices/01/get-invoices.json";
-import ac18ConsolidatableNarrowedRecording from "./scenarios/narrow-my-invoice-list-to-one-contract-products-invoices/02/get-invoices-0d478351.json";
-import ac18UnpaidNarrowedRecording from "./scenarios/narrow-my-invoice-list-to-one-contract-products-invoices/02/get-invoices-96f111db.json";
-import ac18NarrowedRecording from "./scenarios/narrow-my-invoice-list-to-one-contract-products-invoices/02/get-invoices-filter-products-contracts-product-id.json";
-import ac18ccConsolidatablePreNarrowRecording from "./scenarios/narrowing-to-a-product-does-not-re-widen-a-retargeted-reading/01/get-invoices-a20eca98.json";
-import ac18ccUnpaidPreNarrowRecording from "./scenarios/narrowing-to-a-product-does-not-re-widen-a-retargeted-reading/01/get-invoices-b84a9fba.json";
-import delegatedBootRecording from "./scenarios/narrowing-to-a-product-does-not-re-widen-a-retargeted-reading/01/get-invoices-client-id.json";
-import ac18ccConsolidatableNarrowedRecording from "./scenarios/narrowing-to-a-product-does-not-re-widen-a-retargeted-reading/02/get-invoices-0d478351.json";
-import ac18ccUnpaidNarrowedRecording from "./scenarios/narrowing-to-a-product-does-not-re-widen-a-retargeted-reading/02/get-invoices-96f111db.json";
-import delegatedNarrowRecording from "./scenarios/narrowing-to-a-product-does-not-re-widen-a-retargeted-reading/02/get-invoices-filter-products-contracts-product-id.json";
-import payOpenDetailRecording from "./scenarios/open-an-invoice-in-the-pay-currency-the-platform-holds-for-it/02/get-invoices-id-with-staged-imports-1.json";
-import pageOneRecording from "./scenarios/page-through-my-invoice-list/03/get-invoices.json";
-import bundleGroupsRecording from "./scenarios/read-a-consolidated-invoices-line-items-grouped-by-subscription/02/get-invoices-id-with-staged-imports-1.json";
-import ac16PaidRecording from "./scenarios/read-a-fully-paid-invoice-as-paid/02/get-invoices-id-with-staged-imports-1.json";
-import ac16PartialRecording from "./scenarios/read-a-partly-paid-invoice-as-partially-paid/02/get-invoices-id-with-staged-imports-1.json";
-import ac16FreeRecording from "./scenarios/read-an-invoice-with-no-charge-as-free/02/get-invoices-id-with-staged-imports-1.json";
-import creditNotesRecording from "./scenarios/read-my-credit-notes-as-a-filtered-view-of-my-invoices/02/get-invoices-filter-category-slug-credit-note-credit-note-for-refund.json";
-import readInFullRecording from "./scenarios/read-one-of-my-invoices-in-full/02/get-invoices-id-with-staged-imports-1.json";
-import consolidationRecording from "./scenarios/read-the-consolidation-identity-and-credit-fields-of-a-merged-invoice/02/get-invoices-id-with-staged-imports-1.json";
-import ac9ShownRecording from "./scenarios/read-the-next-charge-date-of-an-invoice-that-is-on-a-recurring-product/02/get-invoices-id-with-staged-imports-1.json";
-import retargetRecording from "./scenarios/retarget-my-reading-at-an-entitled-client/03/get-invoices-client-id.json";
-import consolidatableCountRecording from "./scenarios/see-how-many-of-my-invoices-could-be-consolidated/01/get-invoices-221d7f0d.json";
-import creditNoteRecording from "./scenarios/tie-a-credit-note-back-to-the-invoice-it-credits/02/get-invoices-id-with-staged-imports-1.json";
-import ac19DefaultListRecording from "./scenarios/list-only-the-orders-i-placed/01/get-invoices.json";
-import ac19UnpaidProbeRecording from "./scenarios/list-only-the-orders-i-placed/01/get-invoices-filter-client-id-filter-status-code-invoice-unpaid-invoice-overdue-invoice-adjusted.json";
-import ac19OrderListRecording from "./scenarios/list-only-the-orders-i-placed/03/get-invoices-filter-category-slug-new-contract.json";
-import ac20OrderListRecording from "./scenarios/read-my-order-list-with-its-brand-and-item-counts/03/get-invoices-filter-category-slug-new-contract.json";
-import ac21BootRecording from "./scenarios/page-through-my-orders-and-choose-the-page-size/02/get-invoices-filter-category-slug-new-contract.json";
-import ac21FiveRecording from "./scenarios/page-through-my-orders-and-choose-the-page-size/03/get-invoices-filter-category-slug-new-contract.json";
-import ac21EmptyBootRecording from "./scenarios/read-a-search-of-my-orders-that-matches-nothing-as-empty/02/get-invoices-filter-category-slug-new-contract.json";
-import ac21EmptyRecording from "./scenarios/read-a-search-of-my-orders-that-matches-nothing-as-empty/03/get-invoices-filter-category-slug-new-contract-filter-number-eq-fe3237-no-such-order.json";
-import ac22NoneRecording from "./scenarios/go-back-to-the-first-page-when-my-page-has-no-orders/02/get-invoices-filter-category-slug-new-contract-filter-number-eq-fe3237-no-such-order.json";
-import ac24PageTwoRecording from "./scenarios/narrow-my-orders-by-item-category-service-number-and-amount/02/get-invoices-filter-category-slug-new-contract.json";
-import ac25PlacedRecording from "./scenarios/narrow-my-orders-by-when-i-placed-or-paid-them/03/get-invoices-filter-category-slug-new-contract-filter-create-datetime-after-7-days.json";
-import ac26UnpaidRecording from "./scenarios/narrow-my-orders-by-status/03/get-invoices-filter-category-slug-new-contract-filter-status-code-eq-invoice-unpaid-invoice-adjusted.json";
-import ac26NotPaidRecording from "./scenarios/narrow-my-orders-by-status/03/get-invoices-filter-category-slug-new-contract-filter-status-code-neq-invoice-paid.json";
-import ac26RefuseUnpaidRecording from "./scenarios/refuse-an-equal-and-a-not-equal-status-narrowing-together/02/get-invoices-filter-category-slug-new-contract-filter-status-code-eq-invoice-unpaid-invoice-adjusted.json";
-import ac27PageTwoRecording from "./scenarios/sort-my-orders-and-stay-on-my-page/02/get-invoices-filter-category-slug-new-contract.json";
-import ac27SortedRecording from "./scenarios/sort-my-orders-and-stay-on-my-page/03/get-invoices-filter-category-slug-new-contract.json";
-import ac29PaidRecording from "./scenarios/keep-my-order-history-to-the-orders-i-placed/03/get-invoices-filter-category-slug-new-contract-filter-status-code-eq-invoice-paid.json";
-import ac29BootRecording from "./scenarios/keep-my-order-history-to-the-orders-i-placed/02/get-invoices-filter-category-slug-new-contract.json";
 import {
   check,
   containsAll,
@@ -89,13 +34,67 @@ import {
   sentInWindow,
   sentSinceMark
 } from "./invoices.wire";
+import delegatedDetailRecording from "./scenarios/a-delegated-invoice-is-not-mine-to-settle/02/get-invoices-id-with-staged-imports-1.json";
+import ownDetailRecording from "./scenarios/a-delegated-invoice-is-not-mine-to-settle/05/get-invoices-id-with-staged-imports-1.json";
+import ac4AssignTargetRecording from "./scenarios/assign-a-payment-method-to-an-invoice/02/get-invoices-id-with-staged-imports-1.json";
+import ac4AssignPatchRecording from "./scenarios/assign-a-payment-method-to-an-invoice/03/patch-invoices-id-payment-details.json";
+import comingledRecording from "./scenarios/attribute-each-invoice-in-a-co-mingled-list/02/get-invoices.json";
+import ac4AssignedRecording from "./scenarios/clear-the-assigned-payment-method-back-to-none-selected/02/get-invoices-id-with-staged-imports-1.json";
+import creditNotePdfDetailRecording from "./scenarios/download-a-credit-notes-pdf-document-the-same-way/01/get-invoices-id-with-staged-imports-1.json";
+import invoicePdfDetailRecording from "./scenarios/download-an-invoices-pdf-document/01/get-invoices-id-with-staged-imports-1.json";
+import ac22NoneRecording from "./scenarios/go-back-to-the-first-page-when-my-page-has-no-orders/02/get-invoices-filter-category-slug-new-contract-filter-number-eq-fe3237-no-such-order.json";
+import payPartlyPaidDetailRecording from "./scenarios/i-cannot-change-the-pay-currency-of-a-partly-paid-invoice/02/get-invoices-id-with-staged-imports-1.json";
+import payPartlyPaidCurrenciesRecording from "./scenarios/i-cannot-change-the-pay-currency-of-a-partly-paid-invoice/03/get-currencies.json";
+import ac29BootRecording from "./scenarios/keep-my-order-history-to-the-orders-i-placed/02/get-invoices-filter-category-slug-new-contract.json";
+import ac29PaidRecording from "./scenarios/keep-my-order-history-to-the-orders-i-placed/03/get-invoices-filter-category-slug-new-contract-filter-status-code-eq-invoice-paid.json";
+import largeBundleRecording from "./scenarios/know-a-bundle-is-large-without-counting-a-truncated-line-item-array/02/get-invoices-id-with-staged-imports-1.json";
+import ac7CreditNoteRecording from "./scenarios/label-a-consolidation-credit-note-as-a-consolidation-not-a-refund/02/get-invoices-id-with-staged-imports-1.json";
+import ac19UnpaidProbeRecording from "./scenarios/list-only-the-orders-i-placed/01/get-invoices-filter-client-id-filter-status-code-invoice-unpaid-invoice-overdue-invoice-adjusted.json";
+import ac19DefaultListRecording from "./scenarios/list-only-the-orders-i-placed/01/get-invoices.json";
+import ac19OrderListRecording from "./scenarios/list-only-the-orders-i-placed/03/get-invoices-filter-category-slug-new-contract.json";
+import ac18ConsolidatablePreNarrowRecording from "./scenarios/narrow-my-invoice-list-to-one-contract-products-invoices/01/get-invoices-221d7f0d.json";
+import ac18UnpaidPreNarrowRecording from "./scenarios/narrow-my-invoice-list-to-one-contract-products-invoices/01/get-invoices-filter-client-id-filter-status-code-invoice-unpaid-invoice-overdue-invoice-adjusted.json";
+import ac18UnfilteredRecording from "./scenarios/narrow-my-invoice-list-to-one-contract-products-invoices/01/get-invoices.json";
+import ac18ConsolidatableNarrowedRecording from "./scenarios/narrow-my-invoice-list-to-one-contract-products-invoices/02/get-invoices-0d478351.json";
+import ac18UnpaidNarrowedRecording from "./scenarios/narrow-my-invoice-list-to-one-contract-products-invoices/02/get-invoices-96f111db.json";
+import ac18NarrowedRecording from "./scenarios/narrow-my-invoice-list-to-one-contract-products-invoices/02/get-invoices-filter-products-contracts-product-id.json";
+import ac24PageTwoRecording from "./scenarios/narrow-my-orders-by-item-category-service-number-and-amount/02/get-invoices-filter-category-slug-new-contract.json";
+import ac26UnpaidRecording from "./scenarios/narrow-my-orders-by-status/03/get-invoices-filter-category-slug-new-contract-filter-status-code-eq-invoice-unpaid-invoice-adjusted.json";
+import ac26NotPaidRecording from "./scenarios/narrow-my-orders-by-status/03/get-invoices-filter-category-slug-new-contract-filter-status-code-neq-invoice-paid.json";
+import ac25PlacedRecording from "./scenarios/narrow-my-orders-by-when-i-placed-or-paid-them/03/get-invoices-filter-category-slug-new-contract-filter-create-datetime-after-7-days.json";
+import ac18ccConsolidatablePreNarrowRecording from "./scenarios/narrowing-to-a-product-does-not-re-widen-a-retargeted-reading/01/get-invoices-a20eca98.json";
+import ac18ccUnpaidPreNarrowRecording from "./scenarios/narrowing-to-a-product-does-not-re-widen-a-retargeted-reading/01/get-invoices-b84a9fba.json";
+import delegatedBootRecording from "./scenarios/narrowing-to-a-product-does-not-re-widen-a-retargeted-reading/01/get-invoices-client-id.json";
+import ac18ccConsolidatableNarrowedRecording from "./scenarios/narrowing-to-a-product-does-not-re-widen-a-retargeted-reading/02/get-invoices-0d478351.json";
+import ac18ccUnpaidNarrowedRecording from "./scenarios/narrowing-to-a-product-does-not-re-widen-a-retargeted-reading/02/get-invoices-96f111db.json";
+import delegatedNarrowRecording from "./scenarios/narrowing-to-a-product-does-not-re-widen-a-retargeted-reading/02/get-invoices-filter-products-contracts-product-id.json";
+import payOpenDetailRecording from "./scenarios/open-an-invoice-in-the-pay-currency-the-platform-holds-for-it/02/get-invoices-id-with-staged-imports-1.json";
+import pageOneRecording from "./scenarios/page-through-my-invoice-list/03/get-invoices.json";
+import ac21BootRecording from "./scenarios/page-through-my-orders-and-choose-the-page-size/02/get-invoices-filter-category-slug-new-contract.json";
+import ac21FiveRecording from "./scenarios/page-through-my-orders-and-choose-the-page-size/03/get-invoices-filter-category-slug-new-contract.json";
+import bundleGroupsRecording from "./scenarios/read-a-consolidated-invoices-line-items-grouped-by-subscription/02/get-invoices-id-with-staged-imports-1.json";
+import ac16PaidRecording from "./scenarios/read-a-fully-paid-invoice-as-paid/02/get-invoices-id-with-staged-imports-1.json";
+import ac16PartialRecording from "./scenarios/read-a-partly-paid-invoice-as-partially-paid/02/get-invoices-id-with-staged-imports-1.json";
+import ac21EmptyBootRecording from "./scenarios/read-a-search-of-my-orders-that-matches-nothing-as-empty/02/get-invoices-filter-category-slug-new-contract.json";
+import ac21EmptyRecording from "./scenarios/read-a-search-of-my-orders-that-matches-nothing-as-empty/03/get-invoices-filter-category-slug-new-contract-filter-number-eq-fe3237-no-such-order.json";
+import ac16FreeRecording from "./scenarios/read-an-invoice-with-no-charge-as-free/02/get-invoices-id-with-staged-imports-1.json";
+import creditNotesRecording from "./scenarios/read-my-credit-notes-as-a-filtered-view-of-my-invoices/02/get-invoices-filter-category-slug-credit-note-credit-note-for-refund.json";
+import ac20OrderListRecording from "./scenarios/read-my-order-list-with-its-brand-and-item-counts/03/get-invoices-filter-category-slug-new-contract.json";
+import readInFullRecording from "./scenarios/read-one-of-my-invoices-in-full/02/get-invoices-id-with-staged-imports-1.json";
+import consolidationRecording from "./scenarios/read-the-consolidation-identity-and-credit-fields-of-a-merged-invoice/02/get-invoices-id-with-staged-imports-1.json";
+import ac9ShownRecording from "./scenarios/read-the-next-charge-date-of-an-invoice-that-is-on-a-recurring-product/02/get-invoices-id-with-staged-imports-1.json";
+import ac26RefuseUnpaidRecording from "./scenarios/refuse-an-equal-and-a-not-equal-status-narrowing-together/02/get-invoices-filter-category-slug-new-contract-filter-status-code-eq-invoice-unpaid-invoice-adjusted.json";
+import retargetRecording from "./scenarios/retarget-my-reading-at-an-entitled-client/03/get-invoices-client-id.json";
+import consolidatableCountRecording from "./scenarios/see-how-many-of-my-invoices-could-be-consolidated/01/get-invoices-221d7f0d.json";
+import ac27PageTwoRecording from "./scenarios/sort-my-orders-and-stay-on-my-page/02/get-invoices-filter-category-slug-new-contract.json";
+import ac27SortedRecording from "./scenarios/sort-my-orders-and-stay-on-my-page/03/get-invoices-filter-category-slug-new-contract.json";
+import creditNoteRecording from "./scenarios/tie-a-credit-note-back-to-the-invoice-it-credits/02/get-invoices-id-with-staged-imports-1.json";
 import {
   every,
   filter,
   findLast,
   first,
   includes,
-  isEmpty,
   last,
   map,
   size,
@@ -488,10 +487,6 @@ const isListRead = (request: URL): boolean =>
 const isProbe = (request: URL): boolean =>
   request.pathname.endsWith("/api/invoices") &&
   request.searchParams.get("limit") === "1";
-
-/** The rows of a recorded list read, as the context publishes them. */
-const recordedRows = (recording: ListRecording) =>
-  map(recording.response.body.data, ({ id, number }) => ({ id, number }));
 
 const AC19 = {
   defaultTotal: (ac19DefaultListRecording as ListRecording).response.body.total,

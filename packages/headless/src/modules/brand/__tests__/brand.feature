@@ -58,3 +58,13 @@ Feature: Brand module
     Given raw brand settings with key-first i18n
     When mapBrandSettings is called
     Then i18n is transformed to locale-first structure
+
+  # FE-3237 AC5. Blocker: the brand module has no replay test, so no
+  # scenario can drive useBrand over a recorded session. The unit spec
+  # brand.show-store.test.ts proves the rule (describe "AC-9: store visibility").
+  @AC-9 @layer-unit @todo
+  Scenario: The store shows only when my brand's display mode and my session allow it
+    Given my brand sets how the store shows
+    When I read the brand as an anonymous guest, a signed-in client or a staff member
+    Then the store shows when the mode is unset or show, never when it is hide
+    And when the mode is show-to-signed-in, it shows to a client or a staff member and not to an anonymous guest

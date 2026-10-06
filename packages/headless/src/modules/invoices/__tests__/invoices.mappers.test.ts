@@ -46,8 +46,16 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { getFixtureBody } from "@upmind-automation/test-fixtures";
 import { mapInvoice, mapInvoices } from "..";
+import billingCyclesRecording from "../../system/__tests__/fixtures/get-billing-cycles.json";
+import { mapInvoiceItems } from "../invoices.mappers";
+import itemsRecording from "./scenarios/read-the-items-of-one-of-my-orders/02/get-invoices-id-with-staged-imports-1.json";
+import { map } from "lodash-es";
 import type { Envelope, WireInvoice } from "./invoices.int-helpers";
-import type { IInvoice, IPayment } from "@upmind-automation/types";
+import type {
+  IBillingCycle,
+  IInvoice,
+  IPayment
+} from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
 
@@ -550,5 +558,98 @@ describe("mapPayments (via mapInvoice) — the paying method's own label", () =>
     const raw = { ...paidRaw, payments: [withoutDetail] } as IInvoice;
 
     expect(mapInvoice(raw).payments[0].label).toBe("");
+  });
+});
+
+// -----------------------------------------------------------------------------
+
+/** The recorded order whose snapshot disagrees with its live items on the term. */
+const recordedOrder = (
+  itemsRecording as unknown as { response: { body: { data: IInvoice } } }
+).response.body.data;
+
+const billingCycles = (
+  billingCyclesRecording as unknown as {
+    response: { body: { data: IBillingCycle[] } };
+  }
+).response.body.data;
+
+type RecordedItem = {
+  id: string;
+  billing_cycle_months: number;
+  options?: unknown[];
+  product: { billing_cycle_months: number };
+};
+
+const snapshotOf = (raw: IInvoice): RecordedItem[] =>
+  (
+    raw as unknown as {
+      current_data: { content: { products: RecordedItem[] } };
+    }
+  ).current_data.content.products;
+
+const liveOf = (raw: IInvoice): RecordedItem[] =>
+  (raw as unknown as { products: RecordedItem[] }).products;
+
+// FE-3237 AC15
+describe("invoices — AC-32: the items of an order", () => {
+  it("reads the items from the snapshot first, with the snapshot's own term", () => {
+    const items = mapInvoiceItems(recordedOrder, {
+      billingCycles,
+      imageMap: {}
+    });
+    expect(map(items, item => item.id)).toEqual(
+      map(snapshotOf(recordedOrder), item => item.id)
+    );
+    expect(map(items, item => item.billingCycleMonths)).toEqual([12, 24]);
+    expect(map(items, item => item.billingCycle?.name)).toEqual([
+      "Annually",
+      "Biennially"
+    ]);
+  });
+
+  it("falls back to the live items when the order has no snapshot", () => {
+    const raw = { ...recordedOrder, current_data: null } as unknown as IInvoice;
+    const items = mapInvoiceItems(raw, { billingCycles, imageMap: {} });
+    expect(map(items, item => item.id)).toEqual(
+      map(liveOf(recordedOrder), item => item.id)
+    );
+    expect(items[1].period).toBeDefined();
+  });
+
+  it("takes the product term when an item's own term is zero", () => {
+    const raw = { ...recordedOrder, current_data: null } as unknown as IInvoice;
+    const [zeroTerm] = liveOf(recordedOrder);
+    expect(zeroTerm.billing_cycle_months).toBe(0);
+    const [item] = mapInvoiceItems(raw, { billingCycles, imageMap: {} });
+    expect(item.billingCycleMonths).toBe(zeroTerm.product.billing_cycle_months);
+    expect(item.isSubscription).toBe(true);
+  });
+
+  it("gives no item, and no live fallback, for an empty snapshot", () => {
+    const raw = {
+      ...recordedOrder,
+      current_data: { content: { products: [] } }
+    } as unknown as IInvoice;
+    expect(mapInvoiceItems(raw, { billingCycles, imageMap: {} })).toEqual([]);
+  });
+
+  it("maps a thin record to no item rather than failing", () => {
+    expect(
+      mapInvoiceItems({ id: recordedOrder.id } as IInvoice, {
+        billingCycles,
+        imageMap: {}
+      })
+    ).toEqual([]);
+  });
+
+  it("marks the item that carries options as one with sub-items", () => {
+    const items = mapInvoiceItems(recordedOrder, {
+      billingCycles,
+      imageMap: {}
+    });
+    expect(map(items, item => item.hasSubItems)).toEqual(
+      map(snapshotOf(recordedOrder), item => (item.options ?? []).length > 0)
+    );
   });
 });
