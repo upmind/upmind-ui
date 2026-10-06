@@ -288,6 +288,33 @@ describe("@G3d amendment 2 — a repeated route name is a build failure, not a s
   });
 });
 
+// FE-3237 AC22
+describe("the order history is the invoices page, for the new-contract selector", () => {
+  it("serves the order history at /useInvoices/as/client/for/new_contract with no id", () => {
+    const { name, scope } = resolvedScope(
+      "/useInvoices/as/client/for/new_contract"
+    );
+
+    expect(name).toBe("useInvoices");
+    expect(scope).toMatchObject({
+      valid: true,
+      actor: "client",
+      context: { type: "new_contract" }
+    });
+    expect(scope.context?.id).toBeUndefined();
+  });
+
+  it("registers no order route of its own", () => {
+    expect(
+      filter(map(scenarioPages(), "name"), name =>
+        /^useOrders?$/.test(name as string)
+      )
+    ).toEqual([]);
+    expect(router.resolve("/useOrders/as/client").name).not.toBe("useOrders");
+    expect(router.resolve("/useOrder/as/client").name).not.toBe("useOrder");
+  });
+});
+
 describe("a patterned param reaches the page (useTicket)", () => {
   const TICKET_ID = "0a1b2c3d-4e5f-6789-abcd-ef0123456789";
 

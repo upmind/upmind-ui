@@ -92,3 +92,44 @@ describe("criteria ⇄ url — every declared column survives the round-trip", (
     expect(paramsToCriteria(schema(), params)).toMatchObject(model);
   });
 });
+
+// FE-3237 AC22
+describe("criteria ⇄ url — the order history's own leaves survive the round-trip", () => {
+  const orderSchema = () =>
+    useInvoices()
+      .as("client")
+      .for(InvoiceCategoryCode.NEW_CONTRACT as never)
+      .useContext().schemas.query.schema;
+
+  it("declares the order columns and no category column a url could override", () => {
+    const columns = new Set(map(declaredPairs(orderSchema()), ([c]) => c));
+
+    expect(columns.has("number")).toBe(true);
+    expect(columns.has("total_amount")).toBe(true);
+    expect(columns.has("paid_datetime")).toBe(true);
+    expect(columns.has("products.service_identifier")).toBe(true);
+    expect(columns.has("category.slug")).toBe(false);
+    expect(columns.has("client_id")).toBe(false);
+  });
+
+  it.each([
+    ["the number search", { number: { eq: "QA-INV-26050" } }],
+    ["a total comparison", { total_amount: { gte: 12 } }],
+    [
+      "the Unpaid status choice",
+      { "status.code": { eq: ["invoice_unpaid,invoice_adjusted"] } }
+    ],
+    ["a relative placed period", { create_datetime: { after: "-7_days" } }],
+    [
+      "an absolute paid date",
+      { paid_datetime: { gte: "2026-10-01 00:00:00" } }
+    ],
+    ["an item name", { "products.product.name": { like: "Hosting" } }]
+  ])("%s round-trips to the same order model", (_, filters) => {
+    const model = { filters };
+    const params = criteriaToParams(orderSchema(), model);
+
+    expect(size(params)).toBeGreaterThan(0);
+    expect(paramsToCriteria(orderSchema(), params)).toMatchObject(model);
+  });
+});
