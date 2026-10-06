@@ -1,0 +1,18 @@
+FE-3237 AC4 — negative control for the recovery watch's no-error guard (design 8.3, review W1).
+Spec: invoices.empty-page-recovery.test.ts (test:unit invoices.empty-page-recovery)
+Row: -t "keeps a failed read past page one on its page" — the expectation that pagination stays on page two
+Mutation: the recovery watch no longer skips a read that settled with an error, so a failed page-two read is taken for an empty page.
+
+diff --git a/packages/headless/src/modules/invoices/useInvoices.actions.ts b/packages/headless/src/modules/invoices/useInvoices.actions.ts
+index 2c879a5d14..ad3254900e 100644
+--- a/packages/headless/src/modules/invoices/useInvoices.actions.ts
++++ b/packages/headless/src/modules/invoices/useInvoices.actions.ts
+@@ -153,7 +153,7 @@ export function createInvoicesActions(
+         query.criteria.value.pagination?.offset
+       ] as const,
+     ([isSettled, hasError, total, offset]) => {
+-      if (!isSettled || hasError || total !== 0 || !offset) return;
++      if (!isSettled || total !== 0 || !offset) return;
+       query.setCriteria({ pagination: { limit: liveLimit(), offset: 0 } });
+     }
+   );
