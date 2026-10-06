@@ -17,13 +17,13 @@
       "access-control-allow-origin": "http://qa-automation.local:5173",
       "cache-control": "no-cache, private",
       "cf-cache-status": "DYNAMIC",
-      "cf-ray": "a434bc2a8b9473a7-JNB",
+      "cf-ray": "a4627f174950ae83-LHR",
       "connection": "keep-alive",
       "content-type": "application/json",
-      "date": "Wed, 30 Sep 2026 16:51:54 GMT",
+      "date": "Tue, 06 Oct 2026 06:09:18 GMT",
       "impersonation": "0",
       "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
-      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=RdcPkhxEsk47E0Nhn2HXsqk32rf2stRrxgnTi%2Bmu%2BdZ%2B5ao2A9YtJWsOLVsKTyWv2xg98%2BhR8ZM3IL073nVoXydaYB9XaV3iQG4lnsTrznlGIY%2FVMDT3Pp0IPgGGnAuEZB6l3SvwtA%3D%3D\"}]}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=r8vFJdZRv9xwXJUrG%2F3g4AWc0696427oIuSMWcEacVv0k%2Fizp07ARt5iXD7Oa6xCVToFaqvRDCiScv1zLCm9yWWOLYX9CB2IdTFEdwqX%2FsD2pO9B5%2B92ScefsUO719Bh94W9KfcTbA%3D%3D\"}]}",
       "server": "cloudflare",
       "transfer-encoding": "chunked",
       "x-frame-options": "SAMEORIGIN"
@@ -39,14 +39,16 @@
         "code": 422,
         "message": "API request invalid!",
         "data": {
-          "invoice_id": ["The identifier (invoice id) is invalid!"]
+          "invoice_id": [
+            "The identifier (invoice id) is invalid!"
+          ]
         }
       },
       "messages": null,
       "meta": null
     }
   },
-  "captured_at": "2026-09-30T16:51:54.695Z",
+  "captured_at": "2026-10-06T06:09:18.077Z",
   "brand_domain": "qa-automation.local",
   "source": "case",
   "provenance": {

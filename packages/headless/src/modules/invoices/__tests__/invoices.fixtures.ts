@@ -84,7 +84,16 @@ import {
   mintToken
 } from "../../auth/__tests__/auth.tokens";
 import { defaultBrandConfigKeys } from "../../brand/brand.constants";
-import { find, forEach, sortBy, split } from "lodash-es";
+import {
+  compact,
+  find,
+  forEach,
+  isEmpty,
+  map,
+  sortBy,
+  split,
+  uniq
+} from "lodash-es";
 import type { IToken } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
@@ -120,7 +129,8 @@ const LOAD_ONE_WITH =
   "custom_fields.field,affiliate_commissions,products.product.image," +
   "account.affiliate_referral.affiliate_account.account.client," +
   "address,address.country,category,payments.gateway,payments.payment_type," +
-  "payment_details,gateway,client.parent_client_config,last_payment_log";
+  "payment_details,gateway,client.parent_client_config,last_payment_log," +
+  "contract_product_tags&with_staged_imports=1";
 
 const LOAD_LIST_WITH =
   "with=client,client.image,client.parent_client_config,brand,status,category," +
@@ -256,12 +266,32 @@ async function recordPaymentDetailMachineReads(
   });
 }
 
+type DetailItem = { product?: { id?: string } | null };
+
 type DetailBody = {
+  current_data?: { content?: { products?: DetailItem[] } } | null;
+  products?: DetailItem[];
   currency_id?: string;
   address?: { country_id?: string } | null;
   currency?: { id?: string; code?: string };
   payment_currency?: { id?: string; code?: string } | null;
 };
+
+/**
+ * The catalogue-image read the detail cell fires once for the unique product ids
+ * of its items (design 8.1): snapshot items first, the live products otherwise.
+ */
+async function recordItemImages(
+  generator: Generator,
+  data: DetailBody | undefined
+): Promise<void> {
+  const items = data?.current_data?.content?.products || data?.products || [];
+  const ids = uniq(compact(map(items, item => item.product?.id)));
+  if (isEmpty(ids)) return;
+  await generator.get(
+    `/api/products?filter[id]=${ids.join(",")}&with=image&limit=${ids.length}&lang=en`
+  );
+}
 
 /**
  * The full boot read the `useInvoice` DETAIL cell fires: the brand config it
@@ -282,6 +312,7 @@ async function recordDetailReads(
     `/api/invoices/${id}?${LOAD_ONE_WITH}&with_count=products`
   );
   const data = (body as { data?: DetailBody })?.data;
+  await recordItemImages(generator, data);
   let walletBalanceBody: WalletBalanceBody | undefined;
   if (data) {
     await generator.get("/api/wallet/balance?lang=en");
@@ -893,9 +924,22 @@ describe("Invoices scenario recordings", () => {
     const overdue = await firstRow(
       "filter[status.code]=invoice_overdue&order=-create_datetime"
     );
-    const primary = overdue.id
-      ? overdue
-      : await firstRow("order=-create_datetime");
+    const { body: withPayments } = await selfCall(
+      `/api/invoices?client_id=${clientId}&with=payments&order=-create_datetime&limit=500` +
+        "&filter[status.code]=invoice_unpaid,invoice_overdue,invoice_adjusted",
+      clientToken.access_token
+    );
+    const pendingFirst = find(
+      (withPayments as { data?: Array<WireRow & { payments?: Array<{ pending?: boolean }> }> })
+        ?.data,
+      row => row.payments?.[0]?.pending === true
+    );
+    if (!pendingFirst)
+      throw new Error(
+        "No open invoice of the client holds a pending payment first — the " +
+          '"Read one of my invoices in full" scenario reads one. Escalate.'
+      );
+    const primary = pendingFirst;
     detailIds.overdue = overdue.id;
     detailIds.primary = primary.id;
     detailIds.primaryCurrency = primary.currency_id;

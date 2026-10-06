@@ -17,14 +17,14 @@
       "access-control-allow-origin": "http://qa-automation.local:5173",
       "cache-control": "no-cache, private",
       "cf-cache-status": "DYNAMIC",
-      "cf-ray": "a439cd6c1b4973f0-JNB",
+      "cf-ray": "a4628324f812ae83-LHR",
       "connection": "keep-alive",
       "content-encoding": "br",
       "content-type": "application/json",
-      "date": "Thu, 01 Oct 2026 07:37:30 GMT",
+      "date": "Tue, 06 Oct 2026 06:12:04 GMT",
       "impersonation": "0",
       "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
-      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=YbdgRodsdLSq3WKDa0%2FlaiPthSWMzQtzqHaXY8cLvwmnlHZgK6u8YAE2K%2Fv1HG08Ji%2BOibQKstwvYws6rYF6eNXrpkzY0oEucCQv0HF9B5LJlKXI6AQAHh0lrpe7aWJbAKHKEhDzpw%3D%3D\"}]}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=cIMPbRsZnwWQHPsj9ZcO5I2VkrA%2BXCRHv84m%2BPpmIh446l2FOreyK0UDJMQXhEu8vw3f3GfD4ldl7hGJ3k119AOdRZR3PC%2F47LMntZHlz7MhEBYULSnY5WuVfvg%2Bkr8LW8r7CqOtog%3D%3D\"}]}",
       "server": "cloudflare",
       "transfer-encoding": "chunked",
       "vary": "Accept-Encoding",
@@ -41,7 +41,7 @@
       "meta": null
     }
   },
-  "captured_at": "2026-10-01T07:37:30.572Z",
+  "captured_at": "2026-10-06T06:12:04.201Z",
   "brand_domain": "qa-automation.local",
   "source": "case",
   "provenance": {

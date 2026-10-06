@@ -17,14 +17,14 @@
       "access-control-allow-origin": "http://qa-automation.local:5173",
       "cache-control": "no-cache, private",
       "cf-cache-status": "DYNAMIC",
-      "cf-ray": "a435bde77f5c73cd-JNB",
+      "cf-ray": "a4628209d802ae83-LHR",
       "connection": "keep-alive",
       "content-encoding": "br",
       "content-type": "application/json",
-      "date": "Wed, 30 Sep 2026 19:47:52 GMT",
+      "date": "Tue, 06 Oct 2026 06:11:19 GMT",
       "impersonation": "0",
       "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
-      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=d64xLHmy0i1z4ojtSJaX6h8Hk5R6jICxJZJAdotTR2%2B8agKSUjP1R7iRG8ijEH2aG3MytSleYc%2BfK4g3Mv8Yxlbxu4kJdWmI0uuVZYgA78UecAV5ULgrUBguDipGZIaoiMeK4S%2BdcA%3D%3D\"}]}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=9H39y7tmAygpMJV7e49q%2FYAvJxRoU1y61u5TBYw9djJ7mGAVQAL4FZZR%2BPtJ%2Bje76jmb93Cp1eFxUKdXIMnhqVD2aVJHuPkkLx0mvROrYMMauYBY3iiUW%2BdqVxyaQxo9f7snPPvRFg%3D%3D\"}]}",
       "server": "cloudflare",
       "transfer-encoding": "chunked",
       "vary": "Accept-Encoding",
@@ -35,10 +35,10 @@
       "data": {
         "online": {
           "ARS": {
-            "amount": 31.4884,
-            "amount_formatted": 31.4884,
-            "amount_converted": 63484.6799,
-            "amount_converted_formatted": "ARS 63,484.68",
+            "amount": 60.4502,
+            "amount_formatted": 60.4502,
+            "amount_converted": 121385.9412,
+            "amount_converted_formatted": "ARS 121,385.94",
             "currency": {
               "id": "320e4357-95e7-8d18-28b3-1643202d9860",
               "name": "Argentine Peso",
@@ -75,10 +75,10 @@
         },
         "total": {
           "ARS": {
-            "amount": 31.4884,
-            "amount_formatted": "£31.49",
-            "amount_converted": 63484.68,
-            "amount_converted_formatted": "ARS 63,484.68",
+            "amount": 60.4502,
+            "amount_formatted": "£60.45",
+            "amount_converted": 121385.94,
+            "amount_converted_formatted": "ARS 121,385.94",
             "currency": {
               "id": "320e4357-95e7-8d18-28b3-1643202d9860",
               "name": "Argentine Peso",
@@ -101,7 +101,7 @@
       "meta": null
     }
   },
-  "captured_at": "2026-09-30T19:47:52.401Z",
+  "captured_at": "2026-10-06T06:11:19.710Z",
   "brand_domain": "qa-automation.local",
   "source": "case",
   "provenance": {

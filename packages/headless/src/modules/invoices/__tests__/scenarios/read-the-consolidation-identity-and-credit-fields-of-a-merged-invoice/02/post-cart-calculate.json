@@ -11,7 +11,10 @@
     },
     "body": {
       "currency_id": "3825d96e-763e-d091-3dc4-174825283406",
-      "prices": [31.45, 0]
+      "prices": [
+        60.45,
+        0
+      ]
     }
   },
   "response": {
@@ -20,14 +23,14 @@
       "access-control-allow-origin": "http://qa-automation.local:5173",
       "cache-control": "no-cache, private",
       "cf-cache-status": "DYNAMIC",
-      "cf-ray": "a435b3007a1215d5-JNB",
+      "cf-ray": "a4627e980b80ae83-LHR",
       "connection": "keep-alive",
       "content-encoding": "br",
       "content-type": "application/json",
-      "date": "Wed, 30 Sep 2026 19:40:25 GMT",
+      "date": "Tue, 06 Oct 2026 06:08:57 GMT",
       "impersonation": "0",
       "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
-      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=%2B7HnBR9Rj0LgSF%2FiQjX8EY64QnST%2FnqfRlxjipIdqOK0u5TRg%2FXbcBJvz%2BaavBOXfC80t7og556At1O6K9Hl2xoRU%2FwfLpPGX9Bm1a95NlTDiPCSW4yKQgfx%2B%2F8ofaMhH1tWnn1hqQ%3D%3D\"}]}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=VT211v3thSK9QkJjNd%2BYnBRH3O4TCqJlOI63yCy2reFpJALQDUtfZoTGXN0U8Uv%2FIzUdzeKhL2i81lx2HCwvktxZx71nRXt1z2ery10UERoG7broPPpH9G61BQC71xKV4J7WKBerJw%3D%3D\"}]}",
       "server": "cloudflare",
       "transfer-encoding": "chunked",
       "vary": "Accept-Encoding",
@@ -36,9 +39,12 @@
     "body": {
       "status": "ok",
       "data": {
-        "total": 31.45,
-        "total_formatted": "£31.45",
-        "prices": [31.45, 0]
+        "total": 60.45,
+        "total_formatted": "£60.45",
+        "prices": [
+          60.45,
+          0
+        ]
       },
       "related": null,
       "total": null,
@@ -47,7 +53,7 @@
       "meta": null
     }
   },
-  "captured_at": "2026-09-30T19:40:25.239Z",
+  "captured_at": "2026-10-06T06:08:57.733Z",
   "brand_domain": "qa-automation.local",
   "source": "case",
   "provenance": {

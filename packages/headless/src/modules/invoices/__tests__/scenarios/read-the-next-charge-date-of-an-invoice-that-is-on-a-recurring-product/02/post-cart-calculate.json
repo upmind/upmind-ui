@@ -11,7 +11,10 @@
     },
     "body": {
       "currency_id": "3825d96e-763e-d091-3dc4-174825283406",
-      "prices": [31.49, 0]
+      "prices": [
+        60.45,
+        0
+      ]
     }
   },
   "response": {
@@ -20,14 +23,14 @@
       "access-control-allow-origin": "http://qa-automation.local:5173",
       "cache-control": "no-cache, private",
       "cf-cache-status": "DYNAMIC",
-      "cf-ray": "a435bf667832a0d0-JNB",
+      "cf-ray": "a46282b67c45ae83-LHR",
       "connection": "keep-alive",
       "content-encoding": "br",
       "content-type": "application/json",
-      "date": "Wed, 30 Sep 2026 19:48:53 GMT",
+      "date": "Tue, 06 Oct 2026 06:11:46 GMT",
       "impersonation": "0",
       "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
-      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=eoXsFE%2FuKFcluOOE0k3O3pCM0HTgSarS4%2ByNT1PIC%2F9TL9icAC4CPVv%2Bxz%2BKtxVxk255gwD88LFKaUblfe%2B3G5Eb7jPD3UFT30%2B3yJC0e9rTpWkocIwG70%2FbV6CpIDiiU820tHOEwg%3D%3D\"}]}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=ctgj89TdiyEIWJg%2FLW31lCpErMYA5Pkt7ksZDPAPXBIlnlPb2jYRHxxKIvNNlX4snqRb%2B3Qpoi5162aMRf%2BNgVewrN2tpoZXaUeeG28YwcIOOBfeBM2%2BbgyRgqsmw8SUmnV60jA36w%3D%3D\"}]}",
       "server": "cloudflare",
       "transfer-encoding": "chunked",
       "vary": "Accept-Encoding",
@@ -36,9 +39,12 @@
     "body": {
       "status": "ok",
       "data": {
-        "total": 31.49,
-        "total_formatted": "£31.49",
-        "prices": [31.49, 0]
+        "total": 60.45,
+        "total_formatted": "£60.45",
+        "prices": [
+          60.45,
+          0
+        ]
       },
       "related": null,
       "total": null,
@@ -47,7 +53,7 @@
       "meta": null
     }
   },
-  "captured_at": "2026-09-30T19:48:53.064Z",
+  "captured_at": "2026-10-06T06:11:46.434Z",
   "brand_domain": "qa-automation.local",
   "source": "case",
   "provenance": {

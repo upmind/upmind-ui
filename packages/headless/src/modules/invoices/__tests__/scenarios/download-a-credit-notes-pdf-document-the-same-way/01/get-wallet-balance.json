@@ -17,14 +17,14 @@
       "access-control-allow-origin": "http://qa-automation.local:5173",
       "cache-control": "no-cache, private",
       "cf-cache-status": "DYNAMIC",
-      "cf-ray": "a435c1fb9d6715d1-JNB",
+      "cf-ray": "a462825d1f6bae83-LHR",
       "connection": "keep-alive",
       "content-encoding": "br",
       "content-type": "application/json",
-      "date": "Wed, 30 Sep 2026 19:50:39 GMT",
+      "date": "Tue, 06 Oct 2026 06:11:32 GMT",
       "impersonation": "0",
       "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
-      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=Wep3tIXZoWZzOJwjKju7ciCEPivvE3zti35DhT9nr7L%2Bge%2FLvHECk75NwYZIHk4j8yPXEY2tAcOCzE7MMm1St3fF6IHJeq9ORR6MprNE3Y6cy0qUbUzFwfvYvWmbIppX60xSYWehIg%3D%3D\"}]}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=OsXhfAUeW4lSFe%2BYrQOv4Jz%2BxM8B9%2B8MRZ8MXtb8w%2BnyUBwavhVZNFHYnB6oAHViymr4ITJqN2gagGqxDXm2cK375ePLwM4oKtaOKveezz4HWyS2m1TQ%2FxTu7dk0xIuSWnccvs42dQ%3D%3D\"}]}",
       "server": "cloudflare",
       "transfer-encoding": "chunked",
       "vary": "Accept-Encoding",
@@ -35,10 +35,10 @@
       "data": {
         "online": {
           "GBP": {
-            "amount": 31.4884,
-            "amount_formatted": 31.4884,
-            "amount_converted": 31.4884,
-            "amount_converted_formatted": "£31.49",
+            "amount": 60.4502,
+            "amount_formatted": 60.4502,
+            "amount_converted": 60.4502,
+            "amount_converted_formatted": "£60.45",
             "currency": {
               "id": "3825d96e-763e-d091-3dc4-174825283406",
               "name": "British Pound",
@@ -75,10 +75,10 @@
         },
         "total": {
           "GBP": {
-            "amount": 31.4884,
-            "amount_formatted": "£31.49",
-            "amount_converted": 31.49,
-            "amount_converted_formatted": "£31.49",
+            "amount": 60.4502,
+            "amount_formatted": "£60.45",
+            "amount_converted": 60.45,
+            "amount_converted_formatted": "£60.45",
             "currency": {
               "id": "3825d96e-763e-d091-3dc4-174825283406",
               "name": "British Pound",
@@ -101,7 +101,7 @@
       "meta": null
     }
   },
-  "captured_at": "2026-09-30T19:50:39.624Z",
+  "captured_at": "2026-10-06T06:11:32.920Z",
   "brand_domain": "qa-automation.local",
   "source": "case",
   "provenance": {

@@ -11,7 +11,10 @@
     },
     "body": {
       "currency_id": "3825d96e-763e-d091-3dc4-174825283406",
-      "prices": [26.65, 0]
+      "prices": [
+        60.45,
+        0
+      ]
     }
   },
   "response": {
@@ -20,14 +23,14 @@
       "access-control-allow-origin": "http://qa-automation.local:5173",
       "cache-control": "no-cache, private",
       "cf-cache-status": "DYNAMIC",
-      "cf-ray": "a434b5ab4cc1aa70-JNB",
+      "cf-ray": "a4627f0a4d90ae83-LHR",
       "connection": "keep-alive",
       "content-encoding": "br",
       "content-type": "application/json",
-      "date": "Wed, 30 Sep 2026 16:47:28 GMT",
+      "date": "Tue, 06 Oct 2026 06:09:16 GMT",
       "impersonation": "0",
       "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
-      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=OOPpx3L3a%2BgQpSpb86Pw5axzO9%2BaylfcvOApd23iZSV77QKz7WsRo1qR%2BlEy%2F2SUIq79bc9HoOwIaqGBkXie%2B8KYezeZF47RwiE3mHOaQFmur4oSpUe9qFYfatADBMTa18Y68rNr%2BQ%3D%3D\"}]}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=20oolJGyJbqFwr%2FPTq6xF%2FtjjZNePLiCDEaYvcrO2WJq91ZH%2FhgXg97e6ANZ9rJ3IibY8cK7BR4kpWr4G%2FStDqRFkasikSoqHdQ7CtciQkOVw4dz1K%2B3d47D8hSgwGSHzxSRkWGgOg%3D%3D\"}]}",
       "server": "cloudflare",
       "transfer-encoding": "chunked",
       "vary": "Accept-Encoding",
@@ -36,9 +39,12 @@
     "body": {
       "status": "ok",
       "data": {
-        "total": 26.65,
-        "total_formatted": "£26.65",
-        "prices": [26.65, 0]
+        "total": 60.45,
+        "total_formatted": "£60.45",
+        "prices": [
+          60.45,
+          0
+        ]
       },
       "related": null,
       "total": null,
@@ -47,7 +53,7 @@
       "meta": null
     }
   },
-  "captured_at": "2026-09-30T16:47:28.572Z",
+  "captured_at": "2026-10-06T06:09:16.042Z",
   "brand_domain": "qa-automation.local",
   "source": "case",
   "provenance": {

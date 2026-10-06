@@ -11,7 +11,10 @@
     },
     "body": {
       "currency_id": "3825d96e-763e-d091-3dc4-174825283406",
-      "prices": [31.47, 0]
+      "prices": [
+        60.45,
+        0
+      ]
     }
   },
   "response": {
@@ -20,14 +23,14 @@
       "access-control-allow-origin": "http://qa-automation.local:5173",
       "cache-control": "no-cache, private",
       "cf-cache-status": "DYNAMIC",
-      "cf-ray": "a435b9a16d124ebf-JNB",
+      "cf-ray": "a46282d8ac53ae83-LHR",
       "connection": "keep-alive",
       "content-encoding": "br",
       "content-type": "application/json",
-      "date": "Wed, 30 Sep 2026 19:44:56 GMT",
+      "date": "Tue, 06 Oct 2026 06:11:51 GMT",
       "impersonation": "0",
       "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
-      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=FTqfRkYwcB5gYOnmnsLFoGMvcrD0UOONwUTdEfd1s5%2BPBtWa82LRypafZ%2B4CpfiXbLyRe8rxwPWCD5g8CVfs03xDsoT%2FjkXg78fOOpf6NZMQ5c0h%2BXn2AY3N62jLnhtlv%2FmlgYXz6g%3D%3D\"}]}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=Nbcqvx6gA5HJlSDjs8jOCXi2oB41adM6wsbhU8%2BzH0kMAavvdIZz7oO1Ggf6KT%2FIP6A520%2BsUppfZcpj4EG6vfqEwlSdVQpRVcPwBtT9IDHLOWC6r%2BE2ddS6ReXDN4hi0FppW5dysQ%3D%3D\"}]}",
       "server": "cloudflare",
       "transfer-encoding": "chunked",
       "vary": "Accept-Encoding",
@@ -36,9 +39,12 @@
     "body": {
       "status": "ok",
       "data": {
-        "total": 31.47,
-        "total_formatted": "£31.47",
-        "prices": [31.47, 0]
+        "total": 60.45,
+        "total_formatted": "£60.45",
+        "prices": [
+          60.45,
+          0
+        ]
       },
       "related": null,
       "total": null,
@@ -47,7 +53,7 @@
       "meta": null
     }
   },
-  "captured_at": "2026-09-30T19:44:57.002Z",
+  "captured_at": "2026-10-06T06:11:51.914Z",
   "brand_domain": "qa-automation.local",
   "source": "case",
   "provenance": {

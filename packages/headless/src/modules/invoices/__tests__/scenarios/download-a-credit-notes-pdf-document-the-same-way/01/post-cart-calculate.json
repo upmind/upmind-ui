@@ -11,7 +11,10 @@
     },
     "body": {
       "currency_id": "320e4357-95e7-8d18-28b3-1643202d9860",
-      "prices": [63484.68, 0]
+      "prices": [
+        121385.94,
+        0
+      ]
     }
   },
   "response": {
@@ -20,14 +23,14 @@
       "access-control-allow-origin": "http://qa-automation.local:5173",
       "cache-control": "no-cache, private",
       "cf-cache-status": "DYNAMIC",
-      "cf-ray": "a435c2177c9015d1-JNB",
+      "cf-ray": "a4628274697cae83-LHR",
       "connection": "keep-alive",
       "content-encoding": "br",
       "content-type": "application/json",
-      "date": "Wed, 30 Sep 2026 19:50:43 GMT",
+      "date": "Tue, 06 Oct 2026 06:11:35 GMT",
       "impersonation": "0",
       "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
-      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=uQFZVTq3%2F%2Bx4eUYfRsC7majGkc2kveyo%2Fns4eDrfkqz0V5VRxlauZnJO85BxZJ%2Fq89oTBJgPIt0kSseY8OVlI1yqM31dijoxptbZWbYokK6QVfIWfqZlk0YPSwe6V0axydYhtwwB%2FQ%3D%3D\"}]}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=4LuON%2FSmPPlW3PmYCcn%2B0s%2B7zdyLPgEiSGIod7QGzV%2B5sLdP%2BeQVsT1n5%2FuTrYE6BJ69D4RYYx67ukdkYOEHpCZEmWImrEcEgDQYKsqyKWkE9cStu47aI0aSKEj0uqL%2BaLyTJbnlBA%3D%3D\"}]}",
       "server": "cloudflare",
       "transfer-encoding": "chunked",
       "vary": "Accept-Encoding",
@@ -36,9 +39,12 @@
     "body": {
       "status": "ok",
       "data": {
-        "total": 63484.68,
-        "total_formatted": "ARS 63,484.68",
-        "prices": [63484.68, 0]
+        "total": 121385.94,
+        "total_formatted": "ARS 121,385.94",
+        "prices": [
+          121385.94,
+          0
+        ]
       },
       "related": null,
       "total": null,
@@ -47,7 +53,7 @@
       "meta": null
     }
   },
-  "captured_at": "2026-09-30T19:50:43.310Z",
+  "captured_at": "2026-10-06T06:11:35.889Z",
   "brand_domain": "qa-automation.local",
   "source": "case",
   "provenance": {

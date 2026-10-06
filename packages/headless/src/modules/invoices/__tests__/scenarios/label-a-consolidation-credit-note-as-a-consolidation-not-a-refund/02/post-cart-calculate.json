@@ -11,7 +11,10 @@
     },
     "body": {
       "currency_id": "320e4357-95e7-8d18-28b3-1643202d9860",
-      "prices": [63484.68, 0]
+      "prices": [
+        121385.94,
+        0
+      ]
     }
   },
   "response": {
@@ -20,14 +23,14 @@
       "access-control-allow-origin": "http://qa-automation.local:5173",
       "cache-control": "no-cache, private",
       "cf-cache-status": "DYNAMIC",
-      "cf-ray": "a435bdfb5be073cd-JNB",
+      "cf-ray": "a46282191aa1ae83-LHR",
       "connection": "keep-alive",
       "content-encoding": "br",
       "content-type": "application/json",
-      "date": "Wed, 30 Sep 2026 19:47:55 GMT",
+      "date": "Tue, 06 Oct 2026 06:11:21 GMT",
       "impersonation": "0",
       "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
-      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=Fsp33dA%2FMl%2FSlf9cHAKNM9UY1bNrGDe2bJ7aXY%2BUrWTqOriVzzmGy%2Foih11L%2BEn2K3MY8ELHEgrxWNdqSqygJ3smqhN7kndZZBEHAxgjQdTmbK4Lw0QDROnfopnHR9OxZ4xFagSVIQ%3D%3D\"}]}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=9O8oEd4ONla1Wj4opQu9UAENM2ZsgkXs7002Wc9X0O61Iv3u0OzbUTW5X6Cc3S0I3p04c1qQVcBjzas5CUzODtJx1Oa3%2FCUWxXhgfdmIcyecc1us4wbXUy82stegygfF5FzUeDr3KQ%3D%3D\"}]}",
       "server": "cloudflare",
       "transfer-encoding": "chunked",
       "vary": "Accept-Encoding",
@@ -36,9 +39,12 @@
     "body": {
       "status": "ok",
       "data": {
-        "total": 63484.68,
-        "total_formatted": "ARS 63,484.68",
-        "prices": [63484.68, 0]
+        "total": 121385.94,
+        "total_formatted": "ARS 121,385.94",
+        "prices": [
+          121385.94,
+          0
+        ]
       },
       "related": null,
       "total": null,
@@ -47,7 +53,7 @@
       "meta": null
     }
   },
-  "captured_at": "2026-09-30T19:47:54.969Z",
+  "captured_at": "2026-10-06T06:11:21.290Z",
   "brand_domain": "qa-automation.local",
   "source": "case",
   "provenance": {

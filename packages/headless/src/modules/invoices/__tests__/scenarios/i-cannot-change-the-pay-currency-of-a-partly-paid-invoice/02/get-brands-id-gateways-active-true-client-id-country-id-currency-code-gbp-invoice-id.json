@@ -2,7 +2,7 @@
   "version": 3,
   "request": {
     "method": "GET",
-    "path": "/api/brands/2785d26e-9678-3d16-999f-314502e70439/gateways?limit=0&client_id=25d96e76-3ed0-913d-d52c-417482528340&invoice_id=85d26e96-783d-1670-3837-b314502e7043&country_id=320e4357-95e7-8d18-484f-31643202d986&currency_code=GBP&active=true&with=gateway.gateway_provider%2Cgateway.card_types&order=order&lang=en",
+    "path": "/api/brands/2785d26e-9678-3d16-999f-314502e70439/gateways?limit=0&client_id=25d96e76-3ed0-913d-d52c-417482528340&invoice_id=5d96e763-ed09-13d3-e7ed-b41748252834&country_id=320e4357-95e7-8d18-484f-31643202d986&currency_code=GBP&active=true&with=gateway.gateway_provider%2Cgateway.card_types&order=order&lang=en",
     "headers": {
       "Content-Type": "application/json",
       "Accept": "application/json",
@@ -17,14 +17,14 @@
       "access-control-allow-origin": "http://qa-automation.local:5173",
       "cache-control": "no-cache, private",
       "cf-cache-status": "DYNAMIC",
-      "cf-ray": "a435c960197a5f95-JNB",
+      "cf-ray": "a46281097f61ae83-LHR",
       "connection": "keep-alive",
       "content-encoding": "br",
       "content-type": "application/json",
-      "date": "Wed, 30 Sep 2026 19:55:41 GMT",
+      "date": "Tue, 06 Oct 2026 06:10:37 GMT",
       "impersonation": "0",
       "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
-      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=w%2BSwXXfmo04rO1Lk4BJoarfL0safrnPV2w6oL1xaNjLjEvg8OENp1F2fwJTWudC57%2F0xKLKrgj38pnrKakXfjGPY4Za0q4iZ8sid64HP9RbztlIkNAu2XK0vtighH%2B02wZxQsCrkTA%3D%3D\"}]}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=%2F%2FERQGSgHKMJFkUIcJ0KoPWHf4LtyoeLXNTJ1RN0h23RyVNgf%2Bqdfdiwj9LPMfEF2TaaQKbhbjEvTpyRcXgcauKo6%2BRcSEBKU06euBpu%2BvuZlbyqqIfp%2FHr46HNznHDgdFegAMBUMg%3D%3D\"}]}",
       "server": "cloudflare",
       "transfer-encoding": "chunked",
       "vary": "Accept-Encoding",
@@ -3713,7 +3713,9 @@
               "requires_name": false,
               "store_on_payment": false,
               "supports_refund": true,
-              "supported_currencies": ["ZAR"],
+              "supported_currencies": [
+                "ZAR"
+              ],
               "store_on_payment_force": false,
               "external_billing_charge": false,
               "supports_frontend_implementation": false,
@@ -3813,7 +3815,11 @@
               "requires_name": false,
               "store_on_payment": false,
               "supports_refund": true,
-              "supported_currencies": ["USD", "EUR", "GBP"],
+              "supported_currencies": [
+                "USD",
+                "EUR",
+                "GBP"
+              ],
               "store_on_payment_force": false,
               "external_billing_charge": false,
               "supports_frontend_implementation": false,
@@ -4845,7 +4851,7 @@
       "meta": null
     }
   },
-  "captured_at": "2026-09-30T19:55:41.987Z",
+  "captured_at": "2026-10-06T06:10:37.974Z",
   "brand_domain": "qa-automation.local",
   "source": "case",
   "provenance": {

@@ -55,7 +55,7 @@ import basketRecording from "../../basket/__tests__/fixtures/get-orders-current.
 import paidInvoiceRecording from "../../invoices/__tests__/fixtures/get-invoices-id-case-paid.json";
 import unpaidInvoiceRecording from "../../invoices/__tests__/fixtures/get-invoices-id-case-unpaid.json";
 import invoiceListRecording from "../../invoices/__tests__/fixtures/get-invoices.json";
-import freeInvoiceRecording from "../../invoices/__tests__/scenarios/read-an-invoice-with-no-charge-as-free/02/get-invoices-id.json";
+import freeInvoiceRecording from "../../invoices/__tests__/scenarios/read-an-invoice-with-no-charge-as-free/02/get-invoices-id-with-staged-imports-1.json";
 import { productMachine } from "../../product";
 import catalogueRecording from "../../product-catalogue/__tests__/fixtures/get-basket-products-5c3bdcbe.json";
 import { queryClient } from "../../query/client";

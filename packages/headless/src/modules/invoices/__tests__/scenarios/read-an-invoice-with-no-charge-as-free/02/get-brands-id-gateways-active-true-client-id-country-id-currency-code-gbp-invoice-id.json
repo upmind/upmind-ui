@@ -17,14 +17,14 @@
       "access-control-allow-origin": "http://qa-automation.local:5173",
       "cache-control": "no-cache, private",
       "cf-cache-status": "DYNAMIC",
-      "cf-ray": "a435b55ccdf58a59-JNB",
+      "cf-ray": "a462809b8c74ae83-LHR",
       "connection": "keep-alive",
       "content-encoding": "br",
       "content-type": "application/json",
-      "date": "Wed, 30 Sep 2026 19:42:02 GMT",
+      "date": "Tue, 06 Oct 2026 06:10:20 GMT",
       "impersonation": "0",
       "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
-      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=jN7EDOjNuMwpz%2Fy8aZ2sqUzd7pcfi2lYdkfA605AhpHDltcpu0k%2BChkx14DC%2F4lxb0lVHY3aaHNe%2B%2FYLhxYIL8j5OX2AfL%2B7Dcf0vKjyRmWlIs4Q6hlGGs6HOPuYoCvHcHPQRtwa7Q%3D%3D\"}]}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=oUpshUzwPafduSz8FS%2FloWg9ujO1RhSyDblQdKbFezSEkr4RdR2gmWDaEupLSAJtfDI%2FV6vRcn36Qwsu9pGI4MVE22ZSEy5qVV%2BokzGLURRBuSmXiMaMIFGsFZyN7nNcdLPHzYfZEQ%3D%3D\"}]}",
       "server": "cloudflare",
       "transfer-encoding": "chunked",
       "vary": "Accept-Encoding",
@@ -3713,7 +3713,9 @@
               "requires_name": false,
               "store_on_payment": false,
               "supports_refund": true,
-              "supported_currencies": ["ZAR"],
+              "supported_currencies": [
+                "ZAR"
+              ],
               "store_on_payment_force": false,
               "external_billing_charge": false,
               "supports_frontend_implementation": false,
@@ -3813,7 +3815,11 @@
               "requires_name": false,
               "store_on_payment": false,
               "supports_refund": true,
-              "supported_currencies": ["USD", "EUR", "GBP"],
+              "supported_currencies": [
+                "USD",
+                "EUR",
+                "GBP"
+              ],
               "store_on_payment_force": false,
               "external_billing_charge": false,
               "supports_frontend_implementation": false,
@@ -4845,7 +4851,7 @@
       "meta": null
     }
   },
-  "captured_at": "2026-09-30T19:42:02.269Z",
+  "captured_at": "2026-10-06T06:10:20.429Z",
   "brand_domain": "qa-automation.local",
   "source": "case",
   "provenance": {

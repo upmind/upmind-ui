@@ -11,7 +11,10 @@
     },
     "body": {
       "currency_id": "3825d96e-763e-d091-3dc4-174825283406",
-      "prices": [50.73, 0]
+      "prices": [
+        60.45,
+        0
+      ]
     }
   },
   "response": {
@@ -20,14 +23,14 @@
       "access-control-allow-origin": "http://qa-automation.local:5173",
       "cache-control": "no-cache, private",
       "cf-cache-status": "DYNAMIC",
-      "cf-ray": "a439a2423e354ebe-JNB",
+      "cf-ray": "a4627f9a6ed6ae83-LHR",
       "connection": "keep-alive",
       "content-encoding": "br",
       "content-type": "application/json",
-      "date": "Thu, 01 Oct 2026 07:08:02 GMT",
+      "date": "Tue, 06 Oct 2026 06:09:39 GMT",
       "impersonation": "0",
       "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
-      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=4l9nYyAlGfgmFKtnNklg1ZVqGfTiABC2e57SP9SD8PmZwQBA2%2BgB3ijaRfZTC8KJpMKXf7%2BTCxoib6XSgoFFn0XHvE7l4Eku8vkpsK%2BW4CAMWuuAQUdHSL37olC5x%2F10fJ8aZNls9w%3D%3D\"}]}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=7mDGP0z4oxHnZvqRINFrLUdMDutKid4xlu1rA1k4ArKxTywrnopArYE%2BrS7hPwaopSVtJxNnyMLWFT42eutVPjHc1ionHOXwK0bTvzX%2B1G6HcYraTJGiqbqvAJtubOszApSocUsT%2Bw%3D%3D\"}]}",
       "server": "cloudflare",
       "transfer-encoding": "chunked",
       "vary": "Accept-Encoding",
@@ -36,9 +39,12 @@
     "body": {
       "status": "ok",
       "data": {
-        "total": 50.73,
-        "total_formatted": "£50.73",
-        "prices": [50.73, 0]
+        "total": 60.45,
+        "total_formatted": "£60.45",
+        "prices": [
+          60.45,
+          0
+        ]
       },
       "related": null,
       "total": null,
@@ -47,7 +53,7 @@
       "meta": null
     }
   },
-  "captured_at": "2026-10-01T07:08:02.433Z",
+  "captured_at": "2026-10-06T06:09:39.082Z",
   "brand_domain": "qa-automation.local",
   "source": "case",
   "provenance": {

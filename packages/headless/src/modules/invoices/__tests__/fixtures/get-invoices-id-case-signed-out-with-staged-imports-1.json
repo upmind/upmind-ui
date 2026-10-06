@@ -1,0 +1,52 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/invoices/98574264-8970-1206-e875-c21e325d0ed3?with=brand,taxes,client,status,contract,payments,payments.payment_details,products,promotions,client.tags,products.tags,taxes.tax_tag_data,custom_fields.field,affiliate_commissions,products.product.image,account.affiliate_referral.affiliate_account.account.client,address,address.country,category,payments.gateway,payments.payment_type,payment_details,gateway,client.parent_client_config,last_payment_log,contract_product_tags&with_staged_imports=1&case=signed-out",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 401,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "access-control-expose-headers": "Retry-After, X-RateLimit-Limit",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a4627d84881bae83-LHR",
+      "connection": "keep-alive",
+      "content-type": "application/json",
+      "date": "Tue, 06 Oct 2026 06:08:13 GMT",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=8J9iNURMLyIInoNptzBEHkEC5dyKhqi8Two3cnSPwvgK6tkab8DIS88DnG%2BjsvPG79OM4%2B424T9CF0T3bNoxASchF8BKD4Ie00BUsKBQY5AIZ%2F3oDVZ109mREezzIWfyewPcX8BRYw%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "x-frame-options": "SAMEORIGIN"
+    },
+    "body": {
+      "status": "error",
+      "data": null,
+      "related": null,
+      "total": null,
+      "error": {
+        "id": "4ab263c05356ce6ee95781f67242c17fe421842a",
+        "type": 0,
+        "code": 401,
+        "message": "Please log in to continue",
+        "data": null
+      },
+      "messages": null,
+      "meta": null
+    }
+  },
+  "captured_at": "2026-10-06T06:08:13.601Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "invoices"
+  }
+}
