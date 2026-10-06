@@ -459,6 +459,8 @@
     "description": null,
     "label": "Sort",
     "placeholder": null,
+    "id": "Number",
+    "status_id": "Status",
     "create_datetime": "Created",
     "number": "Number",
     "total_amount": "Total",
@@ -847,15 +849,6 @@
     "description": null,
     "label": "Service identifier",
     "placeholder": "Search service identifier"
-  },
-  "orders_sort": {
-    "description": null,
-    "label": "Sort",
-    "placeholder": null,
-    "id": "Number",
-    "total_amount": "Total",
-    "status_id": "Status",
-    "created_at": "Date created"
   },
   "orders_status_filter": {
     "description": null,

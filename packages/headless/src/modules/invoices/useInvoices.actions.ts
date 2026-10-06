@@ -219,7 +219,7 @@ export function createInvoicesActions(
   }
 
   function dateOp(value?: string, op?: keyof InvoiceDateLeaf) {
-    if (op || isNil(value)) return op;
+    if (op || isNil(value) || value === "") return op;
     return RELATIVE_DATE_PATTERN.test(value) ? "after" : "gte";
   }
 
@@ -290,6 +290,7 @@ export function createInvoicesActions(
    * `.as()` mints a fresh collection.
    */
   function destroy(): void {
+    writeSearch.cancel();
     removeFromRegistry(scopeKey);
   }
 

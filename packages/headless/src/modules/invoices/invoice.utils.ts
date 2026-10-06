@@ -4,7 +4,10 @@ import {
   InvoiceStatus,
   InvoiceStatusGroups
 } from "@upmind-automation/types";
-import { isCancellable, isDue } from "../contract-product";
+import {
+  isCancellable,
+  isDue
+} from "../contract-product/contract-product.utils";
 import { paymentDetailsMachine as paymentDetailMachine } from "../payment-details";
 import { compact, get, includes, map, uniq } from "lodash-es";
 import type {

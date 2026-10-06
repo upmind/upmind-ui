@@ -1,0 +1,27 @@
+FE-3237 AC11 — negative control (design 8.10).
+Spec: invoices.writers.test.ts (test:unit invoices.writers)
+Row: -t "makes two searches inside 250 ms into one write, with the last term" — the assertion that exactly one write lands 250 ms after the last search
+Mutation: the quick search pauses for the shared 350 ms DEBOUNCE_DELAY instead of its own 250 ms SEARCH_DEBOUNCE_MS.
+
+diff --git a/packages/headless/src/modules/invoices/useInvoices.actions.ts b/packages/headless/src/modules/invoices/useInvoices.actions.ts
+index df312a78d3..a96b36e53b 100644
+--- a/packages/headless/src/modules/invoices/useInvoices.actions.ts
++++ b/packages/headless/src/modules/invoices/useInvoices.actions.ts
+@@ -4,7 +4,7 @@ import { invalidateQueryByKey, PAGINATION, resetQueryByKey } from "../query";
+ import { remove as removeFromRegistry } from "../scope";
+ import { useActiveSession } from "../session-store";
+ import { CONSOLIDATABLE_FILTER, CREDIT_NOTE_FILTER } from "./invoices.types";
+-import { NotAuthenticatedError } from "../../utils";
++import { DEBOUNCE_DELAY, NotAuthenticatedError } from "../../utils";
+ import {
+   assign,
+   debounce,
+@@ -179,7 +179,7 @@ export function createInvoicesActions(
+       else unset(filters, path);
+       if (path.length > 1 && isEmpty(filters.number)) unset(filters, "number");
+     });
+-  }, SEARCH_DEBOUNCE_MS);
++  }, DEBOUNCE_DELAY);
+ 
+   /**
+    * Searches for an exact invoice number, after a 250 ms pause; the last term
