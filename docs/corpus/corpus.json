@@ -715,6 +715,7 @@
         "Amendment 13 (2026-09-25) — a domain package holds only UI concerns; the rest lives in `headless`",
         "Amendment 14 (2026-09-28) — the theme belongs to the app; `useAnnouncement` lives in `foundation`; both ports are removed",
         "Amendment 15 (2026-09-28) — a page takes its templates from the page that mounts it; `catalogue` imports `domain` when a category needs it; `headless` stays as `develop` has it; the shell socket and the DAC port are removed",
+        "Amendment 16 (2026-10-02) — moved code keeps `develop`'s lines; the app page owns the layout; `headless` equals `develop`; no package re-exports another",
         "References"
       ],
       "id": "adr:023-ui-domain-package-architecture",
@@ -14498,12 +14499,6 @@
       "path": "packages/headless/src/utils/useValidationKeywords.ts",
       "title": "useValidationKeywords.ts"
     },
-    "file:packages/headless/src/utils/validateTemplate.ts": {
-      "kind": "file",
-      "module": "",
-      "path": "packages/headless/src/utils/validateTemplate.ts",
-      "title": "validateTemplate.ts"
-    },
     "file:packages/headless/vite.config.ts": {
       "kind": "file",
       "module": "",
@@ -16390,21 +16385,21 @@
     }
   },
   "meta": {
-    "built_at": "2026-10-06T12:51:56.163Z",
-    "corpus_version": "1+5365bd108bad",
+    "built_at": "2026-10-06T13:24:02.068Z",
+    "corpus_version": "1+3200eaf057fb",
     "counts": {
       "adrs": 35,
       "changelogSymbols": 0,
       "examples": 0,
       "glossaryTerms": 27,
       "guides": 186,
-      "indexEntries": 1747,
-      "relationEdges": 4074,
-      "relationsPruned": 3463,
+      "indexEntries": 1746,
+      "relationEdges": 4073,
+      "relationsPruned": 3464,
       "symbols": 940
     },
     "relationsSha256": "9a6f85296b647222228f20f54141377046925e9862437ca4617d3a6a8b87e391",
-    "source_commit": "de5f89c6b0c8ff221dc906d194c3ea768d915b0c"
+    "source_commit": "2715d6a83090b2ee61256d73c9a3492a7c814463"
   },
   "relations": {
     "edges": [
@@ -46002,14 +45997,6 @@
       },
       {
         "confidence": 1,
-        "from": "file:packages/headless/src/utils/validateTemplate.ts",
-        "granularity": "file",
-        "relation": "contains",
-        "sourceFile": "packages/headless/src/utils/validateTemplate.ts",
-        "to": "file:packages/headless/src/utils/validateTemplate.ts"
-      },
-      {
-        "confidence": 1,
         "from": "file:packages/headless/vitest.config.ts",
         "granularity": "file",
         "relation": "imports_from",
@@ -49001,7 +48988,7 @@
         "to": "file:packages/types/src/models/images.ts"
       }
     ],
-    "prunedCount": 3463,
+    "prunedCount": 3464,
     "sourcedAt": ""
   },
   "symbols": {
