@@ -54,6 +54,51 @@ describe("AC-26: the order status choices", () => {
   });
 });
 
+/** Writes one filter intent on a fresh order history; reports its error and the filters it keeps. */
+async function narrowing(intent: Record<string, unknown>) {
+  const { actions, view } = openCell();
+  await Promise.resolve(actions.filterBy(intent)).catch(() => undefined);
+  await nextTick();
+  return { error: view().error, filters: view().query.filters };
+}
+
+// FE-3237 AC7
+describe("AC-24: the order text and amount comparisons", () => {
+  it("keeps an equal and a not-equal comparison on each text column", async () => {
+    for (const column of [
+      "number",
+      "products.product.name",
+      "products.product.category.name",
+      "products.service_identifier"
+    ])
+      for (const op of ["eq", "neq"]) {
+        const { error, filters } = await narrowing({
+          [column]: { [op]: "QA-INV-26050" }
+        });
+        expect(error, `${column} ${op}`).toBeFalsy();
+        expect(filters?.[column], `${column} ${op}`).toEqual({
+          [op]: "QA-INV-26050"
+        });
+      }
+  });
+
+  it("keeps each of the six amount comparisons on the total", async () => {
+    for (const op of ["eq", "neq", "gt", "gte", "lt", "lte"]) {
+      const { error, filters } = await narrowing({
+        total_amount: { [op]: 12 }
+      });
+      expect(error, op).toBeFalsy();
+      expect(filters?.total_amount, op).toEqual({ [op]: 12 });
+    }
+  });
+
+  it("refuses an amount that is not a number", async () => {
+    expect(
+      (await narrowing({ total_amount: { gt: "twelve" } })).error
+    ).toBeTruthy();
+  });
+});
+
 // FE-3237 AC8
 describe("AC-25: the order date domains", () => {
   it("accepts a past and a future relative period after and before", async () => {

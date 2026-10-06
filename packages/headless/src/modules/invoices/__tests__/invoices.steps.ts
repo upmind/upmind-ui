@@ -14,16 +14,22 @@
  * balance that differs from the raw unpaid amount) stay `@todo`, as do the
  * outline/PDF/gated-meta capabilities named in the feature's own blockers.
  *
- * Every handler speaks to the module through the `World` members only — no DOM
- * read, no request read, no import of the module's own source. The ids, totals
+ * Every handler speaks to the module through the `World` members only, and
+ * reads the requests it sent through `invoices.wire.ts` — no DOM read, no
+ * import of the module's own source. The ids, totals
  * and states a step asserts are READ from the scenario recording that addressed
  * them (FE-3145, ADR 035 §6), never a copied literal that goes stale on the next
  * `pnpm fixtures:generate invoices`.
  */
 
 import { defineSteps } from "@upmind-automation/scenario-harness";
-import { InvoiceCategoryCode, InvoiceStatus } from "@upmind-automation/types";
+import {
+  InvoiceCategoryCode,
+  InvoiceStatus,
+  ProductOrderTypes
+} from "@upmind-automation/types";
 import { ScopeActorTypes } from "../../scope/scope.types";
+import billingCyclesRecording from "../../system/__tests__/fixtures/get-billing-cycles.json";
 import {
   check,
   containsAll,
@@ -71,7 +77,6 @@ import delegatedNarrowRecording from "./scenarios/narrowing-to-a-product-does-no
 import payOpenDetailRecording from "./scenarios/open-an-invoice-in-the-pay-currency-the-platform-holds-for-it/02/get-invoices-id-with-staged-imports-1.json";
 import pageOneRecording from "./scenarios/page-through-my-invoice-list/03/get-invoices.json";
 import ac21BootRecording from "./scenarios/page-through-my-orders-and-choose-the-page-size/02/get-invoices-filter-category-slug-new-contract.json";
-import ac21FiveRecording from "./scenarios/page-through-my-orders-and-choose-the-page-size/03/get-invoices-filter-category-slug-new-contract.json";
 import bundleGroupsRecording from "./scenarios/read-a-consolidated-invoices-line-items-grouped-by-subscription/02/get-invoices-id-with-staged-imports-1.json";
 import ac16PaidRecording from "./scenarios/read-a-fully-paid-invoice-as-paid/02/get-invoices-id-with-staged-imports-1.json";
 import ac16PartialRecording from "./scenarios/read-a-partly-paid-invoice-as-partially-paid/02/get-invoices-id-with-staged-imports-1.json";
@@ -92,6 +97,7 @@ import creditNoteRecording from "./scenarios/tie-a-credit-note-back-to-the-invoi
 import {
   every,
   filter,
+  find,
   findLast,
   first,
   includes,
@@ -99,6 +105,7 @@ import {
   map,
   size,
   some,
+  sortBy,
   split,
   values,
   zipObject
@@ -321,6 +328,54 @@ const AC7_CREDIT_NOTE_ID = recordedId(
   ac7CreditNoteRecording as DetailRecording
 );
 
+const MONTH_NAMES = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec"
+];
+
+const ordinal = (day: number): string =>
+  `${day}${
+    day % 100 >= 11 && day % 100 <= 13
+      ? "th"
+      : (({ 1: "st", 2: "nd", 3: "rd" } as Record<number, string>)[day % 10] ??
+        "th")
+  }`;
+
+/** A recorded platform moment (`YYYY-MM-DD hh:mm:ss`, UTC) in the reader's own zone. */
+const localMoment = (value: string): Date =>
+  new Date(`${value.replace(" ", "T")}Z`);
+
+/**
+ * The day a published date reads for a recorded value: a bare `YYYY-MM-DD` as
+ * it stands, a platform moment on the reader's own calendar.
+ */
+function displayDay(value: string): string {
+  if (value.length <= 10) {
+    const [year, month, day] = map(split(value, "-"), Number);
+    return `${MONTH_NAMES[month - 1]} ${ordinal(day)}, ${year}`;
+  }
+  const moment = localMoment(value);
+  return `${MONTH_NAMES[moment.getMonth()]} ${ordinal(moment.getDate())}, ${moment.getFullYear()}`;
+}
+
+/** A published date that carries its time: the reader's day, then a 12-hour clock. */
+function displayDayAndTime(value: string): string {
+  const moment = localMoment(value);
+  const hours = moment.getHours();
+  const minutes = String(moment.getMinutes()).padStart(2, "0");
+  return `${displayDay(value)} ${hours % 12 || 12}:${minutes} ${hours < 12 ? "AM" : "PM"}`;
+}
+
 /** AC-9 — the recurring invoice and its next charge date as the module formats it. */
 const AC9 = (() => {
   const data = (
@@ -328,36 +383,7 @@ const AC9 = (() => {
       response: { body: { data: { id: string; next_charge_date: string } } };
     }
   ).response.body.data;
-  const day = new Date(`${data.next_charge_date}T00:00:00Z`);
-  const local = new Date(
-    day.getUTCFullYear(),
-    day.getUTCMonth(),
-    day.getUTCDate()
-  );
-  const months = [
-    "Jan",
-    "Feb",
-    "Mar",
-    "Apr",
-    "May",
-    "Jun",
-    "Jul",
-    "Aug",
-    "Sep",
-    "Oct",
-    "Nov",
-    "Dec"
-  ];
-  const n = local.getDate();
-  const suffix =
-    n % 100 >= 11 && n % 100 <= 13
-      ? "th"
-      : (({ 1: "st", 2: "nd", 3: "rd" } as Record<number, string>)[n % 10] ??
-        "th");
-  return {
-    invoiceId: data.id,
-    date: `${months[local.getMonth()]} ${n}${suffix}, ${local.getFullYear()}`
-  };
+  return { invoiceId: data.id, date: displayDay(data.next_charge_date) };
 })();
 
 /** AC-13 — each co-mingled row's expected attribution, read off the recorded rows. */
@@ -630,14 +656,22 @@ const numberLeaves = (request: URL): string[] => [
 /** Per-scenario observations a `When` keeps for its `Then` steps. */
 const observed: {
   moves: PageMove[];
+  rowChecks: string[];
   readsPerWrite: number[];
   narrowedRead: boolean[];
   heldReads: boolean[];
   conditionRow?: "paid" | "unpaid" | "partlyPaid" | "overdue" | "cancelled";
-} = { moves: [], readsPerWrite: [], narrowedRead: [], heldReads: [] };
+} = {
+  moves: [],
+  rowChecks: [],
+  readsPerWrite: [],
+  narrowedRead: [],
+  heldReads: []
+};
 
 function resetObserved(): void {
   observed.moves = [];
+  observed.rowChecks = [];
   observed.readsPerWrite = [];
   observed.narrowedRead = [];
   observed.heldReads = [];
@@ -657,10 +691,22 @@ const INVOICE_FILTER = (() => {
   };
 })();
 
-const AC21 = {
-  boot: ac21BootRecording as ListRecording,
-  five: ac21FiveRecording as ListRecording
-} as const;
+const AC21 = (() => {
+  const slug = "page-through-my-orders-and-choose-the-page-size";
+  const step = (index: string) =>
+    listRecording(
+      slug,
+      index,
+      params => params.get("filter[category.slug]") === ORDER_CATEGORY
+    );
+  return {
+    boot: ac21BootRecording as ListRecording,
+    pageTwo: step("03"),
+    pageThree: step("05"),
+    pageTwoAgain: step("06"),
+    five: step("07")
+  };
+})();
 
 const AC21_EMPTY = {
   boot: ac21EmptyBootRecording as ListRecording,
@@ -789,6 +835,64 @@ const AC36 = (() => {
   };
 })();
 
+/** One order row of a recorded order-history read, as the platform sent it. */
+type RecordedOrderRow = {
+  id: string;
+  number: string;
+  status: { code: string };
+  brand_id: string;
+  brand: { name: string };
+  contract_id: string | null;
+  products_count: number;
+  total_amount_formatted: string;
+  pending_payment_method: boolean;
+  paid_datetime: string | null;
+  cancellation_datetime: string | null;
+  delegate_related: boolean;
+};
+
+const orderRows = (recording: ListRecording): RecordedOrderRow[] =>
+  recording.response.body.data as unknown as RecordedOrderRow[];
+
+/** The published row each recorded order row must read as (design 8.7). */
+const publishedRow = (row: RecordedOrderRow) => ({
+  id: row.id,
+  number: row.number,
+  status: row.status.code,
+  brandId: row.brand_id,
+  brandName: row.brand.name,
+  contractId: row.contract_id,
+  hasPendingPaymentMethod: row.pending_payment_method,
+  summary: { total: row.total_amount_formatted },
+  bundle: { productCount: row.products_count },
+  ...(row.paid_datetime && {
+    datePaid: { date: displayDayAndTime(row.paid_datetime) }
+  }),
+  ...(row.cancellation_datetime && {
+    dateCancelled: { date: displayDay(row.cancellation_datetime) }
+  })
+});
+
+/** The paid and the cancelled order-history reads, and the delegated one (AC-23). */
+const AC23 = (() => {
+  const slug = "read-the-row-of-each-of-my-orders";
+  const byStatus = (status: string) =>
+    listRecording(
+      slug,
+      "03",
+      params => params.get("filter[status.code|eq]") === status
+    );
+  return {
+    paid: byStatus(InvoiceStatus.PAID),
+    cancelled: byStatus(InvoiceStatus.CANCELLED),
+    delegated: listRecording(
+      "read-the-row-of-an-order-a-client-delegated-to-me",
+      "03",
+      params => params.get("filter[category.slug]") === ORDER_CATEGORY
+    )
+  };
+})();
+
 // --- one order (FE-3237 AC13-AC19), read off each scenario's own recordings --
 
 type OrderItemRecording = {
@@ -799,7 +903,14 @@ type OrderItemRecording = {
   quantity?: number;
   billing_cycle_months?: number;
   billing_cycle_days?: number;
-  options?: unknown[];
+  configuration_net_selling_price_discounted_formatted?: string;
+  configuration_net_amount_discounted_formatted?: string;
+  options?: Array<{
+    id: string;
+    unit_quantity?: number | null;
+    product?: { order_type?: number };
+  }>;
+  attributes?: unknown[];
   product?: {
     id?: string;
     name_translated?: string;
@@ -988,12 +1099,65 @@ async function readsAsRow(
   );
 }
 
+/**
+ * The legacy single-order relation set (receipt o16, the 13-relation
+ * `orderProvider.vue` read) — the set AC13 promises an order read carries.
+ */
+const LEGACY_ORDER_RELATIONS = [
+  "account.affiliate_referral.affiliate_account.account.client",
+  "affiliate_commissions",
+  "brand",
+  "client",
+  "client.tags",
+  "contract",
+  "contract_product_tags",
+  "custom_fields.field",
+  "payments",
+  "promotions",
+  "status",
+  "taxes",
+  "taxes.tax_tag_data"
+];
+
 const AC30 = {
   missingId: orderId(orderRecording("open-one-of-my-orders", "02")),
   order: orderRecording("open-one-of-my-orders", "03")
 };
 
 const AC32 = orderRecording("read-the-items-of-one-of-my-orders");
+
+/** The billing cycles the system module's boot recording serves. */
+const BILLING_CYCLES = (
+  billingCyclesRecording as unknown as {
+    response: { body: { data: Array<{ months: number; name: string }> } };
+  }
+).response.body.data;
+
+/** The recorded billing cycle of a term, by its months. */
+const cycleOf = (months: number) => {
+  const cycle = find(BILLING_CYCLES, ["months", months]);
+  if (!cycle) throw new Error(`no recorded billing cycle of ${months} months.`);
+  return { months: cycle.months, name: cycle.name };
+};
+
+/** The order whose details the AC-31 scenario reads, as the platform sent it. */
+const AC31 = orderRecording("read-the-details-of-one-of-my-orders").response
+  .body.data as unknown as {
+  id: string;
+  number: string;
+  status: { code: string; name: string };
+  brand_id: string;
+  brand: { name: string };
+  contract_id: string;
+  contract: { cancellation_reason: string } | null;
+  paid_amount: number;
+  unpaid_amount: number;
+  total_amount_formatted: string;
+  create_datetime: string;
+  due_date: string;
+  paid_datetime: string | null;
+  cancellation_datetime: string;
+};
 
 const AC33 = {
   order: orderRecording("see-the-catalogue-image-of-each-item-i-ordered"),
@@ -1961,25 +2125,67 @@ export const invoicesSteps = defineSteps(({ Given, When, Then }) => {
     await openOrderHistory(world);
     if (AC21.boot.response.body.total <= 30)
       throw new Error("the order history must span more than three pages.");
+    if (
+      some(rowIds(AC21.pageTwo), row =>
+        some(rowIds(AC21.pageThree), ["id", row.id])
+      )
+    )
+      throw new Error("pages two and three must hold other orders; re-record.");
     await holdsRead(world, AC21.boot);
   });
 
-  When(
-    "I go to the next page, then to page three, then back one page, then choose five orders a page",
+  When("I go to the next page", async world => {
+    markWire();
+    observed.moves = [await movePage(world, "nextPage", undefined, 2, 10)];
+  });
+
+  Then("I am given the orders of page two, ten a page", async world => {
+    await holdsRead(world, AC21.pageTwo);
+    same(
+      listOffsets(sentSinceMark(isListRead)),
+      [{ offset: "10", limit: "10" }],
+      "listOffsets(sentSinceMark(isListRead))"
+    );
+  });
+
+  Then(
+    "going to page three gives me the orders of page three, ten a page",
     async world => {
-      markWire();
-      observed.moves = [
-        await movePage(world, "nextPage", undefined, 2, 10),
-        await movePage(world, "setPage", 3, 3, 10),
-        await movePage(world, "prevPage", undefined, 2, 10),
-        await movePage(world, "setLimit", 5, 1, 5)
-      ];
+      observed.moves.push(await movePage(world, "setPage", 3, 3, 10));
+      await holdsRead(world, AC21.pageThree);
+      same(
+        listOffsets([last(sentSinceMark(isListRead))!]),
+        [{ offset: "20", limit: "10" }],
+        "listOffsets([last(sentSinceMark(isListRead))!])"
+      );
     }
   );
 
   Then(
-    "each move gives me the orders of that page and keeps my page size",
+    "going back one page gives me the orders of page two again",
     async world => {
+      observed.moves.push(await movePage(world, "prevPage", undefined, 2, 10));
+      await holdsRead(world, AC21.pageTwoAgain);
+    }
+  );
+
+  Then(
+    "choosing five orders a page takes me back to page one, five a page",
+    async world => {
+      observed.moves.push(await movePage(world, "setLimit", 5, 1, 5));
+      await holdsRead(world, AC21.five);
+      same(
+        listOffsets([last(sentSinceMark(isListRead))!]),
+        [{ offset: "0", limit: "5" }],
+        "listOffsets([last(sentSinceMark(isListRead))!])"
+      );
+    }
+  );
+
+  Then(
+    "at each step I am told if a next page, a previous page and more than one page exist",
+    () => {
+      const total = AC21.boot.response.body.total;
       same(
         map(observed.moves, ({ page, limit }) => ({ page, limit })),
         [
@@ -1990,24 +2196,6 @@ export const invoicesSteps = defineSteps(({ Given, When, Then }) => {
         ],
         "map(observed.moves, ({ page, limit }) => ({ page, limit }))"
       );
-      const reads = listOffsets(sentSinceMark(isListRead));
-      containsAll(
-        reads,
-        [
-          { offset: "10", limit: "10" },
-          { offset: "20", limit: "10" },
-          { offset: "0", limit: "5" }
-        ],
-        "reads"
-      );
-      await holdsRead(world, AC21.five);
-    }
-  );
-
-  Then(
-    "at each step I am told if a next page, a previous page and more than one page exist",
-    () => {
-      const total = AC21.boot.response.body.total;
       same(
         map(observed.moves, "flags"),
         map(observed.moves, ({ page, limit }) =>
@@ -2017,17 +2205,6 @@ export const invoicesSteps = defineSteps(({ Given, When, Then }) => {
       );
     }
   );
-
-  Then("choosing a page size takes me back to page one", async world => {
-    same(
-      listOffsets([last(sentSinceMark(isListRead))!]),
-      [{ offset: "0", limit: "5" }],
-      "listOffsets([last(sentSinceMark(isListRead))!])"
-    );
-    await settles(() =>
-      world.expectContext({ pagination: { page: 1, limit: 5 } })
-    );
-  });
 
   Given("no order of mine has the number I search for", async world => {
     await openOrderHistory(world);
@@ -2589,9 +2766,8 @@ export const invoicesSteps = defineSteps(({ Given, When, Then }) => {
   );
 
   // The credit-notes write drops its column and returns the criteria to the
-  // boot read, which the list still holds fresh (design 8.4), so it reads from
-  // the cache: no request.
-  Then("each write sends one new read", () => {
+  // boot read, which the list still holds fresh (design 8.4): no request.
+  Then("each write but the credit-notes narrowing sends one new read", () => {
     same(observed.readsPerWrite, [1, 0, 1, 1], "observed.readsPerWrite");
   });
 
@@ -2607,17 +2783,10 @@ export const invoicesSteps = defineSteps(({ Given, When, Then }) => {
       [true, true, true, true, true],
       "each read held its placed orders"
     );
-    const reads = sentInWindow(isListRead);
-    const orderReads = filter(reads, request =>
+    const orderReads = filter(sentInWindow(isListRead), request =>
       request.searchParams.has("filter[category.slug]")
     );
     check(size(orderReads) >= 4, "size(orderReads) >= 4");
-    for (const request of sentSinceMark(isListRead))
-      same(
-        request.searchParams.getAll("filter[category.slug]"),
-        [ORDER_CATEGORY],
-        "request.searchParams.getAll('filter[category.slug]')"
-      );
   });
 
   Then(
@@ -2681,18 +2850,25 @@ export const invoicesSteps = defineSteps(({ Given, When, Then }) => {
       const id = orderId(AC30.order);
       const reads = sentInWindow(isOrderRead(id));
       check(size(reads) >= 2, "size(reads) >= 2");
+      const relations = (path: string): string[] =>
+        sortBy(split(paramOf(path, "with"), ","));
+      const recorded = relations(AC30.order.request.path);
       for (const read of reads) {
         same(
           read.searchParams.get("with_staged_imports"),
           "1",
           "read.searchParams.get('with_staged_imports')"
         );
-        check(
-          includes(
-            split(read.searchParams.get("with") ?? "", ","),
-            "contract_product_tags"
-          ),
-          "split(read.searchParams.get('with') ?? '', ',') contains 'contract_product_tags'"
+        const sent = relations(read.search);
+        containsAll(
+          sent,
+          LEGACY_ORDER_RELATIONS,
+          "the relations of the order read"
+        );
+        containsAll(
+          recorded,
+          sent,
+          "the relations the order recording answered"
         );
       }
       await settles(() =>
@@ -2746,27 +2922,60 @@ export const invoicesSteps = defineSteps(({ Given, When, Then }) => {
   );
 
   Then(
-    "I see each item from the snapshot, with its term, billing cycle name, tags and sub-items",
-    world =>
-      settles(() =>
-        world.expectContext({
-          items: map(snapshotItems(AC32), item => {
-            const months =
-              item.billing_cycle_months ||
-              item.product?.billing_cycle_months ||
-              0;
-            return {
-              id: item.id,
-              billingCycleMonths: months,
-              isSubscription: !!item.billing_cycle_days || !!months,
-              billingCycle: months ? { months } : undefined,
-              reference: item.client_label || "",
-              tags: [],
-              hasSubItems: size(item.options) > 0
-            };
-          })
-        })
+    "I see each item from the snapshot, with its term, billing cycle name and sub-items",
+    world => {
+      const [withOption, plain] = snapshotItems(AC32);
+      const [option] = withOption?.options ?? [];
+      if (
+        size(snapshotItems(AC32)) !== 2 ||
+        size(withOption.options) !== 1 ||
+        option.product?.order_type !== ProductOrderTypes.QUANTITY_BASED ||
+        size(plain.options) !== 0 ||
+        some([withOption, plain], item => size(item.attributes) !== 0) ||
+        some(
+          [withOption, plain],
+          item =>
+            !item.billing_cycle_months ||
+            !!item.service_identifier ||
+            !!item.client_label
+        )
       )
+        throw new Error(
+          "the order recording must hold two termed items, the first with one quantity-based option; re-record."
+        );
+      const recorded = (item: OrderItemRecording) => ({
+        id: item.id,
+        name: item.name,
+        reference: "",
+        quantity: item.quantity,
+        price: item.configuration_net_selling_price_discounted_formatted,
+        total: item.configuration_net_amount_discounted_formatted,
+        billingCycleMonths: item.billing_cycle_months,
+        isSubscription: true,
+        billingCycle: cycleOf(item.billing_cycle_months!)
+      });
+      return settles(() =>
+        world.expectContext({
+          items: [
+            {
+              ...recorded(withOption),
+              hasSubItems: true,
+              quantifiableItems: [
+                { id: `sub-${withOption.id}`, total: "" },
+                { id: option.id, quantity: option.unit_quantity, total: "" }
+              ],
+              nonQuantifiableItems: []
+            },
+            {
+              ...recorded(plain),
+              hasSubItems: false,
+              quantifiableItems: [],
+              nonQuantifiableItems: []
+            }
+          ]
+        })
+      );
+    }
   );
 
   // === FE-3237 AC16 — THE CATALOGUE IMAGE OF EACH ITEM =======================
@@ -2918,107 +3127,114 @@ export const invoicesSteps = defineSteps(({ Given, When, Then }) => {
     settles(() => world.expectMeta({ isDelegated: true }))
   );
 
-  // === FE-3237 AC6, AC14, AC19 — @todo, named blockers in the feature ========
-  // Each reads its recording when it runs, so a scenario staging cannot hold
-  // yet costs the catalog nothing until it is recorded.
+  // === FE-3237 AC6 — THE ROW OF EACH ORDER ==================================
 
-  Given(
-    "I have a paid, a cancelled, a delegated and a refund-changed order",
-    () => {
-      const rows = listRecording(
-        "read-the-row-of-each-of-my-orders",
-        "03",
-        params => params.get("filter[category.slug]") === ORDER_CATEGORY
-      ).response.body.data as Array<{
-        status?: { code?: string };
-        delegate_related?: boolean;
-        refund_changed?: string | null;
-      }>;
-      if (
-        !some(rows, ["status.code", InvoiceStatus.PAID]) ||
-        !some(rows, ["status.code", InvoiceStatus.CANCELLED]) ||
-        !some(rows, row => !!row.delegate_related) ||
-        !some(rows, row => !!row.refund_changed)
-      )
-        throw new Error(
-          "the first page must hold the four kinds of order; re-record."
+  Given("I have paid and cancelled orders", async world => {
+    const paid = orderRows(AC23.paid);
+    const cancelled = orderRows(AC23.cancelled);
+    if (
+      !size(paid) ||
+      !size(cancelled) ||
+      !every(paid, row => !!row.paid_datetime) ||
+      !every(cancelled, row => !!row.cancellation_datetime)
+    )
+      throw new Error(
+        "the paid and the cancelled reads must hold dated orders; re-record."
+      );
+    await openOrderHistory(world);
+  });
+
+  When(
+    "I narrow my orders to the paid ones, then to the cancelled ones",
+    async world => {
+      markWire();
+      for (const [status, read] of [
+        [InvoiceStatus.PAID, AC23.paid],
+        [InvoiceStatus.CANCELLED, AC23.cancelled]
+      ] as const) {
+        await world.fire("filters.status", [status]);
+        observed.rowChecks.push(
+          await settles(() =>
+            world.expectContext({
+              data: map(orderRows(read), publishedRow),
+              pagination: { total: read.response.body.total }
+            })
+          ).then(
+            () => "",
+            (error: unknown) => String(error)
+          )
         );
+      }
     }
   );
 
   Then(
-    "each row carries its number, total, items, dates, status, brand and markers",
-    world => {
-      const rows = listRecording(
-        "read-the-row-of-each-of-my-orders",
-        "03",
-        params => params.get("filter[category.slug]") === ORDER_CATEGORY
-      ).response.body.data as Array<{
-        id: string;
-        number: string;
-        products_count: number;
-        status: { code: string };
-        brand: { name: string };
-        refund_changed?: string | null;
-        delegate_related?: boolean;
-        pending_payment_method?: unknown;
-      }>;
-      return settles(() =>
-        world.expectContext({
-          data: map(rows, row => ({
-            id: row.id,
-            number: row.number,
-            status: row.status.code,
-            brandName: row.brand.name,
-            bundle: { productCount: row.products_count },
-            refundChanged: row.refund_changed ?? undefined,
-            hasPendingPaymentMethod: !!row.pending_payment_method
-          }))
-        })
-      );
-    }
+    "each row carries its number, total, items, dates, status, brand and contract",
+    () => same(observed.rowChecks, ["", ""], "the paid and the cancelled rows")
   );
 
-  Given("one of my orders with notes, custom fields and a referrer", world => {
-    const order = orderRecording("read-the-details-of-one-of-my-orders");
-    return openDetail(world, orderId(order));
+  Given("a client delegated their orders to me", () => {
+    if (!every(orderRows(AC23.delegated), "delegate_related"))
+      throw new Error(
+        "every order of the member's history must be delegated; re-record."
+      );
+  });
+
+  Then("each delegated row is marked delegated and not mine to settle", world =>
+    settles(() =>
+      world.expectContext({
+        data: map(orderRows(AC23.delegated), row => ({
+          id: row.id,
+          attribution: { isDelegated: true, isSettleable: false }
+        }))
+      })
+    )
+  );
+
+  // === FE-3237 AC14 — THE DETAILS OF ONE ORDER ===============================
+
+  Given("one of my orders that was cancelled with a reason", world => {
+    if (
+      AC31.status.code !== InvoiceStatus.CANCELLED ||
+      !AC31.contract?.cancellation_reason
+    )
+      throw new Error(
+        "the order recording must be cancelled with a reason; re-record."
+      );
+    return openDetail(world, AC31.id);
   });
 
   Then(
-    "I see its number, status, totals, dates, contract, notes, custom fields and referrer",
-    world => {
-      const order = orderRecording("read-the-details-of-one-of-my-orders")
-        .response.body.data as {
-        number: string;
-        status?: { code?: string };
-        contract_id?: string;
-        notes?: string;
-        custom_fields?: unknown;
-        account?: {
-          affiliate_referral?: {
-            affiliate_account?: {
-              account?: { client?: Array<{ id: string }> };
-            };
-          };
-        };
-      };
-      return settles(() =>
+    "I see its number, status, totals, dates, brand and contract, with the reason it was cancelled",
+    world =>
+      settles(() =>
         world.expectContext({
           model: {
-            number: order.number,
-            status: order.status?.code,
-            contractId: order.contract_id,
-            notes: order.notes,
-            customFields: order.custom_fields,
-            referrer: {
-              id: order.account?.affiliate_referral?.affiliate_account?.account
-                ?.client?.[0]?.id
-            }
+            id: AC31.id,
+            number: AC31.number,
+            status: AC31.status.code,
+            statusName: AC31.status.name,
+            brandId: AC31.brand_id,
+            brandName: AC31.brand.name,
+            contractId: AC31.contract_id,
+            cancellationReason: AC31.contract?.cancellation_reason,
+            summary: {
+              total: AC31.total_amount_formatted,
+              paidAmount: AC31.paid_amount,
+              unpaidAmount: AC31.unpaid_amount
+            },
+            dateCreated: { date: displayDay(AC31.create_datetime) },
+            dateDue: { date: displayDay(AC31.due_date) },
+            dateCancelled: { date: displayDay(AC31.cancellation_datetime) },
+            ...(AC31.paid_datetime && {
+              datePaid: { date: displayDayAndTime(AC31.paid_datetime) }
+            })
           }
         })
-      );
-    }
+      )
   );
+
+  // === FE-3237 AC19 — @todo, its named blocker in the feature ================
 
   Given("one of my orders has a payment that has not settled", world =>
     openDetail(

@@ -127,8 +127,8 @@ Feature: A client reads and manages their invoices
   @AC-2 @client @cell:client-self @collection
   Scenario: Filter my invoice list to what I need
     When I filter my invoice list by status, then add a category filter, then an amount or a date filter
-    Then only the invoices matching every filter I set are returned
-    And each new filter keeps the filters I set before it
+    Then each new filter keeps the filters I set before it
+    And only the invoices matching every filter I set are returned
 
   # FE-3237 AC10
   @AC-2 @client @cell:client-self @collection
@@ -432,10 +432,12 @@ Feature: A client reads and manages their invoices
   @AC-21 @client @cell:client-self @collection
   Scenario: Page through my orders and choose the page size
     Given I have more orders than fit on one page
-    When I go to the next page, then to page three, then back one page, then choose five orders a page
-    Then each move gives me the orders of that page and keeps my page size
+    When I go to the next page
+    Then I am given the orders of page two, ten a page
+    And going to page three gives me the orders of page three, ten a page
+    And going back one page gives me the orders of page two again
+    And choosing five orders a page takes me back to page one, five a page
     And at each step I am told if a next page, a previous page and more than one page exist
-    And choosing a page size takes me back to page one
 
   # FE-3237 AC3
   @AC-21 @client @cell:client-self @collection
@@ -459,14 +461,30 @@ Feature: A client reads and manages their invoices
     Then I am given the last page of my orders
 
   # FE-3237 AC6
+  @AC-23 @client @cell:client-self @collection
+  Scenario: Read the row of each of my orders
+    Given I have paid and cancelled orders
+    When I narrow my orders to the paid ones, then to the cancelled ones
+    Then each row carries its number, total, items, dates, status, brand and contract
+
+  # FE-3237 AC6
+  # Recorded as the delegate MEMBER, whose own order history holds the orders a
+  # client delegated to it.
+  @AC-23 @client @cell:client-self @collection
+  Scenario: Read the row of an order a client delegated to me
+    Given a client delegated their orders to me
+    When I open my order history
+    Then each delegated row is marked delegated and not mine to settle
+
+  # FE-3237 AC6
   # Blocker: staging cannot arrange a refund-changed order. A staff refund of a
   # manual payment answers 200 (POST api/admin/payments/refund) and leaves the
-  # order paid with no refund_changed, so no first page holds the four kinds.
+  # order paid with no refund_changed.
   @AC-23 @client @cell:client-self @collection @todo
-  Scenario: Read the row of each of my orders
-    Given I have a paid, a cancelled, a delegated and a refund-changed order
-    When I open my order history
-    Then each row carries its number, total, items, dates, status, brand and markers
+  Scenario: Read the row of an order whose refund changed
+    Given I have an order whose refund changed
+    When I read my order history
+    Then that order's row carries its refund change
 
   # FE-3237 AC7, AC24 divergence 1
   @AC-24 @client @cell:client-self @collection
@@ -529,7 +547,7 @@ Feature: A client reads and manages their invoices
   Scenario: Keep my order history to the orders I placed
     Given my order history is open
     When I narrow it by a filter, then by the credit-notes narrowing, then by a search, then by a raw criteria write that names another category
-    Then each write sends one new read
+    Then each write but the credit-notes narrowing sends one new read
     And each read still asks for my placed orders only
     And the narrowing to credit notes or to another category is dropped
     And no error is reported
@@ -543,20 +561,43 @@ Feature: A client reads and manages their invoices
     And the second is reported as not available
 
   # FE-3237 AC14
-  # Blocker: no order of the staging client carries custom fields or an
-  # affiliate referrer, and no arrangement route for either is known.
-  @AC-31 @client @cell:client-self @detail @todo
+  @AC-31 @client @cell:client-self @detail
   Scenario: Read the details of one of my orders
-    Given one of my orders with notes, custom fields and a referrer
+    Given one of my orders that was cancelled with a reason
     When I open that order
-    Then I see its number, status, totals, dates, contract, notes, custom fields and referrer
+    Then I see its number, status, totals, dates, brand and contract, with the reason it was cancelled
+
+  # FE-3237 AC14
+  # Blocker: none of the newest 400 orders of the staging client carries notes,
+  # custom fields or an affiliate referrer. A staff write of the notes
+  # (PUT api/admin/invoices/{id} {"notes": ...}) answers 200 on an unpaid order
+  # and the client read still carries notes "", and 409 "Operation not allowed
+  # due to invoice status: Paid" on a paid one. No arrangement route for custom
+  # fields or a referrer is known.
+  @AC-31 @client @cell:client-self @detail @todo
+  Scenario: Read the notes, custom fields and referrer of one of my orders
+    Given one of my orders with notes, custom fields and a referrer
+    When I open that order of mine
+    Then I see its notes, its custom fields and its referrer
 
   # FE-3237 AC15
   @AC-32 @client @cell:client-self @detail
   Scenario: Read the items of one of my orders
     Given one of my orders with a subscription, options and a snapshot
     When I open that order
-    Then I see each item from the snapshot, with its term, billing cycle name, tags and sub-items
+    Then I see each item from the snapshot, with its term, billing cycle name and sub-items
+
+  # FE-3237 AC15
+  # Blocker: no order of the staging client carries a contract product tag (the
+  # newest 400 orders read with contract_product_tags hold none, and no recording
+  # in the repository holds one). The staff tag write
+  # POST/PUT api/admin/contracts/products/tags answers 500 "A critical error
+  # occurred" to a probe, so no arrangement route is known.
+  @AC-32 @client @cell:client-self @detail @todo
+  Scenario: Read the tags of the items of one of my orders
+    Given one of my orders whose items carry tags
+    When I open that order of mine
+    Then each item carries the tags of its contract product
 
   # FE-3237 AC16
   @AC-33 @client @cell:client-self @detail

@@ -291,6 +291,56 @@ describe("client-email table channel — emit() lifts intent up into the real ac
   });
 });
 
+/**
+ * A structural cell that holds `live` as its filters and keeps every
+ * `filterBy` write, so the write a MERGE-semantics `filterBy` receives is read
+ * back (design 8.3, T14).
+ */
+function mergeCell(live: Record<string, Record<string, unknown>>) {
+  const filterBy = vi.fn();
+  const cell: TableChannelCell = {
+    useContext: () => ({
+      query: { value: { filters: live } },
+      schemas: { query: { schema: useQuerySchema() } },
+      pagination: { value: {} }
+    }),
+    useActions: () => ({
+      filterBy,
+      sortBy: vi.fn(),
+      nextPage: vi.fn(),
+      prevPage: vi.fn()
+    })
+  };
+  return { channel: useTableChannel(cell), filterBy };
+}
+
+describe("table channel — a column the table leaves out is cleared under merge semantics (T14)", () => {
+  const live = { verified: { eq: false }, email: { like: NEEDLE } };
+
+  it("sends a live column the new model no longer holds as undefined, beside the column it keeps", () => {
+    const { channel, filterBy } = mergeCell(live);
+
+    channel.emit({ type: "filter", model: { email: "beta" } });
+
+    expect(filterBy).toHaveBeenCalledTimes(1);
+    const [write] = filterBy.mock.calls[0];
+    expect(keys(write).sort()).toEqual(["email", "verified"]);
+    expect(write.verified).toBeUndefined();
+    expect(JSON.stringify(write.email)).toContain("beta");
+  });
+
+  it("sends every live column as undefined when the table clears its whole filter", () => {
+    const { channel, filterBy } = mergeCell(live);
+
+    channel.emit({ type: "filter", model: {} });
+
+    const [write] = filterBy.mock.calls[0];
+    expect(keys(write).sort()).toEqual(["email", "verified"]);
+    expect(write.verified).toBeUndefined();
+    expect(write.email).toBeUndefined();
+  });
+});
+
 describe("client-email table channel — the paginate ±1 branch on a one-page window (Task 36)", () => {
   it("a step up routes to nextPage, which a 3-row corpus inside the declared window makes unavailable", async () => {
     const { emails, channel } = await bootChannel();

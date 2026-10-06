@@ -45,11 +45,14 @@
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { getFixtureBody } from "@upmind-automation/test-fixtures";
+import { ProductOrderTypes } from "@upmind-automation/types";
 import { mapInvoice, mapInvoices } from "..";
 import billingCyclesRecording from "../../system/__tests__/fixtures/get-billing-cycles.json";
 import { mapInvoiceItems } from "../invoices.mappers";
 import itemsRecording from "./scenarios/read-the-items-of-one-of-my-orders/02/get-invoices-id-with-staged-imports-1.json";
-import { map } from "lodash-es";
+import cancelledOrdersRecording from "./scenarios/read-the-row-of-each-of-my-orders/03/get-invoices-filter-category-slug-new-contract-filter-status-code-eq-invoice-cancelled.json";
+import paidOrdersRecording from "./scenarios/read-the-row-of-each-of-my-orders/03/get-invoices-filter-category-slug-new-contract-filter-status-code-eq-invoice-paid.json";
+import { find, forEach, map } from "lodash-es";
 import type { Envelope, WireInvoice } from "./invoices.int-helpers";
 import type {
   IBillingCycle,
@@ -574,10 +577,22 @@ const billingCycles = (
   }
 ).response.body.data;
 
+type RecordedSubItem = {
+  id: string;
+  name: string;
+  unit_quantity: number | null;
+  configuration_net_selling_price_discounted_formatted: string;
+  product: { order_type: ProductOrderTypes };
+};
+
 type RecordedItem = {
   id: string;
+  name: string;
+  unit_quantity: number | null;
+  net_selling_price_discounted_formatted: string;
   billing_cycle_months: number;
-  options?: unknown[];
+  options?: RecordedSubItem[] | Record<string, RecordedSubItem>;
+  attributes?: RecordedSubItem[] | Record<string, RecordedSubItem>;
   product: { billing_cycle_months: number };
 };
 
@@ -591,21 +606,30 @@ const snapshotOf = (raw: IInvoice): RecordedItem[] =>
 const liveOf = (raw: IInvoice): RecordedItem[] =>
   (raw as unknown as { products: RecordedItem[] }).products;
 
+/** The recorded billing cycle of a term, by its months. */
+const recordedCycle = (months: number): IBillingCycle => {
+  const cycle = find(billingCycles, ["months", months]);
+  if (!cycle) throw new Error(`No recorded billing cycle of ${months} months.`);
+  return cycle;
+};
+
 // FE-3237 AC15
 describe("invoices — AC-32: the items of an order", () => {
   it("reads the items from the snapshot first, with the snapshot's own term", () => {
+    const snapshot = snapshotOf(recordedOrder);
+    expect(map(snapshot, "billing_cycle_months")).not.toContain(0);
+
     const items = mapInvoiceItems(recordedOrder, {
       billingCycles,
       imageMap: {}
     });
-    expect(map(items, item => item.id)).toEqual(
-      map(snapshotOf(recordedOrder), item => item.id)
+    expect(map(items, item => item.id)).toEqual(map(snapshot, "id"));
+    expect(map(items, item => item.billingCycleMonths)).toEqual(
+      map(snapshot, "billing_cycle_months")
     );
-    expect(map(items, item => item.billingCycleMonths)).toEqual([12, 24]);
-    expect(map(items, item => item.billingCycle?.name)).toEqual([
-      "Annually",
-      "Biennially"
-    ]);
+    expect(map(items, item => item.billingCycle)).toEqual(
+      map(snapshot, item => recordedCycle(item.billing_cycle_months))
+    );
   });
 
   it("falls back to the live items when the order has no snapshot", () => {
@@ -642,14 +666,163 @@ describe("invoices — AC-32: the items of an order", () => {
       })
     ).toEqual([]);
   });
+});
 
-  it("marks the item that carries options as one with sub-items", () => {
-    const items = mapInvoiceItems(recordedOrder, {
-      billingCycles,
-      imageMap: {}
-    });
-    expect(map(items, item => item.hasSubItems)).toEqual(
-      map(snapshotOf(recordedOrder), item => (item.options ?? []).length > 0)
+/** The recorded item that carries one quantity-based option, and that option. */
+const [optionedItem, plainItem] = snapshotOf(recordedOrder);
+const [recordedOption] = optionedItem.options as RecordedSubItem[];
+
+/** The recorded order, its first snapshot item swapped for `item`, mapped alone. */
+const mapOne = (item: RecordedItem) =>
+  mapInvoiceItems(
+    {
+      ...recordedOrder,
+      current_data: { content: { products: [item] } }
+    } as unknown as IInvoice,
+    { billingCycles, imageMap: {} }
+  )[0];
+
+const withOrderType = (
+  subItem: RecordedSubItem,
+  orderType: ProductOrderTypes
+): RecordedSubItem => ({
+  ...subItem,
+  product: { ...subItem.product, order_type: orderType }
+});
+
+// FE-3237 AC15 — the sub-item rules (design 8.7, superseded design 8.7)
+describe("invoices — AC-32: the sub-items of an order item", () => {
+  it("holds the recorded item with one quantity-based option and the plain one", () => {
+    expect(recordedOption.product.order_type).toBe(
+      ProductOrderTypes.QUANTITY_BASED
     );
+    expect(plainItem.options).toEqual([]);
+    expect(plainItem.attributes).toEqual([]);
+  });
+
+  it("puts the main item first, then a quantity-based option, among the quantifiable sub-items", () => {
+    const item = mapOne(optionedItem);
+    expect(item.hasSubItems).toBe(true);
+    expect(item.nonQuantifiableItems).toEqual([]);
+    expect(map(item.quantifiableItems, "id")).toEqual([
+      `sub-${optionedItem.id}`,
+      recordedOption.id
+    ]);
+    expect(item.quantifiableItems[0]).toMatchObject({
+      quantity: 1,
+      price: optionedItem.net_selling_price_discounted_formatted,
+      total: ""
+    });
+    expect(item.quantifiableItems[0].name).toContain(optionedItem.name);
+    expect(item.quantifiableItems[1]).toMatchObject({
+      quantity: recordedOption.unit_quantity,
+      price:
+        recordedOption.configuration_net_selling_price_discounted_formatted,
+      total: ""
+    });
+  });
+
+  it("puts a single option among the non-quantifiable sub-items, its total equal to its price", () => {
+    const item = mapOne({
+      ...optionedItem,
+      options: [withOrderType(recordedOption, ProductOrderTypes.SINGLE_OPTION)]
+    });
+    expect(map(item.nonQuantifiableItems, "id")).toEqual([recordedOption.id]);
+    expect(item.nonQuantifiableItems[0].total).toBe(
+      recordedOption.configuration_net_selling_price_discounted_formatted
+    );
+    expect(map(item.quantifiableItems, "id")).toEqual([
+      `sub-${optionedItem.id}`
+    ]);
+  });
+
+  it("reads options keyed as an object the same as options in a list", () => {
+    const keyed = mapOne({
+      ...optionedItem,
+      options: { [recordedOption.id]: recordedOption }
+    });
+    expect(keyed.quantifiableItems).toEqual(
+      mapOne(optionedItem).quantifiableItems
+    );
+  });
+
+  it("prices an attribute with a dash and reads it as a sub-item", () => {
+    const item = mapOne({
+      ...optionedItem,
+      options: [],
+      attributes: [recordedOption]
+    });
+    expect(item.hasSubItems).toBe(true);
+    expect(find(item.quantifiableItems, ["id", recordedOption.id])?.price).toBe(
+      "—"
+    );
+  });
+
+  it("names a sub-item bought several times with its count, and one bought once without", () => {
+    const several = mapOne({
+      ...optionedItem,
+      options: [{ ...recordedOption, unit_quantity: 3 }]
+    });
+    const bought = find(several.quantifiableItems, ["id", recordedOption.id]);
+    expect(bought?.quantity).toBe(3);
+    expect(bought?.name).toContain(recordedOption.name);
+    expect(bought?.name).toContain("(x3)");
+    expect(
+      find(mapOne(optionedItem).quantifiableItems, ["id", recordedOption.id])
+        ?.name
+    ).not.toContain("(x");
+  });
+
+  it("gives an item with no option and no attribute no sub-item, not even itself", () => {
+    const item = mapOne(plainItem);
+    expect(item.hasSubItems).toBe(false);
+    expect(item.quantifiableItems).toEqual([]);
+    expect(item.nonQuantifiableItems).toEqual([]);
+  });
+});
+
+/** The recorded paid and cancelled order-history reads (AC-23). */
+const recordedOrderRows = (status: "paid" | "cancelled") =>
+  (
+    (status === "paid"
+      ? paidOrdersRecording
+      : cancelledOrdersRecording) as unknown as {
+      response: { body: { data: IInvoice[] } };
+    }
+  ).response.body.data;
+
+// FE-3237 AC6
+describe("invoices — AC-23: the row of each order", () => {
+  it("maps each recorded paid and cancelled order row with its brand, contract, count and dates", () => {
+    for (const status of ["paid", "cancelled"] as const) {
+      const rows = recordedOrderRows(status);
+      expect(rows).not.toHaveLength(0);
+      const mapped = mapInvoices(rows);
+      forEach(rows, (raw, index) => {
+        const row = raw as unknown as {
+          number: string;
+          brand_id: string;
+          brand: { name: string };
+          contract_id: string;
+          products_count: number;
+          pending_payment_method: boolean;
+          paid_datetime: string | null;
+          cancellation_datetime: string | null;
+        };
+        const published = mapped[index];
+        expect(published).toMatchObject({
+          number: row.number,
+          brandId: row.brand_id,
+          brandName: row.brand.name,
+          contractId: row.contract_id,
+          hasPendingPaymentMethod: row.pending_payment_method,
+          bundle: { productCount: row.products_count }
+        });
+        expect(!!published.datePaid.date).toBe(!!row.paid_datetime);
+        expect(!!published.dateCancelled.date).toBe(
+          !!row.cancellation_datetime
+        );
+      });
+    }
   });
 });

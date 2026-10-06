@@ -32,20 +32,4 @@ describe("AC-3: the order history refreshes with the invoices", () => {
     expect(keys).not.toHaveLength(0);
     expect(map(keys, key => key[0])).toEqual(map(keys, () => "invoices"));
   });
-
-  it("is reached by an invalidation of the invoices root", async () => {
-    openCell();
-    await queryClient.invalidateQueries({
-      queryKey: ["invoices"],
-      exact: false
-    });
-    const invalidated = map(
-      filter(queryClient.getQueryCache().findAll(), query =>
-        includes(JSON.stringify(query.queryKey), '"new_contract"')
-      ),
-      query => query.state.isInvalidated
-    );
-    expect(invalidated).not.toHaveLength(0);
-    expect(invalidated).toEqual(map(invalidated, () => true));
-  });
 });

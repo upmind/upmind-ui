@@ -3306,23 +3306,35 @@ describe("Invoices order-history scenario recordings", () => {
       recordStep(scenario, "I open my order history", recordOrderBoot()));
   });
 
-  // The replay keys a list read without `limit`, `offset` and `order`, so one
-  // step answers each page move with ONE recording: the last move, five a page.
+  // The replay keys a list read without `limit`, `offset` and `order`, so each
+  // page move is its own step: one step answers one page.
   describe("Page through my orders and choose the page size", () => {
     const scenario = "Page through my orders and choose the page size";
     const given = "I have more orders than fit on one page";
-    const when =
-      "I go to the next page, then to page three, then back one page, then choose five orders a page";
+    const moves: Array<[string, { limit?: number; offset: number }]> = [
+      ["I go to the next page", { offset: 10 }],
+      [
+        "going to page three gives me the orders of page three, ten a page",
+        { offset: 20 }
+      ],
+      [
+        "going back one page gives me the orders of page two again",
+        { offset: 10 }
+      ],
+      [
+        "choosing five orders a page takes me back to page one, five a page",
+        { limit: 5, offset: 0 }
+      ]
+    ];
 
     it(BG, () => recordStep(scenario, BG, recordBoot));
     it(given, () => recordStep(scenario, given, recordOrderBoot()));
-    it(when, () =>
-      recordStep(scenario, when, async generator => {
-        await generator.get(orderListUrl("", { offset: 10 }));
-        await generator.get(orderListUrl("", { offset: 20 }));
-        await generator.get(orderListUrl("", { limit: 5, offset: 0 }));
-      })
-    );
+    for (const [step, page] of moves)
+      it(step, () =>
+        recordStep(scenario, step, generator =>
+          generator.get(orderListUrl("", page))
+        )
+      );
   });
 
   describe("Read a search of my orders that matches nothing as empty", () => {
@@ -3862,6 +3874,81 @@ describe("Invoices order-history scenario recordings", () => {
           generator.setBearerToken(member.access_token);
           await recordDetailReads(generator, brandId, ownerId, ownerOrder);
         });
+      },
+      600000
+    );
+  });
+
+  describe("Read the row of each of my orders", () => {
+    const scenario = "Read the row of each of my orders";
+    const given = "I have paid and cancelled orders";
+    const when =
+      "I narrow my orders to the paid ones, then to the cancelled ones";
+
+    it(BG, () => recordStep(scenario, BG, recordBoot));
+    it(given, () => recordStep(scenario, given, recordOrderBoot()));
+    it(when, () =>
+      recordStep(scenario, when, async generator => {
+        for (const status of [InvoiceStatus.PAID, InvoiceStatus.CANCELLED]) {
+          const { body } = await generator.get(
+            orderListUrl(`&filter[status.code|eq]=${status}`)
+          );
+          if (!(body as { total?: number })?.total)
+            throw new Error(
+              `${scenario}: the client holds no ${status} order.`
+            );
+        }
+      })
+    );
+  });
+
+  describe("Read the row of an order a client delegated to me", () => {
+    const scenario = "Read the row of an order a client delegated to me";
+    const when = "I open my order history";
+
+    it(BG, () => recordStep(scenario, BG, recordBoot));
+    it(when, async () => {
+      const member = await mintToken({
+        grant_type: GrantTypes.PASSWORD,
+        username: API_CREDENTIALS.delegateMember.username,
+        password: API_CREDENTIALS.delegateMember.password
+      });
+      if (!member) throw new Error(`${scenario}: no delegate member token.`);
+      return recordStep(scenario, when, async generator => {
+        generator.setBearerToken(member.access_token);
+        const { body } = await generator.get(orderListUrl());
+        const rows =
+          (body as { data?: Array<{ delegate_related?: boolean }> })?.data ??
+          [];
+        if (!some(rows, row => !!row.delegate_related))
+          throw new Error(
+            `${scenario}: the member's order history holds no delegated order.`
+          );
+        generator.setBearerToken(clientToken.access_token);
+        await recordProbes(generator);
+      });
+    });
+  });
+
+  describe("Read the details of one of my orders", () => {
+    const scenario = "Read the details of one of my orders";
+    const given = "one of my orders that was cancelled with a reason";
+
+    it(BG, () => recordStep(scenario, BG, recordBoot));
+    it(
+      given,
+      async () => {
+        const id = await orderIn(
+          InvoiceStatus.CANCELLED,
+          order =>
+            !!(order as { contract?: { cancellation_reason?: string } | null })
+              .contract?.cancellation_reason
+        );
+        return recordStep(
+          scenario,
+          given,
+          recordOrderDetail(() => id)
+        );
       },
       600000
     );
