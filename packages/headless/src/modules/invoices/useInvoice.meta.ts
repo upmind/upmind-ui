@@ -1,5 +1,8 @@
 import { computed } from "vue";
-import { isCancellable, isDue } from "../contract-product";
+import {
+  isCancellable,
+  isDue
+} from "../contract-product/contract-product.utils";
 import { useActiveSession } from "../session-store";
 import {
   canCancel,

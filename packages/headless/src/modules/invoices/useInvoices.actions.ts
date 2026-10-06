@@ -175,6 +175,7 @@ export function createInvoicesActions(
   const writeSearch = debounce((term?: string) => {
     writeFilters(filters => {
       const path = numberLeafPath();
+      if (path.length > 1) filters.number = { ...(filters.number as object) };
       if (term) set(filters, path, term);
       else unset(filters, path);
       if (path.length > 1 && isEmpty(filters.number)) unset(filters, "number");

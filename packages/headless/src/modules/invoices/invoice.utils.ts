@@ -78,7 +78,7 @@ export function canChangePaymentCurrency(
 
 // -----------------------------------------------------------------------------
 // The order conditions — status rules over the raw record. Distinct from the
-// meta's `isPartial` / `isComplete`, which ignore the status (ruling K6).
+// meta's `isPartial` / `isComplete`, which ignore the status.
 
 type InvoiceCondition = Pick<
   IInvoice,

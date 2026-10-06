@@ -459,7 +459,7 @@
     "description": null,
     "label": "Sort",
     "placeholder": null,
-    "id": "Number",
+    "id": "Order ID",
     "status_id": "Status",
     "create_datetime": "Created",
     "number": "Number",

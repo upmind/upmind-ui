@@ -320,7 +320,7 @@ export const CREDIT_NOTE_FILTER: InvoiceFilterModel = {
 export type InvoiceSortModel = NonNullable<InvoiceQueryModel["sort"]>;
 
 // -----------------------------------------------------------------------------
-// ORDER-HISTORY QUERY MODEL — the `new_contract` context's own schema (D-4)
+// ORDER-HISTORY QUERY MODEL — the `new_contract` context's own schema
 // -----------------------------------------------------------------------------
 
 /**
@@ -364,7 +364,7 @@ export type InvoiceDateLeaf = {
 /**
  * The order history's whole request state, validated against
  * `useOrderQuerySchema()`. It declares no `category.slug` column, so no
- * criteria write can reach the forced category (D-3).
+ * criteria write can reach the forced category.
  */
 export type InvoiceOrderQueryModel = {
   filters?: {

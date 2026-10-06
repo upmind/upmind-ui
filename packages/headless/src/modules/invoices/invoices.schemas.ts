@@ -122,7 +122,7 @@ function statusChoicesSchema(): QuerySchema {
 /**
  * The order history's query schema (the `new_contract` context). It declares
  * no `category.slug`, `client_id` or preset column: the forced category is a
- * static request param no criteria write can reach (D-3).
+ * static request param no criteria write can reach.
  */
 export function useOrderQuerySchema(): QuerySchema {
   return {
