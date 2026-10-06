@@ -548,6 +548,29 @@ const holdsRead = (world: World, recording: ListRecording) =>
     })
   );
 
+/**
+ * Whether the context comes to hold this recorded read within two seconds —
+ * an observation a later step asserts, so the failing step is the one that
+ * names the broken promise.
+ */
+async function holdsBriefly(
+  world: World,
+  recording: ListRecording
+): Promise<boolean> {
+  for (let attempt = 0; attempt < 8; attempt++) {
+    const held = await world.expectContext!({
+      data: rowIds(recording),
+      pagination: { total: recording.response.body.total }
+    }).then(
+      () => true,
+      () => false
+    );
+    if (held) return true;
+    await new Promise(resolve => setTimeout(resolve, SETTLE_INTERVAL_MS));
+  }
+  return false;
+}
+
 /** A boolean meta member's live value, read through the World. */
 const metaIs = (world: World, flag: string): Promise<boolean> =>
   world.expectMeta({ [flag]: true }).then(
@@ -609,13 +632,15 @@ const observed: {
   moves: PageMove[];
   readsPerWrite: number[];
   narrowedRead: boolean[];
+  heldReads: boolean[];
   conditionRow?: "paid" | "unpaid" | "partlyPaid" | "overdue" | "cancelled";
-} = { moves: [], readsPerWrite: [], narrowedRead: [] };
+} = { moves: [], readsPerWrite: [], narrowedRead: [], heldReads: [] };
 
 function resetObserved(): void {
   observed.moves = [];
   observed.readsPerWrite = [];
   observed.narrowedRead = [];
+  observed.heldReads = [];
   observed.conditionRow = undefined;
 }
 
@@ -2521,7 +2546,7 @@ export const invoicesSteps = defineSteps(({ Given, When, Then }) => {
 
   Given("my order history is open", async world => {
     await openOrderHistory(world);
-    await holdsRead(world, AC29.boot);
+    observed.heldReads.push(await holdsBriefly(world, AC29.boot));
   });
 
   When(
@@ -2546,13 +2571,7 @@ export const invoicesSteps = defineSteps(({ Given, When, Then }) => {
       for (const [id, input, read] of writes) {
         const before = size(sentSinceMark(isListRead));
         await world.fire(id, input);
-        await holdsRead(world, read);
-        await settles(async () => {
-          check(
-            size(sentSinceMark(isListRead)) > before,
-            "size(sentSinceMark(isListRead)) > before"
-          );
-        }).catch(() => undefined);
+        observed.heldReads.push(await holdsBriefly(world, read));
         observed.readsPerWrite.push(size(sentSinceMark(isListRead)) - before);
         if (id === "filterCreditNotes" || id === "setCriteria")
           observed.narrowedRead.push(
@@ -2577,6 +2596,17 @@ export const invoicesSteps = defineSteps(({ Given, When, Then }) => {
   });
 
   Then("each read still asks for my placed orders only", () => {
+    for (const request of sentSinceMark(isListRead))
+      same(
+        request.searchParams.getAll("filter[category.slug]"),
+        [ORDER_CATEGORY],
+        `the placed-orders category on ${request.search}`
+      );
+    same(
+      observed.heldReads,
+      [true, true, true, true, true],
+      "each read held its placed orders"
+    );
     const reads = sentInWindow(isListRead);
     const orderReads = filter(reads, request =>
       request.searchParams.has("filter[category.slug]")
