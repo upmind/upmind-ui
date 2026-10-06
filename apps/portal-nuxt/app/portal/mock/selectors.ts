@@ -3547,7 +3547,6 @@ export function invoiceDocumentActions(
   // (`invoiceItems.vue:357-361`).
   const isPayable = isInvoicePayable(invoice);
   return compact([
-    // Paying is client-vue's payment module; the control stays so the page reads whole.
     isPayable && {
       value: mockActionValue(MOCK_ACTION.PAY_INVOICE, invoice.id),
       label: "Pay"

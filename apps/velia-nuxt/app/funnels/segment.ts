@@ -1,9 +1,9 @@
 // -----------------------------------------------------------------------------
 /**
  * @module funnels/segment
- * @description Velia's basket segment, swapped in through the `#basket-segment` alias.
+ * @description Velia's basket segment.
  */
 
 export const BASKET_SEGMENT = "cart";
 
-export const LEGACY_BASKET_SEGMENT = "basket";
+export const DEFAULT_BASKET_SEGMENT = "basket";

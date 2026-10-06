@@ -9,7 +9,7 @@ import { COLOR_MODE } from "./types";
 // -----------------------------------------------------------------------------
 /**
  * @module theming/useColorMode
- * @description Dark-mode state for client-vue. Mode is orthogonal to brand:
+ * @description Dark-mode state for the app shell. Mode is orthogonal to brand:
  * brand is the `data-theme` attribute, mode is the `.dark` class on the document
  * root — the OKLCH token engine emits its dark values under `:root.dark`, so
  * toggling the class re-skins base and brand together.

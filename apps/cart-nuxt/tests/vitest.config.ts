@@ -12,12 +12,6 @@ export default defineConfig({
   plugins: [vue()],
   resolve: {
     alias: {
-      "#basket-segment": fileURLToPath(
-        new URL("../app/funnels/segment.ts", import.meta.url)
-      ),
-      "#locale-overrides": fileURLToPath(
-        new URL("../app/assets/locale-overrides.ts", import.meta.url)
-      ),
       "#app": fileURLToPath(new URL("./nuxt.stub.ts", import.meta.url)),
       "#imports": fileURLToPath(new URL("./nuxt.stub.ts", import.meta.url)),
       "@icons": src("packages/icons/assets"),
@@ -42,12 +36,6 @@ export default defineConfig({
       "@upmind-automation/foundation": src(
         "packages/modules-foundation/src/index.ts"
       ),
-      "@upmind-automation/headless/fixtures": src(
-        "packages/headless/src/testing/fixtures.ts"
-      ),
-      "@upmind-automation/headless/testing": src(
-        "packages/headless/src/testing/index.ts"
-      ),
       "@upmind-automation/headless": src("packages/headless/src/index.ts"),
       "@upmind-automation/i18n": src("packages/i18n/src/index.ts"),
       "@upmind-automation/invoice": src(
@@ -61,6 +49,12 @@ export default defineConfig({
       ),
       "@upmind-automation/recommendations": src(
         "packages/modules-recommendations/src/index.ts"
+      ),
+      "@upmind-automation/headless/fixtures": src(
+        "packages/headless/src/testing/fixtures.ts"
+      ),
+      "@upmind-automation/headless/testing": src(
+        "packages/headless/src/testing/index.ts"
       ),
       "@upmind-automation/types": src("packages/types/src/index.ts"),
       "@upmind-automation/test-fixtures": src("tests/fixtures")

@@ -13,6 +13,10 @@
 # plain totals, and the reverse. `data-test-key="basket-summary-breakdown"` sits
 # INSIDE the mutated v-if, so the handle the spec selects by goes with it.
 #
+# Regenerated 2026-09-22: Summary.vue moved from packages/client-vue to
+# packages/modules-basket when client-vue was retired. The hunk is byte-identical; only
+# the path it lands on moved.
+#
 # Expected RED: 5 of 5.
 #   - the four itemised-presentation tests: `summary.breakdown` never becomes
 #     visible, so each fails at its first breakdown assertion.
@@ -21,13 +25,19 @@
 # Collateral, expected: checkout/summary-promotion-field.spec.ts reads the same
 # v-if and flips too. Judge this control on the colocated spec.
 #
+# VERIFIED 2026-09-22 (chrome, this spec only), against the post-move path:
+#   baseline        5 passed          exit 0
+#   mutant applied  5 failed          exit 1
+#     → every failure is expect(locator).toBeVisible() on the breakdown handle
+#   reverted        Summary.vue byte-identical to the green baseline
+#
 # Apply / verify / revert:
 #   git apply <this file>                          # mutate
 #   pnpm exec playwright test tests/Playwright/e2e/e2e-tests/basket/summary-breakdown.spec.ts
 #   git apply -R <this file>                       # revert — must return to green
 #
 diff --git a/packages/modules-basket/src/components/Summary.vue b/packages/modules-basket/src/components/Summary.vue
-index ab8fcd2..3b70cca 100644
+index ab8fcd2dee..3b70cca5a7 100644
 --- a/packages/modules-basket/src/components/Summary.vue
 +++ b/packages/modules-basket/src/components/Summary.vue
 @@ -4,7 +4,7 @@

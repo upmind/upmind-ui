@@ -41,7 +41,7 @@ import {
 } from "../registry";
 import { GROUP_AXIS, PAGE_KEY } from "../types";
 import { NAV_EMPHASIS } from "../variants";
-import { CLIENT_VUE_STUB_TITLE, clientVueProse } from "./client-vue";
+import { PACKAGE_STUB_TITLE, packageStubProse } from "./package-stub";
 import { backLink, brandNoteRow, pagerFooter, panelControls } from "./pager";
 import { assign } from "lodash-es";
 import type { ContentRowConfig, RowHeaderControls } from "../content/types";
@@ -509,8 +509,8 @@ const SETTINGS_ROWS: readonly ContentRowConfig[] = [
     "Which of your cards this product renews on.",
     moduleRef(EMPTY_STATE_MODULE_ID, {
       props: {
-        title: CLIENT_VUE_STUB_TITLE,
-        description: clientVueProse("StoredPaymentMethods", "payment-details")
+        title: PACKAGE_STUB_TITLE,
+        description: packageStubProse("StoredPaymentMethods", "payment-details")
       }
     })
   ),

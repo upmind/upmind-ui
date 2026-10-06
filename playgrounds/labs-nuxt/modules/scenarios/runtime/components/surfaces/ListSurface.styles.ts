@@ -8,8 +8,8 @@ import { columnWidthClasses, invalidRingClasses } from "../../scenario.styles";
  * The table draws in the ui `Table` primitives' OWN borders and alignment; what
  * `table` restates is only what a data table needs the page-card rhythm not to
  * decide — the row's height and the marker column's gutter. The card is the
- * manage/billing card's layout law (`client-vue/src/components/manage/Item.vue`,
- * as `billing/components/AddressItem.vue` draws it): a stack at `gap-1`, the
+ * manage/billing card's layout law (`modules-foundation/src/manage/Item.vue`,
+ * as `modules-client/src/rows/AddressItem.vue` draws it): a stack at `gap-1`, the
  * title carrying its badges inline, one muted line under it, the actions in the
  * header.
  *

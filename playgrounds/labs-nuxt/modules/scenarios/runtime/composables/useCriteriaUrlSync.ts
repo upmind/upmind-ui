@@ -3,7 +3,7 @@
  * @module scenarios/runtime/composables/useCriteriaUrlSync
  * @description Page-level opt-in persistence of the whole request state to the
  * browser url, so a refresh does not lose where you are. The mechanism
- * is the one already established in client-vue — VueUse `useUrlSearchParams`
+ * is the one already established in `catalogue` — VueUse `useUrlSearchParams`
  * at the page, never inside the list widget (`Catalogue.vue:121`,
  * `WidgetGrid.vue:190`), reached through `usePlaygroundUrlState`: one bag, one
  * writer (`D3`/`T8`), so the criteria's params reach the url as a PATCH — the

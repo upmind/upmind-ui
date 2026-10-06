@@ -2,7 +2,7 @@
 /**
  * Legacy's profile page manages four contact lists under the profile form:
  * emails, phones, and the "Address and company details" section holding both
- * kinds of billable entity. No client-vue component serves that page, so the
+ * kinds of billable entity. No domain package serves that page, so the
  * sandbox mocks all four. Oracle: vue-app 1.74.0,
  * `views/client/account/profile/index.vue` and the `client/*` components.
  */
@@ -11,7 +11,6 @@ import { rowBinding, stringsIn } from "./support/page-config";
 import { filter, find, get, includes, map } from "lodash-es";
 import type { MockDataset } from "~/portal/mock/types";
 import { accountPages } from "~/portal/config/account-pages";
-import { CLIENT_VUE_STUB_TITLE } from "~/portal/config/client-vue";
 import {
   MOCK_ACTION,
   MOCK_REFUSAL_MESSAGE,
@@ -32,6 +31,7 @@ import {
 } from "~/portal/mock/facades/useMockContacts";
 import { FORM_ID } from "~/portal/mock/forms/ids";
 import { resolveMockForm } from "~/portal/mock/forms/registry";
+import { PACKAGE_STUB_TITLE } from "~/portal/mock/package-stub";
 import {
   MOCK_DATASET_ID,
   resetMockData,
@@ -87,9 +87,9 @@ describe("the profile page's contact lists (legacy clientEmailsComp, clientPhone
     resetMockData(MOCK_DATASET_ID.HOSTGRID);
   });
 
-  it("mounts three list panels under the profile form and no client-vue stub", () => {
+  it("mounts three list panels under the profile form and no package stub", () => {
     const page = accountPages()[PAGE_KEY.ACCOUNT_PROFILE];
-    expect(includes(stringsIn(page), CLIENT_VUE_STUB_TITLE)).toBe(false);
+    expect(includes(stringsIn(page), PACKAGE_STUB_TITLE)).toBe(false);
     for (const [refId, title] of [
       [DATA_REF_ID.PROFILE_EMAIL_ITEMS, "Emails"],
       [DATA_REF_ID.PROFILE_PHONE_ITEMS, "Phones"],
@@ -372,7 +372,7 @@ describe("the profile page's contact lists (legacy clientEmailsComp, clientPhone
         mockActionValue(MOCK_ACTION.OPEN_FORM, FORM_ID.COMPANY_CREATE)
       );
       expect(
-        filter(stringsIn(companies), s => includes(s, "client-vue"))
+        filter(stringsIn(companies), s => includes(s, PACKAGE_STUB_TITLE))
       ).toEqual([]);
     });
   });

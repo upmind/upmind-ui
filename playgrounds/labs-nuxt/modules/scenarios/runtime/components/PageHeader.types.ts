@@ -1,7 +1,7 @@
 /**
  * @graphify-citation `graphify-out/graph.json` (2026-08-10, 6795 nodes) — no
  * `PageHeader` / `PageHeaderProps` node exists anywhere in the tree, and no
- * page-header component exists in `packages/ui` or `packages/client-vue` to
+ * page-header component exists in `packages/ui` to
  * consume. The action shape is NOT re-declared here: it is
  * `ActionSlotItem`, minted once in `ActionSlots.types.ts` and already the
  * currency every surface hands its pre-bound declared actions in. See

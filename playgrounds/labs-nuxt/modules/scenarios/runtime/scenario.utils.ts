@@ -8,7 +8,7 @@
  *
  * All three delegate to `@jsonforms/core`'s own runtime — the same evaluator
  * the form renderer already runs rules through — over the shared ajv instance
- * `client-vue`'s `Form.vue` uses, so a scenario's rules behave exactly as a
+ * `foundation`'s `Form.vue` uses, so a scenario's rules behave exactly as a
  * form's do and no second rule engine exists to drift.
  */
 

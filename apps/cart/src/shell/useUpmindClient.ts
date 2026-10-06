@@ -8,7 +8,7 @@ import { isEmpty } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 // NB we expose UpmindClient instead of just useUpmind so the icon import map a
-// host passes is registered with the client-vue resolver before init.
+// host passes is registered with the foundation resolver before init.
 
 class UpmindClient {
   constructor() {}
@@ -24,7 +24,7 @@ class UpmindClient {
       animations?: AnimationImportMap;
     }
   ): Promise<void> {
-    // Icons resolve via the client-vue resolver (new <Icon>, flags/providers).
+    // Icons resolve via the foundation resolver (new <Icon>, flags/providers).
     if (!isEmpty(props.icons)) {
       registerIcons(props.icons);
     }

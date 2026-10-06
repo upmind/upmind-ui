@@ -86,7 +86,6 @@ dependencies:
         - apps/velia-nuxt/node_modules
         - apps/webcentral/node_modules
         - packages/headless/node_modules
-        - packages/client-vue/node_modules
         - packages/icons/node_modules
         - packages/i18n/node_modules
         - packages/modules-foundation/node_modules
@@ -115,7 +114,6 @@ dependencies:
       - apps/velia-nuxt/node_modules
       - apps/webcentral/node_modules
       - packages/headless/node_modules
-      - packages/client-vue/node_modules
       - packages/i18n/node_modules
       - packages/icons/node_modules
       - packages/modules-foundation/node_modules

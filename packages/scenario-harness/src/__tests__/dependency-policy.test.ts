@@ -44,7 +44,6 @@ describe("@AC-1 @AC-4 package.json — the dependency policy", () => {
   it("declares no headless (or other vue-tainted workspace-package) dependency", () => {
     const bannedWorkspacePackages = [
       "@upmind-automation/headless",
-      "@upmind-automation/client-vue",
       "@upmind/ui",
       "@upmind/tokens",
       "@upmind-automation/i18n"

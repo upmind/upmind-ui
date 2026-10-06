@@ -11,7 +11,6 @@
       "@upmind-automation/headless": ["../packages/headless/src/index.ts"],
       "@upmind-automation/icons": ["../packages/icons/src/index.ts"],
       "@upmind/ui": ["../design-system/packages/ui/src/index.ts"],
-      "@upmind-automation/client-vue": ["../packages/client-vue/src/index.ts"],
       "@upmind-automation/foundation": [
         "../packages/modules-foundation/src/index.ts"
       ],

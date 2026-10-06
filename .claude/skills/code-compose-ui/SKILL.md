@@ -75,7 +75,7 @@ Dispatch **`/code-migrate-ui`** and run its Four-Layer Audit. Do not re-derive i
 - **Layer 3 — consumers.** Everything that binds the old component:
   ```bash
   grep -rn "<Name>" --include=*.vue --include=*.ts \
-    apps/cart apps/cart-nuxt apps/velia-nuxt packages/client-vue | grep -v node_modules
+    apps/cart apps/cart-nuxt apps/velia-nuxt | grep -v node_modules
   ```
   What a consumer actually binds is the required surface. `apps/cart` is the reference app — build and prove there first; `cart-nuxt` and its layers are mirrored after, never led with.
 - **Layer 4 — decisions.** Linear issues/comments and GitLab MR threads for the component, plus `docs/adr/`. Bindings in `.claude/skills/code-migrate-ui.companion.md`.

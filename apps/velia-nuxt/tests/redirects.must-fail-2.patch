@@ -1,0 +1,20 @@
+# Negative control — Velia hands its own basket path to cart-nuxt's redirects,
+# whose /order/cart rename sends the shopper back to the basket route, so the
+# basket never settles.
+#
+# Intended RED:
+#   apps/velia-nuxt/tests/redirects.test.ts
+#     "leaves "/order/cart/", the basket's own path, alone"
+
+diff --git a/apps/velia-nuxt/app/redirects.ts b/apps/velia-nuxt/app/redirects.ts
+--- a/apps/velia-nuxt/app/redirects.ts
++++ b/apps/velia-nuxt/app/redirects.ts
+@@ -7,8 +7,6 @@ const BASKET_PATH = `/order/${BASKET_SEGMENT}/`;
+ const DEFAULT_BASKET_PATH = `/order/${DEFAULT_BASKET_SEGMENT}/`;
+ 
+ export default defineNuxtRouteMiddleware((to, from) => {
+-  if (to.path === BASKET_PATH) return;
+-
+   // Here, not a route-record redirect: one of those skips the routing guard on first load.
+   if (startsWith(to.path, DEFAULT_BASKET_PATH)) {
+     return navigateTo(

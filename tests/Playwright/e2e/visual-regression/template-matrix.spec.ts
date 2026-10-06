@@ -36,7 +36,7 @@ import { waitForSessionCookie } from "../support/helpers/session";
  * NOT looped across all 28 locales.
  *
  * ## Template values that actually exist
- * The template enum differs by module (verified in packages/client-vue/src):
+ * The template enum differs by module (verified in the domain packages):
  * - auth pages (session module): split, enclosed, canvas-card, surface-box,
  *   two-column-ltr, two-column-rtl. `full` is accepted by the UISchema and the
  *   functional spec baselines it (register-full.png) — included here for parity.

@@ -96,7 +96,7 @@ export function authPages(): Partial<Record<PageKey, ContentConfig>> {
     rows: readonly ContentRowConfig[]
   ): ContentConfig => ({ title, description, rows, footer: false });
 
-  // The logged-out screens no client-vue component serves, mocked as legacy
+  // The logged-out screens no package component serves, mocked as legacy
   // drew them (`views/client/auth/{resetPassword,verify,verifyEmail,registerOrg}`).
   const signIn = linkRow({
     label: "Sign in",

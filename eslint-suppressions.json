@@ -995,238 +995,6 @@
       "count": 1
     }
   },
-  "packages/client-vue/src/components/emailHistory/EmailHistoryListing.vue": {
-    "@typescript-eslint/no-explicit-any": {
-      "count": 1
-    }
-  },
-  "packages/client-vue/src/components/form/Form.vue": {
-    "@typescript-eslint/no-explicit-any": {
-      "count": 7
-    }
-  },
-  "packages/client-vue/src/components/form/FormModal.vue": {
-    "@typescript-eslint/no-explicit-any": {
-      "count": 8
-    }
-  },
-  "packages/client-vue/src/components/form/renderers/DomainRenderer.vue": {
-    "@typescript-eslint/no-explicit-any": {
-      "count": 1
-    }
-  },
-  "packages/client-vue/src/components/form/renderers/EnumRadioCollapsibleRenderer.vue": {
-    "@typescript-eslint/no-explicit-any": {
-      "count": 1
-    }
-  },
-  "packages/client-vue/src/components/form/renderers/GatewayDLocalRenderer.vue": {
-    "@typescript-eslint/no-explicit-any": {
-      "count": 3
-    }
-  },
-  "packages/client-vue/src/components/form/renderers/GatewaysRenderer.vue": {
-    "@typescript-eslint/no-explicit-any": {
-      "count": 1
-    }
-  },
-  "packages/client-vue/src/components/form/renderers/PaymentDetailsRenderer.vue": {
-    "@typescript-eslint/no-explicit-any": {
-      "count": 1
-    }
-  },
-  "packages/client-vue/src/components/form/renderers/SLDRenderer.vue": {
-    "@typescript-eslint/no-explicit-any": {
-      "count": 1
-    }
-  },
-  "packages/client-vue/src/components/form/renderers/SubProductRenderer.vue": {
-    "@typescript-eslint/no-explicit-any": {
-      "count": 2
-    }
-  },
-  "packages/client-vue/src/components/form/renderers/TermsRenderer.vue": {
-    "@typescript-eslint/no-explicit-any": {
-      "count": 1
-    }
-  },
-  "packages/client-vue/src/components/form/renderers/utils.ts": {
-    "@typescript-eslint/no-explicit-any": {
-      "count": 1
-    }
-  },
-  "packages/client-vue/src/components/form/useFormI18n.ts": {
-    "@typescript-eslint/no-explicit-any": {
-      "count": 2
-    }
-  },
-  "packages/client-vue/src/components/manage/Form.vue": {
-    "@typescript-eslint/no-explicit-any": {
-      "count": 3
-    },
-    "vue/no-dupe-keys": {
-      "count": 2
-    },
-    "vue/no-unused-vars": {
-      "count": 1
-    }
-  },
-  "packages/client-vue/src/components/manage/List.vue": {
-    "@typescript-eslint/no-explicit-any": {
-      "count": 1
-    },
-    "vue/no-dupe-keys": {
-      "count": 2
-    }
-  },
-  "packages/client-vue/src/components/manage/Manage.vue": {
-    "@typescript-eslint/no-explicit-any": {
-      "count": 1
-    },
-    "vue/no-dupe-keys": {
-      "count": 2
-    },
-    "vue/no-useless-template-attributes": {
-      "count": 1
-    }
-  },
-  "packages/client-vue/src/components/manage/Select.vue": {
-    "@typescript-eslint/no-explicit-any": {
-      "count": 1
-    }
-  },
-  "packages/client-vue/src/components/manage/types.ts": {
-    "@typescript-eslint/no-explicit-any": {
-      "count": 12
-    }
-  },
-  "packages/client-vue/src/composables/useBreadcrumbs.ts": {
-    "@typescript-eslint/no-explicit-any": {
-      "count": 3
-    }
-  },
-  "packages/client-vue/src/modules/basket-product/Edit.vue": {
-    "vue/no-expose-after-await": {
-      "count": 1
-    }
-  },
-  "packages/client-vue/src/modules/basket-product/components/card/components/BasketProductSummary.vue": {
-    "vue/no-use-v-if-with-v-for": {
-      "count": 1
-    }
-  },
-  "packages/client-vue/src/modules/basket-product/components/card/components/BasketQuantityField.vue": {
-    "vue/return-in-computed-property": {
-      "count": 1
-    }
-  },
-  "packages/client-vue/src/modules/basket/components/Summary.vue": {
-    "@typescript-eslint/no-explicit-any": {
-      "count": 1
-    }
-  },
-  "packages/client-vue/src/modules/billing/components/BillingForm.vue": {
-    "@typescript-eslint/no-unused-expressions": {
-      "count": 1
-    }
-  },
-  "packages/client-vue/src/modules/billing/components/TabBusiness.vue": {
-    "vue/no-dupe-keys": {
-      "count": 2
-    }
-  },
-  "packages/client-vue/src/modules/billing/components/TabPersonal.vue": {
-    "vue/no-dupe-keys": {
-      "count": 2
-    }
-  },
-  "packages/client-vue/src/modules/catalogue/Catalogue.vue": {
-    "vue/return-in-computed-property": {
-      "count": 2
-    }
-  },
-  "packages/client-vue/src/modules/catalogue/products/WidgetGrid.vue": {
-    "vue/no-use-v-if-with-v-for": {
-      "count": 1
-    }
-  },
-  "packages/client-vue/src/modules/domain/components/DomainType.vue": {
-    "vue/no-dupe-keys": {
-      "count": 4
-    }
-  },
-  "packages/client-vue/src/modules/order/Order.vue": {
-    "vue/return-in-computed-property": {
-      "count": 2
-    }
-  },
-  "packages/client-vue/src/modules/payment/components/AccountCredit.vue": {
-    "@typescript-eslint/no-explicit-any": {
-      "count": 1
-    }
-  },
-  "packages/client-vue/src/modules/payment/components/PaymentAmount.vue": {
-    "@typescript-eslint/no-explicit-any": {
-      "count": 1
-    },
-    "vue/return-in-computed-property": {
-      "count": 1
-    }
-  },
-  "packages/client-vue/src/modules/product-setup/components/Setup.vue": {
-    "@typescript-eslint/no-explicit-any": {
-      "count": 2
-    }
-  },
-  "packages/client-vue/src/modules/product/Configure.vue": {
-    "vue/no-expose-after-await": {
-      "count": 1
-    }
-  },
-  "packages/client-vue/src/modules/product/components/Config.vue": {
-    "@typescript-eslint/no-explicit-any": {
-      "count": 1
-    }
-  },
-  "packages/client-vue/src/modules/product/components/card/ProductBenefits.vue": {
-    "vue/no-unused-vars": {
-      "count": 1
-    }
-  },
-  "packages/client-vue/src/modules/product/components/subproduct/SubproductCard.vue": {
-    "vue/no-use-v-if-with-v-for": {
-      "count": 1
-    }
-  },
-  "packages/client-vue/src/modules/product/components/subproduct/SubproductCards.vue": {
-    "@typescript-eslint/no-explicit-any": {
-      "count": 4
-    },
-    "vue/no-dupe-keys": {
-      "count": 1
-    }
-  },
-  "packages/client-vue/src/modules/product/components/terms/TermCard.vue": {
-    "vue/no-use-v-if-with-v-for": {
-      "count": 1
-    }
-  },
-  "packages/client-vue/src/modules/session/components/Auth.vue": {
-    "@typescript-eslint/no-explicit-any": {
-      "count": 4
-    },
-    "no-fallthrough": {
-      "count": 3
-    },
-    "vue/return-in-computed-property": {
-      "count": 1
-    }
-  },
-  "packages/client-vue/src/modules/system/Error.vue": {
-    "no-fallthrough": {
-      "count": 1
-    }
-  },
   "packages/modules-domain/src/components/DomainType.vue": {
     "vue/no-dupe-keys": {
       "count": 4
@@ -2500,7 +2268,22 @@
       "count": 1
     }
   },
+  "apps/velia-nuxt/app/redirects.ts": {
+    "@workspace/no-cross-package-path-imports": {
+      "count": 1
+    }
+  },
   "apps/velia-nuxt/app/router.options.ts": {
+    "@workspace/no-cross-package-path-imports": {
+      "count": 1
+    }
+  },
+  "apps/velia-nuxt/tests/redirects.test.ts": {
+    "@workspace/no-cross-package-path-imports": {
+      "count": 1
+    }
+  },
+  "apps/velia-nuxt/tests/router-options.test.ts": {
     "@workspace/no-cross-package-path-imports": {
       "count": 1
     }

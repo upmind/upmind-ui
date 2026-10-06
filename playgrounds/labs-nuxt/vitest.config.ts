@@ -170,8 +170,8 @@ export default defineConfig({
               "app/funnels/**/__tests__/**/*.spec.ts",
               "app/layouts/**/__tests__/**/*.spec.ts",
               "app/pages/**/__tests__/**/*.spec.ts",
-              // A Nuxt plugin renders nothing, but it boots `client-vue` and
-              // the ui plugin set, so it needs a document — not the node lane
+              // A Nuxt plugin renders nothing, but it boots the domain packages
+              // and the ui plugin set, so it needs a document — not the node lane
               // its "not a component" shape suggests.
               "app/plugins/**/__tests__/**/*.spec.ts",
               "modules/scenarios/runtime/components/**/__tests__/**/*.spec.ts"
