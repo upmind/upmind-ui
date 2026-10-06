@@ -1,0 +1,11 @@
+--- a/packages/headless/src/modules/client-custom-pages/client-custom-pages.types.ts
++++ b/packages/headless/src/modules/client-custom-pages/client-custom-pages.types.ts
+@@ -159,7 +159,7 @@
+ 
+ /** Wire columns the custom-page list can be sorted by. */
+ export enum CustomPagesSortableProperties {
+-  DEFAULT = "created_at",
++  DEFAULT = "updated_at",
+   NAME = "name"
+ }
+ 

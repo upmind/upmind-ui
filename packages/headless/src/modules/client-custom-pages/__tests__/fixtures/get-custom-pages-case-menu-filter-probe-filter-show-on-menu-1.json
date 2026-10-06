@@ -1,0 +1,65 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/custom_pages?filter[show_on_menu]=1&case=menu-filter-probe",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a464ec94cd46bf0a-LHR",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json",
+      "date": "Tue, 06 Oct 2026 13:13:34 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=JnGzVwfNDzRn0Pwo2%2BvSOriJKby%2FgwrTetUXDQa6RAMQZIBhyLwy1kBT0UKrEeBYAIW3KB%2FIVDuTeu%2BN2c1o%2B9GJsxPFayRvud9z1MpWn%2FMaPRfp%2BmtKTZ8ibWExvwdH6EqkkUq4oA%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-frame-options": "SAMEORIGIN",
+      "x-total-count": "1"
+    },
+    "body": {
+      "status": "ok",
+      "data": [
+        {
+          "id": "3825d96e-763e-d091-3dc4-174825283406",
+          "org_id": "5d085e69-d562-3719-e46c-218e940d4237",
+          "brand_id": "2785d26e-9678-3d16-999f-314502e70439",
+          "name": "Client custom page",
+          "slug": "custom-page",
+          "show_on_menu": true,
+          "menu_label": "Custom page",
+          "title": "Client custom page",
+          "order": 0,
+          "created_at": "2026-10-06 11:22:09",
+          "updated_at": "2026-10-06 11:22:09",
+          "menu_label_translated": "Custom page",
+          "title_translated": "Client custom page"
+        }
+      ],
+      "related": null,
+      "total": 1,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-10-06T13:13:34.313Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "client-custom-pages"
+  }
+}

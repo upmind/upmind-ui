@@ -1,0 +1,11 @@
+--- a/packages/headless/src/modules/client-custom-pages/client-custom-pages.services.ts
++++ b/packages/headless/src/modules/client-custom-pages/client-custom-pages.services.ts
+@@ -103,7 +103,7 @@
+ 
+   return query<ICustomPage, CustomPage>({
+     queryKey: [...queryKey, "slug", slug],
+-    url: useUrl(`custom_pages/${slug}`),
++    url: useUrl("custom_pages"),
+     withAccessToken: true,
+     select: mapCustomPage,
+     enabled: () => !!slug && !listRow?.value

@@ -733,6 +733,18 @@
     "false": "Notes",
     "null": "All"
   },
+  "show_on_menu_filter": {
+    "description": null,
+    "label": "Show on menu",
+    "placeholder": null,
+    "true": "Show on menu",
+    "false": "Not on menu",
+    "null": "All"
+  },
+  "custom_pages_sort": {
+    "created_at": "Date added",
+    "name": "Page name"
+  },
   "verified_filter": {
     "description": null,
     "label": "Verified",

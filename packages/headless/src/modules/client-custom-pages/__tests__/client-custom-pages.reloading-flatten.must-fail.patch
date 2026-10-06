@@ -1,0 +1,13 @@
+--- a/packages/headless/src/modules/client-custom-pages/useClientCustomPages.meta.ts
++++ b/packages/headless/src/modules/client-custom-pages/useClientCustomPages.meta.ts
+@@ -53,9 +53,7 @@
+    *           same name for a different truth condition would read as
+    *           consistent while silently changing meaning between modules.
+    */
+-  const isReloading = computed(
+-    () => query.isFetching.value && query.isFetched.value
+-  );
++  const isReloading = computed(() => false);
+ 
+   // --- actor-specific meta: none earned yet (clause 2). When a scope earns
+   // one, add `useClientCustomPages.meta.{actor}.ts` and spread it LAST.

@@ -1,0 +1,10 @@
+--- a/packages/headless/src/modules/client-custom-pages/index.ts
++++ b/packages/headless/src/modules/client-custom-pages/index.ts
+@@ -19,6 +19,7 @@
+ // internal; it marks its record with the builder's `.withId(slug)`, not a
+ // context.
+ export {
++  CLIENT_CUSTOM_PAGE_SCOPE_MATRIX,
+   CLIENT_CUSTOM_PAGES_SCOPE_MATRIX,
+   ClientCustomPagesContextTypes,
+   CustomPagesSortableProperties

@@ -1,0 +1,63 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/custom_pages/custom-page",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a464ec938c30bf0a-LHR",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json",
+      "date": "Tue, 06 Oct 2026 13:13:34 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=qU67ljoxgrG8zpp%2FZF3wDQZSAmYrxG5jKywIzgTykVUS6R%2FLIZ8ciiW74p1i%2BVJwBPp96K2BBY01EOzQAO0sIpnUkZQmYppErZRqP%2B3zy0YoOJCporvTmMMfq5n9hRybB6R1T0fAPQ%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-frame-options": "SAMEORIGIN"
+    },
+    "body": {
+      "status": "ok",
+      "data": {
+        "id": "3825d96e-763e-d091-3dc4-174825283406",
+        "org_id": "5d085e69-d562-3719-e46c-218e940d4237",
+        "brand_id": "2785d26e-9678-3d16-999f-314502e70439",
+        "name": "Client custom page",
+        "slug": "custom-page",
+        "show_on_menu": true,
+        "menu_label": "Custom page",
+        "title": "Client custom page",
+        "order": 0,
+        "created_at": "2026-10-06 11:22:09",
+        "updated_at": "2026-10-06 11:22:09",
+        "menu_label_translated": "Custom page",
+        "title_translated": "Client custom page"
+      },
+      "related": null,
+      "total": null,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-10-06T13:13:34.134Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "client-custom-pages"
+  }
+}
