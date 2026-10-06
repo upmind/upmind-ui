@@ -1,0 +1,110 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/wallet/balance?lang=en&currency_code=GBP",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a462bbbe4e98e902-LHR",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json",
+      "date": "Tue, 06 Oct 2026 06:50:43 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=rf1wUAgtJJokVx8y4P6QaIlv%2BoVDdgm%2Byyhg45W2YfusEJbD6bKi60TYZh0Ng6zSiNBwhRx62IH7Vd94exN8DQxkNFogZxercUeAHKqKNr3gEgZmD3Ly4ZMPbEm8%2BmWOq6wJw4lvgQ%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-frame-options": "SAMEORIGIN"
+    },
+    "body": {
+      "status": "ok",
+      "data": {
+        "online": {
+          "GBP": {
+            "amount": 60.4502,
+            "amount_formatted": 60.4502,
+            "amount_converted": 60.4502,
+            "amount_converted_formatted": "£60.45",
+            "currency": {
+              "id": "3825d96e-763e-d091-3dc4-174825283406",
+              "name": "British Pound",
+              "prefix": "£",
+              "suffix": "",
+              "code": "GBP",
+              "created_at": "2017-10-18 14:16:22",
+              "updated_at": "2026-09-28 11:08:14",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          }
+        },
+        "offline": {
+          "GBP": {
+            "amount": 0,
+            "amount_formatted": "£0.00",
+            "amount_converted": 0,
+            "amount_converted_formatted": "£0.00",
+            "currency": {
+              "id": "3825d96e-763e-d091-3dc4-174825283406",
+              "name": "British Pound",
+              "prefix": "£",
+              "suffix": "",
+              "code": "GBP",
+              "created_at": "2017-10-18 14:16:22",
+              "updated_at": "2026-09-28 11:08:14",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          }
+        },
+        "total": {
+          "GBP": {
+            "amount": 60.4502,
+            "amount_formatted": "£60.45",
+            "amount_converted": 60.45,
+            "amount_converted_formatted": "£60.45",
+            "currency": {
+              "id": "3825d96e-763e-d091-3dc4-174825283406",
+              "name": "British Pound",
+              "prefix": "£",
+              "suffix": "",
+              "code": "GBP",
+              "created_at": "2017-10-18 14:16:22",
+              "updated_at": "2026-09-28 11:08:14",
+              "base": true,
+              "decimals": true,
+              "manual": 0
+            }
+          }
+        }
+      },
+      "related": null,
+      "total": null,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-10-06T06:50:43.304Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "invoices"
+  }
+}

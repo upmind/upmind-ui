@@ -459,6 +459,9 @@ Feature: A client reads and manages their invoices
     Then I am given the last page of my orders
 
   # FE-3237 AC6
+  # Blocker: staging cannot arrange a refund-changed order. A staff refund of a
+  # manual payment answers 200 (POST api/admin/payments/refund) and leaves the
+  # order paid with no refund_changed, so no first page holds the four kinds.
   @AC-23 @client @cell:client-self @collection @todo
   Scenario: Read the row of each of my orders
     Given I have a paid, a cancelled, a delegated and a refund-changed order
@@ -532,7 +535,7 @@ Feature: A client reads and manages their invoices
     And no error is reported
 
   # FE-3237 AC13
-  @AC-30 @client @cell:client-self @detail @todo
+  @AC-30 @client @cell:client-self @detail
   Scenario: Open one of my orders
     Given one of my orders and an order number that does not exist
     When I open each of them, then reload the first
@@ -540,6 +543,8 @@ Feature: A client reads and manages their invoices
     And the second is reported as not available
 
   # FE-3237 AC14
+  # Blocker: no order of the staging client carries custom fields or an
+  # affiliate referrer, and no arrangement route for either is known.
   @AC-31 @client @cell:client-self @detail @todo
   Scenario: Read the details of one of my orders
     Given one of my orders with notes, custom fields and a referrer
@@ -547,21 +552,21 @@ Feature: A client reads and manages their invoices
     Then I see its number, status, totals, dates, contract, notes, custom fields and referrer
 
   # FE-3237 AC15
-  @AC-32 @client @cell:client-self @detail @todo
+  @AC-32 @client @cell:client-self @detail
   Scenario: Read the items of one of my orders
     Given one of my orders with a subscription, options and a snapshot
     When I open that order
     Then I see each item from the snapshot, with its term, billing cycle name, tags and sub-items
 
   # FE-3237 AC16
-  @AC-33 @client @cell:client-self @detail @todo
+  @AC-33 @client @cell:client-self @detail
   Scenario: See the catalogue image of each item I ordered
     Given one of my orders whose snapshot items have catalogue images
     When I open that order
     Then each item shows its catalogue image, or its product image when it has none
 
   # FE-3237 AC18
-  @AC-34 @client @cell:client-self @detail @todo
+  @AC-34 @client @cell:client-self @detail
   Scenario: Read an unpaid order as due and payable
     Given one of my orders is unpaid
     When I open that order
@@ -569,7 +574,7 @@ Feature: A client reads and manages their invoices
     And every other condition reads as its truth-table row
 
   # FE-3237 AC18
-  @AC-34 @client @cell:client-self @detail @todo
+  @AC-34 @client @cell:client-self @detail
   Scenario: Read an overdue order as overdue
     Given one of my orders is overdue
     When I open that order
@@ -577,7 +582,7 @@ Feature: A client reads and manages their invoices
     And every other condition reads as its truth-table row
 
   # FE-3237 AC18
-  @AC-34 @client @cell:client-self @detail @todo
+  @AC-34 @client @cell:client-self @detail
   Scenario: Read a paid order as paid
     Given one of my orders is paid
     When I open that order
@@ -585,7 +590,7 @@ Feature: A client reads and manages their invoices
     And every other condition reads as its truth-table row
 
   # FE-3237 AC18
-  @AC-34 @client @cell:client-self @detail @todo
+  @AC-34 @client @cell:client-self @detail
   Scenario: Read a partly paid order as partly paid
     Given one of my orders is partly paid
     When I open that order
@@ -593,7 +598,7 @@ Feature: A client reads and manages their invoices
     And every other condition reads as its truth-table row
 
   # FE-3237 AC18
-  @AC-34 @client @cell:client-self @detail @todo
+  @AC-34 @client @cell:client-self @detail
   Scenario: Read a cancelled order as cancelled
     Given one of my orders is cancelled
     When I open that order
@@ -601,6 +606,9 @@ Feature: A client reads and manages their invoices
     And every other condition reads as its truth-table row
 
   # FE-3237 AC19
+  # Blocker: the one pending payment on staging came through a third-party
+  # gateway (Blockonomics), which the operator ruling of 2026-09-28 bars from
+  # an integration test; a staff manual payment settles at once.
   @AC-35 @client @cell:client-self @detail @todo
   Scenario: Read an order with a payment in flight as pending
     Given one of my orders has a payment that has not settled
@@ -611,7 +619,7 @@ Feature: A client reads and manages their invoices
   # The house delegated scenario "A delegated invoice is not mine to settle" is
   # @cell:client-client. This one stays @cell:client-self: the delegated marker
   # is a field of my own order read, and parity.yaml lists it under client x self.
-  @AC-35 @client @cell:client-self @detail @todo
+  @AC-35 @client @cell:client-self @detail
   Scenario: Read an order of a client who delegated to me as delegated
     Given a client delegated one of their orders to me
     When I open that order

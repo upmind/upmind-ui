@@ -91,6 +91,8 @@ import {
   forEach,
   isEmpty,
   map,
+  size,
+  some,
   sortBy,
   split,
   trim,
@@ -932,8 +934,11 @@ describe("Invoices scenario recordings", () => {
       clientToken.access_token
     );
     const pendingFirst = find(
-      (withPayments as { data?: Array<WireRow & { payments?: Array<{ pending?: boolean }> }> })
-        ?.data,
+      (
+        withPayments as {
+          data?: Array<WireRow & { payments?: Array<{ pending?: boolean }> }>;
+        }
+      )?.data,
       row => row.payments?.[0]?.pending === true
     );
     if (!pendingFirst)
@@ -3041,6 +3046,7 @@ const ORDER_LIST_WITH = `${LOAD_LIST_WITH},tags`;
 describe("Invoices order-history scenario recordings", () => {
   let clientToken: IToken;
   let clientId: string;
+  let brandId: string;
   const prepared = new Set<string>();
 
   const UNPAID_STATUS = "invoice_unpaid,invoice_overdue,invoice_adjusted";
@@ -3116,7 +3122,8 @@ describe("Invoices order-history scenario recordings", () => {
   const NO_SUCH_ORDER = "FE3237-NO-SUCH-ORDER";
 
   /** The Unpaid status choice: one csv value, two statuses (design 8.3). */
-  const UNPAID_CHOICE = "&filter[status.code|eq]=invoice_unpaid,invoice_adjusted";
+  const UNPAID_CHOICE =
+    "&filter[status.code|eq]=invoice_unpaid,invoice_adjusted";
 
   type CorpusOrder = {
     id: string;
@@ -3161,6 +3168,7 @@ describe("Invoices order-history scenario recordings", () => {
   beforeAll(async () => {
     clientToken = await mintClientToken();
     clientId = await resolveClientId(clientToken.access_token);
+    brandId = await resolveBrandId(clientToken.access_token);
     if (!clientId)
       throw new Error(
         "Could not resolve the client id from /self — cannot record the " +
@@ -3181,9 +3189,20 @@ describe("Invoices order-history scenario recordings", () => {
       throw new Error("No paid order among the newest thirty. Escalate.");
     corpus.paidFrom = `${paid.paid_datetime.slice(0, 10)} 00:00:00`;
 
-    const unpaid = await readOrders(
-      "limit=50&filter[status.code|eq]=invoice_unpaid,invoice_adjusted"
-    );
+    // Three unpaid orders of one category give page two at two a page; the
+    // recording runs settle unpaid orders, so place more when too few are left.
+    const unpaidOrders = (): Promise<CorpusOrder[]> =>
+      readOrders(
+        "limit=50&filter[status.code|eq]=invoice_unpaid,invoice_adjusted"
+      );
+    let unpaid = await unpaidOrders();
+    for (let placed = size(unpaid); placed < 3; placed++)
+      await orderAndConvert(
+        clientToken.access_token,
+        ARRANGE_PRODUCTS.recurring,
+        1
+      );
+    unpaid = await unpaidOrders();
     const category = unpaid[0]?.products?.[0]?.product?.category?.name;
     const sameCategory = filter(
       unpaid,
@@ -3261,7 +3280,10 @@ describe("Invoices order-history scenario recordings", () => {
         "POST",
         "/api/orders",
         clientToken.access_token,
-        { category_slug: InvoiceCategoryCode.NEW_CONTRACT, products: [line, line] }
+        {
+          category_slug: InvoiceCategoryCode.NEW_CONTRACT,
+          products: [line, line]
+        }
       );
       const basketId = (order.body as { data?: { id?: string } })?.data?.id;
       const convert = basketId
@@ -3481,7 +3503,9 @@ describe("Invoices order-history scenario recordings", () => {
         await generator.get(
           orderListUrl("", { offset: 10, order: "total_amount" })
         );
-        await generator.get(orderListUrl("", { offset: 10, order: "status_id" }));
+        await generator.get(
+          orderListUrl("", { offset: 10, order: "status_id" })
+        );
         await generator.get(orderListUrl("", { offset: 10, order: "id" }));
       })
     );
@@ -3540,12 +3564,306 @@ describe("Invoices order-history scenario recordings", () => {
     it(when, () =>
       recordStep(scenario, when, async generator => {
         await generator.get(
-          orderListUrl(`&filter[number|eq]=${encodeURIComponent(corpus.numberA)}`)
+          orderListUrl(
+            `&filter[number|eq]=${encodeURIComponent(corpus.numberA)}`
+          )
         );
         await generator.get(
-          orderListUrl(`&filter[number|eq]=${encodeURIComponent(corpus.numberB)}`)
+          orderListUrl(
+            `&filter[number|eq]=${encodeURIComponent(corpus.numberB)}`
+          )
         );
       })
+    );
+  });
+
+  // --- one order (useInvoice().withId(id)) -----------------------------------
+
+  type OrderDetail = {
+    id: string;
+    number?: string;
+    paid_amount?: number;
+    unpaid_amount_converted?: number;
+    status?: { code?: string };
+    delegate_related?: boolean;
+    products?: Array<{ billing_cycle_months?: number; options?: unknown[] }>;
+    current_data?: {
+      content?: {
+        products?: Array<{
+          billing_cycle_months?: number;
+          options?: unknown[];
+          product?: { id?: string; image?: { full_url?: string } | null };
+        }>;
+      };
+    } | null;
+  };
+
+  const readOrder = async (id: string): Promise<OrderDetail | undefined> =>
+    (
+      (await selfCall(
+        `/api/invoices/${id}?${LOAD_ONE_WITH}`,
+        clientToken.access_token
+      )) as { body?: { data?: OrderDetail } }
+    ).body?.data;
+
+  /** The newest placed order the client holds in `status`, read in full. */
+  async function orderIn(
+    status: string,
+    match: (order: OrderDetail) => boolean = () => true
+  ): Promise<string> {
+    const rows = await readOrders(`limit=50&filter[status.code]=${status}`);
+    for (const row of rows) {
+      const order = await readOrder(row.id);
+      if (order && match(order)) return order.id;
+    }
+    throw new Error(
+      `No placed order in ${status} matches its scenario. Escalate.`
+    );
+  }
+
+  /** Records the detail reads one order opens with into a scenario step. */
+  const recordOrderDetail =
+    (id: () => string) =>
+    async (generator: Generator): Promise<void> => {
+      await recordDetailReads(generator, brandId, clientId, id());
+    };
+
+  const orderIds = {
+    opened: "",
+    items: "",
+    images: "",
+    unpaid: "",
+    overdue: "",
+    paid: "",
+    partlyPaid: "",
+    cancelled: "",
+    delegated: ""
+  };
+
+  // A read of one order and a read of a missing one share a replay key, so the
+  // missing order is opened by the Given and the order by the When.
+  describe("Open one of my orders", () => {
+    const scenario = "Open one of my orders";
+    const given = "one of my orders and an order number that does not exist";
+    const when = "I open each of them, then reload the first";
+
+    it(BG, () => recordStep(scenario, BG, recordBoot));
+    it(given, () =>
+      recordStep(scenario, given, generator =>
+        recordDetailReads(
+          generator,
+          brandId,
+          clientId,
+          "00000000-0000-0000-0000-000000000000"
+        )
+      )
+    );
+    it(when, async () => {
+      orderIds.opened = (await readOrders("limit=1"))[0].id;
+      return recordStep(
+        scenario,
+        when,
+        recordOrderDetail(() => orderIds.opened)
+      );
+    });
+  });
+
+  // The snapshot of the chosen order disagrees with its live products on the
+  // billing term, so an item read from the live products is told apart.
+  describe("Read the items of one of my orders", () => {
+    const scenario = "Read the items of one of my orders";
+    const given =
+      "one of my orders with a subscription, options and a snapshot";
+
+    it(BG, () => recordStep(scenario, BG, recordBoot));
+    it(
+      given,
+      async () => {
+        const rows = filter(
+          (await readOrders("limit=2000&with_count=products")) as Array<
+            CorpusOrder & { products_count?: number }
+          >,
+          row => Number(row.products_count) > 1
+        );
+        for (const row of rows) {
+          const order = await readOrder(row.id);
+          const snapshot = order?.current_data?.content?.products ?? [];
+          const live = order?.products ?? [];
+          const differs = some(
+            snapshot,
+            (item, index) =>
+              item.billing_cycle_months !== live[index]?.billing_cycle_months
+          );
+          if (
+            differs &&
+            some(snapshot, item => Number(item.billing_cycle_months) > 0) &&
+            some(snapshot, item => size(item.options) > 0)
+          ) {
+            orderIds.items = row.id;
+            break;
+          }
+        }
+        if (!orderIds.items)
+          throw new Error(
+            `${scenario}: no placed order whose snapshot differs from its live items. Escalate.`
+          );
+        return recordStep(
+          scenario,
+          given,
+          recordOrderDetail(() => orderIds.items)
+        );
+      },
+      600000
+    );
+  });
+
+  describe("See the catalogue image of each item I ordered", () => {
+    const scenario = "See the catalogue image of each item I ordered";
+    const given = "one of my orders whose snapshot items have catalogue images";
+
+    it(BG, () => recordStep(scenario, BG, recordBoot));
+    it(
+      given,
+      async () => {
+        const rows = filter(
+          (await readOrders("limit=100&with_count=products")) as Array<
+            CorpusOrder & { products_count?: number }
+          >,
+          row => Number(row.products_count) > 1
+        );
+        for (const row of rows) {
+          const order = await readOrder(row.id);
+          const snapshot = order?.current_data?.content?.products ?? [];
+          if (
+            size(snapshot) > 1 &&
+            some(snapshot, item => !!item.product?.image?.full_url)
+          ) {
+            orderIds.images = row.id;
+            break;
+          }
+        }
+        if (!orderIds.images)
+          throw new Error(
+            `${scenario}: no placed order with several snapshot items and a catalogue image. Escalate.`
+          );
+        return recordStep(
+          scenario,
+          given,
+          recordOrderDetail(() => orderIds.images)
+        );
+      },
+      600000
+    );
+  });
+
+  for (const [scenario, given, pick] of [
+    [
+      "Read an unpaid order as due and payable",
+      "one of my orders is unpaid",
+      async () =>
+        orderIn(InvoiceStatus.UNPAID, order => !Number(order.paid_amount))
+    ],
+    [
+      "Read an overdue order as overdue",
+      "one of my orders is overdue",
+      async () =>
+        orderIn(InvoiceStatus.OVERDUE, order => !Number(order.paid_amount))
+    ],
+    [
+      "Read a paid order as paid",
+      "one of my orders is paid",
+      async () =>
+        orderIn(InvoiceStatus.PAID, order => Number(order.paid_amount) > 0)
+    ],
+    [
+      "Read a partly paid order as partly paid",
+      "one of my orders is partly paid",
+      async () => {
+        const id = await arrangePartlyPaid(clientToken.access_token, clientId);
+        if (!id)
+          throw new Error("Could not arrange a partly paid order. Escalate.");
+        return id;
+      }
+    ],
+    [
+      "Read a cancelled order as cancelled",
+      "one of my orders is cancelled",
+      async () =>
+        orderIn(InvoiceStatus.CANCELLED, order => !Number(order.paid_amount))
+    ]
+  ] as const) {
+    describe(scenario, () => {
+      it(BG, () => recordStep(scenario, BG, recordBoot));
+      it(
+        given,
+        async () => {
+          const id = await pick();
+          return recordStep(
+            scenario,
+            given,
+            recordOrderDetail(() => id)
+          );
+        },
+        600000
+      );
+    });
+  }
+
+  // Recorded as the delegate MEMBER reading an order the delegate owner placed
+  // (the house shape of "A delegated invoice is not mine to settle"): the
+  // owner's own order, never a sub-account's, so it reads as delegated.
+  describe("Read an order of a client who delegated to me as delegated", () => {
+    const scenario =
+      "Read an order of a client who delegated to me as delegated";
+    const given = "a client delegated one of their orders to me";
+
+    it(BG, () => recordStep(scenario, BG, recordBoot));
+    it(
+      given,
+      async () => {
+        const member = await mintToken({
+          grant_type: GrantTypes.PASSWORD,
+          username: API_CREDENTIALS.delegateMember.username,
+          password: API_CREDENTIALS.delegateMember.password
+        });
+        const owner = await mintToken({
+          grant_type: GrantTypes.PASSWORD,
+          username: API_CREDENTIALS.delegateOwner.username,
+          password: API_CREDENTIALS.delegateOwner.password
+        });
+        if (!member || !owner)
+          throw new Error(`${scenario}: no delegate member or owner token.`);
+        const ownerOrder = await ensureArrangedInvoice(
+          owner.access_token,
+          ARRANGE_PRODUCTS.recurring,
+          24
+        );
+        const read = await arrangeCall(
+          "GET",
+          `/api/invoices/${ownerOrder}?with=category`,
+          member.access_token
+        );
+        const order = (
+          read.body as {
+            data?: { delegate_related?: boolean; category?: { slug?: string } };
+          }
+        )?.data;
+        if (
+          !ownerOrder ||
+          !order?.delegate_related ||
+          order.category?.slug !== InvoiceCategoryCode.NEW_CONTRACT
+        )
+          throw new Error(
+            `${scenario}: the owner's order is not delegated to the member — ${JSON.stringify(read.body)?.slice(0, 300)}`
+          );
+        const ownerId =
+          (await lookupDelegatedClientId(member.access_token, "")) ?? "";
+        return recordStep(scenario, given, async generator => {
+          generator.setBearerToken(member.access_token);
+          await recordDetailReads(generator, brandId, ownerId, ownerOrder);
+        });
+      },
+      600000
     );
   });
 
@@ -3561,9 +3879,13 @@ describe("Invoices order-history scenario recordings", () => {
       recordStep(scenario, "my order history is open", recordOrderBoot()));
     it(when, () =>
       recordStep(scenario, when, async generator => {
-        await generator.get(orderListUrl("&filter[status.code|eq]=invoice_paid"));
         await generator.get(
-          orderListUrl(`&filter[number|eq]=${encodeURIComponent(corpus.numberA)}`)
+          orderListUrl("&filter[status.code|eq]=invoice_paid")
+        );
+        await generator.get(
+          orderListUrl(
+            `&filter[number|eq]=${encodeURIComponent(corpus.numberA)}`
+          )
         );
         await generator.get(
           orderListUrl(`&filter[total_amount|eq]=${corpus.narrowTarget.total}`)

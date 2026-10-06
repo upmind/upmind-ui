@@ -8,7 +8,7 @@
  * the live request can prove them.
  */
 
-import { filter, last, map, slice } from "lodash-es";
+import { differenceWith, filter, isEqual, last, map, slice } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 
@@ -55,3 +55,43 @@ export const sentSinceMark = (match: (request: URL) => boolean): URL[] =>
 /** The latest request of the window that `match` selects. */
 export const latestSent = (match: (request: URL) => boolean): URL | undefined =>
   last(sentInWindow(match));
+
+// --- engine-free assertions: the catalog runs in vitest and in the browser ---
+
+const shown = (value: unknown): string => JSON.stringify(value) ?? "undefined";
+
+/** Fails with `what` unless `condition` holds. */
+export function check(condition: boolean, what: string): void {
+  if (!condition) throw new Error(`expected ${what}`);
+}
+
+/** Fails unless `actual` deeply equals `expected`. */
+export function same(actual: unknown, expected: unknown, what: string): void {
+  if (!isEqual(actual, expected))
+    throw new Error(
+      `expected ${what} to equal ${shown(expected)}, got ${shown(actual)}`
+    );
+}
+
+/** Fails if `actual` deeply equals `unexpected`. */
+export function differs(
+  actual: unknown,
+  unexpected: unknown,
+  what: string
+): void {
+  if (isEqual(actual, unexpected))
+    throw new Error(`expected ${what} not to equal ${shown(unexpected)}`);
+}
+
+/** Fails unless every member of `expected` is deeply equal to one of `actual`. */
+export function containsAll(
+  actual: readonly unknown[],
+  expected: readonly unknown[],
+  what: string
+): void {
+  const missing = differenceWith([...expected], [...actual], isEqual);
+  if (missing.length)
+    throw new Error(
+      `expected ${what} to hold ${shown(missing)}, got ${shown(actual)}`
+    );
+}

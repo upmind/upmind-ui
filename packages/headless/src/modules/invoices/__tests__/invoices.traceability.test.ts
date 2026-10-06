@@ -130,7 +130,13 @@ const EXPECTED_ACTION_ARITY: Record<string, number> = {
   refresh: 0,
   setCriteria: 1,
   sortBy: 1,
-  filterCreditNotes: 0
+  filterCreditNotes: 0,
+  filterBy: 1,
+  setPage: 1,
+  setLimit: 1,
+  search: 1,
+  nextPage: 0,
+  prevPage: 0
 };
 
 // -----------------------------------------------------------------------------

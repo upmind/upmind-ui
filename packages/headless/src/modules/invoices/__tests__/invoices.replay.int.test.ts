@@ -47,6 +47,7 @@ import {
 import {
   INVOICE_SCENARIO,
   INVOICES_SCENARIO,
+  MISSING_INVOICE_SCENARIO,
   invoicesSteps
 } from "./invoices.steps";
 import { closeWire, openWire } from "./invoices.wire";
@@ -147,7 +148,8 @@ replayFeature({
     // the World boots. One widening cast at the seam per key — the collection and
     // the single read each get their own.
     [INVOICES_SCENARIO]: useInvoices as unknown as NodeComposable,
-    [INVOICE_SCENARIO]: useInvoice as unknown as NodeComposable
+    [INVOICE_SCENARIO]: useInvoice as unknown as NodeComposable,
+    [MISSING_INVOICE_SCENARIO]: useInvoice as unknown as NodeComposable
   },
   arrange: arrangeScenario,
   beforeStep: armStep,

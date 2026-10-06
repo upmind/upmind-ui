@@ -22,7 +22,6 @@
  */
 
 import { defineSteps } from "@upmind-automation/scenario-harness";
-import { expect } from "vitest";
 import { InvoiceCategoryCode, InvoiceStatus } from "@upmind-automation/types";
 import { ScopeActorTypes } from "../../scope/scope.types";
 import delegatedDetailRecording from "./scenarios/a-delegated-invoice-is-not-mine-to-settle/02/get-invoices-id-with-staged-imports-1.json";
@@ -81,8 +80,12 @@ import ac27SortedRecording from "./scenarios/sort-my-orders-and-stay-on-my-page/
 import ac29PaidRecording from "./scenarios/keep-my-order-history-to-the-orders-i-placed/03/get-invoices-filter-category-slug-new-contract-filter-status-code-eq-invoice-paid.json";
 import ac29BootRecording from "./scenarios/keep-my-order-history-to-the-orders-i-placed/02/get-invoices-filter-category-slug-new-contract.json";
 import {
+  check,
+  containsAll,
+  differs,
   latestSent,
   markWire,
+  same,
   sentInWindow,
   sentSinceMark
 } from "./invoices.wire";
@@ -116,6 +119,9 @@ export const INVOICES_SCENARIO = "invoices";
 /** The scenario key the single read (`useInvoice`) boots under, by id. */
 export const INVOICE_SCENARIO = "invoice";
 
+/** A second single-read key, so a missing order lives beside an open one. */
+export const MISSING_INVOICE_SCENARIO = "missing-invoice";
+
 /**
  * The action ids these steps drive, ALL on the `useInvoices` collection cell —
  * exported as the gate's `coveredActionIds` so the covered set and the calls
@@ -127,6 +133,10 @@ export const INVOICES_COVERED_ACTIONS = {
   sortBy: "sortBy",
   filterBy: "filterBy",
   setPage: "setPage",
+  setLimit: "setLimit",
+  search: "search",
+  nextPage: "nextPage",
+  prevPage: "prevPage",
   refresh: "refresh",
   filterCreditNotes: "filterCreditNotes"
 } as const;
@@ -438,7 +448,6 @@ const AC18_DELEGATED_PROBES = {
   )
 } as const;
 
-
 // --- the order history (FE-3237), read off each scenario's own recordings ---
 
 type ListRecording = {
@@ -489,7 +498,6 @@ const AC19 = {
   order: ac19OrderListRecording as ListRecording,
   unpaidTotal: (ac19UnpaidProbeRecording as ListRecording).response.body.total
 } as const;
-
 
 /** Every list recording of the module's scenarios, by its path. */
 const LIST_RECORDINGS = import.meta.glob<ListRecording>(
@@ -606,12 +614,14 @@ const observed: {
   moves: PageMove[];
   readsPerWrite: number[];
   narrowedRead: boolean[];
+  conditionRow?: "paid" | "unpaid" | "partlyPaid" | "overdue" | "cancelled";
 } = { moves: [], readsPerWrite: [], narrowedRead: [] };
 
 function resetObserved(): void {
   observed.moves = [];
   observed.readsPerWrite = [];
   observed.narrowedRead = [];
+  observed.conditionRow = undefined;
 }
 
 /** The default list narrowed by status, then category, then amount (AC-2). */
@@ -646,7 +656,10 @@ const AC22 = (() => {
   );
   return {
     none: ac22NoneRecording as ListRecording,
-    term: recordedParam(ac22NoneRecording as ListRecording, "filter[number|eq]"),
+    term: recordedParam(
+      ac22NoneRecording as ListRecording,
+      "filter[number|eq]"
+    ),
     threePages,
     from: recordedParam(threePages, "filter[create_datetime|gte]")
   };
@@ -662,8 +675,7 @@ const AC24 = (() => {
   const firstNameRead = listRecording(
     slug,
     "03",
-    params =>
-      size(filterKeys(params)) === 2 && params.get(NAME) !== `%${name}%`
+    params => size(filterKeys(params)) === 2 && params.get(NAME) !== `%${name}%`
   );
   return {
     pageTwo: ac24PageTwoRecording as ListRecording,
@@ -757,6 +769,237 @@ const AC36 = (() => {
   };
 })();
 
+// --- one order (FE-3237 AC13-AC19), read off each scenario's own recordings --
+
+type OrderItemRecording = {
+  id: string;
+  name?: string;
+  service_identifier?: string | null;
+  client_label?: string | null;
+  quantity?: number;
+  billing_cycle_months?: number;
+  billing_cycle_days?: number;
+  options?: unknown[];
+  product?: {
+    id?: string;
+    name_translated?: string;
+    billing_cycle_months?: number;
+    image?: { full_url?: string } | null;
+  };
+};
+
+type OrderRecording = {
+  request: { path: string };
+  response: {
+    status: number;
+    body: {
+      data: {
+        id: string;
+        number: string;
+        status?: { code?: string };
+        paid_amount?: number;
+        unpaid_amount_converted?: number;
+        delegate_related?: boolean;
+        current_data?: { content?: { products?: OrderItemRecording[] } } | null;
+        products?: OrderItemRecording[];
+      };
+    };
+  };
+};
+
+type ImagesRecording = {
+  request: { path: string };
+  response: {
+    body: { data: Array<{ id: string; image?: { full_url?: string } | null }> };
+  };
+};
+
+const ORDER_RECORDINGS = import.meta.glob<OrderRecording>(
+  "./scenarios/*/*/get-invoices-id-with-staged-imports-1.json",
+  { eager: true, import: "default" }
+);
+
+const IMAGE_RECORDINGS = import.meta.glob<ImagesRecording>(
+  "./scenarios/*/*/get-products-filter-id*.json",
+  { eager: true, import: "default" }
+);
+
+/** The one recording of a scenario step out of a glob of recordings. */
+function stepRecording<T>(
+  recordings: Record<string, T>,
+  slug: string,
+  step: string
+): T {
+  const found = filter(
+    map(recordings, (recording, path) => ({ recording, path })),
+    ({ path }) => includes(path, `/scenarios/${slug}/${step}/`)
+  );
+  if (size(found) !== 1)
+    throw new Error(
+      `expected one recording in ${slug}/${step}, found ${size(found)}; re-record.`
+    );
+  return found[0].recording;
+}
+
+const orderRecording = (slug: string, step = "02") =>
+  stepRecording(ORDER_RECORDINGS, slug, step);
+
+/** The id an order read addressed, read off its recorded path. */
+const orderId = (recording: OrderRecording): string =>
+  recordedId(recording as unknown as DetailRecording);
+
+/** The conditions of one row of the design 8.5 truth table. */
+type ConditionsRow = {
+  isDue: boolean;
+  isCancellable: boolean;
+  isOverdue: boolean;
+  isPaid: boolean;
+  isCancelled: boolean;
+  isPartiallyPaid: boolean;
+  canPay: boolean;
+  canCancel: boolean;
+};
+
+const CONDITION_ROWS: Record<
+  "paid" | "unpaid" | "partlyPaid" | "overdue" | "cancelled",
+  ConditionsRow
+> = {
+  paid: {
+    isDue: false,
+    isCancellable: false,
+    isOverdue: false,
+    isPaid: true,
+    isCancelled: false,
+    isPartiallyPaid: false,
+    canPay: false,
+    canCancel: false
+  },
+  unpaid: {
+    isDue: true,
+    isCancellable: true,
+    isOverdue: false,
+    isPaid: false,
+    isCancelled: false,
+    isPartiallyPaid: false,
+    canPay: true,
+    canCancel: true
+  },
+  partlyPaid: {
+    isDue: true,
+    isCancellable: true,
+    isOverdue: false,
+    isPaid: false,
+    isCancelled: false,
+    isPartiallyPaid: true,
+    canPay: true,
+    canCancel: true
+  },
+  overdue: {
+    isDue: true,
+    isCancellable: true,
+    isOverdue: true,
+    isPaid: false,
+    isCancelled: false,
+    isPartiallyPaid: false,
+    canPay: true,
+    canCancel: true
+  },
+  cancelled: {
+    isDue: false,
+    isCancellable: false,
+    isOverdue: false,
+    isPaid: false,
+    isCancelled: true,
+    isPartiallyPaid: false,
+    canPay: false,
+    canCancel: false
+  }
+};
+
+/** The order each condition scenario opens, and the truth-table row it reads. */
+const CONDITION_ORDERS = {
+  unpaid: orderRecording("read-an-unpaid-order-as-due-and-payable"),
+  overdue: orderRecording("read-an-overdue-order-as-overdue"),
+  paid: orderRecording("read-a-paid-order-as-paid"),
+  partlyPaid: orderRecording("read-a-partly-paid-order-as-partly-paid"),
+  cancelled: orderRecording("read-a-cancelled-order-as-cancelled")
+} as const;
+
+/** Guards that a recorded order holds the state of its truth-table row. */
+function assertRecordedState(
+  row: keyof typeof CONDITION_ROWS,
+  recording: OrderRecording
+): void {
+  const {
+    status,
+    paid_amount: paid,
+    unpaid_amount_converted: owed
+  } = recording.response.body.data;
+  const holds = {
+    paid: status?.code === InvoiceStatus.PAID && Number(paid) > 0,
+    unpaid:
+      status?.code === InvoiceStatus.UNPAID &&
+      !Number(paid) &&
+      Number(owed) > 0,
+    partlyPaid:
+      status?.code === InvoiceStatus.UNPAID &&
+      Number(paid) > 0 &&
+      Number(owed) > 0,
+    overdue:
+      status?.code === InvoiceStatus.OVERDUE &&
+      !Number(paid) &&
+      Number(owed) > 0,
+    cancelled: status?.code === InvoiceStatus.CANCELLED && !Number(paid)
+  }[row];
+  if (!holds)
+    throw new Error(
+      `the ${row} order recording does not hold its state; re-record.`
+    );
+}
+
+/** Opens one condition order and reads every condition of its row. */
+async function readsAsRow(
+  world: World,
+  row: keyof typeof CONDITION_ROWS
+): Promise<void> {
+  const conditions = CONDITION_ROWS[row];
+  await settles(() =>
+    world.expectMeta({ ...conditions, isPayable: conditions.isDue })
+  );
+}
+
+const AC30 = {
+  missingId: orderId(orderRecording("open-one-of-my-orders", "02")),
+  order: orderRecording("open-one-of-my-orders", "03")
+};
+
+const AC32 = orderRecording("read-the-items-of-one-of-my-orders");
+
+const AC33 = {
+  order: orderRecording("see-the-catalogue-image-of-each-item-i-ordered"),
+  images: stepRecording(
+    IMAGE_RECORDINGS,
+    "see-the-catalogue-image-of-each-item-i-ordered",
+    "02"
+  )
+};
+
+const AC35_DELEGATED = orderRecording(
+  "read-an-order-of-a-client-who-delegated-to-me-as-delegated"
+);
+
+/** The items of a recorded order: the snapshot first, the live products second. */
+const snapshotItems = (recording: OrderRecording): OrderItemRecording[] =>
+  recording.response.body.data.current_data?.content?.products ||
+  recording.response.body.data.products ||
+  [];
+
+/** Is this a read of the given order's single read? */
+const isOrderRead =
+  (id: string) =>
+  (request: URL): boolean =>
+    request.pathname.endsWith(`/api/invoices/${id}`);
+
 async function openOrderHistory(world: World): Promise<void> {
   resetObserved();
   markWire();
@@ -822,41 +1065,66 @@ export const invoicesSteps = defineSteps(({ Given, When, Then }) => {
       for (const [index, intent] of writes.entries()) {
         await world.fire(INVOICES_COVERED_ACTIONS.filterBy, intent);
         await settles(async () => {
-          expect(size(sentSinceMark(isListRead))).toBe(index + 1);
+          same(
+            size(sentSinceMark(isListRead)),
+            index + 1,
+            "size(sentSinceMark(isListRead))"
+          );
         });
       }
     }
   );
 
-  Then("only the invoices matching every filter I set are returned", async world => {
-    if (
-      !INVOICE_FILTER.final.response.body.total ||
-      !every(INVOICE_FILTER.final.response.body.data, row =>
-        row.status?.code === InvoiceStatus.PAID &&
-        row.category?.slug === InvoiceCategoryCode.RECURRENT
+  Then(
+    "only the invoices matching every filter I set are returned",
+    async world => {
+      if (
+        !INVOICE_FILTER.final.response.body.total ||
+        !every(
+          INVOICE_FILTER.final.response.body.data,
+          row =>
+            row.status?.code === InvoiceStatus.PAID &&
+            row.category?.slug === InvoiceCategoryCode.RECURRENT
+        )
       )
-    )
-      throw new Error("the filtered recording must hold paid recurring invoices.");
-    await holdsRead(world, INVOICE_FILTER.final);
-  });
+        throw new Error(
+          "the filtered recording must hold paid recurring invoices."
+        );
+      await holdsRead(world, INVOICE_FILTER.final);
+    }
+  );
 
   Then("each new filter keeps the filters I set before it", () => {
     const [statusRead, categoryRead, amountRead] = sentSinceMark(isListRead);
-    expect(filterKeys(statusRead.searchParams)).toEqual(["filter[status.code]"]);
-    expect(categoryRead.searchParams.get("filter[status.code]")).toBe(
-      InvoiceStatus.PAID
+    same(
+      filterKeys(statusRead.searchParams),
+      ["filter[status.code]"],
+      "filterKeys(statusRead.searchParams)"
     );
-    expect(categoryRead.searchParams.get("filter[category.slug]")).toBe(
-      InvoiceCategoryCode.RECURRENT
+    same(
+      categoryRead.searchParams.get("filter[status.code]"),
+      InvoiceStatus.PAID,
+      "categoryRead.searchParams.get('filter[status.code]')"
     );
-    expect(amountRead.searchParams.get("filter[status.code]")).toBe(
-      InvoiceStatus.PAID
+    same(
+      categoryRead.searchParams.get("filter[category.slug]"),
+      InvoiceCategoryCode.RECURRENT,
+      "categoryRead.searchParams.get('filter[category.slug]')"
     );
-    expect(amountRead.searchParams.get("filter[category.slug]")).toBe(
-      InvoiceCategoryCode.RECURRENT
+    same(
+      amountRead.searchParams.get("filter[status.code]"),
+      InvoiceStatus.PAID,
+      "amountRead.searchParams.get('filter[status.code]')"
     );
-    expect(amountRead.searchParams.get("filter[total_amount]")).toBe(
-      String(INVOICE_FILTER.amount)
+    same(
+      amountRead.searchParams.get("filter[category.slug]"),
+      InvoiceCategoryCode.RECURRENT,
+      "amountRead.searchParams.get('filter[category.slug]')"
+    );
+    same(
+      amountRead.searchParams.get("filter[total_amount]"),
+      String(INVOICE_FILTER.amount),
+      "amountRead.searchParams.get('filter[total_amount]')"
     );
   });
 
@@ -893,8 +1161,16 @@ export const invoicesSteps = defineSteps(({ Given, When, Then }) => {
   Then("I stay on page two", async world => {
     await settles(() => world.expectContext({ pagination: { page: 2 } }));
     const sorted = latestSent(isListRead);
-    expect(sorted?.searchParams.get("order")).toBe("-due_date");
-    expect(sorted?.searchParams.get("offset")).toBe("10");
+    same(
+      sorted?.searchParams.get("order"),
+      "-due_date",
+      "sorted?.searchParams.get('order')"
+    );
+    same(
+      sorted?.searchParams.get("offset"),
+      "10",
+      "sorted?.searchParams.get('offset')"
+    );
   });
 
   // === AC-2: PAGE ============================================================
@@ -1581,44 +1857,62 @@ export const invoicesSteps = defineSteps(({ Given, When, Then }) => {
         })
       );
       const list = latestSent(isListRead);
-      expect(list?.searchParams.get("filter[category.slug]")).toBe(
-        ORDER_CATEGORY
+      same(
+        list?.searchParams.get("filter[category.slug]"),
+        ORDER_CATEGORY,
+        "list?.searchParams.get('filter[category.slug]')"
       );
-      expect(list?.searchParams.get("limit")).toBe("10");
+      same(
+        list?.searchParams.get("limit"),
+        "10",
+        "list?.searchParams.get('limit')"
+      );
     }
   );
 
   Then("no client identifier is sent with the list", () => {
     const lists = sentSinceMark(isListRead);
-    expect(lists).not.toHaveLength(0);
+    check(size(lists) !== 0, "lists has length 0");
     for (const request of lists) {
-      expect(request.searchParams.has("client_id")).toBe(false);
-      expect(request.searchParams.has("filter[client_id]")).toBe(false);
+      same(
+        request.searchParams.has("client_id"),
+        false,
+        "request.searchParams.has('client_id')"
+      );
+      same(
+        request.searchParams.has("filter[client_id]"),
+        false,
+        "request.searchParams.has('filter[client_id]')"
+      );
     }
   });
 
   // === FE-3237 AC2 — EACH ORDER CARRIES ITS BRAND AND ITEM COUNT ============
 
   Given("I have placed orders with several items", () => {
-    const rows = (ac20OrderListRecording as {
-      response: { body: { data: Array<{ products_count?: number }> } };
-    }).response.body.data;
+    const rows = (
+      ac20OrderListRecording as {
+        response: { body: { data: Array<{ products_count?: number }> } };
+      }
+    ).response.body.data;
     if (!some(rows, row => Number(row.products_count) > 1))
       throw new Error("no recorded order holds several items; re-record.");
   });
 
   Then("each order carries its brand and its item count", async world => {
-    const rows = (ac20OrderListRecording as {
-      response: {
-        body: {
-          data: Array<{
-            id: string;
-            products_count: number;
-            brand: { name: string };
-          }>;
+    const rows = (
+      ac20OrderListRecording as {
+        response: {
+          body: {
+            data: Array<{
+              id: string;
+              products_count: number;
+              brand: { name: string };
+            }>;
+          };
         };
-      };
-    }).response.body.data;
+      }
+    ).response.body.data;
     await settles(() =>
       world.expectContext({
         data: map(rows, row => ({
@@ -1629,10 +1923,16 @@ export const invoicesSteps = defineSteps(({ Given, When, Then }) => {
       })
     );
     const list = latestSent(isListRead);
-    expect(split(list?.searchParams.get("with") ?? "", ",")).toEqual(
-      expect.arrayContaining(["brand", "tags"])
+    containsAll(
+      split(list?.searchParams.get("with") ?? "", ","),
+      ["brand", "tags"],
+      "split(list?.searchParams.get('with') ?? '', ',')"
     );
-    expect(list?.searchParams.get("with_count")).toBe("products");
+    same(
+      list?.searchParams.get("with_count"),
+      "products",
+      "list?.searchParams.get('with_count')"
+    );
   });
 
   // === FE-3237 AC3 — PAGE THROUGH MY ORDERS ==================================
@@ -1660,21 +1960,25 @@ export const invoicesSteps = defineSteps(({ Given, When, Then }) => {
   Then(
     "each move gives me the orders of that page and keeps my page size",
     async world => {
-      expect(map(observed.moves, ({ page, limit }) => ({ page, limit }))).toEqual(
+      same(
+        map(observed.moves, ({ page, limit }) => ({ page, limit })),
         [
           { page: 2, limit: 10 },
           { page: 3, limit: 10 },
           { page: 2, limit: 10 },
           { page: 1, limit: 5 }
-        ]
+        ],
+        "map(observed.moves, ({ page, limit }) => ({ page, limit }))"
       );
       const reads = listOffsets(sentSinceMark(isListRead));
-      expect(reads).toEqual(
-        expect.arrayContaining([
+      containsAll(
+        reads,
+        [
           { offset: "10", limit: "10" },
           { offset: "20", limit: "10" },
           { offset: "0", limit: "5" }
-        ])
+        ],
+        "reads"
       );
       await holdsRead(world, AC21.five);
     }
@@ -1684,18 +1988,22 @@ export const invoicesSteps = defineSteps(({ Given, When, Then }) => {
     "at each step I am told if a next page, a previous page and more than one page exist",
     () => {
       const total = AC21.boot.response.body.total;
-      expect(map(observed.moves, "flags")).toEqual(
+      same(
+        map(observed.moves, "flags"),
         map(observed.moves, ({ page, limit }) =>
           expectedFlags(page, limit, total)
-        )
+        ),
+        "map(observed.moves, 'flags')"
       );
     }
   );
 
   Then("choosing a page size takes me back to page one", async world => {
-    expect(listOffsets([last(sentSinceMark(isListRead))!])).toEqual([
-      { offset: "0", limit: "5" }
-    ]);
+    same(
+      listOffsets([last(sentSinceMark(isListRead))!]),
+      [{ offset: "0", limit: "5" }],
+      "listOffsets([last(sentSinceMark(isListRead))!])"
+    );
     await settles(() =>
       world.expectContext({ pagination: { page: 1, limit: 5 } })
     );
@@ -1719,8 +2027,10 @@ export const invoicesSteps = defineSteps(({ Given, When, Then }) => {
     await settles(() => world.expectContext({ pagination: { total: 0 } }));
     for (const { id } of AC21_EMPTY.boot.response.body.data)
       await world.expectAbsent!(id);
-    expect(latestSent(isListRead)?.searchParams.get("filter[number|eq]")).toBe(
-      AC21_EMPTY.term
+    same(
+      latestSent(isListRead)?.searchParams.get("filter[number|eq]"),
+      AC21_EMPTY.term,
+      "latestSent(isListRead)?.searchParams.get('filter[number|eq]')"
     );
   });
 
@@ -1745,10 +2055,14 @@ export const invoicesSteps = defineSteps(({ Given, When, Then }) => {
     );
     // Page one of this narrowing is already held fresh, so going back to it
     // reads from the cache and sends no second request.
-    expect(first(listOffsets(sentSinceMark(isListRead)))).toEqual({
-      offset: "10",
-      limit: "10"
-    });
+    same(
+      first(listOffsets(sentSinceMark(isListRead))),
+      {
+        offset: "10",
+        limit: "10"
+      },
+      "first(listOffsets(sentSinceMark(isListRead)))"
+    );
   });
 
   // === FE-3237 AC24, divergence 3 — PAST THE LAST PAGE =======================
@@ -1777,8 +2091,8 @@ export const invoicesSteps = defineSteps(({ Given, When, Then }) => {
       })
     );
     const reads = listOffsets(sentSinceMark(isListRead));
-    expect(first(reads)).toEqual({ offset: "80", limit: "10" });
-    expect(last(reads)).toEqual({ offset: "20", limit: "10" });
+    same(first(reads), { offset: "80", limit: "10" }, "first(reads)");
+    same(last(reads), { offset: "20", limit: "10" }, "last(reads)");
   });
 
   // === FE-3237 AC7, AC24 divergence 1 — NARROW BY TEXT, NUMBER AND AMOUNT ====
@@ -1808,49 +2122,86 @@ export const invoicesSteps = defineSteps(({ Given, When, Then }) => {
       for (const [index, [id, input]] of writes.entries()) {
         await world.fire(id, input);
         await settles(async () => {
-          expect(size(sentSinceMark(isListRead))).toBe(index + 1);
+          same(
+            size(sentSinceMark(isListRead)),
+            index + 1,
+            "size(sentSinceMark(isListRead))"
+          );
         });
       }
     }
   );
 
-  Then("only the orders that match each filter I set are returned", async world => {
-    await holdsRead(world, AC24.final);
-    const final = latestSent(isListRead)!;
-    expect(final.searchParams.get("filter[products.product.name|like]")).toBe(
-      `%${AC24.name}%`
-    );
-    expect(
-      final.searchParams.get("filter[products.product.category.name|like]")
-    ).toBe(`%${AC24.category}%`);
-    expect(
-      final.searchParams.get("filter[products.service_identifier|like]")
-    ).toBe(`%${AC24.service}%`);
-  });
+  Then(
+    "only the orders that match each filter I set are returned",
+    async world => {
+      await holdsRead(world, AC24.final);
+      const final = latestSent(isListRead)!;
+      same(
+        final.searchParams.get("filter[products.product.name|like]"),
+        `%${AC24.name}%`,
+        "final.searchParams.get('filter[products.product.name|like]')"
+      );
+      same(
+        final.searchParams.get("filter[products.product.category.name|like]"),
+        `%${AC24.category}%`,
+        "final.searchParams.get('filter[products.product.category.name|like]')"
+      );
+      same(
+        final.searchParams.get("filter[products.service_identifier|like]"),
+        `%${AC24.service}%`,
+        "final.searchParams.get('filter[products.service_identifier|like]')"
+      );
+    }
+  );
 
   Then("each narrowing takes me back to page one", async world => {
     const reads = sentSinceMark(isListRead);
-    expect(reads.length).toBeGreaterThanOrEqual(6);
-    expect(every(listOffsets(reads), ["offset", "0"])).toBe(true);
+    check(reads.length >= 6, "reads.length >= 6");
+    same(
+      every(listOffsets(reads), ["offset", "0"]),
+      true,
+      "every(listOffsets(reads), ['offset', '0'])"
+    );
     await settles(() => world.expectContext({ pagination: { page: 1 } }));
   });
 
   Then("each equal comparison is sent with its explicit equal operator", () => {
     const final = latestSent(isListRead)!;
-    expect(final.searchParams.get("filter[number|eq]")).toBe(AC24.number);
-    expect(final.searchParams.get("filter[total_amount|eq]")).toBe(AC24.total);
-    expect(final.searchParams.has("filter[number]")).toBe(false);
-    expect(final.searchParams.has("filter[total_amount]")).toBe(false);
+    same(
+      final.searchParams.get("filter[number|eq]"),
+      AC24.number,
+      "final.searchParams.get('filter[number|eq]')"
+    );
+    same(
+      final.searchParams.get("filter[total_amount|eq]"),
+      AC24.total,
+      "final.searchParams.get('filter[total_amount|eq]')"
+    );
+    same(
+      final.searchParams.has("filter[number]"),
+      false,
+      "final.searchParams.has('filter[number]')"
+    );
+    same(
+      final.searchParams.has("filter[total_amount]"),
+      false,
+      "final.searchParams.has('filter[total_amount]')"
+    );
   });
 
   Then("a second filter on one text column replaces the first", () => {
     const [firstRead, secondRead] = sentSinceMark(isListRead);
-    expect(
-      firstRead.searchParams.getAll("filter[products.product.name|like]")
-    ).toEqual([`%${AC24.firstName}%`]);
-    expect(
-      secondRead.searchParams.getAll("filter[products.product.name|like]")
-    ).toEqual([`%${AC24.name}%`]);
+    same(
+      firstRead.searchParams.getAll("filter[products.product.name|like]"),
+      [`%${AC24.firstName}%`],
+      "firstRead.searchParams.getAll('filter[products.product.name|like]')"
+    );
+    same(
+      secondRead.searchParams.getAll("filter[products.product.name|like]"),
+      [`%${AC24.name}%`],
+      "secondRead.searchParams.getAll('filter[products.product.name|like]')"
+    );
   });
 
   // === FE-3237 AC8 — NARROW BY WHEN AN ORDER WAS PLACED OR PAID ==============
@@ -1882,14 +2233,18 @@ export const invoicesSteps = defineSteps(({ Given, When, Then }) => {
   Then(
     "only the orders placed or paid in that period are returned",
     async world => {
-      expect(observed.narrowedRead).toEqual([true]);
+      same(observed.narrowedRead, [true], "observed.narrowedRead");
       await holdsRead(world, AC25.paid);
       const final = latestSent(isListRead)!;
-      expect(final.searchParams.get("filter[create_datetime|after]")).toBe(
-        "-7_days"
+      same(
+        final.searchParams.get("filter[create_datetime|after]"),
+        "-7_days",
+        "final.searchParams.get('filter[create_datetime|after]')"
       );
-      expect(final.searchParams.get("filter[paid_datetime|gte]")).toBe(
-        AC25.paidFrom
+      same(
+        final.searchParams.get("filter[paid_datetime|gte]"),
+        AC25.paidFrom,
+        "final.searchParams.get('filter[paid_datetime|gte]')"
       );
     }
   );
@@ -1900,7 +2255,10 @@ export const invoicesSteps = defineSteps(({ Given, When, Then }) => {
     await openOrderHistory(world);
     if (
       !AC26.unpaid.response.body.total ||
-      !some(AC26.notPaid.response.body.data, ["status.code", InvoiceStatus.UNPAID])
+      !some(AC26.notPaid.response.body.data, [
+        "status.code",
+        InvoiceStatus.UNPAID
+      ])
     )
       throw new Error("the status recordings hold no unpaid order; re-record.");
   });
@@ -1925,26 +2283,36 @@ export const invoicesSteps = defineSteps(({ Given, When, Then }) => {
   Then(
     "the unpaid choice gives the unpaid and the adjusted orders together",
     () => {
-      expect(observed.narrowedRead).toEqual([true]);
+      same(observed.narrowedRead, [true], "observed.narrowedRead");
       const [unpaidRead] = sentSinceMark(isListRead);
-      expect(unpaidRead.searchParams.getAll("filter[status.code|eq]")).toEqual([
-        UNPAID_CHOICE
-      ]);
-      expect(
+      same(
+        unpaidRead.searchParams.getAll("filter[status.code|eq]"),
+        [UNPAID_CHOICE],
+        "unpaidRead.searchParams.getAll('filter[status.code|eq]')"
+      );
+      same(
         every(AC26.unpaid.response.body.data, row =>
           includes(split(UNPAID_CHOICE, ","), row.status?.code)
-        )
-      ).toBe(true);
+        ),
+        true,
+        "every(AC26.unpaid.response.body.data, row => includes(split(UNPAID_..."
+      );
     }
   );
 
   Then("the second choice replaces the first", async world => {
     await holdsRead(world, AC26.notPaid);
     const final = latestSent(isListRead)!;
-    expect(final.searchParams.get("filter[status.code|neq]")).toBe(
-      InvoiceStatus.PAID
+    same(
+      final.searchParams.get("filter[status.code|neq]"),
+      InvoiceStatus.PAID,
+      "final.searchParams.get('filter[status.code|neq]')"
     );
-    expect(final.searchParams.has("filter[status.code|eq]")).toBe(false);
+    same(
+      final.searchParams.has("filter[status.code|eq]"),
+      false,
+      "final.searchParams.has('filter[status.code|eq]')"
+    );
   });
 
   Given("my orders are narrowed to the unpaid ones", async world => {
@@ -1971,14 +2339,20 @@ export const invoicesSteps = defineSteps(({ Given, When, Then }) => {
         error: { status: 422, data: [{ keyword: "maxProperties" }] }
       })
     );
-    expect(sentSinceMark(isListRead)).toHaveLength(0);
+    same(
+      size(sentSinceMark(isListRead)),
+      0,
+      "length of sentSinceMark(isListRead)"
+    );
   });
 
   Then("my orders stay narrowed to the unpaid ones", async world => {
     await holdsRead(world, AC26.refuseUnpaid);
-    expect(
-      latestSent(isListRead)?.searchParams.get("filter[status.code|eq]")
-    ).toBe(UNPAID_CHOICE);
+    same(
+      latestSent(isListRead)?.searchParams.get("filter[status.code|eq]"),
+      UNPAID_CHOICE,
+      "latestSent(isListRead)?.searchParams.get('filter[status.code|eq]')"
+    );
   });
 
   // === FE-3237 AC10 — SORT AND STAY ON MY PAGE ===============================
@@ -2002,33 +2376,42 @@ export const invoicesSteps = defineSteps(({ Given, When, Then }) => {
       for (const field of ["total_amount", "status_id", "id"]) {
         await world.fire("sortBy", [{ field, dir: "asc" }]);
         await settles(async () => {
-          expect(latestSent(isListRead)?.searchParams.get("order")).toBe(field);
+          same(
+            latestSent(isListRead)?.searchParams.get("order"),
+            field,
+            "latestSent(isListRead)?.searchParams.get('order')"
+          );
         });
       }
     }
   );
 
-  Then("each sort gives me page two of my orders in that order", async world => {
-    const reads = sentSinceMark(isListRead);
-    expect(
-      map(reads, request => ({
-        order: request.searchParams.get("order"),
-        offset: request.searchParams.get("offset"),
-        limit: request.searchParams.get("limit")
-      }))
-    ).toEqual([
-      { order: "total_amount", offset: "10", limit: "10" },
-      { order: "status_id", offset: "10", limit: "10" },
-      { order: "id", offset: "10", limit: "10" }
-    ]);
-    await settles(() =>
-      world.expectContext({
-        pagination: { page: 2 },
-        query: { sort: [{ field: "id", dir: "asc" }] }
-      })
-    );
-    await holdsRead(world, AC27.sorted);
-  });
+  Then(
+    "each sort gives me page two of my orders in that order",
+    async world => {
+      const reads = sentSinceMark(isListRead);
+      same(
+        map(reads, request => ({
+          order: request.searchParams.get("order"),
+          offset: request.searchParams.get("offset"),
+          limit: request.searchParams.get("limit")
+        })),
+        [
+          { order: "total_amount", offset: "10", limit: "10" },
+          { order: "status_id", offset: "10", limit: "10" },
+          { order: "id", offset: "10", limit: "10" }
+        ],
+        "map(reads, request => ({ order: request.searchParams.get('order'), ..."
+      );
+      await settles(() =>
+        world.expectContext({
+          pagination: { page: 2 },
+          query: { sort: [{ field: "id", dir: "asc" }] }
+        })
+      );
+      await holdsRead(world, AC27.sorted);
+    }
+  );
 
   // === FE-3237 AC11 — SEARCH WHILE A FILTER IS ON ============================
 
@@ -2067,11 +2450,21 @@ export const invoicesSteps = defineSteps(({ Given, When, Then }) => {
 
   Then("both filters stay on", () => {
     const final = latestSent(isListRead)!;
-    expect(final.searchParams.get("filter[status.code|eq]")).toBe(UNPAID_CHOICE);
-    expect(
-      final.searchParams.get("filter[products.product.category.name|like]")
-    ).toBe(`%${AC28.category}%`);
-    expect(final.searchParams.get("filter[number|eq]")).toBe(AC28.number);
+    same(
+      final.searchParams.get("filter[status.code|eq]"),
+      UNPAID_CHOICE,
+      "final.searchParams.get('filter[status.code|eq]')"
+    );
+    same(
+      final.searchParams.get("filter[products.product.category.name|like]"),
+      `%${AC28.category}%`,
+      "final.searchParams.get('filter[products.product.category.name|like]')"
+    );
+    same(
+      final.searchParams.get("filter[number|eq]"),
+      AC28.number,
+      "final.searchParams.get('filter[number|eq]')"
+    );
   });
 
   // === FE-3237 AC11, AC24 divergence 2 — ONE NUMBER LEAF =====================
@@ -2091,9 +2484,17 @@ export const invoicesSteps = defineSteps(({ Given, When, Then }) => {
     async world => {
       markWire();
       const writes = [
-        { id: "filterBy", input: { number: { eq: AC36.numberA } }, read: AC36.a },
+        {
+          id: "filterBy",
+          input: { number: { eq: AC36.numberA } },
+          read: AC36.a
+        },
         { id: "search", input: AC36.numberB, read: AC36.b },
-        { id: "filterBy", input: { number: { eq: AC36.numberA } }, read: AC36.a }
+        {
+          id: "filterBy",
+          input: { number: { eq: AC36.numberA } },
+          read: AC36.a
+        }
       ];
       for (const write of writes) {
         await world.fire(write.id, write.input);
@@ -2109,16 +2510,16 @@ export const invoicesSteps = defineSteps(({ Given, When, Then }) => {
 
   Then("after each write only the number of that write is sent", () => {
     const reads = sentSinceMark(isListRead);
-    expect(reads.length).toBeGreaterThanOrEqual(2);
-    expect(map(reads, numberLeaves)).toEqual(
-      map(reads, (_, index) =>
-        index === 1 ? [AC36.numberB] : [AC36.numberA]
-      )
+    check(reads.length >= 2, "reads.length >= 2");
+    same(
+      map(reads, numberLeaves),
+      map(reads, (_, index) => (index === 1 ? [AC36.numberB] : [AC36.numberA])),
+      "map(reads, numberLeaves)"
     );
   });
 
   Then("after each write only that order is returned", () => {
-    expect(observed.narrowedRead).toEqual([true, true, true]);
+    same(observed.narrowedRead, [true, true, true], "observed.narrowedRead");
   });
 
   // === FE-3237 AC12 — THE FORCED CATEGORY HOLDS UNDER EVERY WRITER ===========
@@ -2152,21 +2553,22 @@ export const invoicesSteps = defineSteps(({ Given, When, Then }) => {
         await world.fire(id, input);
         await holdsRead(world, read);
         await settles(async () => {
-          expect(size(sentSinceMark(isListRead))).toBeGreaterThan(before);
+          check(
+            size(sentSinceMark(isListRead)) > before,
+            "size(sentSinceMark(isListRead)) > before"
+          );
         }).catch(() => undefined);
         observed.readsPerWrite.push(size(sentSinceMark(isListRead)) - before);
         if (id === "filterCreditNotes" || id === "setCriteria")
           observed.narrowedRead.push(
-            await world
-              .expectAbsent!(
-                id === "setCriteria"
-                  ? InvoiceCategoryCode.RECURRENT
-                  : InvoiceCategoryCode.CREDIT_NOTE_FOR_REFUND
-              )
-              .then(
-                () => true,
-                () => false
-              )
+            await world.expectAbsent!(
+              id === "setCriteria"
+                ? InvoiceCategoryCode.RECURRENT
+                : InvoiceCategoryCode.CREDIT_NOTE_FOR_REFUND
+            ).then(
+              () => true,
+              () => false
+            )
           );
       }
     }
@@ -2176,7 +2578,7 @@ export const invoicesSteps = defineSteps(({ Given, When, Then }) => {
   // boot read, which the list still holds fresh (design 8.4), so it reads from
   // the cache: no request.
   Then("each write sends one new read", () => {
-    expect(observed.readsPerWrite).toEqual([1, 0, 1, 1]);
+    same(observed.readsPerWrite, [1, 0, 1, 1], "observed.readsPerWrite");
   });
 
   Then("each read still asks for my placed orders only", () => {
@@ -2184,23 +2586,29 @@ export const invoicesSteps = defineSteps(({ Given, When, Then }) => {
     const orderReads = filter(reads, request =>
       request.searchParams.has("filter[category.slug]")
     );
-    expect(size(orderReads)).toBeGreaterThanOrEqual(4);
+    check(size(orderReads) >= 4, "size(orderReads) >= 4");
     for (const request of sentSinceMark(isListRead))
-      expect(request.searchParams.getAll("filter[category.slug]")).toEqual([
-        ORDER_CATEGORY
-      ]);
+      same(
+        request.searchParams.getAll("filter[category.slug]"),
+        [ORDER_CATEGORY],
+        "request.searchParams.getAll('filter[category.slug]')"
+      );
   });
 
   Then(
     "the narrowing to credit notes or to another category is dropped",
     () => {
       const [, , rawRead] = sentSinceMark(isListRead);
-      expect(observed.narrowedRead).toEqual([true, true]);
-      expect(rawRead.searchParams.getAll("filter[category.slug]")).toEqual([
-        ORDER_CATEGORY
-      ]);
-      expect(rawRead.searchParams.get("filter[total_amount|eq]")).toBe(
-        String(AC29.amount)
+      same(observed.narrowedRead, [true, true], "observed.narrowedRead");
+      same(
+        rawRead.searchParams.getAll("filter[category.slug]"),
+        [ORDER_CATEGORY],
+        "rawRead.searchParams.getAll('filter[category.slug]')"
+      );
+      same(
+        rawRead.searchParams.get("filter[total_amount|eq]"),
+        String(AC29.amount),
+        "rawRead.searchParams.get('filter[total_amount|eq]')"
       );
     }
   );
@@ -2209,19 +2617,414 @@ export const invoicesSteps = defineSteps(({ Given, When, Then }) => {
     settles(() => world.expectMeta({ hasError: false, isAvailable: true }))
   );
 
+  // === FE-3237 AC13 — OPEN ONE ORDER =========================================
+
+  Given(
+    "one of my orders and an order number that does not exist",
+    async world => {
+      resetObserved();
+      markWire();
+      await world.boot(MISSING_INVOICE_SCENARIO, {
+        actor: ScopeActorTypes.CLIENT,
+        id: AC30.missingId
+      });
+      await settles(() =>
+        world.expectMeta({ isLoading: false }, MISSING_INVOICE_SCENARIO)
+      );
+    }
+  );
+
+  When("I open each of them, then reload the first", async world => {
+    const id = orderId(AC30.order);
+    await openDetail(world, id);
+    await settles(() =>
+      world.expectContext({ model: { id } }, INVOICE_SCENARIO)
+    );
+    const opened = size(sentInWindow(isOrderRead(id)));
+    await world.fire("refresh", undefined, INVOICE_SCENARIO);
+    await settles(async () => {
+      check(
+        size(sentInWindow(isOrderRead(id))) > opened,
+        "size(sentInWindow(isOrderRead(id))) > opened"
+      );
+    });
+  });
+
+  Then(
+    "the first opens with its staged imports and is read again on reload",
+    async world => {
+      const id = orderId(AC30.order);
+      const reads = sentInWindow(isOrderRead(id));
+      check(size(reads) >= 2, "size(reads) >= 2");
+      for (const read of reads) {
+        same(
+          read.searchParams.get("with_staged_imports"),
+          "1",
+          "read.searchParams.get('with_staged_imports')"
+        );
+        check(
+          includes(
+            split(read.searchParams.get("with") ?? "", ","),
+            "contract_product_tags"
+          ),
+          "split(read.searchParams.get('with') ?? '', ',') contains 'contract_product_tags'"
+        );
+      }
+      await settles(() =>
+        world.expectContext(
+          {
+            model: {
+              id,
+              number: AC30.order.response.body.data.number
+            }
+          },
+          INVOICE_SCENARIO
+        )
+      );
+    }
+  );
+
+  Then("the second is reported as not available", world =>
+    settles(() =>
+      world.expectMeta(
+        { isUnavailable: true, isLoading: false },
+        MISSING_INVOICE_SCENARIO
+      )
+    )
+  );
+
+  // === FE-3237 AC15 — THE ITEMS OF ONE ORDER =================================
+
+  Given(
+    "one of my orders with a subscription, options and a snapshot",
+    world => {
+      const snapshot = snapshotItems(AC32);
+      const live = AC32.response.body.data.products ?? [];
+      if (
+        !some(snapshot, item => Number(item.billing_cycle_months) > 0) ||
+        !some(snapshot, item => size(item.options) > 0) ||
+        !some(
+          snapshot,
+          (item, index) =>
+            item.billing_cycle_months !== live[index]?.billing_cycle_months
+        )
+      )
+        throw new Error(
+          "the order recording must hold a subscription with options whose snapshot differs from its live items; re-record."
+        );
+      return openDetail(world, orderId(AC32));
+    }
+  );
+
+  When("I open that order", world =>
+    settles(() => world.expectMeta({ isLoading: false }))
+  );
+
+  Then(
+    "I see each item from the snapshot, with its term, billing cycle name, tags and sub-items",
+    world =>
+      settles(() =>
+        world.expectContext({
+          items: map(snapshotItems(AC32), item => {
+            const months =
+              item.billing_cycle_months ||
+              item.product?.billing_cycle_months ||
+              0;
+            return {
+              id: item.id,
+              billingCycleMonths: months,
+              isSubscription: !!item.billing_cycle_days || !!months,
+              billingCycle: months ? { months } : undefined,
+              reference: item.client_label || "",
+              tags: [],
+              hasSubItems: size(item.options) > 0
+            };
+          })
+        })
+      )
+  );
+
+  // === FE-3237 AC16 — THE CATALOGUE IMAGE OF EACH ITEM =======================
+
+  Given(
+    "one of my orders whose snapshot items have catalogue images",
+    world => {
+      if (!some(AC33.images.response.body.data, row => !!row.image?.full_url))
+        throw new Error(
+          "the image recording must hold a catalogue image; re-record."
+        );
+      return openDetail(world, orderId(AC33.order));
+    }
+  );
+
+  Then(
+    "each item shows its catalogue image, or its product image when it has none",
+    async world => {
+      const catalogue = new Map(
+        map(AC33.images.response.body.data, row => [
+          row.id,
+          row.image?.full_url
+        ])
+      );
+      await settles(() =>
+        world.expectContext({
+          items: map(snapshotItems(AC33.order), item => ({
+            id: item.id,
+            image:
+              catalogue.get(item.product?.id ?? "") ??
+              item.product?.image?.full_url ??
+              undefined
+          }))
+        })
+      );
+      const images = sentInWindow(request =>
+        request.pathname.endsWith("/api/products")
+      );
+      same(size(images), 1, "size(images)");
+      same(
+        images[0].searchParams.get("with"),
+        "image",
+        "images[0].searchParams.get('with')"
+      );
+    }
+  );
+
+  // === FE-3237 AC18 — THE ORDER CONDITIONS (design 8.5 truth table) ==========
+
+  Given("one of my orders is unpaid", world => {
+    assertRecordedState("unpaid", CONDITION_ORDERS.unpaid);
+    observed.conditionRow = "unpaid";
+    return openDetail(world, orderId(CONDITION_ORDERS.unpaid));
+  });
+
+  Given("one of my orders is overdue", world => {
+    assertRecordedState("overdue", CONDITION_ORDERS.overdue);
+    observed.conditionRow = "overdue";
+    return openDetail(world, orderId(CONDITION_ORDERS.overdue));
+  });
+
+  Given("one of my orders is paid", world => {
+    assertRecordedState("paid", CONDITION_ORDERS.paid);
+    observed.conditionRow = "paid";
+    return openDetail(world, orderId(CONDITION_ORDERS.paid));
+  });
+
+  Given("one of my orders is partly paid", world => {
+    assertRecordedState("partlyPaid", CONDITION_ORDERS.partlyPaid);
+    observed.conditionRow = "partlyPaid";
+    return openDetail(world, orderId(CONDITION_ORDERS.partlyPaid));
+  });
+
+  Given("one of my orders is cancelled", world => {
+    assertRecordedState("cancelled", CONDITION_ORDERS.cancelled);
+    observed.conditionRow = "cancelled";
+    return openDetail(world, orderId(CONDITION_ORDERS.cancelled));
+  });
+
+  Then(
+    "it reads as due, payable and cancellable, the pay gate is open and the cancel gate is open",
+    world =>
+      settles(() =>
+        world.expectMeta({
+          isDue: true,
+          isPayable: true,
+          isCancellable: true,
+          canPay: true,
+          canCancel: true
+        })
+      )
+  );
+
+  Then("it reads as overdue, due, payable and cancellable", world =>
+    settles(() =>
+      world.expectMeta({
+        isOverdue: true,
+        isDue: true,
+        isPayable: true,
+        isCancellable: true
+      })
+    )
+  );
+
+  Then(
+    "it reads as paid, the pay gate is closed and the cancel gate is closed",
+    world =>
+      settles(() =>
+        world.expectMeta({ isPaid: true, canPay: false, canCancel: false })
+      )
+  );
+
+  Then("it reads as partly paid, due, payable and cancellable", world =>
+    settles(() =>
+      world.expectMeta({
+        isPartiallyPaid: true,
+        isDue: true,
+        isPayable: true,
+        isCancellable: true
+      })
+    )
+  );
+
+  Then(
+    "it reads as cancelled, the pay gate is closed and the cancel gate is closed",
+    world =>
+      settles(() =>
+        world.expectMeta({ isCancelled: true, canPay: false, canCancel: false })
+      )
+  );
+
+  Then("every other condition reads as its truth-table row", world => {
+    if (!observed.conditionRow)
+      throw new Error("no condition order was opened.");
+    return readsAsRow(world, observed.conditionRow);
+  });
+
+  // === FE-3237 AC19 — THE DELEGATED MARKER ===================================
+
+  Given("a client delegated one of their orders to me", world => {
+    if (!AC35_DELEGATED.response.body.data.delegate_related)
+      throw new Error(
+        "the order recording must be delegated to me; re-record."
+      );
+    return openDetail(world, orderId(AC35_DELEGATED));
+  });
+
+  Then("it reads as delegated", world =>
+    settles(() => world.expectMeta({ isDelegated: true }))
+  );
+
+  // === FE-3237 AC6, AC14, AC19 — @todo, named blockers in the feature ========
+  // Each reads its recording when it runs, so a scenario staging cannot hold
+  // yet costs the catalog nothing until it is recorded.
+
+  Given(
+    "I have a paid, a cancelled, a delegated and a refund-changed order",
+    () => {
+      const rows = listRecording(
+        "read-the-row-of-each-of-my-orders",
+        "03",
+        params => params.get("filter[category.slug]") === ORDER_CATEGORY
+      ).response.body.data as Array<{
+        status?: { code?: string };
+        delegate_related?: boolean;
+        refund_changed?: string | null;
+      }>;
+      if (
+        !some(rows, ["status.code", InvoiceStatus.PAID]) ||
+        !some(rows, ["status.code", InvoiceStatus.CANCELLED]) ||
+        !some(rows, row => !!row.delegate_related) ||
+        !some(rows, row => !!row.refund_changed)
+      )
+        throw new Error(
+          "the first page must hold the four kinds of order; re-record."
+        );
+    }
+  );
+
+  Then(
+    "each row carries its number, total, items, dates, status, brand and markers",
+    world => {
+      const rows = listRecording(
+        "read-the-row-of-each-of-my-orders",
+        "03",
+        params => params.get("filter[category.slug]") === ORDER_CATEGORY
+      ).response.body.data as Array<{
+        id: string;
+        number: string;
+        products_count: number;
+        status: { code: string };
+        brand: { name: string };
+        refund_changed?: string | null;
+        delegate_related?: boolean;
+        pending_payment_method?: unknown;
+      }>;
+      return settles(() =>
+        world.expectContext({
+          data: map(rows, row => ({
+            id: row.id,
+            number: row.number,
+            status: row.status.code,
+            brandName: row.brand.name,
+            bundle: { productCount: row.products_count },
+            refundChanged: row.refund_changed ?? undefined,
+            hasPendingPaymentMethod: !!row.pending_payment_method
+          }))
+        })
+      );
+    }
+  );
+
+  Given("one of my orders with notes, custom fields and a referrer", world => {
+    const order = orderRecording("read-the-details-of-one-of-my-orders");
+    return openDetail(world, orderId(order));
+  });
+
+  Then(
+    "I see its number, status, totals, dates, contract, notes, custom fields and referrer",
+    world => {
+      const order = orderRecording("read-the-details-of-one-of-my-orders")
+        .response.body.data as {
+        number: string;
+        status?: { code?: string };
+        contract_id?: string;
+        notes?: string;
+        custom_fields?: unknown;
+        account?: {
+          affiliate_referral?: {
+            affiliate_account?: {
+              account?: { client?: Array<{ id: string }> };
+            };
+          };
+        };
+      };
+      return settles(() =>
+        world.expectContext({
+          model: {
+            number: order.number,
+            status: order.status?.code,
+            contractId: order.contract_id,
+            notes: order.notes,
+            customFields: order.custom_fields,
+            referrer: {
+              id: order.account?.affiliate_referral?.affiliate_account?.account
+                ?.client?.[0]?.id
+            }
+          }
+        })
+      );
+    }
+  );
+
+  Given("one of my orders has a payment that has not settled", world =>
+    openDetail(
+      world,
+      orderId(
+        orderRecording("read-an-order-with-a-payment-in-flight-as-pending")
+      )
+    )
+  );
+
+  Then("it reads as having a pending payment", world =>
+    settles(() => world.expectMeta({ hasPendingPayment: true }))
+  );
+
   Then("my unpaid check counts only my own invoices", async world => {
     await settles(() =>
       world.expectMeta({ hasUnpaid: AC19.unpaidTotal > 0, hasError: false })
     );
     const probes = sentSinceMark(isProbe);
-    expect(probes).not.toHaveLength(0);
+    check(size(probes) !== 0, "probes has length 0");
     for (const probe of probes) {
-      expect(probe.searchParams.get("filter[client_id]")).toBe(
-        SESSION_CLIENT_ID
+      same(
+        probe.searchParams.get("filter[client_id]"),
+        SESSION_CLIENT_ID,
+        "probe.searchParams.get('filter[client_id]')"
       );
-      expect(
-        probe.searchParams.get("filter[category.slug]")
-      ).not.toBe(ORDER_CATEGORY);
+      differs(
+        probe.searchParams.get("filter[category.slug]"),
+        ORDER_CATEGORY,
+        "probe.searchParams.get('filter[category.slug]')"
+      );
     }
   });
 });
