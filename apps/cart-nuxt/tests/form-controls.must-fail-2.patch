@@ -5,9 +5,10 @@
 #     "holds no form control that none of its packages registered"
 
 diff --git a/packages/modules-payment/src/index.ts b/packages/modules-payment/src/index.ts
+index b997fb5..13d27e0 100644
 --- a/packages/modules-payment/src/index.ts
 +++ b/packages/modules-payment/src/index.ts
-@@ -7,6 +7,9 @@
+@@ -7,6 +7,9 @@ import { registerFormRenderers } from "@upmind-automation/foundation";
  import { paymentRenderers } from "./renderers";
  
  registerFormRenderers(paymentRenderers);

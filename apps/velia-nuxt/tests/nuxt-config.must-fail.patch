@@ -1,0 +1,24 @@
+# Negative control — Velia adds its redirects as a new middleware rather than
+# taking cart-nuxt's place, so cart-nuxt's /order/cart rename still runs and
+# Velia's runs last, after the routing guard.
+#
+# Intended RED:
+#   apps/velia-nuxt/tests/nuxt-config.test.ts
+#     "points cart-nuxt's redirects entry at Velia's redirects"
+#     "keeps the entry's name, its global flag and its place in the chain"
+
+diff --git a/apps/velia-nuxt/nuxt.config.ts b/apps/velia-nuxt/nuxt.config.ts
+--- a/apps/velia-nuxt/nuxt.config.ts
++++ b/apps/velia-nuxt/nuxt.config.ts
+@@ -22,7 +22,10 @@
+         throw new Error("cart-nuxt's redirects middleware is missing");
+       }
+ 
+-      redirects.path = resolve(__dirname, "./app/redirects.ts");
++      app.middleware.push({
++        ...redirects,
++        path: resolve(__dirname, "./app/redirects.ts")
++      });
+     }
+   },
+ 

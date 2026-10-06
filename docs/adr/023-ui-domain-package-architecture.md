@@ -43,10 +43,14 @@ Deciding rule: *does `ui`'s own primitives need it → `ui`; does it know about 
 |-------|------|-------|
 | `ui` | dumb primitives · CVA engine (`cva`/`useStyles`) · `registerEntry` · the dumb `Form` (renderers via prop) · **`useThemes`** (the theme *engine* + active-theme store) | Presentational. `useThemes` stays here because primitives read the active theme config — moving it up would invert the layer. |
 | `headless` | composables + XState machines + TanStack Query | Depends only on `i18n`, `types`. **Will split** → `headless` (pure-JS core) + `headless-vue` (reactive wrapper); the "composables come from headless" rule then reads "from `headless-vue`". |
-| `foundation` (★ shared base) | brand · system · feedback · **brand→theme selection** · `useFeatures`/`defineFeature` · the renderer registry + inject (`useFormRenderers`) · the form-host wrapper · `useRouting` (funnels) | App-glue: the parts that know about Upmind domains, features, brands. |
+| `foundation` (★ shared base) | brand · ~~system~~ · ~~feedback~~ · **brand→theme selection** · `useFeatures`/`defineFeature` · the renderer registry + inject (`useFormRenderers`) · the form-host wrapper · `useRouting` (funnels) | App-glue: the parts that know about Upmind domains, features, brands. |
 | domain packages | Upmind-aware organisms | Built on `ui` + `headless` + `foundation`. |
 
 **Two invariants keep `foundation` a *layer*, not a re-grown monolith:**
+
+> **`system` and `feedback` left this row (2026-09-16, Phase 10).** Neither could stay. `Feedback.vue` imports `../system/Error.vue`, and `modules/system` has no domain-package consumers at all, so §2's own count does not admit it — and `foundation` may not import an app. Both travel with each app's shell instead. The measured count disagreed with this table, and the count wins.
+
+> **`useFeatures`/`defineFeature` and `useRouting` also left this row (2026-09-21, [Amendment 9](#amendment-9-2026-09-21--the-feature-contract-is-retired-the-app-owns-its-list-its-routes-and-its-names)).** The row above is the pre-Amendment-9 table and is kept for history rather than edited in place. What `foundation` owns today: the brand terms-and-conditions link · the theme-engine port · the renderer **inject** (`FORM_RENDERERS`, `useFormRenderers`) · the form-host wrapper. The renderer registry, the routing registry and the feature-contribution wrapper are gone; the Registry-ownership invariant below is corrected in the same amendment.
 
 > **Admission rule** — a thing earns a place in `foundation` only if **≥2 domain packages depend on it AND it knows no single domain**. Domain-specific things register *into* foundation via the socket (§7); they don't live there. *(A second route — admission on genericness alone — was proposed by [Amendment 4](#amendment-4-2026-09-15--genericness-admits-to-foundation-not-only-the-count) and withdrawn on 2026-09-17 by [Amendment 7](#amendment-7-2026-09-17--basket-may-read-client): the grant matrix that stranded its instance was the thing to change. The rule above is the only route.)*
 >
@@ -86,10 +90,11 @@ types, i18n, icons (leaf floor) → ui, headless → foundation → product → 
 
 Acyclic by construction. `product`, `recommendations`, `payment`, `auth` are low/shared; `basket` is the top of the buy-funnel.
 
-> **This table grants; it does not describe.** The column is *May import*, so a row is a permission, and a permission can go unspent. Two are, measured 2026-09-14:
+> **This table grants; it does not describe.** The column is *May import*, so a row is a permission, and a permission can go unspent. Re-measured 2026-09-21:
 >
-> - **Nothing imports `recommendations`.** Not `invoice`, not `basket`, not `catalogue`, and no `client-vue` module at all. Its two components are mounted **directly by the apps** — two pages in `cart`, one in `cart-nuxt`. That is the shape §7 intends: a cross-cutting package arrives through the socket or from the host, not by a sibling importing it. The three grants stand for the day one of them needs it.
-> - **`client` does not spend its `auth` grant.** Nothing in that box asks who is signed in yet, because the surface that would is the one still to be built.
+> - **Nothing imports `recommendations`.** Not `invoice`, not `basket`, not `catalogue`. Its two components are mounted **directly by the apps** — two pages in `cart`, two in `cart-nuxt`. That is the shape §7 intends: a cross-cutting package arrives through the socket or from the host, not by a sibling importing it. The three grants stand for the day one of them needs it.
+>
+> - **`client` spends its `auth` grant nowhere.** `packages/modules-client/src/Profile.vue` briefly took `AUTH_ROUTE`, handing a visitor with no client session to `auth`'s own login record when a host named no route of its own. That fallback is gone: `UpmClientProfile`'s `loginRoute` is now a required prop, and the one host that mounts it already passes its own route (Amendment 9). Nothing in the box asks who is signed in either.
 >
 > Read a row as "this edge would be legal", never as "this edge exists". A phase that creates an edge because the table lists it has misread the table.
 
@@ -287,7 +292,7 @@ Detailed batches, agent ownership, and codemod specifics come from the **full im
 
 1. **`client-vue` is deleted last**, in its own phase, after every consumer is off it — not as the tail of a single wave.
 2. **All apps come off it first, and stay deployable throughout.** The consumer set is **cart, cart-nuxt and portal-nuxt** — `portal-nuxt` did not exist when this ADR was written, and `cart` is still the shipped Vue app, so constraint 6's "deprecated, not migrated" does not exempt either from per-phase wiring.
-3. **The shell is app-owned.** Page, layouts, header and footer belong to each app, not to `ui` and not to `foundation`.
+3. **The shell is app-owned.** Page, layouts, header and footer belong to each app, not to `ui` and not to `foundation`. *(Challenged by Amendment 5 on 2026-09-16 and **upheld** by the operator the same day; the shell is copied into each app that needs it. Amendment 5 is kept as a withdrawal record.)*
 4. **`auth` and `payment` each also ship as a standalone app**, booting from a redirect/return-target input and depending only on their own package plus the shared bases. This is the decoupling proof: a package that cannot boot alone is not decoupled.
 5. **`foundation` is grown minimally per phase**, not built up front. Each phase adds only the glue its box needs; a closing sweep in the final phase migrates whatever residual no single box pulled.
 6. **`Promotion.vue` goes to `product`, not `ui`.** A promotion is cart/commerce opinion, so it cannot sit in a presentational library. It lands in `product`'s pricing kit — the shared base both `product` and `basket` reach down to — which still kills the `product → basket-product` cycle §5 identified.
@@ -317,11 +322,11 @@ Detailed batches, agent ownership, and codemod specifics come from the **full im
 
 **The test.** A renderer belongs to a domain package only if its *subject* is that domain. The test is its tester, not its filename: a tester keyed on an Upmind ui type (`Terms`, `SubProducts`, `Manager`, `address`) or an Upmind semantic marker (`semantic_type: domain_name`, `format: sld`) names a domain. A tester keyed on a presentational shape (`format: file`, `format: search`, `format: range`, `format: button-group`, `format: toggle-group`, `hasOption("lookup")`) names a field type, and a field type is the design system's.
 
-1. **Six controls leave the domain packages for the design system.** `Image`, `Lookup`, `FilterBar`, `FilterButtonGroup`, `FilterToggleGroup`, `FilterSearch` and `FilterRange` are generic. None calls product, catalogue or any other feature. They join the 28 controls the design system already ships, in their own story ahead of Phase 6 — an ADR 024 change plus a gitlink bump, not a phase.
+1. **Eight controls leave the domain packages for the design system.** `Image`, `Lookup`, `FilterBar`, `FilterButtonGroup`, `FilterToggleGroup`, `FilterSearch`, `FilterRange` and `EnumToggleGroup` are generic. None calls product, catalogue or any other feature. They join the 28 controls the design system already ships, in their own story ahead of Phase 6 — an ADR 024 change plus a gitlink bump, not a phase.
 
    Two of them need Upmind behaviour, and the seam for that already exists: `foundation`'s form wrapper calls `provideFormEngineData({ countries, ensureCountries })`, which is how the design system's `PhoneRenderer` gets its country list without importing `headless`. `Lookup` takes its lookup function and `Image` its upload function the same way. `FilterRange` needs only the `RequestFilterOperator` constant, which travels with it.
 
-   **This changes no rule.** `foundation`'s registries still ship empty; the design system's controls are the engine's defaults, not registry contributions.
+   **This changes no rule.** `foundation`'s registries still ship empty; the design system's controls are the engine's defaults, not registry contributions. *(Amendment 9, 2026-09-21: the renderer registry this sentence describes has since retired. What ships empty today is the renderer inject, `useFormRenderers()` — `[]` until a host provides its own array — and the design system's controls remain the engine's defaults regardless.)*
 
 2. **`Image` is not product's, and Phase 4 is corrected rather than left standing.** Its tester claims any field of format `file` or option type `image`; it calls no product code; and the fields it renders are produced by the shared `useFields` parser for registration (`auth`), basket fields and client custom fields alike — product provision fields are one caller of four. It returns to `client-vue` in Phase 4's own branch and leaves for the design system with the other five. Consequence recorded: `portal-nuxt` takes no `client-vue`, so it has no file-upload control until that story lands; no live surface renders one today.
 
@@ -339,6 +344,12 @@ Detailed batches, agent ownership, and codemod specifics come from the **full im
 
    Separately: the portal's `product-area/setup` is a **different** surface with the same name — a post-purchase provisioning blueprint for a product the client already owns, with no basket in sight. It is new capability outside this ADR, and `apps/portal-nuxt/docs/client-vue-adoption.md` promises `UpmProductSetup` for it in one table while its own gap list records that the component cannot serve it. That table needs correcting.
 
+**Extended 2026-09-16 — `EnumToggleGroupRenderer` is the eighth.** The operator ruled it into this list on 2026-09-16, rather than letting it be filed by its folder the way the first seven were. It arrived on `develop` after this amendment was written, which is why the original list closed without it.
+
+**An unresolved discrepancy in ruling 1, recorded rather than guessed.** Ruling 1 was headed "Six controls" over a list of seven names, and rulings 2 and 3 each say "the other five", which agrees with six. The heading now reads "Eight" because the list now holds eight names. Which of the seven original names was not one of the six is **not** established from the code. Asked on 2026-09-16, the operator's reading is that it is one of the filters, and `FilterBar` is the only one of them that exists nowhere in the tree under that name. **Recorded as the operator's reading, offered as a guess and not as a ruling** — it is consistent with the evidence but nothing proves it. The two "other five" phrases are left as written. Resolve this before anyone relies on the count rather than on the list.
+
+Its tester keys on `format: toggle-group` over an enum — a presentational shape, not an Upmind ui type or semantic marker — so the test in this amendment places it in the design system without needing a new rule. It calls no domain code and takes no `provideFormEngineData` seam. `packages/client-vue`'s `client-renderer-parity.test.ts` fails on it today; that failure is the missing home, and it closes when the control lands with the other seven.
+
 **Why this is worth a record rather than a judgement call each time.** Fifteen renderers were treated as one kind of thing because they shared a folder. Seven of them are not domain renderers at all, and the folder was the only thing saying otherwise. The test in this amendment is what stops the next one being filed by its neighbours.
 ## Amendment 4 (2026-09-15) — genericness admits to `foundation`, not only the count
 
@@ -353,6 +364,28 @@ Both halves are required. *Presentational and behaviour-free* means props in, ma
 **The instance.** `AddressItem`, `CompanyItem` and `PhoneItem` — the rows `Manage` renders through its `item` slot. Each takes one headless type (`Address`, `Company`, `Phone`), renders a title, a description and an edit link, and emits `edit`. Their only importers are `client-vue`'s `TabBusiness` and `TabPersonal`, which §3 re-homes into `basket` at Phase 9 — one domain package, so the count is one and always will be. §3 grants `basket` no `client` and `client` no `basket`: left in `basket`, no account-side surface could ever render a saved address or company, though the markup is the same on both sides. They move to `packages/modules-foundation/src/modules/manage/`, beside the frames that render them.
 
 **Why this is narrower than it reads.** The count exists to stop `foundation` re-growing into the monolith it replaced, and behaviour is what made that monolith heavy. This route admits no behaviour at all: anything with a composable, a machine or a call in it still faces the count. A component that fails the count and is NOT stranded by §3 also still faces it — it waits for its second consumer, because one may arrive.
+
+---
+
+## Amendment 5 (2026-09-16) — WITHDRAWN. The shell stays app-owned, as Amendment 1 says
+
+> ❌ **WITHDRAWN 2026-09-16, the same day it was written.** The operator rejected it and ruled that **Amendment 1 change 3 stands as written**: the page, layouts, header and footer belong to each app, not to `ui` and not to `foundation`. This heading is kept so the phase commits that cite it still resolve.
+
+**What it proposed, and why it is recorded rather than deleted.** It argued that "app-owned" describes the shell's *composition* and not its source files, and that the chrome should therefore move into `foundation` while each app kept its own arrangement. The evidence behind it was sound as far as it went — `apps/cart-nuxt/app/layouts/default.vue` does own its arrangement while importing every part from a package, and the 88-file shell closure does reach exactly one domain package. **That evidence does not carry the conclusion.** A rule may describe what the code does today and still be the wrong rule to keep.
+
+**The operator's ruling, and its cost, stated plainly.** The shell is copied into each consumer that needs it. That is **three**, not two: `apps/cart` takes 139 files, `apps/cart-nuxt` 133, and `playgrounds/labs-nuxt` 61 — the playground is a consumer under the same ruling, and 59 files now exist three times over. `apps/velia-nuxt` extends `cart-nuxt` through Nuxt layers and inherits it; `apps/portal-nuxt` has its own shell and takes none. *(Corrected 2026-09-16: this paragraph first priced the duplication at two apps, having counted only the funnel apps and overlooked the playground.)*
+
+The 45 page templates follow the chrome, because they are built on it — 37 import `Layout.vue`, 38 `useFooter`, 36 `useHeader` — and a package may not import an app. So roughly 88 chrome files and 45 templates exist twice. **They will drift.** The operator was shown this cost and accepted it.
+
+**What this simplifies.** `components/footer/Footer.vue`'s import of `UpmCurrency` from `basket` stops being a problem: an app may import any domain package, so the footer keeps the import and no slot is needed for it. §3's grant matrix is untouched by this phase.
+
+**What still stands from the work behind it.** The measured closure (88 files), the template import counts, and the finding that `useHeader` and `Header.vue` carry no domain dependency are facts about the tree and remain correct. They are recorded in the Phase 10 story; they simply no longer argue for a move.
+
+---
+
+## Amendment 6 (2026-09-16) — WITHDRAWN with Amendment 5
+
+> ❌ **WITHDRAWN 2026-09-16, the same day it was written.** It widened §2's admission count to treat an app as a consumer. It existed only to support Amendment 5, which the operator rejected, and it now has no instance. §2's count means domain packages, as originally written.
 
 ---
 

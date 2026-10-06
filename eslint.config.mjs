@@ -488,7 +488,7 @@ const sharedVueRules = {
   "vue/no-v-text-v-html-on-component": "off", // web-component wrappers legitimately receive v-html
   "vue/no-v-model-argument": "off", // Vue-2-era guard; irrelevant under Vue 3
   // vue/component-api-style is deliberately OFF (left unset): the codebase mixes
-  // <script setup>, composition, and options API by design (client-vue web-component
+  // <script setup>, composition, and options API by design (web-component
   // wrappers vs cart SFCs). Enforcing one style is churn with no correctness gain
   // (FE-2820 ruling §4). The 2 stale eslint-disable comments for it were removed.
 
@@ -531,7 +531,6 @@ const bannedScenarioHarnessSpecifiers = [
   "pinia",
   "@xstate/vue",
   "@upmind-automation/headless",
-  "@upmind-automation/client-vue",
   "@upmind-automation/upmind-ui",
   "@upmind-automation/i18n"
 ];
@@ -559,7 +558,7 @@ const noRestrictedVueImportsRule = [
       // plus a slash" without also catching unrelated `@upmind-automation/*`
       // packages (e.g. `@upmind-automation/types`, which is NOT banned).
       {
-        regex: "^@upmind-automation/(headless|client-vue|upmind-ui|i18n)/",
+        regex: "^@upmind-automation/(headless|upmind-ui|i18n)/",
         message: NO_VUE_BOUNDARY_MESSAGE
       }
     ]
@@ -587,7 +586,7 @@ const bannedScenarioHarnessSpecifierPattern = new RegExp(
   "^(?:vue|vue-router|vue-i18n|vue-demi|pinia|@xstate/vue)(?:/.*)?$" +
     "|^@vue/" +
     "|^@vueuse/" +
-    "|^@upmind-automation/(?:headless|client-vue|upmind-ui|i18n)(?:/.*)?$"
+    "|^@upmind-automation/(?:headless|upmind-ui|i18n)(?:/.*)?$"
 );
 
 const scenarioHarnessBoundaryPlugin = {
@@ -1227,10 +1226,7 @@ export default [
   //    refuses to write fixes to multi-block SFCs for the same reason.
   // ---------------------------------------------------------------------------
   {
-    files: [
-      "packages/client-vue/src/Upmind.vue",
-      "apps/cart/src/shell/Upmind.vue"
-    ],
+    files: ["apps/cart/src/shell/Upmind.vue"],
     rules: { "import/first": "off" }
   },
 

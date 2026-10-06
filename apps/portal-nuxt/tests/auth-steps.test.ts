@@ -1,6 +1,6 @@
 // -----------------------------------------------------------------------------
 /**
- * The three logged-out screens no client-vue component serves, mocked as
+ * The three logged-out screens no domain package serves, mocked as
  * legacy drew them: the reset link's new password, the verification link's
  * outcomes, and the organisation sign-up. Oracle: vue-app 1.74.0,
  * `views/client/auth/{resetPassword,verify,verifyEmail,registerOrg}`.
@@ -10,7 +10,6 @@ import { boundRefId, rowBinding, stringsIn } from "./support/page-config";
 import { assign, get, includes, map } from "lodash-es";
 import type { MockDataset } from "~/portal/mock/types";
 import { authPages } from "~/portal/config/auth-pages";
-import { CLIENT_VUE_STUB_TITLE } from "~/portal/config/client-vue";
 import {
   MOCK_ACTION,
   MOCK_REFUSAL_MESSAGE,
@@ -22,6 +21,7 @@ import { useResetPasswordSchema } from "~/portal/mock/contracts/auth.schemas.res
 import { DATA_REF_ID, dataRef, resolveDataRef } from "~/portal/mock/data-refs";
 import { MOCK_RECEIPT_REASON } from "~/portal/mock/facades/facade";
 import { PORTAL_FORM_CURRENCIES } from "~/portal/mock/forms/engine-data";
+import { PACKAGE_STUB_TITLE } from "~/portal/mock/package-stub";
 import {
   MOCK_DATASET_ID,
   resetMockData,
@@ -51,7 +51,7 @@ describe("the logged-out steps (legacy resetPassword, verify, verifyEmail, regis
     resetMockData(MOCK_DATASET_ID.HOSTGRID);
   });
 
-  it("gives every one of the seven positions a page of its own, with no client-vue stub", () => {
+  it("gives every one of the seven positions a page of its own, with no package stub", () => {
     const pages = authPages();
     for (const key of [
       PAGE_KEY.AUTH_RESET_PASSWORD,
@@ -62,7 +62,7 @@ describe("the logged-out steps (legacy resetPassword, verify, verifyEmail, regis
       PAGE_KEY.AUTH_VERIFY_EMAIL_EXPIRED,
       PAGE_KEY.AUTH_REGISTER_ORG
     ]) {
-      expect(includes(stringsIn(pages[key]), CLIENT_VUE_STUB_TITLE), key).toBe(
+      expect(includes(stringsIn(pages[key]), PACKAGE_STUB_TITLE), key).toBe(
         false
       );
     }

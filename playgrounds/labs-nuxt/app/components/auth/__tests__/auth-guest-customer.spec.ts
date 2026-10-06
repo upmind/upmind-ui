@@ -67,7 +67,7 @@ afterEach(() => {
 
 describe("the guest-checkout gate", () => {
   // The first mount pays to transform this component's whole import graph
-  // (`@upmind/ui`, `client-vue`); later mounts reuse the cache. Same ceiling the
+  // (`@upmind/ui`, the domain packages); later mounts reuse the cache. Same ceiling the
   // page specs take (`pages/__tests__/index-card-badge.spec.ts`).
   it(
     "refuses with a stated reason when guest checkout is disabled for the brand",

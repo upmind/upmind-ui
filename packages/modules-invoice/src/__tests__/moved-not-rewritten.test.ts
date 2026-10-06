@@ -112,7 +112,7 @@ describe("the move, read back file by file", () => {
   });
 
   it.each(movedSource)(
-    "leaves nothing of $file behind in client-vue",
+    "leaves nothing of $file behind at its legacy path",
     entry => {
       expect(
         existsSync(join(REPO_ROOT, entry.from)),

@@ -35,11 +35,11 @@
  * link opens in the modal: the payment context `UpmPaymentDetails` consumes,
  * the pay control itself, and its due/failed/locked and pending/partial alerts.
  *
- * This is a LABS duplicate of the payment slot of client-vue's `Order.vue`,
+ * This is a LABS duplicate of the payment slot of `invoice`'s `Order.vue`,
  * split out here so the order PAGE shows the order without payment and the pay
  * MODAL shows the payment only — different surfaces, not the same component in
- * both. The pieces client-vue exposes publicly (`UpmPaymentDetails`,
- * `UpmCurrencySelect`, `useOrder`) are reused as they are.
+ * both. The pieces the packages expose publicly (`UpmPaymentDetails`,
+ * `UpmCurrencySelect`, `useInvoice`) are reused as they are.
  *
  * The invoice arrives as a PROP; this never reads the route. The default slot
  * renders inside the payment context, so the host can add `UpmPaymentProcessing`

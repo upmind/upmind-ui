@@ -2,9 +2,9 @@
 /**
  * Legacy's email history under Logs: four status tabs over one list, the
  * subject and recipient per row with the outcome as its badge, and a preview
- * of the message. No client-vue component serves it (its module was retired
- * in FE-3103), so the sandbox mocks it. Oracle: vue-app 1.74.0,
- * `views/client/account/emailHistory` and `components/app/global/emailHistory`.
+ * of the message. No domain package serves it, so the sandbox mocks it.
+ * Oracle: vue-app 1.74.0, `views/client/account/emailHistory` and
+ * `components/app/global/emailHistory`.
  */
 import { beforeEach, describe, expect, it } from "vitest";
 import { SentEmailStatus } from "@upmind-automation/types";
@@ -13,12 +13,12 @@ import { every, find, get, includes, map, uniq } from "lodash-es";
 import type { DataRouteContext } from "~/portal/mock/injection";
 import type { MockDataset } from "~/portal/mock/types";
 import { accountPages } from "~/portal/config/account-pages";
-import { CLIENT_VUE_STUB_TITLE } from "~/portal/config/client-vue";
 import {
   EMAIL_STATUS_TAB,
   showingEmailTab
 } from "~/portal/mock/collection-defs";
 import { DATA_REF_ID, dataRef, resolveDataRef } from "~/portal/mock/data-refs";
+import { PACKAGE_STUB_TITLE } from "~/portal/mock/package-stub";
 import {
   MOCK_DATASET_ID,
   resetMockData,
@@ -55,9 +55,9 @@ describe("email history (legacy emailHistoryTable, emailHistoryStatus, viewEmail
     resetMockData(MOCK_DATASET_ID.HOSTGRID);
   });
 
-  it("puts the list on Logs under the delivery notice, with no client-vue stub", () => {
+  it("puts the list on Logs under the delivery notice, with no package stub", () => {
     const page = accountPages()[PAGE_KEY.ACCOUNT_LOGS];
-    expect(includes(stringsIn(page), CLIENT_VUE_STUB_TITLE)).toBe(false);
+    expect(includes(stringsIn(page), PACKAGE_STUB_TITLE)).toBe(false);
     const list = rowBinding(page, DATA_REF_ID.SENT_EMAIL_ITEMS);
     expect(get(list, "header.title")).toBe("Email history");
     expect(stringsIn(page)).toContain(DELAY_NOTICE);
@@ -67,7 +67,7 @@ describe("email history (legacy emailHistoryTable, emailHistoryStatus, viewEmail
 
   it("renders the preview page from the header facts and the body", () => {
     const page = accountPages()[PAGE_KEY.ACCOUNT_LOG_EMAIL_DETAIL];
-    expect(includes(stringsIn(page), CLIENT_VUE_STUB_TITLE)).toBe(false);
+    expect(includes(stringsIn(page), PACKAGE_STUB_TITLE)).toBe(false);
     expect(rowBinding(page, DATA_REF_ID.SENT_EMAIL_SPEC_ITEMS)).toBeDefined();
     const body = rowBinding(page, DATA_REF_ID.SENT_EMAIL_BODY);
     expect(boundRefId(get(body, "slots[0].props"), "markdown")).toBe(

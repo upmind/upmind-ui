@@ -34,7 +34,7 @@ function moduleDirOf(absPath) {
 /**
  * True when `source` is a re-export from ANOTHER INTERNAL module. A bare
  * package / alias (e.g. `ajv`) is NOT flagged: headless deliberately re-exports
- * a third-party type so client-vue and the apps consume it without importing
+ * a third-party type so the packages and the apps consume it without importing
  * the dependency themselves. Only a relative source that escapes the file's own
  * `modules/<name>/` directory into a different module counts.
  */

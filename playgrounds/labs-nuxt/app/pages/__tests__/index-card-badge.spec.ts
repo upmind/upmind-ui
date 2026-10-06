@@ -135,7 +135,7 @@ describe("homepage Card grammar and Badge slot migration", () => {
     // label, which the old `:label`-prop badge did not render at all.
     //
     // The first mount in the file pays for transforming the page's whole import
-    // graph — `@upmind/ui`, `client-vue` and the scenario registry behind them.
+    // graph — `@upmind/ui`, the domain packages and the scenario registry.
     // Later mounts reuse the cache and land inside the lane's 5s ceiling.
     it(
       "header metrics carry their derived counts as text",

@@ -5,7 +5,7 @@
  *
  * The old lib rendered string-named SVGs from a custom "Untitled UI" pack. The
  * new lib (`@upmind/ui`) is lucide-only, so this table re-expresses
- * each UI glyph used in client-vue as its lucide v1 equivalent. Targets are
+ * each UI glyph the packages use as its lucide v1 equivalent. Targets are
  * audited against `lucide-vue-next@^1.0.0` — lucide reordered many names in the
  * 0.x→1.x cutover (`AlertTriangle`→`TriangleAlert`, `CheckCircle`→`CircleCheck`,
  * `Loader2`→`LoaderCircle`, …), so the v0 names do NOT apply here.

@@ -21,7 +21,6 @@ import type {
   RouteRecordRaw,
   RouterScrollBehavior
 } from "vue-router";
-import { BASKET_SEGMENT } from "#basket-segment";
 
 // -----------------------------------------------------------------------------
 
@@ -36,8 +35,6 @@ if (import.meta.client) {
 // -----------------------------------------------------------------------------
 
 const UUID = RegexMatch.UUID;
-
-const SCANNED_BASKET_PREFIX = "/order/basket";
 
 /**
  * Overlay route definitions — components rendered inside OverlayController.
@@ -224,12 +221,6 @@ export default {
       }
       return true;
     });
-
-    for (const route of filtered) {
-      if (!route.path.startsWith(SCANNED_BASKET_PREFIX)) continue;
-      const tail = route.path.slice(SCANNED_BASKET_PREFIX.length);
-      route.path = `/order/${BASKET_SEGMENT}${tail}`;
-    }
 
     // Push BID-aware routes (same names so router.resolve works) + overlays
     filtered.push(...BID_ROUTES, ...OVERLAY_ROUTES);

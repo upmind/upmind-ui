@@ -104,10 +104,6 @@ export default defineNuxtConfig({
    */
 
   alias: {
-    "#basket-segment": resolve(__dirname, "./app/funnels/segment.ts"),
-
-    "#locale-overrides": resolve(__dirname, "./app/assets/locale-overrides.ts"),
-
     // App directories
     "@": resolve(__dirname, "./app"),
     "@icons": resolve(__dirname, "../../packages/icons/assets"),

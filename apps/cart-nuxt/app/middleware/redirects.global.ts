@@ -1,6 +1,5 @@
 import { ROUTE, RegexMatch } from "../funnels/types";
 import { includes, trimStart } from "lodash-es";
-import { LEGACY_BASKET_SEGMENT } from "#basket-segment";
 
 /**
  * Global Redirects Middleware
@@ -82,7 +81,7 @@ export default defineNuxtRouteMiddleware(async to => {
 
   // --- Route Renames ---
 
-  if (path === `/order/${LEGACY_BASKET_SEGMENT}`) {
+  if (path === "/order/cart") {
     return navigateTo(
       { name: ROUTE.BASKET, query: to.query },
       { redirectCode: 301 }

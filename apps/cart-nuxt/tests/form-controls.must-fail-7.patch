@@ -7,7 +7,6 @@
 #     "holds no form control that none of its packages registered"
 
 diff --git a/apps/cart-nuxt/app/plugins/upmind.client.ts b/apps/cart-nuxt/app/plugins/upmind.client.ts
-index c2d4551..e7fa82f 100644
 --- a/apps/cart-nuxt/app/plugins/upmind.client.ts
 +++ b/apps/cart-nuxt/app/plugins/upmind.client.ts
 @@ -1,10 +1,6 @@
@@ -22,12 +21,11 @@ index c2d4551..e7fa82f 100644
  import { SHELL, useShell } from "@upmind-automation/foundation";
  import {
    decorateRoutes,
-@@ -25,8 +21,6 @@ import type { Router } from "vue-router";
+@@ -23,7 +19,6 @@ import type { I18n } from "vue-i18n";
+ import type { Router } from "vue-router";
  import { defineNuxtPlugin } from "#app";
- import { LOCALE_OVERRIDES } from "#locale-overrides";
  
 -registerFormRenderers(foundationRenderers);
--
+ 
  export default defineNuxtPlugin(async nuxtApp => {
    const runtimeConfig = useRuntimeConfig();
-   const router = nuxtApp.$router as Router;

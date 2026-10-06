@@ -11,7 +11,6 @@ import { rowBinding, stringsIn } from "./support/page-config";
 import { find, get, includes, map } from "lodash-es";
 import type { DataRouteContext } from "~/portal/mock/injection";
 import type { MockDataset, MockProduct } from "~/portal/mock/types";
-import { CLIENT_VUE_STUB_TITLE } from "~/portal/config/client-vue";
 import { productPages } from "~/portal/config/product-pages";
 import {
   MOCK_ACTION,
@@ -30,6 +29,7 @@ import {
   resolveDataRefProps
 } from "~/portal/mock/data-refs";
 import { MOCK_RECEIPT_REASON } from "~/portal/mock/facades/facade";
+import { PACKAGE_STUB_TITLE } from "~/portal/mock/package-stub";
 import {
   MOCK_DATASET_ID,
   resetMockData,
@@ -111,7 +111,7 @@ describe("product setup form (legacy cProdProvConfigManageForm)", () => {
     });
   });
 
-  it("mounts the form on the Setup tab, confirmed in one step, with no client-vue stub", () => {
+  it("mounts the form on the Setup tab, confirmed in one step, with no package stub", () => {
     const page = productPages()[SETUP_PAGE];
     const row = rowBinding(page, DATA_REF_ID.PRODUCT_SETUP_FORM_MODEL);
     const props = get(row, "slots[0].props");
@@ -119,7 +119,7 @@ describe("product setup form (legacy cProdProvConfigManageForm)", () => {
     expect(get(props, "submitLabel")).toBe("Confirm");
     expect(get(props, "resetLabel")).toBe("Revert changes");
     expect(get(row, "header.title")).toBe("Setup required");
-    expect(includes(stringsIn(page), CLIENT_VUE_STUB_TITLE)).toBe(false);
+    expect(includes(stringsIn(page), PACKAGE_STUB_TITLE)).toBe(false);
   });
 
   it("resolves the page refs to this product's blueprint", () => {

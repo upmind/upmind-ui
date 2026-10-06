@@ -167,7 +167,7 @@ const interpolates = (value: string, dataDerived: string[]) =>
 const VENDOR_DEFAULTS = new Set(["Previous Page", "Next Page"]);
 
 /**
- * Icon fallback tokens from `@upmind-automation/client-vue` Icon component:
+ * Icon fallback tokens from foundation's `Icon` component:
  * when an icon name isn't registered, the component renders `{name} icon` as
  * aria-hidden decorative fallback text. These are never user-facing in
  * production (icons ARE registered there), so they are exempted from the

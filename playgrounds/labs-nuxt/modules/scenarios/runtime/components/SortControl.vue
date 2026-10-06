@@ -49,7 +49,7 @@
  * both affordances funnel through the surface's one emit and can never disagree
  * (`P1-R9`).
  *
- * Drawn the way the house draws a sort control (`client-vue`'s `ProductSort` /
+ * Drawn the way the house draws a sort control (`ProductSort` /
  * `EmailHistorySort`): ONE group carrying the direction toggle and the field
  * `Select`. Both of those are bound to their own module's hardcoded
  * sortable-property enum, so the treatment is adopted and the fields stay the

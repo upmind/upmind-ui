@@ -1,10 +1,24 @@
 import { resolve } from "path";
+import { find } from "lodash-es";
 
 export default defineNuxtConfig({
   extends: ["../cart-nuxt"],
 
-  alias: {
-    "#basket-segment": resolve(__dirname, "./app/funnels/segment.ts")
+  hooks: {
+    // Swapped in place: a same-name middleware file would run after cart-nuxt's routing guard.
+    "app:resolve": app => {
+      const redirects = find(app.middleware, {
+        path: resolve(
+          __dirname,
+          "../cart-nuxt/app/middleware/redirects.global.ts"
+        )
+      });
+      if (!redirects) {
+        throw new Error("cart-nuxt's redirects middleware is missing");
+      }
+
+      redirects.path = resolve(__dirname, "./app/redirects.ts");
+    }
   },
 
   app: {

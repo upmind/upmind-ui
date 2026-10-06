@@ -1,0 +1,22 @@
+# Negative control — Velia moves an old basket link to /order/cart/ without its
+# query or hash, so the shopper loses the currency, promotion or section the
+# link carried.
+#
+# Intended RED:
+#   apps/velia-nuxt/tests/redirects.test.ts
+#     "keeps the query and the hash when it moves a basket link"
+
+diff --git a/apps/velia-nuxt/app/redirects.ts b/apps/velia-nuxt/app/redirects.ts
+--- a/apps/velia-nuxt/app/redirects.ts
++++ b/apps/velia-nuxt/app/redirects.ts
+@@ -14,9 +14,7 @@
+   if (startsWith(to.path, DEFAULT_BASKET_PATH)) {
+     return navigateTo(
+       {
+-        path: replace(to.path, DEFAULT_BASKET_PATH, BASKET_PATH),
+-        query: to.query,
+-        hash: to.hash
++        path: replace(to.path, DEFAULT_BASKET_PATH, BASKET_PATH)
+       },
+       { redirectCode: 301 }
+     );

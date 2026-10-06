@@ -23,7 +23,6 @@ import { forEach } from "lodash-es";
 import type { I18n } from "vue-i18n";
 import type { Router } from "vue-router";
 import { defineNuxtPlugin } from "#app";
-import { LOCALE_OVERRIDES } from "#locale-overrides";
 
 registerFormRenderers(foundationRenderers);
 
@@ -46,13 +45,10 @@ export default defineNuxtPlugin(async nuxtApp => {
     i18n: {
       instance: nuxtApp.$i18n as I18n,
       // Glob pattern adapted for relative path from this plugin
-      files: {
-        ...import.meta.glob<Record<string, string>>(
-          "../assets/locales/**/*.json",
-          { import: "default" }
-        ),
-        ...LOCALE_OVERRIDES
-      }
+      files: import.meta.glob<Record<string, string>>(
+        "../assets/locales/**/*.json",
+        { import: "default" }
+      )
     },
     router: {
       instance: router,
