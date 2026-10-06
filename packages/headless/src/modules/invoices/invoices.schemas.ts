@@ -36,7 +36,7 @@ import type { ICurrency } from "@upmind-automation/types";
  */
 // -----------------------------------------------------------------------------
 
-const RELATIVE_DATE_PATTERN =
+export const RELATIVE_DATE_PATTERN =
   "^[+-](?:[1-9][0-9]*|[0-9]+\\.[0-9]+)_(hours|days|weeks|months|years)$";
 const ABSOLUTE_DATE_PATTERN = "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}$";
 

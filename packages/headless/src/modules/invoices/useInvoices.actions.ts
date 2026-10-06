@@ -3,6 +3,7 @@ import { watch } from "vue";
 import { invalidateQueryByKey, PAGINATION, resetQueryByKey } from "../query";
 import { remove as removeFromRegistry } from "../scope";
 import { useActiveSession } from "../session-store";
+import { RELATIVE_DATE_PATTERN } from "./invoices.schemas";
 import { CONSOLIDATABLE_FILTER, CREDIT_NOTE_FILTER } from "./invoices.types";
 import { NotAuthenticatedError } from "../../utils";
 import {
@@ -31,8 +32,6 @@ import type { ScopeActorTypes } from "../scope/scope.types";
 
 /** The legacy quick-search pause, distinct from the shared 350 ms input debounce. */
 const SEARCH_DEBOUNCE_MS = 250;
-
-const RELATIVE_DATE_PATTERN = /^[+-]/;
 
 type CriteriaWrite = Parameters<InvoicesListQuery["setCriteria"]>[0];
 // -----------------------------------------------------------------------------
@@ -106,14 +105,21 @@ export function createInvoicesActions(
   /**
    * Applies a filter INTENT over the LIVE filters: each column the intent
    * names replaces the live one, a nil column goes away, and every other live
-   * column stays. The page returns to one.
+   * column stays. A number column cancels a pending search. The page returns
+   * to one.
    */
   function filterBy(
     intent: InvoiceFilterModel | InvoiceOrderFilterModel
   ): void {
+    if (has(intent, "number")) writeSearch.cancel();
     query.setCriteria({
       filters: omitBy(assign(liveFilters(), intent), isNil)
     } as CriteriaWrite);
+  }
+
+  function setCriteria(intent: CriteriaWrite): void {
+    if (has(intent, "filters")) writeSearch.cancel();
+    query.setCriteria(intent);
   }
 
   /** Applies a sort INTENT; the live page window rides along, so the page stays. */
@@ -221,7 +227,7 @@ export function createInvoicesActions(
 
   function dateOp(value?: string, op?: keyof InvoiceDateLeaf) {
     if (op || isNil(value) || value === "") return op;
-    return RELATIVE_DATE_PATTERN.test(value) ? "after" : "gte";
+    return new RegExp(RELATIVE_DATE_PATTERN).test(value) ? "after" : "gte";
   }
 
   /**
@@ -273,6 +279,7 @@ export function createInvoicesActions(
 
   /** AC2 — narrows the list to invoices this client could consolidate. */
   function filterConsolidatable(clientId?: string): void {
+    writeSearch.cancel();
     query.setCriteria({
       filters: {
         ...CONSOLIDATABLE_FILTER,
@@ -283,6 +290,7 @@ export function createInvoicesActions(
 
   /** AC7 — credit notes as a filtered view of this same collection. */
   function filterCreditNotes(): void {
+    writeSearch.cancel();
     query.setCriteria({ filters: CREDIT_NOTE_FILTER });
   }
 
@@ -347,9 +355,9 @@ export function createInvoicesActions(
      * `pagination` branches into the ONE query model; branches left out are
      * untouched. The single write verb: the schema governs what is
      * spellable, so a legacy `filter[col]` key or a raw sort tuple is
-     * unreachable here.
+     * unreachable here. A `filters` branch cancels a pending search.
      */
-    setCriteria: query.setCriteria,
+    setCriteria,
 
     /** Sets the page size and goes back to page one. */
     setLimit,

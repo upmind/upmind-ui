@@ -4,13 +4,13 @@ Row: -t "Only my last number search or number filter narrows my orders" — the 
 Mutation: search adds its term beside the live number.eq value as a second csv value instead of replacing it.
 
 diff --git a/packages/headless/src/modules/invoices/useInvoices.actions.ts b/packages/headless/src/modules/invoices/useInvoices.actions.ts
-index 2c879a5d14..2497bcacf2 100644
+index e439621c3a..639048c16d 100644
 --- a/packages/headless/src/modules/invoices/useInvoices.actions.ts
 +++ b/packages/headless/src/modules/invoices/useInvoices.actions.ts
-@@ -175,7 +175,20 @@ export function createInvoicesActions(
-   const writeSearch = debounce((term?: string) => {
+@@ -182,7 +182,20 @@ export function createInvoicesActions(
      writeFilters(filters => {
        const path = numberLeafPath();
+       if (path.length > 1) filters.number = { ...(filters.number as object) };
 -      if (term) set(filters, path, term);
 +      if (term)
 +        set(
