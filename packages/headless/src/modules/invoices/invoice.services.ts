@@ -15,6 +15,7 @@ import { find, isEmpty, reduce, size } from "lodash-es";
 import type {
   Invoice,
   InvoiceCurrencyConversion,
+  InvoiceItemImageRow,
   InvoiceItemImagesQuery,
   InvoiceLookups,
   InvoicePayContext,
@@ -187,10 +188,7 @@ export function loadItemImages(
 ): InvoiceItemImagesQuery {
   const { query, useUrl } = useQuery();
 
-  return query<
-    { id: string; image?: { full_url?: string } }[],
-    Record<string, string>
-  >({
+  return query<InvoiceItemImageRow[], Record<string, string>>({
     queryKey: ["invoices", "item-images", invoiceId, productIds],
     url: useUrl("products", {
       "filter[id]": productIds.join(","),

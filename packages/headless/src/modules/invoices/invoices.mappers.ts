@@ -40,6 +40,7 @@ import type {
   IBillingCycle,
   IContract,
   IContractProduct,
+  IContractProductTag,
   IInvoice,
   IInvoiceProduct,
   IPaymentDetail,
@@ -265,10 +266,8 @@ export function mapInvoiceItems(
 ): InvoiceItem[] {
   if (!raw) return [];
 
-  const contractProductTags = groupBy(
-    get(raw, "contract_product_tags", []),
-    "contract_product_id"
-  );
+  const tags: IContractProductTag[] = get(raw, "contract_product_tags", []);
+  const contractProductTags = groupBy(tags, "contract_product_id");
 
   return map(mapInvoiceItemRows(raw), item => {
     const billingCycleMonths =

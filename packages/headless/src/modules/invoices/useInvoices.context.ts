@@ -5,6 +5,7 @@ import {
   useLookupsSchema,
   useLookupsUischema,
   useOrderQueryUischema,
+  useOrderSortUischema,
   useQueryUischema,
   useSortUischema
 } from "./invoices.schemas";
@@ -46,6 +47,9 @@ export function createInvoicesContext(
   const data = computed(() =>
     isArray(query.data.value) ? query.data.value : []
   );
+
+  const isOrderHistory =
+    scopeContext?.type === InvoicesContextTypes.NEW_CONTRACT;
 
   const error = computed<ResponseError | undefined>(
     () =>
@@ -111,11 +115,10 @@ export function createInvoicesContext(
       /** The query schema the list reads, and the filter bar of this context. */
       query: {
         schema: query.schema,
-        uischema:
-          scopeContext?.type === InvoicesContextTypes.NEW_CONTRACT
-            ? useOrderQueryUischema()
-            : useQueryUischema(),
-        sortUischema: useSortUischema()
+        uischema: isOrderHistory ? useOrderQueryUischema() : useQueryUischema(),
+        sortUischema: isOrderHistory
+          ? useOrderSortUischema()
+          : useSortUischema()
       },
       /**
        * The `.for()` picker's lookups pair, each control already bound to

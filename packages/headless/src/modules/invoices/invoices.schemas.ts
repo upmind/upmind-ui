@@ -363,6 +363,14 @@ export function useSortUischema(): ControlElement {
   };
 }
 
+export function useOrderSortUischema(): ControlElement {
+  return {
+    type: "Control",
+    scope: "#/properties/sort",
+    i18n: "form.orders_sort"
+  };
+}
+
 // -----------------------------------------------------------------------------
 // The three lists the scope picker reads. A lookup schema declares only what
 // its search writes: the list schema's other filter columns would reach the

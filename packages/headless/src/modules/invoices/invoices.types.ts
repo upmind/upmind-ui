@@ -43,6 +43,7 @@
 import {
   AccessRoleTypes,
   InvoiceCategoryCode,
+  InvoiceStatus,
   InvoiceStatusGroups,
   UpmindObjectTypes
 } from "@upmind-automation/types";
@@ -60,22 +61,20 @@ import type { InfiniteListQuery, ListQuery, SimpleQuery } from "../query";
 import type { ScopeContext } from "../scope";
 import type { JsonSchema7, UISchemaElement } from "@jsonforms/core";
 import type { QueryKey } from "@tanstack/vue-query";
-// IInvoice added for InvoicesListQuery/InvoiceItemQuery's wire-type argument
-// (S1) — already imported and used elsewhere in this module's own services
-// file; not a new type (see this file's head `graphify-out/` citation).
 import type {
-  InvoiceStatus,
   CreditNoteStatus,
   IBillingCycle,
   IBrand,
   IClient,
   IContract,
   IContractProduct,
+  IContractProductTag,
   ICurrency,
-  IInvoice
+  IInvoice,
+  IProduct
 } from "@upmind-automation/types";
 import type { ComputedRef } from "vue";
-import type { ActorRef } from "xstate";
+import type { AnyActorRef } from "xstate";
 
 // -----------------------------------------------------------------------------
 // SCOPE — two matrices, one context enum
@@ -328,11 +327,11 @@ export type InvoiceSortModel = NonNullable<InvoiceQueryModel["sort"]>;
  * that selects both the unpaid and the adjusted statuses.
  */
 export const ORDER_STATUS_CHOICES = [
-  "invoice_paid",
-  "invoice_unpaid,invoice_adjusted",
-  "invoice_overdue",
-  "invoice_cancelled",
-  "invoice_refunded"
+  InvoiceStatus.PAID,
+  `${InvoiceStatus.UNPAID},${InvoiceStatus.ADJUSTED}`,
+  InvoiceStatus.OVERDUE,
+  InvoiceStatus.CANCELLED,
+  InvoiceStatus.REFUNDED
 ] as const;
 
 /** One value of {@link ORDER_STATUS_CHOICES}. */
@@ -592,7 +591,7 @@ export type InvoiceItem = {
   /** `undefined` until the billing cycles resolve. */
   billingCycle: IBillingCycle | undefined;
   image: string | undefined;
-  tags: unknown[];
+  tags: IContractProductTag[];
   quantifiableItems: InvoiceSubItem[];
   nonQuantifiableItems: InvoiceSubItem[];
   hasSubItems: boolean;
@@ -705,7 +704,7 @@ export type InvoicePayContext = {
   invoiceId: string;
 
   /** Spawned auth subscription actor. */
-  authHelper?: ActorRef<any>;
+  authHelper?: AnyActorRef;
 
   /** The raw IInvoice API response. */
   rawInvoice?: IInvoice;
@@ -714,7 +713,7 @@ export type InvoicePayContext = {
   invoice?: Invoice;
 
   /** Spawned paymentDetail child actor. */
-  paymentDetailActor?: ActorRef<any>;
+  paymentDetailActor?: AnyActorRef;
 
   /** The resolved payment detail data from the paymentDetail machine. */
   paymentDetail?: PaymentDetailData;
@@ -770,12 +769,16 @@ export type InvoicesListQuery = ListQuery<
   InvoiceQueryModel | InvoiceOrderQueryModel
 >;
 
+/** One `GET api/products` row the item-image read selects from. */
+export type InvoiceItemImageRow = Pick<IProduct, "id"> &
+  Partial<Pick<IProduct, "image">>;
+
 /**
  * The item-image read — `GET api/products` over the snapshot items' catalogue
  * product ids, mapped to a `{ productId -> full_url }` map.
  */
 export type InvoiceItemImagesQuery = SimpleQuery<
-  { id: string; image?: { full_url?: string } }[],
+  InvoiceItemImageRow[],
   Record<string, string>
 >;
 

@@ -100,8 +100,16 @@ function createInvoiceForScope(config: ScopeConfig, scopeKey: ScopeKey) {
     "rawInvoice"
   );
 
-  // The item term names. Not awaited: `isReady()` never waits on a label, and a
-  // failed read leaves each item's `billingCycle` undefined.
+  /**
+   * @decision
+   * what: the item term names land in a local `ref` filled from
+   * `ensureBillingCycles()`, not awaited: `isReady()` never waits on a label,
+   * and a failed read leaves each item's `billingCycle` undefined.
+   * why: the owner's `billingCycles` computed closes over a module-level
+   * `let` that is not reactive, so reading it in place never updates.
+   * rejected: reading `useSystem().billingCycles` directly (stays empty), and
+   * changing the system module (outside this module).
+   */
   const billingCycles = ref<IBillingCycle[]>([]);
   useSystem()
     .ensureBillingCycles()

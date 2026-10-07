@@ -459,8 +459,8 @@
     "description": null,
     "label": "Sort",
     "placeholder": null,
-    "id": "Order ID",
-    "status_id": "Status",
+    "id": "ID",
+    "status_id": "Status ID",
     "create_datetime": "Created",
     "number": "Number",
     "total_amount": "Total",
@@ -849,6 +849,21 @@
     "description": null,
     "label": "Service identifier",
     "placeholder": "Search service identifier"
+  },
+  "orders_sort": {
+    "description": null,
+    "label": "Sort",
+    "placeholder": null,
+    "id": "Order ID",
+    "status_id": "Status ID",
+    "create_datetime": "Created",
+    "number": "Order number",
+    "total_amount": "Total",
+    "net_amount": "Net amount",
+    "status": "Status",
+    "paid_datetime": "Paid",
+    "due_date": "Due",
+    "cancellation_datetime": "Cancelled"
   },
   "orders_status_filter": {
     "description": null,

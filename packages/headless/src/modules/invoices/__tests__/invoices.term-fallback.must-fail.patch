@@ -1,14 +1,13 @@
 FE-3237 AC15 — negative control re-pointed from orders/__tests__/orders.items.must-fail.patch (ruling Step 4).
 Spec: invoices.mappers.test.ts (test:unit invoices.mappers)
-Row: -t "a term of zero takes the product term"
+Row: -t "takes the product term when an item's own term is zero"
 Mutation: an item with a zero term no longer falls back to the product term.
 
 diff --git a/packages/headless/src/modules/invoices/invoices.mappers.ts b/packages/headless/src/modules/invoices/invoices.mappers.ts
-index 1d47f76ac8..bee1fb74e0 100644
 --- a/packages/headless/src/modules/invoices/invoices.mappers.ts
 +++ b/packages/headless/src/modules/invoices/invoices.mappers.ts
-@@ -271,8 +271,7 @@ export function mapInvoiceItems(
-   );
+@@ -270,8 +270,7 @@
+   const contractProductTags = groupBy(tags, "contract_product_id");
  
    return map(mapInvoiceItemRows(raw), item => {
 -    const billingCycleMonths =
