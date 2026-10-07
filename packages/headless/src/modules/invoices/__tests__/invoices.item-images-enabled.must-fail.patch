@@ -1,0 +1,17 @@
+FE-3237 AC33 — negative control for the empty-snapshot image read (design 8.8).
+Spec: invoices.item-images.test.ts (test:unit invoices.item-images)
+Row: -t "AC-33"
+Mutation: the item-image query loses its `enabled` guard, so an invoice with no product ids reads GET api/products?filter[id]=&limit=0 (the whole catalogue, per D-8).
+
+diff --git a/packages/headless/src/modules/invoices/invoice.services.ts b/packages/headless/src/modules/invoices/invoice.services.ts
+index d76093138c..5b6a1efee4 100644
+--- a/packages/headless/src/modules/invoices/invoice.services.ts
++++ b/packages/headless/src/modules/invoices/invoice.services.ts
+@@ -196,7 +196,6 @@ export function loadItemImages(
+       limit: size(productIds)
+     }),
+     withAccessToken: true,
+-    enabled: () => !isEmpty(productIds),
+     select: rows =>
+       reduce(
+         rows,
