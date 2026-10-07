@@ -1,6 +1,6 @@
 FE-3237 P2 — negative control for the per-context sort labels.
-Spec: invoices context sortUischema row (test:unit invoices)
-Row: -t "sortUischema"
+Spec: invoices.sort-uischema-context.test.ts (test:unit invoices.sort-uischema-context)
+Row: -t "AC-27: each invoices context draws its own sort labels"
 Mutation: the sort uischema branch is swapped, so the order history reads form.invoice_sort ('ID') and the invoice list reads form.orders_sort ('Order ID').
 
 diff --git a/packages/headless/src/modules/invoices/useInvoices.context.ts b/packages/headless/src/modules/invoices/useInvoices.context.ts
