@@ -1,7 +1,7 @@
-# Realized as a type-level suite — src/registry/__tests__/registry.types.test.ts.
+# Realized as a type-level suite — src/registry/__tests__/registry.types.unit.test.ts.
 # `@compile-time`: the Then is a compilation failure. `test:unit` runs
 # `tsc -p tsconfig.test.json` over this suite, so the two committed
-# `@ts-expect-error` fixtures (missing-key/extra-key) are enforced on every
+# negated `expectTypeOf` controls (missing-key/extra-key) are enforced on every
 # run; the rename mutation is proven by an ad hoc tsc pass over a scratch
 # copy, not a committed failing file (renaming a manifest key after a
 # registry has bound against it breaks every construction site bound to that

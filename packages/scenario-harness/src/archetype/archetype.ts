@@ -8,6 +8,11 @@ import type {
 import type { ReflectedSnapshot } from "../reflection/reflection.types";
 import type { JsonSchema } from "@jsonforms/core";
 // -----------------------------------------------------------------------------
+/**
+ * @module archetype/archetype
+ * @description Classifies a reflected snapshot into one of four archetypes
+ * (form-flow, list, detail, action-panel) from its structure alone.
+ */
 
 /**
  * The Form guard: a non-null plain object typed `"object"`,

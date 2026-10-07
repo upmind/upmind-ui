@@ -1,10 +1,15 @@
 import { classify } from "../archetype/archetype";
-import { isArray, isPlainObject, transform } from "lodash-es";
+import { isArray, isObject, isPlainObject, transform } from "lodash-es";
 import type { ReflectedSnapshot } from "./reflection.types";
 import type { ModuleDescriptor } from "../archetype/archetype.types";
 import type { CompositionPort } from "../port/port.types";
 import type { ScopeActor } from "../world/scope-actor";
 // -----------------------------------------------------------------------------
+/**
+ * @module reflection/reflect
+ * @description Reflects a booted composable cell into a plain, point-in-time
+ * module descriptor, classified by archetype.
+ */
 
 /**
  * True only for a genuine CYCLE — a reference that is an ANCESTOR of the node
@@ -26,8 +31,7 @@ import type { ScopeActor } from "../world/scope-actor";
  *          sibling — so `snapshot.context.schema` and `.model` come back
  *          `undefined`, `classify` reads `hasRealSchema: false` /
  *          `hasModel: false`, and a Form-Flow module silently renders as
- *          Action-panel with no form at all. Observed live 2026-09-11 on
- *          `/useBillingSettingsManager`.
+ *          Action-panel with no form at all.
  * rejected: (1) reordering the module's own context members so `context` comes
  *          last — it only moves which alias is lost, and it makes every
  *          module's key order load-bearing. (2) dropping the `context` member
@@ -39,54 +43,73 @@ import type { ScopeActor } from "../world/scope-actor";
  * a point-in-time snapshot means.
  */
 function isCycle(entry: unknown, ancestors: WeakSet<object>): boolean {
-  return (
-    typeof entry === "object" &&
-    entry !== null &&
-    ancestors.has(entry as object)
+  return isObject(entry) && ancestors.has(entry);
+}
+
+function omitFromArray(
+  value: readonly unknown[],
+  ancestors: WeakSet<object>
+): unknown[] {
+  const out: unknown[] = [];
+  for (const entry of value) {
+    if (entry === undefined || isCycle(entry, ancestors)) continue;
+    out.push(deepOmitUndefined(entry, ancestors));
+  }
+  return out;
+}
+
+function omitFromRecord(
+  value: Record<string, unknown>,
+  ancestors: WeakSet<object>
+): Record<string, unknown> {
+  return transform(
+    value,
+    (acc: Record<string, unknown>, entry, key) => {
+      if (entry === undefined || isCycle(entry, ancestors)) return;
+      // `Object.defineProperty`, never `acc[key] = …`: an own
+      // `__proto__` key in `value` becomes a normal own data property on
+      // `acc` instead of tripping `Object.prototype`'s `__proto__`
+      // setter and replacing `acc`'s own prototype.
+      Object.defineProperty(acc, key, {
+        value: deepOmitUndefined(entry, ancestors),
+        enumerable: true,
+        writable: true,
+        configurable: true
+      });
+    },
+    {}
   );
 }
 
-function deepOmitUndefined<T>(
-  value: T,
-  ancestors: WeakSet<object> = new WeakSet()
-): T {
-  if (!isArray(value) && !isPlainObject(value)) return value;
-
-  const container = value as unknown as object;
+function omitFromContainer(
+  container: unknown[] | Record<string, unknown>,
+  ancestors: WeakSet<object>
+): unknown[] | Record<string, unknown> {
   ancestors.add(container);
 
-  const result = isArray(value)
-    ? (() => {
-        const out: unknown[] = [];
-        for (const entry of value) {
-          if (entry === undefined || isCycle(entry, ancestors)) continue;
-          out.push(deepOmitUndefined(entry, ancestors));
-        }
-        return out;
-      })()
-    : transform(
-        value as Record<string, unknown>,
-        (acc: Record<string, unknown>, entry, key) => {
-          if (entry === undefined || isCycle(entry, ancestors)) return;
-          // `Object.defineProperty`, never `acc[key] = …`: an own
-          // `__proto__` key in `value` becomes a normal own data property on
-          // `acc` instead of tripping `Object.prototype`'s `__proto__`
-          // setter and replacing `acc`'s own prototype.
-          Object.defineProperty(acc, key, {
-            value: deepOmitUndefined(entry, ancestors),
-            enumerable: true,
-            writable: true,
-            configurable: true
-          });
-        },
-        {}
-      );
+  let result: unknown[] | Record<string, unknown>;
+  if (isArray(container)) {
+    result = omitFromArray(container, ancestors);
+  } else {
+    result = omitFromRecord(container, ancestors);
+  }
 
   // Ascend: this container is no longer on the path, so a SIBLING holding the
   // same reference is an alias, not a cycle, and is walked in full.
   ancestors.delete(container);
 
-  return result as unknown as T;
+  return result;
+}
+
+function deepOmitUndefined<T>(value: T, ancestors?: WeakSet<object>): T;
+function deepOmitUndefined(
+  value: unknown,
+  ancestors: WeakSet<object> = new WeakSet()
+): unknown {
+  if (isArray(value)) return omitFromContainer(value, ancestors);
+  if (!isPlainObject(value)) return value;
+
+  return omitFromContainer(value as Record<string, unknown>, ancestors);
 }
 
 /**

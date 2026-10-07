@@ -25,8 +25,8 @@ import {
  *   `null` comes back absent, and both are the one empty field.
  *
  * Anything that is not a plain object asserts nothing and is refused: lodash
- * read zero own keys off a function and answered `true`, which let predicates
- * passed by mistake pass every scenario (2026-09-12).
+ * reads zero own keys off a function and answers `true`, which would let a
+ * predicate passed by mistake pass every scenario.
  */
 
 function satisfies(live: unknown, wanted: unknown): boolean {

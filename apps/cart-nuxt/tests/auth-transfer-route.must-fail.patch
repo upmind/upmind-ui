@@ -1,0 +1,20 @@
+# Negative control — the hand-off alias drops the parent's optional params, so
+# Vue Router warns that "/auth/transfer/" lacks the "segment" param on every
+# page load.
+#
+# Intended RED:
+#   apps/cart-nuxt/tests/auth-transfer-route.test.ts
+#     "builds the routes without a router warning"
+
+diff --git a/apps/cart-nuxt/app/router.options.ts b/apps/cart-nuxt/app/router.options.ts
+--- a/apps/cart-nuxt/app/router.options.ts
++++ b/apps/cart-nuxt/app/router.options.ts
+@@ -141,7 +141,7 @@
+         name: ROUTE.SESSION_TRANSFER,
+         path: "transfer/",
+         // Absolute, so the platform's hand-off at /auth/transfer matches; it repeats the parent's optional params, as Vue Router requires.
+-        alias: [`/auth/transfer/${BID_PREFIX}/`],
++        alias: ["/auth/transfer/"],
+         component: () => import("./pages/order/auth/transfer.vue")
+       }
+     ]

@@ -1,10 +1,11 @@
 import type { ScopeActor } from "../world/scope-actor";
 // -----------------------------------------------------------------------------
-
 /**
- * The @AC-5 exemplar module's plain-TS state shape and its
+ * @module __fixtures__/fixture-module.types
+ * @description The @AC-5 exemplar module's plain-TS state shape and its
  * four-layer (actions/context/meta/internals) return shape.
  */
+
 export type FixtureState = {
   on: boolean;
   label: string;

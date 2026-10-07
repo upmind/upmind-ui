@@ -29,12 +29,6 @@ allowBuilds:
 # DateValue become different types and the calendar/date-picker typecheck fails.
 overrides:
   '@internationalized/date': ^3.12.2
-  # The checkout submodules (apps/velia, apps/hosting) still declare the retired
-  # @upmind-automation/{upmind-ui,tokens} workspace deps; rewrite them to the
-  # design-system packages here so their repos need no companion commit. Their
-  # own vite/tsconfig path aliases stay stale until each app's mirror pass.
-  '@upmind-automation/upmind-ui': 'workspace:@upmind/ui@*'
-  '@upmind-automation/tokens': 'workspace:@upmind/tokens@*'
   # One vue for the whole workspace — apps/cart's tree had a stale 3.5.25 beside
   # 3.5.39, and refs branded by one copy's unique symbols don't unwrap under the
   # other's types: every DS ui template went red in cross-package type checks.

@@ -1,15 +1,16 @@
 import type { FixtureModule, FixtureState } from "./fixture-module.types";
 import type { ScopeActor } from "../world/scope-actor";
 // -----------------------------------------------------------------------------
-
 /**
- * The @AC-5 exemplar module — a plain-TS stand-in for a real
+ * @module __fixtures__/fixture-module
+ * @description The @AC-5 exemplar module — a plain-TS stand-in for a real
  * scope-based composable's four-layer shape (actions/context/meta/internals),
  * used only to prove the feature → catalog → world plumbing. No reactivity
  * library: `meta`/`context` members are plain getters over a closured state
  * object, so a fresh read after a fired action always sees the current value.
  */
-function createFixtureActions(state: FixtureState) {
+
+function createFixtureActions(state: FixtureState): FixtureModule["actions"] {
   return {
     turnOn(): void {
       state.on = true;
@@ -23,7 +24,7 @@ function createFixtureActions(state: FixtureState) {
   };
 }
 
-function createFixtureContext(state: FixtureState) {
+function createFixtureContext(state: FixtureState): FixtureModule["context"] {
   return {
     get label(): string {
       return state.label;
@@ -31,7 +32,7 @@ function createFixtureContext(state: FixtureState) {
   };
 }
 
-function createFixtureMeta(state: FixtureState) {
+function createFixtureMeta(state: FixtureState): FixtureModule["meta"] {
   return {
     get isOn(): boolean {
       return state.on;
@@ -42,7 +43,10 @@ function createFixtureMeta(state: FixtureState) {
   };
 }
 
-function createFixtureInternals(actor: ScopeActor, state: FixtureState) {
+function createFixtureInternals(
+  actor: ScopeActor,
+  state: FixtureState
+): FixtureModule["internals"] {
   return { actor, state };
 }
 

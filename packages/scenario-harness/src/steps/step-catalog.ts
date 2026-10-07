@@ -7,6 +7,11 @@ import type {
   StepRegistrar
 } from "./steps.types";
 // -----------------------------------------------------------------------------
+/**
+ * @module steps/step-catalog
+ * @description Collects a module's step registrations into an engine-free
+ * step catalog.
+ */
 
 /**
  * Collects a `<module>.steps.ts`'s `Given`/`When`/`Then` registrations into a

@@ -1,5 +1,10 @@
 import type { ScopeActor } from "./scope-actor";
 // -----------------------------------------------------------------------------
+/**
+ * @module world/world.types
+ * @description Types for the `World` seam a `<module>.steps.ts` speaks
+ * through, and the scope a world boots a module in.
+ */
 
 /** Names a recorded journey; each world resolves it via the `defineJourney` fixture pool. */
 export type SeedRef = { journey: string };
@@ -9,17 +14,17 @@ export type WorldScope = {
   /**
    * The entity the actor acts FOR. The `id` is present for a RETARGET member
    * and absent for a SELECTOR one — the two patterns a scope matrix declares
-   * per member (ADR-001 amendment 2026-09-15). Mirrors headless's own
-   * `ScopeContext` over this package's vue-free source; no type is minted here.
-   * Resolved via `graphify-out/graph.json` to
+   * per member (ADR-001, the `.for()` / `.withId()` amendment). Mirrors
+   * headless's own `ScopeContext` over this package's vue-free source; no type
+   * is minted here. Resolved via `graphify-out/graph.json` to
    * `packages/headless/src/modules/scope/scope.types.ts`.
    */
   context?: { type: string; id?: string };
   /**
    * The ONE record a single read fetches — the builder's own `.withId(id)`.
    * A sibling of `context`, never a rename: a context names an entity the
-   * actor acts FOR, a record id names the instance read, and the two compose
-   * (FE-3095). Mirrors the labs port's `id` (`useModulePort.types.ts`).
+   * actor acts FOR, a record id names the instance read, and the two compose.
+   * Mirrors the labs port's `id` (`useModulePort.types.ts`).
    */
   id?: string;
   brandId?: string;

@@ -1,0 +1,18 @@
+# Negative control — page:finish reads the route name off the ref instead of its
+# value, so the engine hears an empty name and no waiting move matches it.
+#
+# Intended RED:
+#   apps/cart-nuxt/tests/page-finish-mount.test.ts
+#     "reports the route the visitor is on as mounted"
+#     "reports each later page by its own name"
+
+diff --git a/apps/cart-nuxt/app/plugins/upmind.client.ts b/apps/cart-nuxt/app/plugins/upmind.client.ts
+--- a/apps/cart-nuxt/app/plugins/upmind.client.ts
++++ b/apps/cart-nuxt/app/plugins/upmind.client.ts
+@@ -109,5 +109,5 @@
+     if (!shell.has(SHELL.FOOTER)) useFooter({});
+     if (!shell.has(SHELL.LAYOUT)) useLayout({});
+-    useRoutingEngine().mount(toString(get(router, "currentRoute.value.name")));
++    useRoutingEngine().mount(toString(get(router, "currentRoute.name")));
+   });
+ });

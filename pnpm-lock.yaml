@@ -245,8 +245,6 @@ catalogs:
 
 overrides:
   '@internationalized/date': ^3.12.2
-  '@upmind-automation/upmind-ui': workspace:@upmind/ui@*
-  '@upmind-automation/tokens': workspace:@upmind/tokens@*
   vue: 3.5.39
 
 importers:

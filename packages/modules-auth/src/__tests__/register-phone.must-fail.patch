@@ -1,0 +1,19 @@
+# Negative control — the register form's phone property loses its
+# phone_country_code marker, so the phone control does not claim the field and
+# the generic object renderer recurses until the call stack overflows.
+#
+# Intended RED:
+#   packages/modules-auth/src/__tests__/register-phone.test.ts
+#     "draws one phone field, and no error, when the brand asks for a phone number"
+
+diff --git a/packages/headless/src/modules/auth/auth.schemas.register.ts b/packages/headless/src/modules/auth/auth.schemas.register.ts
+--- a/packages/headless/src/modules/auth/auth.schemas.register.ts
++++ b/packages/headless/src/modules/auth/auth.schemas.register.ts
+@@ -38,7 +38,6 @@
+   const phone: WithPhoneCountryCode<JsonSchema7> = {
+     type: ["object", "null"],
+     title: "Phone",
+-    phone_country_code: countryCode,
+     properties: {
+       number: {
+         type: ["string", "null"],

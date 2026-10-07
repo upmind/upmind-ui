@@ -1,10 +1,14 @@
 import type { ScopeActor } from "../world/scope-actor";
 import type { JsonSchema } from "@jsonforms/core";
 // -----------------------------------------------------------------------------
+/**
+ * @module gate/gate.types
+ * @description Types for the coverage gate: the playground tag, the gate
+ * input, and the verdicts `runGate` returns.
+ */
 
 /**
  * Tag kind for coverage gate verdicts.
- * Relocated from deleted tags/tags.types.ts per FE-3094 Task T8.
  * @see graphify-out/ community 300 (scenario-harness tags subsystem)
  */
 export const TAG_KIND = {
@@ -16,7 +20,6 @@ export type TagKind = (typeof TAG_KIND)[keyof typeof TAG_KIND];
 
 /**
  * A parsed playground tag for coverage gating.
- * Relocated from deleted tags/tags.types.ts per FE-3094 Task T8.
  * @see graphify-out/ community 300 (scenario-harness tags subsystem)
  */
 export type PlaygroundTag = {

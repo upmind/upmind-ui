@@ -140,8 +140,8 @@ const BID_ROUTES: RouteRecordRaw[] = [
       {
         name: ROUTE.SESSION_TRANSFER,
         path: "transfer/",
-        // Absolute: the platform's session hand-off URL sits outside `/order`.
-        alias: ["/auth/transfer/"],
+        // Absolute, so the platform's hand-off at /auth/transfer matches; it repeats the parent's optional params, as Vue Router requires.
+        alias: [`/auth/transfer/${BID_PREFIX}/`],
         component: () => import("./pages/order/auth/transfer.vue")
       }
     ]

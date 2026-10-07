@@ -1,4 +1,4 @@
-# Realized as unit tests (src/reflection/__tests__/reflect.test.ts) — green,
+# Realized as unit tests (src/reflection/__tests__/reflect.unit.test.ts) — green,
 # using package-local port fixtures. For the live-useAuth group only (the
 # scenarios that boot a real composable instead of a fixture), a journeys-lane
 # integration suite (tests/journeys/scenario-harness/reflection.int.test.ts)

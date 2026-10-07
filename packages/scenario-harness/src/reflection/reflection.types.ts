@@ -1,3 +1,10 @@
+// -----------------------------------------------------------------------------
+/**
+ * @module reflection/reflection.types
+ * @description The plain snapshot shape a composition port hands to
+ * `reflect()`.
+ */
+
 /**
  * Plain, point-in-time snapshot of a booted composable cell. Never cache
  * across pulls — a fresh `snapshot()` is the reactivity contract.

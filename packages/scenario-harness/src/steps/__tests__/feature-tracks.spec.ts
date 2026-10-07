@@ -1,6 +1,8 @@
 /**
- * @module steps/__tests__/feature-tracks.spec
- * @description The two additive exports the replay harness plays a feature
+ * @fileoverview parseFeatureScenarios and createStepMatcher tests
+ *
+ * ## Job To Be Done
+ * Prove the two additive exports the replay harness plays a feature
  * with (design §3.1, `AC2.5`): a feature is a playlist, its scenarios are
  * tracks, its steps are scenes. `parseFeatureScenarios` must therefore hand
  * back ONE ENTRY PER SCENARIO — its own name, its own tags, its own line and
@@ -16,6 +18,11 @@
  * than specifier because `headless` is not a dependency of this package — the
  * technique `playgrounds/labs-nuxt/tests/e2e/catalogs.ts` already uses for the
  * same file.
+ *
+ * ## What Breaks If These Fail
+ * The replay harness plays the wrong scenarios: tracks merge into one flat step
+ * list, a track loses its own tags or its Background steps, or a scene's
+ * handler runs with the wrong args.
  */
 
 import { readFileSync } from "node:fs";

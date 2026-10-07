@@ -6,6 +6,7 @@
 import { resolve } from "path";
 import tailwindcss from "@tailwindcss/vite";
 import { upmindTokensCss } from "@upmind/tokens/vite";
+import { set } from "lodash-es";
 // -----------------------------------------------------------------------------
 
 // Enable typeCheck only during build (not dev) to avoid spawn EBADF error on macOS
@@ -224,6 +225,16 @@ export default defineNuxtConfig({
     },
     optimizeDeps: {
       include: ["lodash-es"]
+    },
+    server: {
+      // Vite's startup scan misses these files, so their packages load late and reload the page.
+      warmup: {
+        clientFiles: [
+          resolve(__dirname, "app/pages/**/*.vue"),
+          resolve(__dirname, "app/plugins/**/*.ts"),
+          resolve(__dirname, "app/shell/**/*.{vue,ts}")
+        ]
+      }
     }
   },
 
@@ -246,6 +257,23 @@ export default defineNuxtConfig({
       },
       include: ["app/**/*"],
       exclude: ["node_modules", "dist", ".output", "**/*.spec.*"]
+    }
+  },
+
+  hooks: {
+    // DevTools watches every Nitro storage mount, and `root` is the whole app folder.
+    "nitro:config": nitroConfig => {
+      set(nitroConfig, "devStorage.root", {
+        driver: "fs",
+        readOnly: true,
+        base: nitroConfig.rootDir,
+        // A regex, not globs: globs miss paths under a dot folder such as ~/.worktrees.
+        watchOptions: {
+          ignored: [
+            /[\\/](node_modules|\.git|\.output|dist|\.nuxt|\.data|graphify-out)([\\/]|$)/
+          ]
+        }
+      });
     }
   },
 

@@ -1,5 +1,5 @@
 # Realized as unit tests over the in-process Node world —
-# src/__tests__/world.test.ts.
+# src/__tests__/world.unit.test.ts.
 
 @AC-4
 Feature: The world interface every step definition speaks
