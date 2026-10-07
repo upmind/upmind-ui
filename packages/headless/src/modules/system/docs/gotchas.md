@@ -89,7 +89,7 @@ A hardcoded "this machine ensures X" table goes stale the moment someone refacto
 
 #### 1. Ensure as **late** as possible — at the narrowest state that needs the data
 
-If only the `register` substate parses a country default, ensure inside the service that gates that substate (e.g. `getCustomFields`), not in the top-level `load`. This way unrelated paths (login, labs, deep-links to states that don't need country/cycle data) don't pay for the fetch.
+If only the `register` substate parses a country default, ensure inside the service that gates that substate (e.g. `getCustomFields`), not in the top-level `load`. This way unrelated paths (login, deep-links to states that don't need country/cycle data) don't pay for the fetch.
 
 #### 2. Ensure in the **machine** that owns the path, not in the sync util
 
@@ -160,7 +160,6 @@ These pages should **not** trigger every system fetch on init:
 | Route                   | Should fire?                              | Should NOT fire                                                   |
 | ----------------------- | ----------------------------------------- | ----------------------------------------------------------------- |
 | `/order/auth/login/`    | `countries` ❌ (login doesn't need it)    | `clients_fields` (only register loads custom fields)              |
-| Labs `/`                | nothing system-related                    | `countries`, `billing_cycles`, `orders/current`, `clients_fields` |
 | `/order/auth/register/` | `countries` + `clients_fields` (parallel) | duplicate countries calls under different locales                 |
 
 Open the network tab, hard-refresh, and confirm only the expected endpoints fire — once each.

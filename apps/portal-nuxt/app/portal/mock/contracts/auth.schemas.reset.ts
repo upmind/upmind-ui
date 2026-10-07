@@ -13,6 +13,7 @@ import type {
   VerticalLayout
 } from "@jsonforms/core";
 import type { FormModel } from "@upmind/ui";
+// -----------------------------------------------------------------------------
 
 /** Legacy's own placeholder: "8+ characters, consisting of both numbers & letters". */
 const PASSWORD_MIN_LENGTH = 8;

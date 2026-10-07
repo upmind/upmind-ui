@@ -1,0 +1,32 @@
+# Negative control — foundation's form carries its own controls again, beside the registered ones.
+#
+# Intended RED:
+#   packages/modules-foundation/src/renderers/__tests__/foundation-renderers.test.ts
+#     "draws no lookup control, and shows the engine's notice in its place"
+# Intended GREEN: every other test in that file.
+
+diff --git a/packages/modules-foundation/src/forms/Form.vue b/packages/modules-foundation/src/forms/Form.vue
+index 438b022..31c21bc 100644
+--- a/packages/modules-foundation/src/forms/Form.vue
++++ b/packages/modules-foundation/src/forms/Form.vue
+@@ -4,7 +4,7 @@
+     v-bind="forwarded"
+     :i18n="i18n"
+     :ajv="ajv"
+-    :additional-renderers="renderers"
++    :additional-renderers="concat(renderers, foundationRenderers)"
+     :optional-text="t('text.optional')"
+     :dataAttrs="assign({ 'data-test-key': 'form' }, props.dataAttrs)"
+   >
+@@ -30,9 +30,9 @@ import {
+ import { useI18n } from "vue-i18n";
+ import { useSystem, useValidation } from "@upmind-automation/headless";
+ import { Icon } from "../icon";
+-import { useFormRenderers } from "../renderers";
++import { foundationRenderers, useFormRenderers } from "../renderers";
+ import { useFormI18n } from "./useFormI18n";
+-import { assign } from "lodash-es";
++import { assign, concat } from "lodash-es";
+ import type {
+   FormProps,
+   FormAdditionalProps,

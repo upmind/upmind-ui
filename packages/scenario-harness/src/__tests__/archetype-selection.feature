@@ -1,4 +1,4 @@
-# Realized as unit tests over `classify()` — src/archetype/__tests__/archetype.test.ts.
+# Realized as unit tests over `classify()` — src/archetype/__tests__/archetype.unit.test.ts.
 # This file is the declarative spec; the vitest suite is the executable form.
 
 @AC-3

@@ -1,5 +1,5 @@
 // --- internal
-import { useBrand } from "@upmind-automation/client-vue";
+import { useBrand } from "@upmind-automation/headless";
 import { BrandConfigKeys, CheckoutFlows } from "@upmind-automation/types";
 import { FUNNEL } from "./types";
 import type { FunnelId } from "./types";

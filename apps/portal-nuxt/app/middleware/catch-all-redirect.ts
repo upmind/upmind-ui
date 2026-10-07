@@ -15,6 +15,7 @@ import { routeQueryContext } from "~/portal/mock/injection";
 import { catchAllRedirect } from "~/portal/mock/selectors";
 import { isMockDatasetId, useMockData } from "~/portal/mock/store";
 import { resolveCatchAll } from "~/portal/routes";
+// -----------------------------------------------------------------------------
 
 function catchAllSegments(slug: string | string[] | undefined): string[] {
   if (Array.isArray(slug)) return slug;

@@ -20,6 +20,7 @@ import type {
 } from "./config.types";
 import type { BrandMeta } from "../brand/brand.types";
 import type { IProduct } from "@upmind-automation/types";
+// -----------------------------------------------------------------------------
 
 export { provideConfig, injectConfig } from "./config.utils";
 

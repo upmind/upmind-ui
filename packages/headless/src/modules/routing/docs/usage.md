@@ -129,7 +129,7 @@ Register funnel configurations, the overlay registry and watchers with the engin
 import { useRoutingEngine } from "@upmind-automation/headless";
 import type { FunnelProps, FunnelWatcher } from "@upmind-automation/headless";
 
-// Funnel configs and watchers are app-owned — see `apps/cart/src/router/funnels/`.
+// Funnel configs and watchers are app-owned.
 const cartFunnel = <FunnelProps>{
   id: "cart",
   states: { basket: { meta: { next: "checkout" }, entry: ["setBasket"] } }
@@ -243,7 +243,7 @@ const onBack = () => navigateBack();
 
 ### `mount(name?)`
 
-`(name?: string) => void` — Signal that a page component has mounted. Called by `RouteView` on `@vue:mounted`.
+`(name?: string) => void` — Signal that a page component has mounted. The host app calls it once per page with the route name, from a `RouteView` on `@vue:mounted` or from Nuxt's `page:finish` hook. `navigate`, `navigateNext` and `navigateBack` wait for this signal before `isNavigating` returns to `false`, so a host that never calls it leaves every navigation pending.
 
 ```typescript
 import { useRoutingEngine } from "@upmind-automation/headless";
@@ -263,7 +263,7 @@ export function doPageFinish(el: Element, route: RouteLocation) {
 
 ```typescript
 import { useRoutingEngine } from "@upmind-automation/headless";
-import { useShell } from "@upmind-automation/client-vue";
+import { useShell } from "@upmind-automation/foundation";
 import { onUnmounted } from "vue";
 
 const { onBeforeLeave } = useRoutingEngine();
@@ -333,7 +333,7 @@ import { useRoutingEngine } from "@upmind-automation/headless";
 import { createRouter, createWebHistory } from "vue-router";
 import type { FunnelProps, FunnelWatcher } from "@upmind-automation/headless";
 
-// App-owned — see `apps/cart/src/router/funnels/`.
+// App-owned.
 const cartFunnel = <FunnelProps>{
   id: "cart",
   states: { basket: { meta: { next: "checkout" } } }
@@ -377,7 +377,7 @@ const { navigateNext, navigateBack, meta } = useRoutingEngine();
 
 ```typescript
 import { useRoutingEngine } from "@upmind-automation/headless";
-import { useShell } from "@upmind-automation/client-vue";
+import { useShell } from "@upmind-automation/foundation";
 
 const { onBeforeLeave, onAfterEnter } = useRoutingEngine();
 const shell = useShell();

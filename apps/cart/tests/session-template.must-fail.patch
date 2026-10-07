@@ -1,0 +1,26 @@
+Negative control for session-template.test.ts.
+
+Declares the pick with the right-hand two-column layout as its fallback, so a
+brand with no template, an empty one, or a name the page does not lay out gets
+that instead of the left-hand two-column layout. Every named template still
+draws its own layout.
+
+Intended RED (session-template.test.ts, "sessionTemplate"):
+  draws the left-hand two-column layout for no template
+  draws the left-hand two-column layout for an empty template
+  draws the left-hand two-column layout for a template only other pages carry
+  draws the left-hand two-column layout for a name no layout carries
+  draws the left-hand two-column layout for a name every object inherits
+Intended GREEN:
+  draws the layout the <each> template carries
+
+diff --git a/apps/cart/src/shell/modules/session/shell.ts b/apps/cart/src/shell/modules/session/shell.ts
+--- a/apps/cart/src/shell/modules/session/shell.ts
++++ b/apps/cart/src/shell/modules/session/shell.ts
+@@ -27,5 +27,5 @@
+ 
+ export const sessionTemplate = resolveTemplate(
+   SESSION_TEMPLATES,
+-  AUTH_TEMPLATE.TWO_COLUMN_LTR
++  AUTH_TEMPLATE.TWO_COLUMN_RTL
+ );

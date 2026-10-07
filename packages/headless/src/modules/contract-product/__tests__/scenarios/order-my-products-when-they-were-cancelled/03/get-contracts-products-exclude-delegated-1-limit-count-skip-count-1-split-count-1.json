@@ -1,0 +1,50 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/contracts_products?with=clients,clients.image,clients.brand,status,product.image,brand.currency,product.provision_blueprint,product.provision_blueprint.category,contract_request,future_cancellation_request,moved_to_contract_product,moved_to_contract_product.clients,tags&split_count=1&exclude_delegated=1&skip_count=1&limit=count&order=-cancelled_date",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a42bc00f2aa92858-JNB",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json",
+      "date": "Tue, 29 Sep 2026 14:41:42 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=wnLxDRh5Ou0xhxjvm%2BVY%2FQT5SIonGOx7maw5q14%2Fj6md4y%2B6bkfNmW%2Frp5p%2B2ikuxfFK3fMbTaJNlnefQDD169cZn2s%2FpBh9tpzrpnSvdZ%2Bzw%2B5SC%2BuNJxdGLO%2B2RJ9fN7Gd4i%2F6sg%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-frame-options": "SAMEORIGIN",
+      "x-total-count": "1226"
+    },
+    "body": {
+      "status": "ok",
+      "data": [],
+      "related": null,
+      "total": 1226,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-09-29T14:41:42.325Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "contract-product"
+  }
+}

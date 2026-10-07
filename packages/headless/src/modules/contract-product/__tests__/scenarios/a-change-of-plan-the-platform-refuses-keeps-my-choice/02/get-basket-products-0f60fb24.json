@@ -1,0 +1,50 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/basket/products?limit=count&filter[billing_cycle_months|neq]=0&account_id=d0367942-4d0e-7109-92eb-3153698d582e&currency_id=3825d96e-763e-d091-3dc4-174825283406&filter[id]=825d96e7-63ed-0913-752b-417482528340,8d632507-9806-5d1e-629b-8174e234e98d,47d73824-8507-9315-6ddb-81e642d59e06,8d632507-9806-5d1e-688a-8174e234e98d,8d632507-9806-5d1e-de4a-8174e234e98d,47d73824-8507-9315-748f-81e642d59e06&filter[available_for_sales]=1&filter[clients_can_order]=1&filter[provision_blueprint.category.code|neq]=domain-names&order=order&with=image,images,prices,products_attributes,products_options,products_options.prices,category.top_category.top_category.top_category.top_category",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a43aa2deade433e5-JNB",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json",
+      "date": "Thu, 01 Oct 2026 10:03:13 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=qr7yRDcfOS%2BOV74%2F04Izy8py0okQEBTUYSUGvkzN%2BYG7qdXRhJDhV3XktE5dLu7KihjLU2Ds11uMyrQ0UqPxb%2BwnrkVIi7iAeQhmutXNhNWm8lUQFzhQcLJpwf6GUeZu%2BDLnM0Zlhw%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-frame-options": "SAMEORIGIN",
+      "x-total-count": "6"
+    },
+    "body": {
+      "status": "ok",
+      "data": [],
+      "related": null,
+      "total": 6,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-10-01T10:03:13.317Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "contract-product"
+  }
+}

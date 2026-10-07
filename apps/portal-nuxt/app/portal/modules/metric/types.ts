@@ -7,16 +7,17 @@
  */
 
 import type { StatItem } from "@upmind/ui";
+// -----------------------------------------------------------------------------
 
 /**
  * One tile. `StatItem` is already generic (label, value, delta, description);
  * `to` is the one thing it cannot express — `Stat` has no link capability at
  * all (ui-gaps.md), so the TILE variant wraps itself in the DS `Link`.
  */
-export interface MetricModuleItem extends StatItem {
+export type MetricModuleItem = StatItem & {
   /** `tile` only — the list this figure counts; absent renders the plain tile. */
   readonly to?: string;
-}
+};
 
 export const METRIC_MODULE_VARIANT = {
   /** `StatGroup`'s own bordered card — hairline-divided cells. */
@@ -36,7 +37,7 @@ export type MetricModuleVariant =
 /** `tile` — tiles per row; `default` defers to `StatGroup`'s own breakpoints. */
 export type MetricModuleColumns = 1 | 2 | 3 | 4;
 
-export interface MetricModuleProps {
+export type MetricModuleProps = {
   /** The registered module variant (registry.ts). Absent = `default`. */
   readonly variant?: MetricModuleVariant;
   readonly items: readonly MetricModuleItem[];
@@ -45,4 +46,4 @@ export interface MetricModuleProps {
   /** Empty-state heading when `items` is empty (tasks.md 5.6). No English default (CC22). */
   readonly emptyTitle: string;
   readonly emptyDescription?: string;
-}
+};

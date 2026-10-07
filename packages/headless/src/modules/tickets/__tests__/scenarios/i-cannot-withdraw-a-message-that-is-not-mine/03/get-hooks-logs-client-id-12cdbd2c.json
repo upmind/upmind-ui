@@ -1,0 +1,128 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/hooks/logs/client/25d96e76-3ed0-913d-d52c-417482528340?filter[object_type]=ticket&filter[object_id]=d085e69d-5623-7197-45db-218e940d4237&filter[hook.code]=ticket_opened_hook,ticket_closed_hook,ticket_reopened_hook,ticket_in_progress_hook,ticket_client_replied_hook,ticket_waiting_response_hook&with=hook,object.status&with_staged_imports=1&order=-created_at,-id",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a4334ad05af63983-JNB",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json",
+      "date": "Wed, 30 Sep 2026 12:39:46 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=ajl4paAQSNP0WpWBprPBfPPmth3VIKlUQklOdrW48PxIfLQ69pyM1mwnluA%2F8NbZiVZbDRCrsjzAp9drm1Nz9QvnfhP0P3wL7eXY237FFCpUoc0YhPqqpAcKcA6r5%2F%2BI1Aw%2BVEMEpg%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-frame-options": "SAMEORIGIN",
+      "x-total-count": "1"
+    },
+    "body": {
+      "status": "ok",
+      "data": [
+        {
+          "id": "98574264-8970-12d9-972d-a21e325d0ed3",
+          "hook_id": "4d036794-24d0-e710-9e7f-3153698d582e",
+          "object_client_id": null,
+          "object_account_id": "d0367942-4d0e-7109-92eb-3153698d582e",
+          "object_reseller_account_id": null,
+          "object_user_id": null,
+          "object_brand_id": "2785d26e-9678-3d16-999f-314502e70439",
+          "object_id": "d085e69d-5623-7197-45db-218e940d4237",
+          "object_type": "ticket",
+          "access_uid": "6abd030c7ccb53.62630623",
+          "access_role": "user",
+          "access_user_id": "825d96e7-63ed-0913-de6c-417482528340",
+          "created_at": "2026-09-30 12:39:40",
+          "updated_at": "2026-09-30 12:39:40",
+          "context_params": null,
+          "actor": {
+            "id": "825d96e7-63ed-0913-de6c-417482528340",
+            "public_name": "Staff U.",
+            "org_id": "5d085e69-d562-3719-e46c-218e940d4237",
+            "image_url": "https://www.gravatar.com/avatar/cb3952208508cab756c060a2319eeb5f?d=blank&s=200"
+          },
+          "hook": {
+            "id": "4d036794-24d0-e710-9e7f-3153698d582e",
+            "category_id": "47d73824-8507-9315-e6b8-1e642d59e063",
+            "name": "Ticket In Progress",
+            "code": "ticket_in_progress_hook",
+            "internal": false,
+            "notifiable": true,
+            "webhookable": true,
+            "notification_priority": "default",
+            "created_at": "2020-11-13 07:08:18",
+            "updated_at": "2024-11-08 19:11:39",
+            "deleted_at": null
+          },
+          "object": {
+            "id": "d085e69d-5623-7197-45db-218e940d4237",
+            "import_id": null,
+            "staged_import": false,
+            "external_id": null,
+            "reference": "PUK-593-19219",
+            "subject": "Fixture not-mine ticket",
+            "client_id": "25d96e76-3ed0-913d-d52c-417482528340",
+            "lead_id": null,
+            "reseller_account_id": null,
+            "account_id": "d0367942-4d0e-7109-92eb-3153698d582e",
+            "brand_id": "2785d26e-9678-3d16-999f-314502e70439",
+            "org_id": "5d085e69-d562-3719-e46c-218e940d4237",
+            "user_id": null,
+            "status_id": "85d085e6-9d56-2371-9ea2-18e940d42370",
+            "created_at": "2026-09-30 12:39:38",
+            "updated_at": "2026-09-30 12:39:40",
+            "replied_at": "2026-09-30 12:39:40",
+            "invoice_id": null,
+            "calculated_notify_close_date": "2026-10-20 00:00:00",
+            "calculated_close_date": "2026-10-30 00:00:00",
+            "ticket_department_id": "8d632507-9806-5d1e-33eb-8174e234e98d",
+            "priority_id": "3825d96e-763e-d091-3dc4-174825283406",
+            "object_type": null,
+            "object_id": null,
+            "template_id": null,
+            "contract_product_id": null,
+            "source_type": "system",
+            "source_ip": "156.155.31.213",
+            "spam": false,
+            "email_file": null,
+            "can_see_ticket_messages": null,
+            "is_delegated_object": false,
+            "status": {
+              "id": "85d085e6-9d56-2371-9ea2-18e940d42370",
+              "object_type": "ticket",
+              "code": "ticket_in_progress",
+              "order": 1,
+              "name": "In Progress"
+            }
+          }
+        }
+      ],
+      "related": null,
+      "total": 1,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-09-30T12:39:46.319Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "tickets"
+  }
+}

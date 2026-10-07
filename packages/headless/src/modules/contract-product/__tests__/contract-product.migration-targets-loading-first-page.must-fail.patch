@@ -1,0 +1,22 @@
+# Negative-control mutant 52 — targets-loading-first-page (FE-3206)
+#
+# Mutation: Let the first-page flag stay true during load-more.
+# Spec it must turn red: a unit spec: `isMigrationTargetsLoading` is false while `isMigrationTargetsLoadingMore` is true (prover authors it; this patch is the contract).
+#
+# Authored by the developer seat against the landed production source. The
+# prover applies it blind (tasks.md T41): apply, run the named spec, revert.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+diff --git a/packages/headless/src/modules/contract-product/useContractProduct.meta.ts b/packages/headless/src/modules/contract-product/useContractProduct.meta.ts
+--- a/packages/headless/src/modules/contract-product/useContractProduct.meta.ts
++++ b/packages/headless/src/modules/contract-product/useContractProduct.meta.ts
+@@ -319,7 +319,7 @@ export function createContractProductMeta(
+ 
+     /** True while the plan list loads its first page. */
+     isMigrationTargetsLoading: computed(
+-      () => !!listMeta.value?.isLoading && !listMeta.value.isLoadingMore
++      () => !!listMeta.value?.isLoading
+     ),
+ 
+     /** True while the plan list loads another page. */

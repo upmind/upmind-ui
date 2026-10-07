@@ -1,0 +1,21 @@
+# Negative control — Velia leaves the basket's own pages under /order/basket, so
+# a Velia basket URL under /order/cart lands on the catch-all page.
+#
+# Intended RED:
+#   apps/velia-nuxt/tests/router-options.test.ts
+#     "keeps no route under /order/basket"
+#     "serves cart-nuxt's <basket page> page at <its /order/cart URL>", for the
+#     basket, its product edit, its empty state and the unavailable page
+
+diff --git a/apps/velia-nuxt/app/router.options.ts b/apps/velia-nuxt/app/router.options.ts
+--- a/apps/velia-nuxt/app/router.options.ts
++++ b/apps/velia-nuxt/app/router.options.ts
+@@ -20,7 +20,7 @@
+ 
+ function toVeliaPath(path: string): string {
+   if (startsWith(path, DEFAULT_BASKET_PREFIX)) {
+-    return replace(path, DEFAULT_BASKET_PREFIX, BASKET_PREFIX);
++    return path;
+   }
+ 
+   return replace(path, DEFAULT_SEGMENT_PARAM, SEGMENT_PARAM);

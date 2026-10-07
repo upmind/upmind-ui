@@ -1,6 +1,5 @@
 import { cva } from "class-variance-authority";
-import { invalidRingClasses } from "../../scenario.styles";
-import { TableColumnWidthTypes } from "../../scenario.types";
+import { columnWidthClasses, invalidRingClasses } from "../../scenario.styles";
 // -----------------------------------------------------------------------------
 /**
  * @module scenarios/runtime/components/surfaces/ListSurface.styles
@@ -9,8 +8,8 @@ import { TableColumnWidthTypes } from "../../scenario.types";
  * The table draws in the ui `Table` primitives' OWN borders and alignment; what
  * `table` restates is only what a data table needs the page-card rhythm not to
  * decide — the row's height and the marker column's gutter. The card is the
- * manage/billing card's layout law (`client-vue/src/components/manage/Item.vue`,
- * as `billing/components/AddressItem.vue` draws it): a stack at `gap-1`, the
+ * manage/billing card's layout law (`modules-foundation/src/manage/Item.vue`,
+ * as `modules-client/src/rows/AddressItem.vue` draws it): a stack at `gap-1`, the
  * title carrying its badges inline, one muted line under it, the actions in the
  * header.
  *
@@ -167,17 +166,7 @@ export const headerCell = cva("whitespace-nowrap", {
       // (several `w-full` columns overflow a fixed table). One width class per
       // column either way, so tailwind never arbitrates between two.
       remainder: "w-auto",
-      [TableColumnWidthTypes.TWELFTH]: "w-1/12",
-      [TableColumnWidthTypes.SIXTH]: "w-1/6",
-      [TableColumnWidthTypes.QUARTER]: "w-1/4",
-      [TableColumnWidthTypes.THIRD]: "w-1/3",
-      [TableColumnWidthTypes.FIVE_TWELFTHS]: "w-5/12",
-      [TableColumnWidthTypes.HALF]: "w-1/2",
-      [TableColumnWidthTypes.SEVEN_TWELFTHS]: "w-7/12",
-      [TableColumnWidthTypes.TWO_THIRDS]: "w-2/3",
-      [TableColumnWidthTypes.THREE_QUARTERS]: "w-3/4",
-      [TableColumnWidthTypes.FIVE_SIXTHS]: "w-5/6",
-      [TableColumnWidthTypes.ELEVEN_TWELFTHS]: "w-11/12"
+      ...columnWidthClasses
     }
   },
   defaultVariants: { size: "fluid" }
@@ -220,7 +209,7 @@ export const listSurface = {
   // The filter block: facets on one line, refinement chips on the next, Clear
   // all with the chips (G5/H1). The bottom border marks where steering ends
   // and what the collection amounts to begins.
-  filterBlock: cva("border-line flex flex-col gap-2 border-b pb-3"),
+  filterBlock: cva("border-stroke flex flex-col gap-2 border-b pb-3"),
 
   // The whole table's rhythm, in one place so the header, the data rows, the
   // skeleton and the empty frame are measured the same way.

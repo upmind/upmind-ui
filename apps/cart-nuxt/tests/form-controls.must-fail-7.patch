@@ -1,0 +1,31 @@
+# Negative control — the Nuxt cart's plugin stops registering foundation's controls, so its forms draw no lookup, image or filter control.
+#
+# Intended RED:
+#   apps/cart-nuxt/tests/form-controls.test.ts
+#     "holds each of foundation's controls once, registered by the app itself"
+# Intended GREEN:
+#     "holds no form control that none of its packages registered"
+
+diff --git a/apps/cart-nuxt/app/plugins/upmind.client.ts b/apps/cart-nuxt/app/plugins/upmind.client.ts
+--- a/apps/cart-nuxt/app/plugins/upmind.client.ts
++++ b/apps/cart-nuxt/app/plugins/upmind.client.ts
+@@ -1,10 +1,6 @@
+ import "@upmind-automation/client";
+ import "@upmind-automation/domain";
+-import {
+-  foundationRenderers,
+-  registerFormRenderers,
+-  useLayout
+-} from "@upmind-automation/foundation";
++import { useLayout } from "@upmind-automation/foundation";
+ import { SHELL, useShell } from "@upmind-automation/foundation";
+ import {
+   decorateRoutes,
+@@ -23,7 +19,6 @@ import type { I18n } from "vue-i18n";
+ import type { Router } from "vue-router";
+ import { defineNuxtPlugin } from "#app";
+ 
+-registerFormRenderers(foundationRenderers);
+ 
+ export default defineNuxtPlugin(async nuxtApp => {
+   const runtimeConfig = useRuntimeConfig();

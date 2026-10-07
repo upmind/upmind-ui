@@ -43,6 +43,7 @@ import type { ContentRowConfig, RowHeaderControls } from "../content/types";
 import type { DataRef } from "../mock/data-refs";
 import type { FormId } from "../mock/forms/ids";
 import type { ContentConfig, PageKey, SlotAssignment } from "../types";
+// -----------------------------------------------------------------------------
 
 /** What the enrol screen says — legacy's own opt-in copy, as brand prose. */
 const AFFILIATE_PITCH = [

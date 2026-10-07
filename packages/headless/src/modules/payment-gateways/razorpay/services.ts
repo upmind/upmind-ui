@@ -18,6 +18,7 @@ import type {
   RazorpayErrorResponse
 } from "./types";
 import type { AnyEventObject } from "xstate";
+// -----------------------------------------------------------------------------
 
 // --- utils
 
@@ -33,7 +34,7 @@ async function load(context: RazorpayContext, _event: AnyEventObject) {
   if (!gateway)
     return Promise.reject(
       new DetailedError(
-        "Gateway not found.",
+        t("error.payment_gateway_not_available"),
         responseCodes.Not_Found,
         ErrorOrigin.Headless
       )
@@ -142,7 +143,12 @@ async function pay({
   // 3. Open Razorpay modal and handle response
   return new Promise((resolve, reject) => {
     let error: RazorpayErrorResponse["error"];
-    if (!rzp) throw Error("Razorpay instance not defined.");
+    if (!rzp)
+      throw new DetailedError(
+        t("error.payment_gateway_not_available"),
+        responseCodes.Unprocessable_Entity,
+        ErrorOrigin.Headless
+      );
     // Set response handler
     rzp.set("handler", (response: RazorpayResponse) => {
       if (isNil(response.razorpay_payment_id)) {
@@ -244,7 +250,12 @@ async function add(context: RazorpayContext) {
 
   return new Promise((resolve, reject) => {
     let error: RazorpayErrorResponse["error"];
-    if (!rzp) throw Error("Razorpay instance not defined.");
+    if (!rzp)
+      throw new DetailedError(
+        t("error.payment_gateway_not_available"),
+        responseCodes.Unprocessable_Entity,
+        ErrorOrigin.Headless
+      );
 
     rzp.set("handler", (response: RazorpayResponse) => {
       if (isNil(response.razorpay_payment_id)) {

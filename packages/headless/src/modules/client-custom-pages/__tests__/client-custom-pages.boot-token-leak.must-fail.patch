@@ -1,0 +1,10 @@
+--- a/packages/headless/src/modules/client-custom-pages/client-custom-pages.services.ts
++++ b/packages/headless/src/modules/client-custom-pages/client-custom-pages.services.ts
+@@ -61,6 +61,7 @@
+     criteria: { schema: useQuerySchema() },
+     queryKey,
+     url: useUrl("custom_pages"),
++    withAccessToken: true,
+     select: mapCustomPages
+   });
+ }

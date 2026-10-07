@@ -13,6 +13,7 @@ import type {
   RowHeaderConfig,
   RowSurface
 } from "./content/types";
+// -----------------------------------------------------------------------------
 
 // Re-exported so `resolve.ts` (and anything importing the config contract as
 // one module) can keep reading `ContentConfig` from here, the same as every
@@ -447,11 +448,6 @@ export const PAGE_KEY = {
    * expired and one that still needs a password are different pages, not one
    * page with two moods.
    */
-  AUTH_LOGIN: "auth/login",
-  /** The second sign-in step, once credentials are accepted. */
-  AUTH_LOGIN_TWOFA: "auth/login/twofa",
-  AUTH_REGISTER: "auth/register",
-  AUTH_FORGOTTEN_PASSWORD: "auth/forgotten-password",
   AUTH_RESET_PASSWORD: "auth/reset-password",
   AUTH_VERIFY: "auth/verify",
   AUTH_VERIFY_SET_PASSWORD: "auth/verify/set-password",

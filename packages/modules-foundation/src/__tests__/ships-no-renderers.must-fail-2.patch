@@ -1,0 +1,25 @@
+# Negative control — foundation registers its own list on import, so its consumer's registration doubles it.
+#
+# Intended RED:
+#   packages/modules-foundation/src/__tests__/ships-no-renderers.test.ts
+#     "registers no form control in a 'development' build"
+#     "registers no form control in a 'production' build"
+
+diff --git a/packages/modules-foundation/src/renderers/index.ts b/packages/modules-foundation/src/renderers/index.ts
+index 9c728f8..ea2dba3 100644
+--- a/packages/modules-foundation/src/renderers/index.ts
++++ b/packages/modules-foundation/src/renderers/index.ts
+@@ -19,6 +19,7 @@ import ImageRenderer from "./ImageRenderer.vue";
+ import { tester as imageTester } from "./ImageRenderer.vue";
+ import LookupRenderer from "./LookupRenderer.vue";
+ import { tester as lookupTester } from "./LookupRenderer.vue";
++import { registerFormRenderers } from "./useFormRenderers";
+ import type { FormRendererEntry } from "./types";
+ 
+ export type { FormRendererEntry } from "./types";
+@@ -41,3 +42,5 @@ export const foundationRenderers: FormRendererEntry[] = [
+   registerEntry(FilterRangeRenderer, filterRangeTester),
+   registerEntry(FilterBarRenderer, filterBarTester)
+ ];
++
++registerFormRenderers(foundationRenderers);

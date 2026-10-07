@@ -1,0 +1,33 @@
+# Negative-control mutant — `useContracts().useActions().filterBy` actually
+# narrows the list (R38 supersedes R28/R32's pagination-only ruling; B1).
+#
+# Proven RED by (FE-3145, per-step replay; git apply -> vitest -> red -> git apply -R):
+#   contract.feature > "Narrow my contracts to the ones in one state"
+#   contract.feature > "Clear my narrowing to see my whole list again"
+#
+# No task/spec basename names this member yet — R38 (2026-09-28) postdates
+# `tasks.md`; this patch is authored against the ruling directly, for the
+# prover to anchor a `filterBy` behavioural spec to (the `contract-product`
+# sibling: `useContractProducts().useActions().filterBy`).
+#
+# Mutation: `filterBy` becomes a no-op — it no longer calls
+#   `query.setCriteria`, so a caller's filter intent never reaches the query's
+#   criteria and never reaches the wire.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+diff --git a/packages/headless/src/modules/contract/useContracts.actions.ts b/packages/headless/src/modules/contract/useContracts.actions.ts
+index 809be732a..1c4a1a9a1 100644
+--- a/packages/headless/src/modules/contract/useContracts.actions.ts
++++ b/packages/headless/src/modules/contract/useContracts.actions.ts
+@@ -92,8 +92,8 @@ export function createContractsActions(
+     removeFromRegistry(scopeKey);
+   }
+
+-  function filterBy(intent: FilterModel): void {
+-    query.setCriteria({ filters: intent });
++  function filterBy(_intent: FilterModel): void {
++    // no-op — the mutant this control catches
+   }
+
+   function sortBy(intent: SortModel): void {

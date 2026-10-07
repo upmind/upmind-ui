@@ -7,12 +7,12 @@
  * `navigate:` verb for destinations).
  */
 
-export interface AccountMenuItem {
+export type AccountMenuItem = {
   readonly value: string;
   readonly label: string;
-}
+};
 
-export interface AccountMenuModuleProps {
+export type AccountMenuModuleProps = {
   /** Accessible name for the avatar trigger. No English default (CC22). */
   readonly label: string;
   /** The identity line at the top of the menu — who is signed in. */
@@ -22,7 +22,7 @@ export interface AccountMenuModuleProps {
   /** The avatar's monogram glyph when no image renders. */
   readonly monogram?: string;
   readonly items: readonly AccountMenuItem[];
-}
+};
 
 export type AccountMenuModuleEmits = {
   select: [value: string];

@@ -1,0 +1,23 @@
+Negative control for the wrapper's `:i18n` seam.
+
+Drops the binding that hands the engine the wrapper's own translator.
+Note this seam was previously MASKED: the test harness passed `i18n`
+into UpmForm directly, which reaches the engine by a second route and
+stands in for the wrapper's translator, so no test exercised the binding
+at all. The mount was changed to match how an app actually mounts it.
+
+MUST red: translator > "labels and prompts a control from the catalogue
+key its uischema names". The bare-engine twin MUST stay green.
+diff --git a/packages/modules-foundation/src/forms/Form.vue b/packages/modules-foundation/src/forms/Form.vue
+index 438b022..7078032 100644
+--- a/packages/modules-foundation/src/forms/Form.vue
++++ b/packages/modules-foundation/src/forms/Form.vue
+@@ -2,7 +2,7 @@
+   <Form
+     :key="locale"
+     v-bind="forwarded"
+-    :i18n="i18n"
++
+     :ajv="ajv"
+     :additional-renderers="renderers"
+     :optional-text="t('text.optional')"

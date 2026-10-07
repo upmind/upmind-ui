@@ -1,0 +1,24 @@
+# Negative-control mutant — the picker honours the show-delegated preference (W1)
+#
+# Spec it must flip: contract-product.replay.int.test.ts,
+#   "Never be shown delegated products I do not have" (the rows the picker
+#   half merged into).
+# NOT RED-verified: that scenario is red without this patch while its owner's work is in flight.
+#
+# Mutation: the picker hardcodes `exclude_delegated=1` whatever the
+#   preference.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+diff --git a/packages/headless/src/modules/contract-product/contract-product.services.ts b/packages/headless/src/modules/contract-product/contract-product.services.ts
+--- a/packages/headless/src/modules/contract-product/contract-product.services.ts
++++ b/packages/headless/src/modules/contract-product/contract-product.services.ts
+@@ -343,7 +343,7 @@ function loadContractProductPickerLookup(
+           reject(new NotAuthenticatedError());
+           return;
+         }
+-        url.searchParams.set("exclude_delegated", `${excludeDelegated.value}`);
++        url.searchParams.set("exclude_delegated", "1");
+         resolve(true);
+       }),
+     select: mapContractProductPickerItems,

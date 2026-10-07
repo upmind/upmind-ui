@@ -15,14 +15,12 @@
 <script lang="ts" setup>
 import { computed } from "vue";
 import { useRoute } from "vue-router";
-import {
-  Upm,
-  UpmBasketAction,
-  UpmAuthAction,
-  useOverlayRoute
-} from "@upmind-automation/client-vue";
+import { UpmAuthAction } from "@upmind-automation/auth";
 import { ROUTE } from "./router";
 import { useStorefrontRoute } from "./router/useStorefrontRoute";
+import { useOverlayRoute } from "./shell/components/overlays/useOverlayRoute";
+import UpmBasketAction from "./shell/modules/basket/components/BasketAction.vue";
+import Upm from "./shell/Upmind.vue";
 import { includes } from "lodash-es";
 
 // -----------------------------------------------------------------------------

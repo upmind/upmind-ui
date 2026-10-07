@@ -21,8 +21,14 @@ test("no-direct-slots-access", () => {
       { code: `<template><div v-show="hasHeader">x</div></template>` }
     ],
     invalid: [
-      { code: `<template><div v-if="$slots.footer">x</div></template>`, errors: [{ messageId: "directSlotsAccess" }] },
-      { code: `<template><div v-show="!!$slots.header">x</div></template>`, errors: [{ messageId: "directSlotsAccess" }] }
+      {
+        code: `<template><div v-if="$slots.footer">x</div></template>`,
+        errors: [{ messageId: "directSlotsAccess" }]
+      },
+      {
+        code: `<template><div v-show="!!$slots.header">x</div></template>`,
+        errors: [{ messageId: "directSlotsAccess" }]
+      }
     ]
   });
 });

@@ -1,0 +1,20 @@
+# Negative control — Velia's order pages take only a cart segment, so every
+# link the engine still builds with segment "basket" stops resolving.
+#
+# Intended RED:
+#   apps/velia-nuxt/tests/router-options.test.ts
+#     "takes both a cart and a basket segment in front of the <page> page", for
+#     shop, checkout, domains, auth/login and product
+
+diff --git a/apps/velia-nuxt/app/router.options.ts b/apps/velia-nuxt/app/router.options.ts
+--- a/apps/velia-nuxt/app/router.options.ts
++++ b/apps/velia-nuxt/app/router.options.ts
+@@ -15,7 +15,7 @@ const DEFAULT_BASKET_PREFIX = `/order/${DEFAULT_BASKET_SEGMENT}`;
+ 
+ const DEFAULT_SEGMENT_PARAM = `:segment(${DEFAULT_BASKET_SEGMENT})`;
+ 
+-const SEGMENT_PARAM = `:segment(${DEFAULT_BASKET_SEGMENT}|${BASKET_SEGMENT})`;
++const SEGMENT_PARAM = `:segment(${BASKET_SEGMENT})`;
+ 
+ function toVeliaPath(path: string): string {
+   if (startsWith(path, DEFAULT_BASKET_PREFIX)) {

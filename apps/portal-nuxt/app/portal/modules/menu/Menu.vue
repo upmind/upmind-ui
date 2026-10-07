@@ -100,12 +100,12 @@ import type { NavigationMenuItemData } from "@upmind/ui";
 
 defineOptions({ name: "PortalMenu" });
 
+const props = defineProps<MenuProps>();
+
 /** A parent's own child destinations — legacy's second menu level (types.ts `MenuItem.children`). */
 function childrenOf(item: MenuItem): readonly MenuItem[] {
   return item.children ?? [];
 }
-
-const props = defineProps<MenuProps>();
 
 const route = useRoute();
 // resolveComponent, not a `#components` import — that virtual module is Nuxt-build-only and the plain vitest config here does not provide it.

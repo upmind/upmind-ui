@@ -1,0 +1,20 @@
+# Negative control — the cart drops the auth package's styles entry. The
+# organisms still mount, but Tailwind never scans `modules-auth`, so the sign-in
+# pages render with their utility classes missing.
+#
+# Intended RED:
+#   packages/modules-foundation/src/__tests__/app-tailwind-sources.test.ts
+#     "'apps/cart' > reaches packages/modules-auth's sources"
+
+diff --git a/apps/cart/src/main.css b/apps/cart/src/main.css
+index fef7eeaa3a..fc30195ff1 100644
+--- a/apps/cart/src/main.css
++++ b/apps/cart/src/main.css
+@@ -4,7 +4,6 @@
+    that needed is retired. */
+ @import "@upmind/ui/styles";
+ 
+-@import "@upmind-automation/auth/styles";
+ @import "@upmind-automation/basket/styles";
+ @import "@upmind-automation/catalogue/styles";
+ @import "@upmind-automation/client/styles";

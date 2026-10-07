@@ -50,6 +50,8 @@ import {
   map,
   reject,
   some,
+  split,
+  union,
   uniq
 } from "lodash-es";
 
@@ -113,6 +115,37 @@ function activeFeatureAcTags(text: string): string[] {
   return uniq(tags);
 }
 
+/**
+ * The `AC-<n>` ids tagged on the NAMED (driven) scenarios, read from the
+ * feature — a driven scenario's own `@AC-N` tag proves that AC without a
+ * sibling spec having to name it in a title (invoices.traceability.test.ts's
+ * pattern; FE-3145 ADR 035 Am.1 — a capability the `World` catalog drives is
+ * proven by the replay itself, not by a bespoke describe/it title).
+ */
+function acTagsForScenarioNames(feature: string, names: string[]): string[] {
+  const wanted = new Set(names);
+  let pending: string[] = [];
+
+  return uniq(
+    flatMap(split(feature, "\n"), raw => {
+      const line = raw.trim();
+      if (line.startsWith("@")) {
+        pending = [...pending, ...(line.match(/AC-\d+/g) ?? [])];
+        return [];
+      }
+      const scenario = line.match(/^Scenario(?: Outline)?:\s*(.+)$/);
+      if (scenario) {
+        const acs = wanted.has(scenario[1].trim()) ? pending : [];
+        pending = [];
+        return acs;
+      }
+      if (line === "" || line.startsWith("#")) return [];
+      pending = [];
+      return [];
+    })
+  );
+}
+
 /** The AC ids a sibling spec names in a `describe`/`it` title, as an ARRAY. */
 function acsNamedBySiblingSpecs(directory: string): string[] {
   const specs = filter(
@@ -141,11 +174,16 @@ function acsNamedBySiblingSpecs(directory: string): string[] {
 describe("tickets — the module's AC-link traceability gate", () => {
   it("links every active (non-dropped, non-absorbed) scenario tag to a proving spec", () => {
     const tagged = activeFeatureAcTags(featureText);
+    const drivenAcs = acTagsForScenarioNames(
+      featureText,
+      map(driveable, "name")
+    );
     const named = acsNamedBySiblingSpecs(TEST_DIR);
+    const proven = union(drivenAcs, named);
 
     expect(
-      difference(tagged, named),
-      "Unproven scenarios (no sibling spec names this AC)"
+      difference(tagged, proven),
+      "Unproven scenarios (no driven scenario carries this AC and no sibling spec names it)"
     ).toEqual([]);
   });
 

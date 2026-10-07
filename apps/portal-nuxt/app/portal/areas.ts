@@ -14,6 +14,7 @@ import { DETAIL_AREA_OVERRIDE } from "./config/areas/detail";
 import { PRODUCT_HIERARCHY_AREA_OVERRIDE } from "./config/areas/product-hierarchy";
 import { isDetailRoute, isNestedProductArea, pillarForPath } from "./routes";
 import type { AreaOverride, PortalConfig } from "./types";
+// -----------------------------------------------------------------------------
 
 export function areaForPath(
   config: PortalConfig,

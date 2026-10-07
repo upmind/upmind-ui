@@ -11,7 +11,9 @@ import {
   defaults,
   add,
   isEmpty,
-  get
+  get,
+  has,
+  values
 } from "lodash-es";
 import type {
   PaymentDetail,
@@ -62,10 +64,28 @@ export function mapAccountCredit(
   };
 }
 
+/**
+ * @decision
+ * what: A gap-keyed object (a plain object with no `id`) maps as `values(raw)`;
+ *   an array maps as-is; a genuine single record (has `id`) maps as one.
+ * why: The staging API filters stored-card rows server-side WITHOUT reindexing,
+ *   so PHP emits `data` as an object keyed `0..5,13..19` rather than an array
+ *   (verified live 2026-09-23, real checkout on apps/cart, 13 cards). The old
+ *   `isArray(raw) ? raw : [raw]` wrapped that object as ONE id-less record, which
+ *   `filterPaymentDetails` then dropped — the checkout rendered zero stored cards
+ *   (FE-3130).
+ * rejected: Reindexing/normalising in the service layer — the mapper is the one
+ *   boundary every caller crosses, and a genuine single-record response (has
+ *   `id`) must still map as one, which a blind `values()` would corrupt.
+ */
 export function mapPaymentDetails(
-  raw: IPaymentDetail | IPaymentDetail[]
+  raw: IPaymentDetail | IPaymentDetail[] | Record<string, IPaymentDetail>
 ): PaymentDetail[] {
-  const rawListings = isArray(raw) ? raw : [raw];
+  const rawListings = isArray(raw)
+    ? raw
+    : has(raw, "id")
+      ? [raw as IPaymentDetail]
+      : values(raw as Record<string, IPaymentDetail>);
   return map(rawListings, mapPaymentDetail);
 }
 

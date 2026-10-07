@@ -1,0 +1,20 @@
+# Negative control — the product recommendations organism hands its page a
+# template name of its own choosing instead of the brand's setting, so the page
+# can no longer pick the layout the brand asked for.
+#
+# Intended RED:
+#   packages/modules-recommendations/src/__tests__/recommendations-slots.int.test.ts
+#     "UpmProductRecommendations's layout, for the recorded guest with no basket"
+#       "hands the page the brand's template, a name no page layout carries, as the brand wrote it"
+
+diff --git a/packages/modules-recommendations/src/components/ProductRecommendations.vue b/packages/modules-recommendations/src/components/ProductRecommendations.vue
+--- a/packages/modules-recommendations/src/components/ProductRecommendations.vue
++++ b/packages/modules-recommendations/src/components/ProductRecommendations.vue
+@@ -1,6 +1,6 @@
+ <template>
+   <LayoutProvider>
+-    <slot :template="ui.template.value" />
++    <slot template="full" />
+ 
+     <template #hero>
+       <slot name="hero">

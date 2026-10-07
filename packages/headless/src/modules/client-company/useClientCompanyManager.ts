@@ -4,7 +4,10 @@ import { dataManagerMachine } from "../data-manager";
 import { createScopedComposable } from "../scope/scope.builder";
 import { useI18n } from "../system-localisation";
 import createClientCompanyServices from "./client-company.services";
-import { ClientCompanyContextTypes } from "./client-company.types";
+import {
+  CLIENT_COMPANY_SCOPE_MATRIX,
+  ClientCompanyContextTypes
+} from "./client-company.types";
 import { createClientCompanyManagerActions } from "./useClientCompanyManager.actions";
 import { createClientCompanyManagerContext } from "./useClientCompanyManager.context";
 import { createClientCompanyManagerInternals } from "./useClientCompanyManager.internals";
@@ -19,7 +22,6 @@ import {
 } from "../../utils";
 import type { ClientCompanyScopeMatrix } from "./client-company.types";
 import type { ScopeConfig, ScopeKey } from "../scope";
-import type { ScopeActorTypes } from "../scope/scope.types";
 // -----------------------------------------------------------------------------
 /**
  * @module client-company/useClientCompanyManager
@@ -48,7 +50,7 @@ function createClientCompanyManagerForScope(
 ) {
   const { t } = useI18n();
 
-  const actorScope = config.actor as ScopeActorTypes;
+  const actorScope = config.actor;
 
   /**
    * The company being edited is carried by the scope context; absent
@@ -165,7 +167,11 @@ function createClientCompanyManagerForScope(
 export const useClientCompanyManager = createScopedComposable<
   ReturnType<typeof createClientCompanyManagerForScope>,
   ClientCompanyScopeMatrix
->("client-company", createClientCompanyManagerForScope);
+>(
+  "client-company",
+  createClientCompanyManagerForScope,
+  CLIENT_COMPANY_SCOPE_MATRIX
+);
 
 // Type export for consumers
 export type UseClientCompanyManager = ReturnType<

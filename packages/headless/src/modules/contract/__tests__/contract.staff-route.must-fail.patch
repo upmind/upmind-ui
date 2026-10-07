@@ -1,0 +1,33 @@
+# Negative-control mutant — contract staff route (AC-16)
+#
+# NOT PROVEN (FE-3145): the mutant applies and every contract test stays
+#   green under it — no driven scenario pins this behaviour yet.
+#
+# Mutation: `setPaymentMethod` PATCHes the staff approval route
+#   `cancel_requests/{id}/approve` instead of the client route
+#   `contracts/{id}/payment_details`.
+#
+# RE-HOME NOTE: this patch once mutated `requestCancellation`, which moved to
+#   `useContractProduct` with R33. The contract keeps ONE write — the
+#   payment-method form (R34) — and its AC-16 staff-route scenario now proves
+#   THAT write. So the patch stays in the contract module (its spec still covers
+#   a contract write), retargeted onto `setPaymentMethod`; the same "a client
+#   write escapes onto a staff verb" intent is preserved. The cancellation
+#   staff-route control lives beside the contract-product spec
+#   (`contract-product.staff-route.must-fail.patch`).
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+diff --git a/packages/headless/src/modules/contract/contract.services.ts b/packages/headless/src/modules/contract/contract.services.ts
+index c3bac80a3..0531ddb67 100644
+--- a/packages/headless/src/modules/contract/contract.services.ts
++++ b/packages/headless/src/modules/contract/contract.services.ts
+@@ -208,7 +208,7 @@ async function setPaymentMethod({
+ 
+   return patch<IContract>({
+     mutationKey: [...queryKey, contractId, "payment-method"],
+-    url: useUrl(`contracts/${contractId}/payment_details`),
++    url: useUrl(`cancel_requests/${contractId}/approve`),
+     data: toPaymentMethodBody(paymentMethod?.model as SetPaymentMethodModel),
+     withAccessToken: true
+   }).then(invalidateQueryByKey(queryKey, { exact: false }));

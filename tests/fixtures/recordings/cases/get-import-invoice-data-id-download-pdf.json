@@ -1,0 +1,26 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/import_invoice_data/68d63250-7980-65d1-e6f8-174e234e98d2/download_pdf",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/pdf",
+      "Origin": "https://kn6x1dzbtcgb.staging.upmind.dev",
+      "Referer": "https://kn6x1dzbtcgb.staging.upmind.dev/",
+      "Authorization": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJvcmdfaWQiOiI4ZDUzMGQ1OC0yOWQzLTQ2NzEtODcwZC0xMjUwZTg2OTc0ZTQiLCJicmFuZF9pZCI6IjAzNjJkMzU0LTc1NjgtMDNkMS00Nzc3LTE3Mjk0ZThlNjA5NSIsInVzZXJfdHlwZSI6ImNsaWVudCIsImF1ZCI6Ijk5NSIsImp0aSI6IjM1YjFjZDQwNTA4YzBhNzNkYWZiYjBiN2RjZTMyNmM3YmU5YmIyZmFlODYzZWZhNGU5MjVkYTE3MGY3NTY5MzhlNTQ1OTgxMDQ5ZDc2MTI0IiwiaWF0IjoxNzkwMTUyODc1LjM2NTU2MywibmJmIjoxNzkwMTUyODc1LjM2NTU2OCwiZXhwIjoxNzkwMTU2NDc1LjAzMDAxNywic3ViIjoiNDc2MDIiLCJzY29wZXMiOltdfQ.m4XIA9tm1k2sYlyKFQJDwyyfHhH3QFRnHFK-ugIO675Y5xw7EEYNcqpaDbPUKP2pJGbPWJCBdUe39HRQBHPgna_s1t-xN8_GGc4tFZzYf5j-GjGFqEa6-jqICNdLsCLLkLGfl8S-srcKGGCKj5NW3GEiDbXsIeAjVQh_Ia7YWyFKf4jUo9PPoijgfVNvHJe7Y4GNGwhEKoNgW1FIJVDatm0z7a45orUr849RuBckqzv4gWtoCmdPPkt9yaOEoSvSVw2R97MCFHhrI6vgg1XgJU_v_S-QrZfWLkgVW0JBzCxtHPl_tbQ0LcPAuGH9SplDLrI_ceXUdmdtwiAnh3gxukA29Vx2UlzT1paoEjIA86KG2IwSk-S-LRUGYBlDJFuZjo_2IZQJUBQjj2coPS-IghWNF2j_xbAc4sCmCsN-37z2HfNFpfcSCXOHCSJEzTxLwTqAndnzYJVpDM40Jj5PAt__ZClDtGJwnhW8S82gfbizT3FpaT5kllLxiU953TXOy5y2jW7y5FbH-OLOXGLhl9qkMZj6HxQV9lj6M4Xi-Dgrpu-gJ2021uP3pKp7Ujqw4LVj-rxBnexxcJVLrKCPfm80Zw2mez4cwe2A1PzeKAvnTKGF2Mm-Hjc5hUrJKen6z82Z6K_aamw74vOjz8fQylg11xX-wV1gCQaz1Qu2cRk"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {},
+    "body": null
+  },
+  "captured_at": "2026-09-23T08:41:18.047Z",
+  "brand_domain": "api.staging.upmind.io",
+  "source": "case",
+  "provenance": {
+    "case": "legacy-invoices"
+  }
+}

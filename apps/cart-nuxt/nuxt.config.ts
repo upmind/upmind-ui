@@ -6,6 +6,8 @@
 import { resolve } from "path";
 import tailwindcss from "@tailwindcss/vite";
 import { upmindTokensCss } from "@upmind/tokens/vite";
+import { set } from "lodash-es";
+// -----------------------------------------------------------------------------
 
 // Enable typeCheck only during build (not dev) to avoid spawn EBADF error on macOS
 const isBuild =
@@ -127,13 +129,85 @@ export default defineNuxtConfig({
       __dirname,
       "../../design-system/packages/ui/src/index.ts"
     ),
-    "@upmind-automation/client-vue/styles": resolve(
+    "@upmind-automation/foundation/styles": resolve(
       __dirname,
-      "../../packages/client-vue/src/assets/styles/index.css"
+      "../../packages/modules-foundation/src/styles.css"
     ),
-    "@upmind-automation/client-vue": resolve(
+    "@upmind-automation/foundation": resolve(
       __dirname,
-      "../../packages/client-vue/src/index.ts"
+      "../../packages/modules-foundation/src/index.ts"
+    ),
+    "@upmind-automation/product/styles": resolve(
+      __dirname,
+      "../../packages/modules-product/src/styles.css"
+    ),
+    "@upmind-automation/product": resolve(
+      __dirname,
+      "../../packages/modules-product/src/index.ts"
+    ),
+    "@upmind-automation/recommendations/styles": resolve(
+      __dirname,
+      "../../packages/modules-recommendations/src/styles.css"
+    ),
+    "@upmind-automation/recommendations": resolve(
+      __dirname,
+      "../../packages/modules-recommendations/src/index.ts"
+    ),
+    "@upmind-automation/catalogue/styles": resolve(
+      __dirname,
+      "../../packages/modules-catalogue/src/styles.css"
+    ),
+    "@upmind-automation/catalogue": resolve(
+      __dirname,
+      "../../packages/modules-catalogue/src/index.ts"
+    ),
+    "@upmind-automation/domain/styles": resolve(
+      __dirname,
+      "../../packages/modules-domain/src/styles.css"
+    ),
+    "@upmind-automation/domain": resolve(
+      __dirname,
+      "../../packages/modules-domain/src/index.ts"
+    ),
+    "@upmind-automation/auth/styles": resolve(
+      __dirname,
+      "../../packages/modules-auth/src/styles.css"
+    ),
+    "@upmind-automation/auth": resolve(
+      __dirname,
+      "../../packages/modules-auth/src/index.ts"
+    ),
+    "@upmind-automation/client/styles": resolve(
+      __dirname,
+      "../../packages/modules-client/src/styles.css"
+    ),
+    "@upmind-automation/client": resolve(
+      __dirname,
+      "../../packages/modules-client/src/index.ts"
+    ),
+    "@upmind-automation/payment/styles": resolve(
+      __dirname,
+      "../../packages/modules-payment/src/styles.css"
+    ),
+    "@upmind-automation/payment": resolve(
+      __dirname,
+      "../../packages/modules-payment/src/index.ts"
+    ),
+    "@upmind-automation/invoice/styles": resolve(
+      __dirname,
+      "../../packages/modules-invoice/src/styles.css"
+    ),
+    "@upmind-automation/invoice": resolve(
+      __dirname,
+      "../../packages/modules-invoice/src/index.ts"
+    ),
+    "@upmind-automation/basket/styles": resolve(
+      __dirname,
+      "../../packages/modules-basket/src/styles.css"
+    ),
+    "@upmind-automation/basket": resolve(
+      __dirname,
+      "../../packages/modules-basket/src/index.ts"
     )
   },
 
@@ -151,6 +225,16 @@ export default defineNuxtConfig({
     },
     optimizeDeps: {
       include: ["lodash-es"]
+    },
+    server: {
+      // Vite's startup scan misses these files, so their packages load late and reload the page.
+      warmup: {
+        clientFiles: [
+          resolve(__dirname, "app/pages/**/*.vue"),
+          resolve(__dirname, "app/plugins/**/*.ts"),
+          resolve(__dirname, "app/shell/**/*.{vue,ts}")
+        ]
+      }
     }
   },
 
@@ -176,6 +260,23 @@ export default defineNuxtConfig({
     }
   },
 
+  hooks: {
+    // DevTools watches every Nitro storage mount, and `root` is the whole app folder.
+    "nitro:config": nitroConfig => {
+      set(nitroConfig, "devStorage.root", {
+        driver: "fs",
+        readOnly: true,
+        base: nitroConfig.rootDir,
+        // A regex, not globs: globs miss paths under a dot folder such as ~/.worktrees.
+        watchOptions: {
+          ignored: [
+            /[\\/](node_modules|\.git|\.output|dist|\.nuxt|\.data|graphify-out)([\\/]|$)/
+          ]
+        }
+      });
+    }
+  },
+
   /**
    * ---------------------------------------------------------------------------
    * APP SETTINGS
@@ -192,5 +293,6 @@ export default defineNuxtConfig({
     }
   },
 
-  css: ["~//main.css"]
+  // Absolute, not `~/`: an extending layer resolves `~` to its own srcDir.
+  css: [resolve(__dirname, "./app/main.css")]
 });

@@ -1,8 +1,8 @@
-import type { Meta, StoryObj } from "@storybook/vue3-vite";
 import { Button } from "@upmind/ui/components/button/index.ts";
 import { Skeleton } from "@upmind/ui/components/skeleton/index.ts";
 import { CircleAlert, CreditCard } from "lucide-vue-next";
 import { SpecimenInput } from "./foundation-helpers.ts";
+import type { Meta, StoryObj } from "@storybook/vue3-vite";
 
 /**
  * Every surface in Upmind UI has five lives: resting, loading, empty, disabled

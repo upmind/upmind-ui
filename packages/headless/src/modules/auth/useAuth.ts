@@ -16,7 +16,6 @@ import {
   stopService
 } from "../../utils";
 import type { AuthContext, AuthScopeMatrix } from "./auth.types";
-import type { ScopeActorTypes } from "../scope/scope.types";
 import type { ScopeConfig, ScopeKey } from "../scope/scope.types";
 // -----------------------------------------------------------------------------
 /**
@@ -34,7 +33,7 @@ function createAuthForScope(config: ScopeConfig, scopeKey: ScopeKey) {
   const { t } = useI18n();
 
   // Actor is already resolved by the scope builder (SELF → concrete actor)
-  const actorScope = config.actor as ScopeActorTypes;
+  const actorScope = config.actor;
 
   // Create interpreter with actorScope in initial context
   // This determines which services (client vs admin) are used
@@ -52,7 +51,7 @@ function createAuthForScope(config: ScopeConfig, scopeKey: ScopeKey) {
   const actorRef = createActor(service);
   if (!actorRef) {
     throw new DetailedError(
-      t("errors.auth.unavailable"),
+      t("error.auth_not_available"),
       responseCodes.Service_Unavailable,
       ErrorOrigin.Headless,
       { scope: config }

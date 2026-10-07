@@ -205,10 +205,10 @@ describe("paymentDetails composables — a client's own payment methods", () => 
     );
   });
 
-  // The recording DOES carry a default method. `default()` cannot find it while
-  // the gap-keyed list collapses to one blank record — the same defect the
-  // `it.fails` receipt below pins, seen from the page's side.
-  it("AC-A1 names no default method it cannot see", async () => {
+  it("AC-A1 names the client's own default method", async () => {
+    const recorded = recordedRows<{ default?: boolean; id?: string }>(
+      STORED_LIST
+    );
     const { usePaymentDetails } = await import("../usePaymentDetails");
     const details = usePaymentDetails();
 
@@ -219,14 +219,12 @@ describe("paymentDetails composables — a client's own payment methods", () => 
       { timeout: 10000 }
     );
 
-    expect(details.default()).toBeUndefined();
+    expect(recorded[0]?.default).toBe(true);
+    expect(details.default()?.id).toBe(recorded[0]?.id);
+    expect(details.default()?.meta.isDefault).toBe(true);
   });
 
-  // The services-layer receipt in `payment-details.int.test.ts` is the one that
-  // pins the defect and flips when it is fixed. This states the same reality from
-  // the page's side WITHOUT a second `it.fails`, so one fix does not have to
-  // chase two receipts.
-  it("AC-A1 shows the page one blank card where the client holds thirteen", async () => {
+  it("AC-A1 shows the page every card the client holds, their default first", async () => {
     const recorded = recordedRows<{ default?: boolean; id?: string }>(
       STORED_LIST
     );
@@ -242,8 +240,8 @@ describe("paymentDetails composables — a client's own payment methods", () => 
 
     expect(recorded).toHaveLength(13);
     expect(recorded[0]?.default).toBe(true);
-    expect(details.data.value).toHaveLength(1);
-    expect(details.data.value?.[0]?.id).toBeUndefined();
+    expect(details.data.value).toHaveLength(recorded.length);
+    expect(details.data.value?.[0]?.id).toBe(recorded[0]?.id);
   });
 });
 

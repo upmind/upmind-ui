@@ -1,20 +1,31 @@
-import UpmindClient, {
-  useTheme,
+import "@upmind-automation/client";
+import "@upmind-automation/domain";
+import {
+  foundationRenderers,
+  registerFormRenderers,
+  useLayout
+} from "@upmind-automation/foundation";
+import { SHELL, useShell } from "@upmind-automation/foundation";
+import {
   decorateRoutes,
   registerOverlayRoutes,
-  useHeader,
-  useFooter,
-  useLayout,
-  useShell,
-  SHELL
-} from "@upmind-automation/client-vue";
+  useRoutingEngine
+} from "@upmind-automation/headless";
+import "@upmind-automation/payment";
+import "@upmind-automation/product";
 import { AccessRoleTypes } from "@upmind-automation/types";
-import { forEach } from "lodash-es";
+import { registerFunnels } from "../funnels";
+import { CART_OVERLAYS } from "../router.options";
+import { useFooter } from "../shell/components/footer/useFooter";
+import { useHeader } from "../shell/components/header/useHeader";
+import { useTheme } from "../shell/modules/theming/useTheme";
+import UpmindClient from "../shell/useUpmindClient";
+import { forEach, get, toString } from "lodash-es";
 import type { I18n } from "vue-i18n";
 import type { Router } from "vue-router";
 import { defineNuxtPlugin } from "#app";
-import { registerFunnels } from "~/funnels";
-import { CART_OVERLAYS } from "~/router.options";
+
+registerFormRenderers(foundationRenderers);
 
 export default defineNuxtPlugin(async nuxtApp => {
   const runtimeConfig = useRuntimeConfig();
@@ -97,5 +108,6 @@ export default defineNuxtPlugin(async nuxtApp => {
     if (!shell.has(SHELL.HEADER)) useHeader({});
     if (!shell.has(SHELL.FOOTER)) useFooter({});
     if (!shell.has(SHELL.LAYOUT)) useLayout({});
+    useRoutingEngine().mount(toString(get(router, "currentRoute.value.name")));
   });
 });

@@ -61,11 +61,13 @@ import {
 } from "../scenario.types";
 import ActionSlots from "./ActionSlots.vue";
 import DetailSurface from "./surfaces/DetailSurface.vue";
-import { get, isFunction, noop, pick } from "lodash-es";
+import { useActionFeedback } from "./useActionFeedback";
+import { filter, get, includes, isFunction, map, noop, pick } from "lodash-es";
 import type { ActionSlotItem } from "./ActionSlots.types";
 import type { DetailDialogProps } from "./DetailDialog.types";
 import type { SurfaceActions } from "./surfaces/surface.types";
 import type { ModulePortSnapshot } from "../composables/useModulePort.types";
+import type { ScenarioAction } from "../scenario.types";
 // -----------------------------------------------------------------------------
 
 const props = defineProps<DetailDialogProps>();
@@ -76,6 +78,8 @@ const emit = defineEmits<{
 }>();
 
 const { t } = useI18n();
+
+const feedback = useActionFeedback();
 
 const isDrawer = computed(
   () => props.presentation?.surface !== DetailSurfaceTypes.MODAL
@@ -124,18 +128,6 @@ const hostClassFooter = computed(() =>
   isSide.value ? "shrink-0 w-full gap-2 pt-4" : undefined
 );
 
-/** Close, then the record's own actions — one group, one treatment. */
-const footerActions = computed<ActionSlotItem[]>(() => [
-  {
-    name: "close",
-    label: t("action.close"),
-    icon: "x-close",
-    placement: ActionPlacementTypes.VISIBLE,
-    onSelect: () => emit("close")
-  },
-  ...props.actions
-]);
-
 const direction = computed(() =>
   isDrawer.value && !isSide.value ? position.value : undefined
 );
@@ -153,19 +145,79 @@ const port =
 
 const surfaceActions = computed<SurfaceActions>(() => port?.actions ?? {});
 
+/** Drawn only where the name is a LIVE function on this overlay's own port. */
+function isDetailActionAvailable(action: ScenarioAction): boolean {
+  if (!port) return false;
+  return (
+    includes(port.snapshot().actions, action.name) &&
+    isFunction(port.actions[action.name])
+  );
+}
+
+function pressDetailAction(action: ScenarioAction): Promise<void> {
+  const success = get(action, ["feedback", "success"], "");
+  const failure = get(action, ["feedback", "failure"], "");
+
+  return feedback
+    .fire(action.name, () => port?.actions?.[action.name]?.(), {
+      success: t(success),
+      failure: t(failure)
+    })
+    .then(noop);
+}
+
+/**
+ * The scenario's declared detail-port controls, bound to THIS overlay's own read
+ * composable and drawn beside Close in the footer — never a group of their own
+ * on the record surface (`R6-33`'s read twin).
+ */
+const detailActionItems = computed<ActionSlotItem[]>(() =>
+  map(
+    filter(props.presentation?.actions ?? [], isDetailActionAvailable),
+    action => ({
+      name: action.name,
+      label: t(action.i18n),
+      icon: action.icon,
+      variant: action.variant,
+      placement: action.placement,
+      disabled: feedback.isPending(action.name),
+      loading: feedback.isPending(action.name),
+      onSelect: () => pressDetailAction(action)
+    })
+  )
+);
+
+/** Close, then the row's own actions, then the record's declared controls. */
+const footerActions = computed<ActionSlotItem[]>(() => [
+  {
+    name: "close",
+    label: t("action.close"),
+    icon: "x-close",
+    placement: ActionPlacementTypes.VISIBLE,
+    onSelect: () => emit("close")
+  },
+  ...props.actions,
+  ...detailActionItems.value
+]);
+
 // The unifying seam: DetailSurface reads `context.model`, so both feeds are
 // normalised to it — the fetch's mapped record (published as `context.data`)
 // or the clicked row. The row-data path carries no meta, which reads READY.
 //
 // `presentation.siblings` (2026-09-09 operator sign-off) folds NAMED context
-// siblings (e.g. `useInvoice().useContext().unpaidAmount`) into `model`
+// siblings of `model` on a cell's `useContext()` into `model`
 // additively: no declared siblings, `pick` returns `{}` and `model` is `data`
 // alone, byte-for-byte as before this field existed.
 const snapshot = computed<ModulePortSnapshot>(() => {
   if (port) {
     const snap = port.snapshot();
+    // A single-view cell publishes its mapped record as `model`; a list-style
+    // cell as `data`. Read whichever the cell exposes — never a fixed `data`.
+    const record = (snap.context.model ?? snap.context.data) as
+      | Record<string, unknown>
+      | undefined;
     const model = {
-      ...(snap.context.data as Record<string, unknown> | undefined),
+      ...record,
       ...pick(snap.context, props.presentation?.siblings ?? [])
     };
     return { ...snap, context: { ...snap.context, model } };

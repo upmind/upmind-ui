@@ -1,20 +1,14 @@
 /** @internal */
 import { keepPreviousData } from "@tanstack/vue-query";
-import { computed, ref, unref, watch } from "vue";
-import {
-  InvoiceCategoryCode,
-  InvoiceStatusGroups
-} from "@upmind-automation/types";
+import { computed, ref } from "vue";
+import { InvoiceStatusGroups } from "@upmind-automation/types";
 import { useQuery } from "../query";
 import { useActiveSession } from "../session-store";
-import { useLocale } from "../system-localisation";
 import {
-  mapInvoice,
   mapContractLookupItems,
   mapContractProductLookupItems,
   mapInvoiceLookupItems,
-  mapInvoices,
-  mapUnpaidAmount
+  mapInvoices
 } from "./invoices.mappers";
 import {
   useContractProductsQuerySchema,
@@ -23,17 +17,12 @@ import {
   useQuerySchema
 } from "./invoices.schemas";
 import {
+  CONSOLIDATABLE_FILTER,
   INVOICE_PARENT_WIRE_PARAM,
   InvoicesContextTypes
 } from "./invoices.types";
-import { scopeWireParams } from "./invoices.utils";
-import {
-  useTime,
-  DetailedError,
-  ErrorOrigin,
-  NotAuthenticatedError,
-  DEBOUNCE_DELAY
-} from "../../utils";
+import { probeClientFilter, scopeWireParams } from "./invoices.utils";
+import { useTime, NotAuthenticatedError, DEBOUNCE_DELAY } from "../../utils";
 import type { LookupItem } from "../lookup";
 import type { ScopeContext } from "../scope";
 import type {
@@ -44,16 +33,11 @@ import type {
   ContractProductLookupQueryModel,
   InvoiceLookupQuery,
   InvoiceLookupQueryModel,
-  InvoicePaymentDetailsModel,
-  InvoiceItemQuery,
   InvoiceQueryModel,
-  InvoiceUnpaidAmount,
-  InvoiceUnpaidAmountQuery,
   InvoicesListQuery,
   InvoicesServices
 } from "./invoices.types";
 import type { ResponseError } from "../../utils";
-import type { Currency } from "../currency/currency.types";
 import type { ScopeActorTypes } from "../scope/scope.types";
 import type { QueryKey } from "@tanstack/vue-query";
 import type {
@@ -61,59 +45,23 @@ import type {
   IContractProduct,
   IInvoice
 } from "@upmind-automation/types";
-import type { MaybeRef, Ref } from "vue";
+import type { Ref } from "vue";
 // -----------------------------------------------------------------------------
 /**
  * @module invoices/invoices.services
- * @description The ONE services file both halves consume — the collection's
- * `loadList`/`loadUnpaidExistence` and the single read's `loadOne`/
- * `loadUnpaidAmount`/`updatePaymentDetails`. One factory on purpose: one
- * identity seam, one cache key, one arm-resolution switch, so the two
- * composables can never disagree about whose invoices are being read. Model:
- * `client-email-history.services.ts:195-212`.
+ * @description The COLLECTION's services factory — `loadList`,
+ * `loadUnpaidExistence`, `loadConsolidatableCount` and the relationship
+ * lookups. One identity seam, one cache key, one arm-resolution switch. The
+ * single-invoice pay engine has its own services file (`invoice.services.ts`).
+ * Model: `client-email-history.services.ts:195-212`.
  *
  * WARNING: Do not import directly from another module. Resolve via
- * `useInvoices.ts` / `useInvoice.ts` only (`@internal/no-cross-module-imports`).
+ * `useInvoices.ts` only (`@internal/no-cross-module-imports`).
  */
 // -----------------------------------------------------------------------------
 
 /** The module's base cache key. Unchanged from the pre-conversion module. */
 export const queryKey: QueryKey = ["invoices"];
-
-/**
- * `loadOne`'s include set — the pre-conversion 17 relations are the FLOOR and
- * may not shrink, plus the nine `design.md` names (R05, AC4, AC7, AC8, AC13).
- * `address,address.country` fixes a live bug: `invoices.mappers.ts` has always
- * mapped `raw.address`, but the relation was never requested, so the mapped
- * address was always `undefined`.
- */
-const LOAD_ONE_INCLUDES = [
-  "brand",
-  "taxes",
-  "client",
-  "status",
-  "contract",
-  "payments",
-  "payments.payment_details",
-  "products",
-  "promotions",
-  "client.tags",
-  "products.tags",
-  "taxes.tax_tag_data",
-  "custom_fields.field",
-  "affiliate_commissions",
-  "products.product.image",
-  "account.affiliate_referral.affiliate_account.account.client",
-  "address",
-  "address.country",
-  "category",
-  "payments.gateway",
-  "payments.payment_type",
-  "payment_details",
-  "gateway",
-  "client.parent_client_config",
-  "last_payment_log"
-].join(",");
 
 /**
  * `loadList`'s include set — the oracle's own leaner list set (`oracle:47-64`)
@@ -223,7 +171,11 @@ function loadContractLookup(
   }) as unknown as ContractLookupQuery;
 }
 
-/** The list. The scope's client and relationship ride as static url params, as the legacy portal sends them. */
+/**
+ * The list. A retargeted client and a relationship ride as static url params, as
+ * the legacy portal sends them; the client's OWN list sends no `client_id`, so the
+ * platform co-mingles its sub-accounts' invoices (legacy invoicesProvider.vue:79).
+ */
 function loadList(scopeContext?: ScopeContext): InvoicesListQuery {
   const { list, useUrl } = useQuery();
   const clientId = resolveClientId(scopeContext);
@@ -232,7 +184,6 @@ function loadList(scopeContext?: ScopeContext): InvoicesListQuery {
     criteria: { schema: useQuerySchema() },
     queryKey: [...queryKey, { client: clientId, scope: scopeContext }],
     url: useUrl("invoices", {
-      client_id: clientId.value,
       ...scopeWireParams(scopeContext),
       with: LOAD_LIST_INCLUDES,
       with_count: "products"
@@ -283,102 +234,39 @@ function loadInvoiceLookup(
     select: mapInvoiceLookupItems,
     retryDelay: DEBOUNCE_DELAY,
     enabled: () => isAddressable(clientId.value)
-  }) as unknown as InvoiceLookupQuery;
-}
-
-/**
- * SINGLE READ — the reactive item query, minted once per scope. Replaces the
- * pre-conversion `loadInvoice`. An absent id issues NO request.
- */
-function loadOne(
-  invoiceId?: Invoice["id"],
-  scopeContext?: ScopeContext
-): InvoiceItemQuery {
-  const { query, useUrl } = useQuery();
-  const clientId = resolveClientId(scopeContext);
-
-  return query<IInvoice, Invoice>({
-    queryKey: [...queryKey, "invoice", invoiceId, { client: clientId }],
-    url: useUrl(`invoices/${invoiceId}`, {
-      with: LOAD_ONE_INCLUDES,
-      with_count: "products"
-    }),
-    withAccessToken: true,
-    guard: async () =>
-      new Promise((resolve, reject) => {
-        if (!invoiceId || !isAddressable(clientId.value)) {
-          reject(new NotAuthenticatedError());
-          return;
-        }
-        resolve(true);
-      }),
-    enabled: () => !!invoiceId && isAddressable(clientId.value),
-    select: raw => mapInvoice(raw, clientId.value),
-    staleTime: useTime().DAY
   });
 }
 
 /**
- * AC1's standalone live re-read. `currencyId` rides as a plain query param —
- * a single read has no criteria channel — and in the query key, so a currency
- * change re-keys the query rather than serving the prior response
- * (`oracle:621-633`). `staleTime: 0` for the same reason.
+ * The invoices a surface's invoice finder offers — a `listInfinite` over the
+ * scope's OWN invoices, searched by `filters.number.like`, with NO parent
+ * filter. Unlike `loadInvoiceLookup` (the `.for('invoice', id)` retarget,
+ * which offers only credited PARENT invoices), this is a plain finder over
+ * every invoice the scope's client owns, credited or not. Its own query key
+ * keeps the finder's search from evicting the retarget lookup's rows.
  */
-function loadUnpaidAmount(
-  invoiceId?: Invoice["id"],
-  currencyId?: MaybeRef<Currency["id"] | undefined>,
-  scopeContext?: ScopeContext
-): InvoiceUnpaidAmountQuery {
-  const { query, useUrl } = useQuery();
+function loadInvoicePickerLookup(
+  scopeContext: ScopeContext | undefined
+): InvoiceLookupQuery {
+  const { listInfinite, useUrl } = useQuery();
   const clientId = resolveClientId(scopeContext);
-  const currency = computed(() => unref(currencyId));
 
-  const url = useUrl(`invoices/unpaid_amount/${invoiceId}`);
-  // The wire param is mutated in place on a currency change, so the fetch
-  // the query-key change below triggers carries it — a plain GET has no
-  // criteria channel to route this through instead.
-  watch(
-    currency,
-    value => {
-      if (value) url.searchParams.set("currency_id", value);
-      else url.searchParams.delete("currency_id");
-    },
-    { immediate: true }
-  );
-
-  return query<
-    {
-      unpaid_amount: number;
-      unpaid_amount_formatted: string;
-    },
-    InvoiceUnpaidAmount
-  >({
-    queryKey: [
-      ...queryKey,
-      "unpaid_amount",
-      invoiceId,
-      { client: clientId, currency }
-    ],
-    url,
+  return listInfinite<IInvoice[], LookupItem[], InvoiceLookupQueryModel>({
+    criteria: { schema: useInvoiceLookupQuerySchema() },
+    queryKey: [...queryKey, "lookups", "invoice-picker", { client: clientId }],
+    url: useUrl("invoices", { client_id: clientId.value }),
     withAccessToken: true,
     guard: async () =>
       new Promise((resolve, reject) => {
-        if (!invoiceId || !isAddressable(clientId.value)) {
+        if (!isAddressable(clientId.value)) {
           reject(new NotAuthenticatedError());
           return;
         }
         resolve(true);
       }),
-    // The currency gates the read as hard as the session does: this endpoint
-    // 422s without an explicit one (the recorded control response
-    // `get-invoices-unpaid-amount-id-case-missing-currency.json`), so firing
-    // before `useInvoice` has seeded the invoice's own currency spends a
-    // request that can only fail. The seed lands when the single read
-    // settles, and re-keying on it is what issues the real call.
-    enabled: () =>
-      !!invoiceId && isAddressable(clientId.value) && !!currency.value,
-    select: mapUnpaidAmount,
-    staleTime: 0
+    select: mapInvoiceLookupItems,
+    retryDelay: DEBOUNCE_DELAY,
+    enabled: () => isAddressable(clientId.value)
   });
 }
 
@@ -399,7 +287,7 @@ function loadUnpaidExistence(
       model: {
         filters: {
           "status.code": InvoiceStatusGroups.UNPAID,
-          client_id: clientId.value
+          ...probeClientFilter(scopeContext, clientId.value)
         },
         pagination: { limit: 1 }
       }
@@ -438,11 +326,8 @@ function loadConsolidatableCount(
       schema: useQuerySchema(),
       model: {
         filters: {
-          "status.code": InvoiceStatusGroups.UNPAID,
-          is_consolidation: false,
-          "category.slug": [InvoiceCategoryCode.RECURRENT],
-          client_id: clientId.value,
-          paid_amount: 0
+          ...CONSOLIDATABLE_FILTER,
+          ...probeClientFilter(scopeContext, clientId.value)
         },
         pagination: { limit: 1 }
       }
@@ -466,81 +351,6 @@ function loadConsolidatableCount(
     // No `select`: only `pagination.total` is read.
     staleTime: useTime().DAY
   });
-}
-
-/**
- * AC4's assigned-method writer. `payment_details_id: null` is serialised as a
- * PRESENT key when clearing — the caller passes the whole model through
- * untouched, never `omitBy(isNil)`'d (design D1).
- */
-function updatePaymentDetails(
-  invoiceId: Invoice["id"],
-  model: InvoicePaymentDetailsModel
-): Promise<unknown> {
-  const { patch, useUrl } = useQuery();
-
-  return patch({
-    mutationKey: [...queryKey, invoiceId, "payment_details"],
-    url: useUrl(`invoices/${invoiceId}/payment_details`),
-    data: model,
-    withAccessToken: true
-  });
-}
-
-/**
- * AC A's PDF download — `GET invoices/{id}/download` as a blob (`oracle:
- * pdfs.ts:16-24,28-41`; `invoiceProvider.vue:448-475`). Credit notes are
- * invoices with a different `category` (`design.md`) — this reader takes
- * only an id and never branches on it. Scoped through the SAME
- * `resolveClientId`/`isAddressable` seam every other request in this file
- * uses; the caller (`useInvoice.actions.ts`) derives the save filename from
- * the already-loaded invoice's `number`.
- *
- * @decision
- * what: a hand-rolled `fetch`, not `useQuery().request()`.
- * why: `request()` -> `doFetch` (`query.services.ts:50-61`) unconditionally
- * calls `response.json()` — there is no blob/arraybuffer arm, and
- * `packages/headless/src/modules/query/**` is untouchable (operator ruling
- * 2026-09-08, verbatim "do not chnage any query stuff"). The URL
- * (`useUrl`), the locale param, and the session's own access token are the
- * SAME seam `request()` itself reads, consumed directly rather than
- * re-derived — only the response-body branch a binary payload needs is new.
- * rejected: adding a `responseType` option to `request()`/`doFetch` — the
- * exact query-core change the 2026-09-08 ruling withdraws.
- */
-async function downloadPdf(
-  invoiceId: Invoice["id"],
-  scopeContext?: ScopeContext
-): Promise<Blob> {
-  const { useUrl } = useQuery();
-  const { locale } = useLocale();
-  const clientId = resolveClientId(scopeContext);
-
-  if (!isAddressable(clientId.value)) throw new NotAuthenticatedError();
-
-  const url = useUrl(`invoices/${invoiceId}/download`);
-  if (locale.value) url.searchParams.set("lang", locale.value as string);
-
-  const token = await useActiveSession()
-    .useActions()
-    .isReady()
-    .then(() => useActiveSession().useContext().session.value?.access_token);
-
-  const response = await fetch(url.toString(), {
-    headers: token ? { Authorization: `Bearer ${token}` } : {}
-  });
-
-  if (!response.ok) {
-    const body = await response.json().catch(() => undefined);
-    throw new DetailedError(
-      body?.error?.message ?? response.statusText,
-      response.status,
-      ErrorOrigin.Headless,
-      body?.error?.data
-    );
-  }
-
-  return response.blob();
 }
 
 // -----------------------------------------------------------------------------
@@ -579,11 +389,9 @@ export const createInvoicesServices = (
     error: computed<ResponseError | undefined>(() => undefined),
     loadList: () => loadList(scopeContext),
     loadInvoiceLookup: () => loadInvoiceLookup(scopeContext),
+    loadInvoicePickerLookup: () => loadInvoicePickerLookup(scopeContext),
     loadContractLookup: () => loadContractLookup(scopeContext),
     loadContractProductLookup: () => loadContractProductLookup(scopeContext),
-    loadOne: invoiceId => loadOne(invoiceId, scopeContext),
-    loadUnpaidAmount: (invoiceId, currencyId) =>
-      loadUnpaidAmount(invoiceId, currencyId, scopeContext),
     loadUnpaidExistence: () =>
       loadUnpaidExistence(unpaidExistenceRequested, scopeContext),
     requestUnpaidExistence: () => {
@@ -594,8 +402,6 @@ export const createInvoicesServices = (
     requestConsolidatableCount: () => {
       consolidatableCountRequested.value = true;
     },
-    updatePaymentDetails,
-    downloadPdf: invoiceId => downloadPdf(invoiceId, scopeContext),
     ...scopedServices(scopeActor, scopeContext)
   };
 };

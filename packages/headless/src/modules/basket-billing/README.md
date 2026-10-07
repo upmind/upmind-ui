@@ -59,16 +59,3 @@ A **billing selection** is the trio of ids (address, company, phone) held on the
 | [Architecture](./docs/architecture.md) | Internal / Contributors            | State machine, data flow, dependencies        |
 | [Gotchas](./docs/gotchas.md)           | All                                | Edge cases, known issues                      |
 | [Changelog](./docs/changelog.md)       | All                                | Version history                               |
-
-## Playground
-
-A runnable demo is available in the labs playground:
-
-```bash
-cd playgrounds/labs
-pnpm dev
-```
-
-Then navigate to `/billing` to see the billing form in action.
-
-**Playground location:** `playgrounds/labs/src/pages/billing/`

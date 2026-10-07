@@ -14,7 +14,7 @@
  * `Update undefined` — and the operator editing one topic cannot tell which.
  *
  * The page is booted LIVE against the module's OWN recorded corpus, through the
- * same integration kit `forced-surface.harness.ts` uses; the topic whose name
+ * same integration kit the shared runtime tests use; the topic whose name
  * the title must echo is the corpus's own, never authored here. Two topics are
  * proven so the title is shown to TRACK the clicked row, not read a constant.
  */
@@ -58,7 +58,7 @@ import type { VueWrapper } from "@vue/test-utils";
 const settle = (ms = 400) => new Promise(resolve => setTimeout(resolve, ms));
 const module = trackedModuleOf(declaration.tracks)!;
 
-// Module scope, like `proveForcedSurface`: these bind the lane's msw lifecycle
+// Module scope: these bind the lane's msw lifecycle
 // hooks, which only register at collection time.
 const kit = (await integrationKits[module]()) as Record<string, unknown>;
 const { server } = (await integrationSetups[module]()) as {
@@ -114,9 +114,6 @@ async function bootLive(): Promise<{ topics: Array<{ name: string }> }> {
   await (kit.seedClientSession as () => Promise<unknown>)();
   (kit.installBackgroundStubs as (target: unknown) => void)(server);
   server.use(...createForceHandlers("replay", bodies!, feature));
-  (kit.installNotificationsReadWriteHandlers as (target: unknown) => void)(
-    server
-  );
 
   const port = useModulePort(declaration.useList as never, {
     actor: ScopeActorTypes.CLIENT,

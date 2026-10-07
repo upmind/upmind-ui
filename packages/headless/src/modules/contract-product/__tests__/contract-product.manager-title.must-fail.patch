@@ -1,0 +1,34 @@
+# Negative-control mutant — the manager publishes the product's display title (AC-4)
+#
+# Scenario it must flip: contract-product.feature >
+#   "Open one of my products with what its detail view needs"
+# Test that goes red: contract-product.replay.int.test.ts > that scenario —
+#   "Then it is the very product I opened, under its own name and description" —
+#   the manager context publishes no `title` member.
+# Mutation: drops the `title` computed and its return entry.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+diff --git a/packages/headless/src/modules/contract-product/useContractProduct.context.ts b/packages/headless/src/modules/contract-product/useContractProduct.context.ts
+--- a/packages/headless/src/modules/contract-product/useContractProduct.context.ts
++++ b/packages/headless/src/modules/contract-product/useContractProduct.context.ts
+@@ -42,9 +42,6 @@ export function createContractProductContext(
+       : null
+   );
+ 
+-  /** Display title of the product — derived off the view model, as `scheduledActions` is. */
+-  const title = computed(() => contractProduct.value?.name);
+-
+   /** Description of the product — derived off the raw wire record, as `scheduledActions` is. */
+   const description = computed(() => contractProduct.value?.raw?.description);
+ 
+@@ -97,9 +94,6 @@ export function createContractProductContext(
+     /** The product's scheduled actions, when the read carried them (AC15). */
+     scheduledActions,
+ 
+-    /** Display title of the product. */
+-    title,
+-
+     /** Field-level validation errors (AJV `ErrorObject[]`) — read, never raised. */
+     validationErrors: useContext<ErrorObject[]>(state, "error.data")
+   };

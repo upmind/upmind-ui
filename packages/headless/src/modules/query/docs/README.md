@@ -119,6 +119,78 @@ Switching `list()` to a combination it has never shown before replaces the page 
 
 `listInfinite()` doesn't get the same treatment, because it has nothing to bridge: it never replaces anything to make room for what's loading — every additional page it pulls in is rows **added** to what's already there, never rows **ousting** them. There is no in-between state to paper over, so nothing was added to paper over one.
 
+## Binary downloads
+
+`useQuery().download({ url, init, withAccessToken, withoutLocale })` is the binary sibling of `request()`: it resolves the response body as a `Blob`, for payloads a JSON reader cannot carry (a PDF, an attachment). It takes the same url, locale and access-token options as `request()`: `lang` is added unless `withoutLocale` is set or the url already has one, and `withAccessToken` (`true` for the active session's token, or a token string) sets the `Authorization` header. A caller that needs an `ArrayBuffer` converts with `blob.arrayBuffer()`.
+
+On a non-OK response it rejects with a `DetailedError` whose `code` is the HTTP status (and whose message and data come from the API error body when present), so a caller can branch on it, for example a 404 meaning "not ready yet". An aborted request rejects with no value, as `request()` does.
+
+A download is a plain one-shot call: it is not cached, not retried and has no query state. Invoices, legacy invoices and tickets all download through it.
+
+## Counts with `query()`
+
+A count is a plain `query()`. Put `limit=count` on the url, and read the response's `total` in `select`. `select` receives the response `data` first and the whole response envelope second, so it can map off envelope fields such as `total`. The endpoint then sends the number of matches and no rows. Use it where a number is all the screen needs (a badge, a "N results" label). A collection that needs rows and a total pages through `list()` instead.
+
+<!-- corpus-example: skip — a fragment from the product catalogue module: scope, scopeQueryKey, catalogueUrl and ProductQueryModel are that module's own internals, not exported -->
+```ts
+const { query } = useQuery();
+
+const url = catalogueUrl(scope);
+url.searchParams.set("limit", "count");
+
+const response = query<IProduct[], number, ProductQueryModel>({
+  criteria: { schema: useQuerySchema(scope), model },
+  queryKey: [...scopeQueryKey(queryKey, scope), "count"],
+  url,
+  select: (_data, envelope) => envelope.total ?? 0,
+  withAccessToken: true,
+  staleTime: useTime().HOUR,
+  enabled: () => toValue(scope.enabled) ?? true
+});
+```
+
+This is how the product catalogue's `loadCount` reads its totals.
+
+## Several entries, one `select`
+
+A screen that needs two reads for one question gives `query()` or `list()` several entries. Pass `queries` in place of `url`, `init` and `queryKey`. Every other option is shared and applies to each entry: `criteria`, `guard`, `withAccessToken`, `withCurrency`, `staleTime`, `enabled`. The entries run in parallel through TanStack's `useQueries`, and `select` is its `combine`: it receives every entry's `data` first and every entry's response envelope second, both in entry order, and returns the one `data` the handle publishes. Without `select`, `data` is every entry's `data` in entry order.
+
+```ts
+import { useQuery } from "@upmind-automation/headless";
+
+type Country = { id: string; name: string; code: string };
+
+const { query, useUrl } = useQuery();
+
+const countUrl = useUrl("countries");
+countUrl.searchParams.set("limit", "count");
+
+const countries = query<Country[], { rows: Country[]; total: number }>({
+  queries: [
+    { url: useUrl("countries"), queryKey: ["countries"] },
+    { url: countUrl, queryKey: ["countries", "count"] }
+  ],
+  select: ([rows], [, count]) => ({ rows, total: count.total ?? 0 })
+});
+
+countries.data; // ComputedRef<{ rows, total }>
+countries.isPending; // true until EVERY entry has answered
+```
+
+The handle keeps the same shape as a single read. `isPending`, `isLoading`, `isFetching`, `isError` and `isPlaceholderData` are true when any entry is. `isSuccess` and `isFetched` are true when every entry is. `error` is the first entry's error.
+
+`refetch` refetches every entry. `resetQuery` resets every entry's cache. `data` stays empty until every entry has data, so `select` never sees a half answer.
+
+`list({ queries })` keeps everything `list()` does. The criteria's sort, filters and page window reach every entry's wire, so the entries page together. Entry one's envelope supplies `total`, and so the pager. `fetchNextPage` moves every entry to the next page.
+
+`listInfinite()` takes one entry only. TanStack has no infinite form of `useQueries`.
+
+> **👩‍💻 For Developers:** an entry's `select` is not per entry. In TanStack, `select` maps one query and `combine` joins several. Our `select` is the join, so it is the one place that stitches. A module never joins two handles by hand in a layer (`comp-single-query`).
+
+## The one door to TanStack
+
+> **Rule:** never call a TanStack hook outside `modules/query`. A value import of `useQuery`, `useQueries`, `useInfiniteQuery`, `useMutation`, `useQueryClient`, `QueryClient` or `queryOptions` from `@tanstack/vue-query` (or `@tanstack/query-core`) in any other module is a lint error (`endpoint-ownership/no-direct-tanstack-query`). A module that needs data goes through `query()` or `download()` (or `list()` / `listInfinite()` for pages), so caching, auth and criteria behave the same everywhere. Type-only imports are allowed, and the two helpers modules import in practice are `type QueryKey` and `keepPreviousData`.
+
 ## Where it fits
 
 ```text
@@ -146,8 +218,8 @@ import {
 
 ### A filter's wire column can differ from its model property
 
-A filter branch's wire column defaults to its own property name, but a branch may declare a `column` keyword to bind it to a different one — for an API whose filterable column is spelt differently from the name the model reads and writes. `client-phone`'s query schema is the concrete case: the model property is `number` (what a consumer filters by), but the branch declares `column: "phone"`, because the API's own `filter[phone|like]` is what the server actually accepts — `filter[number|like]` answers with an HTTP 500. `translateQuery` reads the branch's `column` when present and falls back to the property name when it isn't; a module never has to rename its own model property to match an oddly-spelt wire column.
+A filter branch's wire column defaults to its own property name, but a branch may declare a `column` keyword to bind it to a different one — for an API whose filterable column is spelt differently from the name the model reads and writes. `client-phone`'s query schema is the concrete case: the model property is `number` (what a consumer filters by), but the branch declares `column: "phone"`, because the API's own `filter[phone|like]` is what the server actually accepts — `filter[number|like]` answers with an HTTP 500. `translateQuery` reads the branch's `column` when present, and otherwise it uses the property name. A module never has to rename its own model property to match an oddly-spelt wire column.
 
 ## See it driven live
 
-The `client-email` module's collection is the first adopter — its full request state, filtered and sorted through this seam, is rendered end to end in the `labs-nuxt` playground. See [../../client-email/docs/README.md](../../client-email/docs/README.md#playground) for the exact command and url.
+The `client-email` module's collection is the first adopter — its full request state is filtered and sorted through this seam.

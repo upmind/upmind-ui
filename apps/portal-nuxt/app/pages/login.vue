@@ -1,26 +1,19 @@
-<script setup lang="ts">
-// Legacy asked for the second sign-in step on the login screen ITSELF, once
-// the credentials were accepted (`2faModal` over the same view). The
-// dispatcher sends an account that asks for one back here with the challenge
-// named, so the screen has two positions and no second route.
-import { computed } from "vue";
-import type { PageKey } from "~/portal/types";
-import PortalPageHost from "~/portal/content/PortalPageHost.vue";
-import { AUTH_QUERY_KEY, AUTH_QUERY_VALUE, PAGE_KEY } from "~/portal/types";
-
-definePageMeta({ layout: "logged-out" });
-
-const route = useRoute();
-
-const pageKeys = computed<readonly PageKey[]>(() => {
-  const challenge = route.query[AUTH_QUERY_KEY.CHALLENGE];
-  if (challenge === AUTH_QUERY_VALUE.TWOFA) {
-    return [PAGE_KEY.AUTH_LOGIN_TWOFA];
-  }
-  return [PAGE_KEY.AUTH_LOGIN];
-});
-</script>
-
 <template>
-  <PortalPageHost :page-keys="pageKeys" aside-label="Sign in" />
+  <UpmAuthLogin v-bind="AUTH_ROUTES" @resolve="onResolve" v-slot="{ template }">
+    <component :is="authTemplate(template)" />
+  </UpmAuthLogin>
 </template>
+
+<script setup lang="ts">
+import { UpmAuthLogin } from "@upmind-automation/auth";
+import { authTemplate } from "~/portal/auth/shell";
+import { AUTH_LANDING, AUTH_ROUTES } from "~/portal/auth-routes";
+
+definePageMeta({
+  layout: "auth"
+});
+
+function onResolve() {
+  return navigateTo(AUTH_LANDING);
+}
+</script>

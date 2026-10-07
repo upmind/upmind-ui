@@ -1,0 +1,20 @@
+# Negative control — a failed user load hands back as a success. The token
+# was issued but the session never held the user, and the host closes its
+# overlay on a visitor who is not signed in.
+#
+# Intended RED:
+#   packages/modules-auth/src/__tests__/auth-handback.test.ts
+#     "rejects once when the user load fails after the token"
+
+diff --git a/packages/modules-auth/src/components/Auth.vue b/packages/modules-auth/src/components/Auth.vue
+--- a/packages/modules-auth/src/components/Auth.vue
++++ b/packages/modules-auth/src/components/Auth.vue
+@@ -281,7 +281,7 @@
+           emit("resolve", model);
+         })
+         .catch(() => {
+-          emit("reject");
++          emit("resolve", model);
+         });
+     }
+     emit("resolve", model);

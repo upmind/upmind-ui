@@ -27,6 +27,8 @@
           </template>
         </PortalSection>
       </template>
+
+      <slot />
     </div>
 
     <PageAside

@@ -18,7 +18,7 @@ import { VerifyEmail } from "../../support/page-objects/templates/verify-email";
  * Prove that when a brand requires a verified email for orders
  * (`security.orders.require_verified_email`), an unverified client is stopped at
  * checkout and routed into the verify-email overlay against the real
- * headless/client-vue modules; that a valid code clears the overlay and lets
+ * headless and domain-package modules; that a valid code clears the overlay and lets
  * them through; that an invalid code is rejected inline; that resending issues a
  * fresh code; and that the overlay route honours its guard when hit directly.
  *

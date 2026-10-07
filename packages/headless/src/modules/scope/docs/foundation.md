@@ -163,7 +163,7 @@ fan-in is broad and grows with each new scoped module.
 | `client-notes` | 3 | Two independently-scoped composables — a client's note collection retargeted by a client context, and a per-note manager that calls the key generator directly for its own instance key. |
 | `client-phone` | 3 | Per-client phone-number collections, retargeted by a client context. |
 | `basket-billing` | 1 | Reads only the actor enum, to call the acting-actor step on the other scoped composables it composes — no matrix of its own. |
-| App bootstrap (playground/host) | — | Registers the DevTools inspector once at startup. |
+| App bootstrap (host) | — | Registers the DevTools inspector once at startup. |
 
 Weight counts the module's own (non-test) source files that import from this one; it is
 not a measure of correctness, only of fan-in breadth.

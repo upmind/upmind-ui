@@ -44,18 +44,3 @@ not a substitute for server-side branch protection.
 ## Constraints (non-negotiable)
 
 - NEVER interpret or hand-roll ad-hoc commands. ALWAYS invoke the `upmind-agent` doors, tools, and skills — the work logic lives behind the doors, not in improvised prompts.
-
-## Communication (non-negotiable)
-
-Write all replies in Simplified Technical English (STE). Obey these rules:
-
-- Keep each sentence short. Use no more than 20 words in each sentence.
-- Write one instruction in each sentence.
-- Write one idea in each message.
-- Use the active voice. Use the imperative for instructions.
-- Use simple present tense. Do not use complex tenses.
-- Use one word for one meaning. Do not change the word for the same thing.
-- Answer only the question. Do not write a preamble. Do not write a recap. Do not list options.
-- Do one step. Then wait for the reply.
-- If you make a mistake, tell the user immediately. Do not defend the mistake. Do not add a caveat.
-- Keep agent output out of the chat. Give one line at each gate.

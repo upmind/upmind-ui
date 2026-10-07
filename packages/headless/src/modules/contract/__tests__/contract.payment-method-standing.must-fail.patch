@@ -1,0 +1,30 @@
+# Negative-control mutant — the payment-method form on a cancelled or lapsed contract (AC-8, R13)
+#
+# Proves: contract.feature > "Point my cancelled subscription at a different stored payment method"
+# NOT YET RED-VERIFIED: that scenario is red on the live defect where the
+#   manager keeps its first read after a re-read (FE-3145 prover hand-back).
+#
+# Mutation: the `unavailable.changingPaymentMethod.idle` node drops its
+#   `PAYMENT_METHOD` transition — the pre-R13 read-only contract, where a
+#   cancelled or lapsed contract refuses the form like fraud does.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+diff --git a/packages/headless/src/modules/contract/contract.machine.ts b/packages/headless/src/modules/contract/contract.machine.ts
+index 3e102716a..3506658a4 100644
+--- a/packages/headless/src/modules/contract/contract.machine.ts
++++ b/packages/headless/src/modules/contract/contract.machine.ts
+@@ -204,13 +204,6 @@ export default createMachine(
+             states: {
+               idle: {
+                 on: {
+-                  // R13: a cancelled or lapsed contract may still change its
+-                  // payment method; `fraud` alone is refused.
+-                  PAYMENT_METHOD: {
+-                    target: "available",
+-                    actions: "setPaymentMethodSchemas",
+-                    cond: "canChangePaymentMethod"
+-                  }
+                 }
+               },
+               available: {

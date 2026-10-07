@@ -1,0 +1,28 @@
+# Negative control — the Nuxt cart gains its own Localazy upload block again, a
+# second uploader beside packages/i18n.
+#
+# Intended RED:
+#   apps/cart-nuxt/tests/locale-parity.test.ts
+#     "never uploads source strings"
+
+diff --git a/apps/cart-nuxt/localazy.json b/apps/cart-nuxt/localazy.json
+--- a/apps/cart-nuxt/localazy.json
++++ b/apps/cart-nuxt/localazy.json
+@@ -14,4 +14,16 @@
+       "operations": "formatLang: LL, LL-RR, LL, LL-RR"
+     }
+-  ]
++  ],
++  "upload": {
++    "folder": "./app/",
++    "type": "json",
++    "files": [
++      {
++        "lang": "${autodetectLang}",
++        "file": "${autodetectFile}",
++        "pattern": "/**/locales/**/*.json",
++        "type": "json"
++      }
++    ]
++  }
+ }

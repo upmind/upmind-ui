@@ -11,8 +11,10 @@ import { useBrand } from "../brand";
 import { useSystem } from "../system";
 import { useFieldsSchemaParser, useFieldsUischemaParser } from "../../utils";
 import { get } from "lodash-es";
+import type { WithPhoneCountryCode } from "../../utils/useValidationKeywords";
 import type { CustomField } from "../client-custom-fields";
-import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
+import type { JsonSchema, JsonSchema7, UISchemaElement } from "@jsonforms/core";
+// -----------------------------------------------------------------------------
 /**
  * JSON Schema for the registration form.
  * Includes custom fields from brand configuration.
@@ -32,6 +34,31 @@ export const useRegisterSchema = (customFields?: CustomField[]): JsonSchema => {
   }
 
   const countryCode = getCountry()?.code || "";
+
+  const phone: WithPhoneCountryCode<JsonSchema7> = {
+    type: ["object", "null"],
+    title: "Phone",
+    phone_country_code: countryCode,
+    properties: {
+      number: {
+        type: ["string", "null"],
+        title: "Phone number ( with dialing code )"
+      },
+      country: {
+        type: ["string", "null"],
+        title: "Country",
+        default: countryCode
+      },
+      nationalNumber: {
+        type: ["string", "null"],
+        title: "Phone number"
+      },
+      countryCallingCode: {
+        type: ["string", "null"],
+        title: "Country calling code"
+      }
+    }
+  };
 
   return {
     type: "object",
@@ -61,29 +88,7 @@ export const useRegisterSchema = (customFields?: CustomField[]): JsonSchema => {
         // and the `auth_password.error.*` i18n keys — keep these in lockstep.
         pattern: "(?=.*[a-zA-Z])(?=.*\\d)(?=.*[^a-zA-Z0-9])"
       },
-      phone: {
-        type: ["object", "null"],
-        title: "Phone",
-        properties: {
-          number: {
-            type: ["string", "null"],
-            title: "Phone number ( with dialing code )"
-          },
-          country: {
-            type: ["string", "null"],
-            title: "Country",
-            default: countryCode
-          },
-          nationalNumber: {
-            type: ["string", "null"],
-            title: "Phone number"
-          },
-          countryCallingCode: {
-            type: ["string", "null"],
-            title: "Country calling code"
-          }
-        }
-      },
+      phone,
       customFields: useFieldsSchemaParser(customFields)
     }
   };

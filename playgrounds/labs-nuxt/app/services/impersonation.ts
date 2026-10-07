@@ -13,37 +13,37 @@ import type { IBrand, IToken } from "@upmind-automation/types";
  * this capability.
  */
 
-export interface ClientSearchResult {
+export type ClientSearchResult = {
   id: string;
   fullname: string;
   email: string;
   image_url?: string;
   brand_id?: string;
   accounts?: Array<{ brand?: IBrand }>;
-}
+};
 
-export interface UserSearchResult {
+export type UserSearchResult = {
   id: string;
   fullname: string;
   email: string;
   image_url?: string;
-}
+};
 
-interface ClientSearchResponse {
+type ClientSearchResponse = {
   data: ClientSearchResult[];
-}
+};
 
-interface UserSearchResponse {
+type UserSearchResponse = {
   data: UserSearchResult[];
-}
+};
 
-interface ClientAccessTokenResponse {
+type ClientAccessTokenResponse = {
   access_token: string;
-}
+};
 
-interface UserAccessTokenResponse {
+type UserAccessTokenResponse = {
   token: string;
-}
+};
 
 /**
  * Search clients via admin API.

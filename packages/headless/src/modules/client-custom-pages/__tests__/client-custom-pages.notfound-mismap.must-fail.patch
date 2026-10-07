@@ -1,0 +1,11 @@
+--- a/packages/headless/src/modules/client-custom-pages/useClientCustomPage.meta.ts
++++ b/packages/headless/src/modules/client-custom-pages/useClientCustomPage.meta.ts
+@@ -83,7 +83,7 @@
+    *           platform member.
+    */
+   const isNotFound = computed(
+-    () => error.value?.status === responseCodes.Not_Found
++    () => error.value?.status === responseCodes.Timeout
+   );
+ 
+   /**

@@ -1,3 +1,11 @@
+// -----------------------------------------------------------------------------
+/**
+ * @module scenario-harness/index
+ * @description Public entry for the framework-agnostic scenario harness:
+ * reflection, archetype classification, the coverage gate, step catalogs and
+ * the `World` seam.
+ */
+
 export * from "./archetype/archetype";
 export * from "./archetype/archetype.types";
 export * from "./gate/coverage-gate";
@@ -11,6 +19,7 @@ export * from "./registry/registry.types";
 export * from "./steps/step-catalog";
 export * from "./steps/steps.types";
 export * from "./steps/traceability";
+export * from "./world/args";
 export * from "./world/match";
 export * from "./world/scope-actor";
 export * from "./world/world.types";

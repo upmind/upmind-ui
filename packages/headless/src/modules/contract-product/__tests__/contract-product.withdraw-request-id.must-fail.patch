@@ -1,0 +1,33 @@
+# Negative-control mutant — withdraw carries the product's own cancel-request id (AC-7, R33)
+#
+# Scenario it must flip: contract-product.feature > the @AC-7 withdraw scenario.
+#   `withdrawCancellation` DELETEs `contracts/{contractId}/cancel/request` with a
+#   body naming this product's own `contract_request.id`
+#   (`{ contract_request_id }`, legacy `cProdProvider.vue:1327-1362`).
+# Test that goes red: contract-product.mutations.int.test.ts >
+#   "useContractProduct — I change my mind about a cancellation I asked for
+#   (AC-7, R33)" >
+#   "AC-7 DELETEs cancel/request with { contract_request_id } from my product's
+#   own request, under my own identity"
+#   (the captured body is now `{}`, so
+#   `expect(captured.body).toEqual({ contract_request_id: "785d26e9-..." })`
+#   flips).
+# Mutation: `withdrawCancellation` sends an empty body instead of
+#   `{ contract_request_id: requestId }` — the request id it read for its own
+#   guard never travels to the wire.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+diff --git a/packages/headless/src/modules/contract-product/contract-product.services.ts b/packages/headless/src/modules/contract-product/contract-product.services.ts
+index ae2e92714..cbc032843 100644
+--- a/packages/headless/src/modules/contract-product/contract-product.services.ts
++++ b/packages/headless/src/modules/contract-product/contract-product.services.ts
+@@ -562,7 +562,7 @@ async function withdrawCancellation(
+   return del<IContractProduct>({
+     mutationKey: [...queryKey, context.contractProductId, "cancel", "withdraw"],
+     url: useUrl(`contracts/${context.contractId}/cancel/request`),
+-    data: { contract_request_id: requestId },
++    data: {},
+     withAccessToken: true
+   }).then(invalidateQueryByKey(queryKey, { exact: false }));
+ }

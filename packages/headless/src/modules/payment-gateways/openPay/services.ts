@@ -11,6 +11,7 @@ import {
 } from "../../../utils";
 import { get, isNil, omit } from "lodash-es";
 import type { AnyEventObject } from "xstate";
+// -----------------------------------------------------------------------------
 
 // --- utils
 
@@ -26,7 +27,7 @@ async function load(context: OpenPayContext, _event: AnyEventObject) {
   if (!gateway)
     return Promise.reject(
       new DetailedError(
-        "Gateway not found.",
+        t("error.payment_gateway_not_available"),
         responseCodes.Not_Found,
         ErrorOrigin.Headless
       )

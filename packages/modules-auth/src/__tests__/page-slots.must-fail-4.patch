@@ -1,0 +1,19 @@
+# Negative control — the offer never learns that a guest registration runs,
+# so it keeps taking clicks and starts a second one.
+#
+# Intended RED:
+#   packages/modules-auth/src/__tests__/page-slots.test.ts
+#     "tells the offer while the guest registration runs"
+
+diff --git a/packages/modules-auth/src/components/Register.vue b/packages/modules-auth/src/components/Register.vue
+--- a/packages/modules-auth/src/components/Register.vue
++++ b/packages/modules-auth/src/components/Register.vue
+@@ -253,7 +253,7 @@
+ const summarySlot: AuthSummarySlotProps = { showWhileLoading: true };
+ const guestCheckoutSlot = computed<AuthGuestCheckoutSlotProps>(() => ({
+   registerAsGuest,
+-  isRegistering: isRegisteringAsGuest.value
++  isRegistering: false
+ }));
+ 
+ function backLink(compact: boolean): {

@@ -354,14 +354,43 @@ export class Checkout {
         .filter({ visible: true })
         .last()
         .click();
-      try {
-        await responsePromise;
-        return;
-      } catch {
-        // save request not detected, click again
-      }
+      // save request not detected → fall through and click again
+      const detected = await responsePromise
+        .then(() => true)
+        .catch(() => false);
+      if (detected) return;
     }
     throw new Error(`${endpoint} save request not detected after 5 clicks`);
+  }
+
+  /**
+   * Opens the business tab and saves a new company with a manually entered
+   * address.
+   * @param name - company name
+   * @param regNumber - registration number, also used as the tax number
+   * @param address - manually entered company address
+   */
+  async saveNewCompany(
+    name: string,
+    regNumber: string,
+    address: { line1: string; city: string; postcode: string }
+  ) {
+    await this.page.getByTestId("tab-business-details").click();
+    const companyName = this.page.getByTestId("input-properties-name");
+    await expect(companyName.or(this.addNewCompany).first()).toBeVisible();
+    if (!(await companyName.isVisible())) await this.addNewCompany.click();
+    await companyName.fill(name);
+    await this.page.getByTestId("input-properties-reg-number").fill(regNumber);
+    await this.page
+      .getByTestId("input-properties-tax-properties-number")
+      .fill(regNumber);
+    await this.manuallyInputAddress(
+      address.line1,
+      address.city,
+      address.postcode,
+      null
+    );
+    await this.clickSaveDetails("companies");
   }
 
   /**
@@ -557,46 +586,43 @@ export class Checkout {
     let lastState = await readCheckoutReadinessViaHeadless(this.page);
     let attempts = lastState?.attempts ?? 0;
 
-    try {
-      await expect
-        .poll(
-          async () => {
-            if (await atTerminalState()) return true;
+    await expect
+      .poll(
+        async () => {
+          if (await atTerminalState()) return true;
 
-            const state = await readCheckoutReadinessViaHeadless(this.page);
-            lastState = state ?? lastState;
-            // No bridge to read (mid-navigation): keep waiting, never re-click.
-            if (!state) return false;
-            // The basket HAS the event — a placement is under way. Wait it out.
-            if (state.hasAcceptedCheckout) return false;
+          const state = await readCheckoutReadinessViaHeadless(this.page);
+          lastState = state ?? lastState;
+          // No bridge to read (mid-navigation): keep waiting, never re-click.
+          if (!state) return false;
+          // The basket HAS the event — a placement is under way. Wait it out.
+          if (state.hasAcceptedCheckout) return false;
 
-            // Idle basket. Either it refused the event (attempts moved) or the
-            // click never reached the handler (attempts unmoved). Both mean no
-            // placement is running, so sending it again is safe and correct.
-            attempts = Math.max(attempts, state.attempts);
-            if (sends >= maxSends || !state.isReady) return false;
+          // Idle basket. Either it refused the event (attempts moved) or the
+          // click never reached the handler (attempts unmoved). Both mean no
+          // placement is running, so sending it again is safe and correct.
+          attempts = Math.max(attempts, state.attempts);
+          if (sends >= maxSends || !state.isReady) return false;
 
-            sends += 1;
-            await this.completeCheckout
-              .click({ timeout: 5000 })
-              .catch(() => {});
-            return false;
-          },
-          {
-            timeout: PLACE_ORDER_TIMEOUT,
-            message:
-              "Place Order: the app never left the checkout route — no confirmation route, no offsite gateway redirect and no dialog within PLACE_ORDER_TIMEOUT of the click"
-          }
-        )
-        .toBe(true);
-    } catch (error) {
-      throw new Error(
-        `Place Order: the app never left the checkout route — no confirmation route, no offsite gateway redirect and no dialog within PLACE_ORDER_TIMEOUT. Sent ${sends} click(s); basket refusals ${attempts}; state at failure ${JSON.stringify(
-          lastState
-        )}; url ${this.page.url()}`,
-        { cause: error }
-      );
-    }
+          sends += 1;
+          await this.completeCheckout.click({ timeout: 5000 }).catch(() => {});
+          return false;
+        },
+        {
+          timeout: PLACE_ORDER_TIMEOUT,
+          message:
+            "Place Order: the app never left the checkout route — no confirmation route, no offsite gateway redirect and no dialog within PLACE_ORDER_TIMEOUT of the click"
+        }
+      )
+      .toBe(true)
+      .catch((error: unknown) => {
+        throw new Error(
+          `Place Order: the app never left the checkout route — no confirmation route, no offsite gateway redirect and no dialog within PLACE_ORDER_TIMEOUT. Sent ${sends} click(s); basket refusals ${attempts}; state at failure ${JSON.stringify(
+            lastState
+          )}; url ${this.page.url()}`,
+          { cause: error }
+        );
+      });
   }
 
   async clickConfirmAmount() {

@@ -16,6 +16,7 @@
 
 import type { JsonSchema7, VerticalLayout } from "@jsonforms/core";
 import type { FormModel } from "@upmind/ui";
+// -----------------------------------------------------------------------------
 
 /** Legacy's own bound on the label beside an address. */
 const DESCRIPTION_MAX = 60;

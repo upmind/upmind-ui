@@ -27,14 +27,19 @@ const TYPES_MODULE = /\.types(\.[a-z]+)?$/;
 /** The `modules/<name>/` directory of a file, or null if the file is not under a module. */
 function moduleDirOf(absPath) {
   const norm = absPath.replace(/\\/g, "/");
-  const m = norm.match(/^(.*\/modules\/[^/]+)\//);
+  // A headless / client-vue module folder, a modules-foundation feature
+  // folder, or a whole modules-* package (one package is one module).
+  const m =
+    norm.match(/^(.*\/modules\/[^/]+)\//) ??
+    norm.match(/^(.*\/packages\/modules-foundation\/src\/[^/]+)\//) ??
+    norm.match(/^(.*\/packages\/modules-[^/]+\/src)\//);
   return m ? m[1] : null;
 }
 
 /**
  * True when `source` is a re-export from ANOTHER INTERNAL module. A bare
  * package / alias (e.g. `ajv`) is NOT flagged: headless deliberately re-exports
- * a third-party type so client-vue and the apps consume it without importing
+ * a third-party type so the packages and the apps consume it without importing
  * the dependency themselves. Only a relative source that escapes the file's own
  * `modules/<name>/` directory into a different module counts.
  */
@@ -42,7 +47,9 @@ function isCrossModule(filename, source) {
   if (!source.startsWith(".")) return false; // a package re-export — provided on purpose
   const fileModule = moduleDirOf(filename);
   if (!fileModule) return false; // file not under a module — don't guess
-  const resolved = path.resolve(path.dirname(filename), source).replace(/\\/g, "/");
+  const resolved = path
+    .resolve(path.dirname(filename), source)
+    .replace(/\\/g, "/");
   return !(resolved === fileModule || resolved.startsWith(fileModule + "/"));
 }
 
@@ -73,13 +80,21 @@ export default {
 
         // `export type { X } from "…"` — the whole statement is type-only.
         if (node.exportKind === "type") {
-          context.report({ node, messageId: "noTypeReexport", data: { source } });
+          context.report({
+            node,
+            messageId: "noTypeReexport",
+            data: { source }
+          });
           return;
         }
         // `export { type X } from "…"` — an inline type specifier.
         for (const spec of node.specifiers) {
           if (spec.exportKind === "type") {
-            context.report({ node: spec, messageId: "noTypeReexport", data: { source } });
+            context.report({
+              node: spec,
+              messageId: "noTypeReexport",
+              data: { source }
+            });
           }
         }
       },
@@ -89,7 +104,11 @@ export default {
         if (!node.source) return;
         const source = node.source.value;
         if (TYPES_MODULE.test(source) && isCrossModule(filename, source)) {
-          context.report({ node, messageId: "noTypeReexport", data: { source } });
+          context.report({
+            node,
+            messageId: "noTypeReexport",
+            data: { source }
+          });
         }
       }
     };

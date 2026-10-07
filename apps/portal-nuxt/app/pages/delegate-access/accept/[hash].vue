@@ -1,3 +1,11 @@
+<template>
+  <PortalPageHost
+    :page-keys="[PAGE_KEY.DELEGATE_ACCESS_ACCEPT]"
+    :route-context="routeContext"
+    aside-label="Account summary"
+  />
+</template>
+
 <script setup lang="ts">
 // The delegate invitation link's own landing (legacy `acceptInviteModal`).
 // The HASH is a path segment, so it reaches the selectors as the route's
@@ -15,11 +23,3 @@ const routeContext = computed<DataRouteContext>(() => {
   return { token: hash };
 });
 </script>
-
-<template>
-  <PortalPageHost
-    :page-keys="[PAGE_KEY.DELEGATE_ACCESS_ACCEPT]"
-    :route-context="routeContext"
-    aside-label="Account summary"
-  />
-</template>

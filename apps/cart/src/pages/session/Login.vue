@@ -1,11 +1,22 @@
 <template>
-  <UpmSessionLogin
+  <UpmAuthLogin
     :login-route="{ name: ROUTE.SESSION_LOGIN }"
     :recover-route="{ name: ROUTE.SESSION_RECOVER_PASSWORD }"
     :register-route="{ name: ROUTE.SESSION_REGISTER }"
-  />
+  >
+    <template #default="{ template }">
+      <component :is="sessionTemplate(template)" />
+    </template>
+    <template #loading><UpmLoading /></template>
+    <template #summary="summary">
+      <SessionSummary v-bind="summary" />
+    </template>
+  </UpmAuthLogin>
 </template>
 <script lang="ts" setup>
-import { UpmSessionLogin } from "@upmind-automation/client-vue";
+import { UpmAuthLogin } from "@upmind-automation/auth";
 import { ROUTE } from "../../router";
+import SessionSummary from "../../shell/modules/session/components/SessionSummary.vue";
+import { sessionTemplate } from "../../shell/modules/session/shell";
+import UpmLoading from "../../shell/modules/system/Loading.vue";
 </script>

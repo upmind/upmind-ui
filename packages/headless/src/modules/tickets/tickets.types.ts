@@ -31,6 +31,7 @@
 import { ScopeActorTypes } from "../scope/scope.types";
 import type { useDate } from "../../utils";
 import type { ResponseError } from "../../utils";
+import type { ContractProductEmbedded } from "../contract-product";
 import type { LookupItem } from "../lookup";
 import type { ListQuery, SimpleQuery } from "../query";
 import type { SortDirection } from "../query/query.types";
@@ -273,11 +274,16 @@ export type Ticket = ITicket & {
   meta: TicketMeta;
 
   /**
-   * The linked product, embedded by the single read's `with=contract_product`
-   * (`ONE_WITH`). `ITicket` carries only `contract_product_id`; the relation
-   * arrives beside it on this read and nowhere else.
+   * The linked product, embedded by the single read (`ONE_WITH`) and mapped
+   * through the contract-product module's `mapContractProductEmbedded`: the
+   * `ContractProduct` view model without `allowedMigrations`,
+   * `clientInvoiceConsolidationEnabled`, `contractBillingCycleLabel`,
+   * `contractCurrencyId`, `contractStatus` and `contractTaxType`, because this
+   * read carries neither `contract_product.allowed_migrations` nor
+   * `contract_product.contract`. `ITicket` carries only `contract_product_id`;
+   * the relation arrives beside it on this read and nowhere else.
    */
-  contract_product?: IContractProduct;
+  contract_product?: ContractProductEmbedded;
 };
 
 /**
@@ -527,10 +533,6 @@ export type TicketsServices = {
   uploadFile: (file: File) => Promise<TicketAttachmentRef>;
 
   loadBrandDepartments: () => Promise<IBrandTicketDepartment[]>;
-  loadDepartments: () => Promise<ITicketDepartment[]>;
-  loadTicketStatuses: () => Promise<
-    { code: TicketStatusCodes; name: string }[]
-  >;
 
   saveSupportPrefs: (
     prefs: Partial<TicketSupportPrefs>

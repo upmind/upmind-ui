@@ -1,0 +1,81 @@
+<template>
+  <Popover
+    v-if="canShowForms"
+    align="end"
+    class="bg-surface md:border-stroke relative z-30 mt-4 h-screen w-auto border-0 border-t p-0 text-base md:mt-8 md:h-auto md:border"
+    @update:open="doReset"
+  >
+    <template #trigger>
+      <slot></slot>
+    </template>
+    <div class="flex h-full flex-col md:flex-row">
+      <div class="w-screen p-8 md:w-104">
+        <Auth
+          v-if="!isAuthenticated"
+          :class="contentVariants()"
+          :block-tabs="blockTabs"
+          :stretch-tabs="stretchTabs"
+          :no-tabs="noTabs"
+          :variant="variant"
+          :model-value="modelValue"
+          @update:model-value="doUpdate"
+        >
+        </Auth>
+      </div>
+    </div>
+  </Popover>
+</template>
+
+<script lang="ts" setup>
+import { Popover } from "@upmind/ui";
+import { computed } from "vue";
+import {
+  AuthFlowTypes,
+  ScopeActorTypes,
+  useActiveSession,
+  useAuth,
+  useRoutingEngine
+} from "@upmind-automation/headless";
+import { contentVariants } from "../variants";
+import Auth from "./Auth.vue";
+import type { AuthProps, AuthRoutes } from "../types";
+// -----------------------------------------------------------------------------
+
+const props = withDefaults(defineProps<AuthProps & AuthRoutes>(), {
+  modelValue: "login",
+  noHeader: true,
+  noFooter: false,
+  noTabs: true,
+  blockTabs: false,
+  stretchTabs: false,
+  color: "primary"
+});
+// -----------------------------------------------------------------------------
+
+const { isAuthenticated, isGuestClient } = useActiveSession().useMeta();
+const auth = useAuth().as(ScopeActorTypes.CLIENT);
+const { start } = auth.useActions();
+const { canShowForms: authCanShowForms } = auth.useMeta();
+const canShowForms = computed(
+  () => authCanShowForms.value || isGuestClient.value
+);
+const { navigate } = useRoutingEngine();
+
+// ensure we always open with the login form
+function doReset(value: boolean) {
+  if (value) start(AuthFlowTypes.LOGIN);
+}
+
+function doUpdate(value: AuthProps["modelValue"]) {
+  if (value === "login") {
+    const target = props.loginRoute.name?.toString();
+    if (target) navigate(target);
+  } else if (value === "register") {
+    const target = props.registerRoute.name?.toString();
+    if (target) navigate(target);
+  } else if (value === "recover") {
+    const target = props.recoverRoute.name?.toString();
+    if (target) navigate(target);
+  }
+}
+</script>

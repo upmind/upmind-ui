@@ -1,0 +1,18 @@
+
+Proven RED by (FE-3145, per-step replay; git apply -> vitest -> red -> git apply -R):
+  contract.status-name.test.ts
+  contract.feature > "Open one of my contracts with everything the account area needs"
+diff --git a/packages/headless/src/modules/contract/contract.mappers.ts b/packages/headless/src/modules/contract/contract.mappers.ts
+index 68d0328713..0eb96100da 100644
+--- a/packages/headless/src/modules/contract/contract.mappers.ts
++++ b/packages/headless/src/modules/contract/contract.mappers.ts
+@@ -110,8 +110,7 @@ export function mapContract(raw: IContract): Contract {
+   return {
+     id: raw.id,
+     status: {
+-      code: raw.status.code as ContractStatusCodes,
+-      name: useTranslateName(raw.status)
++      code: raw.status.code as ContractStatusCodes
+     },
+     meta: {
+       ...mapContractMeta(raw.status.code as ContractStatusCodes),

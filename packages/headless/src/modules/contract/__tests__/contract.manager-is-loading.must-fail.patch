@@ -1,0 +1,19 @@
+Negative control for useContract.meta.ts `isLoading` (D43 B13).
+
+Proven RED by (FE-3145, per-step replay; git apply -> vitest -> red -> git apply -R):
+  contract.feature > "When reading a contract fails I am shown why, instead of the contract I had open"
+
+Mutation: widens `isLoading` to also match `error`, so a failed read still
+reports loading.
+diff --git a/packages/headless/src/modules/contract/useContract.meta.ts b/packages/headless/src/modules/contract/useContract.meta.ts
+--- a/packages/headless/src/modules/contract/useContract.meta.ts
++++ b/packages/headless/src/modules/contract/useContract.meta.ts
+@@ -31,7 +31,7 @@
+     isAvailable: useStateMatches(state, "available"),
+ 
+     /** True while the machine is waiting for the session or reading the contract. */
+-    isLoading: useStateMatches(state, ["subscribing", "loading"]),
++    isLoading: useStateMatches(state, ["subscribing", "loading", "error"]),
+ 
+     /** True while the payment-method write is being processed, from either parent. */
+     isProcessing: useStateMatches(state, [

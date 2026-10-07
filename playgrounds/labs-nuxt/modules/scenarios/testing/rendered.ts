@@ -3,7 +3,7 @@
  * @description What a mount actually puts in front of a user, as atomic
  * strings — the instrument the i18n sweep measures with.
  *
- * A twin of `packages/client-vue/src/components/form/renderers/__tests__/filter.harness.ts`,
+ * A twin of `packages/modules-foundation/src/forms/__tests__/filter.harness.ts`,
  * duplicated rather than shared because there is no cross-package test module
  * to host it: `@vue/test-utils` is not a root dependency, so a primitive typed
  * against it cannot live outside a package that installs it.
@@ -167,7 +167,7 @@ const interpolates = (value: string, dataDerived: string[]) =>
 const VENDOR_DEFAULTS = new Set(["Previous Page", "Next Page"]);
 
 /**
- * Icon fallback tokens from `@upmind-automation/client-vue` Icon component:
+ * Icon fallback tokens from foundation's `Icon` component:
  * when an icon name isn't registered, the component renders `{name} icon` as
  * aria-hidden decorative fallback text. These are never user-facing in
  * production (icons ARE registered there), so they are exempted from the

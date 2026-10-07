@@ -11,7 +11,7 @@ id of a `@todo`-tagged scenario.
 Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
 
 Proven RED 2026-08-12, blind
-(`pnpm --filter @upmind-automation/scenario-harness exec vitest run src/steps/__tests__/traceability.test.ts`):
+(`pnpm --filter @upmind-automation/scenario-harness exec vitest run src/steps/__tests__/traceability.unit.test.ts`):
   x omits the AC id of a @todo-tagged scenario, so a parked capability demands no proof
       -> expected [ 'AC-1', 'AC-2', 'AC-3' ] to strictly equal [ 'AC-1', 'AC-3' ]
   x returns an ARRAY, so lodash difference sees its elements instead of nothing
@@ -28,7 +28,7 @@ Behaviour shift measured by the author (NOT the red proof) — over a feature wi
 diff --git a/packages/scenario-harness/src/steps/traceability.ts b/packages/scenario-harness/src/steps/traceability.ts
 --- a/packages/scenario-harness/src/steps/traceability.ts
 +++ b/packages/scenario-harness/src/steps/traceability.ts
-@@ -363,7 +363,7 @@ export function createTraceabilityCheck(
+@@ -400,7 +400,7 @@ export function createTraceabilityCheck(
  }
  
  const AC_TAG = /^@(AC-\d+)$/;
@@ -36,4 +36,4 @@ diff --git a/packages/scenario-harness/src/steps/traceability.ts b/packages/scen
 +const TODO_TAG = "@to-do";
  
  /**
-  * The `AC-<n>` ids tagged on `featureText`'s scenarios, `@todo` ones excluded,
+  * The `AC-<n>` ids tagged on `featureText`'s scenarios, skipping every

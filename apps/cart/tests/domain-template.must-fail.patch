@@ -1,0 +1,28 @@
+Negative control for domain-template.test.ts.
+
+Declares the pick with the drawer template, which its record does not carry, as
+its fallback, so a brand with no template, an empty one, or a name the page
+does not lay out gets no layout instead of the full one. The full template
+still draws its own layout.
+
+Intended RED (domain-template.test.ts, "domainTemplate"):
+  draws the full layout for no template
+  draws the full layout for an empty template
+  draws the full layout for the drawer template the organism draws itself
+  draws the full layout for the widget template the organism draws itself
+  draws the full layout for a template only other pages carry
+  draws the full layout for a name no layout carries
+  draws the full layout for a name every object inherits
+Intended GREEN:
+  draws the layout the <each> template carries
+
+diff --git a/apps/cart/src/shell/modules/domain/shell.ts b/apps/cart/src/shell/modules/domain/shell.ts
+--- a/apps/cart/src/shell/modules/domain/shell.ts
++++ b/apps/cart/src/shell/modules/domain/shell.ts
+@@ -15,5 +15,5 @@
+ 
+ export const domainTemplate = resolveTemplate(
+   DOMAIN_TEMPLATES,
+-  DOMAIN_TEMPLATE.FULL
++  DOMAIN_TEMPLATE.DRAWER
+ );

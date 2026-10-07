@@ -1,0 +1,19 @@
+# Negative control — the sign-in page lets a template the host writes on it win
+# over the brand's, so the host overrides the brand's chosen arrangement.
+#
+# Intended RED:
+#   packages/modules-auth/src/__tests__/shell-contract.test.ts
+#     "the login page > hands on the brand's template when the host writes another on the page"
+
+diff --git a/packages/modules-auth/src/components/Login.vue b/packages/modules-auth/src/components/Login.vue
+--- a/packages/modules-auth/src/components/Login.vue
++++ b/packages/modules-auth/src/components/Login.vue
+@@ -1,7 +1,7 @@
+ <template>
+   <slot v-if="isResolving" name="loading"><AuthLoading /></slot>
+   <LayoutProvider v-else>
+-    <slot :template="ui.template.value" />
++    <slot :template="$attrs.template ?? ui.template.value" />
+ 
+     <template #back="{ compact = false }">
+       <slot name="back">

@@ -17,7 +17,9 @@ import {
 import type {
   IBillingCycle,
   ICountry,
-  IRegion
+  IRegion,
+  IStatus,
+  ITicketDepartment
 } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
@@ -34,8 +36,8 @@ let needsRefresh = some(keys(localStorage), key => includes(key, `"system"`));
 
 let countriesQuery: ReturnType<typeof services.fetchCountries>;
 let billingCyclesQuery: ReturnType<typeof services.fetchBillingCycles>;
-// let statusesQuery: ReturnType<typeof services.fetchStatuses>;
-// let departmentsQuery: ReturnType<typeof services.fetchDepartments>;
+let departmentsQuery: ReturnType<typeof services.fetchDepartments>;
+let ticketStatusesQuery: ReturnType<typeof services.fetchTicketStatuses>;
 // -----------------------------------------------------------------------------
 
 /**
@@ -47,7 +49,12 @@ export const useSystem = () => {
 
   // --- state
   const activeQueries = computed(() =>
-    [countriesQuery, billingCyclesQuery].filter(Boolean)
+    [
+      countriesQuery,
+      billingCyclesQuery,
+      departmentsQuery,
+      ticketStatusesQuery
+    ].filter(Boolean)
   );
 
   // --- meta information
@@ -87,10 +94,14 @@ export const useSystem = () => {
   // --- computed
   const countries = computed(() => countriesQuery?.data.value || []);
   const billingCycles = computed(() => billingCyclesQuery?.data.value || []);
+  const departments = computed(() => departmentsQuery?.data.value || []);
+  const ticketStatuses = computed(() => ticketStatusesQuery?.data.value || []);
 
   const errors = computed(() => ({
     countries: countriesQuery?.error.value,
-    billingCycles: billingCyclesQuery?.error.value
+    billingCycles: billingCyclesQuery?.error.value,
+    departments: departmentsQuery?.error.value,
+    ticketStatuses: ticketStatusesQuery?.error.value
   }));
 
   // --- helper methods
@@ -189,6 +200,22 @@ export const useSystem = () => {
     return billingCycles.value;
   }
 
+  async function ensureDepartments(): Promise<ITicketDepartment[]> {
+    await ensureBrandReady();
+    departmentsQuery ??= services.fetchDepartments();
+    if (!departmentsQuery?.isFetched?.value)
+      await departmentsQuery?.promise.value;
+    return departments.value;
+  }
+
+  async function ensureTicketStatuses(): Promise<IStatus[]> {
+    await ensureBrandReady();
+    ticketStatusesQuery ??= services.fetchTicketStatuses();
+    if (!ticketStatusesQuery?.isFetched?.value)
+      await ticketStatusesQuery?.promise.value;
+    return ticketStatuses.value;
+  }
+
   async function fetchCountries(): Promise<ICountry[]> {
     return ensureCountries();
   }
@@ -255,6 +282,16 @@ export const useSystem = () => {
      */
     billingCycles,
 
+    /**
+     * Computed property to the system's ticket departments.
+     */
+    departments,
+
+    /**
+     * Computed property to the system's ticket statuses.
+     */
+    ticketStatuses,
+
     // --- get methods
     /**
      * Returns a specific region object by name or array of names for a given country.
@@ -295,6 +332,18 @@ export const useSystem = () => {
      * @returns A promise resolving to the list of countries.
      */
     ensureCountries,
+
+    /**
+     * Ensures ticket departments are loaded, fetching if not already cached.
+     * @returns A promise resolving to the list of ticket departments.
+     */
+    ensureDepartments,
+
+    /**
+     * Ensures ticket statuses are loaded, fetching if not already cached.
+     * @returns A promise resolving to the list of ticket statuses.
+     */
+    ensureTicketStatuses,
 
     /**
      * Fetches the list of countries from the API or returns cached countries if available.

@@ -83,41 +83,40 @@ export async function addAddressViaHeadless(
           "addAddressViaHeadless: address manager did not become ready"
         );
       }
-      try {
-        // update() takes the fully-hydrated model and handles the SET itself.
-        const saved = await update(model);
-        return saved?.id ?? null;
-      } catch (error) {
-        // A genuine manager rejection wraps the reactive XState `state.value`
-        // graph, which Playwright cannot structured-clone ("object reference
-        // chain is too long") — that clone error would mask the real cause. So
-        // re-throw the machine's OWN settled state as a PLAIN, serializable
-        // trace. This never swallows the failure (it re-throws); it makes a
-        // real seed failure legible as the exact machine state + validation
-        // errors.
-        const meta = manager.useMeta();
-        const context = manager.useContext();
-        const trace = {
-          message: String((error as { message?: string })?.message ?? error),
-          meta: {
-            isAvailable: meta.isAvailable.value,
-            isValid: meta.isValid.value,
-            hasErrors: meta.hasErrors.value,
-            isProcessing: meta.isProcessing.value,
-            isComplete: meta.isComplete.value,
-            isNew: meta.isNew.value
-          },
-          error: context.errors?.value ?? null,
-          validationErrors: JSON.parse(
-            JSON.stringify(context.validationErrors?.value ?? [])
-          )
-        };
-        throw new Error(
-          `addAddressViaHeadless: manager drive did not reach processed — ${JSON.stringify(
-            trace
-          )}`
-        );
-      }
+      // update() takes the fully-hydrated model and handles the SET itself.
+      return update(model)
+        .then(saved => saved?.id ?? null)
+        .catch(error => {
+          // A genuine manager rejection wraps the reactive XState `state.value`
+          // graph, which Playwright cannot structured-clone ("object reference
+          // chain is too long") — that clone error would mask the real cause. So
+          // re-throw the machine's OWN settled state as a PLAIN, serializable
+          // trace. This never swallows the failure (it re-throws); it makes a
+          // real seed failure legible as the exact machine state + validation
+          // errors.
+          const meta = manager.useMeta();
+          const context = manager.useContext();
+          const trace = {
+            message: String((error as { message?: string })?.message ?? error),
+            meta: {
+              isAvailable: meta.isAvailable.value,
+              isValid: meta.isValid.value,
+              hasErrors: meta.hasErrors.value,
+              isProcessing: meta.isProcessing.value,
+              isComplete: meta.isComplete.value,
+              isNew: meta.isNew.value
+            },
+            error: context.errors?.value ?? null,
+            validationErrors: JSON.parse(
+              JSON.stringify(context.validationErrors?.value ?? [])
+            )
+          };
+          throw new Error(
+            `addAddressViaHeadless: manager drive did not reach processed — ${JSON.stringify(
+              trace
+            )}`
+          );
+        });
     },
     { clientId, model }
   );

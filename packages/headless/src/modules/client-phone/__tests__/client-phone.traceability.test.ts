@@ -27,13 +27,11 @@
 import { readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import {
-  createTraceabilityCheck,
-  featureAcTags
-} from "@upmind-automation/scenario-harness";
+import { createTraceabilityCheck } from "@upmind-automation/scenario-harness";
 import { stepCatalogs } from "../../../testing";
 import clientPhonesSteps, { coveredActionIds } from "./client-phone.steps";
 import {
+  compact,
   difference,
   filter,
   flatMap,
@@ -42,6 +40,7 @@ import {
   reject,
   uniq
 } from "lodash-es";
+import type { FeatureScenario } from "@upmind-automation/scenario-harness";
 
 // -----------------------------------------------------------------------------
 
@@ -123,17 +122,33 @@ function acsNamedBySiblingSpecs(directory: string): string[] {
 
 // -----------------------------------------------------------------------------
 
+/** The AC ids a set of scenarios carry as `@AC-<n>` tags. */
+const AC_TAG = /^@(AC-\d+)$/;
+function acsOf(list: readonly FeatureScenario[]): string[] {
+  return uniq(
+    flatMap(list, scenario =>
+      compact(map(scenario.tags, tag => tag.match(AC_TAG)?.[1]))
+    )
+  );
+}
+
 describe("client-phone — the module's ONE traceability gate", () => {
-  it("links every tagged scenario to a proving spec, and back", () => {
-    const tagged = featureAcTags(featureText);
-    const named = acsNamedBySiblingSpecs(TEST_DIR);
+  it("proves every claimed capability by a driven scenario or a naming spec", () => {
+    // A capability is PROVEN by a driven scenario that carries its tag, OR by a
+    // sibling spec that names it in a title. A capability that is neither driven
+    // nor spec-named is `@todo` — written down, not yet driven — and excluded
+    // from the claim (ADR 035; operator ruling FE-3145). Auth/token transport is
+    // the query/session-store/auth modules' to prove, never this one's.
+    const specNamed = acsNamedBySiblingSpecs(TEST_DIR);
+    const proven = uniq([...specNamed, ...acsOf(driveable)]);
+    const claimed = acsOf(reject(scenarios, s => includes(s.tags, "@todo")));
 
     expect(
-      difference(tagged, named),
-      "Unproven scenarios (no sibling spec names this AC)"
+      difference(claimed, proven),
+      "Claimed capabilities with no driven scenario and no naming spec"
     ).toEqual([]);
     expect(
-      difference(named, tagged),
+      difference(specNamed, acsOf(scenarios)),
       "Spec(s) name an AC the feature does not tag — the feature gains the " +
         "scenario, coverage never falls"
     ).toEqual([]);

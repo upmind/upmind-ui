@@ -79,7 +79,8 @@ export default {
           // Program:exit so a hoisted export before its declaration is caught.
           if (node.source) return; // re-export — the binding lives elsewhere.
           for (const spec of node.specifiers) {
-            if (spec.local?.type === "Identifier") pendingLocalExports.push(spec);
+            if (spec.local?.type === "Identifier")
+              pendingLocalExports.push(spec);
           }
           return;
         }
@@ -100,7 +101,9 @@ export default {
         const id = node.id;
         if (id?.type !== "Identifier" || !isMapperName(id.name)) return;
         const fn =
-          node.type === "FunctionDeclaration" ? node : asFunctionNode(node.init);
+          node.type === "FunctionDeclaration"
+            ? node
+            : asFunctionNode(node.init);
         if (fn) localMapperFns.set(id.name, fn);
       },
 

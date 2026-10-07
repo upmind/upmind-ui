@@ -1,0 +1,21 @@
+# Negative-control mutant 28 — reopen-result (FE-3206)
+#
+# Mutation: keep `migrationResult` when `MIGRATION` opens.
+# Spec it must turn red: "A new change of plan starts ...".
+#
+# Authored by the developer seat against the landed production source. The
+# prover applies it blind (tasks.md T41): apply, run the named spec, revert.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+diff --git a/packages/headless/src/modules/contract-product/contract-product.machine.ts b/packages/headless/src/modules/contract-product/contract-product.machine.ts
+--- a/packages/headless/src/modules/contract-product/contract-product.machine.ts
++++ b/packages/headless/src/modules/contract-product/contract-product.machine.ts
+@@ -397,7 +397,6 @@
+                 on: {
+                   MIGRATION: {
+                     target: "choosing",
+-                    actions: "clearMigrationResult",
+                     cond: "canMigrate"
+                   }
+                 }

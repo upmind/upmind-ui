@@ -1,0 +1,26 @@
+# Negative-control mutant — contract scope identity (AC-16, FE-2824 shape)
+#
+# NOT PROVEN (FE-3145): the mutant applies and every contract test stays
+#   green under it — no driven scenario pins this behaviour yet.
+#
+# Mutation: `setPaymentMethod` drops the resolved contract id out of the path
+#   and re-introduces it as a `clientId` query option — the id travels as a
+#   caller-shaped option instead of the scope-resolved target (the FE-2824
+#   defect shape, re-authored onto the payment-method write that stayed on the
+#   contract after R34).
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+diff --git a/packages/headless/src/modules/contract/contract.services.ts b/packages/headless/src/modules/contract/contract.services.ts
+index c3bac80a3..d470ef7ad 100644
+--- a/packages/headless/src/modules/contract/contract.services.ts
++++ b/packages/headless/src/modules/contract/contract.services.ts
+@@ -208,7 +208,7 @@ async function setPaymentMethod({
+ 
+   return patch<IContract>({
+     mutationKey: [...queryKey, contractId, "payment-method"],
+-    url: useUrl(`contracts/${contractId}/payment_details`),
++    url: useUrl("contracts/payment_details", { clientId: contractId }),
+     data: toPaymentMethodBody(paymentMethod?.model as SetPaymentMethodModel),
+     withAccessToken: true
+   }).then(invalidateQueryByKey(queryKey, { exact: false }));

@@ -36,6 +36,7 @@ Replace the XState session machine with a **reactive store** for session managem
 
 ```ts
 import { Store } from '@tanstack/vue-store'
+import { ScopeActorTypes } from '@upmind-automation/headless'
 import type { ScopeActor, SessionUser } from '@upmind-automation/headless'
 
 interface SessionData {
@@ -53,7 +54,7 @@ interface SessionState {
 }
 
 export const sessionStore = new Store<SessionState>({
-  activeActor: 'guest',
+  activeActor: ScopeActorTypes.GUEST,
   sessions: { client: null, guest: null, self: null, user: null }
 })
 ```

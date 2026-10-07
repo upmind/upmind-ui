@@ -12,6 +12,7 @@
 
 import { defineCustomArea, defineProductGroup } from "../routes";
 import type { CustomArea, PortalConfig, ProductGroup } from "../types";
+// -----------------------------------------------------------------------------
 
 export const productGroupCannotClaimTheBillingPillar = defineProductGroup({
   // @ts-expect-error — "billing" is a reserved pillar segment; a product group cannot claim it as its slug.

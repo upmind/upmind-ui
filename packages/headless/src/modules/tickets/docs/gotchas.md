@@ -10,6 +10,7 @@ The sharp edges. Every entry below is a thing a reader hits in practice, and eve
 
 The criteria schema declares the active/closed split as **`isClosed`**, a single tri-state boolean leaf:
 
+<!-- corpus-example: skip — a fragment of the schema object, not a standalone module -->
 ```ts
 // tickets.schemas.ts — useQuerySchema()
 filters: {
@@ -28,6 +29,10 @@ filters: {
 …and you write it the same way:
 
 ```ts
+import { ScopeActorTypes, useTickets } from "@upmind-automation/headless";
+
+const tickets = useTickets().as(ScopeActorTypes.SELF);
+
 tickets.useActions().setCriteria({ filters: { isClosed: { eq: false } } });
 ```
 
@@ -113,6 +118,12 @@ The merged feed starts **empty**. Opening a ticket does not populate it; `useCon
 The internal `loadFeed()` is not on the actions surface. The public entry points are `loadOlder()`, `loadNewer()` and `loadAttachments()`, and the first load is:
 
 ```ts
+import { ScopeActorTypes, useTicket } from "@upmind-automation/headless";
+
+declare const ticketId: string;
+
+const ticket = useTicket().as(ScopeActorTypes.CLIENT).withId(ticketId);
+
 await ticket.useActions().isReady();
 await ticket.useActions().loadOlder(); // <- this is the initial load
 ```
@@ -126,6 +137,11 @@ It works because `loadOlder()` reads the oldest **held** message id as its curso
 ## 5. The two composables are addressed differently — and neither takes a cast
 
 ```ts
+import { ScopeActorTypes, TicketsContextTypes, useTicket, useTickets } from "@upmind-automation/headless";
+
+declare const contractProductId: string;
+declare const id: string;
+
 // COLLECTION — SELF, the whole list, no context
 useTickets().as(ScopeActorTypes.SELF);
 
@@ -134,14 +150,14 @@ useTickets()
   .as(ScopeActorTypes.CLIENT)
   .for(TicketsContextTypes.CONTRACT_PRODUCT, contractProductId);
 
-// MANAGER — CLIENT actor, TICKET context
+// MANAGER — CLIENT actor, one ticket by record id, no context
 useTicket().as(ScopeActorTypes.CLIENT).withId(id);
 ```
 
 The points that trip people:
 
-- **`.as(SELF)` on the manager will not work.** `SELF` has **no contexts at all**, by design — the platform's actor→context model declares `guest`, `client` and `staff` as actors, and there is no `self` row among them. `TICKET_SCOPE_MATRIX` serves `CLIENT` alone and leaves every other actor `null as never`; the ticket itself is a `.withId(id)` record, not a context.
-- **`.as(CLIENT)` is NOT `.for('client', id)`.** Actor and context are independent axes. `.as(CLIENT)` is the client actor on their own session — this **is** the client-acting-for-themselves case. `.for('client', id)` remains forbidden and is unspellable here: the contexts this module declares are `ticket` and `product`, and neither is `client`.
+- **`.as(SELF)` on the manager will not work.** `SELF` has **no contexts at all**, by design — the platform's actor→context model declares `guest`, `client` and `staff` as actors, and there is no `self` row among them. `TICKET_SCOPE_MATRIX` declares no context for any actor (every entry is `null as never`); the ticket itself is a `.withId(id)` record, not a context.
+- **`.as(CLIENT)` is NOT `.for('client', id)`.** Actor and context are independent axes. `.as(CLIENT)` is the client actor on their own session — this **is** the client-acting-for-themselves case. `.for('client', id)` remains forbidden and is unspellable here: the one context this module declares is `product`, on the collection only.
 - **The collection's matrix declares ONE member, on `client` only.** `TicketsContextTypes.CONTRACT_PRODUCT` — the tickets raised about one of my contract products. `self`, `staff` and `guest` stay `null as never`. The product is a **relationship**, not an attribute of a ticket, so it lives in the scope context and there is no `contract_product_id` filter column to set. A `setCriteria` write therefore cannot widen a product-scoped list back to everything.
 - **Always enum members, never string literals.** `ScopeActorTypes.SELF`, `ScopeActorTypes.CLIENT`, `TicketsContextTypes.CONTRACT_PRODUCT`.
 - **No cast on the scope builder.** A whole-surface type-erasing cast (`useTicket() as unknown as { as: … for: … }`) would erase the entire composable surface — a wrong actor or a wrong context would then compile silently, exactly the failure a strict scope-builder type is meant to prevent. Narrowing the cast is **not** acceptable; there must be no cast.
@@ -201,6 +217,7 @@ The label falls back through four candidates in order: `name_translated` → `na
 
 The create schema's requirement is conditional, matching the server exactly:
 
+<!-- corpus-example: skip — a fragment of the create schema object, not a standalone module -->
 ```ts
 required: ["subject"],
 anyOf: [{ required: ["body"] }, { required: ["files"] }]
@@ -242,6 +259,12 @@ Read the client id from **`actor_id`**. And the general lesson, which is the rea
 ## 12. Unlinking a product sends an explicit `null`, never an omitted key
 
 ```ts
+import { ScopeActorTypes, useTicket } from "@upmind-automation/headless";
+
+declare const ticketId: string;
+
+const ticket = useTicket().as(ScopeActorTypes.CLIENT).withId(ticketId);
+
 await ticket.useActions().removeRelatedProduct();
 // PUT api/tickets/{id}   body: { contract_product_id: null }
 ```
@@ -323,13 +346,13 @@ Both halves share the base key `["client", "tickets"]`, partitioned by resolved 
 
 ---
 
-## 19. Attachment download bypasses the shared request layer — deliberately
+## 19. Attachment download is a binary call, not a cached query
 
-`downloadAttachment()` uses a plain `fetch()` with the session's bearer token, not `useQuery()`.
+`downloadAttachment()` calls `useQuery().download()`, the binary sibling of `request()`, with the session's access token enabled.
 
-The shared `doFetch` unconditionally calls `response.json()`, and a binary attachment is not JSON — carrying it through the shared path would mean editing a headless-core file every module depends on. The download stays module-local instead: same bearer-token seam, same base URL, `ArrayBuffer` back, un-mapped.
+A binary attachment is not JSON, so it cannot travel through the JSON request path. `download()` shares that path's base URL, locale and bearer-token handling and resolves a `Blob`; the service converts it to an `ArrayBuffer`, un-mapped.
 
-The practical consequence: it is **not cached, not retried, and not visible to `useMeta()`**. A failed download throws a `DetailedError` carrying the HTTP status; it never lands in `useContext().error`.
+The practical consequence: it is **not cached, not retried, and not visible to `useMeta()`**. A failed download throws a `DetailedError` carrying the HTTP status (a status-less failure carries 503) and the localised message `error.ticket_attachment_download_failed`; it never lands in `useContext().error`.
 
 ---
 

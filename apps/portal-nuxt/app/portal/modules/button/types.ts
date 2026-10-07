@@ -8,6 +8,7 @@
 
 import type { ButtonVariants } from "@upmind/ui";
 import type { Component } from "vue";
+// -----------------------------------------------------------------------------
 
 export const BUTTON_MODULE_VARIANT = {
   /** One `Button`. */
@@ -23,7 +24,7 @@ export const BUTTON_MODULE_VARIANT = {
 export type ButtonModuleVariant =
   (typeof BUTTON_MODULE_VARIANT)[keyof typeof BUTTON_MODULE_VARIANT];
 
-export interface ButtonModuleAction {
+export type ButtonModuleAction = {
   readonly value: string;
   readonly label: string;
   readonly tone?: ButtonVariants["variant"];
@@ -33,9 +34,9 @@ export interface ButtonModuleAction {
    * there is no second flag to keep in step with it.
    */
   readonly disabledReason?: string;
-}
+};
 
-export interface ButtonModuleProps {
+export type ButtonModuleProps = {
   /** The registered module variant (registry.ts) — which of the board's four forms renders. */
   readonly variant: ButtonModuleVariant;
   /** The primary control's label — every form but `group` renders it. Ignored by `group`, whose own `actions` each carry a label. No English default (CC22). */
@@ -62,7 +63,7 @@ export interface ButtonModuleProps {
   /** Empty-state heading when `group`/`dropdown` receive no actions. No English default (CC22). */
   readonly emptyTitle?: string;
   readonly emptyDescription?: string;
-}
+};
 
 export type ButtonModuleEmits = {
   select: [value: string];

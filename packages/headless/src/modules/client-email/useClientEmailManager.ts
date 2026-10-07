@@ -21,7 +21,7 @@ import {
   responseCodes
 } from "../../utils";
 import type { ClientEmailScopeMatrix } from "./client-email.types";
-import type { ScopeActorTypes, ScopeConfig, ScopeKey } from "../scope";
+import type { ScopeConfig, ScopeKey } from "../scope";
 // -----------------------------------------------------------------------------
 /**
  * @module client-email/useClientEmailManager
@@ -37,7 +37,7 @@ function createClientEmailManagerForScope(
 ) {
   const { t } = useI18n();
 
-  const actorScope = config.actor as ScopeActorTypes;
+  const actorScope = config.actor;
 
   /**
    * The email being edited is carried by the scope context; absent

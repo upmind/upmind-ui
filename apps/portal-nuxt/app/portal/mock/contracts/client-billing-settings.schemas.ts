@@ -37,6 +37,7 @@ import type {
   SchemaBasedCondition,
   VerticalLayout
 } from "@jsonforms/core";
+// -----------------------------------------------------------------------------
 
 /** One pick-list choice as the UI renderers read it — not a core schema keyword. */
 type SchemaChoice = { label: string; value: string | number };

@@ -229,12 +229,19 @@ export const useBasketProduct = (
     DEBOUNCE_DELAY
   );
 
+  async function stop(): Promise<void> {
+    await _updateQuantity.flush()?.catch(() => undefined);
+    await _incrementQuantity.flush()?.catch(() => undefined);
+    await _decrementQuantity.flush()?.catch(() => undefined);
+    stopService(service);
+  }
+
   // ---------------------------------------------------------------------------
   return {
     ...useProductConfig(service),
     id: computed(() => bpid),
     isReady,
-    stop: () => stopService(service),
+    stop,
     // ---
     // updateQuantity,
     // incrementQuantity,

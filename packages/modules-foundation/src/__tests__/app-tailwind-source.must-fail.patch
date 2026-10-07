@@ -1,0 +1,20 @@
+# Negative control — the cart drops the catalogue package's styles entry, the
+# shape that shipped once: the catalogue grid classes stop being generated and
+# every grid draws one column. The app still builds and type-checks, so only
+# the source-coverage spec sees it.
+#
+# Intended RED:
+#   packages/modules-foundation/src/__tests__/app-tailwind-sources.test.ts
+#     "'apps/cart' > reaches packages/modules-catalogue's sources"
+
+diff --git a/apps/cart/src/main.css b/apps/cart/src/main.css
+--- a/apps/cart/src/main.css
++++ b/apps/cart/src/main.css
+@@ -6,7 +6,6 @@
+ 
+ @import "@upmind-automation/auth/styles";
+ @import "@upmind-automation/basket/styles";
+-@import "@upmind-automation/catalogue/styles";
+ @import "@upmind-automation/client/styles";
+ @import "@upmind-automation/domain/styles";
+ @import "@upmind-automation/foundation/styles";

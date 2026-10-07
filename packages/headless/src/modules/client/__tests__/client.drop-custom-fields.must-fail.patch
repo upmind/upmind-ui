@@ -1,0 +1,33 @@
+Negative control — `mapClientRecord` drops the custom-field values.
+
+Mutates the `customFieldValues` member to a bare `[]` in place of
+`raw.custom_fields ?? []`. The field is still present, still a `NonNullable`
+array, still honours the `ClientRecord` contract for the absent case — so the
+"defaults customFieldValues to a non-null array" guard stays GREEN. What breaks
+is the verbatim carry: the recorded record's three custom-field values, nested
+`field` relation intact, never reach the mapped record. Every sibling that
+reads this one record then reads a stripped custom-field bag.
+
+Declared subject — "maps the custom-field values verbatim, nested field
+relation intact": the read-back asserts `customFieldValues` equals the
+recorded `custom_fields` (length 3). A bare `[]` fails that equality, which is
+exactly the drop this control exercises. Asserting only non-nullness would not
+discriminate the drop from the real mapping; the verbatim equality does.
+
+Single-subject: the other five cases read identity, profile, the
+invoice-consolidation slice, and the absent-custom-fields default — none of
+which this one-token swap touches. One RED, five GREEN.
+
+diff --git a/packages/headless/src/modules/client/client.mappers.ts b/packages/headless/src/modules/client/client.mappers.ts
+index 4d01052341..7b0430c80e 100644
+--- a/packages/headless/src/modules/client/client.mappers.ts
++++ b/packages/headless/src/modules/client/client.mappers.ts
+@@ -39,7 +39,7 @@ export function mapClientRecord(raw: IClient): ClientRecord {
+     excludeDelegatedProducts: mapExcludeDelegatedProducts(
+       raw.meta?.[UserMetaKeys.UI_PRODUCTS_EXCLUDE_DELEGATES]
+     ),
+-    customFieldValues: raw.custom_fields ?? [],
++    customFieldValues: [],
+     enabled: raw.invoice_consolidation_enabled,
+     baseRule: emptyToNull(raw.invoice_consolidation_base_rule),
+     dayOfWeek: emptyToNull(raw.invoice_consolidation_base_rule_day_of_week),

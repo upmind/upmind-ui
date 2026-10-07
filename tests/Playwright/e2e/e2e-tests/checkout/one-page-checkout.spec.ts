@@ -25,7 +25,7 @@ import type { AddressModel } from "@upmind-automation/headless";
  * @fileoverview One-page checkout (FE-3002) e2e coverage.
  *
  * ## Job To Be Done
- * Prove the reworked one-page checkout against the real headless/client-vue
+ * Prove the reworked one-page checkout against the real headless and domain-package
  * modules: the order summary always prices the SAVED basket (inline edits save
  * immediately, no batch commit), Place Order never dead-clicks (a refusal
  * surfaces the incomplete section), saved billing survives a refresh, guests

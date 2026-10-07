@@ -2,13 +2,17 @@
   <UpmCatalogue
     :category-route="{ name: ROUTE.CATALOGUE }"
     :configure-route="{ name: ROUTE.PRODUCT_CONFIGURE }"
-  />
+    v-slot="{ template }"
+  >
+    <component :is="catalogueTemplate(template)" />
+  </UpmCatalogue>
 </template>
 
 <script lang="ts" setup>
 import { useI18n } from "vue-i18n";
-import { UpmCatalogue } from "@upmind-automation/client-vue";
-import { ROUTE } from "~/funnels/types";
+import { UpmCatalogue } from "@upmind-automation/catalogue";
+import { ROUTE } from "../../funnels/types";
+import { catalogueTemplate } from "../../shell/modules/catalogue/shell";
 
 const { t } = useI18n();
 

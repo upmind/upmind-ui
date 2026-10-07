@@ -136,181 +136,217 @@ describe("product-setup fixtures generator (headless Playwright)", () => {
       args: ["--no-sandbox"]
     });
 
-    await (async () => {
-      const context = await browser.newContext();
-      const recorder = await attachRecorder(context, {
-        recordingsDir,
-        origin: ORIGIN,
-        source: "journey",
-        name: "product-setup-invalid-basket"
-      });
+    let recorder: Awaited<ReturnType<typeof attachRecorder>>;
+    await browser
+      .newContext()
+      .then(context =>
+        (
+          attachRecorder(context, {
+            recordingsDir,
+            origin: ORIGIN,
+            source: "journey",
+            name: "product-setup-invalid-basket"
+          }) as Promise<unknown>
+        ).then(rec => {
+          recorder = rec as typeof recorder;
+          return context.newPage();
+        })
+      )
+      .then(page =>
+        page.goto("about:blank").then(() =>
+          page.evaluate(
+            async args => {
+              const {
+                API,
+                DOMAIN_AU,
+                DOMAIN_ORG,
+                CURRENCY,
+                BRAND_VALUE_KEYS,
+                ORG_VALUE_KEYS,
+                ORDER_WITH,
+                PRODUCT_WITH
+              } = args;
 
-      const page = await context.newPage();
-      await page.goto("about:blank");
+              const json = async (res: Response) => {
+                const text = await res.text();
+                try {
+                  return { status: res.status, body: JSON.parse(text) };
+                } catch {
+                  return { status: res.status, body: null };
+                }
+              };
 
-      const result = await page.evaluate(
-        async args => {
-          const {
-            API,
-            DOMAIN_AU,
-            DOMAIN_ORG,
-            CURRENCY,
-            BRAND_VALUE_KEYS,
-            ORG_VALUE_KEYS,
-            ORDER_WITH,
-            PRODUCT_WITH
-          } = args;
+              let token = "";
+              const authed = () => ({
+                "Content-Type": "application/json",
+                Accept: "application/json",
+                ...(token ? { Authorization: `Bearer ${token}` } : {})
+              });
+              const get = (path: string) =>
+                fetch(`${API}${path}`, { headers: authed() }).then(json);
+              const post = (path: string, body: unknown) =>
+                fetch(`${API}${path}`, {
+                  method: "POST",
+                  headers: authed(),
+                  body: JSON.stringify(body)
+                }).then(json);
+              const patch = (path: string) =>
+                fetch(`${API}${path}`, {
+                  method: "PATCH",
+                  headers: authed()
+                }).then(json);
 
-          const json = async (res: Response) => {
-            const text = await res.text();
-            try {
-              return { status: res.status, body: JSON.parse(text) };
-            } catch {
-              return { status: res.status, body: null };
-            }
-          };
+              // --- 1) guest session ------------------------------------------------
+              // Minted INLINE, and it must stay that way: this block runs inside
+              // `page.evaluate`, i.e. in the BROWSER. A Node-side import (the auth
+              // module's mintGuestToken) is not in scope there and fails with
+              // "__vite_ssr_import_4__ is not defined". The browser also supplies
+              // its own Origin header, which is why none is set here.
+              const tokenRes = await fetch(
+                `${API}/oauth/access_token?lang=en`,
+                {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                    Accept: "application/json"
+                  },
+                  body: new URLSearchParams({ grant_type: "guest" }).toString()
+                }
+              ).then(json);
+              token =
+                (tokenRes.body as Record<string, unknown>)?.access_token ??
+                (tokenRes.body as Record<string, unknown>)?.data
+                  ?.access_token ??
+                "";
 
-          let token = "";
-          const authed = () => ({
-            "Content-Type": "application/json",
-            Accept: "application/json",
-            ...(token ? { Authorization: `Bearer ${token}` } : {})
-          });
-          const get = (path: string) =>
-            fetch(`${API}${path}`, { headers: authed() }).then(json);
-          const post = (path: string, body: unknown) =>
-            fetch(`${API}${path}`, {
-              method: "POST",
-              headers: authed(),
-              body: JSON.stringify(body)
-            }).then(json);
-          const patch = (path: string) =>
-            fetch(`${API}${path}`, { method: "PATCH", headers: authed() }).then(
-              json
-            );
+              // --- 2) brand / config / boot lookups --------------------------------
+              // Independent of one another — fire together; each is still captured.
+              await Promise.all([
+                get(`/api/self?with=actor,accounts&lang=en`),
+                get(`/api/brand/settings?lang=en-US`),
+                get(`/api/config/brand/values?keys=${BRAND_VALUE_KEYS}`),
+                get(`/api/config/organisation/values?keys=${ORG_VALUE_KEYS}`),
+                get(`/api/org/modules`),
+                get(`/api/countries?limit=0&order=name&lang=en-US`),
+                get(`/api/billing_cycles?limit=0&lang=en-US`),
+                get(`/api/basket_fields?lang=en-US`)
+              ]);
 
-          // --- 1) guest session ------------------------------------------------
-          // Minted INLINE, and it must stay that way: this block runs inside
-          // `page.evaluate`, i.e. in the BROWSER. A Node-side import (the auth
-          // module's mintGuestToken) is not in scope there and fails with
-          // "__vite_ssr_import_4__ is not defined". The browser also supplies
-          // its own Origin header, which is why none is set here.
-          const tokenRes = await fetch(`${API}/oauth/access_token?lang=en`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/x-www-form-urlencoded",
-              Accept: "application/json"
+              // --- 3) create the invalid basket (two bare configurable domains) ----
+              const created = await post(`/api/orders?lang=en-US`, {
+                category_slug: "new_contract",
+                currency_code: CURRENCY,
+                products: [
+                  {
+                    product_id: DOMAIN_AU,
+                    quantity: 1,
+                    billing_cycle_months: 12
+                  },
+                  {
+                    product_id: DOMAIN_ORG,
+                    quantity: 1,
+                    billing_cycle_months: 12
+                  }
+                ]
+              });
+              const basket = (created.body as Record<string, unknown>)?.data;
+              const basketId = basket?.id;
+              const products = (basket?.products ?? []) as Record<
+                string,
+                unknown
+              >[];
+
+              // --- 4) the invalid-basket traffic the machines replay ---------------
+              const current = await get(
+                `/api/orders/current?with=${ORDER_WITH}&lang=en-US`
+              );
+              const currentData = (current.body as Record<string, unknown>)
+                ?.data as Record<string, unknown> | undefined;
+              // The config machine's product read carries the basket's currency_id
+              // and an (empty) promotions param; capture the URL with them so the
+              // recorded identity equals the one the real basket-product service asks.
+              const currencyId =
+                (currentData?.currency_id as string | undefined) ??
+                ((currentData?.currency as Record<string, unknown>)?.id as
+                  | string
+                  | undefined) ??
+                "";
+              const check = await patch(
+                `/api/orders/${basketId}/provision_fields/values/check`
+              );
+
+              // Independent across products and within each product — fire together;
+              // fixture filenames are deterministic per identity, so capture order
+              // does not matter.
+              await Promise.all(
+                products.flatMap(p => [
+                  get(
+                    `/api/orders/${basketId}/products/${p.id}/provision_fields/values`
+                  ),
+                  // config-machine hydration (product + blueprint, field defs).
+                  // R11 (useQuery withCurrency) skips currency_code when the URL
+                  // already carries currency_id, so this read sends no currency_code.
+                  // develop 122719bac3 dropped currency_code from EXCLUDE_PARAMS, so
+                  // it is now part of fixture identity — omit it to match the read.
+                  get(
+                    `/api/basket/${basketId}/products/${p.id}?currency_id=${currencyId}&promotions=&with=${PRODUCT_WITH}&basket_id=${basketId}&basket_product_id=${p.id}`
+                  ),
+                  get(`/api/basket/products/${p.product_id}/provision_fields`)
+                ])
+              );
+
+              return {
+                tokenStatus: tokenRes.status,
+                actor: (tokenRes.body as Record<string, unknown>)?.actor_type,
+                createStatus: created.status,
+                basketId,
+                productCount: products.length,
+                productIds: products.map(p => ({
+                  bpid: p.id,
+                  productId: p.product_id,
+                  service: p.service_identifier
+                })),
+                currentStatus: current.status,
+                currentProductCount: (
+                  (current.body as Record<string, unknown>)?.data?.products ??
+                  []
+                ).length,
+                checkStatus: check.status
+              };
             },
-            body: new URLSearchParams({ grant_type: "guest" }).toString()
-          }).then(json);
-          token =
-            (tokenRes.body as Record<string, unknown>)?.access_token ??
-            (tokenRes.body as Record<string, unknown>)?.data?.access_token ??
-            "";
+            {
+              API: API_URL,
+              DOMAIN_AU,
+              DOMAIN_ORG,
+              CURRENCY,
+              BRAND_VALUE_KEYS,
+              ORG_VALUE_KEYS,
+              ORDER_WITH,
+              PRODUCT_WITH
+            }
+          )
+        )
+      )
+      .then(result => {
+        console.log(
+          "[product-setup.fixtures] flow:",
+          JSON.stringify(result, null, 2)
+        );
 
-          // --- 2) brand / config / boot lookups --------------------------------
-          // Independent of one another — fire together; each is still captured.
-          await Promise.all([
-            get(`/api/self?with=actor,accounts&lang=en`),
-            get(`/api/brand/settings?lang=en-US`),
-            get(`/api/config/brand/values?keys=${BRAND_VALUE_KEYS}`),
-            get(`/api/config/organisation/values?keys=${ORG_VALUE_KEYS}`),
-            get(`/api/org/modules`),
-            get(`/api/countries?limit=0&order=name&lang=en-US`),
-            get(`/api/billing_cycles?limit=0&lang=en-US`),
-            get(`/api/basket_fields?lang=en-US`)
-          ]);
-
-          // --- 3) create the invalid basket (two bare configurable domains) ----
-          const created = await post(`/api/orders?lang=en-US`, {
-            category_slug: "new_contract",
-            currency_code: CURRENCY,
-            products: [
-              { product_id: DOMAIN_AU, quantity: 1, billing_cycle_months: 12 },
-              { product_id: DOMAIN_ORG, quantity: 1, billing_cycle_months: 12 }
-            ]
-          });
-          const basket = (created.body as Record<string, unknown>)?.data;
-          const basketId = basket?.id;
-          const products = (basket?.products ?? []) as Record<
-            string,
-            unknown
-          >[];
-
-          // --- 4) the invalid-basket traffic the machines replay ---------------
-          const current = await get(
-            `/api/orders/current?with=${ORDER_WITH}&lang=en-US`
-          );
-          const check = await patch(
-            `/api/orders/${basketId}/provision_fields/values/check`
-          );
-
-          // Independent across products and within each product — fire together;
-          // fixture filenames are deterministic per identity, so capture order
-          // does not matter.
-          await Promise.all(
-            products.flatMap(p => [
-              get(
-                `/api/orders/${basketId}/products/${p.id}/provision_fields/values`
-              ),
-              // config-machine hydration (product + blueprint, field defs)
-              get(
-                `/api/basket/${basketId}/products/${p.id}?with=${PRODUCT_WITH}&basket_id=${basketId}&basket_product_id=${p.id}&currency_code=${CURRENCY}`
-              ),
-              get(`/api/basket/products/${p.product_id}/provision_fields`)
-            ])
-          );
-
-          return {
-            tokenStatus: tokenRes.status,
-            actor: (tokenRes.body as Record<string, unknown>)?.actor_type,
-            createStatus: created.status,
-            basketId,
-            productCount: products.length,
-            productIds: products.map(p => ({
-              bpid: p.id,
-              productId: p.product_id,
-              service: p.service_identifier
-            })),
-            currentStatus: current.status,
-            currentProductCount: (
-              (current.body as Record<string, unknown>)?.data?.products ?? []
-            ).length,
-            checkStatus: check.status
-          };
-        },
-        {
-          API: API_URL,
-          DOMAIN_AU,
-          DOMAIN_ORG,
-          CURRENCY,
-          BRAND_VALUE_KEYS,
-          ORG_VALUE_KEYS,
-          ORDER_WITH,
-          PRODUCT_WITH
-        }
-      );
-
-      console.log(
-        "[product-setup.fixtures] flow:",
-        JSON.stringify(result, null, 2)
-      );
-
-      // The capture is only useful if the basket really came back invalid.
-      expect(result.actor).toBe("guest");
-      expect(result.basketId, "a basket was created").toBeTruthy();
-      expect(result.productCount, "two products seated").toBe(2);
-      expect(
-        result.checkStatus,
-        "provision check rejected the bare basket"
-      ).toBe(409);
-      expect(
-        recorder.count(),
-        "captured at least the boot + invalid basket"
-      ).toBeGreaterThan(8);
-    })().finally(async () => {
-      await browser.close();
-    });
+        // The capture is only useful if the basket really came back invalid.
+        expect(result.actor).toBe("guest");
+        expect(result.basketId, "a basket was created").toBeTruthy();
+        expect(result.productCount, "two products seated").toBe(2);
+        expect(
+          result.checkStatus,
+          "provision check rejected the bare basket"
+        ).toBe(409);
+        expect(
+          recorder.count(),
+          "captured at least the boot + invalid basket"
+        ).toBeGreaterThan(8);
+      })
+      .finally(() => browser.close());
   }, 120000);
 
   it("captures a configured cross-referenced basket (sld + hosting domain reference) against staging", async () => {
@@ -419,147 +455,156 @@ describe("product-setup fixtures generator (headless Playwright)", () => {
       args: ["--no-sandbox"]
     });
 
-    await (async () => {
-      const context = await browser.newContext();
-      const recorder = await attachRecorder(context, {
-        recordingsDir,
-        origin: ORIGIN,
-        source: "journey",
-        name: "product-setup-configured-basket"
-      });
+    let recorder: Awaited<ReturnType<typeof attachRecorder>>;
+    await browser
+      .newContext()
+      .then(context =>
+        (
+          attachRecorder(context, {
+            recordingsDir,
+            origin: ORIGIN,
+            source: "journey",
+            name: "product-setup-configured-basket"
+          }) as Promise<unknown>
+        ).then(rec => {
+          recorder = rec as typeof recorder;
+          return context.newPage();
+        })
+      )
+      .then(page =>
+        page.goto("about:blank").then(() =>
+          page.evaluate(
+            async args => {
+              const {
+                API,
+                TOKEN,
+                BASKET_ID,
+                IDS,
+                HOSTING_PRODUCT_ID,
+                ORDER_WITH,
+                PRODUCT_WITH,
+                CURRENCY
+              } = args;
 
-      const page = await context.newPage();
-      await page.goto("about:blank");
+              const authed = {
+                "Content-Type": "application/json",
+                Accept: "application/json",
+                Authorization: `Bearer ${TOKEN}`
+              };
+              const json = async (res: Response) => {
+                const text = await res.text();
+                try {
+                  return { status: res.status, body: JSON.parse(text) };
+                } catch {
+                  return { status: res.status, body: null };
+                }
+              };
+              const get = (path: string) =>
+                fetch(`${API}${path}`, { headers: authed }).then(json);
+              const patch = (path: string) =>
+                fetch(`${API}${path}`, {
+                  method: "PATCH",
+                  headers: authed
+                }).then(json);
 
-      const result = await page.evaluate(
-        async args => {
-          const {
-            API,
-            TOKEN,
-            BASKET_ID,
-            IDS,
-            HOSTING_PRODUCT_ID,
-            ORDER_WITH,
-            PRODUCT_WITH,
-            CURRENCY
-          } = args;
+              // The rich basket the machines replay. `case=related` (ignored by the
+              // API) keeps this on its own fixture identity, distinct from the base
+              // two-bare-domain `orders/current`.
+              const current = await get(
+                `/api/orders/current?case=related&with=${ORDER_WITH}&lang=en-US`
+              );
+              // The provision check now rejects ONLY the empty registrant fields
+              // (each domain's sld is set), keyed by basket-product index.
+              const check = await patch(
+                `/api/orders/${BASKET_ID}/provision_fields/values/check?case=related`
+              );
 
-          const authed = {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-            Authorization: `Bearer ${TOKEN}`
-          };
-          const json = async (res: Response) => {
-            const text = await res.text();
-            try {
-              return { status: res.status, body: JSON.parse(text) };
-            } catch {
-              return { status: res.status, body: null };
+              // Per-product provision-field VALUES — each product's model
+              // provisionFields. The hosting product's carries the `domain`
+              // cross-reference; the two domains' carry their slds.
+              await get(
+                `/api/orders/${BASKET_ID}/products/${IDS.a}/provision_fields/values?case=related-a`
+              );
+              await get(
+                `/api/orders/${BASKET_ID}/products/${IDS.b}/provision_fields/values?case=related-b`
+              );
+              await get(
+                `/api/orders/${BASKET_ID}/products/${IDS.h}/provision_fields/values?case=related-host`
+              );
+
+              // Hosting product config + its own field defs, so a routing test can
+              // configure() the hosting product against ITS blueprint instead of the
+              // collapsed domain one.
+              await get(
+                `/api/basket/${BASKET_ID}/products/${IDS.h}?case=related-host&with=${PRODUCT_WITH}&basket_id=${BASKET_ID}&basket_product_id=${IDS.h}&currency_code=${CURRENCY}`
+              );
+              await get(
+                `/api/basket/products/${HOSTING_PRODUCT_ID}/provision_fields?case=related-host`
+              );
+
+              return {
+                currentStatus: current.status,
+                checkStatus: check.status,
+                products: (
+                  (current.body as Record<string, unknown>)?.data?.products ??
+                  []
+                ).map((p: Record<string, unknown>) => ({
+                  id: p.id,
+                  productId: p.product_id,
+                  service: p.service_identifier
+                }))
+              };
+            },
+            {
+              API: API_URL,
+              TOKEN: token,
+              BASKET_ID: basketId,
+              IDS: { a: domainABp.id, b: domainBBp.id, h: hostingBp.id },
+              HOSTING_PRODUCT_ID: STARTER_HOSTING,
+              ORDER_WITH,
+              PRODUCT_WITH,
+              CURRENCY
             }
-          };
-          const get = (path: string) =>
-            fetch(`${API}${path}`, { headers: authed }).then(json);
-          const patch = (path: string) =>
-            fetch(`${API}${path}`, { method: "PATCH", headers: authed }).then(
-              json
-            );
+          )
+        )
+      )
+      .then(result => {
+        console.log(
+          "[product-setup.fixtures] configured flow:",
+          JSON.stringify({ ...result, domainBService }, null, 2)
+        );
 
-          // The rich basket the machines replay. `case=related` (ignored by the
-          // API) keeps this on its own fixture identity, distinct from the base
-          // two-bare-domain `orders/current`.
-          const current = await get(
-            `/api/orders/current?case=related&with=${ORDER_WITH}&lang=en-US`
-          );
-          // The provision check now rejects ONLY the empty registrant fields
-          // (each domain's sld is set), keyed by basket-product index.
-          const check = await patch(
-            `/api/orders/${BASKET_ID}/provision_fields/values/check?case=related`
-          );
+        // The capture is only useful if the cross-reference really landed.
+        expect(result.currentStatus, "rich basket read back").toBe(200);
+        expect(
+          result.checkStatus,
+          "registrant fields still reject the configured basket"
+        ).toBe(409);
 
-          // Per-product provision-field VALUES — each product's model
-          // provisionFields. The hosting product's carries the `domain`
-          // cross-reference; the two domains' carry their slds.
-          await get(
-            `/api/orders/${BASKET_ID}/products/${IDS.a}/provision_fields/values?case=related-a`
-          );
-          await get(
-            `/api/orders/${BASKET_ID}/products/${IDS.b}/provision_fields/values?case=related-b`
-          );
-          await get(
-            `/api/orders/${BASKET_ID}/products/${IDS.h}/provision_fields/values?case=related-host`
-          );
+        const services = result.products.map(p => p.service);
+        const nonNull = services.filter(Boolean);
+        expect(
+          nonNull.length,
+          "every product carries a non-null service_identifier"
+        ).toBe(result.products.length);
+        expect(
+          new Set(nonNull).size,
+          "the two domains carry DISTINCT service_identifiers"
+        ).toBeGreaterThanOrEqual(2);
 
-          // Hosting product config + its own field defs, so a routing test can
-          // configure() the hosting product against ITS blueprint instead of the
-          // collapsed domain one.
-          await get(
-            `/api/basket/${BASKET_ID}/products/${IDS.h}?case=related-host&with=${PRODUCT_WITH}&basket_id=${BASKET_ID}&basket_product_id=${IDS.h}&currency_code=${CURRENCY}`
-          );
-          await get(
-            `/api/basket/products/${HOSTING_PRODUCT_ID}/provision_fields?case=related-host`
-          );
+        const hostProduct = result.products.find(
+          p => p.productId === STARTER_HOSTING
+        );
+        expect(
+          hostProduct?.service,
+          "hosting product references DOMAIN_ORG's service_identifier"
+        ).toBe(domainBService);
 
-          return {
-            currentStatus: current.status,
-            checkStatus: check.status,
-            products: (
-              (current.body as Record<string, unknown>)?.data?.products ?? []
-            ).map((p: Record<string, unknown>) => ({
-              id: p.id,
-              productId: p.product_id,
-              service: p.service_identifier
-            }))
-          };
-        },
-        {
-          API: API_URL,
-          TOKEN: token,
-          BASKET_ID: basketId,
-          IDS: { a: domainABp.id, b: domainBBp.id, h: hostingBp.id },
-          HOSTING_PRODUCT_ID: STARTER_HOSTING,
-          ORDER_WITH,
-          PRODUCT_WITH,
-          CURRENCY
-        }
-      );
-
-      console.log(
-        "[product-setup.fixtures] configured flow:",
-        JSON.stringify({ ...result, domainBService }, null, 2)
-      );
-
-      // The capture is only useful if the cross-reference really landed.
-      expect(result.currentStatus, "rich basket read back").toBe(200);
-      expect(
-        result.checkStatus,
-        "registrant fields still reject the configured basket"
-      ).toBe(409);
-
-      const services = result.products.map(p => p.service);
-      const nonNull = services.filter(Boolean);
-      expect(
-        nonNull.length,
-        "every product carries a non-null service_identifier"
-      ).toBe(result.products.length);
-      expect(
-        new Set(nonNull).size,
-        "the two domains carry DISTINCT service_identifiers"
-      ).toBeGreaterThanOrEqual(2);
-
-      const hostProduct = result.products.find(
-        p => p.productId === STARTER_HOSTING
-      );
-      expect(
-        hostProduct?.service,
-        "hosting product references DOMAIN_ORG's service_identifier"
-      ).toBe(domainBService);
-
-      expect(
-        recorder.count(),
-        "captured the rich basket + check + per-product reads"
-      ).toBeGreaterThanOrEqual(7);
-    })().finally(async () => {
-      await browser.close();
-    });
+        expect(
+          recorder.count(),
+          "captured the rich basket + check + per-product reads"
+        ).toBeGreaterThanOrEqual(7);
+      })
+      .finally(() => browser.close());
   }, 120000);
 });

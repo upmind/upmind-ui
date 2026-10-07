@@ -13,6 +13,7 @@ import { CHROME_LEVEL } from "./types";
 import type { ChromeLevel } from "./types";
 import type { ContentGutter, ContentMeasure } from "../content/types";
 import type { ChromeTone, GroupAxis, TopbarHeight, TopbarSpan } from "../types";
+// -----------------------------------------------------------------------------
 
 const PORTAL_GROUP_AXIS_CLASS: Readonly<Record<GroupAxis, string>> = {
   // `flex-nowrap`: a horizontal group in a chrome bar must stay on one line —
@@ -180,17 +181,15 @@ export const PORTAL_UPMIND_MARK_CLASS =
 
 export const PORTAL_FOOTER_PROSE_CLASS = "[&_p]:m-0 [&_a]:underline";
 
+export const AUTH_FOOTER_PROSE_CLASS =
+  "text-muted text-sm [&_p]:m-0 [&_a]:underline";
+
 /**
  * The logged-out column (plan F11) — the library's own `AuthShell` supplies
  * the stage, its header/footer rows and the centred track; this is what stacks
- * inside it: the brand's note for the screen, then the card the page renders
- * in.
+ * inside it: the card the page renders in.
  */
 export const LOGGED_OUT_COLUMN_CLASS = "flex flex-col gap-4";
-
-/** The brand's own note above the screen — quieter than the form under it. */
-export const LOGGED_OUT_NOTE_CLASS =
-  "text-muted text-sm [&_p]:m-0 [&_a]:underline";
 
 /** The page inside the card brings `Page`'s own padding; a second one boxes it in. */
 export const LOGGED_OUT_CARD_CONTENT_CLASS = "p-0";

@@ -19,6 +19,7 @@ import type { MockBrandFeatures, MockDataset } from "./types";
 import type { IClientTemplateSlot } from "@upmind-automation/types";
 import type { ComputedRef } from "vue";
 import { usePortalConfig } from "~/composables/usePortalConfig";
+// -----------------------------------------------------------------------------
 
 /** Where the logged-out shell's cart shortcut goes — in-app, or the brand's own storefront. */
 export type MockStoreShortcut =

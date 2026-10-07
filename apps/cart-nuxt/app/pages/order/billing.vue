@@ -1,11 +1,14 @@
 <template>
-  <UpmBilling />
+  <UpmBilling v-slot="{ template }">
+    <component :is="billingTemplate(template)" />
+  </UpmBilling>
 </template>
 
 <script lang="ts" setup>
 import { useI18n } from "vue-i18n";
-import { UpmBilling } from "@upmind-automation/client-vue";
-import { ROUTE } from "~/funnels/types";
+import { UpmBilling } from "@upmind-automation/basket";
+import { ROUTE } from "../../funnels/types";
+import { billingTemplate } from "../../shell/modules/billing/shell";
 
 const { t } = useI18n();
 

@@ -1,0 +1,55 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/contract_products/00000000-0000-0000-0000-000000000000?case=not-found&with=contract,contract.account,contract.address,contract.brand.currency,contract.cancellation_request.status,contract.cancellation_request.custom_fields.field,contract.client,contract.client.tags,contract.client.image,contract.gateway,contract.import.credentials,contract.import.source,contract.moved_to_contract,contract.moved_to_contract.products,contract.payment_details,contract.payment_details.gateway,contract.promotions,contract.status,allowed_migrations,attributes.product.image,brand,contract_request,contract_request.custom_fields.field,future_cancellation_request,options.product.image,product,product.brand.currency,product.image,product.images,product.provision_blueprint,product.provision_category,scheduled_actions,status,tags,unpaid_recurring_invoices",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 404,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a40bd3fd1baf7885-JNB",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json",
+      "date": "Fri, 25 Sep 2026 17:42:54 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=CqEv6LiyaDmoukSuZhpv9bnfBlz58JGrMeOCdQqL9oSfX71KwUEwT4JFOBWljFlcCynztC7cvEHpv1DK65RqESfC79c7y6pJhhWXs0S7x1KAQbtMpct8TzEAPUr8yzTrO%2F6NW6xfSg%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-frame-options": "SAMEORIGIN"
+    },
+    "body": {
+      "status": "error",
+      "data": null,
+      "related": null,
+      "total": null,
+      "error": {
+        "id": "832820582187e2f3ee4ffce37bdead80f2920b9e",
+        "type": 0,
+        "code": 404,
+        "message": "Contract Product not found!",
+        "data": null
+      },
+      "messages": null,
+      "meta": null
+    }
+  },
+  "captured_at": "2026-09-25T17:42:54.519Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "contract-product"
+  }
+}

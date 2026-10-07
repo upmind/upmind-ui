@@ -57,7 +57,7 @@ Fired the moment the basket enters `refreshing.processing` — i.e. an API call 
 | **Source**  | `notifyActorsRefreshing` action in `basket.machine.ts` (children) + `basketSubscription` helper (external subscribers) |
 | **Carries** | No payload                                                                                                             |
 
-**Canonical consumer:** the recommendations engine moves to a `syncing` state on `REFRESHING` and blocks `isReady()` until the eventual `REFRESH` arrives. Route gates (e.g. `apps/cart/src/router/services.ts`) call `isReady()` to decide whether to redirect users to the recommendations screen — without this gate they would race the basket and silently skip recs whose conditions only resolve true against the new basket state.
+**Canonical consumer:** the recommendations engine moves to a `syncing` state on `REFRESHING` and blocks `isReady()` until the eventual `REFRESH` arrives. Route gates call `isReady()` to decide whether to redirect users to the recommendations screen — without this gate they would race the basket and silently skip recs whose conditions only resolve true against the new basket state.
 
 **Distinct from `PROCESSING`:** the existing `PROCESSING` event signals "this specific product is being updated" and is consumed by the product machine to lock individual product cards (`processing.updating` substate). `REFRESHING` is broader and non-locking — locking every product card during a basket-wide refresh would be wrong.
 

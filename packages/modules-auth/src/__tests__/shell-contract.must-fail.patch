@@ -1,0 +1,20 @@
+# Negative control — the sign-in page fills in a template when the brand gives
+# none, so the host can no longer tell "no choice" from a real one and its own
+# fallback never runs.
+#
+# Intended RED:
+#   packages/modules-auth/src/__tests__/shell-contract.test.ts
+#     "the login page > hands its default slot the brand's raw template \"\", unchecked"
+
+diff --git a/packages/modules-auth/src/components/Login.vue b/packages/modules-auth/src/components/Login.vue
+--- a/packages/modules-auth/src/components/Login.vue
++++ b/packages/modules-auth/src/components/Login.vue
+@@ -1,7 +1,7 @@
+ <template>
+   <slot v-if="isResolving" name="loading"><AuthLoading /></slot>
+   <LayoutProvider v-else>
+-    <slot :template="ui.template.value" />
++    <slot :template="ui.template.value || 'two-column-ltr'" />
+ 
+     <template #back="{ compact = false }">
+       <slot name="back">

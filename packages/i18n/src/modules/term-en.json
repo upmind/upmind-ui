@@ -1,6 +1,7 @@
 {
   "annually": "Annually",
   "biennially": "Biennially",
+  "estimated": "Estimated",
   "label": "Billing Term",
   "monthly": "Monthly",
   "n_mo": "mo | {n}mo",

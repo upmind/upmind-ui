@@ -1,0 +1,20 @@
+# Negative control — the basket ignores the layout's checkout option, so an
+# enclosed or right-to-left basket draws a checkout in its pricing as well as
+# its own checkout block.
+#
+# Intended RED:
+#   packages/modules-basket/src/__tests__/basket-slots.int.test.ts
+#     "draws the pricing's total and checkout until the layout turns each off"
+
+diff --git a/packages/modules-basket/src/components/Basket.vue b/packages/modules-basket/src/components/Basket.vue
+--- a/packages/modules-basket/src/components/Basket.vue
++++ b/packages/modules-basket/src/components/Basket.vue
+@@ -46,7 +46,7 @@
+             !meta.hasFields || !meta.hasProducts || meta.hasLockedProducts
+           "
+           :loading="meta.isProcessing || isNavigating"
+-          :show-checkout="showCheckout && !meta.isLoading"
++          :show-checkout="!meta.isLoading"
+           :show-total="showTotal"
+         />
+       </slot>

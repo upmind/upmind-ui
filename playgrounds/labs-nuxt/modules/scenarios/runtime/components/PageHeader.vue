@@ -38,7 +38,7 @@
 <script lang="ts" setup>
 import { Button, Heading, Tooltip } from "@upmind/ui";
 import { useI18n } from "vue-i18n";
-import { Icon } from "@upmind-automation/client-vue";
+import { Icon } from "@upmind-automation/foundation";
 import { kebabCase } from "lodash-es";
 import type { PageHeaderProps } from "./PageHeader.types";
 

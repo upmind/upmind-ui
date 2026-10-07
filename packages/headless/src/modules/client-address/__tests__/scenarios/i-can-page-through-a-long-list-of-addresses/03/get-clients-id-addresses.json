@@ -1,0 +1,94 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/clients/25d96e76-3ed0-913d-d52c-417482528340/addresses?with=region,country&limit=1&offset=0",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a422b14e2ba573ea-JNB",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json",
+      "date": "Mon, 28 Sep 2026 12:18:46 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=1ynMkJUax318bfNWTIcw%2FgP1uUGfKv25orWyOVA2cs6o78K4krSxrMVpY1SGNjqMP1HyCkP4elXEqnnIJx3WEXSaQncyQbyOnTEp7VPDv4PunYT5iyqe8I7th2unl6XUs9EJr1ouTA%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-frame-options": "SAMEORIGIN",
+      "x-total-count": "98"
+    },
+    "body": {
+      "status": "ok",
+      "data": [
+        {
+          "id": "20e43579-5e78-d184-78db-31643202d986",
+          "import_id": null,
+          "staged_import": false,
+          "external_id": null,
+          "client_id": "25d96e76-3ed0-913d-d52c-417482528340",
+          "user_id": "sys",
+          "default": true,
+          "type": 1,
+          "name": "10 Downing St",
+          "address_1": "197 Highfield Road",
+          "address_2": "",
+          "region_id": "8d632507-9806-5d1e-82ec-8174e234e98d",
+          "country_id": "825d96e7-63ed-0913-46c4-174825283406",
+          "city": "London",
+          "county": null,
+          "postcode": "SW1A 2AB",
+          "created_at": "2025-06-04 09:05:58",
+          "updated_at": "2026-09-28 12:18:20",
+          "deleted_at": null,
+          "verified": 0,
+          "can_delete": false,
+          "region": {
+            "id": "8d632507-9806-5d1e-82ec-8174e234e98d",
+            "country_id": "825d96e7-63ed-0913-46c4-174825283406",
+            "code": "3",
+            "name": "Vesturland",
+            "created_at": "2019-10-31 17:51:20",
+            "updated_at": "2019-10-31 17:51:20"
+          },
+          "country": {
+            "id": "825d96e7-63ed-0913-46c4-174825283406",
+            "name": "Iceland",
+            "code": "IS",
+            "code3": "",
+            "created_at": "2017-10-18 14:16:21",
+            "updated_at": "2026-09-28 11:08:35",
+            "vat": "7.50",
+            "eea": 1,
+            "phone_code": "+354",
+            "post_code_regex": "^\\d{3}$"
+          }
+        }
+      ],
+      "related": null,
+      "total": 98,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-09-28T12:18:46.381Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "i-can-page-through-a-long-list-of-addresses"
+  }
+}

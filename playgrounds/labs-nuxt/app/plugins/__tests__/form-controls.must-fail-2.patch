@@ -1,0 +1,20 @@
+# Negative control — payment's entry also registers a catch-all control it does not export, so the playground starts with a control no package owns.
+#
+# Intended RED:
+#   playgrounds/labs-nuxt/app/plugins/__tests__/form-controls.spec.ts
+#     "holds no form control that none of its packages registered"
+
+diff --git a/packages/modules-payment/src/index.ts b/packages/modules-payment/src/index.ts
+index b997fb5..13d27e0 100644
+--- a/packages/modules-payment/src/index.ts
++++ b/packages/modules-payment/src/index.ts
+@@ -7,6 +7,9 @@ import { registerFormRenderers } from "@upmind-automation/foundation";
+ import { paymentRenderers } from "./renderers";
+ 
+ registerFormRenderers(paymentRenderers);
++registerFormRenderers([
++  { renderer: { render: () => null }, tester: () => 0 }
++]);
+ 
+ // --- Export Views
+ export { default as UpmPayment } from "./components/Payment.vue";

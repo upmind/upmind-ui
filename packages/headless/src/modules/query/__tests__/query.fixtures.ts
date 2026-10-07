@@ -95,6 +95,33 @@ describe("Query API Fixtures Generator", () => {
     }
   });
 
+  it("captures GET /api/countries?limit=count (count mode — the total, not a page)", async () => {
+    // `limit=count` stays in fixture identity (fixture-naming.mjs), so this is a
+    // distinct recording from the paged `get-countries` captures above: the API
+    // answers it with the envelope `total` and no rows, which is what
+    // `useQuery().count()` reads.
+    const { status } = await generator.get("/api/countries?limit=count");
+    if (status !== 200) {
+      throw new Error(
+        `countries?limit=count returned ${status} — refusing to ship a count ` +
+          "fixture that does not represent a real count response."
+      );
+    }
+  });
+
+  it("captures GET /api/brand/settings?currency_code=GBP (withCurrency carries the basket currency — AC-29 R11)", async () => {
+    // R11 (useQuery withCurrency) adds the basket currency_code to a request
+    // carrying no currency of its own. develop 122719bac3 dropped currency_code
+    // from EXCLUDE_PARAMS, so it is now part of fixture identity — this capture
+    // keys on currency_code=GBP and answers the with-currency-explicit probe.
+    const { status } = await generator.get(
+      "/api/brand/settings?currency_code=GBP"
+    );
+    if (status !== 200) {
+      throw new Error(`brand/settings returned ${status}`);
+    }
+  });
+
   it("captures POST /oauth/access_token with bad credentials (401)", async () => {
     await generator.post(
       "/oauth/access_token",

@@ -7,10 +7,6 @@
       "trailingSlash": true,
       "rewrites": [
         {
-          "source": "/auth/transfer",
-          "destination": "/transfer.html"
-        },
-        {
           "source": "**",
           "destination": "/index.html"
         }
@@ -50,14 +46,6 @@
       "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
       "trailingSlash": true,
       "rewrites": [
-        {
-          "source": "/auth/transfer",
-          "destination": "/transfer.html"
-        },
-        {
-          "source": "**/auth/transfer",
-          "destination": "/transfer.html"
-        },
         {
           "source": "**",
           "destination": "/index.html"

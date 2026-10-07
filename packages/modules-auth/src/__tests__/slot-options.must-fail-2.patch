@@ -1,0 +1,19 @@
+# Negative control — the sign-in form ignores the card the layout asks for, so
+# a carded layout draws the form with no cross-link to registration.
+#
+# Intended RED:
+#   packages/modules-auth/src/__tests__/slot-options.test.ts
+#     "draws the 'login' page's form with no cross-link by default, and with one where the layout cards it"
+
+diff --git a/packages/modules-auth/src/components/Login.vue b/packages/modules-auth/src/components/Login.vue
+--- a/packages/modules-auth/src/components/Login.vue
++++ b/packages/modules-auth/src/components/Login.vue
+@@ -46,7 +46,7 @@
+           :class="sessionFormWidthVariants({ card })"
+           :active="active"
+         >
+-          <template v-if="card" #actions>
++          <template v-if="false" #actions>
+             <Link
+               color="muted"
+               size="sm"

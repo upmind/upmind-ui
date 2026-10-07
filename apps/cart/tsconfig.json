@@ -8,9 +8,8 @@
       "@upmind-automation/i18n": ["../../packages/i18n/src/index.ts"],
       "@upmind-automation/headless": ["../../packages/headless/src/index.ts"],
       "@upmind-automation/icons": ["../../packages/icons/src/index.ts"],
-      "@upmind-automation/client-vue": [
-        "../../packages/client-vue/src/index.ts"
-      ],
+      "@upmind/ui": ["../../design-system/packages/ui/src/index.ts"],
+      "@upmind/tokens": ["../../design-system/packages/tokens/src/index.ts"],
       "@/*": ["./src/*"]
     }
   },
@@ -19,8 +18,7 @@
     "../../packages/types/src/**/*",
     "../../packages/i18n/src/**/*",
     "../../packages/headless/src/**/*",
-    "../../packages/icons/src/**/*",
-    "../../packages/client-vue/src/**/*"
+    "../../packages/icons/src/**/*"
   ],
   "exclude": ["node_modules", "dist", "**/*.spec.*", "**/*.test.*"]
 }

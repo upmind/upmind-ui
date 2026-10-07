@@ -39,13 +39,14 @@ export default {
     return {
       CallExpression(node) {
         const callee = node.callee;
-        if (callee.type !== "Identifier" || callee.name !== "useTestAttrs") return;
+        if (callee.type !== "Identifier" || callee.name !== "useTestAttrs")
+          return;
 
         const arg = node.arguments[0];
         if (!arg || arg.type !== "ObjectExpression") return;
 
         const keyProp = arg.properties.find(
-          (p) =>
+          p =>
             p.type === "Property" &&
             !p.computed &&
             ((p.key.type === "Identifier" && p.key.name === "key") ||
@@ -58,7 +59,8 @@ export default {
         }
 
         const value = keyProp.value;
-        const isStringLiteral = value.type === "Literal" && typeof value.value === "string";
+        const isStringLiteral =
+          value.type === "Literal" && typeof value.value === "string";
 
         if (!isStringLiteral) {
           context.report({ node: value, messageId: "nonLiteralKey" });

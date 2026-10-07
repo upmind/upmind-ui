@@ -1,5 +1,6 @@
 import { vi } from "vitest";
 import { nextTick } from "vue";
+// -----------------------------------------------------------------------------
 
 export const STORAGE_KEYS = {
   theme: "upmind-portal-theme",

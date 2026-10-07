@@ -40,7 +40,7 @@ async function add(
   if (some(promotions, { promocode: model?.promocode }))
     return Promise.reject(
       new DetailedError(
-        t("error.promocode_add_failed"),
+        t("error.promotion_add_failed"),
         responseCodes.Unprocessable_Entity,
         ErrorOrigin.Headless
       )

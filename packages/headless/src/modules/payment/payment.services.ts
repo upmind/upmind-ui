@@ -17,7 +17,7 @@ import type { AnyEventObject } from "xstate";
 // -----------------------------------------------------------------------------
 
 function load(
-  { orderId, paymentDetail }: PaymentContext,
+  { orderId, paymentDetail, currencyCode }: PaymentContext,
   { _data }: AnyEventObject
 ) {
   const { t } = useI18n();
@@ -69,7 +69,7 @@ function load(
             client_id: rawOrder?.client_id,
             invoice_id: orderId,
             country_id: rawOrder?.address?.country_id,
-            currency_code: rawOrder?.currency?.code,
+            currency_code: currencyCode ?? rawOrder?.currency?.code,
             order: "order",
             active: true,
             with: ["gateway.gateway_provider", "gateway.card_types"].join()
@@ -85,6 +85,7 @@ function load(
           brandId: brandId.value,
           clientId: rawOrder?.client_id,
           currencyId: rawOrder?.currency_id,
+          currencyCode,
           countryId: rawOrder?.address?.country_id
         }
       ],
@@ -99,7 +100,7 @@ function load(
 }
 
 async function update(
-  { paymentDetail, orderId }: PaymentContext,
+  { paymentDetail, orderId, currencyCode }: PaymentContext,
   _event: AnyEventObject
 ) {
   const { post, useUrl } = useQuery();
@@ -109,7 +110,8 @@ async function update(
     url: useUrl(`/payments`),
     data: {
       invoice_id: orderId,
-      ...paymentDetail
+      ...paymentDetail,
+      ...omitBy({ currency_code: currencyCode }, isNil)
     },
     withAccessToken: true
   });
@@ -131,7 +133,7 @@ async function render(context: PaymentContext, event: AnyEventObject) {
   if (!renderer) {
     return Promise.reject(
       new DetailedError(
-        t("error.challenge_renderer_not_available"),
+        t("error.payment_challenge_renderer_not_available"),
         responseCodes.Not_Found,
         ErrorOrigin.Headless,
         { gatewayCode }
@@ -143,7 +145,7 @@ async function render(context: PaymentContext, event: AnyEventObject) {
   if (renderer.isSupported && !renderer.isSupported(context)) {
     return Promise.reject(
       new DetailedError(
-        t("error.challenge_not_supported"),
+        t("error.payment_challenge_not_valid"),
         responseCodes.Bad_Request,
         ErrorOrigin.Headless,
         { gatewayCode }

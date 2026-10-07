@@ -17,7 +17,6 @@ import {
   DelegateObjectTypes,
   ProvisionRequestActionTypes
 } from "@upmind-automation/types";
-import { CLIENT_VUE_STUB_TITLE, clientVueProse } from "./client-vue";
 import {
   NOTIFICATION_FILTER,
   NOTIFICATION_FILTER_CRITERIA,
@@ -74,6 +73,7 @@ import {
   useMockClientPhones
 } from "./facades/useMockContacts";
 import { FORM_ID, isFormId } from "./forms/ids";
+import { PACKAGE_STUB_TITLE, packageStubProse } from "./package-stub";
 import { assign, find, includes, isPlainObject, values } from "lodash-es";
 import type { NotificationFilter } from "./collection-defs";
 import type { VaultAssetScope } from "./contracts";
@@ -93,6 +93,7 @@ import type {
 } from "./types";
 import type { FormModel } from "@upmind/ui";
 import { useListViewPreference } from "~/composables/useListViewPreference";
+// -----------------------------------------------------------------------------
 
 export const MOCK_ACTION = {
   VIEW_PRODUCT: "view-product",
@@ -357,8 +358,8 @@ export const MOCK_ACTION = {
   AUTH_LOGOUT: "auth-logout",
   /** A config-authored destination — the dispatcher just names it as the next step. */
   NAVIGATE: "navigate",
-  /** A door client-vue owns: `<Component>|<headless module>` rides the tail, and prose is all that opens. */
-  CLIENT_VUE_STUB: "client-vue-stub"
+  /** A door a domain package owns: `<Component>|<headless module>` rides the tail. */
+  PACKAGE_STUB: "package-stub"
 } as const;
 
 export type MockAction = (typeof MOCK_ACTION)[keyof typeof MOCK_ACTION];
@@ -1078,14 +1079,12 @@ function vaultSaved(title: string, label: string): MockActionResult {
  * jsdom) the toast still says "Copied" — the mock has no second outcome to
  * offer, and a silent failure reads worse than an optimistic receipt.
  */
-async function writeToClipboard(text: string): Promise<void> {
-  if (typeof navigator === "undefined") return;
-  if (navigator.clipboard === undefined) return;
-  try {
-    await navigator.clipboard.writeText(text);
-  } catch {
+function writeToClipboard(text: string): Promise<void> {
+  if (typeof navigator === "undefined") return Promise.resolve();
+  if (navigator.clipboard === undefined) return Promise.resolve();
+  return navigator.clipboard.writeText(text).catch(() => {
     // A denied permission is the browser's answer, not an app error.
-  }
+  });
 }
 
 /**
@@ -2932,23 +2931,21 @@ export function dispatchMockAction(
         to: `/${item.groupSlug}?orderComplete=${order.id}`
       }));
     }
-    case MOCK_ACTION.CLIENT_VUE_STUB: {
+    case MOCK_ACTION.PACKAGE_STUB: {
       const named = splitAtFirstColon(id?.replace("|", ":"));
       if (named === undefined) return undefined;
       return {
         prose: {
-          title: CLIENT_VUE_STUB_TITLE,
-          markdown: clientVueProse(named.head, named.tail)
+          title: PACKAGE_STUB_TITLE,
+          markdown: packageStubProse(named.head, named.tail)
         }
       };
     }
-    // client-vue's payment module pays; the door stays so `?init=pay` and the
-    // document's Pay control still land somewhere.
     case MOCK_ACTION.PAY_INVOICE:
       return {
         prose: {
-          title: CLIENT_VUE_STUB_TITLE,
-          markdown: clientVueProse("PaymentDetails", "payment")
+          title: PACKAGE_STUB_TITLE,
+          markdown: packageStubProse("PaymentDetails", "payment")
         }
       };
     default:

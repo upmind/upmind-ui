@@ -1,0 +1,19 @@
+# Negative control — registration tells the basket summary to hide while it
+# loads. The summary beside the registration form blinks out on every load.
+#
+# Intended RED:
+#   packages/modules-auth/src/__tests__/page-slots.test.ts
+#     "the register page > puts the host's summary in the template's summary region when the brand shows it"
+
+diff --git a/packages/modules-auth/src/components/Register.vue b/packages/modules-auth/src/components/Register.vue
+--- a/packages/modules-auth/src/components/Register.vue
++++ b/packages/modules-auth/src/components/Register.vue
+@@ -250,7 +250,7 @@
+ 
+ const isResolving = ref(false);
+ 
+-const summarySlot: AuthSummarySlotProps = { showWhileLoading: true };
++const summarySlot: AuthSummarySlotProps = { showWhileLoading: false };
+ const guestCheckoutSlot = computed<AuthGuestCheckoutSlotProps>(() => ({
+   registerAsGuest,
+   isRegistering: isRegisteringAsGuest.value

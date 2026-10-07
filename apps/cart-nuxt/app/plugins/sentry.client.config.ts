@@ -1,5 +1,6 @@
 import * as Sentry from "@sentry/nuxt";
 import { useRuntimeConfig } from "#imports";
+// -----------------------------------------------------------------------------
 
 export default defineNuxtPlugin(_nuxtApp => {
   const config = useRuntimeConfig();

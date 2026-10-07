@@ -81,12 +81,12 @@ export type CorpusCapabilities = {
    *
    * @graphify-citation `graphify query "is there an existing contract or field
    * carrying a recorded write refusal fixture or a refusal sentence for a forced
-   * row"` (2026-08-28, FE-3113 O) — the only matches are the test lane's own
-   * `refusalSentences()` (`components/__tests__/forced-surface.harness.ts` L167)
-   * and `refusalsOf()` (`force/__tests__/force-presets-all-modules.spec.ts`
-   * L224), neither of which app runtime may consume. Nothing is minted: this is
-   * a field on the contract already in `graphify-out/graph.json` (community
-   * 446), carrying the `RecordedFixture` (L30) the rest of the file carries.
+   * row"` (2026-08-28, FE-3113 O) — the only matches were the test lane's own
+   * former `refusalSentences()` (since retired) and `refusalsOf()`
+   * (`force/__tests__/force-presets-all-modules.spec.ts` L224), neither of
+   * which app runtime may consume. Nothing is minted: this is a field on the
+   * contract already in `graphify-out/graph.json` (community 446), carrying
+   * the `RecordedFixture` (L30) the rest of the file carries.
    * See `graphify-out/GRAPH_REPORT.md`.
    */
   refusedWrite?: RecordedFixture;

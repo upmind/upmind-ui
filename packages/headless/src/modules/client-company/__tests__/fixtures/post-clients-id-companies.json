@@ -10,7 +10,7 @@
       "Authorization": "mock-Authorization"
     },
     "body": {
-      "name": "client-company-fixture-1789017331028",
+      "name": "client-company-fixture-1790359388697",
       "reg_number": "PROVER-REG-1",
       "vat_number": "",
       "address_id": "20e43579-5e78-d184-78db-31643202d986"
@@ -22,14 +22,14 @@
       "access-control-allow-origin": "http://qa-automation.local:5173",
       "cache-control": "no-cache, private",
       "cf-cache-status": "DYNAMIC",
-      "cf-ray": "a38bf4b55fb9b60f-DUB",
+      "cf-ray": "a40bf1d8d95d73e0-JNB",
       "connection": "keep-alive",
       "content-encoding": "br",
       "content-type": "application/json",
-      "date": "Thu, 10 Sep 2026 05:15:37 GMT",
+      "date": "Fri, 25 Sep 2026 18:03:17 GMT",
       "impersonation": "0",
       "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
-      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=JrJXsnC6GqriOZqz%2F1j%2F2RXwaz0ncxOGltaPr17qLp9qN9i9n8bKXH%2BMj1oJEdiq7gmHfwXw4fccG%2BJxCvh%2FGxFIl2hge3zZqME2ET5vhxKJzqChlb%2BmiQzYulBj7pgDzqxuQ6qjNg%3D%3D\"}]}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=qPfqhuT2sjSGVppojHTJImbSmO9y7ptsq8iw%2BTShOPsITgCf2d1Ht%2Bk%2FmlqTgrMuslD0IIx6rco20tEiB3e00hSo6e89XTqmwo8XZqZgFxSKDmcSAhENFfKeW16zGvff%2Ftpyw0a%2FqA%3D%3D\"}]}",
       "server": "cloudflare",
       "transfer-encoding": "chunked",
       "vary": "Accept-Encoding",
@@ -38,7 +38,7 @@
     "body": {
       "status": "ok",
       "data": {
-        "id": "78985742-6489-7012-979b-21e325d0ed36",
+        "id": "320e4357-95e7-8d18-9e9b-31643202d986",
         "import_id": null,
         "staged_import": false,
         "external_id": null,
@@ -46,10 +46,10 @@
         "phone_id": null,
         "default": false,
         "verified": 1,
-        "created_at": "2026-09-10 05:15:37",
-        "updated_at": "2026-09-10 05:15:37",
+        "created_at": "2026-09-25 18:03:17",
+        "updated_at": "2026-09-25 18:03:17",
         "deleted_at": null,
-        "name": "client-company-fixture-1789017331028",
+        "name": "client-company-fixture-1790359388697",
         "vat_number": "",
         "vat_validated": null,
         "vat_validation_failed_reason": null,
@@ -79,7 +79,7 @@
           "county": null,
           "postcode": "SW1A 2AB",
           "created_at": "2025-06-04 09:05:58",
-          "updated_at": "2026-09-10 05:15:26",
+          "updated_at": "2026-09-25 12:38:41",
           "deleted_at": null,
           "verified": 0,
           "can_delete": false
@@ -94,7 +94,7 @@
       "meta": null
     }
   },
-  "captured_at": "2026-09-10T05:15:37.573Z",
+  "captured_at": "2026-09-25T18:03:17.886Z",
   "brand_domain": "qa-automation.local",
   "source": "case",
   "provenance": {

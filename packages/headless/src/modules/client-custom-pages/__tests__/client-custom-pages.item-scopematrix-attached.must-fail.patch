@@ -1,0 +1,19 @@
+--- a/packages/headless/src/modules/client-custom-pages/useClientCustomPage.ts
++++ b/packages/headless/src/modules/client-custom-pages/useClientCustomPage.ts
+@@ -5,6 +5,7 @@
+   getRegistry
+ } from "../scope";
+ import createClientCustomPagesServices from "./client-custom-pages.services";
++import { CLIENT_CUSTOM_PAGE_SCOPE_MATRIX } from "./client-custom-pages.types";
+ import { createClientCustomPageActions } from "./useClientCustomPage.actions";
+ import { createClientCustomPageContext } from "./useClientCustomPage.context";
+ import { createClientCustomPageInternals } from "./useClientCustomPage.internals";
+@@ -157,7 +158,7 @@
+ export const useClientCustomPage = createScopedComposable<
+   ReturnType<typeof createClientCustomPageForScope>,
+   ClientCustomPageScopeMatrix
+->("client-custom-pages", createClientCustomPageForScope);
++>("client-custom-pages", createClientCustomPageForScope, CLIENT_CUSTOM_PAGE_SCOPE_MATRIX);
+ 
+ // Type export for consumers
+ export type UseClientCustomPage = ReturnType<typeof useClientCustomPage>;

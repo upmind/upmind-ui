@@ -1,0 +1,25 @@
+Negative control for recommendations-template.test.ts.
+
+Declares the pick with a fallback its record does not carry, so a brand with no
+template, an empty one, or a name the page does not lay out gets no layout
+instead of the full one. The full template still draws its own layout.
+
+Intended RED (recommendations-template.test.ts, "recommendationsTemplate"):
+  draws the full layout for no template
+  draws the full layout for an empty template
+  draws the full layout for a template only other pages carry
+  draws the full layout for a name no layout carries
+  draws the full layout for a name every object inherits
+Intended GREEN:
+  draws the layout the <each> template carries
+
+diff --git a/apps/cart/src/shell/modules/recommendations/shell.ts b/apps/cart/src/shell/modules/recommendations/shell.ts
+--- a/apps/cart/src/shell/modules/recommendations/shell.ts
++++ b/apps/cart/src/shell/modules/recommendations/shell.ts
+@@ -18,5 +18,5 @@
+ 
+ export const recommendationsTemplate = resolveTemplate(
+   RECOMMENDATIONS_TEMPLATES,
+-  RECOMMENDATIONS_TEMPLATE.FULL
++  "two-column-rtl" as RECOMMENDATIONS_TEMPLATE
+ );

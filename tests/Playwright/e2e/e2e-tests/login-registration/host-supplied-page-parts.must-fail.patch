@@ -1,0 +1,21 @@
+# Negative control — the cart's sign-in page stops filling the summary slot.
+# The page still draws the form, but a guest with a basket no longer sees the
+# summary beside it, though the brand shows it.
+#
+# Intended RED:
+#   tests/Playwright/e2e/e2e-tests/login-registration/host-supplied-page-parts.spec.ts
+#     "Guests see the basket summary beside the sign-in form"
+
+diff --git a/apps/cart/src/pages/session/Login.vue b/apps/cart/src/pages/session/Login.vue
+--- a/apps/cart/src/pages/session/Login.vue
++++ b/apps/cart/src/pages/session/Login.vue
+@@ -8,9 +8,6 @@
+       <component :is="sessionTemplate(template)" />
+     </template>
+     <template #loading><UpmLoading /></template>
+-    <template #summary="summary">
+-      <SessionSummary v-bind="summary" />
+-    </template>
+   </UpmAuthLogin>
+ </template>
+ <script lang="ts" setup>

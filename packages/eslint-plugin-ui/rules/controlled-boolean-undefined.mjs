@@ -38,7 +38,8 @@ export default {
     return {
       CallExpression(node) {
         const callee = node.callee;
-        if (callee.type !== "Identifier" || callee.name !== "withDefaults") return;
+        if (callee.type !== "Identifier" || callee.name !== "withDefaults")
+          return;
         const defaults = node.arguments[1];
         if (!defaults || defaults.type !== "ObjectExpression") return;
 

@@ -1,3 +1,4 @@
+/** @internal */
 import { AccessRoleTypes } from "@upmind-automation/types";
 import {
   sessionStore,

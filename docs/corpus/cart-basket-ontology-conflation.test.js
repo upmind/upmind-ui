@@ -3,10 +3,7 @@ const assert = require("node:assert/strict");
 const { execFileSync } = require("node:child_process");
 const path = require("node:path");
 
-const SCRIPT = path.resolve(
-  __dirname,
-  "glossary-resolve.mjs"
-);
+const SCRIPT = path.resolve(__dirname, "glossary-resolve.mjs");
 
 function run(args) {
   return execFileSync("node", [SCRIPT, ...args], { encoding: "utf8" });

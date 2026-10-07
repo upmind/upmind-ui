@@ -12,7 +12,7 @@ import { watch } from "vue";
 import { interpret } from "xstate";
 import { dataManagerMachine } from "../data-manager";
 import { createScopedComposable } from "../scope";
-import { useActiveSession } from "../session-store";
+import { useI18n } from "../system-localisation";
 import createClientNotificationsServices from "./client-notifications.services";
 import {
   CLIENT_NOTIFICATIONS_MANAGER_SCOPE_MATRIX,
@@ -38,14 +38,15 @@ import type {
   NotificationsContext,
   NotificationsModel
 } from "./client-notifications.types";
-import type { ScopeActorTypes, ScopeConfig, ScopeKey } from "../scope";
+import type { ScopeConfig, ScopeKey } from "../scope";
 // -----------------------------------------------------------------------------
 
 function createClientNotificationsManagerForScope(
   config: ScopeConfig,
   scopeKey: ScopeKey
 ) {
-  const actorScope = config.actor as ScopeActorTypes;
+  const { t } = useI18n();
+  const actorScope = config.actor;
 
   /**
    * ONE services instance for this scope, threaded into the machine config.
@@ -123,7 +124,7 @@ function createClientNotificationsManagerForScope(
     // `config.id` carries the link token, and thrown error `data` is the
     // value most likely to be logged, serialised to monitoring, and rendered.
     throw new DetailedError(
-      "Client notifications manager not available",
+      t("error.client_notifications_manager_not_available"),
       responseCodes.Service_Unavailable,
       ErrorOrigin.Headless,
       { scope: scopeKey }
@@ -132,8 +133,12 @@ function createClientNotificationsManagerForScope(
 
   /**
    * Late top-up for the CLIENT case only — at construction the session may not
-   * have resolved a client id yet. A token-only scope carries a token and never
-   * needs it.
+   * have resolved a client id yet. Watched off `service.clientId` (the ONE
+   * identity seam) so a session that authenticates AFTER boot still reaches the
+   * machine (AC-16); a one-shot `isReady().then()` resolves once at boot and
+   * never re-fires when the client tops up later. A token-only scope keeps
+   * `clientId` undefined and never fires it; `contextMatches` keeps an
+   * already-resolved value, so this never clobbers a retarget.
    *
    * @decision
    * what:     Gate the send on `stateMatches(actorRef.state, "subscribing")`.
@@ -143,16 +148,15 @@ function createClientNotificationsManagerForScope(
    * rejected: Giving `available` its own `REFRESH` override — edits the shared
    *           machine.
    */
-  const { isReady: ensureAuth } = useActiveSession().useActions();
-  ensureAuth().then(ok => {
-    const clientId = ok ? service.clientId.value : undefined;
+  const stopClientIdTopUp = watch(service.clientId, clientId => {
     if (
-      clientId &&
-      !contextMatches(actorRef.state, "clientId") &&
-      stateMatches(actorRef.state, "subscribing")
-    ) {
-      actorRef.send({ type: "REFRESH", data: { clientId } });
-    }
+      !clientId ||
+      contextMatches(actorRef.state, "clientId") ||
+      !stateMatches(actorRef.state, "subscribing")
+    )
+      return;
+    stopClientIdTopUp();
+    actorRef.send({ type: "REFRESH", data: { clientId } });
   });
 
   /**

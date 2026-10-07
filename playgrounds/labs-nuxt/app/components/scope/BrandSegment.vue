@@ -71,7 +71,7 @@ import { Button, DropdownMenu } from "@upmind/ui";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
-import { Icon } from "@upmind-automation/client-vue";
+import { Icon } from "@upmind-automation/foundation";
 import { useBrand, useActiveSession } from "@upmind-automation/headless";
 import { AccessRoleTypes } from "@upmind-automation/types";
 import {
@@ -112,12 +112,12 @@ const activeBrand = computed(() =>
   brandScope.value.mode === "brand" ? brandScope.value.brandId : "org"
 );
 
-interface BrandChoice {
+type BrandChoice = {
   value: string;
   label: string;
   icon: string;
   color?: string;
-}
+};
 
 /**
  * A brand's own hex, or nothing. `brand_color` is API-configured data reaching
@@ -212,9 +212,9 @@ async function select(value: string): Promise<void> {
   );
 }
 
-interface BrandMenuItem extends MenuItem {
+type BrandMenuItem = MenuItem & {
   color?: string;
-}
+};
 
 const items = computed<BrandMenuItem[]>(() =>
   map(choices.value, choice => ({

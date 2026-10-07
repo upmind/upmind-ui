@@ -17,12 +17,11 @@
  * next change to `runtime/**` cannot quietly start drawing something on a
  * sibling page that never declared it.
  *
- * Rendered-output regression coverage for these same seven modules already
- * exists and stays green post-fix — `forced-surface.{client-address,
- * client-company,client-custom-fields,client-email,client-email-history,
- * client-personal-details,client-phone}.spec.ts`, 39/39, re-run for this
- * dispatch (see this story's read-back). This file adds the declaration-
- * level guard those suites do not check for: that neither new field is
+ * Rendered-output regression coverage for these same seven modules is owed
+ * by each module's own replayed `.feature` scenarios (D20), not by a
+ * playground-side spec (operator ruling, 2026-09-28: the playground carries
+ * no module-specific tests). This file adds the declaration-
+ * level guard that replay does not check for: that neither new field is
  * PRESENT at all on any sibling, not merely that it currently renders
  * nothing (a declaration that started naming `notices`/`siblings` today
  * with an empty or matching-shaped value could still slip the rendered
@@ -80,13 +79,23 @@ describe("FE-3031 — the seven sibling scenarios never opted into either new ch
     }
   );
 
-  it("invoices is the ONLY declaration naming notices or siblings — the opt-in is exclusive to the module that asked for it", async () => {
+  it("both channels are declared by a module that asked for them — so the seven's undefineds are not vacuous", async () => {
+    // `notices` is carried by the invoices collection; `siblings` by a
+    // manager-backed read overlay (`useContracts`, `useDetail: useContract`
+    // folds its record under `contract`). The invoice single-record read is
+    // now the flat self-drawn `useInvoice` page, so it publishes under `data`
+    // and no longer names `siblings` — the proof moves to where the channel
+    // still lives, it does not disappear.
     const invoices = (await import("../../../useInvoices/invoices.scenario"))
       .default as ScenarioDeclaration;
-    const detail = invoices.presentation.detail as DetailUischema | undefined;
+    const contracts = (await import("../../../useContracts/contracts.scenario"))
+      .default as ScenarioDeclaration;
+    const contractsDetail = contracts.presentation.detail as
+      | DetailUischema
+      | undefined;
 
     expect(invoices.presentation.notices).toBeDefined();
-    expect(detail?.siblings).toBeDefined();
+    expect(contractsDetail?.siblings).toBeDefined();
 
     for (const declaration of Object.values(SIBLINGS)) {
       expect(declaration.presentation.notices).toBeUndefined();

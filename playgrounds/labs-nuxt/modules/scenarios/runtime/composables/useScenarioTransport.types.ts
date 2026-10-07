@@ -26,7 +26,7 @@
 
 import type { ScenarioTracks } from "../scenario.types";
 import type { FeatureTrack } from "./useFeatureTracks.types";
-import type { ForceReset } from "./useForcedState.types";
+import type { ForcePreset, ForceReset } from "./useForcedState.types";
 import type { ModulePortCriteria } from "./useModulePort.types";
 import type { UseScenarioPlayer } from "./useScenarioPlayer.types";
 import type { ForcedState } from "../force/states.types";
@@ -71,6 +71,8 @@ export type ScenarioTransport = {
   states: Ref<ForcedState[]>;
   /** The page's ONE player (`S19`). */
   player: UseScenarioPlayer;
+  /** The preset the forced frame is drawn under, absent on Live. */
+  preset: ComputedRef<ForcePreset | undefined>;
   /** The armed forced state, absent on Live. */
   forcedState: ComputedRef<ForcedState | undefined>;
   /** The recorded refusal sentence, only while the refusal preset is armed. */

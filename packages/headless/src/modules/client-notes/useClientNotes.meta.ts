@@ -51,12 +51,6 @@ export function createClientNotesMeta(
      */
     isAvailable: service.isAvailable,
 
-    /**
-     * True for a staged-import client — reads still work; every write action
-     * refuses (row C15).
-     */
-    isDisabled: service.isDisabled,
-
     /** True if this scope's vault has no assets. */
     isEmpty: isEmptyList,
 

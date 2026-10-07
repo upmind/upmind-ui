@@ -526,13 +526,14 @@ describe("endSetup (named export)", () => {
     const ctx = addContext();
     ctx.clientPaymentDetailsId = recordedPaymentDetailsId(BEGIN_STRIPE);
 
-    try {
-      await endSetup(ctx, { token: "mock-token" });
-      expect.fail("Expected endSetup to throw");
-    } catch (error: unknown) {
-      expect(error).toBeDefined();
-      expect(error).toBeInstanceOf(Error);
-    }
+    await endSetup(ctx, { token: "mock-token" })
+      .then(() => {
+        expect.fail("Expected endSetup to throw");
+      })
+      .catch((error: unknown) => {
+        expect(error).toBeDefined();
+        expect(error).toBeInstanceOf(Error);
+      });
   });
 
   it("AC-C3 sends the tokenize-end request to the gateway endpoint", async () => {
@@ -546,11 +547,9 @@ describe("endSetup (named export)", () => {
     const ctx = addContext();
     ctx.clientPaymentDetailsId = recordedPaymentDetailsId(BEGIN_STRIPE);
 
-    try {
-      await endSetup(ctx, { token: "mock-token" });
-    } catch {
+    await endSetup(ctx, { token: "mock-token" }).catch(() => {
       // expected to throw
-    }
+    });
 
     const tokenizeRequest = outbound.find(entry =>
       entry.includes("/gateway/frontend/tokenize-end/")

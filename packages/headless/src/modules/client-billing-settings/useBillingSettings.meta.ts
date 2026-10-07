@@ -1,93 +1,136 @@
 import { computed } from "vue";
-import type {
-  ClientBillingSettingsRecordQuery,
-  ClientBillingSettingsServices
-} from "./client-billing-settings.types";
+import { BrandConfigKeys } from "@upmind-automation/types";
+import { useBrand } from "../brand";
+import { contextValue, stateMatches } from "../../utils";
+import { isEmpty, isEqual } from "lodash-es";
+import type { BillingSettingsContext } from "./client-billing-settings.types";
+import type { UseActor } from "../../utils";
 import type { ScopeActorTypes } from "../scope/scope.types";
-import type { Ref } from "vue";
 // -----------------------------------------------------------------------------
 /**
  * @module client-billing-settings/useBillingSettings.meta
- * @description Read meta — computed state flags, one computed per flag.
- * @doctrine clause 2 — shared-only (armless). No capability read-state
- * exists in this module, so `meta` legitimately stays shared-only rather
- * than needing a per-actor capability arm.
+ * @description Manager meta — FLAT computeds, one per flag, read through the
+ * canonical state utilities only.
+ *
+ * @doctrine clause 2 — shared-only (armless).
  */
 export function createBillingSettingsMeta(
   _actorScope: ScopeActorTypes,
-  service: ClientBillingSettingsServices,
-  query: ClientBillingSettingsRecordQuery,
-  restrictToStaff: Ref<boolean | undefined>,
-  differentCurrencyPayment: Ref<boolean | undefined>,
-  visibilityError: Ref<boolean>
+  actor: UseActor
 ) {
-  const hasErrors = computed(() => !!query.error.value);
+  const { state } = actor;
 
-  const isLoading = computed(
-    () => query.isLoading.value || !query.isFetched.value
+  /**
+   * `true` only when the brand has explicitly opted clients into managing
+   * their own consolidation preference (row O8, AC-17). Read through the brand
+   * module's `getConfigValue` — `loadBrandGates` runs `ensureConfig` in the
+   * services, so the nested key is settled by the time the meta reads it.
+   * Visible only on an explicit literal `false`; an absent or `true` value
+   * restricts the surface.
+   */
+  const isVisible = computed(
+    () =>
+      useBrand().getConfigValue<boolean>(
+        BrandConfigKeys.INVOICE_CONSOLIDATION_RESTRICT_TO_STAFF
+      ) === false
   );
 
   /**
-   * Row O8 — hidden unless the brand explicitly opts clients in. The `?? true`
-   * polarity is the oracle's own (`comp:72-79`): an absent or `true` value
-   * hides the surface; only an explicit literal `false` reveals it.
-   * `restrictToStaff` is settled by `useBillingSettings.ts`
-   * (`service.loadVisibility()`, re-invocable via `useActions().refresh()`),
-   * shared with `useActions().isReady()` so a consumer that awaits readiness
-   * always reads a SETTLED value here, never one still in flight. A failed
-   * fetch fails this closed (`undefined` reads as not-`false`) — surfaced
-   * separately via `hasVisibilityError`, not conflated with an explicit
-   * brand opt-out.
-   */
-  const isVisible = computed(() => restrictToStaff.value === false);
-
-  /**
-   * Row B6 — offered ONLY when the brand has explicitly opted clients into
-   * paying in a different currency. OPPOSITE polarity to `isVisible` above:
-   * consumed as `!!value`, never `!(value ?? true)`. Absent or falsy
-   * withholds the choice entirely — never merged with `isVisible`'s own
-   * default or code path.
+   * `true` only when the brand has explicitly opted clients into paying in a
+   * different currency (row B6). OPPOSITE polarity to `isVisible` — consumed
+   * as `!!value`, never sharing a default with it.
    */
   const hasPaymentCurrencyChoice = computed(
-    () => !!differentCurrencyPayment.value
+    () =>
+      !!useBrand().getConfigValue<boolean>(
+        BrandConfigKeys.BILLING_DIFFERENT_CURRENCY_PAYMENT_ENABLED
+      )
   );
 
-  /** Row C14 — `true` while the addressed client record is a staged, unprocessed import. A state flag, so meta, not context. */
-  const isStaged = computed(() => !!query.data.value?.isStaged);
+  /**
+   * True once the form is available for input — the machine is settled AND
+   * the brand has opted this client into managing consolidation (AC-17). A
+   * restricted client reads `false`, and the editor makes no write.
+   */
+  const isAvailable = computed(
+    () => stateMatches(state, "available") && isVisible.value
+  );
+
+  /**
+   * True while the machine is waiting for its client id or resolving
+   * lookups. `subscribing` is included deliberately: a manager whose
+   * `hasSubscription` guard has not passed yet is loading, not broken.
+   */
+  const isLoading = computed(() =>
+    stateMatches(state, ["subscribing", "loading"])
+  );
+
+  /** True if the machine captured an error. */
+  const hasErrors = computed(
+    () =>
+      stateMatches(state, "available.error") ||
+      !isEmpty(contextValue<BillingSettingsContext["error"]>(state, "error"))
+  );
+
+  /** True if a validation error exists AND the form has been touched. */
+  const showErrors = computed(
+    () =>
+      !isEmpty(contextValue<BillingSettingsContext["error"]>(state, "error")) &&
+      stateMatches(state, ["available.invalid", "available.error"])
+  );
+
+  /** True if the current model passes schema validation. */
+  const isValid = computed(() => stateMatches(state, "available.valid"));
+
+  /** True if the model differs from its persisted baseline. */
+  const isDirty = computed(
+    () =>
+      !isEqual(
+        contextValue<BillingSettingsContext["model"]>(state, "model"),
+        contextValue<BillingSettingsContext["baseModel"]>(state, "baseModel")
+      )
+  );
+
+  /** True while a save is being processed. */
+  const isProcessing = computed(() => stateMatches(state, "processing"));
+
+  /** True once the preference has been saved. */
+  const isComplete = computed(() =>
+    stateMatches(state, ["processed", "complete"])
+  );
 
   // --- actor-specific meta: none earned (arms: none — parity.yaml).
 
   return {
-    /** True if the preference read failed. */
+    /** True if the machine captured an error. */
     hasErrors,
 
-    /**
-     * True while this scope can address a client — authenticated with a
-     * resolved client id. Handed straight through from the services
-     * instance: this IS the predicate the request gate calls.
-     */
-    isAvailable: service.isAvailable,
+    /** True once the form is available for input. */
+    isAvailable,
 
-    /**
-     * True when row O8's brand-gate fetch has failed and not yet recovered.
-     * `isVisible` fails closed (`false`) on the same condition, which reads
-     * identically to an explicit brand opt-out — this flag is how a
-     * consumer tells the two apart. Recovers on the next successful
-     * `useActions().refresh()`.
-     */
-    hasVisibilityError: computed(() => visibilityError.value),
+    /** True once the preference has been saved. */
+    isComplete,
 
-    /** True while the read is loading or has not completed its first fetch. */
+    /** True if the model differs from its persisted baseline. */
+    isDirty,
+
+    /** True while subscribing or loading. */
     isLoading,
 
-    /** True while the addressed client record is a staged, unprocessed import (row C14). */
-    isStaged,
+    /** True while a save is being processed. */
+    isProcessing,
 
-    /** True only when the brand has explicitly opted clients into this surface (row O8). */
+    /** True if the current model passes schema validation. */
+    isValid,
+
+    /** `true` only when the brand has explicitly opted clients into this surface (row O8). */
     isVisible,
 
-    /** True only when the brand has explicitly opted clients into paying in a different currency (row B6). */
-    hasPaymentCurrencyChoice
+    /** `true` only when the brand has explicitly opted clients into paying in a different currency (row B6). */
+    hasPaymentCurrencyChoice,
+
+    /** True if an error exists and the form has been touched. */
+    showErrors
 
     // The arm merges in HERE, last.
     // ...actorMeta

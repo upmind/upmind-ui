@@ -64,19 +64,60 @@
 import { join } from "node:path";
 import { http, HttpResponse } from "msw";
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
-import { getFixtureBody } from "@upmind-automation/test-fixtures";
+import { getFixture, getFixtureBody } from "@upmind-automation/test-fixtures";
+import { replayStep } from "@upmind-automation/test-fixtures/replay-server";
 import { clearSessionCookies } from "../../../__tests__/int-test-helpers";
 import { useBasket } from "../../basket";
 import {
   basketProductServices,
   type BasketProduct
 } from "../../basket-product";
+import { queryClient } from "../../query";
 import { useSessionStore } from "../../session-store";
 import { useProductSetup } from "../useProductSetup";
 import { server } from "./setup.integration";
 import type { UseBasket } from "../../basket";
 
 const recordingsDir = join(import.meta.dirname, "fixtures");
+
+const BRAND_RECORDINGS = join(
+  import.meta.dirname,
+  "../../brand/__tests__/fixtures"
+);
+const SYSTEM_RECORDINGS = join(
+  import.meta.dirname,
+  "../../system/__tests__/fixtures"
+);
+const SESSION_RECORDINGS = join(
+  import.meta.dirname,
+  "../../session-store/__tests__/fixtures"
+);
+
+/**
+ * The boot reads a guest storefront session makes — the brand's settings and
+ * config, the system reference data, the guest token grant — answered by the
+ * RECORDINGS of the modules that own them (brand, system, session-store), never
+ * by a body copied into this module (ADR 035, FE-3145). This module's own
+ * `orders/current` and provision-field captures stay its own and win as initial
+ * handlers or per-test `server.use` overrides.
+ */
+function installBackgroundStubs(): void {
+  replayStep(server, BRAND_RECORDINGS);
+  replayStep(server, SYSTEM_RECORDINGS);
+  replayStep(server, SESSION_RECORDINGS);
+  // Every token grant shares one url and differs only by body, so name the
+  // guest grant `initStore()` mints (session-store owns the recording).
+  const guest = getFixture("post-oauth-access-token-guest", {
+    recordingsDir: SESSION_RECORDINGS
+  });
+  server?.use(
+    http.post("*/oauth/access_token", () =>
+      HttpResponse.json(guest.response.body as Record<string, unknown>, {
+        status: guest.response.status
+      })
+    )
+  );
+}
 
 // The slds the CONFIGURED cross-referenced capture seats on each domain (see
 // product-setup.fixtures.ts). Each becomes the domain's `service_identifier`
@@ -111,6 +152,7 @@ const REGISTRANT_MODEL = {
  * recorded `orders/current` already carries the two invalid domains).
  */
 async function bootInvalidBasket(): Promise<UseBasket> {
+  installBackgroundStubs();
   await useSessionStore().useActions().isReady();
   const basket = useBasket();
   basket.clear();
@@ -155,6 +197,8 @@ async function bootConfiguredBasket(): Promise<{
   basket: UseBasket;
   ids: ConfiguredIds;
 }> {
+  installBackgroundStubs();
+
   const currentBody = getFixtureBody<{
     data: {
       products: Array<{
@@ -254,7 +298,11 @@ async function bootConfiguredBasket(): Promise<{
 
 describe("useProductSetup — invalid-basket integration (FE-2796)", () => {
   beforeEach(() => {
+    // Install first: instantiating useProductSetup below touches the brand/config
+    // singletons, whose one-time boot config read must find its stub already up.
+    installBackgroundStubs();
     clearSessionCookies();
+    queryClient.clear();
     useSessionStore().useActions().clear();
     useProductSetup().reset();
   });

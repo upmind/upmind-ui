@@ -8,7 +8,7 @@
  *
  * All three delegate to `@jsonforms/core`'s own runtime — the same evaluator
  * the form renderer already runs rules through — over the shared ajv instance
- * `client-vue`'s `Form.vue` uses, so a scenario's rules behave exactly as a
+ * `foundation`'s `Form.vue` uses, so a scenario's rules behave exactly as a
  * form's do and no second rule engine exists to drift.
  */
 
@@ -19,7 +19,7 @@ import {
   toDataPath
 } from "@jsonforms/core";
 import { useValidation } from "@upmind-automation/headless";
-import { compact, get, isString, split } from "lodash-es";
+import { compact, get, isNil, isString, split } from "lodash-es";
 import type { ScenarioTracks } from "./scenario.types";
 import type { Rule, UISchemaElement } from "@jsonforms/core";
 
@@ -54,6 +54,33 @@ export function resolvePointer(
   pointer: string
 ): unknown {
   return get(row, compact(split(pointer, "/")));
+}
+
+/** The first year a real date may carry; earlier is the API's zero sentinel. */
+const EPOCH_YEAR = 1970;
+
+const YEAR = /\b(\d{4})\b/;
+
+/**
+ * Whether a `useDate` descriptor (`{ date, relative }`), or a raw wire date
+ * string, carries NO real date —
+ * absent, empty, or the API's zero sentinel (`1899-12-30`, the epoch) that
+ * would otherwise draw as "127 years ago". The mapper publishes only the
+ * formatted `date`, so the year is read off it.
+ */
+export function isAbsentDate(value: unknown): boolean {
+  const date = isString(value) ? value : get(value, "date");
+  if (isNil(date) || date === "") return true;
+  const year = Number(YEAR.exec(String(date))?.[1]);
+  return !!year && year <= EPOCH_YEAR;
+}
+
+/**
+ * The NAME a declared route param binds under — `id` out of
+ * `id([0-9a-fA-F-]{36})?`, the pattern and the optional mark stripped.
+ */
+export function paramNameOf(param?: string): string | undefined {
+  return param?.match(/^\w+/)?.[0];
 }
 
 /** Whether a declared control is ENABLED for this row. */

@@ -1,0 +1,68 @@
+{
+  "version": 3,
+  "request": {
+    "method": "PUT",
+    "path": "/api/contracts/4038696e-5472-1d56-024c-518d9305e7d2/products/52098d3d-e409-17ed-883f-31578626e347/change",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": {
+      "contract_id": "4038696e-5472-1d56-024c-518d9305e7d2",
+      "contracts_product_id": "52098d3d-e409-17ed-883f-31578626e347",
+      "product": {
+        "product_id": "47d73824-8507-9315-6ddb-81e642d59e06",
+        "billing_cycle_months": 1
+      },
+      "options": [],
+      "attributes": [],
+      "dry_run": true
+    }
+  },
+  "response": {
+    "status": 422,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a43aa380bd3533e5-JNB",
+      "connection": "keep-alive",
+      "content-type": "application/json",
+      "date": "Thu, 01 Oct 2026 10:03:40 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=FO26CONyn8gO2iXxuE1O09mHlt0BPY8gU02YSCJVkQB0zpG8sUfioxASoO3qCdGxw7IvOCt4kSjVFW8MSYzBEab%2FmSqExevtW55nvOBfDOmlVPkbHiM%2BAtXPTZIND6%2Bfri9bmyoBoA%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "x-frame-options": "SAMEORIGIN",
+      "x-upmind-snail": "true"
+    },
+    "body": {
+      "status": "error",
+      "data": null,
+      "related": null,
+      "total": null,
+      "error": {
+        "id": "dbbc852d675ba27b25143b7ec53c89e7e7f4abf7",
+        "type": 0,
+        "code": 422,
+        "message": "API request invalid!",
+        "data": {
+          "options.options": [
+            "Please select an option from FE-3206 Required pick"
+          ]
+        }
+      },
+      "messages": null,
+      "meta": null
+    }
+  },
+  "captured_at": "2026-10-01T10:03:40.012Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "contract-product"
+  }
+}

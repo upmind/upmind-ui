@@ -83,7 +83,7 @@ export default {
     let hasEmptySlot = false;
 
     /** Scan an inspectable member list for array-typed collection props. */
-    const scanMembers = (members) => {
+    const scanMembers = members => {
       for (const member of members) {
         const name = memberKeyName(member);
         if (name && isCollectionName(name) && isArrayTyped(member)) {
@@ -102,7 +102,8 @@ export default {
 
         // `defineProps<{ ... }>()` — INLINE object-type literal only.
         if (callee.name === "defineProps") {
-          if (first && first.type === "TSTypeLiteral") scanMembers(first.members);
+          if (first && first.type === "TSTypeLiteral")
+            scanMembers(first.members);
           return;
         }
 

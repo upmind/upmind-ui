@@ -1,5 +1,6 @@
 import {
   computed,
+  hasInjectionContext,
   inject,
   provide,
   reactive,
@@ -67,6 +68,7 @@ import type {
   ConditionState
 } from "./config.types";
 import type { UIMetaSchema as UISchema, DataSchema } from "./schema";
+// -----------------------------------------------------------------------------
 
 // --- Initialization ---
 
@@ -577,8 +579,9 @@ export function provideConfig(config: UseMetaResult): void {
   provide(CONFIG_KEY, config);
 }
 
+/** The config a parent provided, or `undefined` outside a setup/injection context (a mapper, a query callback). */
 export function injectConfig(): UseMetaResult | undefined {
-  return inject(CONFIG_KEY, undefined);
+  return hasInjectionContext() ? inject(CONFIG_KEY, undefined) : undefined;
 }
 
 /**

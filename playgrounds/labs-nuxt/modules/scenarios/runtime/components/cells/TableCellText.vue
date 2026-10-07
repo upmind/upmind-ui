@@ -10,6 +10,7 @@
 
 import { uiTypeIs } from "@jsonforms/core";
 import { computed } from "vue";
+import { useI18n } from "vue-i18n";
 import { resolveScope } from "../../scenario.utils";
 import { isNil, toString } from "lodash-es";
 import type { TableCellProps } from "./cells.types";
@@ -18,9 +19,17 @@ import type { TableCellText } from "../../scenario.types";
 
 const props = defineProps<TableCellProps<TableCellText>>();
 
+const { t } = useI18n();
+
 const text = computed(() => {
   const value = resolveScope(props.row, props.element.scope);
-  return isNil(value) ? "" : toString(value);
+  if (isNil(value)) return "";
+  const prefix = props.element.options?.i18nValue;
+  if (!prefix) return toString(value);
+  // `t` hands an unknown key back, so a code with no label draws as itself.
+  const key = `${prefix}.${toString(value)}`;
+  const label = t(key);
+  return label === key ? toString(value) : label;
 });
 </script>
 

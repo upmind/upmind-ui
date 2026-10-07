@@ -1,0 +1,23 @@
+# Negative control — `client` reaches into an app's shell: its renderers pull in
+# the cart's billing page templates, where its address control is drawn. ADR 023
+# Amendment 1 change 3 makes page templates app-owned, so a package reaching them
+# points a package at an app, an edge no row of §3's grant matrix carries.
+#
+# Caught by `eslint`'s `@workspace/no-cross-package-path-imports`, which resolves
+# the relative escape to disk and names the package that owns the target.
+#
+# Intended RED under lint:
+#   Import a workspace package by its published specifier — its internals are
+#   private. ("../../../../apps/cart/src/shell/modules/billing/shell" resolves into apps/cart)
+
+diff --git a/packages/modules-client/src/renderers/index.ts b/packages/modules-client/src/renderers/index.ts
+--- a/packages/modules-client/src/renderers/index.ts
++++ b/packages/modules-client/src/renderers/index.ts
+@@ -4,6 +4,7 @@
+  * @description The address and manage form renderers this package registers.
+  */
+ import { registerEntry } from "@upmind/ui";
++import "../../../../apps/cart/src/shell/modules/billing/shell";
+ import AddressRenderer from "./AddressRenderer.vue";
+ import { tester as addressTester } from "./AddressRenderer.vue";
+ import ManageRenderer from "./ManageRenderer.vue";

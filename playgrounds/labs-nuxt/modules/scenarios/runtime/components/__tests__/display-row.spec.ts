@@ -26,6 +26,10 @@ import { mount } from "@vue/test-utils";
 import { describe, expect, it, vi } from "vitest";
 import { computed, ref } from "vue";
 import { createI18n } from "vue-i18n";
+import {
+  foundationRenderers,
+  registerFormRenderers
+} from "@upmind-automation/foundation";
 import { internalKits } from "@upmind-automation/headless/testing";
 import action from "@upmind-automation/i18n/core/action-en.json";
 import form from "@upmind-automation/i18n/core/form-en.json";
@@ -63,6 +67,9 @@ import type { DeclaringTableChannel } from "../../composables/useTableChannel.ty
 import type { SortField } from "../SortControl.types";
 import type { ControlledTableChannel } from "@upmind-automation/scenario-harness";
 import type { DOMWrapper, VueWrapper } from "@vue/test-utils";
+
+// The app's startup plugin registers foundation's form controls; this lane boots no plugin.
+registerFormRenderers(foundationRenderers);
 
 const { useQuerySchema, useQueryUischema } =
   await internalKits["client-email"]();

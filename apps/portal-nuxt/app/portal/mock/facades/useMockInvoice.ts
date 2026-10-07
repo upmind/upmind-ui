@@ -51,6 +51,7 @@ import type {
   MockPaymentMethod
 } from "../types";
 import type { FormModel } from "@upmind/ui";
+// -----------------------------------------------------------------------------
 
 export const useMockInvoice = defineMockFacade(
   (data, invoiceId): MockInvoice | undefined =>

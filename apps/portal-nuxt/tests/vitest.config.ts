@@ -1,6 +1,7 @@
 import { fileURLToPath } from "node:url";
 import vue from "@vitejs/plugin-vue";
 import { defineConfig } from "vitest/config";
+// -----------------------------------------------------------------------------
 
 const appRoot = fileURLToPath(new URL("../", import.meta.url));
 const appDir = fileURLToPath(new URL("../app/", import.meta.url));
@@ -19,6 +20,12 @@ export default defineConfig({
       "@upmind-automation/types": fileURLToPath(
         new URL("../../../packages/types/src/index.ts", import.meta.url)
       ),
+      "@upmind-automation/headless": fileURLToPath(
+        new URL("../../../packages/headless/src/index.ts", import.meta.url)
+      ),
+      "@upmind-automation/i18n": fileURLToPath(
+        new URL("../../../packages/i18n/src/index.ts", import.meta.url)
+      ),
       "@upmind/ui/styles": fileURLToPath(
         new URL(
           "../../../design-system/packages/ui/src/styles/index.css",
@@ -34,6 +41,9 @@ export default defineConfig({
       // Nuxt's build-time virtual module — see support/nuxt-components-stub.ts.
       "#components": fileURLToPath(
         new URL("../tests/support/nuxt-components-stub.ts", import.meta.url)
+      ),
+      "#app": fileURLToPath(
+        new URL("../tests/support/nuxt-app-stub.ts", import.meta.url)
       )
     }
   },

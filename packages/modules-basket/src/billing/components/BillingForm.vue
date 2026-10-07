@@ -1,0 +1,290 @@
+<template>
+  <Loading :label="t('text.loading')" :active="meta.showOverlay">
+    <Sections
+      id="basket-billing"
+      :class="formSectionsVariants()"
+      v-model="activeTab"
+      :sections="tabs"
+      :card="card || undefined"
+      :dataAttrs="{ 'data-test-key': 'billing' }"
+    >
+      <template v-slot:[`section-personal`]>
+        <TabPersonal
+          v-model="modelValue"
+          v-model:touched="touched"
+          :expand="expand"
+          @form-resolve="onFormResolve"
+        />
+        <Button
+          v-if="(isMobile || inline) && meta.showContinue"
+          :data-attrs="{ 'data-test-key': 'button-continue' }"
+          variant="primary"
+          size="lg"
+          block
+          :loading="billingMeta.isProcessing || isNavigating"
+          @click="doContinue"
+        >
+          {{ t("action.continue_label") }}
+          <Icon icon="arrow-right" />
+        </Button>
+      </template>
+
+      <template v-slot:[`section-business`]>
+        <TabBusiness
+          v-model="modelValue"
+          v-model:touched="touched"
+          :expand="expand"
+          @form-resolve="onFormResolve"
+        />
+        <Button
+          v-if="(isMobile || inline) && meta.showContinue"
+          :data-attrs="{ 'data-test-key': 'button-continue' }"
+          variant="primary"
+          size="lg"
+          block
+          :loading="billingMeta.isProcessing || isNavigating"
+          @click="doContinue"
+        >
+          {{ t("action.continue_label") }}
+          <Icon icon="arrow-right" />
+        </Button>
+      </template>
+    </Sections>
+  </Loading>
+
+  <Teleport v-if="isMounted && !inline && !isMobile" to="#billing-actions">
+    <Button
+      v-if="meta.showContinue"
+      :data-attrs="{ 'data-test-key': 'button-continue' }"
+      variant="primary"
+      size="lg"
+      block
+      :loading="billingMeta.isProcessing || isNavigating"
+      @click="doContinue"
+    >
+      {{ t("action.continue_label") }}
+      <Icon icon="arrow-right" />
+    </Button>
+  </Teleport>
+</template>
+
+<script lang="ts" setup>
+import { Button, Loading } from "@upmind/ui";
+import { useMounted } from "@vueuse/core";
+import { computed, ref, watch } from "vue";
+import { useI18n } from "vue-i18n";
+import { Sections } from "@upmind-automation/foundation";
+import { Icon } from "@upmind-automation/foundation";
+import { isMobile } from "@upmind-automation/foundation";
+import {
+  ScopeActorTypes,
+  UnifiedType,
+  useActiveSession,
+  useBasketBilling,
+  useClientAddresses,
+  useClientCompanies,
+  useClientPhones,
+  useRoutingEngine
+} from "@upmind-automation/headless";
+import { formSectionsVariants } from "../variants";
+import TabBusiness from "./TabBusiness.vue";
+import TabPersonal from "./TabPersonal.vue";
+import type { BillingFormProps } from "../types";
+import type { SectionItem } from "@upmind-automation/foundation";
+import type { BillingModel } from "@upmind-automation/headless";
+
+const modelValue = defineModel<BillingFormProps["modelValue"]>("modelValue");
+
+const touched = defineModel<BillingFormProps["touched"]>("touched");
+
+// -----------------------------------------------------------------------------
+
+const props = withDefaults(defineProps<BillingFormProps>(), {
+  autoUpdate: true,
+  inline: false
+});
+
+const emit = defineEmits<{
+  resolve: [];
+}>();
+// -----------------------------------------------------------------------------
+
+const { t } = useI18n();
+
+// Teleport cannot use `defer` inside async setup (Suspense + KeepAlive conflict),
+// so we gate it on isMounted to ensure the DOM target exists before teleporting.
+const isMounted = useMounted();
+
+const { activeUser: client } = useActiveSession().useContext();
+const {
+  isReady,
+  meta: billingMeta,
+  config,
+  set,
+  update,
+  wait,
+  model
+} = useBasketBilling();
+const { isNavigating } = useRoutingEngine();
+
+// ensure we preload our data for speed between the tab
+
+const activeTab = ref<UnifiedType>();
+
+const addressesScope = useClientAddresses().as(ScopeActorTypes.CLIENT);
+const companiesScope = useClientCompanies().as(ScopeActorTypes.CLIENT);
+const { isEmpty: isCompaniesEmpty } = companiesScope.useMeta();
+
+const meta = computed(() => {
+  const phoneReady = !billingMeta.value.needsPhone || !phonesEmpty.value;
+  const addressReady = !billingMeta.value.needsAddress || !addressesEmpty.value;
+  // Business billing needs a company to continue with, even when the brand
+  // doesn't force one — otherwise Continue shows alongside the add-company form
+  // and commits empty, wiping the address.
+  const companyReady = !isCompaniesEmpty.value;
+  const allowContinue =
+    activeTab.value === UnifiedType.PERSONAL
+      ? addressReady && phoneReady
+      : companyReady && phoneReady;
+  // Without autosave, Continue is the commit path — so it must exist whenever the
+  // model is committable. Nothing else may gate it: selecting a saved entry never
+  // reaches onFormResolve (Manage wires that to the form only), so hiding Continue
+  // would leave the shopper with no way to save at all.
+  const showContinue = !props.autoUpdate && allowContinue;
+  // The inline Continue already shows progress, so the full-form overlay would
+  // double up; a full-page billing form is where the overlay leads.
+  const showOverlay =
+    billingMeta.value.isProcessing && !(props.inlineEditing && showContinue);
+  return { showContinue, showOverlay };
+});
+
+// The client-data isReady()s resolve once the auth check settles (checkout
+// only mounts this form for authenticated sessions, guest clients included),
+// so a refresh mid-token-validation still loads saved billing.
+await Promise.allSettled([
+  isReady(),
+  addressesScope.useActions().isReady(),
+  companiesScope.useActions().isReady(),
+  useClientPhones().as(ScopeActorTypes.SELF).useActions().isReady()
+]).then(() => {
+  const { default: defaultCompany } = companiesScope.useContext();
+  // set initial value from the basket billing model
+  modelValue.value ??= model.value;
+  if (
+    config.value?.requiresCompany ||
+    model.value?.companyId ||
+    (!model.value?.addressId && defaultCompany()) // if we dont have an address but do have a default company, prefer business
+  ) {
+    activeTab.value = UnifiedType.BUSINESS;
+  } else {
+    activeTab.value = UnifiedType.PERSONAL;
+  }
+});
+
+// --- summary
+
+const { getOne: getAddress } = addressesScope.useContext();
+const { isEmpty: addressesEmpty } = addressesScope.useMeta();
+const { getOne: getCompany, default: defaultCompany } =
+  companiesScope.useContext();
+const clientPhones = useClientPhones().as(ScopeActorTypes.SELF);
+const { getOne: getPhone, default: defaultPhone } = clientPhones.useContext();
+const { isEmpty: phonesEmpty } = clientPhones.useMeta();
+
+const _selectedAddress = computed(() =>
+  getAddress(model.value?.addressId ?? undefined)
+);
+const _selectedCompany = computed(() =>
+  getCompany(model.value?.companyId ?? undefined)
+);
+const _selectedPhone = computed(() =>
+  getPhone(model.value?.phoneId ?? undefined)
+);
+
+// --- tabs
+
+const tabs = computed((): SectionItem[] => {
+  const tabItems: SectionItem[] = [];
+
+  if (!client.value?.id) return tabItems;
+
+  if (!config.value?.requiresCompany) {
+    tabItems.push({
+      icon: "user-01",
+      label: t("text.personal_details"),
+      value: UnifiedType.PERSONAL,
+      eager: false,
+      dataAttrs: { "data-test-key": "tab-personal-details" }
+    });
+  }
+  tabItems.push({
+    icon: "building-07",
+    label: t("text.business_details"),
+    value: UnifiedType.BUSINESS,
+    eager: !!config.value?.requiresCompany,
+    dataAttrs: { "data-test-key": "tab-business-details" }
+  });
+
+  return tabItems;
+});
+
+// --- methods
+
+function buildModel(): BillingModel | undefined {
+  const phoneId = billingMeta.value.needsPhone
+    ? (modelValue.value?.phoneId ?? defaultPhone()?.id)
+    : undefined;
+
+  if (activeTab.value === UnifiedType.PERSONAL) {
+    return { ...modelValue.value, companyId: undefined, phoneId };
+  }
+
+  if (
+    activeTab.value === UnifiedType.BUSINESS &&
+    !modelValue.value?.companyId
+  ) {
+    const company = getCompany(defaultCompany());
+    return {
+      ...modelValue.value,
+      companyId: company?.id,
+      addressId: company?.addressId,
+      phoneId
+    };
+  }
+
+  return { ...modelValue.value, phoneId };
+}
+
+async function doContinue() {
+  const value = buildModel();
+  await update(value!);
+  modelValue.value = value;
+  emit("resolve");
+}
+
+async function onFormResolve() {
+  if (props.autoUpdate) return;
+  await wait(true);
+  await update(buildModel()!);
+  // Inline editing closes the editor only once billing is complete, so saving one
+  // detail while another is still required keeps the shopper here rather than
+  // dropping them onto an incomplete summary with nothing to action.
+  if (props.inlineEditing && !billingMeta.value.isComplete) return;
+  emit("resolve");
+}
+
+// --- side effects
+
+watch(
+  modelValue,
+  async value => {
+    if (value && !billingMeta.value.isProcessing) {
+      await (props.autoUpdate ? update(value) : set(value));
+    }
+  },
+  {
+    immediate: true,
+    deep: true
+  }
+);
+</script>

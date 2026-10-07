@@ -1,56 +1,77 @@
 import { computed } from "vue";
-import { mapToHeadlessError } from "../../utils";
+import { useBrand } from "../brand";
+import {
+  useInvoiceCurrencySchema,
+  useInvoiceCurrencyUischema,
+  useInvoicePaymentMethodSchema,
+  useInvoicePaymentMethodUischema
+} from "./invoices.schemas";
+import { useContext } from "../../utils";
+import type { PaymentDetail } from "../payment-details";
 import type {
-  InvoiceItemQuery,
-  InvoiceUnpaidAmountQuery,
-  InvoicesServices
+  Invoice,
+  InvoiceForm,
+  InvoicePaymentDetailsModel
 } from "./invoices.types";
-import type { ResponseError } from "../../utils";
+import type { ResponseError, UseActor } from "../../utils";
 import type { ScopeActorTypes } from "../scope/scope.types";
+import type { Ref } from "vue";
 // -----------------------------------------------------------------------------
 /**
  * @module invoices/useInvoice.context
- * @description Single-read context — the mapped invoice, its captured error,
- * and AC1's standalone live unpaid amount. Query-backed: data is mapped in
- * `invoices.services.ts` via `select`, never here.
+ * @description Single-invoice context — the mapped invoice record (published as
+ * `model`, the runtime's render key, never a `data` node), its captured error,
+ * and the `{ schema, uischema, model }` slots of its two write forms. The pay
+ * currency and its unpaid amount ride on `model` (`currencyPayment`, `summary`).
  *
  * ERRORS ARE STATE, NOT EVENTS. `error` is the scope's captured failure,
  * exposed for the consumer to render. This layer never raises it.
- *
- * @doctrine clause 2 — shared-only (armless).
  */
 export function createInvoiceContext(
   _actorScope: ScopeActorTypes,
-  service: InvoicesServices,
-  query: InvoiceItemQuery,
-  unpaidAmountQuery: InvoiceUnpaidAmountQuery
+  actor: UseActor,
+  paymentDetailsModel: Ref<InvoicePaymentDetailsModel>,
+  storedPaymentMethods: Ref<PaymentDetail[] | undefined>
 ) {
-  // Folds in the unpaid-amount read's own error (W1) — otherwise a failed
-  // AC1 re-read is unobservable on this layer too.
-  const error = computed<ResponseError | undefined>(
-    () =>
-      service.error.value ??
-      (query.error.value ? mapToHeadlessError(query.error.value) : undefined) ??
-      (unpaidAmountQuery.error.value
-        ? mapToHeadlessError(unpaidAmountQuery.error.value)
-        : undefined)
-  );
-
-  // --- actor-specific context: none earned yet (clause 2). When a scope
-  // earns one, add `useInvoice.context.{actor}.ts` and spread it LAST.
+  const { state } = actor;
+  const { currencies } = useBrand();
+  const invoice = useContext<Invoice | undefined>(state, "invoice");
 
   return {
-    /** The reactive mapped invoice this scope resolved. */
-    data: query.data,
+    /**
+     * The pay-currency form `useActions().setCurrency()` takes its `code`
+     * from — the brand's currencies, the invoice's pay currency preselected.
+     * It holds no model: the caller holds the pick.
+     */
+    currency: computed<InvoiceForm>(() => ({
+      schema: useInvoiceCurrencySchema(
+        currencies.value,
+        invoice.value?.currencyPayment?.code
+      ),
+      uischema: useInvoiceCurrencyUischema()
+    })),
 
     /** The scope's captured error — read, never raised. */
-    error,
+    error: useContext<ResponseError | undefined>(state, "error"),
 
-    /** AC1 — the live unpaid amount, re-read independently of the invoice. */
-    unpaidAmount: unpaidAmountQuery.data
+    /** The mapped invoice record this scope resolved. */
+    model: invoice,
 
-    // The arm merges in HERE, last.
-    // ...actorContext
+    /**
+     * The payment-method form — the stored cards `openPaymentMethod()` read
+     * (no schema until it has), over the model `input()` stages and
+     * `updatePaymentDetails()` saves.
+     */
+    paymentMethod: computed<InvoiceForm>(() => ({
+      schema: storedPaymentMethods.value
+        ? useInvoicePaymentMethodSchema(
+            storedPaymentMethods.value,
+            invoice.value?.paymentMethod.id ?? null
+          )
+        : undefined,
+      uischema: useInvoicePaymentMethodUischema(),
+      model: paymentDetailsModel.value
+    }))
   };
 }
 

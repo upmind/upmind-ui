@@ -75,13 +75,13 @@ export function usePreferencesLink(): ScenarioPageActionInstance {
   async function requestResetEmail(name: string): Promise<boolean> {
     const auth = useAuth().as(ScopeActorTypes.CLIENT).fresh();
     const actions = auth.useActions();
-    try {
-      await actions.isReady();
-      await actions.start(AuthFlowTypes.RECOVER);
-      return await actions.resolve({ username: name });
-    } finally {
-      actions.destroy();
-    }
+    return actions
+      .isReady()
+      .then(() => actions.start(AuthFlowTypes.RECOVER))
+      .then(() => actions.resolve({ username: name }))
+      .finally(() => {
+        actions.destroy();
+      });
   }
 
   async function pollForNewEmail(
@@ -101,55 +101,60 @@ export function usePreferencesLink(): ScenarioPageActionInstance {
     const name = username.value;
     if (!isOffered.value || !name) return;
 
-    try {
-      step(
-        PreferencesLinkPhase.REQUESTING,
-        "text.notification_preferences_link_requesting"
-      );
-      const before = await readRecentClientEmails();
-      const seen = new Set<string>(map(before, "id"));
+    step(
+      PreferencesLinkPhase.REQUESTING,
+      "text.notification_preferences_link_requesting"
+    );
+    return readRecentClientEmails()
+      .then(before => {
+        const seen = new Set<string>(map(before, "id"));
 
-      if (!(await requestResetEmail(name))) {
+        return requestResetEmail(name).then(requested => {
+          if (!requested) {
+            fail("error.notification_preferences_link_failed");
+            return;
+          }
+
+          step(
+            PreferencesLinkPhase.WAITING,
+            "text.notification_preferences_link_waiting"
+          );
+          return pollForNewEmail(seen).then(emailId => {
+            if (!emailId) {
+              fail("error.notification_preferences_link_timeout");
+              return;
+            }
+
+            step(
+              PreferencesLinkPhase.FOUND,
+              "text.notification_preferences_link_token_found"
+            );
+            return readClientEmailNotificationToken(emailId).then(token => {
+              if (!token) {
+                fail("error.notification_preferences_link_no_token");
+                return;
+              }
+
+              step(
+                PreferencesLinkPhase.OPENING,
+                "text.notification_preferences_link_opening"
+              );
+              toast.success(t("confirm.notification_preferences_link_ready"), {
+                id: TOAST_ID
+              });
+              phase.value = PreferencesLinkPhase.IDLE;
+              const base = route.path.replace(/\/$/, "");
+              return router.push({
+                path: `${base}/as/client`,
+                query: { token }
+              });
+            });
+          });
+        });
+      })
+      .catch(() => {
         fail("error.notification_preferences_link_failed");
-        return;
-      }
-
-      step(
-        PreferencesLinkPhase.WAITING,
-        "text.notification_preferences_link_waiting"
-      );
-      const emailId = await pollForNewEmail(seen);
-      if (!emailId) {
-        fail("error.notification_preferences_link_timeout");
-        return;
-      }
-
-      step(
-        PreferencesLinkPhase.FOUND,
-        "text.notification_preferences_link_token_found"
-      );
-      const token = await readClientEmailNotificationToken(emailId);
-      if (!token) {
-        fail("error.notification_preferences_link_no_token");
-        return;
-      }
-
-      step(
-        PreferencesLinkPhase.OPENING,
-        "text.notification_preferences_link_opening"
-      );
-      toast.success(t("confirm.notification_preferences_link_ready"), {
-        id: TOAST_ID
       });
-      phase.value = PreferencesLinkPhase.IDLE;
-      const base = route.path.replace(/\/$/, "");
-      await router.push({
-        path: `${base}/as/client`,
-        query: { token }
-      });
-    } catch {
-      fail("error.notification_preferences_link_failed");
-    }
   }
 
   return { isOffered, isRunning, run };

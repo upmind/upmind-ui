@@ -1,0 +1,53 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/clients/upmind_usage",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 409,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a44a8ae96e1e93cf-JNB",
+      "connection": "keep-alive",
+      "content-type": "application/json",
+      "date": "Sat, 03 Oct 2026 08:23:04 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=VDtRw0mbxnO2TKVtzEbUkGnRuUzM89esVXcX6%2FyGdohVSojgjGTiCrgcaVJcVn3a02rrSe6CG1Ut7a7D7BroYDDI2AjNRxosqQZhF5DXTjzG3IImWJpqLgYA4oiC%2FGd%2Bs0Z3M%2FhFaA%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "x-frame-options": "SAMEORIGIN"
+    },
+    "body": {
+      "status": "error",
+      "data": null,
+      "related": null,
+      "total": null,
+      "error": {
+        "id": "4244c94077e4dd7ea197cd3ee1eeb3ccd341807a",
+        "type": 0,
+        "code": 409,
+        "message": "This client is not an Upmind client!",
+        "data": []
+      },
+      "messages": null,
+      "meta": null
+    }
+  },
+  "captured_at": "2026-10-03T08:23:04.085Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "stats"
+  }
+}

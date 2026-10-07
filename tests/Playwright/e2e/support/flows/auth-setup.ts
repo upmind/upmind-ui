@@ -88,13 +88,14 @@ export async function registerClientViaHeadless(
       const session = window.Upmind.useActiveSession();
       const deadline = Date.now() + 30000;
       for (;;) {
-        try {
-          const user = await session.useActions().isAuthenticated();
-          return user.id;
-        } catch (error) {
-          if (Date.now() > deadline) throw error;
-          await new Promise(resolve => setTimeout(resolve, 250));
-        }
+        const outcome = await session
+          .useActions()
+          .isAuthenticated()
+          .then(user => ({ ok: true as const, id: user.id }))
+          .catch((error: unknown) => ({ ok: false as const, error }));
+        if (outcome.ok) return outcome.id;
+        if (Date.now() > deadline) throw outcome.error;
+        await new Promise(resolve => setTimeout(resolve, 250));
       }
     },
     { email, firstname, lastname, password }

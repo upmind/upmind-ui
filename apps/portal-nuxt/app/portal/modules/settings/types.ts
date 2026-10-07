@@ -8,12 +8,13 @@
  */
 
 import type { NavEmphasis } from "../../variants";
+// -----------------------------------------------------------------------------
 
-export interface SettingsModuleProps {
+export type SettingsModuleProps = {
   /** `bar` matches a chrome bar's nav links; `rail` matches the sidebar's. */
   readonly presentation?: "rail" | "bar";
   /** `bar` only — the same item weighting its neighbouring links use (portal/variants.ts). */
   readonly emphasis?: NavEmphasis;
   /** The sidebar rail's collapsed state; `rail` only. */
   readonly collapsed?: boolean;
-}
+};

@@ -78,11 +78,7 @@ export async function registerScenarioRoutes(
   };
 
   nuxtCtx.set(nuxt, true);
-  try {
-    await scenariosModule({}, nuxt);
-  } finally {
-    nuxtCtx.unset();
-  }
+  await scenariosModule({}, nuxt).finally(() => nuxtCtx.unset());
 
   const pages = map(seed, page => ({ ...page }));
   await nuxt.callHook("pages:extend", pages);

@@ -104,7 +104,18 @@ with ONE entrypoint:
 ```sh
 pnpm fixtures:generate <unit>     # e.g. pnpm fixtures:generate auth
                                   #      pnpm fixtures:generate product-setup
+pnpm fixtures:generate <unit> --scenario "<scenario title>"
+                                  # re-record ONE scenario, e.g.
+                                  # pnpm fixtures:generate invoices --scenario "Sort my invoice list"
 ```
+
+`--scenario` re-records one scenario and leaves every other recording as it is.
+The generator's `describe` for a scenario carries the scenario's title from the
+`.feature`, so the runner passes the title, escaped to a literal, to vitest `-t`.
+Every other test is skipped. The `beforeAll` arrangement of the enclosing
+`describe` still runs, and `prepareScenarioDirs` clears only the named
+scenario's folders. Use it whenever one scenario changes: a full run
+re-records every step of the module.
 
 It loads `packages/headless/.env.recording` (`VITE_API_URL` +
 `RECORDING_BRAND_ORIGIN` — the API resolves the brand from `Origin`), runs the
@@ -148,6 +159,16 @@ point at). After any recording, run `pnpm lint:fixtures` before committing.
 
 In integration tests, set `FIXTURE_MODE=record` or `FIXTURE_MODE=live` to bypass
 MSW and hit the real network directly (also requires staging credentials).
+
+## Arranging state with an import
+
+A state only an import can make (for example invoices with chosen numbers,
+dates and statuses) is arranged with the staging import factory in
+[`imports/`](./imports/README.md): the recorder states the records it needs,
+`importToStaging` loads them the way the legacy admin import does, and
+`restoreImport` removes a staged one. The factory is uncaptured arrangement, not
+part of the `Generator`. Committed imports are permanent, so import once and
+find it again on later runs. See [`imports/README.md`](./imports/README.md).
 
 ## PII rule
 

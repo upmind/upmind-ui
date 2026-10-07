@@ -29,12 +29,6 @@ allowBuilds:
 # DateValue become different types and the calendar/date-picker typecheck fails.
 overrides:
   '@internationalized/date': ^3.12.2
-  # The checkout submodules (apps/velia, apps/hosting) still declare the retired
-  # @upmind-automation/{upmind-ui,tokens} workspace deps; rewrite them to the
-  # design-system packages here so their repos need no companion commit. Their
-  # own vite/tsconfig path aliases stay stale until each app's mirror pass.
-  '@upmind-automation/upmind-ui': 'workspace:@upmind/ui@*'
-  '@upmind-automation/tokens': 'workspace:@upmind/tokens@*'
   # One vue for the whole workspace — apps/cart's tree had a stale 3.5.25 beside
   # 3.5.39, and refs branded by one copy's unique symbols don't unwrap under the
   # other's types: every DS ui template went red in cross-package type checks.
@@ -90,7 +84,7 @@ catalog:
   # Form engine (vendored JSONForms subtree at design-system/packages/ui/src/form). Pinned exact,
   # and identical in design-system/pnpm-workspace.yaml, so the superproject and the standalone DS
   # workspace resolve one version each — a floating range drifted them a minor apart. The values
-  # are what packages/client-vue's and packages/headless's ranges resolve to, so the boundary
+  # are what the domain packages' and packages/headless's ranges resolve to, so the boundary
   # still resolves a single copy — headless's useValidation() Ajv instance crosses it as a prop.
   '@jsonforms/core': 3.7.0
   '@jsonforms/vue': 3.7.0
@@ -103,10 +97,9 @@ catalog:
   lodash-es: 4.18.1
   '@types/lodash-es': 4.17.12
 
-  # The image control's picker. Ranges mirror packages/client-vue's, which is where
-  # they resolved from before ADR 023 Amendment 3 moved the control into
-  # design-system/packages/ui — so the boundary still resolves a single copy.
-  # Identical in design-system/pnpm-workspace.yaml.
+  # The image control's picker, in foundation's form. Ranges mirror the ones they
+  # resolved from before the control moved there, so the boundary still resolves
+  # a single copy. Identical in design-system/pnpm-workspace.yaml.
   filepond: ^4.32.8
   filepond-plugin-file-validate-type: ^1.2.9
   filepond-plugin-image-preview: ^4.6.12

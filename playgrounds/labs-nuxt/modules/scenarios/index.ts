@@ -29,6 +29,7 @@ import {
   extendPages,
   resolveFiles
 } from "nuxt/kit";
+import { scanDeclaredParams } from "./declared-params";
 import {
   MODULE_PAGE_GLOB,
   SCENARIO_DECLARATION_GLOB,
@@ -67,9 +68,7 @@ function duplicatesOf(values: string[]): string[] {
  * module has no id segment and its url is unchanged.
  */
 function declaredParams(file: string): string[] {
-  const match = readFileSync(file, "utf-8").match(/params\s*:\s*\[([^\]]*)\]/);
-  if (!match) return [];
-  return map([...match[1].matchAll(/["']([^"']+)["']/g)], hit => hit[1]);
+  return scanDeclaredParams(readFileSync(file, "utf-8"));
 }
 
 export default defineNuxtModule({

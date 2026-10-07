@@ -49,7 +49,7 @@
  * both affordances funnel through the surface's one emit and can never disagree
  * (`P1-R9`).
  *
- * Drawn the way the house draws a sort control (`client-vue`'s `ProductSort` /
+ * Drawn the way the house draws a sort control (`ProductSort` /
  * `EmailHistorySort`): ONE group carrying the direction toggle and the field
  * `Select`. Both of those are bound to their own module's hardcoded
  * sortable-property enum, so the treatment is adopted and the fields stay the
@@ -72,7 +72,7 @@
 
 import { Button, Select } from "@upmind/ui";
 import { computed } from "vue";
-import { Icon, useFormI18n } from "@upmind-automation/client-vue";
+import { Icon, useFormI18n } from "@upmind-automation/foundation";
 import { SORT_DIRECTION } from "@upmind-automation/scenario-harness";
 import { sortControl } from "./SortControl.styles";
 import { find, first } from "lodash-es";

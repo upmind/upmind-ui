@@ -20,7 +20,7 @@
     "body": {
       "second_factor_required": false,
       "password_change_required": false,
-      "refresh_expires_in": 36000,
+      "refresh_expires_in": 35999,
       "actor_id": "",
       "actor_type": "guest",
       "twofa_provider": null,
@@ -30,7 +30,7 @@
       "refresh_token": "mock-refresh_token"
     }
   },
-  "captured_at": "2026-09-10T05:19:57.261Z",
+  "captured_at": "2026-10-02T12:19:59.043Z",
   "brand_domain": "qa-automation.local",
   "source": "journey",
   "provenance": {

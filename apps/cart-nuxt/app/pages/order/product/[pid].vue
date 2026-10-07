@@ -3,15 +3,20 @@
     :storefront-route="storefrontRoute"
     :catalogue-route="{ name: ROUTE.CATALOGUE }"
     @product-details="handleProductDetails"
-  />
+    v-slot="{ template }"
+  >
+    <component :is="productTemplate(template)" />
+  </UpmProductConfigure>
 </template>
 
 <script lang="ts" setup>
 import { useI18n } from "vue-i18n";
-import { UpmProductConfigure, useBrand } from "@upmind-automation/client-vue";
-import type { ProductDetails } from "@upmind-automation/client-vue";
-import { useStorefrontRoute } from "~/composables/useStorefrontRoute";
-import { ROUTE } from "~/funnels/types";
+import { useBrand } from "@upmind-automation/headless";
+import { UpmProductConfigure } from "@upmind-automation/product";
+import { useStorefrontRoute } from "../../../composables/useStorefrontRoute";
+import { ROUTE } from "../../../funnels/types";
+import { productTemplate } from "../../../shell/modules/product/shell";
+import type { ProductDetails } from "@upmind-automation/headless";
 
 const { t } = useI18n();
 const { name: brandName, currency } = useBrand();

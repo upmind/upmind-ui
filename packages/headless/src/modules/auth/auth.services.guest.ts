@@ -7,6 +7,7 @@ import {
 import { useQuery } from "../query";
 import { ScopeActorTypes } from "../scope";
 import { persistTokenToStorage } from "../session-store";
+import { useI18n } from "../system-localisation";
 import { AUTH_SESSION_QUERY_KEY_BASE } from "./auth.types";
 import { DetailedError, ErrorOrigin, responseCodes } from "../../utils";
 import type {
@@ -58,8 +59,10 @@ async function verify2fa(
   _context: AuthContext<TwoFAModel>,
   _event: AnyEventObject
 ): Promise<never> {
+  const { t } = useI18n();
+
   throw new DetailedError(
-    "2FA not available for guest sessions",
+    t("error.auth_guest_2fa_not_available"),
     responseCodes.Forbidden,
     ErrorOrigin.Headless
   );
@@ -73,8 +76,10 @@ async function register(
   _context: AuthContext<RegisterModel>,
   _event: AnyEventObject
 ): Promise<never> {
+  const { t } = useI18n();
+
   throw new DetailedError(
-    "Registration not available for guest sessions",
+    t("error.auth_guest_register_not_available"),
     responseCodes.Forbidden,
     ErrorOrigin.Headless
   );
@@ -88,8 +93,10 @@ async function recover(
   _context: AuthContext<RecoverModel>,
   _event: AnyEventObject
 ): Promise<never> {
+  const { t } = useI18n();
+
   throw new DetailedError(
-    "Password recovery not available for guest sessions",
+    t("error.auth_guest_recover_not_available"),
     responseCodes.Forbidden,
     ErrorOrigin.Headless
   );

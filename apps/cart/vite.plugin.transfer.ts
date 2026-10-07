@@ -1,4 +1,5 @@
 import type { Plugin } from "vite";
+// -----------------------------------------------------------------------------
 
 /**
  * Vite plugin to rewrite /auth/transfer (with or without query params) to /transfer.html for clean URLs.

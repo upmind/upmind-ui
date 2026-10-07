@@ -1,13 +1,8 @@
-import { useBasket } from "@upmind-automation/client-vue";
+import { useActiveSession } from "@upmind-automation/headless";
 // -----------------------------------------------------------------------------
 /**
  * Guards to control transitions between states based on specific conditions.
- * @param context
- * @returns  boolean
  */
 export default {
-  needsAuth: () => {
-    const { meta } = useBasket();
-    return meta.value?.needsAuth;
-  }
+  needsAuth: () => !useActiveSession().useMeta().isAuthenticated.value
 };

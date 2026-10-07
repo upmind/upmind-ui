@@ -1,6 +1,6 @@
-import type { Meta, StoryObj } from "@storybook/vue3-vite";
 import { Button } from "@upmind/ui/components/button/index.ts";
 import { SpecimenMenu, type SpecimenMenuItem } from "./foundation-helpers.ts";
+import type { Meta, StoryObj } from "@storybook/vue3-vite";
 
 /**
  * Three elevation slots and nothing else: `shadow-card` for resting

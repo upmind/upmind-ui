@@ -14,7 +14,6 @@ import type {
   ProductLookupService
 } from "./client-notes.types";
 import type { ScopeConfig, ScopeKey } from "../scope";
-import type { ScopeActorTypes } from "../scope/scope.types";
 // -----------------------------------------------------------------------------
 /**
  * @module client-notes/useClientNotes
@@ -30,7 +29,7 @@ import type { ScopeActorTypes } from "../scope/scope.types";
  * actor; the scope builder resolves SELF before this factory runs.
  */
 function createClientNotesForScope(config: ScopeConfig, scopeKey: ScopeKey) {
-  const actorScope = config.actor as ScopeActorTypes;
+  const actorScope = config.actor;
 
   /**
    * ONE services instance for this scope. `config.context` goes in here and

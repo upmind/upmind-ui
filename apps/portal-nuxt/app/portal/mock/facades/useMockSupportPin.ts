@@ -20,6 +20,7 @@ import { defineMockFacade } from "./facade";
 import { assign } from "lodash-es";
 import type { MockActionReceipt } from "./facade";
 import type { MockPersona } from "../types";
+// -----------------------------------------------------------------------------
 
 /** The four-digit range a PIN is minted into. */
 const PIN_FLOOR = 1000;

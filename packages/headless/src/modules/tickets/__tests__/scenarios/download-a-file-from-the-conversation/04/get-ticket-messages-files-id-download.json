@@ -1,0 +1,45 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/ticket_messages/files/47d73824-8507-9315-ed5b-81e642d59e06/download",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "access-control-expose-headers": "Origin, X-Requested-With, Content-Type, Accept, Token-Type",
+      "cache-control": "must-revalidate, post-check=0, pre-check=0, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a43349fdec253983-JNB",
+      "connection": "keep-alive",
+      "content-disposition": "attachment; filename=fe-3145-ac20-download.txt",
+      "content-encoding": "br",
+      "content-type": "text/plain; charset=UTF-8",
+      "date": "Wed, 30 Sep 2026 12:39:13 GMT",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=3yIueVRYPEpyTeLLnryhOcukCmx2822KgX8J07tK01l09NN1SufZHpcrzolX9OFWlN4QNSk3cJF%2BJAjus3ERAmYorI9X2Uk4FV8znpskAGsiNOEFSI1rksyzaftJGfLPYmQAt2KpTg%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding, Origin",
+      "x-frame-options": "SAMEORIGIN"
+    },
+    "body": {
+      "__binary": true,
+      "byteLength": 47
+    }
+  },
+  "captured_at": "2026-09-30T12:39:13.439Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "tickets"
+  }
+}

@@ -15,6 +15,7 @@
 import { PORTAL_FORM_LANGUAGES } from "./engine-data";
 import type { MockDataset } from "../types";
 import type { ProfileContext } from "@upmind-automation/headless";
+// -----------------------------------------------------------------------------
 
 /** The native fields legacy's profile form carries — the schema's own key order. */
 export const PROFILE_FIELDS: readonly string[] = [

@@ -1,0 +1,22 @@
+# Negative-control mutant 57 — migrate-result-survives-reread-error (FE-3206)
+#
+# Mutation: Throw when the root error is set, though the invoice landed.
+# Spec it must turn red: a unit spec: the PUT lands, the re-read fails, `migrate()` still resolves the result (prover authors it; this patch is the contract).
+#
+# Authored by the developer seat against the landed production source. The
+# prover applies it blind (tasks.md T41): apply, run the named spec, revert.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+diff --git a/packages/headless/src/modules/contract-product/useContractProduct.actions.ts b/packages/headless/src/modules/contract-product/useContractProduct.actions.ts
+--- a/packages/headless/src/modules/contract-product/useContractProduct.actions.ts
++++ b/packages/headless/src/modules/contract-product/useContractProduct.actions.ts
+@@ -364,7 +364,7 @@ export function createContractProductActions(
+     const error = contextValue<ResponseError>(state, "error");
+     const result = contextValue<MigrationResult>(state, "migrationResult");
+ 
+-    if (!result) {
++    if (error || !result) {
+       throw new DetailedError(
+         t("error.contract_product_migrate_failed"),
+         error?.status ?? responseCodes.Timeout,

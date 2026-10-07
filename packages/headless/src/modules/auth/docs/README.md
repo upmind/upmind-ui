@@ -70,7 +70,3 @@ const { isAuthenticated, is2faRequired, hasErrors } = auth.useMeta();
 | [gotchas.md](./gotchas.md)           | Edge cases: 2FA, guest tokens, refresh, final-state semantics |
 | [foundation.md](./foundation.md)     | Platform-level reference (framework-agnostic, for rebuilders) |
 | [CHANGELOG.md](./CHANGELOG.md)       | Version history                                               |
-
-## Playground
-
-Auth pages exist under `playgrounds/labs-nuxt/app/pages/auth/` (login, recover, end-to-end index) for manual exercise against staging.

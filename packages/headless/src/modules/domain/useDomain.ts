@@ -45,6 +45,7 @@ import {
 } from "lodash-es";
 import type { BasketProduct } from "../basket-product/basket-product.types";
 import type { IDomainAvailabilityResponse } from "@upmind-automation/types";
+// -----------------------------------------------------------------------------
 
 export type DomainChoice = { value: DomainTypes; label: string };
 

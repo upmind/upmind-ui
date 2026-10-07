@@ -1,0 +1,25 @@
+Negative control for catalogue-template.test.ts.
+
+Declares the pick with a fallback its record does not carry, so a brand with no
+template, an empty one, or a name the page does not lay out gets no layout
+instead of the full one. The full template still draws its own layout.
+
+Intended RED (catalogue-template.test.ts, "catalogueTemplate"):
+  draws the full layout for no template
+  draws the full layout for an empty template
+  draws the full layout for a template only other pages carry
+  draws the full layout for a name no layout carries
+  draws the full layout for a name every object inherits
+Intended GREEN:
+  draws the layout the <each> template carries
+
+diff --git a/apps/cart-nuxt/app/shell/modules/catalogue/shell.ts b/apps/cart-nuxt/app/shell/modules/catalogue/shell.ts
+--- a/apps/cart-nuxt/app/shell/modules/catalogue/shell.ts
++++ b/apps/cart-nuxt/app/shell/modules/catalogue/shell.ts
+@@ -15,5 +15,5 @@
+ 
+ export const catalogueTemplate = resolveTemplate(
+   CATALOGUE_TEMPLATES,
+-  CATALOGUE_TEMPLATE.FULL
++  "two-column-rtl" as CATALOGUE_TEMPLATE
+ );

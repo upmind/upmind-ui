@@ -1,0 +1,20 @@
+# Negative control — the cart's layout record keys the enclosed arrangement to
+# the mirrored two-column template. A brand that picks enclosed gets another
+# arrangement, and the type-check cannot see it (every key still holds a template).
+#
+# Intended RED:
+#   tests/Playwright/e2e/e2e-tests/login-registration/host-supplied-page-parts.spec.ts
+#     'The recover page in the cart shows in the "enclosed" arrangement'
+
+diff --git a/apps/cart/src/shell/modules/session/shell.ts b/apps/cart/src/shell/modules/session/shell.ts
+--- a/apps/cart/src/shell/modules/session/shell.ts
++++ b/apps/cart/src/shell/modules/session/shell.ts
+@@ -17,7 +17,7 @@
+ 
+ export const SESSION_TEMPLATES: Record<AUTH_TEMPLATE, Component> = {
+   [AUTH_TEMPLATE.SPLIT]: SessionSplitTemplate,
+-  [AUTH_TEMPLATE.ENCLOSED]: SessionEnclosedTemplate,
++  [AUTH_TEMPLATE.ENCLOSED]: SessionRTLTemplate,
+   [AUTH_TEMPLATE.CANVAS_CARD]: SessionCanvasCardTemplate,
+   [AUTH_TEMPLATE.SURFACE_BOX]: SessionSurfaceBoxTemplate,
+   [AUTH_TEMPLATE.TWO_COLUMN_LTR]: SessionLTRTemplate,

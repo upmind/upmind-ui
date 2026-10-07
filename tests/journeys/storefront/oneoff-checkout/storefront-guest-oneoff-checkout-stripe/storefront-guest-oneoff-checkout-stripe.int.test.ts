@@ -40,13 +40,13 @@
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { getFixtureBody } from "@upmind-automation/test-fixtures";
-import { journey, SLUG } from "./journey";
-import { server } from "./setup";
 import {
   bootGuestBasket,
   resetJourneySession,
   whenCatalogueLoaded
 } from "../../../support/basket-boot";
+import { journey, SLUG } from "./journey";
+import { server } from "./setup";
 
 // -----------------------------------------------------------------------------
 

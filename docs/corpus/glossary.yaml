@@ -168,8 +168,8 @@ order:
     orchestrated by the order machine, which spawns the payment-detail actor
     and drives retry and partial-payment loops until the invoice is settled.
   referents:
-    - { type: symbol, id: "@upmind-automation/headless!useOrder" }
-    - { type: symbol, id: "@upmind-automation/headless!OrderContext" }
+    - { type: symbol, id: "@upmind-automation/headless!useInvoice" }
+    - { type: symbol, id: "@upmind-automation/headless!UseInvoiceContext" }
 
 invoice:
   term: invoice
@@ -182,6 +182,22 @@ invoice:
   referents:
     - { type: symbol, id: "@upmind-automation/headless!useInvoice" }
     - { type: symbol, id: "@upmind-automation/headless!Invoice" }
+
+imported-invoice:
+  term: imported invoice
+  kind: domain
+  aliases: [legacy invoice]
+  definition: >-
+    A bill originally issued by a predecessor billing system and carried into
+    the platform as a read-only archived record, distinct from an invoice the
+    platform itself raises. The record's own top-level fields (number, total,
+    dates) support listing, filtering and sorting; its original document is
+    preserved whole rather than reshaped. Read-only, self scope only — no
+    pay, cancel, refund, share or edit capability exists.
+  referents:
+    - { type: symbol, id: "@upmind-automation/headless!useLegacyInvoices" }
+    - { type: symbol, id: "@upmind-automation/headless!useLegacyInvoice" }
+    - { type: symbol, id: "@upmind-automation/headless!LegacyInvoice" }
 
 client:
   term: client
@@ -324,7 +340,6 @@ personal-details:
     by the client custom fields composables.
   referents:
     - { type: symbol, id: "@upmind-automation/headless!usePersonalDetails" }
-    - { type: symbol, id: "@upmind-automation/headless!usePersonalDetailsManager" }
     - { type: symbol, id: "@upmind-automation/headless!ProfileModel" }
 
 phone:

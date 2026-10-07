@@ -1,0 +1,41 @@
+# state-gate.must-fail.patch
+#
+# Targets: state-gate.int.test.ts — the money-path fact that no payment form is
+# rendered outside the invoice's available state.
+# Mutant: unwrap develop's `<template v-if="orderMeta.isAvailable">` gate, the
+# gate Payment.vue keeps from develop's Order.vue (D32). Re-cut by the prover
+# seat; no test assertion was touched to produce it.
+#
+# Apply from the repo root: `git apply packages/modules-payment/src/__tests__/state-gate.must-fail.patch`
+# Then: `pnpm --filter @upmind-automation/payment test --run`
+#
+# Measured RED, 2 of 31 in the package:
+#   - "never offers a pay control for an invoice the API cannot find"
+#       a payment form was rendered for an invoice the API refused
+#       (form: rendered | text: "action.pay_nowtext.loading")
+#   - "never offers a pay control for an invoice already paid"
+#       a payment form was rendered for an invoice already paid
+#       (form: rendered | text: "action.pay_nowtext.loading")
+#
+# Measured GREEN under the mutant, correctly — 29 of 31. "withholds the payment
+# form until the invoice is available" stays green: the async setup's
+# `await isReady()` holds the whole subtree in its Suspense while the invoice
+# loads, so the loading half of the gate does not rest on this line.
+#
+diff --git a/packages/modules-payment/src/components/Payment.vue b/packages/modules-payment/src/components/Payment.vue
+--- a/packages/modules-payment/src/components/Payment.vue
++++ b/packages/modules-payment/src/components/Payment.vue
+@@ -1,5 +1,4 @@
+ <template>
+-  <template v-if="orderMeta.isAvailable">
+     <PaymentDetails
+       v-if="!orderMeta.isLocked"
+       v-show="!orderMeta.isProcessing"
+@@ -7,7 +6,6 @@
+       :processing="orderMeta.isProcessing"
+       @resolve="pay"
+     />
+-  </template>
+ 
+   <PaymentProcessing v-if="orderMeta.isProcessing" />
+ </template>

@@ -1,12 +1,12 @@
 import { createScopedComposable } from "../scope/scope.builder";
 import createClientAddressServices from "./client-address.services";
+import { CLIENT_ADDRESSES_SCOPE_MATRIX } from "./client-address.types";
 import { createClientAddressesActions } from "./useClientAddresses.actions";
 import { createClientAddressesContext } from "./useClientAddresses.context";
 import { createClientAddressesInternals } from "./useClientAddresses.internals";
 import { createClientAddressesMeta } from "./useClientAddresses.meta";
 import type { ClientAddressesScopeMatrix } from "./client-address.types";
 import type { ScopeConfig, ScopeKey } from "../scope";
-import type { ScopeActorTypes } from "../scope/scope.types";
 // -----------------------------------------------------------------------------
 /**
  * @module client-address/useClientAddresses
@@ -25,7 +25,7 @@ function createClientAddressesForScope(
   config: ScopeConfig,
   scopeKey: ScopeKey
 ) {
-  const actorScope = config.actor as ScopeActorTypes;
+  const actorScope = config.actor;
 
   /**
    * ONE services instance for this scope. `config.context` goes in here and
@@ -83,7 +83,11 @@ function createClientAddressesForScope(
 export const useClientAddresses = createScopedComposable<
   ReturnType<typeof createClientAddressesForScope>,
   ClientAddressesScopeMatrix
->("client-address", createClientAddressesForScope);
+>(
+  "client-address",
+  createClientAddressesForScope,
+  CLIENT_ADDRESSES_SCOPE_MATRIX
+);
 
 // Type export for consumers
 export type UseClientAddresses = ReturnType<typeof useClientAddresses>;

@@ -32,12 +32,25 @@ import type {
   MalformedStepDef,
   StepCatalog,
   StepCatalogs,
+  StepDef,
   StepKind,
   StepMatch,
   StepMatcher,
   TraceabilityResult
 } from "./steps.types";
-import type { Feature, RuleChild, Scenario, Step } from "@cucumber/messages";
+import type {
+  Feature,
+  RuleChild,
+  Scenario,
+  Step,
+  TableRow
+} from "@cucumber/messages";
+// -----------------------------------------------------------------------------
+/**
+ * @module steps/traceability
+ * @description Parses a feature's scenarios and grades each one against a
+ * step catalog: the spec-to-catalog drift gate.
+ */
 
 // And/But/`*` carry no kind of their own — Conjunction and the bullet form's
 // Unknown both inherit the nearest preceding Given/When/Then within the same
@@ -76,50 +89,53 @@ function substitutePlaceholders(
   );
 }
 
+function expandExamplesRow(
+  outline: FeatureScenario,
+  columns: readonly string[],
+  row: TableRow
+): FeatureScenario {
+  const values = map(row.cells, cell => cell.value);
+  const named = substitutePlaceholders(outline.name, columns, values);
+
+  return {
+    // A row whose outline title carries no placeholder would repeat that
+    // title five times over: it takes the row's own first value as its
+    // distinguishing suffix, so a picker, a slug and a test title each name
+    // the row and never the outline alone.
+    name:
+      named === outline.name && !isEmpty(values)
+        ? `${outline.name} — ${first(values)}`
+        : named,
+    tags: outline.tags,
+    line: row.location.line,
+    steps: map(outline.steps, step => ({
+      ...step,
+      text: substitutePlaceholders(step.text, columns, values)
+    })),
+    backgroundStepCount: 0
+  };
+}
+
 // A Scenario Outline is not one scenario carrying every row's steps: each
 // Examples row is its own playable scenario, taking its name and line from that
 // row. A plain Scenario is the one-row case of the same shape.
 function expandScenario(scenario: Scenario): FeatureScenario[] {
-  const tags = map(scenario.tags, tag => tag.name);
-  const steps = collectSteps(scenario.steps);
+  const plain: FeatureScenario = {
+    name: scenario.name,
+    tags: map(scenario.tags, tag => tag.name),
+    line: scenario.location.line,
+    steps: collectSteps(scenario.steps),
+    backgroundStepCount: 0
+  };
 
-  if (isEmpty(scenario.examples)) {
-    return [
-      {
-        name: scenario.name,
-        tags,
-        line: scenario.location.line,
-        steps,
-        backgroundStepCount: 0
-      }
-    ];
-  }
+  if (isEmpty(scenario.examples)) return [plain];
 
   return flatMap(scenario.examples, examples => {
     const columns = map(examples.tableHeader?.cells ?? [], cell => cell.value);
 
-    return map(examples.tableBody, row => {
-      const values = map(row.cells, cell => cell.value);
-      const named = substitutePlaceholders(scenario.name, columns, values);
-
-      return {
-        // A row whose outline title carries no placeholder would repeat that
-        // title five times over: it takes the row's own first value as its
-        // distinguishing suffix, so a picker, a slug and a test title each name
-        // the row and never the outline alone.
-        name:
-          named === scenario.name && !isEmpty(values)
-            ? `${scenario.name} — ${first(values)}`
-            : named,
-        tags,
-        line: row.location.line,
-        steps: map(steps, step => ({
-          ...step,
-          text: substitutePlaceholders(step.text, columns, values)
-        })),
-        backgroundStepCount: 0
-      };
-    });
+    return map(examples.tableBody, row =>
+      expandExamplesRow(plain, columns, row)
+    );
   });
 }
 
@@ -183,6 +199,29 @@ export function parseFeatureScenarios(featureText: string): FeatureScenario[] {
   );
 }
 
+type CompiledStepDef = {
+  index: number;
+  def: StepDef;
+  expression: CucumberExpression;
+};
+
+function matchStepDef(
+  { index, def, expression }: CompiledStepDef,
+  text: string
+): StepMatch | undefined {
+  const matched = expression.match(text);
+  return matched
+    ? {
+        index,
+        def,
+        args: map(
+          matched,
+          argument => argument.getValue<string | number>(null)!
+        )
+      }
+    : undefined;
+}
+
 /**
  * Compiles every `catalog` pattern once into a `CucumberExpression` — the same
  * matcher an executor uses at registration time, so a match here is a match
@@ -222,21 +261,7 @@ export function createStepMatcher(catalog: StepCatalog): StepMatcher {
   );
 
   const matchAll = (text: string): readonly StepMatch[] =>
-    compact(
-      map(compiled, ({ index, def, expression }) => {
-        const matched = expression.match(text);
-        return matched
-          ? {
-              index,
-              def,
-              args: map(
-                matched,
-                argument => argument.getValue<string | number>(null)!
-              )
-            }
-          : undefined;
-      })
-    );
+    compact(map(compiled, entry => matchStepDef(entry, text)));
 
   return {
     compiledIndexes: new Set(map(compiled, entry => entry.index)),
@@ -283,6 +308,26 @@ function findDuplicatedPatterns(
     pattern,
     modules: uniq(modules)
   }));
+}
+
+function gradeScenarios(
+  scenarios: readonly FeatureScenario[],
+  isMatched: (step: FeatureStep) => boolean
+): { scenario: FeatureScenario; verdict: Verdict }[] {
+  return map(scenarios, scenario => {
+    // Every step is matched before the verdict is read: `some`/`every` would
+    // short-circuit, and an unvisited step leaves its StepDef looking orphaned.
+    const matched = map(scenario.steps, isMatched);
+    const ownMatched = drop(matched, scenario.backgroundStepCount);
+
+    const verdict: Verdict = !some(ownMatched)
+      ? VERDICT.NOT_YET
+      : every(matched)
+        ? VERDICT.DRIVEABLE
+        : VERDICT.PARTIAL;
+
+    return { scenario, verdict };
+  });
 }
 
 /**
@@ -335,23 +380,7 @@ export function createTraceabilityCheck(
   };
 
   const scenarios = parseFeatureScenarios(featureText);
-
-  const graded = map(scenarios, scenario => {
-    // Every step is matched before the verdict is read: `some`/`every` would
-    // short-circuit, and an unvisited step leaves its StepDef looking orphaned.
-    const matched = map(scenario.steps, isMatched);
-    const ownMatched = drop(matched, scenario.backgroundStepCount);
-
-    const verdict: Verdict = !some(ownMatched)
-      ? VERDICT.NOT_YET
-      : every(matched)
-        ? VERDICT.DRIVEABLE
-        : VERDICT.PARTIAL;
-
-    return { scenario, verdict };
-  });
-
-  const byVerdict = groupBy(graded, "verdict");
+  const byVerdict = groupBy(gradeScenarios(scenarios, isMatched), "verdict");
   const bucket = (verdict: Verdict): FeatureScenario[] =>
     map(byVerdict[verdict], "scenario");
 
@@ -374,8 +403,8 @@ const AC_TAG = /^@(AC-\d+)$/;
 const TODO_TAG = "@todo";
 
 /**
- * The `AC-<n>` ids tagged on `featureText`'s scenarios, `@todo` ones excluded,
- * de-duplicated and in document order.
+ * The `AC-<n>` ids tagged on `featureText`'s scenarios, skipping every
+ * scenario tagged `TODO_TAG`, de-duplicated and in document order.
  *
  * Returns an ARRAY, never a `Set`: lodash `difference` reads a Set as having no
  * elements, so a Set on either side of the AC-link assertion would pass

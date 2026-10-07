@@ -19,7 +19,7 @@ import { Registration } from "../../support/page-objects/templates/registration"
  *
  * ## Job To Be Done
  * Prove the guest-checkout journey from the register page works end-to-end
- * against the real headless/client-vue modules: a brand-gated CTA lets a guest
+ * against the real headless and domain-package modules: a brand-gated CTA lets a guest
  * visitor skip account creation, enter checkout as a guest client whose account
  * menu identifies them as a guest and offers a full-account upgrade — and that
  * upgrade promotes the guest to a fully registered client. When the brand

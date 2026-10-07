@@ -6,8 +6,9 @@
  */
 
 import type { BreadcrumbProps, Crumb } from "@upmind/ui";
+// -----------------------------------------------------------------------------
 
-export interface BreadcrumbsModuleProps {
+export type BreadcrumbsModuleProps = {
   /** The trail, in order; the last crumb is usually `current`. */
   readonly items: readonly Crumb[];
   /** Accessible label for a collapsed-crumbs marker. Required by `Breadcrumb` itself; no English default (CC22). */
@@ -17,4 +18,4 @@ export interface BreadcrumbsModuleProps {
   /** Empty-state heading when `items` is empty (tasks.md 5.6). No English default (CC22). */
   readonly emptyTitle: string;
   readonly emptyDescription?: string;
-}
+};

@@ -7,6 +7,7 @@ import {
 import { useDate } from "../../utils";
 import { map, isArray } from "lodash-es";
 import type { SentEmail } from "./client-email-history.types";
+// -----------------------------------------------------------------------------
 
 export const mapEmailHistory = (
   raw: ISentEmail | ISentEmail[]

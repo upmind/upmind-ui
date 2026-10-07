@@ -1,15 +1,24 @@
 <template>
-  <UpmSessionRecoverPassword
+  <UpmAuthRecoverPassword
     :login-route="{ name: ROUTE.SESSION_LOGIN }"
     :recover-route="{ name: ROUTE.SESSION_RECOVER_PASSWORD }"
     :register-route="{ name: ROUTE.SESSION_REGISTER }"
-  />
+  >
+    <template #default="{ template }">
+      <component :is="sessionTemplate(template)" />
+    </template>
+    <template #summary="summary">
+      <SessionSummary v-bind="summary" />
+    </template>
+  </UpmAuthRecoverPassword>
 </template>
 
 <script lang="ts" setup>
 import { useI18n } from "vue-i18n";
-import { UpmSessionRecoverPassword } from "@upmind-automation/client-vue";
-import { ROUTE } from "~/funnels/types";
+import { UpmAuthRecoverPassword } from "@upmind-automation/auth";
+import { ROUTE } from "../../../funnels/types";
+import SessionSummary from "../../../shell/modules/session/components/SessionSummary.vue";
+import { sessionTemplate } from "../../../shell/modules/session/shell";
 
 const { t } = useI18n();
 

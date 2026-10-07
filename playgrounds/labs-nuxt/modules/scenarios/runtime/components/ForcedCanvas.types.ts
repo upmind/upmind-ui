@@ -1,8 +1,8 @@
 /**
  * @graphify-citation `graphify-out/graph.json` (2026-08-11, 6795 nodes) — no
  * `ForcedCanvas` / `ForceController` / forced-affordance node exists anywhere in
- * the tree, and the only `canvas` nodes are `client-vue`'s `CanvasCard.layout`
- * and its session template, which are page CARDS rather than a frame around a
+ * the tree, and the only `canvas` node is `foundation`'s `CanvasCard.layout`,
+ * which is a page CARD rather than a frame around a
  * page. The preset vocabulary is NOT minted here: `ForcePreset` and
  * `FORCE_URL_PRESETS` are minted once in `composables/useForcedState.types.ts`
  * and consumed. See `graphify-out/GRAPH_REPORT.md`.

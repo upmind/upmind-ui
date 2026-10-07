@@ -64,7 +64,7 @@ import {
 } from "@upmind/ui";
 import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
-import { Icon } from "@upmind-automation/client-vue";
+import { Icon } from "@upmind-automation/foundation";
 import { columnPicker } from "./ColumnPicker.styles";
 import { filter, map, size } from "lodash-es";
 import type { ColumnOption, ColumnPickerProps } from "./ColumnPicker.types";

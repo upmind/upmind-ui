@@ -1,0 +1,56 @@
+{
+  "name": "@upmind-automation/basket",
+  "version": "0.20.18",
+  "description": "Upmind basket domain package — in-flight order: basketProduct · billing · promo · currency · product-setup · checkout flow.",
+  "type": "module",
+  "license": "UNLICENSED",
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./styles": "./src/styles.css"
+  },
+  "engines": {
+    "node": ">=22.18"
+  },
+  "scripts": {
+    "reset": "rm -rf {node_modules,dist,*.tsbuildinfo}",
+    "build": "vue-tsc -p tsconfig.build.json",
+    "type-check": "vue-tsc -p tsconfig.build.json --noEmit",
+    "test": "vitest run",
+    "test:unit": "vitest run",
+    "lint": "node ../../etc/ci/lint/eslint-workspace.mjs",
+    "lint:fix": "node ../../etc/ci/lint/eslint-workspace.mjs --fix",
+    "format": "prettier --write src/"
+  },
+  "dependencies": {
+    "@formkit/auto-animate": "^0.8.2",
+    "@upmind/ui": "workspace:*",
+    "@upmind-automation/auth": "workspace:*",
+    "@upmind-automation/client": "workspace:*",
+    "@upmind-automation/foundation": "workspace:*",
+    "@upmind-automation/headless": "workspace:*",
+    "@upmind-automation/payment": "workspace:*",
+    "@upmind-automation/product": "workspace:*",
+    "@upmind-automation/types": "workspace:*",
+    "@vueuse/core": "^13.6.0",
+    "class-variance-authority": "^0.7.1",
+    "lodash-es": "^4.17.21",
+    "xstate": "^4.38.3"
+  },
+  "devDependencies": {
+    "@types/lodash-es": "^4.17.12",
+    "@vitejs/plugin-vue": "^6.0.1",
+    "@vue/test-utils": "^2.4.6",
+    "jsdom": "^26.1.0",
+    "vitest": "^3.2.4"
+  },
+  "peerDependencies": {
+    "vue": "^3.0.0",
+    "vue-i18n": "^11.1.1",
+    "vue-router": "^4.5.0"
+  }
+}

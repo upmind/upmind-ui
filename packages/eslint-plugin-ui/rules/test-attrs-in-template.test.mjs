@@ -17,12 +17,20 @@ const ruleTester = new RuleTester({
 test("test-attrs-in-template", () => {
   ruleTester.run("test-attrs-in-template", rule, {
     valid: [
-      { code: `<template><span v-bind="useTestAttrs({ key: 'x' })" /></template>` },
+      {
+        code: `<template><span v-bind="useTestAttrs({ key: 'x' })" /></template>`
+      },
       { code: `<script setup>const x = 1</script>` }
     ],
     invalid: [
-      { code: `<script setup>const x = useTestAttrs({ key: 'x' })</script>`, errors: [{ messageId: "testAttrsInScript" }] },
-      { code: `<script setup>function f(){ return useTestAttrs({ key: 'x' }) }</script>`, errors: [{ messageId: "testAttrsInScript" }] }
+      {
+        code: `<script setup>const x = useTestAttrs({ key: 'x' })</script>`,
+        errors: [{ messageId: "testAttrsInScript" }]
+      },
+      {
+        code: `<script setup>function f(){ return useTestAttrs({ key: 'x' }) }</script>`,
+        errors: [{ messageId: "testAttrsInScript" }]
+      }
     ]
   });
 });

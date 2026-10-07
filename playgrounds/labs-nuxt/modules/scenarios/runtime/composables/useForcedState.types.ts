@@ -14,6 +14,7 @@
  */
 
 import type { ForceRecipeId, ForcedState } from "../force/states.types";
+import type { FeatureScenario } from "@upmind-automation/scenario-harness";
 import type { ComputedRef, Ref } from "vue";
 
 // -----------------------------------------------------------------------------
@@ -51,6 +52,8 @@ export type ForceWorker = {
   ): Promise<ServiceWorkerRegistration | undefined>;
   stop(): void;
   resetHandlers(...handlers: unknown[]): void;
+  /** Prepends runtime handlers, in front of every handler already armed. */
+  use(...handlers: unknown[]): void;
 };
 
 /**
@@ -179,9 +182,27 @@ export type UseForcedState = {
    * collection the last pass moved. (`ForcedState` is consumed from
    * `force/states.types.ts`; see `graphify-out/GRAPH_REPORT.md`.)
    */
-  arm: (next: ForcedState | "replay") => Promise<void>;
+  arm: (
+    next: ForcedState | "replay",
+    scenario?: Pick<FeatureScenario, "name" | "tags">
+  ) => Promise<void>;
   /** Returns to Live: the worker is stopped AND its registration unregistered. */
   disarm: () => Promise<void>;
+  /**
+   * Arms the answers ONE step of the replayed scenario recorded (FE-3145), in
+   * front of every step before it. Only a `replay` armed with its scenario, on
+   * a module that records its scenarios, has per-step answers; anything else
+   * arms nothing.
+   *
+   * @param index The step's 0-based place in the scenario, Background first.
+   */
+  replayStep: (index: number) => Promise<void>;
+  /**
+   * The capture gaps the replayed scenario has hit since it was armed —
+   * requests to the module's subject that no step recorded, each named by
+   * method, path and query.
+   */
+  captureGaps: () => string[];
   /** Resolves once the worker matches the url, including an arm still queued. */
   whenReady: () => Promise<void>;
 };

@@ -71,5 +71,4 @@ export function createModulesMeta(
   };
 }
 
-// Type export for consumers
-export type UseModuleMeta = ReturnType<typeof createModulesMeta>;
+export type UseModulesMeta = ReturnType<typeof createModulesMeta>;

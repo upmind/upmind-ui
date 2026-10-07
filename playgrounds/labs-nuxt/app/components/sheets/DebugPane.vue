@@ -104,7 +104,7 @@ import {
 } from "@upmind/ui";
 import { computed, unref } from "vue";
 import { useI18n } from "vue-i18n";
-import { Icon } from "@upmind-automation/client-vue";
+import { Icon } from "@upmind-automation/foundation";
 import { ScopeContextPatterns } from "@upmind-automation/headless";
 import ContextPanel from "../../../modules/scenarios/runtime/components/ContextPanel.vue";
 import MetaPanel from "../../../modules/scenarios/runtime/components/MetaPanel.vue";
@@ -131,12 +131,12 @@ import type { ContextItem } from "./usePlaygroundSheet.types";
 import type { DescriptionListOption } from "@upmind/ui";
 import { CodeBlock } from "~/components/code";
 import { resolveMatrixContexts } from "~/composables/scope/scope-utils";
+const props = defineProps<DebugPaneProps>();
+
 // -----------------------------------------------------------------------------
 
 /** What a credential reads as once the pane has taken it out. */
 const REDACTED = "[redacted]";
-
-const props = defineProps<DebugPaneProps>();
 
 const { t } = useI18n();
 

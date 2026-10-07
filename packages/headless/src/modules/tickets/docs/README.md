@@ -26,7 +26,6 @@ Both always operate on the **calling client's own** tickets. There is no staff o
 ```ts
 import {
   ScopeActorTypes,
-  TicketContextTypes,
   useTickets,
   useTicket
 } from "@upmind-automation/headless";
@@ -118,29 +117,3 @@ An open ticket polls for updates while its tab is visible, and stops polling out
 | [gotchas.md](./gotchas.md) | All | The sharp edges — the undotted filter key, the unproven upload-type guard, the `api/self` trap |
 | [foundation.md](./foundation.md) | Teams building against the Upmind back end on another stack | Framework-neutral platform spec: endpoints, payloads, failure modes |
 | [CHANGELOG.md](./CHANGELOG.md) | All | Change history, recorded fixtures, dropped capabilities |
-
-## Playground
-
-The collection's filter bar, sortable columns and pager render live — real requests, no mocked layer — in the `labs-nuxt` playground:
-
-```bash
-pnpm --filter @upmind-automation/labs-nuxt dev
-```
-
-Open:
-
-```text
-http://labs.localhost:3000/scenarios/tickets/as/client
-```
-
-The scenario ships no `useDetail` and no `useMutate` — the row's own already-loaded data drives the detail overlay directly (a ticket row already carries its department and linked product in full), and no page-level create/edit form is wired for this scenario yet.
-
-The per-ticket conversation has its own page, addressed by the ticket it is about:
-
-```text
-http://labs.localhost:3000/useTicket/<id>
-```
-
-It draws itself — no generic surface can render a message thread or a reply composer — and carries the same scenario picker the collection does, over this module's one committed capability spec. Ten of the manager's scenarios replay there; the rest are proven by this module's own specs and are named, with their reasons, in `__tests__/tickets.steps.ts`.
-
-See [labs-nuxt's own README](../../../../../../playgrounds/labs-nuxt/README.md) for how the playground itself works — the scenario-key pattern, the dumb rendering pipeline, and the full test-driving commands.

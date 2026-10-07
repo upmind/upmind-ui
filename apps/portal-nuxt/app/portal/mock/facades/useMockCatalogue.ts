@@ -26,6 +26,7 @@ import { defineMockFacade } from "./facade";
 import { find, map, sumBy } from "lodash-es";
 import type { MockActionReceipt } from "./facade";
 import type { MockCatalogueItem, MockInvoiceLine, MockOrder } from "../types";
+// -----------------------------------------------------------------------------
 
 export const useMockCatalogue = defineMockFacade(
   (data): readonly MockCatalogueItem[] => data.catalogue,

@@ -1,6 +1,7 @@
 import type { ResponseError } from "../../utils";
 import type { PaymentDetailData } from "../payment-details";
 import type {
+  ICurrency,
   IGateway,
   IInvoice,
   IOrder,
@@ -8,6 +9,7 @@ import type {
   Methods
 } from "@upmind-automation/types";
 import type { ActorRef } from "xstate";
+// -----------------------------------------------------------------------------
 
 // --- internal
 
@@ -24,10 +26,16 @@ export type PaymentArgs = {
   orderId: IOrder["id"];
   paymentDetail: PaymentDetailData;
   /**
+   * The pay currency, when it differs from the document currency. Sent as
+   * `currency_code` and used for the gateway list; absent, the document
+   * currency applies.
+   */
+  currencyCode?: ICurrency["code"];
+  /**
    * The id of the machine that invoked this one, when it was invoked as a child.
    *
    * A terminal error is handed up with `escalate` only when this is set.
-   * `order.machine` (`orderManager`) and `basket.machine` (`basketManager`) pass
+   * `invoice.machine` (`invoiceManager`) and `basket.machine` (`basketManager`) pass
    * it from their `invoke.data`; a ROOT interpretation has no parent, leaves it
    * unset, and reads the error off the exposed `errors` instead. Without the
    * guard `sendParent` throws at a root and freezes the machine mid-transition.

@@ -173,11 +173,9 @@ One services file (`tickets.services.ts`) serves both halves. `config.context` e
 
 A manager write invalidates only its own ticket's key, so an open **list** does not automatically refresh after a close. See [gotchas.md](./gotchas.md) #18.
 
-### Two documented divergences from the shared request layer
+### Two documented behaviours worth knowing
 
-Both are module-local, both avoid editing headless core, and both are deliberate:
-
-- **Attachment download bypasses `useQuery()`.** The shared `doFetch` unconditionally calls `response.json()`, and a binary attachment is not JSON. `downloadFile` uses a plain `fetch()` with the same bearer-token seam and the same base URL, returning an `ArrayBuffer`. The alternative — adding a `responseType` branch to the shared request pipeline every module depends on — is out of scope and was not asked for by any requirement.
+- **Attachment download goes through `useQuery().download()`, not `request()`.** A binary attachment is not JSON, so it cannot use the JSON request path. `downloadFile` calls `download()` with the access token enabled, which shares the request path's base URL, locale and bearer-token handling and resolves a `Blob`; the service converts it to an `ArrayBuffer`. Any failure is re-thrown as a `DetailedError` carrying the HTTP status and the localised message `error.ticket_attachment_download_failed`.
 - **Support prefs are a read-modify-write.** `PUT api/clients/{id}` replaces the whole `meta` map, so a partial body deletes every key it does not name. `saveSupportPrefs` reads the current client record, merges the three prefs keys into its `meta`, and PUTs the whole map back — which is the only shape that preserves an untouched sibling key owned by a different feature (`ui/support/messageSignature`).
 
 ## Errors
@@ -200,7 +198,7 @@ Folding the criteria rejection into `hasError` is what makes an ignored write vi
 
 | Module              | Uses                                                                                             |
 | ------------------- | ------------------------------------------------------------------------------------------------ |
-| `session-store`     | the active client identity, whether the session is authenticated and whether it has settled; the access token for the download path; `activeUser.brandId` for the upload |
+| `session-store`     | the active client identity, whether the session is authenticated and whether it has settled; the access token that `download()` attaches; `activeUser.brandId` for the upload |
 | `query`             | the shared request layer — list reads with criteria, item reads, `post`/`put`/`del`, URL building, cache invalidation |
 | `scope`             | the actor-scoping accessor and its instance registry                                             |
 | `brand`             | `brandId` on the services surface, and `ensureConfig(ALLOWED_UPLOAD_FILE_TYPES)` for the upload guard |
@@ -209,13 +207,13 @@ Folding the criteria rejection into `hasError` is what makes an ignored write vi
 
 ### Modules that read from this one
 
-None today. `useTickets` is consumed by the `labs-nuxt` playground scenario and by the client-facing ticket views; no other headless module builds on top of it.
+None today. `useTickets` is consumed by the client-facing ticket views; no other headless module builds on top of it.
 
 ## Platform additions this build required
 
 **None.** This module consumes the shared `query` module exactly as every other scoped composable does. Where the shared layer could not serve a need — a binary response body, a guard hook that never runs — the module routed around it locally rather than patching the core. `packages/headless/src/modules/query/**` is untouched.
 
-The one platform change this build made is in `packages/types`: `ITicket` was extended **additively** with `contract_product_id`, `contract_product: IContractProduct` and `invoice`, rather than this module carrying a local intersection type or re-declaring `ITicket`.
+The one platform change this build made is in `packages/types`: `ITicket` was extended **additively** with `contract_product_id` and `invoice` (it carries the id only, not the embedded `contract_product` relation), rather than this module re-declaring `ITicket`. The embedded `contract_product` relation lives on the module's `Ticket` view model as `ContractProductEmbedded`, mapped by the contract-product module's `mapContractProductEmbedded`.
 
 ## Module boundary
 

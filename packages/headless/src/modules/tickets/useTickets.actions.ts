@@ -2,9 +2,10 @@ import { nextTick, watch } from "vue";
 import { invalidateQueryByKey, resetQueryByKey } from "../query";
 import { remove as removeFromRegistry } from "../scope";
 import { useActiveSession } from "../session-store";
+import { useSystem } from "../system";
 import { mapBrandDepartmentOptions } from "./tickets.mappers";
 import { NotAuthenticatedError } from "../../utils";
-import { omitBy, isNil } from "lodash-es";
+import { isNil, map, omitBy } from "lodash-es";
 import type {
   Ticket,
   TicketAttachmentRef,
@@ -134,15 +135,22 @@ export function createTicketsActions(
   }
 
   /** AC31 — the all-desks lookup (a different shape than the brand-public list, Z7). */
-  async function loadAllDepartments(): Promise<ITicketDepartment[]> {
-    return service.loadDepartments();
+  function loadAllDepartments(): Promise<ITicketDepartment[]> {
+    return useSystem().ensureDepartments();
   }
 
   /** AC32 — the ticket-status vocabulary. */
-  async function loadTicketStatuses(): Promise<
+  function loadTicketStatuses(): Promise<
     { code: TicketStatusCodes; name: string }[]
   > {
-    return service.loadTicketStatuses();
+    return useSystem()
+      .ensureTicketStatuses()
+      .then(raw =>
+        map(raw, status => ({
+          code: status.code as unknown as TicketStatusCodes,
+          name: status.name
+        }))
+      );
   }
 
   /** AC33 (R7) — read-modify-write over the client's meta map. */

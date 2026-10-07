@@ -18,14 +18,11 @@
  * it. `self`/`staff`/`guest` stay compile-time errors on `.for()`, per the
  * operator cell ruling recorded in `invoices.types.ts`'s `INVOICES_SCOPE_MATRIX`.
  *
- * No `useMutate` — the module ships no manager (no state machine, no
- * edit-form schema pair, `invoices.types.ts:33-34`), so there is no create
- * control and no `handoff`. `useDetail: useInvoice` is earned instead: the
- * single read's `.withId(id)` boots off the clicked row's own `id`
- * (`useInvoice.ts:47`, `service.loadOne(config.id)`), and its all-`never`
- * scope matrix (`invoices.types.ts:133-138`) refuses `.for()` while leaving
- * `.as()` intact — without this the page never exercises `useInvoice`'s
- * 25-relation `loadOne` read.
+ * No `useMutate` — the module ships no manager (no create-form schema pair), so
+ * there is no create control and no `handoff`. `useDetail: useInvoice` is the
+ * scoped single-invoice read: booted off the clicked row's `id` via
+ * `.withId(id)`, its all-`never` matrix refuses `.for()` while `.as()` resolves,
+ * so the read overlay exercises the full single-invoice fetch.
  */
 
 import { useInvoice, useInvoices } from "@upmind-automation/headless";
@@ -49,7 +46,7 @@ export default {
   useDetail: useInvoice,
   persistCriteria: true,
   // The MODULE whose committed `.feature` and step catalog this page plays.
-  tracks: "invoices",
+  tracks: { module: "invoices", without: ["@detail"] },
   presentation: {
     icon: "tag-02",
     table: tableUischema,

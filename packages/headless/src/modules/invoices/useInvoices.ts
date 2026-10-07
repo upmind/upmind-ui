@@ -11,7 +11,6 @@ import type {
   InvoicesScopeMatrix
 } from "./invoices.types";
 import type { ScopeConfig, ScopeKey } from "../scope";
-import type { ScopeActorTypes } from "../scope/scope.types";
 // -----------------------------------------------------------------------------
 /**
  * @module invoices/useInvoices
@@ -31,7 +30,7 @@ import type { ScopeActorTypes } from "../scope/scope.types";
  * actor; the scope builder resolves SELF before this factory runs.
  */
 function createInvoicesForScope(config: ScopeConfig, scopeKey: ScopeKey) {
-  const actorScope = config.actor as ScopeActorTypes;
+  const actorScope = config.actor;
 
   /**
    * ONE services instance for this scope. `config.context` goes in here and
@@ -67,7 +66,8 @@ function createInvoicesForScope(config: ScopeConfig, scopeKey: ScopeKey) {
   const lookups: InvoicesScopeLookups = {
     contract: once(() => service.loadContractLookup()),
     contracts_product: once(() => service.loadContractProductLookup()),
-    invoice: once(() => service.loadInvoiceLookup())
+    invoice: once(() => service.loadInvoiceLookup()),
+    invoicePicker: once(() => service.loadInvoicePickerLookup())
   };
 
   /** ONE actions instance per scope; the layers below stay lazy. */

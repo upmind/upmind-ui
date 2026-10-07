@@ -453,6 +453,12 @@ console.log(definitions, schema.value, uischema.value);
 
 The two fragment functions are pure — no scope, no session, no request, no reactive state — and are not, and must never become, a second route to this module's own data.
 
-## 15. Working in this codebase's development checkout: watch the lockfile
+## 15. `clear()` restores the base model directly — it does not re-parse from empty
+
+The shared editor machine's default `CLEAR` handling empties the model outright and lets the next state re-derive it from `baseModel` through the ordinary parse path. This module overrides that default: `clear()` reassigns `baseModel` straight onto the model instead of emptying it first. The override exists because some real addresses carry the literal wire value `region_id: "none"` — not `null`, not a real region id — and the ordinary region-reconciliation step in the parse path drops any `regionId` that doesn't match a region in the currently-loaded list, `"none"` included. Restoring `baseModel` directly skips that reconciliation and keeps the sentinel intact.
+
+> **🧪 For Testers:** After `clear()` on an address whose base model carries `regionId: "none"`, assert the model is deep-equal to `baseModel`, sentinel included — do not assert only that the visible fields look reset.
+
+## 16. Working in this codebase's development checkout: watch the lockfile
 
 Not a module behaviour, but worth knowing if you are developing against this module in this particular checkout: an unrelated, uninitialised git submodule elsewhere in this monorepo causes **any** invocation of this repo's primary package manager to rewrite the lockfile, dropping several hundred lines. If you hit an unexpectedly large lockfile diff after running a routine command, that is almost certainly the cause — prefer a direct package-runner invocation, or revert the lockfile, rather than committing the rewrite.

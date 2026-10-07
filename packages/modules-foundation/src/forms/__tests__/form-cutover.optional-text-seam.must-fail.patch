@@ -1,0 +1,22 @@
+Negative control for the wrapper's `:optional-text` seam.
+
+Drops the binding that hands the engine the catalogue's wording for the
+optional marker. Without it the engine falls back to its own English,
+which is invisible to an English-locale test unless the assertion pins a
+sentinel -- which is why the assertion overrides `text.optional`.
+
+MUST red: optional copy > "marks an optional control with the
+catalogue's own wording". The bare-engine twin MUST stay green.
+diff --git a/packages/modules-foundation/src/forms/Form.vue b/packages/modules-foundation/src/forms/Form.vue
+index 438b022..82c39ab 100644
+--- a/packages/modules-foundation/src/forms/Form.vue
++++ b/packages/modules-foundation/src/forms/Form.vue
+@@ -5,7 +5,7 @@
+     :i18n="i18n"
+     :ajv="ajv"
+     :additional-renderers="renderers"
+-    :optional-text="t('text.optional')"
++
+     :dataAttrs="assign({ 'data-test-key': 'form' }, props.dataAttrs)"
+   >
+     <template #additional="{ meta }">

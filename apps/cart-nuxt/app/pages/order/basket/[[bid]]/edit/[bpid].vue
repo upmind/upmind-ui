@@ -1,17 +1,25 @@
 <template>
-  <UpmBasketProductEdit
-    :storefront-route="storefrontRoute"
-    :catalogue-route="{ name: ROUTE.CATALOGUE }"
-    @product-details="handleProductDetails"
-  />
+  <Transitions>
+    <UpmBasketProductEdit
+      :storefront-route="storefrontRoute"
+      :catalogue-route="{ name: ROUTE.CATALOGUE }"
+      @product-details="handleProductDetails"
+      v-slot="{ template }"
+    >
+      <component :is="basketProductTemplate(template)" />
+    </UpmBasketProductEdit>
+  </Transitions>
 </template>
 
 <script lang="ts" setup>
 import { useI18n } from "vue-i18n";
-import { UpmBasketProductEdit, useBrand } from "@upmind-automation/client-vue";
-import type { ProductDetails } from "@upmind-automation/client-vue";
-import { useStorefrontRoute } from "~/composables/useStorefrontRoute";
-import { ROUTE } from "~/funnels/types";
+import { UpmBasketProductEdit } from "@upmind-automation/basket";
+import { useBrand } from "@upmind-automation/headless";
+import type { ProductDetails } from "@upmind-automation/headless";
+import { useStorefrontRoute } from "../../../../../composables/useStorefrontRoute";
+import { ROUTE } from "../../../../../funnels/types";
+import Transitions from "../../../../../shell/components/transition/Transition.vue";
+import { basketProductTemplate } from "../../../../../shell/modules/basket-product/shell";
 
 const { t } = useI18n();
 const { name: brandName, currency } = useBrand();

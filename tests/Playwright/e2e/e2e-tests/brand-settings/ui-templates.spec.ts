@@ -19,9 +19,10 @@ import { waitForSessionCookie } from "../../support/helpers/session";
  *
  * ## Job to be done
  * A brand drives each cart screen's layout with `@context.<area>.template` in
- * its UISchema. `validateTemplate` (e.g. `session/Login.vue:186-192`) resolves
- * that value against the area's own template enum and falls an absent or
- * unknown value back to the area's default. This asserts the consequence that
+ * its UISchema. The host's template pick (e.g. `sessionTemplate` in
+ * `shell/modules/session/shell.ts`) resolves that value against the area's own
+ * template record and falls an absent or unknown value back to the area's
+ * default. This asserts the consequence that
  * matters: whatever the brand asks for, the screen still renders its functional
  * surface. A template that resolves to nothing renders an empty page, and no
  * other spec would notice.
@@ -42,7 +43,7 @@ import { waitForSessionCookie } from "../../support/helpers/session";
  * change, not a test one.
  */
 
-// The area template enums (`SESSION_TEMPLATE`, `PRODUCT_TEMPLATE`,
+// The hosts' template enums (`AUTH_TEMPLATE`, `PRODUCT_TEMPLATE`,
 // `BASKET_TEMPLATE`, `CHECKOUT_TEMPLATE`) minus `inset` - that is the one-page
 // variant, a different journey owned by `one-page-checkout.spec.ts` and
 // `checkout-flow-selection.spec.ts`.

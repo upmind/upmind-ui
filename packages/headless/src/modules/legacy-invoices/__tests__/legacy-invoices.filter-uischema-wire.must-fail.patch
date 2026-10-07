@@ -1,0 +1,34 @@
+# Must-fail mutant for legacy-invoices.filter-uischema-wire.int.test.ts (FE-3230
+# F1-R, integration; describe "legacy-invoices filter uischema — the new controls
+# drive the wire (F1-R)").
+#
+# Mutates `legacy-invoices.schemas.ts`'s `useQueryUischema` — mis-scopes the
+# `create_datetime.before` control to a non-existent `is_before` leaf, so the
+# control the wire spec drives no longer binds to the `before` operator: a
+# control drawn over a leaf the criteria channel does not carry.
+#
+# Reds: "@AC-10 create_datetime.before is drawn AND reaches the wire as a
+# relative expression, no format imposed" — its `expect(drawsControlFor(
+# "create_datetime", "before")).toBe(true)` fails, because no control is scoped
+# to the `before` leaf any more.
+#
+# Declared collateral: legacy-invoices.filter-uischema.test.ts (the unit project,
+# not run for this mutant) reds its `create_datetime.before` leaf in the same two
+# leaf-loop tests. The scope leaf a control binds to cannot be broken without the
+# unit spec seeing it too; the leaf `create_datetime.before` is chosen because it
+# is one of the three the wire spec drives, which is what this mutant proves.
+#
+# Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+diff --git a/packages/headless/src/modules/legacy-invoices/legacy-invoices.schemas.ts b/packages/headless/src/modules/legacy-invoices/legacy-invoices.schemas.ts
+index 6175c37127..3f2261c1ff 100644
+--- a/packages/headless/src/modules/legacy-invoices/legacy-invoices.schemas.ts
++++ b/packages/headless/src/modules/legacy-invoices/legacy-invoices.schemas.ts
+@@ -225,7 +225,7 @@ export function useQueryUischema(): UISchemaElement {
+       {
+         type: "Control",
+         scope:
+-          "#/properties/filters/properties/create_datetime/properties/before",
++          "#/properties/filters/properties/create_datetime/properties/is_before",
+         i18n: "form.legacy_invoice_created_before_filter",
+         options: { optionalText: "" }
+       }

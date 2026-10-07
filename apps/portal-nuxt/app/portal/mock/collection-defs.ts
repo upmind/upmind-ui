@@ -102,6 +102,7 @@ import type {
 import type { PaginationInfo } from "@upmind-automation/headless";
 import type { InvoiceStatus } from "@upmind-automation/types";
 import type { ComputedRef } from "vue";
+// -----------------------------------------------------------------------------
 
 type NoFilters = Record<string, never>;
 
@@ -352,7 +353,7 @@ export const notificationPreferencesCollection = simpleCollection(
 );
 
 // --- contact data: the client's emails, the one contact collection the token
-// opt-ins page still reads (the rest is client-vue's).
+// opt-ins page still reads (the rest is the packages').
 
 export const clientEmailsCollection = filteredCollection<
   MockEmail,

@@ -1,0 +1,11 @@
+--- a/packages/headless/src/modules/client-custom-pages/index.ts
++++ b/packages/headless/src/modules/client-custom-pages/index.ts
+@@ -11,7 +11,7 @@
+ // --- Composables
+ export { useClientCustomPages } from "./useClientCustomPages";
+ export type { UseClientCustomPages } from "./useClientCustomPages";
+-export { useClientCustomPage } from "./useClientCustomPage";
++export const useClientCustomPage = undefined;
+ export type { UseClientCustomPage } from "./useClientCustomPage";
+
+ // --- Scope matrix — the COLLECTION's only. The single read's matrix refuses

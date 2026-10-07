@@ -20,6 +20,7 @@ import { useRoute, useRouter } from "vue-router";
 import { omit } from "lodash-es";
 import type { InitQueryValue } from "~/portal/mock/actions";
 import { INIT_QUERY_KEY, INIT_QUERY_VERB } from "~/portal/mock/actions";
+// -----------------------------------------------------------------------------
 
 /** Whether the query names a flow this build knows how to open. */
 function isInitValue(value: unknown): value is InitQueryValue {

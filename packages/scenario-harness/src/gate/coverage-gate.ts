@@ -1,5 +1,45 @@
 import { GATE_CAUSE, GATE_STATUS, TAG_KIND } from "./gate.types";
 import type { GateInput, GateReport, GateVerdict } from "./gate.types";
+// -----------------------------------------------------------------------------
+/**
+ * @module gate/coverage-gate
+ * @description The coverage gate: grades every live action of one
+ * scope-matrix cell as covered, exempt or red.
+ */
+
+function actionVerdict(
+  actionId: string,
+  { tags, actionSchemas }: Pick<GateInput, "tags" | "actionSchemas">,
+  covered: ReadonlySet<string>
+): GateVerdict {
+  const tag = Object.hasOwn(tags, actionId) ? tags[actionId] : undefined;
+
+  if (tag?.kind === TAG_KIND.EXCLUDE) {
+    return tag.reason
+      ? { actionId, status: GATE_STATUS.EXEMPT, reason: tag.reason }
+      : {
+          actionId,
+          status: GATE_STATUS.RED,
+          cause: GATE_CAUSE.MISSING_REASON
+        };
+  }
+
+  const actionSchema = Object.hasOwn(actionSchemas, actionId)
+    ? actionSchemas[actionId]
+    : undefined;
+
+  if (!tag && actionSchema !== undefined) {
+    return {
+      actionId,
+      status: GATE_STATUS.RED,
+      cause: GATE_CAUSE.UNTAGGED_INPUT_TAKING
+    };
+  }
+
+  return covered.has(actionId)
+    ? { actionId, status: GATE_STATUS.COVERED }
+    : { actionId, status: GATE_STATUS.RED, cause: GATE_CAUSE.UNCOVERED };
+}
 
 /**
  * The pure coverage-gate verdict function. Tags are read as data
@@ -19,39 +59,7 @@ export function runGate({
   const verdicts: GateVerdict[] = [];
 
   for (const actionId of actionKeys) {
-    const tag = Object.hasOwn(tags, actionId) ? tags[actionId] : undefined;
-
-    if (tag?.kind === TAG_KIND.EXCLUDE) {
-      verdicts.push(
-        tag.reason
-          ? { actionId, status: GATE_STATUS.EXEMPT, reason: tag.reason }
-          : {
-              actionId,
-              status: GATE_STATUS.RED,
-              cause: GATE_CAUSE.MISSING_REASON
-            }
-      );
-      continue;
-    }
-
-    const actionSchema = Object.hasOwn(actionSchemas, actionId)
-      ? actionSchemas[actionId]
-      : undefined;
-
-    if (!tag && actionSchema !== undefined) {
-      verdicts.push({
-        actionId,
-        status: GATE_STATUS.RED,
-        cause: GATE_CAUSE.UNTAGGED_INPUT_TAKING
-      });
-      continue;
-    }
-
-    verdicts.push(
-      covered.has(actionId)
-        ? { actionId, status: GATE_STATUS.COVERED }
-        : { actionId, status: GATE_STATUS.RED, cause: GATE_CAUSE.UNCOVERED }
-    );
+    verdicts.push(actionVerdict(actionId, { tags, actionSchemas }, covered));
   }
 
   // A step naming an action no longer live is drift, not a coverage gap.

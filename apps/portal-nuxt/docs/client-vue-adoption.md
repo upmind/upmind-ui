@@ -14,14 +14,17 @@ Ruled 2026-09-07: "we don't need to mock the client-vue components, as they are 
 
 | Route(s)                                                             | client-vue                                                                                   | headless                                                           | Stub                                  |
 | -------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ | ------------------------------------- |
-| `/login` (+ two-factor step)                                         | `UpmSessionLogin`                                                                            | `auth`                                                             | `config/auth-pages.ts`                |
-| `/register`                                                          | `UpmSessionRegister`                                                                         | `auth`                                                             | `config/auth-pages.ts`                |
-| `/forgotten-password`                                                | `UpmSessionRecoverPassword`                                                                  | `auth`                                                             | `config/auth-pages.ts`                |
-| `/logout`                                                            | `UpmSessionLogout`                                                                           | `auth`                                                             | `config/auth-pages.ts`                |
-| `/billing/payment-methods`                                           | `PaymentDetails`, `StoredPaymentMethods`                                                     | `payment-details`, `payment-gateways`                              | `config/billing-pages.ts`             |
+| `/login` (+ two-factor step)                                         | `UpmAuthLogin` (`@upmind-automation/auth`)                                                   | `auth`                                                             | none: `pages/login.vue` mounts it     |
+| `/register`                                                          | `UpmAuthRegister` (`@upmind-automation/auth`)                                                | `auth`                                                             | none: `pages/register.vue` mounts it  |
+| `/forgotten-password`                                                | `UpmAuthRecoverPassword` (`@upmind-automation/auth`)                                         | `auth`                                                             | none: `pages/forgotten-password.vue` mounts it |
+| `/logout`                                                            | none: `pages/logout.vue` calls `useActiveSession().useActions().logout()`                    | `session-store`                                                    | none                                  |
+| `/billing/payment-methods`                                           | none: no package draws a saved-cards manager (see Payment below)                             | `payment-details`, `payment-gateways`                              | `config/billing-pages.ts`             |
 | invoice Pay (document control, list row, `?init=pay`)                | `PaymentDetails`, `PaymentAmount`, `AccountCredit`, `PaymentGateways`                        | `payment`, `invoices`                                              | `MOCK_ACTION.PAY_INVOICE` → prose     |
 | product settings — payment method                                    | `StoredPaymentMethods`                                                                       | `payment-details`                                                  | `config/product-pages.ts`             |
-| `/billing/orders`, `/billing/orders/[id]`                            | `UpmOrder` (`Order`, `OrderProducts`)                                                        | `orders`                                                           | `config/billing-pages.ts`             |
+| `/billing/orders`                                                    | none: no package draws an order list (see Orders below)                                      | `invoices`                                                         | `config/billing-pages.ts`             |
+| `/billing/orders/[oid]`                                              | `UpmOrder` (`@upmind-automation/invoice`)                                                    | `invoices`                                                         | none: `pages/billing/orders/[oid].vue` mounts it |
+| product `setup` area                                                 | **mocked** — `UpmProductSetup` is basket-only and never served this page (see below)        | `product-setup`                                                    | `config/product-pages.ts`             |
+| billing entity — "Add company" door                                  | `UpmBilling` company form                                                                    | `client-company`                                                   | `MOCK_ACTION.CLIENT_VUE_STUB` → prose |
 
 The two token-addressed logged-out pages (`/preferences`, `/preferences/email/opt-ins`)
 and the delegate-invite acceptance page have no client-vue counterpart and stay mocked.
@@ -62,6 +65,11 @@ portal ships the family.
 
 ### Payment
 
+`/billing/payment-methods` renders the stub. The sandbox does not mock the saved-cards
+manager, because the payment family is not mocked. No package publishes one either:
+`@upmind-automation/payment` keeps `StoredPaymentMethods` internal, as the card chooser
+inside `PaymentDetails`. The stored-card lines below are the gap.
+
 - Pay an invoice in another currency the brand publishes a rate for; refuse a currency
   without one.
 - Partial payments behind `PARTIAL_PAYMENTS_ENABLED`, with a minimum, and an additional
@@ -83,6 +91,10 @@ portal ships the family.
   delegated document and while a payment clears.
 
 ### Orders
+
+`/billing/orders` renders the stub. `UpmOrder` shows one order, so no package draws the
+list, and the sandbox draws no mock list in its place. `/billing/orders/[oid]` mounts the
+real `UpmOrder`. The list lines below are the gap.
 
 - The order list with search, status filter and sort; standing per order (paid, pending
   payment, payment failed, partly paid, not paid, not paid with no gateways).
@@ -115,15 +127,29 @@ Mocked since 11 September 2026. The reset link's new password (with the second-s
 while two-factor is on), the verification link's outcomes (activated, first password, expired),
 the email-verification outcomes, and the organisation sign-up under "Get started for free"
 are pages of their own (`config/auth-pages.ts`, `mock/contracts/auth.schemas.{reset,register-org}.ts`,
-`tests/auth-steps.test.ts`). Sign-in, registration and password recovery still mount the real
-client-vue organisms.
+`tests/auth-steps.test.ts`). Sign-in, registration and password recovery mount the real
+`@upmind-automation/auth` organisms.
 
 ### Product setup
 
-Mocked since 11 September 2026 (operator ruling: mock where no surface component exists).
-`UpmProductSetup` is the basket funnel's repair step and never served this page (FE-3219).
+**There is no component to adopt here.** `UpmProductSetup` renders a different surface with
+the same name: the basket-funnel step that repairs invalid or deferred products on the way
+to checkout. Its route is `BASKET_PRODUCTS_SETUP` and `ApplyToOthers` acts across the
+basket. Headless `useProductSetup` has no machine of its own: it selects over `useBasket`
+and `useBasketProducts`, and also reads `useConfig` (in `UIContext.CHECKOUT`) and
+`getDomainBasketProducts` — basket state is not its only input. The part that decides this
+page is the write: it applies through `basketProductServices.updateMany(basketId.value, …)`,
+with `basketId` taken from `useBasket()`. This page is post-purchase, for a product the
+client already owns, with no basket anywhere — so there is no id to apply against, and the
+composable cannot be reused as it stands. Ruled in ADR 023 Amendment 3 (2026-09-11); the
+module moved into `basket` in that epic's Phase 9.
+
+Mocked since 11 September 2026, per the ruling that a surface with no component is mocked.
 The mock renders the provider's blueprint as one form whose Confirm is the setup step
 (`mock/contracts/contract-product-provisioning.schemas.ts`, `tests/product-setup-form.test.ts`).
+
+- The provider's blueprint as a form; a blueprint that asks nothing still renders and
+  its Confirm is the setup step; outstanding fields named on the product's notice.
 
 ## Stand-in schema modules removed
 

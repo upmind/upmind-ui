@@ -11,8 +11,8 @@
  *   With only this root file present, every package resolves to it. The former
  *   per-package clones existed ONLY to re-state shared rules — flat config
  *   `files`/`ignores` give us per-area scoping without duplicate files.
- *   packages/ui, apps/velia, apps/hosting are standalone submodules that get a
- *   FULL BYTE-COPY of this file (kept in lockstep via .claude/scripts/lint/sync-configs.mjs).
+ *   packages/ui is a standalone submodule that gets a
+ *   FULL BYTE-COPY of this file (kept in lockstep via etc/ci/lint/sync-configs.mjs).
  *
  * Correctness baselines (the floor that was lost in the flat migration — every
  * rule in eslint:recommended, typescript-eslint/recommended, and vue3-essential
@@ -45,14 +45,14 @@
  *
  * THE FIX: every lint entrypoint (root `pnpm lint`, `pnpm -r lint`,
  * `pnpm --filter <pkg> lint`, and CI) routes through
- * `.claude/scripts/lint/eslint-workspace.mjs`, which always runs ESLint with cwd = repo
+ * `etc/ci/lint/eslint-workspace.mjs`, which always runs ESLint with cwd = repo
  * root while targeting the invoking package, so all entrypoints resolve the
  * IDENTICAL suppression state. That wrapper — not this config — is the single
  * source of truth for how the ledger is loaded (ESLint offers no config-level
  * hook for the suppressions location; it is purely a CLI concern).
- * `.claude/scripts/lint/verify-lint-convergence.mjs` (CI job `lint:convergence`, run via
+ * `etc/ci/lint/verify-lint-convergence.mjs` (CI job `lint:convergence`, run via
  * `pnpm lint:verify`) guards the invariant so the entrypoints cannot silently
- * diverge again. Git-submodule packages (packages/ui, apps/hosting, apps/velia)
+ * diverge again. Git-submodule packages (packages/ui)
  * must adopt the same wrapper in their OWN repos — the parent cannot edit their
  * package.json without submodule churn; the guard flags any that haven't.
  *
@@ -77,7 +77,13 @@ import vueParser from "vue-eslint-parser";
 import globals from "globals";
 import scopeBasedPlugin from "@upmind-automation/eslint-plugin-scope-based";
 import fileResponsibilityPlugin from "@upmind-automation/eslint-plugin-file-responsibility";
+import endpointOwnershipPlugin from "@upmind-automation/eslint-plugin-endpoint-ownership";
+import asyncDisciplinePlugin from "@upmind-automation/eslint-plugin-async-discipline";
+import codeQualityPlugin from "@upmind-automation/eslint-plugin-code-quality";
 import uiPlugin from "@upmind-automation/eslint-plugin-ui";
+import xstatePlugin from "@upmind-automation/eslint-plugin-xstate";
+import securityPlugin from "@upmind-automation/eslint-plugin-security";
+import testsPlugin from "@upmind-automation/eslint-plugin-tests";
 
 // typescript-eslint's flat/recommended is a 3-config array:
 //   [0] base    — registers the @typescript-eslint plugin + parser + sourceType
@@ -163,21 +169,37 @@ const nuxtAutoImportGlobals = {
 // ruling §3). Governance switch is the `@internal` head marker, NOT a filename
 // suffix and NOT a frozen exception list: a file is internal iff its first ~15
 // lines carry `@internal`. Importing such a file from a DIFFERENT module
-// directory under packages/headless/src/modules is an error; same-module wiring
-// (a service importing its own mapper, basket.utils → sibling machine) is fine.
-//
-// Scoped (via the config block below) to files under packages/headless/src/modules.
+// directory under the importer's OWN `<package>/src/modules` is an error;
+// same-module wiring (a service importing its own mapper, basket.utils →
+// sibling machine) is fine.
 // -----------------------------------------------------------------------------
+
+const PACKAGES_ROOT = resolve(import.meta.dirname, "packages");
 
 const MODULES_ROOT = resolve(
   import.meta.dirname,
   "packages/headless/src/modules"
 );
 
-// The two aggregator barrels whose import pulls the whole graph (cycle risk).
+// Aggregator barrels whose import pulls the whole graph (cycle risk): the root
+// barrel (`src/index.ts`) of headless, client-vue and every modules-* package,
+// plus the headless modules-root barrel (`src/modules/index.ts`).
 const HEADLESS_SRC = resolve(MODULES_ROOT, "..");
 const MODULES_BARREL = resolve(MODULES_ROOT, "index.ts");
-const PACKAGE_BARREL = resolve(HEADLESS_SRC, "index.ts");
+const AGGREGATOR_PACKAGE = /^(headless|client-vue|modules-[^/]+)$/;
+
+/** The `src` folder of the aggregator package a file belongs to, or null. */
+function aggregatorSrcOf(absPath) {
+  if (!absPath.startsWith(`${PACKAGES_ROOT}/`)) return null;
+
+  const pkg = absPath.slice(PACKAGES_ROOT.length + 1).split("/")[0];
+
+  if (!AGGREGATOR_PACKAGE.test(pkg)) return null;
+
+  const src = resolve(PACKAGES_ROOT, pkg, "src");
+
+  return absPath.startsWith(`${src}/`) ? src : null;
+}
 
 // Cache: absolute resolved path → boolean (isInternal). Keyed by the resolved
 // target so repeated imports of the same file read disk once.
@@ -231,11 +253,42 @@ function isInternalFile(absPath) {
   return internal;
 }
 
+const moduleRootCache = new Map();
+
+function moduleRootOf(absPath) {
+  if (!absPath.startsWith(`${PACKAGES_ROOT}/`)) return null;
+
+  const rest = absPath.slice(PACKAGES_ROOT.length + 1);
+  const slash = rest.indexOf("/");
+
+  if (slash === -1) return null;
+
+  const pkg = rest.slice(0, slash);
+  const cached = moduleRootCache.get(pkg);
+
+  if (cached !== undefined) return cached;
+
+  // modules-foundation has no `src/modules` folder: it is split by feature
+  // directly under `src`, and each feature folder is one module.
+  const root = resolve(
+    PACKAGES_ROOT,
+    pkg,
+    pkg === "modules-foundation" ? "src" : "src/modules"
+  );
+  const found = existsSync(root) && statSync(root).isDirectory() ? root : null;
+
+  moduleRootCache.set(pkg, found);
+
+  return found;
+}
+
 /** The module directory (immediate child of modules/) that a file lives in. */
 function moduleDirOf(absPath) {
-  if (!absPath.startsWith(`${MODULES_ROOT}/`)) return null;
+  const root = moduleRootOf(absPath);
 
-  const rest = absPath.slice(MODULES_ROOT.length + 1);
+  if (!root || !absPath.startsWith(`${root}/`)) return null;
+
+  const rest = absPath.slice(root.length + 1);
   const slash = rest.indexOf("/");
 
   return slash === -1 ? rest : rest.slice(0, slash);
@@ -248,14 +301,16 @@ const internalBarrierPlugin = {
         type: "problem",
         docs: {
           description:
-            "Disallow importing an @internal-marked headless module file from a different module."
+            "Disallow importing an @internal-marked module file from a different module in the same package."
         },
         schema: []
       },
       create(context) {
         const importerFile = context.filename ?? context.getFilename();
+        const importerRoot = moduleRootOf(importerFile);
 
-        if (!importerFile.startsWith(`${MODULES_ROOT}/`)) return {};
+        if (!importerRoot || !importerFile.startsWith(`${importerRoot}/`))
+          return {};
 
         const importerModule = moduleDirOf(importerFile);
 
@@ -269,6 +324,7 @@ const internalBarrierPlugin = {
             const target = resolveRelativeTarget(importerFile, specifier);
 
             if (!target) return;
+            if (moduleRootOf(target) !== importerRoot) return;
             if (!isInternalFile(target)) return;
 
             const targetModule = moduleDirOf(target);
@@ -297,10 +353,16 @@ const internalBarrierPlugin = {
       create(context) {
         const importerFile = context.filename ?? context.getFilename();
 
-        if (!importerFile.startsWith(`${HEADLESS_SRC}/`)) return {};
+        const srcRoot = aggregatorSrcOf(importerFile);
+
+        if (!srcRoot) return {};
+
+        const packageBarrel = resolve(srcRoot, "index.ts");
+        const barrels = new Set([packageBarrel]);
+
+        if (srcRoot === HEADLESS_SRC) barrels.add(MODULES_BARREL);
         // The barrels themselves legitimately re-export the layers below them.
-        if (importerFile === PACKAGE_BARREL || importerFile === MODULES_BARREL)
-          return {};
+        if (barrels.has(importerFile)) return {};
 
         function check(node) {
           const specifier = node.source?.value;
@@ -308,10 +370,10 @@ const internalBarrierPlugin = {
             return;
 
           const target = resolveRelativeTarget(importerFile, specifier);
-          if (target !== PACKAGE_BARREL && target !== MODULES_BARREL) return;
+          if (!target || !barrels.has(target)) return;
 
           const which =
-            target === PACKAGE_BARREL ? "package-root" : "modules-root";
+            target === packageBarrel ? "package-root" : "modules-root";
           context.report({
             node,
             message:
@@ -453,11 +515,11 @@ const sharedVueRules = {
   // --- Vue style/intent on top of vue3-essential correctness
   "vue/component-name-in-template-casing": ["error", "PascalCase"],
   "vue/multi-word-component-names": "off", // many intentional single-word public components (Cart, Upmind); renaming is cosmetic churn with API impact
-  "vue/no-v-html": "off", // sanitised HTML is rendered deliberately (rich content, CMS); we own the sanitiser
+  "vue/no-v-html": "off", // replaced by ui/v-html-sanitised (decision 13): v-html only through a sanitiser call
   "vue/no-v-text-v-html-on-component": "off", // web-component wrappers legitimately receive v-html
   "vue/no-v-model-argument": "off", // Vue-2-era guard; irrelevant under Vue 3
   // vue/component-api-style is deliberately OFF (left unset): the codebase mixes
-  // <script setup>, composition, and options API by design (client-vue web-component
+  // <script setup>, composition, and options API by design (web-component
   // wrappers vs cart SFCs). Enforcing one style is churn with no correctness gain
   // (FE-2820 ruling §4). The 2 stale eslint-disable comments for it were removed.
 
@@ -500,7 +562,6 @@ const bannedScenarioHarnessSpecifiers = [
   "pinia",
   "@xstate/vue",
   "@upmind-automation/headless",
-  "@upmind-automation/client-vue",
   "@upmind-automation/upmind-ui",
   "@upmind-automation/i18n"
 ];
@@ -528,7 +589,7 @@ const noRestrictedVueImportsRule = [
       // plus a slash" without also catching unrelated `@upmind-automation/*`
       // packages (e.g. `@upmind-automation/types`, which is NOT banned).
       {
-        regex: "^@upmind-automation/(headless|client-vue|upmind-ui|i18n)/",
+        regex: "^@upmind-automation/(headless|upmind-ui|i18n)/",
         message: NO_VUE_BOUNDARY_MESSAGE
       }
     ]
@@ -556,7 +617,7 @@ const bannedScenarioHarnessSpecifierPattern = new RegExp(
   "^(?:vue|vue-router|vue-i18n|vue-demi|pinia|@xstate/vue)(?:/.*)?$" +
     "|^@vue/" +
     "|^@vueuse/" +
-    "|^@upmind-automation/(?:headless|client-vue|upmind-ui|i18n)(?:/.*)?$"
+    "|^@upmind-automation/(?:headless|upmind-ui|i18n)(?:/.*)?$"
 );
 
 const scenarioHarnessBoundaryPlugin = {
@@ -759,6 +820,55 @@ const workspaceBoundaryPlugin = {
   }
 };
 
+// -----------------------------------------------------------------------------
+// Package-graph enforcement — `import/no-cycle` + `import/no-internal-modules`.
+//
+// The node resolver knows .js/.json only; without these extensions both rules pass vacuously.
+// -----------------------------------------------------------------------------
+const IMPORT_RESOLVE_EXTENSIONS = [
+  ".js",
+  ".mjs",
+  ".cjs",
+  ".jsx",
+  ".ts",
+  ".mts",
+  ".cts",
+  ".tsx",
+  ".vue"
+];
+
+const importGraphSettings = {
+  "import/resolver": { node: { extensions: IMPORT_RESOLVE_EXTENSIONS } },
+  "import/extensions": IMPORT_RESOLVE_EXTENSIONS,
+  "import/parsers": {
+    "@typescript-eslint/parser": [".ts", ".tsx", ".mts"],
+    "vue-eslint-parser": [".vue"]
+  }
+};
+
+const SCOPE = "@upmind-automation/";
+
+const DOMAIN_PACKAGES = [
+  { dir: "modules-auth", name: "@upmind-automation/auth" },
+  { dir: "modules-basket", name: "@upmind-automation/basket" },
+  { dir: "modules-catalogue", name: "@upmind-automation/catalogue" },
+  { dir: "modules-client", name: "@upmind-automation/client" },
+  { dir: "modules-domain", name: "@upmind-automation/domain" },
+  { dir: "modules-foundation", name: "@upmind-automation/foundation" },
+  { dir: "modules-invoice", name: "@upmind-automation/invoice" },
+  { dir: "modules-payment", name: "@upmind-automation/payment" },
+  { dir: "modules-product", name: "@upmind-automation/product" },
+  { dir: "modules-recommendations", name: "@upmind-automation/recommendations" }
+];
+
+const DOMAIN_PACKAGE_FILES = DOMAIN_PACKAGES.map(
+  p => `packages/${p.dir}/**/*.{ts,tsx,mts,cts,js,jsx,mjs,cjs,vue}`
+);
+
+const DOMAIN_PACKAGE_INTERNALS = `${SCOPE}{${DOMAIN_PACKAGES.map(p =>
+  p.name.slice(SCOPE.length)
+).join(",")}}/**`;
+
 export default [
   // ---------------------------------------------------------------------------
   // 1. Global ignores
@@ -767,6 +877,7 @@ export default [
     ignores: [
       "**/node_modules/**",
       "**/dist/**",
+      "**/storybook-static/**",
       "**/build/**",
       "**/.nuxt/**",
       "**/.output/**",
@@ -841,6 +952,15 @@ export default [
       "**/*.config.{ts,mts,cts,js,cjs,mjs}",
       "tests/fixtures/**/*.{mjs,js,ts}",
       "packages/eslint-plugin-scope-based/**/*.{js,mjs}",
+      "packages/eslint-plugin-endpoint-ownership/**/*.{js,mjs}",
+      "packages/eslint-plugin-async-discipline/**/*.{js,mjs}",
+      "packages/eslint-plugin-code-quality/**/*.{js,mjs}",
+      "packages/eslint-plugin-tests/**/*.{js,mjs}",
+      "packages/eslint-plugin-file-responsibility/**/*.{js,mjs}",
+      "packages/eslint-plugin-ui/**/*.{js,mjs}",
+      "packages/eslint-plugin-xstate/**/*.{js,mjs}",
+      "packages/eslint-plugin-security/**/*.{js,mjs}",
+      "docs/corpus/**/*.{js,mjs}",
       "packages/*/scripts/**/*.{ts,mts,cts,js,cjs,mjs}"
     ],
     languageOptions: {
@@ -864,17 +984,11 @@ export default [
   },
 
   // ---------------------------------------------------------------------------
-  // 5b. portal-nuxt: headless is a TYPES-ONLY dependency WHILE THE APP IS
-  //     MOCK-ONLY. The app aliases @upmind-automation/headless to source so
-  //     mock facades can be typed against the real composable contracts; a
-  //     VALUE import executes the barrel, which module-load-interprets the
-  //     routing machine in an app with no headless runtime wired. The go-real
-  //     MR that lands the first real composable deliberately takes the runtime
-  //     dependency and DELETES this block (or narrows it to app/portal/mock/**).
+  // 5b. portal-nuxt's MOCK FACADES keep headless as a TYPES-ONLY dependency.
   //     (docs/plans/portal-mock-composable-facades.md R3)
   // ---------------------------------------------------------------------------
   {
-    files: ["apps/portal-nuxt/**/*.{ts,tsx,mts,cts,vue}"],
+    files: ["apps/portal-nuxt/app/portal/mock/**/*.{ts,tsx,mts,cts,vue}"],
     rules: {
       "@typescript-eslint/no-restricted-imports": [
         "error",
@@ -884,7 +998,7 @@ export default [
               name: "@upmind-automation/headless",
               allowTypeImports: true,
               message:
-                "portal-nuxt consumes headless as types only — a value import executes the headless barrel (routing machine interprets at module load)."
+                "portal-nuxt's mock facades consume headless as types only — a value import there serves a mock from the real barrel, which is the coupling they exist to avoid."
             }
           ]
         }
@@ -899,7 +1013,11 @@ export default [
     files: ["**/*.{ts,tsx,mts,cts}"],
     languageOptions: {
       parser: typescriptParser,
-      parserOptions: { ecmaVersion: "latest", sourceType: "module" }
+      parserOptions: {
+        ecmaVersion: "latest",
+        sourceType: "module",
+        parser: typescriptParser
+      }
     },
     plugins: {
       import: eslintPluginImport,
@@ -933,13 +1051,16 @@ export default [
   },
 
   // ---------------------------------------------------------------------------
-  // 8. @internal barrier — custom marker-based rule, scoped to headless modules.
+  // 8. @internal barrier — custom marker-based rule, per-package resolver.
   //    A file is internal iff its head carries `@internal`; importing it from a
   //    different module directory is an error. Same-module wiring is allowed.
   //    Replaces the coarse suffix-glob no-restricted-imports (FE-2820 ruling §3).
   // ---------------------------------------------------------------------------
   {
-    files: ["packages/headless/src/modules/**/*.{ts,tsx,mts,cts}"],
+    files: [
+      "packages/*/src/modules/**/*.{ts,tsx,mts,cts,vue}",
+      "packages/modules-foundation/src/**/*.{ts,tsx,mts,cts,vue}"
+    ],
     plugins: {
       "@internal": internalBarrierPlugin
     },
@@ -958,7 +1079,11 @@ export default [
   //     `warn` until the existing call sites are repointed, then flip to `error`.
   // ---------------------------------------------------------------------------
   {
-    files: ["packages/headless/src/**/*.{ts,tsx,mts,cts,vue}"],
+    files: [
+      "packages/headless/src/**/*.{ts,tsx,mts,cts,vue}",
+      "packages/client-vue/src/**/*.{ts,tsx,mts,cts,vue}",
+      "packages/modules-*/src/**/*.{ts,tsx,mts,cts,vue}"
+    ],
     plugins: {
       "@internal": internalBarrierPlugin
     },
@@ -990,7 +1115,8 @@ export default [
       "scope-based/complete-layer-set": "error",
       "scope-based/actor-scope-first": "error",
       "scope-based/arm-in-matrix": "error",
-      "scope-based/no-private-instance-axis": "error"
+      "scope-based/no-private-instance-axis": "error",
+      "scope-based/no-self-context": "error"
     }
   },
 
@@ -1001,12 +1127,134 @@ export default [
   //     (getFixtureBody/getFixture), never a hand-rolled local builder.
   // ---------------------------------------------------------------------------
   {
-    files: ["**/*.int.test.ts"],
+    files: [
+      "**/*.test.ts",
+      "**/__tests__/**/*.ts",
+      "tests/journeys/**/*.{ts,mts}"
+    ],
     plugins: {
       "scope-based": scopeBasedPlugin
     },
     rules: {
       "scope-based/no-hand-rolled-int-fixture": "error"
+    }
+  },
+
+  // ---------------------------------------------------------------------------
+  // 8e2. Test rules (`tests` plugin; code-tests, code-tests-e2e). The frozen
+  //     `tests/Playwright/**` suite is ignored globally (D4). The e2e rules run
+  //     over the journeys, `tests/journeys/**`, which hold the Playwright e2e
+  //     specs and the integration tests. The test-id attribute is read from
+  //     `testIdAttribute` in `playwright.config.ts` (G7).
+  // ---------------------------------------------------------------------------
+  {
+    files: ["**/*.test.{ts,tsx,mts,cts}", "**/*.spec.{ts,tsx,mts,cts}"],
+    plugins: { tests: testsPlugin },
+    rules: {
+      "tests/no-type-shape-assert": "error",
+      "tests/no-bare-called": "error",
+      "tests/no-fixed-wait": "error",
+      "tests/file-header": "error",
+      "tests/e2e-no-own-http": "error"
+    }
+  },
+  {
+    files: ["**/*.test.{ts,tsx,mts,cts}"],
+    plugins: { tests: testsPlugin },
+    rules: {
+      "tests/file-name": "error"
+    }
+  },
+  {
+    files: ["packages/headless/src/modules/**/*.int.test.ts"],
+    plugins: { tests: testsPlugin },
+    rules: {
+      "tests/one-replay-int-test": "error"
+    }
+  },
+  // ADR 035: a module's tests answer every request from a recording served
+  // verbatim; its recorder is the shared Generator with tokens from `auth`.
+  // `auth`, `session-store` and `query` own token and transport behaviour, so
+  // their recorders log in by design.
+  {
+    files: ["packages/headless/src/modules/**/__tests__/**/*.ts"],
+    ignores: [
+      "packages/headless/src/modules/auth/**",
+      "packages/headless/src/modules/session-store/**",
+      "packages/headless/src/modules/query/**"
+    ],
+    plugins: { tests: testsPlugin },
+    rules: {
+      "tests/int-replay-only": "error"
+    }
+  },
+  {
+    files: ["packages/headless/src/modules/*/__tests__/*.fixtures.ts"],
+    ignores: [
+      "packages/headless/src/modules/auth/**",
+      "packages/headless/src/modules/session-store/**",
+      "packages/headless/src/modules/query/**"
+    ],
+    plugins: { tests: testsPlugin },
+    rules: {
+      "tests/fixtures-shared-recorder": "error"
+    }
+  },
+  {
+    files: ["tests/journeys/**/*.{ts,mts}"],
+    plugins: { tests: testsPlugin },
+    rules: {
+      "tests/e2e-test-id-locators-only": "error",
+      "tests/e2e-no-text-assert": "error",
+      "tests/e2e-test-id-attribute": "error",
+      "tests/e2e-no-own-http": "error",
+      "tests/e2e-no-external-goto": "error",
+      "tests/e2e-no-spec-retries": "error",
+      "tests/e2e-serial-needs-reason": "error",
+      "tests/e2e-unroute-cleanup": "error",
+      "tests/e2e-no-journey-mock": "error"
+    }
+  },
+  {
+    files: ["tests/journeys/**/*.spec.{ts,mts}"],
+    plugins: { tests: testsPlugin },
+    rules: {
+      "tests/e2e-spec-file-kebab": "error",
+      "tests/e2e-no-inline-helpers": "error"
+    }
+  },
+  {
+    files: ["playwright.config.ts", "playwright.*.config.ts"],
+    plugins: { tests: testsPlugin },
+    rules: {
+      "tests/e2e-no-spec-retries": "error"
+    }
+  },
+  {
+    files: ["**/*.vue"],
+    plugins: { tests: testsPlugin, ui: uiPlugin },
+    rules: {
+      "tests/e2e-test-id-attribute": "error",
+      "ui/no-label-derived-test-id": "error",
+      "ui/single-object-v-bind": "error"
+    }
+  },
+  {
+    files: [
+      "apps/*/src/**/*.{ts,tsx,mts,vue}",
+      "apps/*/app/**/*.{ts,tsx,mts,vue}",
+      "packages/*/src/**/*.{ts,tsx,mts,vue}",
+      "design-system/packages/ui/src/**/*.{ts,tsx,mts,vue}"
+    ],
+    ignores: [
+      "**/__tests__/**",
+      "**/*.test.*",
+      "**/*.spec.*",
+      "**/eslint-plugin-*/**"
+    ],
+    plugins: { tests: testsPlugin },
+    rules: {
+      "tests/test-attrs-only-divergence": "error"
     }
   },
 
@@ -1091,6 +1339,38 @@ export default [
   },
 
   // ---------------------------------------------------------------------------
+  // 8i. No deep reach INTO a domain package.
+  // ---------------------------------------------------------------------------
+  {
+    files: [
+      "apps/**/*.{ts,tsx,mts,cts,js,jsx,mjs,cjs,vue}",
+      "packages/**/*.{ts,tsx,mts,cts,js,jsx,mjs,cjs,vue}",
+      "playgrounds/**/*.{ts,tsx,mts,cts,js,jsx,mjs,cjs,vue}",
+      "tests/**/*.{ts,tsx,mts,cts,js,jsx,mjs,cjs,vue}"
+    ],
+    plugins: { import: eslintPluginImport },
+    settings: importGraphSettings,
+    rules: {
+      "import/no-internal-modules": [
+        "error",
+        { forbid: [DOMAIN_PACKAGE_INTERNALS] }
+      ]
+    }
+  },
+
+  // ---------------------------------------------------------------------------
+  // 8j. No import cycles in the domain packages.
+  // ---------------------------------------------------------------------------
+  {
+    files: DOMAIN_PACKAGE_FILES,
+    plugins: { import: eslintPluginImport },
+    settings: importGraphSettings,
+    rules: {
+      "import/no-cycle": ["error", { maxDepth: Infinity }]
+    }
+  },
+
+  // ---------------------------------------------------------------------------
   // 9. Plain JS / CJS / MJS — config & tooling files. Correctness from
   //    js.configs.recommended still applies; we only relax module + format here.
   // ---------------------------------------------------------------------------
@@ -1104,7 +1384,7 @@ export default [
   },
 
   // ---------------------------------------------------------------------------
-  // 10. Upmind.vue — two-script-block SFC whose plain options block
+  // 10. The Upmind.vue shells — two-script-block SFCs whose plain options block
   //    (inheritAttrs/customOptions — inexpressible in <script setup>) precedes
   //    the setup block. vue-eslint-parser reads both blocks as one program, so
   //    import/first ("imports before code") is structurally unsatisfiable here.
@@ -1113,7 +1393,7 @@ export default [
   //    refuses to write fixes to multi-block SFCs for the same reason.
   // ---------------------------------------------------------------------------
   {
-    files: ["packages/client-vue/src/Upmind.vue"],
+    files: ["apps/cart/src/shell/Upmind.vue"],
     rules: { "import/first": "off" }
   },
 
@@ -1256,7 +1536,660 @@ export default [
   },
 
   // ---------------------------------------------------------------------------
-  // 11. Prettier compatibility — MUST be last. Disables every stylistic rule so
+  // 11. endpoint-ownership — a brand-owned or system-owned endpoint is loaded
+  //     once by the `brand` / `system` module; every other module reads it
+  //     through useBrand()/useSystem(), never by re-requesting the URL. The rule
+  //     self-exempts the owning modules and session-transfer's brand/settings
+  //     carve-out; the globs scope it to the request-making surface, minus
+  //     tests and fixtures.
+  // ---------------------------------------------------------------------------
+  {
+    files: [
+      "packages/headless/src/modules/**/*.{ts,tsx,mts,cts,vue}",
+      "packages/client-vue/src/**/*.{ts,tsx,mts,cts,vue}",
+      "packages/modules-*/src/**/*.{ts,tsx,mts,cts,vue}",
+      "apps/**/*.{ts,tsx,mts,cts,vue}",
+      "playgrounds/**/*.{ts,tsx,mts,cts,vue}"
+    ],
+    ignores: [
+      "**/*.test.*",
+      "**/*.spec.*",
+      "**/*.no-test.ts",
+      "**/__tests__/**",
+      "**/*.fixtures.ts"
+    ],
+    plugins: { "endpoint-ownership": endpointOwnershipPlugin },
+    rules: {
+      "endpoint-ownership/owned-endpoint-boundary": "error"
+    }
+  },
+
+  // ---------------------------------------------------------------------------
+  // 11b. no-direct-tanstack-query — TanStack Query entry points are reached only
+  //     through the internal useQuery wrapper in the query module. A value
+  //     import of one from @tanstack/vue-query or @tanstack/query-core outside
+  //     that module forks the boundary. The rule self-exempts the query module;
+  //     the globs scope it to source, minus tests, fixtures and the test
+  //     harness (packages/headless/src/testing).
+  // ---------------------------------------------------------------------------
+  {
+    files: [
+      "packages/headless/src/**/*.{ts,tsx,mts,cts,vue}",
+      "packages/client-vue/src/**/*.{ts,tsx,mts,cts,vue}",
+      "packages/modules-*/src/**/*.{ts,tsx,mts,cts,vue}",
+      "apps/**/*.{ts,tsx,mts,cts,vue}",
+      "playgrounds/**/*.{ts,tsx,mts,cts,vue}"
+    ],
+    ignores: [
+      "**/*.test.*",
+      "**/*.spec.*",
+      "**/*.no-test.ts",
+      "**/__tests__/**",
+      "**/*.fixtures.ts",
+      "packages/headless/src/testing/**"
+    ],
+    plugins: { "endpoint-ownership": endpointOwnershipPlugin },
+    rules: {
+      "endpoint-ownership/no-direct-tanstack-query": "error"
+    }
+  },
+
+  // ---------------------------------------------------------------------------
+  // 11c. async-discipline — the house async hygiene preset. Covers ALL code,
+  //     tests and fixtures included.
+  // ---------------------------------------------------------------------------
+  {
+    files: ["**/*.{ts,tsx,mts,cts,js,mjs,cjs,vue}"],
+    plugins: { "async-discipline": asyncDisciplinePlugin },
+    rules: {
+      "async-discipline/no-promise-try-catch": "error",
+      "async-discipline/no-await-only-return": "error"
+    }
+  },
+
+  // ---------------------------------------------------------------------------
+  // 14. ts-quality — the type-system and hygiene principles of code-typescript
+  //     and code-quality that a lint decides. Over `packages/**` and `apps/**`,
+  //     minus tests, fixtures and the local lint plugins. Existing violations
+  //     are held in the bulk-suppressions ledger (see the SUPPRESSION LEDGER
+  //     note above). Principles that need type information (no-floating-promises,
+  //     return-await, no-unsafe-enum-comparison, collection calls on arrays) are
+  //     not here: the repo has no typed linting.
+  // ---------------------------------------------------------------------------
+  {
+    files: ["packages/**/*.{ts,tsx,mts,cts}", "apps/**/*.{ts,tsx,mts,cts}"],
+    ignores: [
+      "**/eslint-plugin-*/**",
+      "**/*.test.*",
+      "**/*.spec.*",
+      "**/*.no-test.ts",
+      "**/__tests__/**",
+      "**/*.fixtures.ts",
+      "**/*.d.ts"
+    ],
+    plugins: { "code-quality": codeQualityPlugin },
+    rules: {
+      // A value set is an enum; an immutable literal is `as const`.
+      "code-quality/no-literal-union-type": "error",
+      "code-quality/require-as-const": "error",
+      // Every function states its parameter and return types.
+      "@typescript-eslint/explicit-function-return-type": [
+        "error",
+        { allowTypedFunctionExpressions: true }
+      ],
+      "@typescript-eslint/explicit-module-boundary-types": "error",
+      // File layout: import block, separator after it, header block, sections.
+      "code-quality/no-comment-in-imports": "error",
+      "code-quality/import-separator": "error",
+      "code-quality/file-header": "error",
+      "code-quality/section-separators": "error"
+    }
+  },
+  {
+    files: [
+      "packages/**/*.{ts,tsx,mts,cts,vue}",
+      "apps/**/*.{ts,tsx,mts,cts,vue}"
+    ],
+    ignores: [
+      "**/eslint-plugin-*/**",
+      "**/*.test.*",
+      "**/*.spec.*",
+      "**/*.no-test.ts",
+      "**/__tests__/**",
+      "**/*.fixtures.ts",
+      "**/*.d.ts"
+    ],
+    plugins: { "code-quality": codeQualityPlugin },
+    rules: {
+      "code-quality/no-cast-chain": "error",
+      "@typescript-eslint/consistent-type-assertions": [
+        "error",
+        { assertionStyle: "as", objectLiteralTypeAssertions: "never" }
+      ],
+      "code-quality/no-literal-error-message": "error",
+      "code-quality/no-lodash-get-state": "error",
+      "code-quality/no-chained-array-passes": "error",
+      // No technical debt markers; a comment states the present, not the
+      // history. The tracker id pattern is this repo's Linear team key.
+      "no-warning-comments": [
+        "error",
+        { terms: ["todo", "fixme", "xxx", "hack"], location: "anywhere" }
+      ],
+      "code-quality/no-history-comments": [
+        "error",
+        { trackerIdPattern: "\\bFE-\\d+\\b" }
+      ],
+      "@typescript-eslint/naming-convention": [
+        "error",
+        {
+          selector: "variable",
+          format: ["camelCase", "UPPER_CASE", "PascalCase"],
+          leadingUnderscore: "allow"
+        },
+        {
+          selector: "function",
+          format: ["camelCase", "PascalCase"],
+          leadingUnderscore: "allow"
+        },
+        { selector: "typeLike", format: ["PascalCase"] },
+        { selector: "enumMember", format: ["UPPER_CASE"] }
+      ],
+      "no-restricted-syntax": [
+        "error",
+        {
+          selector:
+            "BinaryExpression[operator=/^[!=]==?$/][left.type='UnaryExpression'][left.operator='typeof'][right.type='Literal']",
+          message:
+            "Use the collection utility's type guard (for example lodash `isString`), not `typeof`. Where TypeScript narrowing needs `typeof`, disable this line with a reason."
+        },
+        {
+          selector:
+            "BinaryExpression[operator=/^[!=]==?$/][right.type='UnaryExpression'][right.operator='typeof'][left.type='Literal']",
+          message:
+            "Use the collection utility's type guard (for example lodash `isString`), not `typeof`. Where TypeScript narrowing needs `typeof`, disable this line with a reason."
+        },
+        {
+          selector:
+            "BinaryExpression[operator=/^[!=]==$/][right.type='Literal'][right.raw=/^(true|false)$/]",
+          message: "Use `!!x` or `!x`, not a comparison with a boolean literal."
+        },
+        {
+          selector:
+            "BinaryExpression[operator=/^[!=]==$/][left.type='Literal'][left.raw=/^(true|false)$/]",
+          message: "Use `!!x` or `!x`, not a comparison with a boolean literal."
+        }
+      ]
+    }
+  },
+  {
+    // Every user-facing string comes from a translation key. The `.vue` half
+    // uses vue/no-bare-strings-in-template (the vue-i18n plugin is not
+    // installed); the `.ts` half is code-quality/no-literal-error-message.
+    files: ["packages/**/*.vue", "apps/**/*.vue"],
+    ignores: [
+      "**/eslint-plugin-*/**",
+      "**/*.test.*",
+      "**/*.spec.*",
+      "**/__tests__/**"
+    ],
+    rules: { "vue/no-bare-strings-in-template": "error" }
+  },
+  {
+    // Type definitions: `type`, not `interface` — widened from the headless
+    // modules to every package and app. A types file per module (decision 12).
+    files: [
+      "packages/**/*.{ts,tsx,mts,cts,vue}",
+      "apps/**/*.{ts,tsx,mts,cts,vue}"
+    ],
+    ignores: [
+      "**/eslint-plugin-*/**",
+      "**/*.test.*",
+      "**/*.spec.*",
+      "**/__tests__/**"
+    ],
+    plugins: { "file-responsibility": fileResponsibilityPlugin },
+    rules: { "file-responsibility/consistent-type-definitions": "error" }
+  },
+  {
+    files: [
+      "packages/modules-*/src/**/*.{ts,tsx,mts,cts}",
+      "packages/client-vue/src/**/*.{ts,tsx,mts,cts}"
+    ],
+    ignores: [
+      "**/*.test.*",
+      "**/*.spec.*",
+      "**/*.no-test.ts",
+      "**/__tests__/**",
+      "**/*.fixtures.ts"
+    ],
+    plugins: { "file-responsibility": fileResponsibilityPlugin },
+    rules: {
+      "file-responsibility/types-in-types-file": "error",
+      "file-responsibility/no-type-reexport": "error"
+    }
+  },
+
+  // ---------------------------------------------------------------------------
+  // 15. modules — where code lives in a headless module and how a composable is
+  //     shaped (code-modules, code-services, code-composables). Each rule
+  //     self-gates by file name. Existing violations are held in the
+  //     bulk-suppressions ledger.
+  // ---------------------------------------------------------------------------
+  {
+    files: ["packages/headless/src/modules/**/*.{ts,tsx,mts,cts}"],
+    ignores: [
+      "**/*.test.*",
+      "**/*.spec.*",
+      "**/*.no-test.ts",
+      "**/__tests__/**",
+      "**/*.fixtures.ts",
+      "**/*.d.ts"
+    ],
+    plugins: {
+      "file-responsibility": fileResponsibilityPlugin,
+      "scope-based": scopeBasedPlugin
+    },
+    rules: {
+      "file-responsibility/barrel-only-reexports": "error",
+      "file-responsibility/barrel-curated-exports": "error",
+      "file-responsibility/no-fn-in-types-file": "error",
+      "file-responsibility/no-state-outside-layers": "error",
+      "file-responsibility/no-promise-wrap": "error",
+      // The internal-file set of the module visibility law.
+      "file-responsibility/internal-file-marker": [
+        "error",
+        {
+          patterns: [
+            "\\.(machine|services|mappers|schemas)(\\.[A-Za-z0-9-]+)*\\.ts$",
+            "(^|/)session-store\\.[^/]*$"
+          ]
+        }
+      ],
+      "file-responsibility/no-own-barrel-import": "error",
+      "scope-based/no-local-state": "error",
+      "scope-based/no-services-in-read-layers": "error",
+      "scope-based/machine-service-event-data": "error",
+      "scope-based/services-factory-fns": "error",
+      "scope-based/return-order": "error",
+      "scope-based/no-inline-return-values": "error",
+      "scope-based/export-return-type": "error",
+      "scope-based/pagination-shape": "error",
+      "scope-based/no-meta-object": "error",
+      // Decision 4: the flag prefixes are reviewed here, one line at a time.
+      "scope-based/meta-flag-name": [
+        "error",
+        { prefixes: ["is", "has", "can", "show"] }
+      ],
+      "scope-based/is-ready-contract": "error",
+      "scope-based/on-done-unsubscribes": "error",
+      "scope-based/file-names": "error",
+      "scope-based/query-client-inside": "error",
+      "scope-based/destroy-removes-key": "error",
+      "scope-based/state-paths-resolve": "error",
+      "scope-based/scope-naming": "error",
+      "scope-based/scoped-factory": "error",
+      "scope-based/no-local-query-type": "error"
+    }
+  },
+  {
+    // S6 (`.ts` half; the `.vue` half is vue/no-side-effects-in-computed-properties,
+    // in vue/essential): a computed getter assigns nothing and calls nothing
+    // for its effect.
+    files: ["packages/**/*.{ts,tsx,mts,cts}", "apps/**/*.{ts,tsx,mts,cts}"],
+    ignores: [
+      "**/eslint-plugin-*/**",
+      "**/*.test.*",
+      "**/*.spec.*",
+      "**/__tests__/**",
+      "**/*.d.ts"
+    ],
+    plugins: { "scope-based": scopeBasedPlugin },
+    rules: { "scope-based/no-computed-effects": "error" }
+  },
+
+  // ---------------------------------------------------------------------------
+  // 11d. xstate — the machine conventions (code-xstate). Each rule self-gates on
+  //     an `xstate` import, so one glob over source suffices. The (v5) rules read
+  //     the installed `xstate` major (4.38 here) and stay silent below 5.
+  // ---------------------------------------------------------------------------
+  {
+    files: ["apps/**/*.{ts,tsx,mts,cts}", "packages/**/*.{ts,tsx,mts,cts}"],
+    ignores: [
+      "**/eslint-plugin-*/**",
+      "**/*.test.*",
+      "**/*.spec.*",
+      "**/*.no-test.ts",
+      "**/__tests__/**",
+      "**/*.fixtures.ts"
+    ],
+    plugins: { xstate: xstatePlugin },
+    rules: {
+      "xstate/guard-prefix": ["error", { prefixes: ["is", "has", "can"] }],
+      "xstate/event-case": "error",
+      "xstate/machine-file-name": "error",
+      "xstate/typed-context": "error",
+      "xstate/use-actor-param": "error",
+      "xstate/bind-subscribe": "error",
+      "xstate/machine-factory": "error",
+      "xstate/setup-first": "error",
+      "xstate/named-guards": "error",
+      "xstate/no-v4-keys": "error",
+      "xstate/actor-stubs": "error"
+    }
+  },
+  // Canonical state reads: machine files read state freely; everything else goes
+  // through `stateMatches` / `useContext` / `contextValue` (the state utility file
+  // itself and the headless test harness are the implementation of those reads).
+  {
+    files: [
+      "packages/headless/src/**/*.{ts,tsx,mts,cts,vue}",
+      "packages/client-vue/src/**/*.{ts,tsx,mts,cts,vue}",
+      "packages/modules-*/src/**/*.{ts,tsx,mts,cts,vue}",
+      "apps/**/*.{ts,tsx,mts,cts,vue}",
+      "playgrounds/**/*.{ts,tsx,mts,cts,vue}"
+    ],
+    ignores: [
+      "**/*.test.*",
+      "**/*.spec.*",
+      "**/*.no-test.ts",
+      "**/__tests__/**",
+      "**/*.fixtures.ts",
+      "packages/headless/src/utils/useState.ts",
+      "packages/headless/src/testing/**"
+    ],
+    plugins: { xstate: xstatePlugin },
+    rules: {
+      "xstate/canonical-state-read": [
+        "error",
+        { utilities: ["stateMatches", "useContext", "contextValue"] }
+      ]
+    }
+  },
+
+  // ---------------------------------------------------------------------------
+  // 11e. security — code-security principles a lint decides. Wildcard CORS binds
+  //     server files (Nitro `server/`, functions); the merge rule binds all source,
+  //     because request input reaches `merge` from handlers and from `route.query`.
+  // ---------------------------------------------------------------------------
+  {
+    files: [
+      "**/server/**/*.{ts,mts,cts,js,mjs,cjs}",
+      "**/functions/**/*.{ts,mts,cts,js,mjs,cjs}"
+    ],
+    plugins: { security: securityPlugin },
+    rules: { "security/no-wildcard-cors": "error" }
+  },
+  {
+    files: [
+      "apps/**/*.{ts,tsx,mts,cts,js,mjs,vue}",
+      "packages/**/*.{ts,tsx,mts,cts,js,mjs,vue}"
+    ],
+    ignores: [
+      "**/eslint-plugin-*/**",
+      "**/*.test.*",
+      "**/*.spec.*",
+      "**/__tests__/**"
+    ],
+    plugins: { security: securityPlugin },
+    rules: {
+      "security/no-merge-untrusted": "error",
+      "security/no-dynamic-regexp": "error"
+    }
+  },
+
+  // ---------------------------------------------------------------------------
+  // 11f. machines + file layout — where machine parts and module files live.
+  // ---------------------------------------------------------------------------
+  {
+    files: ["packages/headless/src/modules/**/*.{ts,tsx,mts,cts}"],
+    ignores: [
+      "**/*.test.*",
+      "**/*.spec.*",
+      "**/*.no-test.ts",
+      "**/__tests__/**",
+      "**/*.fixtures.ts"
+    ],
+    plugins: { "file-responsibility": fileResponsibilityPlugin },
+    rules: {
+      "file-responsibility/machine-sibling-names": "error",
+      "file-responsibility/module-prefixed-names": "error"
+    }
+  },
+
+  // ---------------------------------------------------------------------------
+  // 11g. Core security + simplicity rules for all source (code-security,
+  //     code-reviews): no eval; short functions; shallow nesting. Existing
+  //     violations are held in the bulk-suppressions ledger.
+  // ---------------------------------------------------------------------------
+  {
+    files: ["**/*.{ts,tsx,mts,cts,js,mjs,cjs,vue}"],
+    rules: {
+      "no-eval": "error",
+      "no-implied-eval": "error",
+      "no-new-func": "error"
+    }
+  },
+  {
+    files: [
+      "apps/**/*.{ts,tsx,mts,cts,js,mjs,cjs,vue}",
+      "packages/**/*.{ts,tsx,mts,cts,js,mjs,cjs,vue}",
+      "playgrounds/**/*.{ts,tsx,mts,cts,js,mjs,cjs,vue}"
+    ],
+    ignores: [
+      "**/eslint-plugin-*/**",
+      "**/*.test.*",
+      "**/*.spec.*",
+      "**/*.no-test.ts",
+      "**/__tests__/**",
+      "**/*.fixtures.ts"
+    ],
+    rules: {
+      "max-lines-per-function": [
+        "error",
+        { max: 30, skipBlankLines: true, skipComments: true }
+      ],
+      "max-depth": ["error", 3]
+    }
+  },
+
+  // ---------------------------------------------------------------------------
+  // 11h. UI — SFC structure and the ui plugin laws (code-ui, decisions 11, 13, 14).
+  //     Built-in vue rules plus the ui plugin, over every `.vue`.
+  // ---------------------------------------------------------------------------
+  {
+    files: ["**/*.vue"],
+    plugins: { ui: uiPlugin },
+    rules: {
+      "vue/block-order": ["error", { order: ["template", "script"] }],
+      "vue/no-restricted-block": [
+        "error",
+        {
+          element: "style",
+          message: "Put classes in the template or in variants.ts."
+        }
+      ],
+      "vue/block-lang": ["error", { script: { lang: "ts" } }],
+      "vue/define-props-declaration": ["error", "type-based"],
+      "vue/define-emits-declaration": ["error", "type-based"],
+      "vue/define-macros-order": [
+        "error",
+        {
+          order: [
+            "defineOptions",
+            "defineModel",
+            "defineProps",
+            "defineEmits",
+            "defineSlots"
+          ]
+        }
+      ],
+      "vue/require-explicit-slots": "error",
+      "vue/no-static-inline-styles": "error",
+      "ui/no-bound-style": "error",
+      "ui/typed-define-model": "error",
+      "ui/script-setup-order": "error",
+      "ui/multi-root-attrs": "error",
+      "ui/item-slot-scope": "error",
+      // Decision 13: `vue/no-v-html` stays off; this rule replaces it.
+      "ui/v-html-sanitised": [
+        "error",
+        { sanitisers: ["DOMPurify.sanitize", "sanitizeHtml"] }
+      ]
+    }
+  },
+  {
+    // `<script setup>` only where the config can hold it: the modules-* packages
+    // and the design-system components. The client-vue web-component wrappers
+    // stay exempt (FE-2820 §4).
+    files: [
+      "packages/modules-*/**/*.vue",
+      "design-system/packages/ui/src/components/**/*.vue"
+    ],
+    rules: { "vue/component-api-style": ["error", ["script-setup"]] }
+  },
+  {
+    // Bare copy and `type`-not-`interface` also bind the trees the earlier
+    // `packages/**` / `apps/**` blocks do not reach.
+    files: ["design-system/packages/ui/src/**/*.vue", "playgrounds/**/*.vue"],
+    ignores: ["**/*.test.*", "**/*.spec.*", "**/__tests__/**"],
+    rules: { "vue/no-bare-strings-in-template": "error" }
+  },
+  {
+    files: [
+      "design-system/packages/ui/src/**/*.{ts,tsx,mts,cts,vue}",
+      "playgrounds/**/*.{ts,tsx,mts,cts,vue}"
+    ],
+    ignores: ["**/*.test.*", "**/*.spec.*", "**/__tests__/**", "**/*.d.ts"],
+    plugins: { "file-responsibility": fileResponsibilityPlugin },
+    rules: { "file-responsibility/consistent-type-definitions": "error" }
+  },
+  {
+    // Component files are PascalCase. The framework fixes the names of route
+    // files (`pages/`, `layouts/`, `app.vue`, `error.vue`).
+    files: ["**/*.vue"],
+    ignores: [
+      "**/pages/**",
+      "**/layouts/**",
+      "**/app.vue",
+      "**/error.vue",
+      "**/eslint-plugin-*/**"
+    ],
+    plugins: { ui: uiPlugin },
+    rules: {
+      "ui/pascal-case-file-name": "error",
+      "vue/match-component-file-name": [
+        "error",
+        { extensions: ["vue"], shouldMatchCase: true }
+      ]
+    }
+  },
+  {
+    // Decision 14: the placement laws run on every `.vue` the rule covers.
+    files: [
+      "packages/modules-*/src/**/*.vue",
+      "packages/client-vue/src/**/*.vue",
+      "apps/**/*.vue",
+      "playgrounds/**/*.vue"
+    ],
+    ignores: ["**/*.test.*", "**/*.spec.*", "**/__tests__/**"],
+    plugins: { ui: uiPlugin },
+    rules: { "ui/class-strings-placement": "error" }
+  },
+  {
+    files: ["packages/modules-*/src/**/*.vue"],
+    ignores: ["**/*.test.*", "**/*.spec.*", "**/__tests__/**"],
+    plugins: { ui: uiPlugin },
+    rules: {
+      "ui/no-english-default": "error",
+      "ui/no-inline-sfc-types": "error",
+      "ui/simple-template-conditions": "error",
+      "ui/no-v-for-index-key": "error",
+      "ui/no-direct-slots-access": "error"
+    }
+  },
+  {
+    // Token utilities only. The manifest names the CSS variables a class may read.
+    files: [
+      "design-system/packages/ui/src/components/**/*.vue",
+      "design-system/packages/ui/src/**/variants.ts",
+      "packages/modules-*/src/**/*.vue",
+      "packages/modules-*/src/**/variants.ts"
+    ],
+    plugins: { ui: uiPlugin },
+    rules: {
+      "ui/token-classes": [
+        "error",
+        { tokensManifest: "design-system/packages/tokens/dist/tokens.json" }
+      ]
+    }
+  },
+  {
+    files: ["design-system/packages/ui/src/components/*/index.ts"],
+    plugins: { ui: uiPlugin },
+    rules: { "ui/parts-exported": "error" }
+  },
+  {
+    files: ["packages/modules-*/src/**/*.{ts,tsx,mts,cts,vue}"],
+    ignores: ["**/*.test.*", "**/*.spec.*", "**/__tests__/**"],
+    plugins: { ui: uiPlugin },
+    rules: { "ui/module-anatomy": "error" }
+  },
+  {
+    files: [
+      "apps/**/*.schemas.ts",
+      "apps/**/*.schemas.*.ts",
+      "packages/**/*.schemas.ts",
+      "packages/**/*.schemas.*.ts"
+    ],
+    ignores: ["**/eslint-plugin-*/**", "**/*.test.*", "**/__tests__/**"],
+    plugins: { ui: uiPlugin },
+    rules: { "ui/uischema-i18n": "error" }
+  },
+  {
+    files: [
+      "apps/**/*.{ts,tsx,mts,cts,vue}",
+      "packages/**/*.{ts,tsx,mts,cts,vue}",
+      "playgrounds/**/*.{ts,tsx,mts,cts,vue}"
+    ],
+    ignores: ["**/eslint-plugin-*/**"],
+    plugins: { ui: uiPlugin },
+    rules: { "ui/uischema-spelling": "error" }
+  },
+  {
+    // Nuxt auto-imports the names in `nuxtAutoImportGlobals`; an explicit import
+    // of one is redundant.
+    files: [
+      "apps/*-nuxt/**/*.{ts,tsx,mts,cts,vue}",
+      "playgrounds/labs-nuxt/**/*.{ts,tsx,mts,cts,vue}"
+    ],
+    plugins: { ui: uiPlugin },
+    rules: {
+      "ui/no-nuxt-auto-import": [
+        "error",
+        { names: Object.keys(nuxtAutoImportGlobals) }
+      ]
+    }
+  },
+  {
+    files: [
+      "apps/*/src/router/**/*.ts",
+      "apps/*/src/router.ts",
+      "apps/*/src/routes.ts",
+      "apps/*/app/router.options.ts"
+    ],
+    plugins: { ui: uiPlugin },
+    rules: { "ui/lazy-route-component": "error" }
+  },
+  {
+    // `no-underscore-dangle` (decision 11, CC7) in the composed components. The
+    // `^_` unused-vars ignore is untouched: a `_name` function parameter stays legal.
+    files: ["design-system/packages/ui/src/components/**/*.{ts,vue}"],
+    ignores: ["**/*.test.*", "**/*.spec.*"],
+    rules: { "no-underscore-dangle": "error" }
+  },
+
+  // ---------------------------------------------------------------------------
+  // 12. Prettier compatibility — MUST be last. Disables every stylistic rule so
   //    prettier is the sole formatter (330 rule names switched off).
   // ---------------------------------------------------------------------------
   eslintConfigPrettier

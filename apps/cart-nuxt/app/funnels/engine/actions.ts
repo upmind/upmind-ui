@@ -1,17 +1,20 @@
 import {
-  type AnyEventObject,
   assign,
-  type FunnelContext,
   QUERY_PARAMS,
   useBasket,
   useBasketProductsPending,
   useQueryParams,
   useRoutingEngine,
   useActiveSession
-} from "@upmind-automation/client-vue";
+} from "@upmind-automation/headless";
 import { ROUTE } from "../types";
 import { applyBillingDefaults } from "./services";
 import { isEmpty, isString } from "lodash-es";
+import type {
+  AnyEventObject,
+  FunnelContext,
+  FunnelTarget
+} from "@upmind-automation/headless";
 import type { RouteLocation, RouteParamsGeneric } from "vue-router";
 
 // -----------------------------------------------------------------------------
@@ -54,7 +57,7 @@ const SKIP_BID_ROUTES: string[] = [
  * Skips injection for ORDER, ERROR, BASKET_UNAVAILABLE, SESSION_END.
  */
 function injectBid(
-  route: FunnelContext["targetRoute"] | RouteLocation
+  route: FunnelContext["targetRoute"]
 ): FunnelContext["targetRoute"] {
   if (!route) return route;
 
@@ -202,7 +205,7 @@ export default {
 
       const { router } = useRoutingEngine();
       const resolved = router.resolve(returnUrl);
-      return injectBid(resolved);
+      return injectBid(resolved as FunnelTarget);
     },
     resolved: true
   })

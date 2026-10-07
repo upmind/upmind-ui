@@ -11,13 +11,12 @@
         <template #icon><Icon icon="alert-triangle" /></template>
       </Alert>
 
-      <UpmForm
+      <Form
         v-if="hasForm"
         class="max-w-xl"
         :schema="schema"
         :uischema="uischema"
         :model-value="model"
-        :additional-renderers="formRenderers"
         @update:model-value="set($event)"
         @resolve="resolve(model)"
       >
@@ -81,7 +80,7 @@
             </div>
           </div>
         </template>
-      </UpmForm>
+      </Form>
 
       <!-- `idle` and `error` are REACHABLE unauthenticated states with no form
            of their own — the panel would otherwise be empty, with nothing to
@@ -182,7 +181,7 @@
 import { Alert, Badge, Button } from "@upmind/ui";
 import { computed, onMounted, onUnmounted, watch } from "vue";
 import { useI18n } from "vue-i18n";
-import { formRenderers, Icon, UpmForm } from "@upmind-automation/client-vue";
+import { Icon, Form } from "@upmind-automation/foundation";
 import {
   AuthFlowTypes,
   ScopeActorTypes,

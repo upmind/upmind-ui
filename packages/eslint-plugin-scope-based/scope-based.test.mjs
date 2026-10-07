@@ -34,6 +34,27 @@ import completeLayerSet from "./rules/complete-layer-set.mjs";
 import actorScopeFirst from "./rules/actor-scope-first.mjs";
 import armInMatrix from "./rules/arm-in-matrix.mjs";
 import noPrivateInstanceAxis from "./rules/no-private-instance-axis.mjs";
+import noSelfContext from "./rules/no-self-context.mjs";
+import noComputedEffects from "./rules/no-computed-effects.mjs";
+import noLocalState from "./rules/no-local-state.mjs";
+import noServicesInReadLayers from "./rules/no-services-in-read-layers.mjs";
+import machineServiceEventData from "./rules/machine-service-event-data.mjs";
+import servicesFactoryFns from "./rules/services-factory-fns.mjs";
+import returnOrder from "./rules/return-order.mjs";
+import noInlineReturnValues from "./rules/no-inline-return-values.mjs";
+import exportReturnType from "./rules/export-return-type.mjs";
+import paginationShape from "./rules/pagination-shape.mjs";
+import noMetaObject from "./rules/no-meta-object.mjs";
+import metaFlagName from "./rules/meta-flag-name.mjs";
+import isReadyContract from "./rules/is-ready-contract.mjs";
+import onDoneUnsubscribes from "./rules/on-done-unsubscribes.mjs";
+import fileNames from "./rules/file-names.mjs";
+import queryClientInside from "./rules/query-client-inside.mjs";
+import destroyRemovesKey from "./rules/destroy-removes-key.mjs";
+import statePathsResolve from "./rules/state-paths-resolve.mjs";
+import scopeNaming from "./rules/scope-naming.mjs";
+import scopedFactory from "./rules/scoped-factory.mjs";
+import noLocalQueryType from "./rules/no-local-query-type.mjs";
 
 const ruleTester = new RuleTester({
   languageOptions: {
@@ -535,8 +556,7 @@ test("no-private-instance-axis", () => {
     invalid: [
       // The incident's tell #1 — a template-literal name computed per variant.
       {
-        code:
-          "const c = createScopedComposable(`client-custom-fields@${objectType}`, f, M);",
+        code: "const c = createScopedComposable(`client-custom-fields@${objectType}`, f, M);",
         errors: [{ messageId: "computedName" }]
       },
       // Tell #1 again, behind a helper that returns the name.
@@ -556,14 +576,1599 @@ test("no-private-instance-axis", () => {
       },
       // Both tells at once, as FE-3034 actually shipped them.
       {
-        code:
-          "const registered = new Map();\nconst c = createScopedComposable(`thing@${v}`, f, M);",
+        code: "const registered = new Map();\nconst c = createScopedComposable(`thing@${v}`, f, M);",
         // Errors come back in source order, so the line-1 memo precedes the
         // line-2 name.
         errors: [
           { messageId: "registrationMemo" },
           { messageId: "computedName" }
         ]
+      }
+    ]
+  });
+});
+
+// ---------------------------------------------------------------------------
+test("no-self-context", () => {
+  const contractTypes =
+    "/repo/packages/headless/src/modules/contract/contract.types.ts";
+  const productTypes =
+    "/repo/packages/headless/src/modules/contract-product/contract-product.types.ts";
+  ruleTester.run("no-self-context", noSelfContext, {
+    valid: [
+      // Another entity the actor acts for is a context.
+      {
+        code: `export enum ContractsContextTypes { CLIENT = "client" }`,
+        filename: contractTypes
+      },
+      // The module's own name outside a ContextTypes enum is not a context.
+      {
+        code: `export enum ContractStatus { CONTRACT = "contract" }`,
+        filename: contractTypes
+      },
+      // Outside a module's types file the rule does not apply.
+      {
+        code: `export enum ContractContextTypes { CONTRACT = "contract" }`,
+        filename: "/repo/packages/headless/src/modules/contract/useContract.ts"
+      },
+      // A context naming a different module is another entity.
+      {
+        code: `export enum ContractProductsContextTypes { CONTRACT = "contract" }`,
+        filename: productTypes
+      }
+    ],
+    invalid: [
+      {
+        code: `export enum ContractContextTypes { CONTRACT = "contract" }`,
+        filename: contractTypes,
+        errors: [{ messageId: "selfContext" }]
+      },
+      // "-" and "_" are treated alike.
+      {
+        code: `export enum ContractProductContextTypes { CONTRACT_PRODUCT = "contract_product" }`,
+        filename: productTypes,
+        errors: [{ messageId: "selfContext" }]
+      },
+      {
+        code: `export enum ContractProductContextTypes { CONTRACT_PRODUCT = "contract-product", CLIENT = "client" }`,
+        filename: productTypes,
+        errors: [{ messageId: "selfContext" }]
+      }
+    ]
+  });
+});
+
+const mod = "/repo/packages/headless/src/modules/foo/";
+
+// ---------------------------------------------------------------------------
+test("no-computed-effects", () => {
+  ruleTester.run("no-computed-effects", noComputedEffects, {
+    valid: [
+      { code: `const x = computed(() => a.value + 1);` },
+      { code: `const x = computed(() => (c ? a.value : b.value));` },
+      {
+        code: `const x = computed(() => { const y = a.value; return y * 2; });`
+      },
+      { code: `const x = computed(() => { const r = compute(); return r; });` },
+      { code: `const x = computed(() => compute());` },
+      {
+        code: `const x = computed({ get: () => a.value, set: v => { a.value = v; } });`
+      },
+      {
+        code: `const x = computed(() => items.value.map(i => { counter = i; return i; }));`
+      },
+      { code: `const x = computed(() => () => { log(); });` },
+      { code: `a.value = 1; log(); count++;` }
+    ],
+    invalid: [
+      {
+        code: `const x = computed(() => { count.value = 1; return 2; });`,
+        errors: [{ messageId: "assignment" }]
+      },
+      {
+        code: `const x = computed(() => { total += 1; return total; });`,
+        errors: [{ messageId: "assignment" }]
+      },
+      {
+        code: `const x = computed(() => { count.value++; return 1; });`,
+        errors: [{ messageId: "assignment" }]
+      },
+      {
+        code: `const x = computed(() => { --count.value; return 1; });`,
+        errors: [{ messageId: "assignment" }]
+      },
+      {
+        code: `const x = computed(function () { seen = true; return 1; });`,
+        errors: [{ messageId: "assignment" }]
+      },
+      {
+        code: `const x = computed(() => { log(); return 1; });`,
+        errors: [{ messageId: "bareCall" }]
+      },
+      {
+        code: `const x = computed(() => { items.value.push(1); return 1; });`,
+        errors: [{ messageId: "bareCall" }]
+      },
+      {
+        code: `const x = computed({ get() { sideEffect(); return 1; }, set(v) {} });`,
+        errors: [{ messageId: "bareCall" }]
+      },
+      {
+        code: `const x = computed({ get: () => { seen = true; return 1; }, set: v => {} });`,
+        errors: [{ messageId: "assignment" }]
+      },
+      {
+        code: `const x = computed(() => { seen = true; log(); return 1; });`,
+        errors: [{ messageId: "assignment" }, { messageId: "bareCall" }]
+      }
+    ]
+  });
+});
+
+// ---------------------------------------------------------------------------
+test("no-local-state", () => {
+  const billingDir = "modules/billing";
+  const authDir = "modules/auth";
+  fixture(`${billingDir}/useBilling.ts`, "export {};\n");
+  fixture(`${authDir}/auth.machine.ts`, "export {};\n");
+  fixture(`${authDir}/useAuth.ts`, "export {};\n");
+  const billing = name => join(root, billingDir, name);
+  const auth = name => join(root, authDir, name);
+  ruleTester.run("no-local-state", noLocalState, {
+    valid: [
+      { code: `const a = ref(0);`, filename: auth("useAuth.ts") },
+      { code: `const a = shallowRef(0);`, filename: auth("auth.services.ts") },
+      { code: `const a = reactive({});`, filename: auth("useAuth.ts") },
+      {
+        code: `const a = computed(() => 1);`,
+        filename: billing("useBilling.ts")
+      },
+      { code: `watch(src, () => {});`, filename: billing("useBilling.ts") },
+      { code: `const a = ref(0);`, filename: billing("useBilling.test.ts") }
+    ],
+    invalid: [
+      {
+        code: `const a = ref(0);`,
+        filename: billing("useBilling.ts"),
+        errors: [{ messageId: "localState", data: { name: "ref" } }]
+      },
+      {
+        code: `const a = shallowRef(0);`,
+        filename: billing("useBilling.ts"),
+        errors: [{ messageId: "localState", data: { name: "shallowRef" } }]
+      },
+      {
+        code: `const a = reactive({});`,
+        filename: billing("useBilling.ts"),
+        errors: [{ messageId: "localState", data: { name: "reactive" } }]
+      },
+      {
+        code: `export function load() { return ref(0); }`,
+        filename: billing("billing.services.ts"),
+        errors: [{ messageId: "localState" }]
+      }
+    ]
+  });
+});
+
+// ---------------------------------------------------------------------------
+test("no-services-in-read-layers", () => {
+  ruleTester.run("no-services-in-read-layers", noServicesInReadLayers, {
+    valid: [
+      {
+        code: `export function createFooActions(services: FooServices) { return {}; }`,
+        filename: `${mod}useFoo.actions.ts`
+      },
+      {
+        code: `export function createFooActions(services) { return {}; }`,
+        filename: `${mod}useFoo.actions.client.ts`
+      },
+      {
+        code: `export function createFooMeta(state: State) { return {}; }`,
+        filename: `${mod}useFoo.meta.ts`
+      },
+      {
+        code: `export function createFooContext(state: State, config: Config) { return {}; }`,
+        filename: `${mod}useFoo.context.ts`
+      },
+      {
+        code: `export function createFooMeta(serviceKey: string, map: ServicesMap) { return {}; }`,
+        filename: `${mod}useFoo.meta.ts`
+      },
+      {
+        code: `function buildThing(services: FooServices) { return {}; }`,
+        filename: `${mod}useFoo.meta.ts`
+      }
+    ],
+    invalid: [
+      {
+        code: `export function createFooMeta(services: FooServices) { return {}; }`,
+        filename: `${mod}useFoo.meta.ts`,
+        errors: [{ messageId: "servicesInReadLayer" }]
+      },
+      {
+        code: `export function createFooContext(services) { return {}; }`,
+        filename: `${mod}useFoo.context.ts`,
+        errors: [{ messageId: "servicesInReadLayer" }]
+      },
+      {
+        code: `export function createFooMeta(service) { return {}; }`,
+        filename: `${mod}useFoo.meta.ts`,
+        errors: [{ messageId: "servicesInReadLayer" }]
+      },
+      {
+        code: `export function createFooMeta(SERVICES) { return {}; }`,
+        filename: `${mod}useFoo.meta.ts`,
+        errors: [{ messageId: "servicesInReadLayer" }]
+      },
+      {
+        code: `export function createFooMeta(s: FooServices) { return {}; }`,
+        filename: `${mod}useFoo.meta.ts`,
+        errors: [{ messageId: "servicesInReadLayer" }]
+      },
+      {
+        code: `export const createFooMeta = (state: State, services: unknown) => ({});`,
+        filename: `${mod}useFoo.meta.ts`,
+        errors: [{ messageId: "servicesInReadLayer" }]
+      },
+      {
+        code: `export function createFooContext(state: State, services = defaults) { return {}; }`,
+        filename: `${mod}useFoo.context.ts`,
+        errors: [{ messageId: "servicesInReadLayer" }]
+      },
+      {
+        code: `export function createFooMeta(services: FooServices) { return {}; }`,
+        filename: `${mod}useFoo.meta.client.ts`,
+        errors: [{ messageId: "servicesInReadLayer" }]
+      },
+      {
+        code: `export function createFooContext(services: FooServices) { return {}; }`,
+        filename: `${mod}useFoo.context.staff.ts`,
+        errors: [{ messageId: "servicesInReadLayer" }]
+      }
+    ]
+  });
+});
+
+// ---------------------------------------------------------------------------
+test("machine-service-event-data", () => {
+  const services = `${mod}foo.services.ts`;
+  ruleTester.run("machine-service-event-data", machineServiceEventData, {
+    valid: [
+      {
+        code: `export const load = async ({ token }, { data }: AnyEventObject) => data.id;`,
+        filename: services
+      },
+      {
+        code: `export const load = async (ctx, event) => event.type;`,
+        filename: services
+      },
+      {
+        code: `export const load = async () => { const res = await call(); return res.data; };`,
+        filename: services
+      },
+      {
+        code: `export const load = async (ctx, event) => event.data;`,
+        filename: `${mod}foo.utils.ts`
+      },
+      {
+        code: `export const load = async (ctx, event) => event.data;`,
+        filename: `${mod}useFoo.ts`
+      }
+    ],
+    invalid: [
+      {
+        code: `export const load = async (ctx, event) => event.data.id;`,
+        filename: services,
+        errors: [{ messageId: "eventData", data: { name: "event" } }]
+      },
+      {
+        code: `export const load = async (ctx, _event) => _event.data;`,
+        filename: services,
+        errors: [{ messageId: "eventData", data: { name: "_event" } }]
+      },
+      {
+        code: `export const load = async (ctx, event) => event?.data;`,
+        filename: services,
+        errors: [{ messageId: "eventData", data: { name: "event" } }]
+      },
+      {
+        code: `export async function load(ctx, event) { const d = event.data; return d; }`,
+        filename: services,
+        errors: [{ messageId: "eventData" }]
+      },
+      {
+        code: `export const load = async (ctx, event) => event.data;`,
+        filename: `${mod}foo.services.client.ts`,
+        errors: [{ messageId: "eventData" }]
+      }
+    ]
+  });
+});
+
+// ---------------------------------------------------------------------------
+test("services-factory-fns", () => {
+  const services = `${mod}foo.services.ts`;
+  ruleTester.run("services-factory-fns", servicesFactoryFns, {
+    valid: [
+      {
+        code: `export const createFooServices = () => ({ load: async () => 1, save: function () {}, remove() {}, helper, other: helperRef, ...rest });`,
+        filename: services
+      },
+      {
+        code: `export const createFooServices = () => ({ update: asyncDebounce(load) });`,
+        filename: services
+      },
+      {
+        code: `export function createFooServices() { return { load() {}, FOO_KEY: "foo" }; }`,
+        filename: services
+      },
+      {
+        code: `export const createFooServices = () => ({ scopeKey: "foo", queryKey: ["foo"], MAX_ITEMS: 5 });`,
+        filename: services
+      },
+      {
+        code: `export const createFooServices = () => ({ isReady: true, items: [], total: computed(() => 1) });`,
+        filename: `${mod}foo.utils.ts`
+      },
+      {
+        code: `export const useFoo = () => ({ isReady: true });`,
+        filename: `${mod}useFoo.ts`
+      }
+    ],
+    invalid: [
+      {
+        code: `export const createFooServices = () => ({ isReady: true });`,
+        filename: services,
+        errors: [{ messageId: "nonFunctionMember", data: { name: "isReady" } }]
+      },
+      {
+        code: `export const createFooServices = () => ({ label: \`x\${y}\` });`,
+        filename: services,
+        errors: [{ messageId: "nonFunctionMember" }]
+      },
+      {
+        code: `export const createFooServices = () => ({ items: [] });`,
+        filename: services,
+        errors: [{ messageId: "nonFunctionMember" }]
+      },
+      {
+        code: `export const createFooServices = () => ({ options: {} });`,
+        filename: services,
+        errors: [{ messageId: "nonFunctionMember" }]
+      },
+      {
+        code: `export const createFooServices = () => ({ total: computed(() => 1) });`,
+        filename: services,
+        errors: [{ messageId: "nonFunctionMember", data: { name: "total" } }]
+      },
+      {
+        code: `export const createFooServices = () => ({ count: ref(0) });`,
+        filename: services,
+        errors: [{ messageId: "nonFunctionMember" }]
+      },
+      {
+        code: `export const createFooServices = () => ({ cache: new Map() });`,
+        filename: services,
+        errors: [{ messageId: "nonFunctionMember" }]
+      },
+      {
+        code: `export const createFooServices = () => ({ sum: a + b });`,
+        filename: services,
+        errors: [{ messageId: "nonFunctionMember" }]
+      },
+      {
+        code: `export const createFooServices = () => ({ negated: !a });`,
+        filename: services,
+        errors: [{ messageId: "nonFunctionMember" }]
+      },
+      {
+        code: `export const createFooServices = () => ({ pick: a ? b : c });`,
+        filename: services,
+        errors: [{ messageId: "nonFunctionMember" }]
+      },
+      {
+        code: `export const createFooServices = () => ({ either: a || b });`,
+        filename: services,
+        errors: [{ messageId: "nonFunctionMember" }]
+      },
+      {
+        code: `export function createFooServices() { return { load() {}, total: 1 }; }`,
+        filename: `${mod}foo.services.client.ts`,
+        errors: [{ messageId: "nonFunctionMember", data: { name: "total" } }]
+      }
+    ]
+  });
+});
+
+// ---------------------------------------------------------------------------
+test("return-order", () => {
+  const file = `${mod}useFoo.ts`;
+  ruleTester.run("return-order", returnOrder, {
+    valid: [
+      {
+        code: `export function useFoo() { return { a, b, c }; }`,
+        filename: file
+      },
+      {
+        code: `export const useFoo = () => ({ a, b });`,
+        filename: file
+      },
+      {
+        code: `export function useFoo() { return { a, B, c }; }`,
+        filename: file
+      },
+      {
+        code: `export function useFoo() { return { apple, Banana, cherry }; }`,
+        filename: file
+      },
+      {
+        code: `export function useFoo() { return { a, b, ...rest }; }`,
+        filename: file
+      },
+      {
+        code: `export function useFoo() {\n  return {\n    // --- state\n    z,\n    // --- context\n    a,\n    // --- methods\n    d,\n    // --- utils\n    e\n  };\n}`,
+        filename: file
+      },
+      {
+        code: `export function useFoo() {\n  return {\n    // --- misc\n    z,\n    // --- state\n    a\n  };\n}`,
+        filename: file
+      },
+      {
+        code: `export function createFooMeta() { return { isA, isB }; }`,
+        filename: `${mod}useFoo.meta.ts`
+      },
+      {
+        code: `export function build() { return { b, a }; }`,
+        filename: `${mod}foo.utils.ts`
+      }
+    ],
+    invalid: [
+      {
+        code: `export function useFoo() { return { b, a }; }`,
+        filename: file,
+        errors: [{ messageId: "unsorted", data: { name: "a", previous: "b" } }]
+      },
+      {
+        code: `export function useFoo() { return { a, c, b }; }`,
+        filename: file,
+        errors: [{ messageId: "unsorted" }]
+      },
+      {
+        code: `export const useFoo = () => ({ b, a });`,
+        filename: file,
+        errors: [{ messageId: "unsorted" }]
+      },
+      {
+        code: `export function useFoo() { return { b, A }; }`,
+        filename: file,
+        errors: [{ messageId: "unsorted" }]
+      },
+      {
+        code: `export function useFoo() { return { B, a }; }`,
+        filename: file,
+        errors: [{ messageId: "unsorted" }]
+      },
+      {
+        code: `export function createFooMeta() { return { isB, isA }; }`,
+        filename: `${mod}useFoo.meta.ts`,
+        errors: [{ messageId: "unsorted" }]
+      },
+      {
+        code: `export function useFoo() {\n  return {\n    // --- state\n    a,\n    // --- context\n    z,\n    y\n  };\n}`,
+        filename: file,
+        errors: [{ messageId: "unsorted" }]
+      },
+      {
+        code: `export function useFoo() {\n  return {\n    // --- methods\n    a,\n    // --- state\n    b\n  };\n}`,
+        filename: file,
+        errors: [{ messageId: "sectionOrder" }]
+      },
+      {
+        code: `export function useFoo() {\n  return {\n    // --- utils\n    a,\n    // --- context\n    b\n  };\n}`,
+        filename: file,
+        errors: [{ messageId: "sectionOrder" }]
+      },
+      {
+        code: `export function useFoo() { return { ...rest, a }; }`,
+        filename: file,
+        errors: [{ messageId: "spreadNotLast" }]
+      },
+      {
+        code: `export function useFoo() { return { a, ...rest, b }; }`,
+        filename: file,
+        errors: [{ messageId: "spreadNotLast" }]
+      }
+    ]
+  });
+});
+
+// ---------------------------------------------------------------------------
+test("no-inline-return-values", () => {
+  const file = `${mod}useFoo.ts`;
+  ruleTester.run("no-inline-return-values", noInlineReturnValues, {
+    valid: [
+      {
+        code: `export function useFoo() { const total = computed(() => 1); function add() {} return { add, total }; }`,
+        filename: file
+      },
+      {
+        code: `export function useFoo() { return { count: ref(0), name: "x", list: [] }; }`,
+        filename: file
+      },
+      {
+        code: `export const createFoo = () => ({ useActions: () => a, useContext: () => b, useInternals: () => c, useMeta: () => d });`,
+        filename: file
+      },
+      {
+        code: `export const createFoo = () => ({ useActions() {}, useMeta: computed(() => 1) });`,
+        filename: file
+      },
+      {
+        code: `const handlers = { f: () => 1, g: computed(() => 2) };`,
+        filename: file
+      },
+      {
+        code: `export function build() { return { f: () => 1, g: computed(() => 2) }; }`,
+        filename: `${mod}foo.utils.ts`
+      }
+    ],
+    invalid: [
+      {
+        code: `export function useFoo() { return { total: computed(() => 1) }; }`,
+        filename: file,
+        errors: [{ messageId: "inlineValue", data: { name: "total" } }]
+      },
+      {
+        code: `export function useFoo() { return { add: () => 1 }; }`,
+        filename: file,
+        errors: [{ messageId: "inlineValue", data: { name: "add" } }]
+      },
+      {
+        code: `export function useFoo() { return { add: function () {} }; }`,
+        filename: file,
+        errors: [{ messageId: "inlineValue" }]
+      },
+      {
+        code: `export function useFoo() { return { add() {} }; }`,
+        filename: file,
+        errors: [{ messageId: "inlineValue" }]
+      },
+      {
+        code: `export function useFoo() { return { async add() {} }; }`,
+        filename: file,
+        errors: [{ messageId: "inlineValue" }]
+      },
+      {
+        code: `export const useFoo = () => ({ total: computed(() => 1) });`,
+        filename: file,
+        errors: [{ messageId: "inlineValue" }]
+      },
+      {
+        code: `export const createFoo = () => ({ useOther: () => 1 });`,
+        filename: file,
+        errors: [{ messageId: "inlineValue", data: { name: "useOther" } }]
+      },
+      {
+        code: `export function useFoo() { return { a: () => 1, b: computed(() => 2) }; }`,
+        filename: file,
+        errors: [{ messageId: "inlineValue" }, { messageId: "inlineValue" }]
+      }
+    ]
+  });
+});
+
+// ---------------------------------------------------------------------------
+test("export-return-type", () => {
+  const file = `${mod}useFoo.ts`;
+  ruleTester.run("export-return-type", exportReturnType, {
+    valid: [
+      {
+        code: `export function useFoo() { return {}; }\nexport type UseFoo = ReturnType<typeof useFoo>;`,
+        filename: file
+      },
+      {
+        code: `export const useFoo = () => ({});\nexport type UseFoo = ReturnType<typeof useFoo>;`,
+        filename: file
+      },
+      {
+        code: `export function useFoo() { return {}; }\nexport type Whatever = ReturnType<typeof useFoo>;`,
+        filename: file
+      },
+      {
+        code: `export function createFooActions() { return {}; }\nexport type FooActions = ReturnType<typeof createFooActions>;`,
+        filename: `${mod}useFoo.actions.ts`
+      },
+      {
+        code: `export function createFooContext() { return {}; }\nexport type FooContext = ReturnType<typeof createFooContext>;\nexport function createFooMeta() { return {}; }\nexport type FooMeta = ReturnType<typeof createFooMeta>;`,
+        filename: `${mod}useFoo.context.ts`
+      },
+      {
+        code: `function useHelper() { return {}; }`,
+        filename: file
+      },
+      {
+        code: `export function helper() { return {}; }\nexport function createFooBar() { return {}; }`,
+        filename: file
+      },
+      {
+        code: `export function useFoo() { return {}; }`,
+        filename: `${mod}foo.utils.ts`
+      }
+    ],
+    invalid: [
+      {
+        code: `export function useFoo() { return {}; }`,
+        filename: file,
+        errors: [{ messageId: "missingReturnType", data: { name: "useFoo" } }]
+      },
+      {
+        code: `export const useFoo = () => ({});`,
+        filename: file,
+        errors: [{ messageId: "missingReturnType" }]
+      },
+      {
+        code: `export function useFoo() { return {}; }\ntype UseFoo = ReturnType<typeof useFoo>;`,
+        filename: file,
+        errors: [{ messageId: "missingReturnType" }]
+      },
+      {
+        code: `export function useFoo() { return {}; }\nexport type UseFoo = ReturnType<typeof other>;`,
+        filename: file,
+        errors: [{ messageId: "missingReturnType" }]
+      },
+      {
+        code: `export function createFooActions() { return {}; }`,
+        filename: `${mod}useFoo.actions.ts`,
+        errors: [
+          { messageId: "missingReturnType", data: { name: "createFooActions" } }
+        ]
+      },
+      {
+        code: `export const createFooMeta = () => ({});`,
+        filename: `${mod}useFoo.meta.ts`,
+        errors: [{ messageId: "missingReturnType" }]
+      },
+      {
+        code: `export function createFooInternals() { return {}; }`,
+        filename: `${mod}useFoo.internals.ts`,
+        errors: [{ messageId: "missingReturnType" }]
+      },
+      {
+        code: `export function createFooContext() { return {}; }`,
+        filename: `${mod}useFoo.context.ts`,
+        errors: [{ messageId: "missingReturnType" }]
+      },
+      {
+        code: `export function createFooContext() { return {}; }\nexport function createFooMeta() { return {}; }\nexport type FooContext = ReturnType<typeof createFooContext>;`,
+        filename: `${mod}useFoo.context.ts`,
+        errors: [
+          { messageId: "missingReturnType", data: { name: "createFooMeta" } }
+        ]
+      }
+    ]
+  });
+});
+
+// ---------------------------------------------------------------------------
+test("pagination-shape", () => {
+  const file = `${mod}useFoo.ts`;
+  ruleTester.run("pagination-shape", paginationShape, {
+    valid: [
+      {
+        code: `export function useFoo() { const pagination = computed(() => ({ offset: 0, limit: 10, total: 5 })); return { pagination }; }`,
+        filename: file
+      },
+      {
+        code: `export function useFoo() { return { pagination: computed(() => ({ limit: 1, offset: 0, total: 2 })) }; }`,
+        filename: file
+      },
+      {
+        code: `export function useFoo() { const pagination = computed(() => { return { total, limit, offset }; }); return { pagination }; }`,
+        filename: file
+      },
+      {
+        code: `export function useFoo() { return { pagination: somePagination }; }`,
+        filename: file
+      },
+      {
+        code: `export function useFoo() { return { pagination: usePagination() }; }`,
+        filename: file
+      },
+      {
+        code: `export function useFoo() { const pagination = ref({ page: 1 }); return { pagination }; }`,
+        filename: file
+      },
+      {
+        code: `export function useFoo() { return { paging: computed(() => ({ page: 1 })) }; }`,
+        filename: file
+      },
+      {
+        code: `export function build() { return { pagination: computed(() => ({ page: 1 })) }; }`,
+        filename: `${mod}foo.utils.ts`
+      }
+    ],
+    invalid: [
+      {
+        code: `export function useFoo() { return { pagination: computed(() => ({ offset: 0, limit: 10, total: 5, page: 1 })) }; }`,
+        filename: file,
+        errors: [{ messageId: "paginationShape" }]
+      },
+      {
+        code: `export function useFoo() { return { pagination: computed(() => ({ offset: 0, limit: 10 })) }; }`,
+        filename: file,
+        errors: [{ messageId: "paginationShape" }]
+      },
+      {
+        code: `export function useFoo() { return { pagination: computed(() => ({ offset: 0, limit: 10, count: 5 })) }; }`,
+        filename: file,
+        errors: [{ messageId: "paginationShape" }]
+      },
+      {
+        code: `export function useFoo() { const pagination = computed(() => ({ page: 1, size: 10 })); return { pagination }; }`,
+        filename: file,
+        errors: [{ messageId: "paginationShape" }]
+      },
+      {
+        code: `export function useFoo() { const pagination = computed(() => { return { offset, limit }; }); return { pagination }; }`,
+        filename: file,
+        errors: [{ messageId: "paginationShape" }]
+      },
+      {
+        code: `export const useFoo = () => ({ pagination: computed(() => ({})) });`,
+        filename: file,
+        errors: [{ messageId: "paginationShape" }]
+      }
+    ]
+  });
+});
+
+// ---------------------------------------------------------------------------
+test("no-meta-object", () => {
+  const file = `${mod}useFoo.ts`;
+  ruleTester.run("no-meta-object", noMetaObject, {
+    valid: [
+      {
+        code: `export function useFoo() { return { isReady: computed(() => true) }; }`,
+        filename: file
+      },
+      {
+        code: `export function useFoo() { return { meta: computed(() => true) }; }`,
+        filename: file
+      },
+      {
+        code: `export function useFoo() { return { meta: otherMeta }; }`,
+        filename: file
+      },
+      {
+        code: `export function useFoo() { const meta = computed(() => flags.value); return { meta }; }`,
+        filename: file
+      },
+      {
+        code: `export function useFoo() { const meta = reactive({ a: 1 }); return { meta }; }`,
+        filename: file
+      },
+      {
+        code: `export function useFoo() { return { meta: { a: 1 } }; }`,
+        filename: file
+      },
+      {
+        code: `export function build() { return { meta: computed(() => ({ a: 1 })) }; }`,
+        filename: `${mod}foo.utils.ts`
+      }
+    ],
+    invalid: [
+      {
+        code: `export function useFoo() { return { meta: computed(() => ({ isA: true })) }; }`,
+        filename: file,
+        errors: [{ messageId: "metaObject" }]
+      },
+      {
+        code: `export function useFoo() { const meta = computed(() => ({ isA: true })); return { meta }; }`,
+        filename: file,
+        errors: [{ messageId: "metaObject" }]
+      },
+      {
+        code: `export function useFoo() { const meta = computed(() => { const a = 1; return { isA: a }; }); return { meta }; }`,
+        filename: file,
+        errors: [{ messageId: "metaObject" }]
+      },
+      {
+        code: `export const useFoo = () => ({ meta: computed(() => ({ isA: true })) });`,
+        filename: file,
+        errors: [{ messageId: "metaObject" }]
+      },
+      {
+        code: `export function useFoo() { return { meta: computed(() => { return { isA: true }; }) }; }`,
+        filename: file,
+        errors: [{ messageId: "metaObject" }]
+      }
+    ]
+  });
+});
+
+// ---------------------------------------------------------------------------
+test("meta-flag-name", () => {
+  const file = `${mod}useFoo.meta.ts`;
+  ruleTester.run("meta-flag-name", metaFlagName, {
+    valid: [
+      {
+        code: `export function createFooMeta() { return { isReady, hasItems, canEdit, showBanner }; }`,
+        filename: file
+      },
+      {
+        code: `export function createFooMeta() { return { isReady: computed(() => true), ...rest }; }`,
+        filename: file
+      },
+      {
+        code: `export function createFooMeta() { return { isReady }; }`,
+        filename: `${mod}useFoo.meta.client.ts`
+      },
+      {
+        code: `export function createFooActions() { return { ready, save }; }`,
+        filename: `${mod}useFoo.actions.ts`
+      },
+      {
+        code: `export function useFoo() { return { ready }; }`,
+        filename: `${mod}useFoo.ts`
+      },
+      {
+        code: `export function createFooMeta() { return { needsAuth }; }`,
+        filename: file,
+        options: [{ prefixes: ["needs"] }]
+      }
+    ],
+    invalid: [
+      {
+        code: `export function createFooMeta() { return { ready }; }`,
+        filename: file,
+        errors: [{ messageId: "flagName" }]
+      },
+      {
+        code: `export function createFooMeta() { return { isolated }; }`,
+        filename: file,
+        errors: [{ messageId: "flagName" }]
+      },
+      {
+        code: `export function createFooMeta() { return { is }; }`,
+        filename: file,
+        errors: [{ messageId: "flagName" }]
+      },
+      {
+        code: `export function createFooMeta() { return { hasitems }; }`,
+        filename: file,
+        errors: [{ messageId: "flagName" }]
+      },
+      {
+        code: `export function createFooMeta() { return { shown }; }`,
+        filename: file,
+        errors: [{ messageId: "flagName" }]
+      },
+      {
+        code: `export function createFooMeta() { return { canonical }; }`,
+        filename: file,
+        errors: [{ messageId: "flagName" }]
+      },
+      {
+        code: `export function createFooMeta() { return { isReady, editable }; }`,
+        filename: file,
+        errors: [{ messageId: "flagName" }]
+      },
+      {
+        code: `export function createFooMeta() { return { total: computed(() => 1) }; }`,
+        filename: `${mod}useFoo.meta.staff.ts`,
+        errors: [{ messageId: "flagName" }]
+      },
+      {
+        code: `export function createFooMeta() { return { isReady }; }`,
+        filename: file,
+        options: [{ prefixes: ["needs"] }],
+        errors: [{ messageId: "flagName" }]
+      }
+    ]
+  });
+});
+
+// ---------------------------------------------------------------------------
+test("is-ready-contract", () => {
+  const actions = `${mod}useFoo.actions.ts`;
+  ruleTester.run("is-ready-contract", isReadyContract, {
+    valid: [
+      {
+        code: `export function createFooActions() { const isReady = async () => true; return { isReady }; }`,
+        filename: actions
+      },
+      {
+        code: `export function createFooActions() { async function isReady() { return true; } return { isReady }; }`,
+        filename: actions
+      },
+      {
+        code: `export function createFooActions() { function isReady(): Promise<boolean> { return p; } return { isReady }; }`,
+        filename: actions
+      },
+      {
+        code: `export function createFooActions() { const isReady = (): Promise<boolean> => p; return { isReady }; }`,
+        filename: actions
+      },
+      {
+        code: `export function createFooActions() { const isReady = async () => true; return { destroy, isReady, onDone, refresh }; }`,
+        filename: actions
+      },
+      {
+        code: `export function createFooActions() { return { destroy, refresh }; }`,
+        filename: `${mod}useFoo.actions.client.ts`
+      },
+      {
+        code: `export function createFooMeta() { return { isReadyFlag, canEdit }; }`,
+        filename: `${mod}useFoo.meta.ts`
+      }
+    ],
+    invalid: [
+      {
+        code: `export function createFooActions() { return { save }; }`,
+        filename: actions,
+        errors: [
+          { messageId: "missingIsReady", data: { name: "createFooActions" } }
+        ]
+      },
+      {
+        code: `export const createFooActions = () => ({ save });`,
+        filename: actions,
+        errors: [{ messageId: "missingIsReady" }]
+      },
+      {
+        code: `export function createFooMeta() { return { destroy }; }`,
+        filename: `${mod}useFoo.meta.ts`,
+        errors: [{ messageId: "wrongLayer" }]
+      },
+      {
+        code: `export function createFooContext() { return { onDone }; }`,
+        filename: `${mod}useFoo.context.ts`,
+        errors: [{ messageId: "wrongLayer" }]
+      },
+      {
+        code: `export function createFooInternals() { return { refresh }; }`,
+        filename: `${mod}useFoo.internals.ts`,
+        errors: [{ messageId: "wrongLayer" }]
+      },
+      {
+        code: `export function createFooMeta() { return { isReady }; }`,
+        filename: `${mod}useFoo.meta.client.ts`,
+        errors: [{ messageId: "wrongLayer" }]
+      },
+      {
+        code: `export function createFooActions() { function isReady() { return true; } return { isReady }; }`,
+        filename: actions,
+        errors: [{ messageId: "isReadyType" }]
+      },
+      {
+        code: `export function createFooActions() { const isReady = () => true; return { isReady }; }`,
+        filename: actions,
+        errors: [{ messageId: "isReadyType" }]
+      },
+      {
+        code: `export function createFooActions() { function isReady(): boolean { return true; } return { isReady }; }`,
+        filename: actions,
+        errors: [{ messageId: "isReadyType" }]
+      },
+      {
+        code: `export function createFooActions() { function isReady(): Promise<string> { return p; } return { isReady }; }`,
+        filename: actions,
+        errors: [{ messageId: "isReadyType" }]
+      }
+    ]
+  });
+});
+
+// ---------------------------------------------------------------------------
+test("on-done-unsubscribes", () => {
+  const file = `${mod}useFoo.actions.ts`;
+  ruleTester.run("on-done-unsubscribes", onDoneUnsubscribes, {
+    valid: [
+      {
+        code: `function onDone(cb) { const stop = watch(src, cb); onScopeDispose(stop); }`,
+        filename: file
+      },
+      {
+        code: `const onDone = cb => { onUnmounted(() => off(cb)); };`,
+        filename: file
+      },
+      {
+        code: `const onDone = function (cb) { tryOnScopeDispose(() => off(cb)); };`,
+        filename: file
+      },
+      {
+        code: `export function createFooActions() { return { onDone: cb => { onScopeDispose(() => off(cb)); } }; }`,
+        filename: file
+      },
+      {
+        code: `export function createFooActions() { return { onDone(cb) { onScopeDispose(() => off(cb)); } }; }`,
+        filename: file
+      },
+      {
+        code: `function onDone(cb) { const stop = bus.on(() => { onScopeDispose(cb); }); }`,
+        filename: file
+      },
+      {
+        code: `import { onDone } from "./shared";\nexport function createFooActions() { return { onDone }; }`,
+        filename: file
+      },
+      {
+        code: `export function createFooActions() { return { onDone: externalOnDone }; }`,
+        filename: file
+      },
+      {
+        code: `function onFinished(cb) { listeners.push(cb); }`,
+        filename: file
+      },
+      {
+        code: `function onDone(cb) { listeners.push(cb); }`,
+        filename: `${mod}foo.utils.ts`
+      }
+    ],
+    invalid: [
+      {
+        code: `function onDone(cb) { listeners.push(cb); }`,
+        filename: file,
+        errors: [{ messageId: "noUnsubscribe" }]
+      },
+      {
+        code: `async function onDone(cb) { bus.on(cb); }`,
+        filename: file,
+        errors: [{ messageId: "noUnsubscribe" }]
+      },
+      {
+        code: `const onDone = cb => { bus.on(cb); };`,
+        filename: file,
+        errors: [{ messageId: "noUnsubscribe" }]
+      },
+      {
+        code: `const onDone = cb => bus.on(cb);`,
+        filename: file,
+        errors: [{ messageId: "noUnsubscribe" }]
+      },
+      {
+        code: `const onDone = function (cb) { bus.on(cb); };`,
+        filename: file,
+        errors: [{ messageId: "noUnsubscribe" }]
+      },
+      {
+        code: `export function createFooActions() { return { onDone: cb => { bus.on(cb); } }; }`,
+        filename: file,
+        errors: [{ messageId: "noUnsubscribe" }]
+      },
+      {
+        code: `export function createFooActions() { return { onDone(cb) { bus.on(cb); } }; }`,
+        filename: file,
+        errors: [{ messageId: "noUnsubscribe" }]
+      },
+      {
+        code: `function onDone(cb) { dispose(cb); }`,
+        filename: file,
+        errors: [{ messageId: "noUnsubscribe" }]
+      }
+    ]
+  });
+});
+
+// ---------------------------------------------------------------------------
+test("file-names", () => {
+  const at = name => `${mod}${name}`;
+  ruleTester.run("file-names", fileNames, {
+    valid: [
+      { code: ``, filename: at("useFoo.ts") },
+      { code: ``, filename: at("useFoo.actions.ts") },
+      { code: ``, filename: at("useFoo.meta.client.ts") },
+      { code: ``, filename: at("useFoo.internals.guest.ts") },
+      { code: ``, filename: at("useFoo.context.staff.ts") },
+      { code: ``, filename: at("foo.machine.ts") },
+      { code: ``, filename: at("foo.services.client.ts") },
+      { code: ``, filename: at("foo.types.ts") },
+      { code: ``, filename: at("foo-bar.types.ts") },
+      { code: ``, filename: at("index.ts") },
+      { code: ``, filename: at("__tests__/Anything.ts") },
+      { code: ``, filename: at("docs/Notes.ts") }
+    ],
+    invalid: [
+      {
+        code: ``,
+        filename: at("useFoo.base.ts"),
+        errors: [{ messageId: "noBase" }]
+      },
+      {
+        code: ``,
+        filename: at("foo.base.ts"),
+        errors: [{ messageId: "noBase" }]
+      },
+      {
+        code: ``,
+        filename: at("Foo.ts"),
+        errors: [{ messageId: "badName" }]
+      },
+      {
+        code: ``,
+        filename: at("foo.ts"),
+        errors: [{ messageId: "badName" }]
+      },
+      {
+        code: ``,
+        filename: at("fooMachine.ts"),
+        errors: [{ messageId: "badName" }]
+      },
+      {
+        code: ``,
+        filename: at("foo_services.ts"),
+        errors: [{ messageId: "badName" }]
+      },
+      {
+        code: ``,
+        filename: at("useFoo.layers.ts"),
+        errors: [{ messageId: "badName" }]
+      },
+      {
+        code: ``,
+        filename: at("useFoo.actions.admin.ts"),
+        errors: [{ messageId: "badName" }]
+      },
+      {
+        code: ``,
+        filename: at("usefoo.ts"),
+        errors: [{ messageId: "badName" }]
+      },
+      {
+        code: ``,
+        filename: at("helpers.ts"),
+        errors: [{ messageId: "badName" }]
+      }
+    ]
+  });
+});
+
+// ---------------------------------------------------------------------------
+test("query-client-inside", () => {
+  ruleTester.run("query-client-inside", queryClientInside, {
+    valid: [
+      { code: `function useFoo() { const qc = useQueryClient(); return qc; }` },
+      { code: `function createFooActions(state: State) { return {}; }` },
+      { code: `function useFoo(qc: SomethingElse) { return qc; }` },
+      { code: `function invalidate(qc: QueryClient) { qc.clear(); }` },
+      { code: `const refresh = (qc: QueryClient) => qc.clear();` }
+    ],
+    invalid: [
+      {
+        code: `function useFoo(client: QueryClient) { return client; }`,
+        errors: [{ messageId: "queryClientParam", data: { name: "useFoo" } }]
+      },
+      {
+        code: `const createFooActions = (client: QueryClient) => ({});`,
+        errors: [{ messageId: "queryClientParam" }]
+      },
+      {
+        code: `function createFooMeta(state: State, client: QueryClient) { return {}; }`,
+        errors: [{ messageId: "queryClientParam" }]
+      },
+      {
+        code: `function useFoo(client: QueryClient = fallback) { return client; }`,
+        errors: [{ messageId: "queryClientParam" }]
+      },
+      {
+        code: `const useFoo = function (client: QueryClient) { return client; };`,
+        errors: [{ messageId: "queryClientParam" }]
+      }
+    ]
+  });
+});
+
+// ---------------------------------------------------------------------------
+test("destroy-removes-key", () => {
+  const file = `${mod}useFoo.actions.ts`;
+  ruleTester.run("destroy-removes-key", destroyRemovesKey, {
+    valid: [
+      {
+        code: `export function createFooActions(scopeKey: string) { function destroy() { registry.remove(scopeKey); } return { destroy }; }`,
+        filename: file
+      },
+      {
+        code: `export function createFooActions(scopeKey: string) { const destroy = () => { scopes.delete(scopeKey); }; return { destroy }; }`,
+        filename: file
+      },
+      {
+        code: `export function createFooActions(scopeKey = "x") { function destroy() { remove(scopeKey); } return { destroy }; }`,
+        filename: file
+      },
+      {
+        code: `export function createFooActions(scopeKey: string) { return { destroy: () => { unregister(scopeKey); } }; }`,
+        filename: file
+      },
+      {
+        code: `export function createFooActions(scopeKey: string) { return { destroy() { remove(scopeKey); } }; }`,
+        filename: file
+      },
+      {
+        code: `export function createFooActions() { return { save }; }`,
+        filename: file
+      },
+      {
+        code: `export function createFooActions() { function destroy() { cleanup(); } return { destroy }; }`,
+        filename: `${mod}useFoo.actions.client.ts`
+      },
+      {
+        code: `export function createFooMeta() { function destroy() { cleanup(); } return { destroy }; }`,
+        filename: `${mod}useFoo.meta.ts`
+      }
+    ],
+    invalid: [
+      {
+        code: `export function createFooActions(scopeKey: string) { function destroy() { cleanup(); } return { destroy }; }`,
+        filename: file,
+        errors: [{ messageId: "noRemove" }]
+      },
+      {
+        code: `export function createFooActions(scopeKey: string) { const destroy = () => {}; return { destroy }; }`,
+        filename: file,
+        errors: [{ messageId: "noRemove" }]
+      },
+      {
+        code: `export function createFooActions(scopeKey: string) { function destroy() { remove(); } return { destroy }; }`,
+        filename: file,
+        errors: [{ messageId: "noRemove" }]
+      },
+      {
+        code: `export function createFooActions(scopeKey: string) { function destroy() { remove(key); } return { destroy }; }`,
+        filename: file,
+        errors: [{ messageId: "noRemove" }]
+      },
+      {
+        code: `export function createFooActions(scopeKey: string) { function destroy() { const k = scopeKey; return k; } return { destroy }; }`,
+        filename: file,
+        errors: [{ messageId: "noRemove" }]
+      },
+      {
+        code: `export function createFooActions(scopeKey: string) { return { destroy: () => {} }; }`,
+        filename: file,
+        errors: [{ messageId: "noRemove" }]
+      },
+      {
+        code: `export function createFooActions() { function destroy() { remove(scopeKey); } return { destroy }; }`,
+        filename: file,
+        errors: [{ messageId: "noScopeKey" }]
+      },
+      {
+        code: `export function createFooActions(key: string) { function destroy() { remove(scopeKey); } return { destroy }; }`,
+        filename: file,
+        errors: [{ messageId: "noScopeKey" }]
+      }
+    ]
+  });
+});
+
+// ---------------------------------------------------------------------------
+test("state-paths-resolve", () => {
+  fixture(
+    "modules/billing/billing.machine.ts",
+    `export const billingMachine = setup({}).createMachine({ context: { invoiceId: null, items: [] }, initial: "idle", states: { idle: {}, loading: { states: { fetching: {} } }, ready: {} } });\n`
+  );
+  fixture(
+    "modules/other/other.machine.ts",
+    `export const otherMachine = setup({}).createMachine({ initial: "settled", states: { settled: {} } });\n`
+  );
+  const file = join(root, "modules/billing/useBilling.ts");
+  const plain = join(root, "modules/plain/usePlain.ts");
+  fixture("modules/plain/usePlain.ts", "export {};\n");
+  ruleTester.run("state-paths-resolve", statePathsResolve, {
+    valid: [
+      { code: `stateMatches(state, "ready");`, filename: file },
+      { code: `stateMatches(state, "loading.fetching");`, filename: file },
+      { code: `state.matches("idle");`, filename: file },
+      { code: `state.matches(["idle", "ready"]);`, filename: file },
+      { code: `contextValue(state, "invoiceId");`, filename: file },
+      { code: `contextValue(state, "items.0.ghost");`, filename: file },
+      { code: `stateMatches(state, "settled");`, filename: file },
+      { code: `stateMatches(state, path);`, filename: file },
+      {
+        code: `waitFor(actor, s => stateMatches(s, "ready"));`,
+        filename: file
+      },
+      { code: `stateMatches(state, "ghost");`, filename: plain }
+    ],
+    invalid: [
+      {
+        code: `stateMatches(state, "ghost");`,
+        filename: file,
+        errors: [
+          {
+            messageId: "unknownPath",
+            data: { segment: "ghost", path: "ghost" }
+          }
+        ]
+      },
+      {
+        code: `stateMatches(state, "loading.ghost");`,
+        filename: file,
+        errors: [
+          {
+            messageId: "unknownPath",
+            data: { segment: "ghost", path: "loading.ghost" }
+          }
+        ]
+      },
+      {
+        code: `state.matches("ghost");`,
+        filename: file,
+        errors: [{ messageId: "unknownPath" }]
+      },
+      {
+        code: `state.matches(["idle", "ghost"]);`,
+        filename: file,
+        errors: [{ messageId: "unknownPath" }]
+      },
+      {
+        code: `contextValue(state, "ghost");`,
+        filename: file,
+        errors: [{ messageId: "unknownPath" }]
+      },
+      {
+        code: `contextValue(state, "ghost.items");`,
+        filename: file,
+        errors: [{ messageId: "unknownPath" }]
+      },
+      {
+        code: `waitFor(actor, s => stateMatches(s, "nope"));`,
+        filename: file,
+        errors: [{ messageId: "unknownPath" }]
+      }
+    ]
+  });
+});
+
+// ---------------------------------------------------------------------------
+test("scope-naming", () => {
+  const file = `${mod}useFoo.ts`;
+  const types = `${mod}foo.types.ts`;
+  ruleTester.run("scope-naming", scopeNaming, {
+    valid: [
+      {
+        code: `export function useFoo() { return { scopeActor: actorScope, scopeContext: config.context }; }`,
+        filename: file
+      },
+      {
+        code: `export function useFoo() { return { scopeActor: computed(() => actorScope) }; }`,
+        filename: file
+      },
+      {
+        code: `export function useFoo() { const scopeActor = actorScope; return { scopeActor }; }`,
+        filename: file
+      },
+      {
+        code: `export function useFoo() { return { actor: somethingElse, context: config.other }; }`,
+        filename: file
+      },
+      {
+        code: `export const FOO_SCOPE_MATRIX = { [ScopeActorTypes.CLIENT]: {} } as const;`,
+        filename: types
+      },
+      {
+        code: `export const BILLING_PLAN_SCOPE_MATRIX = { [ScopeActorTypes.STAFF]: {} } satisfies Matrix;`,
+        filename: types
+      },
+      {
+        code: `export const FOO_SCOPE_MATRIX = { [ScopeActorTypes.CLIENT]: {} };`,
+        filename: file
+      },
+      { code: `const defaults = { [KEYS.A]: 1 };`, filename: file },
+      { code: `const defaults = { a: 1 };`, filename: types },
+      {
+        code: `const matrix = { [ScopeActorTypes.CLIENT]: {} };`,
+        filename: `${mod}foo.utils.ts`
+      }
+    ],
+    invalid: [
+      {
+        code: `export function useFoo() { return { actor: actorScope }; }`,
+        filename: file,
+        errors: [{ messageId: "scopeActor" }]
+      },
+      {
+        code: `export function useFoo() { return { currentActor: computed(() => actorScope) }; }`,
+        filename: file,
+        errors: [{ messageId: "scopeActor" }]
+      },
+      {
+        code: `export function useFoo() { return { actorScope }; }`,
+        filename: file,
+        errors: [{ messageId: "scopeActor" }]
+      },
+      {
+        code: `export function useFoo() { return { context: config.context }; }`,
+        filename: file,
+        errors: [{ messageId: "scopeContext" }]
+      },
+      {
+        code: `export function useFoo() { return { target: config.context }; }`,
+        filename: file,
+        errors: [{ messageId: "scopeContext" }]
+      },
+      {
+        code: `export const FOO_MATRIX = { [ScopeActorTypes.CLIENT]: {} };`,
+        filename: types,
+        errors: [{ messageId: "matrixName" }]
+      },
+      {
+        code: `export const fooMatrix = { [ScopeActorTypes.CLIENT]: {} } as const;`,
+        filename: types,
+        errors: [{ messageId: "matrixName" }]
+      },
+      {
+        code: `const matrix = { [ScopeActorTypes.CLIENT]: {} } satisfies Matrix;`,
+        filename: file,
+        errors: [{ messageId: "matrixName" }]
+      },
+      {
+        code: `export const SCOPE_MATRIX = { [ScopeActorTypes.CLIENT]: {} };`,
+        filename: types,
+        errors: [{ messageId: "matrixName" }]
+      },
+      {
+        code: `export const foo_SCOPE_MATRIX = { [ScopeActorTypes.CLIENT]: {} };`,
+        filename: types,
+        errors: [{ messageId: "matrixName" }]
+      }
+    ]
+  });
+});
+
+// ---------------------------------------------------------------------------
+test("scoped-factory", () => {
+  for (const layer of ["actions", "context", "internals", "meta"]) {
+    fixture(`modules/foo/useFoo.${layer}.ts`, "export {};\n");
+  }
+  fixture("modules/foo/useFoo.ts", "export {};\n");
+  fixture("modules/bar/useBar.ts", "export {};\n");
+  fixture("modules/bar/useBar.actions.ts", "export {};\n");
+  const foo = join(root, "modules/foo/useFoo.ts");
+  const bar = join(root, "modules/bar/useBar.ts");
+  const layers = `{ useActions, useContext, useInternals, useMeta }`;
+  ruleTester.run("scoped-factory", scopedFactory, {
+    valid: [
+      {
+        code: `function createFoo() { return ${layers}; }\nexport const useFoo = createScopedComposable("foo", createFoo, FOO_SCOPE_MATRIX);`,
+        filename: foo
+      },
+      {
+        code: `export const useFoo = createScopedComposable("foo", () => ({ useActions: () => a, useContext: () => b, useInternals: () => c, useMeta: () => d }), FOO_SCOPE_MATRIX);`,
+        filename: foo
+      },
+      {
+        code: `export const useFoo = createScopedComposable("foo", function () { return ${layers}; }, FOO_SCOPE_MATRIX);`,
+        filename: foo
+      },
+      {
+        code: `export const useFoo = createScopedComposable("foo", () => ({ useMeta, useInternals, useContext, useActions }), FOO_SCOPE_MATRIX);`,
+        filename: foo
+      },
+      {
+        code: `export const useFoo = createScopedComposable("foo", () => ${layers}, STATS_SCOPE_MATRIX);`,
+        filename: foo
+      },
+      {
+        code: `export const useBar = createScopedComposable("bar", () => ({}));`,
+        filename: bar
+      },
+      {
+        code: `export function useBar() { return {}; }`,
+        filename: bar
+      },
+      {
+        code: `export function useFoo() { return {}; }`,
+        filename: join(root, "modules/foo/useFoo.actions.ts")
+      }
+    ],
+    invalid: [
+      {
+        code: `export const useFoo = createScopedComposable("foo", () => ${layers});`,
+        filename: foo,
+        errors: [{ messageId: "matrixValue" }]
+      },
+      {
+        code: `export const useFoo = createScopedComposable("foo", () => ${layers}, {});`,
+        filename: foo,
+        errors: [{ messageId: "matrixName" }]
+      },
+      {
+        code: `export const useFoo = createScopedComposable("foo", () => ${layers}, statsMatrix);`,
+        filename: foo,
+        errors: [{ messageId: "matrixName" }]
+      },
+      {
+        code: `export function useFoo() { return {}; }`,
+        filename: foo,
+        errors: [{ messageId: "notScoped" }]
+      },
+      {
+        code: `export const useFoo = () => ({ useActions, useContext, useInternals, useMeta });`,
+        filename: foo,
+        errors: [{ messageId: "notScoped" }]
+      },
+      {
+        code: `export const useFoo = createScopedComposable("foo", () => ({ useActions, useContext, useMeta }), FOO_SCOPE_MATRIX);`,
+        filename: foo,
+        errors: [{ messageId: "layerKeys" }]
+      },
+      {
+        code: `export const useFoo = createScopedComposable("foo", () => ({ useActions, useContext, useInternals, useMeta, count }), FOO_SCOPE_MATRIX);`,
+        filename: foo,
+        errors: [{ messageId: "layerKeys" }]
+      },
+      {
+        code: `export const useFoo = createScopedComposable("foo", () => ({ count, total }), FOO_SCOPE_MATRIX);`,
+        filename: foo,
+        errors: [{ messageId: "layerKeys" }]
+      },
+      {
+        code: `function createFoo() { return { useActions, useContext }; }\nexport const useFoo = createScopedComposable("foo", createFoo, FOO_SCOPE_MATRIX);`,
+        filename: foo,
+        errors: [{ messageId: "layerKeys" }]
+      },
+      {
+        code: `export const useFoo = createScopedComposable("foo", function () { return { useActions, useMeta }; }, FOO_SCOPE_MATRIX);`,
+        filename: foo,
+        errors: [{ messageId: "layerKeys" }]
+      }
+    ]
+  });
+});
+
+// ---------------------------------------------------------------------------
+test("no-local-query-type", () => {
+  const file = `${mod}useFoo.ts`;
+  ruleTester.run("no-local-query-type", noLocalQueryType, {
+    valid: [
+      {
+        code: `type X = ReturnType<typeof computeTotal>;`,
+        filename: file
+      },
+      { code: `type X = ReturnType<typeof useFoo>;`, filename: file },
+      { code: `type Y = string;`, filename: file },
+      { code: `type L = ListQuery<Foo>;`, filename: file },
+      {
+        code: `type X = Awaited<ReturnType<typeof computeTotal>>;`,
+        filename: file
+      },
+      {
+        code: `export type Q = ReturnType<typeof useQuery>;`,
+        filename: "/repo/packages/headless/src/modules/query/query.ts"
+      }
+    ],
+    invalid: [
+      {
+        code: `type Q = ReturnType<typeof useQuery>;`,
+        filename: file,
+        errors: [{ messageId: "localQueryType", data: { fn: "useQuery" } }]
+      },
+      {
+        code: `export type M = ReturnType<typeof useMutation>;`,
+        filename: file,
+        errors: [{ messageId: "localQueryType", data: { fn: "useMutation" } }]
+      },
+      {
+        code: `type Q = ReturnType<typeof useListQuery>;`,
+        filename: file,
+        errors: [{ messageId: "localQueryType" }]
+      },
+      {
+        code: `type M = ReturnType<typeof createFooMutation>;`,
+        filename: file,
+        errors: [{ messageId: "localQueryType" }]
+      },
+      {
+        code: `type L = ReturnType<typeof loadList>;`,
+        filename: file,
+        errors: [{ messageId: "localQueryType", data: { fn: "loadList" } }]
+      },
+      {
+        code: `type Q = ReturnType<typeof api.useFooQuery>;`,
+        filename: file,
+        errors: [{ messageId: "localQueryType", data: { fn: "useFooQuery" } }]
       }
     ]
   });

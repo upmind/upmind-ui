@@ -6,13 +6,12 @@
   />
   <div v-else :class="actionPanelSurface.root()">
     <ActionSlots :actions="slotItems" />
-    <UpmForm
+    <Form
       v-if="schema"
       :class="actionPanelSurface.form()"
       :schema="schema"
       :uischema="uischema"
       :model-value="model"
-      :additional-renderers="formRenderers"
       @update:model-value="onUpdate"
       @resolve="onResolve"
     />
@@ -31,7 +30,7 @@
  */
 
 import { computed } from "vue";
-import { formRenderers, UpmForm } from "@upmind-automation/client-vue";
+import { Form } from "@upmind-automation/foundation";
 import { ActionPlacementTypes } from "../../scenario.types";
 import ActionSlots from "../ActionSlots.vue";
 import { resolveModuleDetail, resolveModuleState } from "../module-state";
@@ -41,7 +40,7 @@ import { actionPanelSurface } from "./ActionPanelSurface.styles";
 import { isFunction, map, startCase } from "lodash-es";
 import type { ActionSlotItem } from "../ActionSlots.types";
 import type { ActionPanelSurfaceProps } from "./ActionPanelSurface.types";
-import type { FormProps } from "@upmind-automation/client-vue";
+import type { FormProps } from "@upmind/ui";
 // -----------------------------------------------------------------------------
 
 const props = defineProps<ActionPanelSurfaceProps>();

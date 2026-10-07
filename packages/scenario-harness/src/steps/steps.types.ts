@@ -1,13 +1,19 @@
 /**
  * @graphify-citation `graphify query "gherkin feature scenario parse step
- * matcher compiled args"` (2026-08-11) and `graphify query "duplicated step
- * pattern across catalogs"` (2026-08-12) — no `FeatureScenario` / `StepMatch` /
+ * matcher compiled args"` and `graphify query "duplicated step pattern across
+ * catalogs"` — no `FeatureScenario` / `StepMatch` /
  * `StepMatcher` / `Duplicat*` node in `graphify-out/graph.json`, and the only
  * feature-parse and step-match code in the tree is this package's own
  * `traceability.ts` private helpers, which these types name as they become
  * public. No duplicate to consume, so minting here is warranted.
  */
 import type { World } from "../world/world.types";
+// -----------------------------------------------------------------------------
+/**
+ * @module steps/steps.types
+ * @description Types for step catalogs, parsed feature scenarios, step
+ * matching and the traceability verdict.
+ */
 
 /** Gherkin's exact wire strings for the three step kinds. */
 export const STEP_KIND = {

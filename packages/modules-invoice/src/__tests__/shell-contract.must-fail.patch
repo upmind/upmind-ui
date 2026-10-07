@@ -1,0 +1,18 @@
+# Negative control — the order page hands its page the full template, not the
+# brand's. Every host draws the same arrangement whatever the brand picks.
+#
+# Intended RED:
+#   packages/modules-invoice/src/__tests__/shell-contract.test.ts
+#     "hands its default slot the brand's raw template"
+
+diff --git a/packages/modules-invoice/src/components/Order.vue b/packages/modules-invoice/src/components/Order.vue
+--- a/packages/modules-invoice/src/components/Order.vue
++++ b/packages/modules-invoice/src/components/Order.vue
+@@ -1,6 +1,6 @@
+ <template>
+   <LayoutProvider>
+-    <slot :template="configMeta.ui.template.value" />
++    <slot template="full" />
+ 
+     <template #order-summary>
+       <Hero

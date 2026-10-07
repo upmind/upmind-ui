@@ -15,7 +15,6 @@ import {
   responseCodes
 } from "../../utils";
 import type { AccountScopeMatrix, ClientContext } from "./account.types";
-import type { ScopeActorTypes } from "../scope/scope.types";
 import type { ScopeConfig, ScopeKey } from "../scope/scope.types";
 // -----------------------------------------------------------------------------
 /**
@@ -38,7 +37,7 @@ function createAccountForScope(config: ScopeConfig, scopeKey: ScopeKey) {
   const { t } = useI18n();
 
   // Actor is already resolved by the scope builder (SELF → concrete actor)
-  const actorScope = config.actor as ScopeActorTypes;
+  const actorScope = config.actor;
 
   // Seed the concrete client from the store at construction (re-read per mint).
   const { activeUser } = useSessionStore().useContext();
@@ -58,7 +57,7 @@ function createAccountForScope(config: ScopeConfig, scopeKey: ScopeKey) {
   const actorRef = createActor(service);
   if (!actorRef) {
     throw new DetailedError(
-      t("errors.auth.unavailable"),
+      t("error.account_not_available"),
       responseCodes.Service_Unavailable,
       ErrorOrigin.Headless,
       { scope: config }

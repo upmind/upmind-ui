@@ -7,6 +7,7 @@
  */
 
 import type { MetricModuleColumns } from "./types";
+// -----------------------------------------------------------------------------
 
 /** `tile` — a track-sized grid of muted stat tiles. */
 const TILE_GRID_CLASS: Readonly<Record<MetricModuleColumns, string>> = {

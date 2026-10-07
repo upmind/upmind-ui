@@ -2,7 +2,7 @@
  * @graphify-citation `graphify-out/graph.json` (2026-08-10, 6795 nodes) — no
  * `SortControl` / `SortControlProps` / `SortField` node exists in the tree. The
  * only sort controls in the graph are `EmailHistorySort.vue` and
- * `ProductSort.vue` (`packages/client-vue`), each bound to its own module's
+ * `ProductSort.vue`, each bound to its own module's
  * hardcoded sortable-property enum, so neither is consumable by a
  * declaration-driven surface — their `ButtonGroup` treatment is adopted, the
  * components are not re-declared. The sort model itself is

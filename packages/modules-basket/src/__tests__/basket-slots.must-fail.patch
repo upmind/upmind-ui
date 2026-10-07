@@ -1,0 +1,24 @@
+# Negative control — the basket fills its products block under a name no layout
+# draws, so the page's layout never gets develop's basket products.
+#
+# Intended RED:
+#   packages/modules-basket/src/__tests__/basket-slots.int.test.ts
+#     "hands the layout the brand's own template and every block develop fills"
+#     "draws the summary, the recorded products, the total and the checkout, each in its own frame"
+#     "hands no summary when the page hides it"
+#     "puts the page's own slot in place of its block, and keeps every other block's"
+#     "draws the pricing's total and checkout until the layout turns each off"
+
+diff --git a/packages/modules-basket/src/components/Basket.vue b/packages/modules-basket/src/components/Basket.vue
+index 7dcfd8c..9b157ee 100644
+--- a/packages/modules-basket/src/components/Basket.vue
++++ b/packages/modules-basket/src/components/Basket.vue
+@@ -16,7 +16,7 @@
+       </slot>
+     </template>
+ 
+-    <template #products>
++    <template #items>
+       <slot name="errors">
+         <BasketAlerts
+           id="basket-errors"

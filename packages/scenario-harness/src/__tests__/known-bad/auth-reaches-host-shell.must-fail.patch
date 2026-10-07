@@ -1,0 +1,35 @@
+# Negative control — `auth` reaches into an app's shell for the sign-in layout
+# instead of handing its page the brand's raw template. Page layouts are
+# app-owned (ADR 023 Amendment 1 change 3); a package reaching them points a
+# package at an app, an edge no row of §3's grant matrix carries.
+#
+# Caught by `eslint`'s `@workspace/no-cross-package-path-imports`, which resolves
+# the relative escape to disk and names the package that owns the target.
+#
+# Intended RED under lint:
+#   Import a workspace package by its published specifier — its internals are
+#   private. ("../../../../apps/cart/src/shell/modules/session/shell" resolves into apps/cart)
+
+diff --git a/packages/modules-auth/src/components/Login.vue b/packages/modules-auth/src/components/Login.vue
+--- a/packages/modules-auth/src/components/Login.vue
++++ b/packages/modules-auth/src/components/Login.vue
+@@ -1,7 +1,10 @@
+ <template>
+   <slot v-if="isResolving" name="loading"><AuthLoading /></slot>
+   <LayoutProvider v-else>
+-    <slot :template="ui.template.value" />
++    <slot
++      :template="ui.template.value"
++      :layout="sessionTemplate(ui.template.value)"
++    />
+ 
+     <template #back="{ compact = false }">
+       <slot name="back">
+@@ -108,6 +111,7 @@
+ import { markdownVariants, sessionFormWidthVariants } from "../variants";
+ import Auth from "./Auth.vue";
+ import AuthLoading from "./AuthLoading.vue";
++import { sessionTemplate } from "../../../../apps/cart/src/shell/modules/session/shell";
+ import type {
+   AuthProps,
+   AuthSummarySlotProps,

@@ -84,7 +84,8 @@ export default {
     return {
       CallExpression(node) {
         const callee = node.callee;
-        if (callee.type !== "Identifier" || callee.name !== "defineSlots") return;
+        if (callee.type !== "Identifier" || callee.name !== "defineSlots")
+          return;
 
         const typeArgs = node.typeArguments;
         if (!typeArgs || typeArgs.params.length === 0) return;
@@ -101,7 +102,8 @@ export default {
           }
           // property form: `item: () => any`
           if (member.type === "TSPropertySignature") {
-            const ann = member.typeAnnotation && member.typeAnnotation.typeAnnotation;
+            const ann =
+              member.typeAnnotation && member.typeAnnotation.typeAnnotation;
             if (ann && ann.type === "TSFunctionType") {
               check(member, ann.returnType);
             }

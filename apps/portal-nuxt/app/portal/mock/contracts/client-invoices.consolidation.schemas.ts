@@ -2,6 +2,7 @@ import { map } from "lodash-es";
 import type { MockInvoice } from "../types";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
 import type { FormModel } from "@upmind/ui";
+// -----------------------------------------------------------------------------
 
 /**
  * Legacy's manual consolidation modal: a tick per unpaid recurring invoice,

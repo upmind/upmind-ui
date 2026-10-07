@@ -1,3 +1,4 @@
+/** @internal */
 import {
   GrantTypes,
   type IBrandSettings,

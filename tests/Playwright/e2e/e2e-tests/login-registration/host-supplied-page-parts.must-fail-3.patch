@@ -1,0 +1,20 @@
+# Negative control — the stand-alone sign-in app's layout record keys the split
+# arrangement to the mirrored two-column template. A brand that picks split gets
+# another arrangement in that app only.
+#
+# Intended RED:
+#   tests/Playwright/e2e/e2e-tests/login-registration/host-supplied-page-parts.spec.ts
+#     'The register page in the stand-alone sign-in app shows in the "split" arrangement'
+
+diff --git a/apps/auth/src/shell.ts b/apps/auth/src/shell.ts
+--- a/apps/auth/src/shell.ts
++++ b/apps/auth/src/shell.ts
+@@ -15,7 +15,7 @@
+ import type { Component } from "vue";
+ 
+ export const AUTH_TEMPLATES: Record<AUTH_TEMPLATE, Component> = {
+-  [AUTH_TEMPLATE.SPLIT]: AuthSplitTemplate,
++  [AUTH_TEMPLATE.SPLIT]: AuthRTLTemplate,
+   [AUTH_TEMPLATE.ENCLOSED]: AuthEnclosedTemplate,
+   [AUTH_TEMPLATE.CANVAS_CARD]: AuthCanvasCardTemplate,
+   [AUTH_TEMPLATE.SURFACE_BOX]: AuthSurfaceBoxTemplate,

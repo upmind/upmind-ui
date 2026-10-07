@@ -1,0 +1,31 @@
+# Negative control — foundationRenderers drops the lookup control, so no consumer can register it.
+#
+# Intended RED:
+#   packages/modules-foundation/src/renderers/__tests__/foundation-renderers.test.ts
+#     "hands its consumer the lookup control in foundationRenderers"
+#     "opens a lookup machine for a control naming a service"
+#     "opens one machine per lookup control, so two pickers never share one"
+#   packages/modules-foundation/src/renderers/__tests__/LookupRenderer.test.ts
+#     every test that draws a lookup control
+
+diff --git a/packages/modules-foundation/src/renderers/index.ts b/packages/modules-foundation/src/renderers/index.ts
+index 22e4e566f1..9286d6d1a2 100644
+--- a/packages/modules-foundation/src/renderers/index.ts
++++ b/packages/modules-foundation/src/renderers/index.ts
+@@ -17,8 +17,6 @@
+ import { tester as filterToggleGroupTester } from "./FilterToggleGroupRenderer.vue";
+ import ImageRenderer from "./ImageRenderer.vue";
+ import { tester as imageTester } from "./ImageRenderer.vue";
+-import LookupRenderer from "./LookupRenderer.vue";
+-import { tester as lookupTester } from "./LookupRenderer.vue";
+ import type { FormRendererEntry } from "./types";
+ 
+ export type { FormRendererEntry } from "./types";
+@@ -26,7 +24,6 @@
+ 
+ export const foundationRenderers: FormRendererEntry[] = [
+   registerEntry(ImageRenderer, imageTester),
+-  registerEntry(LookupRenderer, lookupTester),
+   registerEntry(FilterButtonGroupRenderer, filterButtonGroupTester),
+   registerEntry(
+     FilterExclusiveToggleGroupRenderer,

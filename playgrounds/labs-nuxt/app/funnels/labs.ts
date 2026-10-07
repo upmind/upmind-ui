@@ -1,11 +1,5 @@
-import {
-  type AnyEventObject,
-  assign,
-  type FunnelContext,
-  type FunnelProps,
-  QUERY_PARAMS,
-  SESSION_FORMS
-} from "@upmind-automation/client-vue";
+import { AUTH_FORMS } from "@upmind-automation/auth";
+import { assign, QUERY_PARAMS } from "@upmind-automation/headless";
 import {
   AUTH_SCOPE_MATRIX,
   ScopeActorTypes
@@ -17,6 +11,11 @@ import services from "./engine/services";
 import { ACTOR_PARAM, ADD_SESSION_PARAM, MODE_PARAM } from "./labs.constants";
 import { ROUTE } from "./types";
 import { get, isArray, join, mapValues, omit, toString } from "lodash-es";
+import type {
+  AnyEventObject,
+  FunnelContext,
+  FunnelProps
+} from "@upmind-automation/headless";
 import type { LocationQuery, RouteLocation } from "vue-router";
 import { parseScopeSuffix } from "~/composables/scope/scope-mapper";
 
@@ -155,7 +154,7 @@ export function authOverlayTarget(
         ...(authNamedActor(named)
           ? { [ACTOR_PARAM]: toString(named) }
           : undefined),
-        [MODE_PARAM]: SESSION_FORMS.LOGIN,
+        [MODE_PARAM]: AUTH_FORMS.LOGIN,
         [QUERY_PARAMS.CANCEL_URL]: ROUTE.HOME
       };
 
@@ -207,6 +206,22 @@ export function intentOverlayTarget(
 ) {
   return {
     name: `${overlayParent(route)}--${overlayId}`,
+    params: route?.params,
+    query: omit(route?.query, [QUERY_PARAMS.INIT])
+  };
+}
+
+/**
+ * The page itself MINUS a refused or unrecognised `?init` intent. Refusing by
+ * re-target, never by resolving in place, is what keeps the spent param out of
+ * the url: the middleware and the engine both navigate the funnel's target, and
+ * a resolve in place hands back the route that still carries it.
+ */
+export function intentRefusedTarget(
+  route: Pick<RouteLocation, "name" | "params" | "query"> | undefined
+) {
+  return {
+    name: route?.name,
     params: route?.params,
     query: omit(route?.query, [QUERY_PARAMS.INIT])
   };
@@ -439,7 +454,6 @@ export default <FunnelProps>{
      * From here, users can proceed to the CHECKOUT route or return to the BASKET.
      */
     [ROUTE.SESSION_LOGIN]: {
-      entry: ["setCurrency"],
       invoke: {
         src: "guardSession",
         onDone: {

@@ -1,0 +1,11 @@
+--- a/packages/headless/src/modules/client-custom-pages/client-custom-pages.services.ts
++++ b/packages/headless/src/modules/client-custom-pages/client-custom-pages.services.ts
+@@ -60,7 +60,7 @@
+   return list<ICustomPage[], CustomPage[]>({
+     criteria: { schema: useQuerySchema() },
+     queryKey,
+-    url: useUrl("custom_pages"),
++    url: useUrl("custom_page"),
+     select: mapCustomPages
+   });
+ }

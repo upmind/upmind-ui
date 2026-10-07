@@ -1,0 +1,18 @@
+Negative control: contract.products[] drops the product status.
+Intended RED: "carries the product status and its translated-badge meta"
+  (contract.reads.int.test.ts) — the embedded product mapper omits `status`.
+
+diff --git a/packages/headless/src/modules/contract-product/contract-product.mappers.ts b/packages/headless/src/modules/contract-product/contract-product.mappers.ts
+index 33abefbf91..a7f01ca640 100644
+--- a/packages/headless/src/modules/contract-product/contract-product.mappers.ts
++++ b/packages/headless/src/modules/contract-product/contract-product.mappers.ts
+@@ -226,7 +226,8 @@ export function mapContractProductEmbedded(
+     "contractBillingCycleLabel",
+     "contractCurrencyId",
+     "contractStatus",
+-    "contractTaxType"
++    "contractTaxType",
++    "status"
+   ]);
+ }
+ 

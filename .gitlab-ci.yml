@@ -38,6 +38,7 @@ include:
   - local: .gitlab-ci/pyramid.yml
   - local: .gitlab-ci/features.yml
   - local: .gitlab-ci/lint.yml
+  - local: .gitlab-ci/typecheck.yml
   - local: .gitlab-ci/e2e-allure.yml
   - local: .gitlab-ci/quarantine.yml
   - local: .gitlab-ci/docs-corpus.yml
@@ -82,13 +83,21 @@ dependencies:
         - apps/cart/node_modules
         - apps/cart-nuxt/node_modules
         - apps/portal-nuxt/node_modules
-        - apps/velia/node_modules
+        - apps/velia-nuxt/node_modules
         - apps/webcentral/node_modules
-        - apps/hosting/node_modules
         - packages/headless/node_modules
-        - packages/client-vue/node_modules
         - packages/icons/node_modules
         - packages/i18n/node_modules
+        - packages/modules-foundation/node_modules
+        - packages/modules-product/node_modules
+        - packages/modules-recommendations/node_modules
+        - packages/modules-catalogue/node_modules
+        - packages/modules-domain/node_modules
+        - packages/modules-auth/node_modules
+        - packages/modules-client/node_modules
+        - packages/modules-payment/node_modules
+        - packages/modules-invoice/node_modules
+        - packages/modules-basket/node_modules
         - docs/node_modules
 
   artifacts:
@@ -102,13 +111,21 @@ dependencies:
       - apps/cart/node_modules
       - apps/cart-nuxt/node_modules
       - apps/portal-nuxt/node_modules
-      - apps/velia/node_modules
+      - apps/velia-nuxt/node_modules
       - apps/webcentral/node_modules
-      - apps/hosting/node_modules
       - packages/headless/node_modules
-      - packages/client-vue/node_modules
       - packages/i18n/node_modules
       - packages/icons/node_modules
+      - packages/modules-foundation/node_modules
+      - packages/modules-product/node_modules
+      - packages/modules-recommendations/node_modules
+      - packages/modules-catalogue/node_modules
+      - packages/modules-domain/node_modules
+      - packages/modules-auth/node_modules
+      - packages/modules-client/node_modules
+      - packages/modules-payment/node_modules
+      - packages/modules-invoice/node_modules
+      - packages/modules-basket/node_modules
       - design-system/packages/ui/node_modules
       - design-system/packages/tokens/node_modules
       - packages/types

@@ -182,6 +182,13 @@ export type RequestParams = QueryProps & {
    */
   withBasket?: boolean;
   /**
+   * `true` to read no basket composable when `list()` or `listInfinite()` is
+   * minted: the setup boots no basket, and the query key carries no basket
+   * currency or id. Without it both boot the basket, whatever `withCurrency`
+   * and `withBasket` say.
+   */
+  withoutBasket?: boolean;
+  /**
    * `true` to automatically include the access token in the request headers,
    * or a string representing the token itself, or `null`/`false` to omit.
    */
@@ -202,6 +209,9 @@ export type RequestParams = QueryProps & {
  * extending {@link RequestParams} with `QueryObserverOptions` and omitting
  * `queryFn` and `initialData`, which are handled internally.
  *
+ * `select` receives the response `data` and, second, the whole response
+ * envelope, so a read can map off envelope fields such as `total`.
+ *
  * @template TQueryFnData - The type of data returned by the `queryFn`.
  * @template TData - The type of data after the `select` transformation.
  */
@@ -211,8 +221,68 @@ export type QueryParams<
 > = RequestParams &
   Omit<
     QueryObserverOptions<TQueryFnData, DefaultError, TData>,
-    "queryFn" | "initialData"
-  >;
+    "queryFn" | "initialData" | "select"
+  > & {
+    select?: (
+      data: TQueryFnData,
+      response: QueryResponse<TQueryFnData>
+    ) => TData;
+  };
+
+/**
+ * One request target of a multi-entry read: what differs between the entries.
+ * Every other option of the read is shared and applies to every entry.
+ */
+export type QueryEntry = Pick<QueryParams, "url" | "init" | "queryKey">;
+
+/**
+ * `select` for a multi-entry read. It receives every entry's `data` and, second,
+ * every entry's response envelope, both in entry order, and returns the stitched
+ * value the handle publishes as `data`.
+ *
+ * @template TQueryFnData - The type each entry's `queryFn` resolves.
+ * @template TData - The stitched type.
+ */
+export type QueriesSelect<TQueryFnData = unknown, TData = TQueryFnData[]> = (
+  data: TQueryFnData[],
+  responses: QueryResponse<TQueryFnData>[]
+) => TData;
+
+/**
+ * The multi-entry form of {@link QueryParams}: `queries` in place of `url`,
+ * `init` and `queryKey`, and a {@link QueriesSelect} over all entries. The
+ * entries run in parallel through TanStack's `useQueries`, and `select` is its
+ * `combine`. Without `select`, `data` is every entry's `data` in entry order.
+ *
+ * @template TQueryFnData - The type each entry's `queryFn` resolves.
+ * @template TData - The type after `select`, defaults to `TQueryFnData[]`.
+ */
+export type QueriesParams<
+  TQueryFnData = unknown,
+  TData = TQueryFnData[]
+> = Omit<QueryParams<TQueryFnData, TData>, keyof QueryEntry | "select"> & {
+  queries: QueryEntry[];
+  select?: QueriesSelect<TQueryFnData, TData>;
+};
+
+/**
+ * The implementation-side input of `query()` and `list()`: the single form and
+ * the multi form folded into one destructurable shape. The public overloads
+ * narrow it; it is never a consumer's type.
+ *
+ * @template TQueryFnData - The type the `queryFn` resolves.
+ * @template TData - The type after `select`.
+ */
+export type QueryInput<TQueryFnData = unknown, TData = unknown> = Omit<
+  QueryParams<TQueryFnData, TData>,
+  keyof QueryEntry | "select"
+> &
+  Partial<QueryEntry> & {
+    queries?: QueryEntry[];
+    select?:
+      | QueryParams<TQueryFnData, TData>["select"]
+      | QueriesSelect<TQueryFnData, TData>;
+  };
 
 /**
  * Type alias for reactive query keys used to create dynamic query keys for TanStack Query.

@@ -1,13 +1,17 @@
 <template>
   <UpmProductRecommendations
     :configure-route="{ name: ROUTE.PRODUCT_CONFIGURE }"
-  />
+    v-slot="{ template }"
+  >
+    <component :is="recommendationsTemplate(template)" />
+  </UpmProductRecommendations>
 </template>
 
 <script lang="ts" setup>
 import { useI18n } from "vue-i18n";
-import { UpmProductRecommendations } from "@upmind-automation/client-vue";
-import { ROUTE } from "~/funnels/types";
+import { UpmProductRecommendations } from "@upmind-automation/recommendations";
+import { ROUTE } from "../../../funnels/types";
+import { recommendationsTemplate } from "../../../shell/modules/recommendations/shell";
 
 const { t } = useI18n();
 

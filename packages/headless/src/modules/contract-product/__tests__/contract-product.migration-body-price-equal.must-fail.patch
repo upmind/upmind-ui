@@ -1,0 +1,26 @@
+# Negative-control mutant 19 — body-price-equal (FE-3206)
+#
+# Mutation: send the price when it equals the old price.
+# Spec it must turn red: the AC-32 unit spec.
+#
+# Authored by the developer seat against the landed production source. The
+# prover applies it blind (tasks.md T41): apply, run the named spec, revert.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+diff --git a/packages/headless/src/modules/contract-product/contract-product.utils.ts b/packages/headless/src/modules/contract-product/contract-product.utils.ts
+--- a/packages/headless/src/modules/contract-product/contract-product.utils.ts
++++ b/packages/headless/src/modules/contract-product/contract-product.utils.ts
+@@ -455,9 +455,9 @@
+ 
+   let price: number | undefined;
+   if (isNumber(input.customPrice)) price = input.customPrice;
+-  else if (oldPrice !== total) price = total;
+-
+-  return price === oldPrice ? undefined : price;
++  else price = total;
++
++  return price;
+ }
+ 
+ /**

@@ -24,6 +24,7 @@ import type {
   VerticalLayout
 } from "@jsonforms/core";
 import type { FormModel } from "@upmind/ui";
+// -----------------------------------------------------------------------------
 
 /** What the share dialog is handed — the link as it stands, and what may be permitted. */
 export type InvoiceShareContext = {

@@ -1,5 +1,4 @@
 import { typeScale } from "@upmind/tokens";
-import type { Meta, StoryObj } from "@storybook/vue3-vite";
 import { computed } from "vue";
 import {
   readLengthPx,
@@ -7,6 +6,7 @@ import {
   round1,
   useThemeTick
 } from "./foundation-helpers.ts";
+import type { Meta, StoryObj } from "@storybook/vue3-vite";
 
 /**
  * Upmind UI type is a hand-tuned scale, not a modular one: every step is set

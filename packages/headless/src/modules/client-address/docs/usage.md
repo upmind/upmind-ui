@@ -502,7 +502,7 @@ The two blocks below are the editor's own schema/uischema pair, rendered for a *
 Notes for the paste:
 
 - **The address fields are a nested object.** Unlike `type` and `name`, the seven address fields are bound as one nested `address` control, driven by the `$ref`'d definition.
-- **`i18n: "form.address"` (and similar)** name translation keys. With no translator registered, a control falls back to the schema's `title` — so labels read their English defaults in the playground.
+- **`i18n: "form.address"` (and similar)** name translation keys. With no translator registered, a control falls back to the schema's `title` — so labels read their English defaults.
 - **The pair moves together.** A schema field with no matching control renders as a required-but-invisible input, which is why these two blocks are never edited apart.
 
 > **🧪 For Testers:** The barrel exposes no bare _parsed_ schema-pair export for rendering the address form directly. The only supported way to obtain the form definition for **rendering** is the editor's context. `useSchemaDefinitions()` / `useUischemaDefinitions()` exist for a different job — composing the address fields into someone else's schema — not for a consumer that wants to render the address form on its own.

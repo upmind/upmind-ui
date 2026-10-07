@@ -35,10 +35,10 @@ import {
 } from "../registry";
 import { GROUP_AXIS, PAGE_KEY } from "../types";
 import {
-  CLIENT_VUE_STUB_TITLE,
-  clientVuePage,
-  clientVueProse
-} from "./client-vue";
+  PACKAGE_STUB_TITLE,
+  packageStubPage,
+  packageStubProse
+} from "./package-stub";
 import { brandNoteRow, pagerFooter, panelControls, statusRail } from "./pager";
 import { assign } from "lodash-es";
 import type { ContentRowConfig, RowHeaderControls } from "../content/types";
@@ -50,6 +50,7 @@ import type {
 } from "../modules/document/types";
 import type { ListModuleHeading } from "../modules/list/types";
 import type { ContentConfig, PageKey, SlotAssignment } from "../types";
+// -----------------------------------------------------------------------------
 
 /** What a panel's heading carries beyond its words: trailing actions, and the control band under them. */
 type PanelHeading = {
@@ -318,8 +319,8 @@ function creditNoteDocument(
 function payWithStub(): SlotAssignment {
   return moduleRef(EMPTY_STATE_MODULE_ID, {
     props: {
-      title: CLIENT_VUE_STUB_TITLE,
-      description: clientVueProse("PaymentDetails", "payment")
+      title: PACKAGE_STUB_TITLE,
+      description: packageStubProse("PaymentDetails", "payment")
     }
   });
 }
@@ -446,19 +447,16 @@ export function billingPages(): Partial<Record<PageKey, ContentConfig>> {
       invoiceDocument(DOCUMENT_MODULE_VARIANT.PRINT),
       "/billing/invoices"
     ),
-    [PAGE_KEY.BILLING_ORDERS]: clientVuePage(
+    [PAGE_KEY.BILLING_ORDERS]: packageStubPage(
       "Orders",
       "Your order history and each order's documents.",
       "UpmOrder",
       "orders"
     ),
-    // Legacy's order areas (summary · items · dates · invoices · credit notes),
-    // one page, with its own Cancel control in the summary's header.
-    [PAGE_KEY.BILLING_ORDER_DETAIL]: clientVuePage(
+    [PAGE_KEY.BILLING_ORDER_DETAIL]: page(
       "Order",
       "What you ordered, and the invoices it raised.",
-      "UpmOrder",
-      "orders"
+      []
     ),
     [PAGE_KEY.BILLING_CREDIT_NOTES]: page(
       "Credit notes",
@@ -513,7 +511,7 @@ export function billingPages(): Partial<Record<PageKey, ContentConfig>> {
       creditNoteDocument(DOCUMENT_MODULE_VARIANT.PRINT),
       "/billing/credit-notes"
     ),
-    [PAGE_KEY.BILLING_PAYMENT_METHODS]: clientVuePage(
+    [PAGE_KEY.BILLING_PAYMENT_METHODS]: packageStubPage(
       "Payment methods",
       "The cards we can charge.",
       "PaymentDetails · StoredPaymentMethods",

@@ -38,6 +38,7 @@ import { http, HttpResponse } from "msw";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { interpret } from "xstate";
 import { getFixture } from "@upmind-automation/test-fixtures";
+import { replayStep } from "@upmind-automation/test-fixtures/replay-server";
 import { clearSessionCookies } from "../../../__tests__/int-test-helpers";
 // Load useBasket first: it owns the module-level `interpret(basketMachine)`
 // singleton, which crashes with an undefined machine if basket.machine is the
@@ -87,6 +88,57 @@ const sessionRecordingsDir = join(
   "__tests__",
   "fixtures"
 );
+const brandRecordingsDir = join(
+  import.meta.dirname,
+  "..",
+  "..",
+  "brand",
+  "__tests__",
+  "fixtures"
+);
+const systemRecordingsDir = join(
+  import.meta.dirname,
+  "..",
+  "..",
+  "system",
+  "__tests__",
+  "fixtures"
+);
+const basketRecordingsDir = join(
+  import.meta.dirname,
+  "..",
+  "..",
+  "basket",
+  "__tests__",
+  "fixtures"
+);
+
+/**
+ * The boot reads a signed-in client makes — the brand's settings and config, the
+ * system reference data, the guest token grant `initStore()` mints, the basket
+ * claim the machine issues — answered by the RECORDINGS of the modules that own
+ * them (brand, system, session-store, basket), never by a body copied into this
+ * module (ADR 035, FE-3145). This module's own `orders/{id}` captures stay its
+ * own and win as initial handlers or per-test `server.use` overrides.
+ */
+function installBackgroundStubs(): void {
+  replayStep(server, brandRecordingsDir);
+  replayStep(server, systemRecordingsDir);
+  replayStep(server, sessionRecordingsDir);
+  replayStep(server, basketRecordingsDir);
+  // Every token grant shares one url and differs only by body, so name the
+  // guest grant `initStore()` mints (session-store owns the recording).
+  const guest = getFixture("post-oauth-access-token-guest", {
+    recordingsDir: sessionRecordingsDir
+  });
+  server.use(
+    http.post("*/oauth/access_token", () =>
+      HttpResponse.json(guest.response.body as Record<string, unknown>, {
+        status: guest.response.status
+      })
+    )
+  );
+}
 
 const PERSISTENT_BASKET_ID = "85d26e96-783d-1652-d98f-314502e70439";
 
@@ -148,6 +200,8 @@ function replayUpdate(
 }
 
 async function seedClientSession(): Promise<void> {
+  installBackgroundStubs();
+
   const { useSessionStore, useActiveSession } =
     await import("../../session-store");
   const { mapSessionUser } =

@@ -1,6 +1,6 @@
 import { mount } from "@vue/test-utils";
 import { describe, expect, it } from "vitest";
-import { UpmForm } from "@upmind-automation/client-vue";
+import { Form } from "@upmind-automation/foundation";
 import { defaultRow } from "../../../../testing/recorded-emails";
 import {
   rawKeys,
@@ -44,7 +44,7 @@ describe("@AC3 detail — DetailSurface renders context.model read-only (D-2)", 
   it("has no editable form on initial render", () => {
     const wrapper = mountDetail();
 
-    expect(wrapper.findComponent(UpmForm).exists()).toBe(false);
+    expect(wrapper.findComponent(Form).exists()).toBe(false);
   });
 
   it("exposes no edit control — editing is Form-Flow's job, not Detail's", () => {

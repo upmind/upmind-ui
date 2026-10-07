@@ -1,0 +1,19 @@
+# Negative control — the billing organism imports Nuxt core, so the Vite cart
+# build cannot resolve it.
+#
+# Intended RED:
+#   packages/modules-basket/src/__tests__/boundary.test.ts
+#     "keeps Nuxt core out of every organism"
+#     "speaks Nuxt in no file it ships"
+
+diff --git a/packages/modules-basket/src/billing/Billing.vue b/packages/modules-basket/src/billing/Billing.vue
+--- a/packages/modules-basket/src/billing/Billing.vue
++++ b/packages/modules-basket/src/billing/Billing.vue
+@@ -73,6 +73,7 @@
+ </template>
+ 
+ <script lang="ts" setup>
++import { useRuntimeConfig } from "#app";
+ import { useTestAttrs } from "@upmind/ui";
+ import { Markdown } from "@upmind/ui";
+ import { useI18n } from "vue-i18n";

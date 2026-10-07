@@ -26,7 +26,7 @@
  * link opens over the order page, injected as `<order>--payment`.
  *
  * It renders the pay block ONLY (`OrderPayment` beside this file, a LABS
- * duplicate of client-vue Order.vue's payment slot), NOT the whole order page —
+ * duplicate of `invoice`'s Order.vue payment slot), NOT the whole order page —
  * the order page shows the order without payment, the modal shows payment only.
  *
  * It is NOT `app/pages/overlays/pay.vue`. That one resumes an off-site gateway
@@ -44,10 +44,8 @@
 import { Spinner } from "@upmind/ui";
 import { useI18n } from "vue-i18n";
 import { useRoute } from "vue-router";
-import {
-  OverlayType,
-  UpmPaymentProcessing
-} from "@upmind-automation/client-vue";
+import { OverlayType } from "@upmind-automation/headless";
+import { UpmPaymentProcessing } from "@upmind-automation/payment";
 import { QUERY_PARAMS } from "@upmind-automation/types";
 import OrderPayment from "./OrderPayment.vue";
 import { get, omit, toString } from "lodash-es";

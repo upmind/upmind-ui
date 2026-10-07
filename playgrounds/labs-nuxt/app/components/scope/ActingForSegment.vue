@@ -52,18 +52,19 @@
       @keydown.stop
       @keydown.enter="applyPendingClient"
     >
-      <UpmForm
+      <Form
         :schema="contextForm.schema"
         :uischema="contextForm.uischema"
         :model-value="contextModel"
-        :additional-renderers="formRenderers"
         no-actions
         size="sm"
         @update:model-value="onContextPick"
       />
     </div>
 
-    <!-- A module with no lookups form: each RETARGET member takes a typed id. -->
+    <!-- A module with no lookups form: each RETARGET member takes a typed id.
+         `client` has none anywhere: no endpoint a client token can reach
+         lists other clients, so it stays a typed id (G1, FE-3029). -->
     <template v-else>
       <div v-for="member in retargetMembers" :key="member.type" class="p-2">
         <Input
@@ -202,7 +203,7 @@ import {
 } from "@upmind/ui";
 import { computed, reactive, ref } from "vue";
 import { useI18n } from "vue-i18n";
-import { formRenderers, Icon, UpmForm } from "@upmind-automation/client-vue";
+import { Form, Icon } from "@upmind-automation/foundation";
 import {
   ScopeActorTypes,
   ScopeContextPatterns,
@@ -233,11 +234,11 @@ import type { SessionEntry } from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------
 
-interface ClientOption {
+type ClientOption = {
   id: string;
   name: string;
   email?: string;
-}
+};
 
 const { t } = useI18n();
 const actorScope = useActorScope();
@@ -399,15 +400,14 @@ function labelFor(id: string): string {
 async function ensureClientSession(id: string): Promise<boolean> {
   if (has(pool.value, id)) return true;
 
-  try {
-    const token = await impersonateClient(id);
-    const { registerImpersonation, add } = store.useActions();
-    registerImpersonation(id);
-    await add(token);
-    return true;
-  } catch {
-    return false;
-  }
+  return impersonateClient(id)
+    .then(token => {
+      const { registerImpersonation, add } = store.useActions();
+      registerImpersonation(id);
+      return add(token);
+    })
+    .then(() => true)
+    .catch(() => false);
 }
 
 /**

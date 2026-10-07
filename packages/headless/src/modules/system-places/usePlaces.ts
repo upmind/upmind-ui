@@ -19,6 +19,7 @@ import type {
   PlacePredictions,
   PlaceService
 } from "./system-places.types";
+// -----------------------------------------------------------------------------
 
 // Private places instance
 let places: PlaceService | undefined;
@@ -128,10 +129,16 @@ export const usePlaces = () => {
     });
   }
 
+  const debouncedSearch = debounce(search, DEBOUNCE_DELAY);
+
   async function getPlaceDetails(
     id: google.maps.places.PlacePrediction["placeId"]
   ): Promise<Place | undefined> {
     if (!places) return Promise.resolve(undefined);
+
+    // Settle any pending search before resolving, otherwise the lookup reads a
+    // pre-search prediction list and misses the just-typed id.
+    await debouncedSearch.flush()?.catch(() => undefined);
 
     const prediction = find(placePredictions.value, ["placeId", id]);
 
@@ -161,7 +168,7 @@ export const usePlaces = () => {
      * @param countryCode Optional country id to restrict results
      * @returns Promise with array of address placePredictions
      */
-    search: debounce(search, DEBOUNCE_DELAY),
+    search: debouncedSearch,
 
     /**
      * Get details for a specific place from the placePredictions

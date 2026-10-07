@@ -1,0 +1,97 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/basket/products/8d632507-9806-5d1e-629b-8174e234e98d/provision_fields",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a43aa6b7fa9933e5-JNB",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json",
+      "date": "Thu, 01 Oct 2026 10:05:51 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=ElEUAfLApjk7u2qSd9dyZT3SCDTY4SL%2F2%2Fah3J%2BBOIpjPaIdozy35msEmwbIru4AJtwCF7y3bEEDVdBDM9PmEPgpeEYd7be81WoBabiLVHBs90Spxjxr6mXgKpmgEjag1u%2FVNLTMiQ%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-frame-options": "SAMEORIGIN"
+    },
+    "body": {
+      "status": "ok",
+      "data": [
+        {
+          "id": "5952098d-3de4-0917-86a3-1578626e347e",
+          "blueprint_id": "45952098-d3de-4091-76a3-1578626e347e",
+          "type": "order",
+          "store_per": "blueprint",
+          "name": "hostname",
+          "service_identifier": true,
+          "unique": null,
+          "order": 0,
+          "field_label": "Hostname",
+          "field_type": "input_text",
+          "semantic_type": null,
+          "required": true,
+          "deferrable": true,
+          "is_setup": true,
+          "indexed": false,
+          "track_changes": false,
+          "validation_rules": ["domain_name"],
+          "options": [],
+          "extra_attributes": [],
+          "staff_can_update": true,
+          "customer_enabled": true,
+          "highlight": false,
+          "customer_can_update": true,
+          "created_at": "2022-01-11 18:27:19",
+          "updated_at": "2023-08-10 13:14:06",
+          "deleted_at": null,
+          "default_value": null,
+          "defer_mode": "none",
+          "label_translated": "Hostname",
+          "translations": [
+            {
+              "id": "47d73824-8507-9315-896a-81e642d59e06",
+              "language_id": "3825d96e-763e-d091-3dc4-174825283406",
+              "language_code": "en",
+              "translated_fields": {
+                "label": "Hostname"
+              },
+              "created_at": "2026-09-29 07:49:09",
+              "updated_at": "2026-09-29 07:49:09",
+              "deleted_at": null,
+              "object_type": "provision_blueprint_field",
+              "object_id": "5952098d-3de4-0917-86a3-1578626e347e",
+              "label": "Hostname"
+            }
+          ]
+        }
+      ],
+      "related": null,
+      "total": null,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-10-01T10:05:51.118Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "contract-product"
+  }
+}

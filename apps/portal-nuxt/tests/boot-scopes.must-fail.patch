@@ -1,0 +1,19 @@
+# Negative control — the portal boots with the guest scope again. Every visitor
+# to its sign-in pages mints a guest session, and registration sends that
+# guest's token.
+#
+# Intended RED (tests/boot-scopes.test.ts):
+#   "asks for no guest scope"
+
+diff --git a/apps/portal-nuxt/app/plugins/upmind.client.ts b/apps/portal-nuxt/app/plugins/upmind.client.ts
+--- a/apps/portal-nuxt/app/plugins/upmind.client.ts
++++ b/apps/portal-nuxt/app/plugins/upmind.client.ts
+@@ -13,7 +13,7 @@ export default defineNuxtPlugin(() => {
+   const { public: config } = useRuntimeConfig();
+ 
+   void useUpmind.init({
+-    allowedScopes: [AccessRoleTypes.CLIENT],
++    allowedScopes: [AccessRoleTypes.CLIENT, AccessRoleTypes.GUEST],
+     debug: import.meta.dev,
+     // No `platformUrl`: it sends every route to upmind.com when no brand resolves.
+     pop: {

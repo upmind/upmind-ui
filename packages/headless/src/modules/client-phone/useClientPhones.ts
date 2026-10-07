@@ -12,7 +12,6 @@ import { createClientPhonesInternals } from "./useClientPhones.internals";
 import { createClientPhonesMeta } from "./useClientPhones.meta";
 import type { ClientPhonesScopeMatrix } from "./client-phone.types";
 import type { ScopeConfig, ScopeKey } from "../scope";
-import type { ScopeActorTypes } from "../scope/scope.types";
 // -----------------------------------------------------------------------------
 /**
  * @module client-phone/useClientPhones
@@ -28,7 +27,7 @@ import type { ScopeActorTypes } from "../scope/scope.types";
  * actor; the scope builder resolves SELF before this factory runs.
  */
 function createClientPhonesForScope(config: ScopeConfig, scopeKey: ScopeKey) {
-  const actorScope = config.actor as ScopeActorTypes;
+  const actorScope = config.actor;
 
   /**
    * ONE services instance for this scope. `config.context` goes in here and

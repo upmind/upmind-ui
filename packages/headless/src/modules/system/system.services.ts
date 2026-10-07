@@ -146,8 +146,25 @@ function fetchDepartments() {
   const { query, useUrl } = useQuery();
 
   return query<ITicketDepartment[]>({
-    url: useUrl("tickets/departments", { limit: 0 }),
+    url: useUrl("tickets/departments", {
+      limit: 0,
+      with: "brand_ticket_departments"
+    }),
     queryKey: ["system", "departments"],
+    withAccessToken: true,
+    // --- options
+    staleTime: useTime()?.DAY,
+    persister: localStoragePersister.persisterFn
+  });
+}
+
+function fetchTicketStatuses() {
+  const { query, useUrl } = useQuery();
+
+  return query<IStatus[]>({
+    url: useUrl("statuses", { "filter[object_type]": "ticket" }),
+    queryKey: ["system", "statuses", "ticket"],
+    withAccessToken: true,
     // --- options
     staleTime: useTime()?.DAY,
     persister: localStoragePersister.persisterFn
@@ -163,7 +180,8 @@ export default {
   fetchLanguages,
   fetchCurrencies,
   fetchDepartments,
-  fetchBillingCycles
+  fetchBillingCycles,
+  fetchTicketStatuses
   //--
 };
 

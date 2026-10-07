@@ -1,0 +1,20 @@
+Negative control for filter-optional-indicator.test.ts.
+
+Hardcodes the "Optional" suppression in the button group itself, overriding
+whatever the element declared — the renderer keeping a presentation rule to itself
+instead of honouring the uischema's `optionalText`. The assertion that the very
+same column draws the word again once the option is lifted goes red; every
+assertion that the shipped bar draws it nowhere stays green, which is exactly the
+half a hardcoded suppression would otherwise satisfy.
+
+diff --git a/packages/modules-foundation/src/renderers/FilterButtonGroupRenderer.vue b/packages/modules-foundation/src/renderers/FilterButtonGroupRenderer.vue
+index 4ebd8d1..253dff6 100644
+--- a/packages/modules-foundation/src/renderers/FilterButtonGroupRenderer.vue
++++ b/packages/modules-foundation/src/renderers/FilterButtonGroupRenderer.vue
+@@ -1,5 +1,5 @@
+ <template>
+-  <FormField v-bind="formFieldProps">
++  <FormField v-bind="formFieldProps" :optional-text="''">
+     <ToggleGroup
+       type="single"
+       :model-value="selected"

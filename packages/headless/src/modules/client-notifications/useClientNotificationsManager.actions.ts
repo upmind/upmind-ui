@@ -71,8 +71,10 @@ export function createClientNotificationsManagerActions(
   }
 
   /** Turns one channel on/off for one topic (AC-3). Refused for a locked topic (AC-6). */
-  function toggle(topicId: string, channelId: string): void {
+  async function toggle(topicId: string, channelId: string): Promise<void> {
     if (isTopicLocked(topicId)) return;
+
+    await debouncedSendInput.flush()?.catch(() => undefined);
 
     const key = preferenceKey(topicId, channelId);
     const preferences = { ...(getModel()?.preferences ?? {}) };
@@ -82,8 +84,10 @@ export function createClientNotificationsManagerActions(
   }
 
   /** Turns every channel ON for one topic (AC-4). Refused for a locked topic (AC-6). */
-  function selectAll(topicId: string): void {
+  async function selectAll(topicId: string): Promise<void> {
     if (isTopicLocked(topicId)) return;
+
+    await debouncedSendInput.flush()?.catch(() => undefined);
 
     const channels = getLookups()?.channels ?? [];
     const preferences = { ...(getModel()?.preferences ?? {}) };
@@ -95,8 +99,10 @@ export function createClientNotificationsManagerActions(
   }
 
   /** Turns every channel OFF for one topic (AC-4). Refused for a locked topic (AC-6). */
-  function clearAll(topicId: string): void {
+  async function clearAll(topicId: string): Promise<void> {
     if (isTopicLocked(topicId)) return;
+
+    await debouncedSendInput.flush()?.catch(() => undefined);
 
     const channels = getLookups()?.channels ?? [];
     const preferences = { ...(getModel()?.preferences ?? {}) };
@@ -117,7 +123,8 @@ export function createClientNotificationsManagerActions(
   }
 
   /** Restores the draft to the server-held baseline and clears dirty (AC-5). */
-  function revert(): void {
+  async function revert(): Promise<void> {
+    await debouncedSendInput.flush()?.catch(() => undefined);
     setPreferences(getBaseModel()?.preferences ?? {});
   }
 
@@ -390,7 +397,13 @@ export function createClientNotificationsManagerActions(
     const effectiveModel = nextValue ?? getModel();
 
     if (isEqual(effectiveModel, getBaseModel())) {
-      return Promise.reject(new Error("Nothing to save"));
+      return Promise.reject(
+        new DetailedError(
+          t("error.input_not_available"),
+          responseCodes.Forbidden,
+          ErrorOrigin.Headless
+        )
+      );
     }
 
     if (nextValue) {
@@ -502,14 +515,14 @@ export function createClientNotificationsManagerActions(
   }
 
   /** Stops the underlying machine (without removing it from the registry). */
-  function stop(): void {
-    debouncedSendInput.cancel();
+  async function stop(): Promise<void> {
+    await debouncedSendInput.flush()?.catch(() => undefined);
     stopService(machineService);
   }
 
   /** Destroys this scoped instance — stops the machine AND removes it from the registry. */
-  function destroy(): void {
-    debouncedSendInput.cancel();
+  async function destroy(): Promise<void> {
+    await debouncedSendInput.flush()?.catch(() => undefined);
     stopService(machineService);
     removeFromRegistry(scopeKey);
   }

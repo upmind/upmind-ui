@@ -34,6 +34,7 @@ import type { ContentRowConfig, RowHeaderControls } from "../content/types";
 import type { DataRefId } from "../mock/data-refs";
 import type { ListControlsConcern } from "../modules/list-controls/types";
 import type { SlotAssignment } from "../types";
+// -----------------------------------------------------------------------------
 
 /**
  * The brand's own words at the top of a page — one client-area template slot

@@ -1,0 +1,80 @@
+{
+  "version": 3,
+  "request": {
+    "method": "POST",
+    "path": "/api/ticket_messages/files",
+    "headers": {
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": {
+      "file": "<binary:fe-3145-ac23-attach.txt>",
+      "brand_id": "2785d26e-9678-3d16-999f-314502e70439"
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a43347c08ae793d1-JNB",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json",
+      "date": "Wed, 30 Sep 2026 12:37:41 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=VOl8Gy7GXsV4twZ1ipvjLB6ueGTcU9pi9p%2BVweBWxrUqTdb%2FunyNAbz9D%2FhWxEsjIKik7Q8jneGHNxctfJcFxhzsTKfHXiePtGFy7eNFv5XLnoSEFItB8fK206jhpuOWU%2FdK3uURrQ%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-frame-options": "SAMEORIGIN"
+    },
+    "body": {
+      "status": "ok",
+      "data": [
+        {
+          "id": "8d632507-9806-5d1e-572f-8174e234e98d",
+          "type": "text",
+          "mime_type": "text/plain",
+          "object_type": "ticket_message",
+          "object_class": "App\\Models\\TicketMessage",
+          "object_id": null,
+          "name": "temp_248.txt",
+          "original_name": "fe-3145-ac23-attach.txt",
+          "size": 46,
+          "scan_status": "new",
+          "failed_scanning_attempts": null,
+          "scan_status_reason": null,
+          "hash": "dCW1ePPnVd5aSy1Mf9yjefusPljVTMGG",
+          "default": false,
+          "image_category_id": null,
+          "resized": false,
+          "order": 1,
+          "created_at": "2026-09-30 12:37:40",
+          "updated_at": "2026-09-30 12:37:40",
+          "deleted_at": null,
+          "temp_token_id": "mock-temp_token_id",
+          "system": "s3",
+          "brand_id": "2785d26e-9678-3d16-999f-314502e70439",
+          "url": "https://api.staging.upmind.io/api/ticket_message/files/dCW1ePPnVd5aSy1Mf9yjefusPljVTMGG/view",
+          "print_url": "https://api.staging.upmind.io/api/ticket_message/files/dCW1ePPnVd5aSy1Mf9yjefusPljVTMGG/download",
+          "size_formatted": "46.00 B"
+        }
+      ],
+      "related": null,
+      "total": null,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-09-30T12:37:41.193Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "tickets"
+  }
+}

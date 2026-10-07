@@ -20,12 +20,12 @@ export type ProseModuleVariant =
   (typeof PROSE_MODULE_VARIANT)[keyof typeof PROSE_MODULE_VARIANT];
 
 /** One embedded provider panel — its accessible name and the document it loads. */
-export interface ProseModuleFrame {
+export type ProseModuleFrame = {
   readonly title: string;
   readonly url: string;
-}
+};
 
-export interface ProseModuleProps {
+export type ProseModuleProps = {
   /** The registered module variant (registry.ts) — which of the two forms renders. */
   readonly variant?: ProseModuleVariant;
   /** `markdown` only — the source. Empty renders the empty state. */
@@ -40,4 +40,4 @@ export interface ProseModuleProps {
   /** Heading shown when there is nothing to render. No English default (CC22). */
   readonly emptyTitle: string;
   readonly emptyDescription?: string;
-}
+};

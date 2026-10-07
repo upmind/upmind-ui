@@ -1,0 +1,28 @@
+# Negative control — the guest upgrade hands back without waiting for the
+# promoted client, so the host re-reads a session that is still the guest's.
+#
+# Intended RED:
+#   packages/modules-auth/src/__tests__/auth-handback.test.ts
+#     "holds the hand-back until the session holds the client, then resolves once with the model"
+#     "rejects once when the client load fails after the upgrade"
+
+diff --git a/packages/modules-auth/src/components/Account.vue b/packages/modules-auth/src/components/Account.vue
+--- a/packages/modules-auth/src/components/Account.vue
++++ b/packages/modules-auth/src/components/Account.vue
+@@ -292,15 +292,7 @@
+       // register() resolves; wait for it so consumers re-reading session state
+       // on resolve see the promoted client. Escalate rather than hang if the
+       // user load fails.
+-      return session
+-        .useActions()
+-        .whenAuthenticated()
+-        .then(() => {
+-          emit("resolve", model);
+-        })
+-        .catch(() => {
+-          emit("reject");
+-        });
++      emit("resolve", model);
+     });
+   }
+ }

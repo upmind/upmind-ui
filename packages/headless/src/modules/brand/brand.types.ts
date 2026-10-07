@@ -117,6 +117,8 @@ export type UI = {
  * The `cart` property is deprecated and will be replaced by the `uI` property for UI configurations.
  */
 export type BrandMeta = {
+  /** Portal visibility settings, keyed `@context.<area>` (e.g. `@context.oneTimePurchases`). */
+  portal?: Record<string, string>;
   // DEPRECATED: use uI instead
   cart: {
     storefront_url?: string; // URL of the storefront

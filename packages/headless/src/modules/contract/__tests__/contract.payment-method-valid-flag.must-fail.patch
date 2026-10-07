@@ -1,0 +1,42 @@
+# Negative-control mutant — the payment-method form's read-state flag reports TRUE
+#   validation, not FALSE (R35 form region `changingPaymentMethod`, both parents)
+#
+# Proven RED by (FE-3145, per-step replay; git apply -> vitest -> red -> git apply -R):
+#   contract.feature > "Close the payment-method form without changing how my contract is paid for"
+#
+# Naming: the meta read-state flags have no dedicated spec of their own, so this
+#   mutant takes the `<spec-basename>.<concern>` form beside the spec that drives
+#   the payment-method form to a validated node — `contract.payment-method-enum.int.test.ts`.
+#
+# Flag under test: `useContract().useMeta().isValid` — `stateMatches`
+#   over `available.changingPaymentMethod.available.valid` AND
+#   `unavailable.changingPaymentMethod.available.valid`. A consumer gates the
+#   payment-method submit on this flag, from either parent.
+#
+# The asserting scenario: open the payment-method form, drive it to `valid`, and assert
+#   `isValid === true` (and `false` on `invalid`). With this mutation
+#   the flag reads the sibling `invalid` nodes, so it is `false` on a valid form
+#   and the new assertion goes red.
+# Target spec: contract.payment-method-enum.int.test.ts ("the payment-method form
+#   reports whether it is open and whether its model is valid")
+#
+# Mutation: `isValid` matches the `invalid` node of each parent
+#   instead of `.valid`.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+diff --git a/packages/headless/src/modules/contract/useContract.meta.ts b/packages/headless/src/modules/contract/useContract.meta.ts
+index 85ec90bee..fa3312e62 100644
+--- a/packages/headless/src/modules/contract/useContract.meta.ts
++++ b/packages/headless/src/modules/contract/useContract.meta.ts
+@@ -51,8 +51,8 @@ export function createContractMeta(
+
+     /** True when the open payment-method form passes validation, from either parent. */
+     isValid: useStateMatches(state, [
+-      "available.changingPaymentMethod.available.valid",
+-      "unavailable.changingPaymentMethod.available.valid"
++      "available.changingPaymentMethod.available.invalid",
++      "unavailable.changingPaymentMethod.available.invalid"
+     ]),
+
+     /** True in `available.status.pending`. */

@@ -20,17 +20,22 @@
 # self-closing and passes no slot content, so the old mutant could not fail:
 # the assertion was satisfied by the summary's own copy either way.
 #
+# Regenerated 2026-09-22: Summary.vue moved from packages/client-vue to
+# packages/modules-basket when client-vue was retired. The hunk is byte-identical; only
+# the path it lands on moved.
+#
 # Expected RED: 1 of 3.
 #   - "…appears inside the itemised summary": the promotions-form count inside
 #     the breakdown falls 1 → 0, and so does the whole-step count.
 #
-# VERIFIED 2026-08-19 (chrome, this spec only):
+# VERIFIED 2026-09-22 (chrome, this spec only), against the post-move path:
 #   baseline        3 passed          exit 0
 #   mutant applied  1 failed 2 passed exit 1
 #     → expect(getByTestId('basket-summary-breakdown')
 #              .getByTestId('promotions-form')).toHaveCount(1)
-#       Expected: 1  Received: 0   (spec:107)
-#   reverted        tree byte-identical to the green baseline
+#       Expected: 1  Received: 0   (spec:106)
+#   reverted        Summary.vue byte-identical to the green baseline
+# First verified 2026-08-19 against the pre-move path, with the same figures.
 # Still GREEN, correctly — neither renders the itemised branch:
 #   - "…still offered once when the checkout summary shows plain totals" renders
 #     the plain-totals branch's own copy, which this patch leaves intact.
@@ -42,13 +47,15 @@
 #   pnpm exec playwright test tests/Playwright/e2e/e2e-tests/checkout/summary-promotion-field.spec.ts
 #   git apply -R <this file>                       # revert — must return to green
 #
---- a/packages/client-vue/src/modules/basket/components/Summary.vue
-+++ b/packages/client-vue/src/modules/basket/components/Summary.vue
+diff --git a/packages/modules-basket/src/components/Summary.vue b/packages/modules-basket/src/components/Summary.vue
+index ab8fcd2dee..549b6d2538 100644
+--- a/packages/modules-basket/src/components/Summary.vue
++++ b/packages/modules-basket/src/components/Summary.vue
 @@ -187,7 +187,6 @@
-
+ 
        <!-- the promotions form and any trailing content sit inside the summary's
             own sections so they share their spacing -->
 -      <BasketPromotions v-if="props.showPromotions" />
        <slot />
      </div>
-
+ 

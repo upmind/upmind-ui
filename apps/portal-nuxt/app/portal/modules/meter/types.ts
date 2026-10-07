@@ -26,7 +26,7 @@ export const METER_MODULE_TONE = {
 export type MeterModuleTone =
   (typeof METER_MODULE_TONE)[keyof typeof METER_MODULE_TONE];
 
-export interface MeterModuleProps {
+export type MeterModuleProps = {
   /** The filled amount. */
   readonly value: number;
   /** The scale's end. Absent = 100. */
@@ -35,4 +35,4 @@ export interface MeterModuleProps {
   readonly label: string;
   /** How the bar reads; absent takes the library's own accent. */
   readonly tone?: MeterModuleTone;
-}
+};

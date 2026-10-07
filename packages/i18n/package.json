@@ -1,6 +1,6 @@
 {
   "name": "@upmind-automation/i18n",
-  "version": "0.20.18",
+  "version": "0.20.19",
   "description": "Internationalization (i18n) package for Upmind Automation projects.",
   "type": "module",
   "sideEffects": false,
@@ -18,8 +18,8 @@
   },
   "scripts": {
     "reset": "rm -rf node_modules",
-    "lint": "node ../../.claude/scripts/lint/eslint-workspace.mjs",
-    "lint:fix": "node ../../.claude/scripts/lint/eslint-workspace.mjs --fix",
+    "lint": "node ../../etc/ci/lint/eslint-workspace.mjs",
+    "lint:fix": "node ../../etc/ci/lint/eslint-workspace.mjs --fix",
     "format": "prettier --write src/",
     "localazy": "localazy upload",
     "localazy:download": "localazy download --config localazy.sync.json && pnpm format",

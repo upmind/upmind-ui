@@ -24,6 +24,7 @@ import {
   some
 } from "lodash-es";
 import type { Router } from "vue-router";
+// -----------------------------------------------------------------------------
 
 /**
  * Minimal shape of a state node config used by the meta enrichment.

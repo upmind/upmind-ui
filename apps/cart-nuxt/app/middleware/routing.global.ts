@@ -1,7 +1,4 @@
-import {
-  useRoutingEngine,
-  hasRouteChanged
-} from "@upmind-automation/client-vue";
+import { useRoutingEngine, hasRouteChanged } from "@upmind-automation/headless";
 
 /**
  * Global Routing Middleware

@@ -2,13 +2,17 @@
   <UpmOrder
     :storefront-route="storefrontRoute"
     :register-route="{ name: ROUTE.SESSION_REGISTER }"
-  />
+    v-slot="{ template }"
+  >
+    <component :is="orderTemplate(template)" />
+  </UpmOrder>
 </template>
 
 <script lang="ts" setup>
-import { UpmOrder } from "@upmind-automation/client-vue";
+import { UpmOrder } from "@upmind-automation/invoice";
 import { ROUTE } from "../router";
 import { useStorefrontRoute } from "../router/useStorefrontRoute";
+import { orderTemplate } from "../shell/modules/order/shell";
 // -----------------------------------------------------------------------------
 const { storefrontRoute } = useStorefrontRoute();
 </script>

@@ -1,7 +1,19 @@
+import { isFunction } from "lodash-es";
 import type { FixtureModule } from "./fixture-module.types";
 import type { ScenarioRegistry } from "../registry/registry.types";
 import type { ScopeActor } from "../world/scope-actor";
 import type { World, WorldScope } from "../world/world.types";
+// -----------------------------------------------------------------------------
+/**
+ * @module __fixtures__/node-world
+ * @description The in-process Node `World` that drives the fixture module, the
+ * @AC-5 exemplar's execution channel.
+ */
+
+/** Every failure here is a harness-authoring mistake, surfaced as a plain Error. */
+function fail(message: string): never {
+  throw new Error(`node-world: ${message}`);
+}
 
 function readAction(
   module: FixtureModule,
@@ -15,15 +27,15 @@ function readAction(
     ? actions[actionId]
     : undefined;
 
-  if (typeof action !== "function") {
-    throw new Error(`node-world: unknown action "${actionId}"`);
+  if (!isFunction(action)) {
+    fail(`unknown action "${actionId}"`);
   }
 
   return action;
 }
 
 function readMeta(module: FixtureModule): Record<string, boolean> {
-  return module.meta as unknown as Record<string, boolean>;
+  return module.meta;
 }
 
 /**
@@ -71,9 +83,7 @@ export class NodeWorld<K extends string> implements World<K> {
 
     for (const [flag, value] of Object.entries(expected)) {
       if (live[flag] !== value) {
-        throw new Error(
-          `node-world: expected meta "${flag}" to be ${value}, got ${live[flag]}`
-        );
+        fail(`expected meta "${flag}" to be ${value}, got ${live[flag]}`);
       }
     }
   }
@@ -84,7 +94,7 @@ export class NodeWorld<K extends string> implements World<K> {
 
   private requireModule(): FixtureModule {
     if (!this.module) {
-      throw new Error("node-world: boot() has not been called yet");
+      fail("boot() has not been called yet");
     }
 
     return this.module;

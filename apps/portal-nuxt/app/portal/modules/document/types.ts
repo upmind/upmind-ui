@@ -13,37 +13,38 @@
  */
 
 import type { AlertProps, BadgeVariants } from "@upmind/ui";
+// -----------------------------------------------------------------------------
 
 /** A badge on the document — its own status, or a payment's. */
-export interface DocumentModuleBadge {
+export type DocumentModuleBadge = {
   readonly label: string;
   readonly tone: BadgeVariants["variant"];
-}
+};
 
 /** One column heading of the document's tables, in render order. */
-export interface DocumentModuleHeading {
+export type DocumentModuleHeading = {
   readonly label: string;
   /** Right-aligned tabular figures — quantities, rates, amounts. */
   readonly numeric?: boolean;
-}
+};
 
 /** One labelled date under the document's number ("Issued", "Due", "Paid"). */
-export interface DocumentModuleDate {
+export type DocumentModuleDate = {
   readonly id: string;
   readonly label: string;
   readonly value: string;
-}
+};
 
-export interface DocumentModuleHeader {
+export type DocumentModuleHeader = {
   /** What KIND of document this is — "Invoice", "Proforma", "Credit note". */
   readonly title: string;
   readonly number: string;
   readonly status?: DocumentModuleBadge;
   readonly dates: readonly DocumentModuleDate[];
-}
+};
 
 /** One side of the party block — who raised it, and who it was raised for. */
-export interface DocumentModulePartyBlock {
+export type DocumentModulePartyBlock = {
   /** Which side this is, in the reader's words ("From", "Billed to"). */
   readonly label: string;
   readonly name: string;
@@ -51,14 +52,14 @@ export interface DocumentModulePartyBlock {
   readonly taxNumber?: string;
   readonly registrationNumber?: string;
   readonly lines: readonly string[];
-}
+};
 
-export interface DocumentModuleParty {
+export type DocumentModuleParty = {
   readonly brand: DocumentModulePartyBlock;
   readonly client: DocumentModulePartyBlock;
-}
+};
 
-export interface DocumentModuleLine {
+export type DocumentModuleLine = {
   readonly id: string;
   readonly description: string;
   /** How many, already worded; absent leaves the column blank on this row. */
@@ -66,15 +67,15 @@ export interface DocumentModuleLine {
   /** What one costs, already worded. */
   readonly unit?: string;
   readonly amount: string;
-}
+};
 
 /** One row of the totals block — a label and the figure beside it. */
-export interface DocumentModuleTotal {
+export type DocumentModuleTotal = {
   readonly label: string;
   readonly value: string;
-}
+};
 
-export interface DocumentModuleTotals {
+export type DocumentModuleTotals = {
   readonly subtotal: DocumentModuleTotal;
   /** One row per tax band, each already carrying its rate in the label. */
   readonly taxes: readonly DocumentModuleTotal[];
@@ -83,18 +84,18 @@ export interface DocumentModuleTotals {
   readonly paid: DocumentModuleTotal;
   /** What is still owed — the figure the document is really about. */
   readonly balance: DocumentModuleTotal;
-}
+};
 
-export interface DocumentModulePayment {
+export type DocumentModulePayment = {
   readonly id: string;
   readonly date: string;
   readonly method: string;
   readonly amount: string;
   readonly status: DocumentModuleBadge;
-}
+};
 
 /** A notice about the document — its status, a payment in flight, which card renews it. */
-export interface DocumentModuleMessage {
+export type DocumentModuleMessage = {
   readonly id: string;
   readonly tone?: AlertProps["variant"];
   readonly title?: string;
@@ -108,7 +109,7 @@ export interface DocumentModuleMessage {
     readonly value: string;
     readonly label: string;
   };
-}
+};
 
 /** How prominently a document action reads — the document's own three weights. */
 export const DOCUMENT_ACTION_VARIANT = {
@@ -120,7 +121,7 @@ export const DOCUMENT_ACTION_VARIANT = {
 export type DocumentActionVariant =
   (typeof DOCUMENT_ACTION_VARIANT)[keyof typeof DOCUMENT_ACTION_VARIANT];
 
-export interface DocumentModuleAction {
+export type DocumentModuleAction = {
   readonly value: string;
   readonly label: string;
   readonly variant?: DocumentActionVariant;
@@ -133,7 +134,7 @@ export interface DocumentModuleAction {
     readonly value: string;
     readonly label: string;
   }[];
-}
+};
 
 export const DOCUMENT_MODULE_VARIANT = {
   /** On screen, inside the page's own panel. */
@@ -145,7 +146,7 @@ export const DOCUMENT_MODULE_VARIANT = {
 export type DocumentModuleVariant =
   (typeof DOCUMENT_MODULE_VARIANT)[keyof typeof DOCUMENT_MODULE_VARIANT];
 
-export interface DocumentModuleProps {
+export type DocumentModuleProps = {
   /** The registered module variant (registry.ts). Absent = `default`. */
   readonly variant?: DocumentModuleVariant;
   /** Absent means the route named no document at all — the empty state renders instead. */
@@ -185,7 +186,7 @@ export interface DocumentModuleProps {
   /** Heading shown when the route names no document. No English default (CC22). */
   readonly emptyTitle: string;
   readonly emptyDescription?: string;
-}
+};
 
 export type DocumentModuleEmits = {
   select: [value: string];

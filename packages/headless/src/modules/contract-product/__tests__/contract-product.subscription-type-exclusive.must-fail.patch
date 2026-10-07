@@ -1,0 +1,26 @@
+# Negative-control mutant — the subscription-type narrowings are mutually exclusive (R38 item 1)
+#
+# Assertion it attacks:
+# contract-product.query-controls.int.test.ts, "AC-1 the leaf rejects a model
+# that narrows to subscriptions and one-time purchases together" — the
+# billing_cycle_days leaf rejects `{ neq: 0, eq: 0 }`.
+# Mutation:
+# the leaf loses its `not: { required: ["neq", "eq"] }` rule, so a model that
+# narrows to subscriptions AND one-time purchases validates.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+diff --git a/packages/headless/src/modules/contract-product/contract-product.schemas.ts b/packages/headless/src/modules/contract-product/contract-product.schemas.ts
+--- a/packages/headless/src/modules/contract-product/contract-product.schemas.ts
++++ b/packages/headless/src/modules/contract-product/contract-product.schemas.ts
+@@ -96,9 +96,7 @@
+             type: "object",
+             title: "text.billing_cycle",
+             additionalProperties: false,
+-            // Mutually exclusive operators on ONE wire column — a client
+-            // never picks Subscriptions AND One-time at once (R38 item 1).
+-            not: { required: ["neq", "eq"] },
++
+             // Forced, `eq` is undeclared: the parser drops a one-time ask
+             // and the brand's hide outranks it (legacy cProdsProvider).
+             properties: forced

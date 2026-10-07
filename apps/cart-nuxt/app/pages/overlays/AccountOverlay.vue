@@ -15,18 +15,18 @@
 
 import { computed } from "vue";
 import { useRoute } from "vue-router";
-import { UpmAccount } from "@upmind-automation/client-vue";
+import { UpmAccount } from "@upmind-automation/auth";
+import { ROUTE } from "../../funnels/types";
 import { get } from "lodash-es";
-import type { SessionProps } from "@upmind-automation/client-vue";
-import { ROUTE } from "~/funnels/types";
-
-// -----------------------------------------------------------------------------
-
-const route = useRoute();
+import type { AuthProps } from "@upmind-automation/auth";
 
 const emit = defineEmits<{
   close: [];
 }>();
+
+// -----------------------------------------------------------------------------
+
+const route = useRoute();
 
 /** Read initial mode from ?mode=login|register query param */
 const mode = computed(() => {
@@ -34,7 +34,7 @@ const mode = computed(() => {
     route,
     "query.mode",
     get(route, "meta.mode", "login")
-  ) as SessionProps["modelValue"];
+  ) as AuthProps["modelValue"];
   return mode;
 });
 

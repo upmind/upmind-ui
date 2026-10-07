@@ -1,0 +1,18 @@
+# Negative control — the cart's billing pick falls back to the left-to-right
+# page while cart-nuxt's falls back to the right-to-left one, so a brand with no
+# billing template gets a different billing page in each app.
+#
+# Intended RED:
+#   packages/modules-foundation/src/shell/__tests__/app-shell-fill.test.ts
+#     "the two apps against each other > falls back to the same template in both"
+
+diff --git a/apps/cart/src/shell/modules/billing/shell.ts b/apps/cart/src/shell/modules/billing/shell.ts
+--- a/apps/cart/src/shell/modules/billing/shell.ts
++++ b/apps/cart/src/shell/modules/billing/shell.ts
+@@ -23,5 +23,5 @@
+ 
+ export const billingTemplate = resolveTemplate(
+   BILLING_TEMPLATES,
+-  BILLING_TEMPLATE.TWO_COLUMN_RTL
++  BILLING_TEMPLATE.TWO_COLUMN_LTR
+ );

@@ -1,0 +1,23 @@
+{
+  "name": "@upmind-automation/eslint-plugin-xstate",
+  "version": "1.0.0",
+  "description": "ESLint rules enforcing the XState machine conventions (naming, typed context, canonical state reads, v5 factory rules) replacing the code-xstate rule prose.",
+  "private": true,
+  "type": "module",
+  "main": "index.mjs",
+  "exports": {
+    ".": "./index.mjs"
+  },
+  "scripts": {
+    "test:unit": "node --test"
+  },
+  "dependencies": {
+    "@typescript-eslint/parser": "8.50.0"
+  },
+  "peerDependencies": {
+    "eslint": ">=9"
+  },
+  "devDependencies": {
+    "eslint": "9.39.2"
+  }
+}

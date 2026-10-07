@@ -1,0 +1,22 @@
+# Negative control — the portal loses its foundation `styles` alias. The bare
+# `@upmind-automation/foundation` alias then also matches the CSS import and
+# rewrites it to `…/src/index.ts/styles`, which does not exist.
+#
+# Intended RED:
+#   packages/modules-foundation/src/__tests__/app-tailwind-sources.test.ts
+#     "'apps/portal-nuxt' > resolves @upmind-automation/foundation/styles before its bare alias"
+
+diff --git a/apps/portal-nuxt/nuxt.config.ts b/apps/portal-nuxt/nuxt.config.ts
+--- a/apps/portal-nuxt/nuxt.config.ts
++++ b/apps/portal-nuxt/nuxt.config.ts
+@@ -94,10 +94,6 @@ export default defineNuxtConfig({
+       "../../design-system/packages/ui/src/index.ts"
+     ),
+ 
+-    "@upmind-automation/foundation/styles": resolve(
+-      __dirname,
+-      "../../packages/modules-foundation/src/styles.css"
+-    ),
+     "@upmind-automation/foundation": resolve(
+       __dirname,
+       "../../packages/modules-foundation/src/index.ts"

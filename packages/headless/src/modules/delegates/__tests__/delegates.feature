@@ -117,19 +117,15 @@ Feature: Delegate access
     Then the failure is surfaced, not reported as access granted
 
   @AC-DL15 @client @todo
+  # BLOCKER: Owned by FE-3041 (full delegates module) — not built in this module.
   Scenario: An owner shares a single product rather than the whole account
     Given an owner who holds a product they want to share
     When the owner invites a party to that product alone
     Then the invitee gains access to that product and to nothing else
 
   @AC-DL16 @client @todo
+  # BLOCKER: Owned by FE-3041 (full delegates module) — not built in this module.
   Scenario: An owner shares a single support ticket rather than the whole account
     Given an owner who holds a support ticket they want to share
     When the owner invites a party to that ticket alone
     Then the invitee gains access to that ticket and to nothing else
-
-  @AC-DL17 @staff @todo
-  Scenario: Staff acting for a client manages that client's delegates
-    Given a staff member acting on behalf of a named client
-    When they read the delegates on that client's account
-    Then the delegates of the named client are returned, not the staff member's own

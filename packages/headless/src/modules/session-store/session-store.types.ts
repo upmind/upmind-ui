@@ -1,3 +1,4 @@
+/** @internal */
 import { ScopeActorTypes } from "../scope/scope.types";
 import type { DetailedError } from "../../utils";
 import type { Account } from "../client";
@@ -125,7 +126,14 @@ export type SessionUser = {
    */
   isGuest?: boolean;
   /** Staged-import (read-only) client; mapped from actor.staged_import (graphify-out/). */
-  staged_import?: boolean;
+  stagedImport?: boolean;
+  /**
+   * Whether this client owns at least one imported (legacy) invoice; mapped
+   * from actor.has_legacy_invoices (FE-3230 ruling UQ1-C). READ ONLY — a
+   * passthrough, never a derivation. `useLegacyInvoices().meta.
+   * hasLegacyInvoices` reads this field; it does not compute it.
+   */
+  hasLegacyInvoices?: boolean;
   /**
    * Primary email with verification status (M1/M6/M7).
    * Populated by mapSessionUser from actor.default_email.
@@ -172,6 +180,14 @@ export type SessionUser = {
    * case today) maps to `{}`, never to `undefined`.
    */
   delegatedIds: Partial<Record<UpmindObjectTypes, string[]>>;
+  /**
+   * The client record's package-limits quota bag (FE-3229 AC18, ruling R2).
+   * Additive: mapped straight off the actor record, exactly as the wire
+   * sends it, on the `delegatedIds` precedent above. Absent only if the wire
+   * omits the member entirely — never defaulted, so a present empty bag and
+   * an absent member stay distinguishable.
+   */
+  upmindPackageLimits?: IClient["upmind_package_limits"];
 };
 
 /**

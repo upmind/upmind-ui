@@ -1,6 +1,8 @@
 /**
- * @module steps/__tests__/feature-tracks.spec
- * @description The two additive exports the replay harness plays a feature
+ * @fileoverview parseFeatureScenarios and createStepMatcher tests
+ *
+ * ## Job To Be Done
+ * Prove the two additive exports the replay harness plays a feature
  * with (design §3.1, `AC2.5`): a feature is a playlist, its scenarios are
  * tracks, its steps are scenes. `parseFeatureScenarios` must therefore hand
  * back ONE ENTRY PER SCENARIO — its own name, its own tags, its own line and
@@ -16,6 +18,11 @@
  * than specifier because `headless` is not a dependency of this package — the
  * technique `playgrounds/labs-nuxt/tests/e2e/catalogs.ts` already uses for the
  * same file.
+ *
+ * ## What Breaks If These Fail
+ * The replay harness plays the wrong scenarios: tracks merge into one flat step
+ * list, a track loses its own tags or its Background steps, or a scene's
+ * handler runs with the wrong args.
  */
 
 import { readFileSync } from "node:fs";
@@ -69,6 +76,12 @@ type DeclaredScenario = {
   expansions: number;
   /** Each Examples row's FIRST cell — the value that names the row's track. */
   rows: string[];
+  /**
+   * True when a Background in this scenario's own container (feature-level or its
+   * `Rule:`) precedes it, so its steps prefix the track. A guard declared above
+   * the `Rule:` that carries the signed-in Background is not covered.
+   */
+  coveredByBackground: boolean;
 };
 
 /**
@@ -98,6 +111,8 @@ function readDeclarations(text: string): {
   let pendingTags: string[] = [];
   let featureTags: string[] = [];
   let inBackground = false;
+  let container = "feature";
+  let backgroundContainer: string | undefined;
 
   lines.forEach((source, index) => {
     const tags = TAG_LINE.exec(source);
@@ -112,8 +127,16 @@ function readDeclarations(text: string): {
       return;
     }
 
+    if (/^\s*Rule:/.test(source)) {
+      container = `rule:${index}`;
+      inBackground = false;
+      pendingTags = [];
+      return;
+    }
+
     if (/^\s*Background:/.test(source)) {
       inBackground = true;
+      backgroundContainer = container;
       pendingTags = [];
       return;
     }
@@ -126,7 +149,8 @@ function readDeclarations(text: string): {
         tags: pendingTags,
         line: index + 1,
         expansions: 1,
-        rows: []
+        rows: [],
+        coveredByBackground: backgroundContainer === container
       });
       pendingTags = [];
       return;
@@ -248,20 +272,38 @@ describe("T1.7 parseFeatureScenarios — a feature is a playlist of tracks", () 
     ).toStrictEqual([]);
   });
 
-  it("prefixes every track with the Background's steps, in run order", () => {
+  it("prefixes a covered track with the Background's steps in run order, and leaves a guard above the Rule bare", () => {
     const tracks = parseFeatureScenarios(clientEmailFeatureText);
 
     expect(clientEmail.background.length).toBeGreaterThan(0);
-    expect(uniq(map(tracks, "backgroundStepCount"))).toStrictEqual([
-      clientEmail.background.length
-    ]);
     expect(
-      uniq(
-        map(tracks, track =>
-          map(track.steps.slice(0, track.backgroundStepCount), "text").join("|")
+      uniq(map(clientEmail.scenarios, "coveredByBackground"))
+    ).toStrictEqual([false, true]);
+
+    const coverageByName = new Map(
+      flatMap(clientEmail.scenarios, declared =>
+        map(
+          expandedNames(declared),
+          name => [name, declared.coveredByBackground] as const
         )
       )
-    ).toStrictEqual([map(clientEmail.background, trim).join("|")]);
+    );
+
+    const backgroundText = map(clientEmail.background, trim).join("|");
+
+    const wrong = filter(tracks, track => {
+      const covered = coverageByName.get(track.name);
+      const expectedCount = covered ? clientEmail.background.length : 0;
+      const expectedPrefix = covered ? backgroundText : "";
+      return (
+        track.backgroundStepCount !== expectedCount ||
+        map(track.steps.slice(0, track.backgroundStepCount), "text").join(
+          "|"
+        ) !== expectedPrefix
+      );
+    });
+
+    expect(map(wrong, "name")).toStrictEqual([]);
   });
 
   it("expands a Scenario Outline into one track per Examples row", () => {

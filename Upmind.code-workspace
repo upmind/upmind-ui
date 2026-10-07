@@ -9,10 +9,6 @@
       "path": "packages/headless"
     },
     {
-      "name": "client-vue",
-      "path": "packages/client-vue"
-    },
-    {
       "name": "cart",
       "path": "apps/cart"
     },

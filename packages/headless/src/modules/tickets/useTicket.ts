@@ -8,7 +8,6 @@ import { createTicketInternals } from "./useTicket.internals";
 import { createTicketMeta } from "./useTicket.meta";
 import type { TicketFeedEntry, TicketScopeMatrix } from "./tickets.types";
 import type { ScopeConfig, ScopeKey } from "../scope";
-import type { ScopeActorTypes } from "../scope/scope.types";
 // -----------------------------------------------------------------------------
 /**
  * @module tickets/useTicket
@@ -29,7 +28,7 @@ import type { ScopeActorTypes } from "../scope/scope.types";
  * actor; never branch on SELF in this file.
  */
 function createTicketForScope(config: ScopeConfig, scopeKey: ScopeKey) {
-  const actorScope = config.actor as ScopeActorTypes;
+  const actorScope = config.actor;
 
   /**
    * The ticket being addressed is this instance's RECORD id — `.withId(id)`.

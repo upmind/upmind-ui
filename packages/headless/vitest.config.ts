@@ -2,6 +2,7 @@ import { fileURLToPath } from "node:url";
 import { mergeConfig, defineConfig, configDefaults } from "vitest/config";
 import { workerPool } from "../../vitest.workers";
 import viteConfig from "./vite.config";
+// -----------------------------------------------------------------------------
 
 const root = fileURLToPath(new URL("./", import.meta.url));
 
@@ -83,6 +84,18 @@ export default mergeConfig(
               root,
               // happy-dom, not jsdom: node's undici fetch rejects jsdom's AbortSignal (vitest #8374).
               environment: "happy-dom",
+              // A real browser saves a `download` link instead of following it;
+              // happy-dom follows it and moves the page to a blob: origin.
+              environmentOptions: {
+                happyDOM: {
+                  settings: {
+                    navigation: {
+                      disableMainFrameNavigation: true,
+                      disableFallbackToSetURL: true
+                    }
+                  }
+                }
+              },
               include: ["src/**/__tests__/**/*.int.test.ts"],
               exclude: [...configDefaults.exclude, "e2e/*", "**/*.fixtures.ts"],
               testTimeout: 30000,

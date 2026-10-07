@@ -251,7 +251,7 @@ export function useScenarioPlayer(
     playhead.value = SCENE_UNPLAYED;
     status.value = SCENARIO_PLAYER_STATUS.ARMED;
 
-    await forced.arm("replay");
+    await forced.arm("replay", track);
     resetCriteria();
   }
 
@@ -268,9 +268,24 @@ export function useScenarioPlayer(
 
   async function runScene(index: number): Promise<void> {
     const scene = get(armed.value?.scenes, index);
-    if (!scene) return;
+    if (!scene || !armed.value) return;
 
-    await scene.run(world);
+    // The answers THIS step recorded, armed before it runs (FE-3145) — a
+    // scene is one step of its scenario, Background first, so its place is
+    // the step's place.
+    await forced.replayStep(index);
+
+    // A capture gap is the CAUSE whenever there is one: the check a scene
+    // broke on a missing answer is only its symptom, so the failure names the
+    // request the recording lacks.
+    const gapOr = (reason?: unknown) => {
+      const [gap] = forced.captureGaps();
+      if (gap) throw new Error(gap);
+      if (reason !== undefined) throw reason;
+    };
+
+    await scene.run(world).catch(gapOr);
+    gapOr();
 
     movePlayhead(index);
     if (status.value !== SCENARIO_PLAYER_STATUS.PLAYING)
@@ -283,34 +298,40 @@ export function useScenarioPlayer(
     // Re-armed, not merely re-run: the scenes about to fire again are the ones
     // that already moved the replay's collection, so it goes back to the
     // recording first or the second pass would land on the first pass's state.
-    await forced.arm("replay");
+    if (armed.value) await forced.arm("replay", armed.value);
 
     for (let scene = 0; scene <= index; scene++) await runScene(scene);
   }
 
-  async function play(): Promise<void> {
-    if (!armed.value) return;
+  function play(): Promise<void> {
+    if (!armed.value) return Promise.resolve();
 
     const last = size(armed.value.scenes) - 1;
     status.value = SCENARIO_PLAYER_STATUS.PLAYING;
 
-    try {
-      while (
-        status.value === SCENARIO_PLAYER_STATUS.PLAYING &&
-        playhead.value < last
-      ) {
-        await runScene(playhead.value + 1);
+    function step(): Promise<void> {
+      if (
+        status.value !== SCENARIO_PLAYER_STATUS.PLAYING ||
+        playhead.value >= last
+      )
+        return Promise.resolve();
+
+      return runScene(playhead.value + 1).then(() => {
         if (
           status.value !== SCENARIO_PLAYER_STATUS.PLAYING ||
           playhead.value >= last
         )
-          break;
-        await new Promise<void>(resolve => setTimeout(resolve, dwell));
-      }
-    } finally {
+          return undefined;
+        return new Promise<void>(resolve => setTimeout(resolve, dwell)).then(
+          step
+        );
+      });
+    }
+
+    return step().finally(() => {
       if (status.value === SCENARIO_PLAYER_STATUS.PLAYING)
         status.value = SCENARIO_PLAYER_STATUS.PAUSED;
-    }
+    });
   }
 
   async function disarm(): Promise<void> {

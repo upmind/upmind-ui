@@ -70,16 +70,23 @@ function scheduleParamDeletion(type: string): void {
  */
 
 export const useQueryParams = (route?: RouteLocation) => {
-  const safeRoute = route ??
-    router?.currentRoute?.value ?? {
-      name: undefined,
-      params: undefined,
-      path: window.location.pathname,
-      query: Object.fromEntries(
-        new URLSearchParams(window.location?.search).entries()
-      ),
-      hash: window.location.hash
-    };
+  // A headless caller has neither a passed route nor a router; `window` is also
+  // absent under node. Fall back to an empty route so reads resolve to their
+  // fallback rather than throwing.
+  const locationRoute =
+    typeof window === "undefined"
+      ? { name: undefined, params: undefined, path: "/", query: {}, hash: "" }
+      : {
+          name: undefined,
+          params: undefined,
+          path: window.location.pathname,
+          query: Object.fromEntries(
+            new URLSearchParams(window.location?.search).entries()
+          ),
+          hash: window.location.hash
+        };
+
+  const safeRoute = route ?? router?.currentRoute?.value ?? locationRoute;
 
   // parse our  query/params that may be passed in as ARRAY
   function getParams(type: string, fallback?: any) {
@@ -109,6 +116,10 @@ export const useQueryParams = (route?: RouteLocation) => {
   }
 
   function setParam(type: string, value?: string | null, replace = false) {
+    // No router (a headless caller) — the URL mirror is the app shell's concern,
+    // so there is nothing to write.
+    if (!router) return;
+
     const updateRoute = replace ? router.replace : router.push;
 
     if (value) {
@@ -131,6 +142,8 @@ export const useQueryParams = (route?: RouteLocation) => {
   }
 
   function unsetParam(type: string) {
+    if (typeof window === "undefined") return;
+
     const url = new URL(window.location.toString());
     if (url.searchParams.has(type)) {
       scheduleParamDeletion(type);

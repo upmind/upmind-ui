@@ -1,0 +1,71 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/clients/25d96e76-3ed0-913d-d52c-417482528340/vault/320e4357-95e7-8d18-222b-31643202d986",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a422b9084a4c4c65-JNB",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json",
+      "date": "Mon, 28 Sep 2026 12:24:02 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=Uq92nSrIqkfoCmeC225NW9%2BzaCkECZaUQiRv77IBZHR0D%2FTDoI6SNBJiOP98t17v%2FeSFvBJiPiATP50TbkP1Sj%2BjLG%2BY%2FmhQloR9Wf74zMdp0x4ljH8oYeg6%2BfsKGUnI7oVfNMiZyw%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-frame-options": "SAMEORIGIN"
+    },
+    "body": {
+      "status": "ok",
+      "data": {
+        "id": "320e4357-95e7-8d18-222b-31643202d986",
+        "import_id": null,
+        "staged_import": false,
+        "external_id": null,
+        "client_id": "25d96e76-3ed0-913d-d52c-417482528340",
+        "lead_id": null,
+        "user_id": "none",
+        "label": null,
+        "code": null,
+        "note": "prover fixture editor state note 8129692",
+        "pinned": false,
+        "visible_for_client": true,
+        "encrypted": false,
+        "contract_product_id": null,
+        "created_at": "2026-09-28 12:24:01",
+        "updated_at": "2026-09-28 12:24:01",
+        "author_client_id": "25d96e76-3ed0-913d-d52c-417482528340",
+        "author_user_id": null,
+        "editor_client_id": null,
+        "editor_user_id": null,
+        "locked": false
+      },
+      "related": null,
+      "total": null,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-09-28T12:24:02.941Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "know-the-state-of-the-editor-while-i-use-it"
+  }
+}

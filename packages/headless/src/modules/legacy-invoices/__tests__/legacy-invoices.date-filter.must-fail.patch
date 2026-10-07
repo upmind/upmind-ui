@@ -1,0 +1,43 @@
+# Must-fail mutant for legacy-invoices.schemas.test.ts's AC-10 format split
+# (T48), re-aimed at the F2-R contract (rulings.md F2-R, commit 59bf47d59).
+#
+# Mutates `legacy-invoices.schemas.ts` — removes `format: "date-time"` from the
+# two range `create_datetime` operators (`gte`, `lte`), the only two absolute
+# leaves that still carry a date-time format after F2-R split eq/gt/lt to
+# `format: "date"`. The relative `before`/`after` keys stay format-free (D-19).
+#
+# Original intent (pre-F2-R): drop the date-time format from the absolute
+# create_datetime operators, reddening the AC-10 format assertion. F2-R changed
+# three of the five former context lines (eq/gt/lt are now `format: "date"`), so
+# the old five-leaf mutation no longer applies. Same intent, new contract: strip
+# the format from the two surviving date-time leaves.
+#
+# **Reddens — confirmed against `legacy-invoices.schemas.test.ts:128`, "@AC-10
+# @AC-15 the create_datetime operators split by format: eq/gt/lt declare date,
+# gte/lte date-time, before/after none"**: with this patch applied, `formatOf`
+# reads `undefined` for gte, so its `.toBe("date-time")` assertion fails (1 of 12
+# unit specs reddens, 11 stay green). The :88 datetime-acceptance spec stays
+# green — a format-free string still validates the datetime value.
+#
+# Declared collateral: NONE. Verified against `test:integration legacy-invoices`
+# (24 pass) — a format-free gte/lte still passes the criteria gate and reaches
+# the wire as a date-time, so the range-format int spec (:138) stays green.
+# Re-verified applied-and-reverted; the schema file has no diff after revert.
+#
+# Apply from the repo root: `git apply <this file>`; revert with `git apply -R`.
+diff --git a/packages/headless/src/modules/legacy-invoices/legacy-invoices.schemas.ts b/packages/headless/src/modules/legacy-invoices/legacy-invoices.schemas.ts
+index d08a7b91ec..209bfd53bc 100644
+--- a/packages/headless/src/modules/legacy-invoices/legacy-invoices.schemas.ts
++++ b/packages/headless/src/modules/legacy-invoices/legacy-invoices.schemas.ts
+@@ -85,9 +85,9 @@ export function useQuerySchema(): QuerySchema {
+               // src/helpers/table.ts:169-176); staging accepts both.
+               eq: { type: ["string", "null"], format: "date" },
+               gt: { type: ["string", "null"], format: "date" },
+-              gte: { type: ["string", "null"], format: "date-time" },
++              gte: { type: ["string", "null"] },
+               lt: { type: ["string", "null"], format: "date" },
+-              lte: { type: ["string", "null"], format: "date-time" },
++              lte: { type: ["string", "null"] },
+               // Relative expressions — no date-time format (D-19).
+               before: { type: ["string", "null"] },
+               after: { type: ["string", "null"] }

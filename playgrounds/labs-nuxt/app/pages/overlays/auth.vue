@@ -149,7 +149,8 @@ import { Avatar, Button, DialogHeader, DialogTitle } from "@upmind/ui";
 import { computed, onUnmounted, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
-import { Icon, OverlayType } from "@upmind-automation/client-vue";
+import { Icon } from "@upmind-automation/foundation";
+import { OverlayType } from "@upmind-automation/headless";
 import {
   ScopeActorTypes,
   useActiveSession,
@@ -171,6 +172,10 @@ import {
 import { ADD_SESSION_PARAM } from "~/funnels/labs.constants";
 import { ROUTE } from "~/funnels/types";
 
+const emit = defineEmits<{
+  close: [];
+}>();
+
 // -----------------------------------------------------------------------------
 
 /**
@@ -188,10 +193,6 @@ const route = useRoute();
 const router = useRouter();
 
 const { t } = useI18n();
-
-const emit = defineEmits<{
-  close: [];
-}>();
 
 /** The url's own scope, for an overlay reached without a target behind it. */
 const scope = useActorScope();

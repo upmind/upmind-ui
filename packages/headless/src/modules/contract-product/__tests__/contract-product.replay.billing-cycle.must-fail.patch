@@ -1,0 +1,23 @@
+# Negative-control mutant — a row shows its translated billing-cycle label (R38 item 10, G5; B6)
+#
+# Spec it must flip: contract-product.replay.int.test.ts,
+#   "Each of my products shows how often it bills, in words" and
+#   "My product shows when it next falls due and how often it bills".
+# RED-verified 2026-09-29.
+#
+# Mutation: the label is the numeric form ("1-month", "2-year").
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+diff --git a/packages/headless/src/modules/contract-product/contract-product.mappers.ts b/packages/headless/src/modules/contract-product/contract-product.mappers.ts
+--- a/packages/headless/src/modules/contract-product/contract-product.mappers.ts
++++ b/packages/headless/src/modules/contract-product/contract-product.mappers.ts
+@@ -143,7 +143,7 @@
+ /** The translated billing-cycle label (R38 item 10, G5) — legacy's cycle name; "One time" for a one-time product. */
+ export function mapContractProductBillingCycle(months: number): string {
+   const cycle = parseBillingCycle(months);
+-  return months > 0 ? cycle.adverbial : cycle.descriptive;
++  return cycle.numeric;
+ }
+ 
+ /**

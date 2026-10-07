@@ -102,10 +102,14 @@ export const useSchema = ({
         title: "Secret",
         readOnly: false
       },
-      pinned: {
-        type: "boolean",
-        title: "Pinned"
-      },
+      // `pinned` is deliberately ABSENT from the editor schema (AC-37): the
+      // editor offers no pin control, because pinning is a LIST action
+      // (`setPinned`) and the legacy vault forms carry no pin field, setting
+      // `pinned` only at create time (`mapVaultAssetCreate` hardcodes `false`;
+      // `mapVaultAssetUpdate` excludes it). A property in the schema is a field
+      // the form offers, so a `pinned` the save PUT never carries must not be
+      // one.
+      //
       // A plain nullable string — the product list is NO LONGER embedded. The
       // async lookup rides the uischema control's `options.lookup.service`
       // (design.md §Layer 3); the schema carries only the scalar FK.
@@ -129,11 +133,16 @@ export const useSchema = ({
  * `encrypted` — the pair moves together.
  *
  * @decision (R4 / row M12 / AC-37)
- * what: renders NO `#/properties/pinned` control.
+ * what: renders NO `#/properties/pinned` control, and the schema declares no
+ *   `pinned` property either.
  * why: the oracle's edit form omits `pinned`; pinning is a LIST action
- *   (`useClientNotes().useActions().setPinned`, row C18).
- * rejected: keeping the control — the oracle exposes no such field, so it
- *   invents capability. The `pinned` PROPERTY stays (create-time `false`).
+ *   (`useClientNotes().useActions().setPinned`, row C18). A schema property is
+ *   a field the form offers, and the edit save PUT never carries `pinned`
+ *   (`mapVaultAssetUpdate` excludes it), so keeping the property offered a
+ *   control the save would drop. Create-time `pinned: false` is set by
+ *   `mapVaultAssetCreate` directly, not off a form field.
+ * rejected: keeping the property (`readOnly` or otherwise) — the oracle
+ *   exposes no such field, so any form-visible `pinned` invents capability.
  *
  * @decision (defect fix — operator screenshot)
  * what: renders `#/properties/encrypted` ONLY when `isNew`.

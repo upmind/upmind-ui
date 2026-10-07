@@ -1,3 +1,4 @@
+/** @internal */
 import { mapInitials, mapAccount } from "../client";
 import {
   includes,
@@ -77,7 +78,8 @@ export function mapSessionUser(
     fullName: actor.fullname,
     id: actor.id,
     isGuest: !!client.is_guest,
-    staged_import: !!client.staged_import,
+    stagedImport: !!client.staged_import,
+    hasLegacyInvoices: !!client.has_legacy_invoices,
     language: actor.interface_language_id,
     lastName: actor.lastname,
     locale: actor.interface_language_code,
@@ -95,6 +97,9 @@ export function mapSessionUser(
     brands: self.brands,
     // ?? {} defends against the wire's only recorded case (`null`), even
     // though ISelf.delegated_ids is typed non-nullable — never remove this.
-    delegatedIds: self.delegated_ids ?? {}
+    delegatedIds: self.delegated_ids ?? {},
+    // FE-3229 AC18, ruling R2 — additive. No default: the wire value is
+    // published verbatim, including a present empty bag.
+    upmindPackageLimits: client.upmind_package_limits
   };
 }

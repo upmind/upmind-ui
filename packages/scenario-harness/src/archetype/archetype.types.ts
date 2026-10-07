@@ -1,6 +1,12 @@
 import type { ReflectedSnapshot } from "../reflection/reflection.types";
 import type { ScopeActor } from "../world/scope-actor";
 import type { JsonSchema } from "@jsonforms/core";
+// -----------------------------------------------------------------------------
+/**
+ * @module archetype/archetype.types
+ * @description Types for archetype classification: the archetype set, the
+ * signals that decide it, and the module descriptor `reflect()` returns.
+ */
 
 /** The four structural shapes `classify()` resolves to. */
 export const ARCHETYPE = {

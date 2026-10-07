@@ -3,6 +3,7 @@ import { TicketStatusCodes } from "@upmind-automation/types";
 import { invalidateQueryByKey, resetQueryByKey } from "../query";
 import { remove as removeFromRegistry } from "../scope";
 import { useActiveSession } from "../session-store";
+import { useI18n } from "../system-localisation";
 import { mergeFeed } from "./tickets.mappers";
 import {
   DetailedError,
@@ -41,11 +42,12 @@ export function createTicketActions(
 ) {
   const { isAvailable: isSessionInitialised, isLoading: isSessionSettling } =
     useActiveSession().useMeta();
+  const { t } = useI18n();
 
   function requireTicketId(): string {
     if (!ticketId) {
       throw new DetailedError(
-        "No ticket id resolved for this scope",
+        t("error.ticket_id_not_available"),
         responseCodes.Unprocessable_Entity,
         ErrorOrigin.Headless
       );
@@ -126,26 +128,24 @@ export function createTicketActions(
       attachmentsOnly?: boolean;
     } = {}
   ): Promise<void> {
+    const id = requireTicketId();
     feed.isLoading.value = true;
-    try {
-      const id = requireTicketId();
-      const [{ rows, hasMore }, logs] = await Promise.all([
-        service.loadMessages(id, options),
-        options.attachmentsOnly
-          ? Promise.resolve([])
-          : service.loadStatusLogs(id)
-      ]);
-
-      feed.entries.value = mergeFeed(rows, logs);
-      if (options.before) feed.hasOlder.value = hasMore;
-      else if (options.after) feed.hasNewer.value = hasMore;
-      else {
-        feed.hasOlder.value = hasMore;
-        feed.hasNewer.value = false;
-      }
-    } finally {
-      feed.isLoading.value = false;
-    }
+    return Promise.all([
+      service.loadMessages(id, options),
+      options.attachmentsOnly ? Promise.resolve([]) : service.loadStatusLogs(id)
+    ])
+      .then(([{ rows, hasMore }, logs]) => {
+        feed.entries.value = mergeFeed(rows, logs);
+        if (options.before) feed.hasOlder.value = hasMore;
+        else if (options.after) feed.hasNewer.value = hasMore;
+        else {
+          feed.hasOlder.value = hasMore;
+          feed.hasNewer.value = false;
+        }
+      })
+      .finally(() => {
+        feed.isLoading.value = false;
+      });
   }
 
   /**
@@ -241,7 +241,7 @@ export function createTicketActions(
     );
     if (message?.kind === "message" && !message.message.can_manage) {
       throw new DetailedError(
-        "This message cannot be edited",
+        t("error.ticket_message_edit_not_available"),
         responseCodes.Forbidden,
         ErrorOrigin.Headless
       );
@@ -267,7 +267,7 @@ export function createTicketActions(
     );
     if (message?.kind === "message" && !message.message.can_manage) {
       throw new DetailedError(
-        "This message cannot be withdrawn",
+        t("error.ticket_message_delete_not_available"),
         responseCodes.Forbidden,
         ErrorOrigin.Headless
       );
@@ -301,7 +301,7 @@ export function createTicketActions(
   async function close(): Promise<Ticket> {
     if (ticket()?.settings?.lock) {
       throw new DetailedError(
-        "This ticket is locked",
+        t("error.ticket_update_not_available"),
         responseCodes.Forbidden,
         ErrorOrigin.Headless
       );
@@ -316,7 +316,7 @@ export function createTicketActions(
   async function reopen(): Promise<Ticket> {
     if (ticket()?.status?.code !== TicketStatusCodes.CLOSED) {
       throw new DetailedError(
-        "This ticket is not closed",
+        t("error.ticket_status_not_valid"),
         responseCodes.Unprocessable_Entity,
         ErrorOrigin.Headless
       );
@@ -331,7 +331,7 @@ export function createTicketActions(
   async function setSubject(subject: string): Promise<Ticket> {
     if (ticket()?.settings?.lock) {
       throw new DetailedError(
-        "This ticket is locked",
+        t("error.ticket_update_not_available"),
         responseCodes.Forbidden,
         ErrorOrigin.Headless
       );

@@ -1,13 +1,11 @@
 // --- types
-import {
-  type AnyEventObject,
-  assign,
-  type FunnelContext,
-  type FunnelProps,
-  QUERY_PARAMS,
-  useBasket
-} from "@upmind-automation/client-vue";
+import { assign, QUERY_PARAMS, useBasket } from "@upmind-automation/headless";
 import { FUNNEL, ROUTE } from "./types";
+import type {
+  AnyEventObject,
+  FunnelContext,
+  FunnelProps
+} from "@upmind-automation/headless";
 
 // -----------------------------------------------------------------------------
 // The one-page checkout as a modeled funnel path. It extends the cart funnel and
@@ -20,7 +18,7 @@ import { FUNNEL, ROUTE } from "./types";
 // inherited unchanged.
 // -----------------------------------------------------------------------------
 
-export default <FunnelProps>{
+export default {
   id: "one-page",
   extends: FUNNEL.CART,
   states: {
@@ -99,4 +97,4 @@ export default <FunnelProps>{
       }
     }
   }
-};
+} as FunnelProps;

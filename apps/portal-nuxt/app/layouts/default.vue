@@ -1,3 +1,51 @@
+<template>
+  <TooltipProvider>
+    <div
+      v-if="isImpersonating"
+      class="dark bg-surface text-display flex items-center justify-center gap-3 px-4 py-2 text-center text-sm"
+      data-test-key="impersonation-ribbon"
+    >
+      <span>Viewing as {{ impersonatedName }}</span>
+      <Button
+        size="xs"
+        variant="outline"
+        data-test-key="impersonation-end"
+        @click="runMockAction(MOCK_ACTION.END_IMPERSONATION)"
+      >
+        End
+      </Button>
+    </div>
+    <PortalFrame
+      ref="frame"
+      :shell="resolvedShell"
+      sidebar-label="Portal"
+      sidebar-close-label="Close navigation"
+      sidebar-back-label="Back"
+      action-pane-label="Details"
+      action-pane-close-label="Close details"
+      action-pane-trigger-label="Open details"
+      skip-label="Skip to content"
+    >
+      <slot />
+      <template #footer>
+        <div :class="PORTAL_FOOTER_CLASS">
+          <Markdown
+            v-if="footerMarkdown"
+            tag="div"
+            :model-value="footerMarkdown"
+            :class="PORTAL_FOOTER_PROSE_CLASS"
+          />
+          <PortalUpmind v-if="hasUpmindBranding" />
+        </div>
+      </template>
+    </PortalFrame>
+    <Toaster />
+    <PortalConfirmDialog cancel-label="Cancel" />
+    <PortalFormDialog close-label="Close" />
+    <PortalProseDialog close-label="Close" />
+  </TooltipProvider>
+</template>
+
 <script setup lang="ts">
 import {
   Button,
@@ -116,54 +164,6 @@ router.afterEach(() => {
   nextTick(() => frame.value?.focusMain());
 });
 </script>
-
-<template>
-  <TooltipProvider>
-    <div
-      v-if="isImpersonating"
-      class="dark bg-surface text-display flex items-center justify-center gap-3 px-4 py-2 text-center text-sm"
-      data-test-key="impersonation-ribbon"
-    >
-      <span>Viewing as {{ impersonatedName }}</span>
-      <Button
-        size="xs"
-        variant="outline"
-        data-test-key="impersonation-end"
-        @click="runMockAction(MOCK_ACTION.END_IMPERSONATION)"
-      >
-        End
-      </Button>
-    </div>
-    <PortalFrame
-      ref="frame"
-      :shell="resolvedShell"
-      sidebar-label="Portal"
-      sidebar-close-label="Close navigation"
-      sidebar-back-label="Back"
-      action-pane-label="Details"
-      action-pane-close-label="Close details"
-      action-pane-trigger-label="Open details"
-      skip-label="Skip to content"
-    >
-      <slot />
-      <template #footer>
-        <div :class="PORTAL_FOOTER_CLASS">
-          <Markdown
-            v-if="footerMarkdown"
-            tag="div"
-            :model-value="footerMarkdown"
-            :class="PORTAL_FOOTER_PROSE_CLASS"
-          />
-          <PortalUpmind v-if="hasUpmindBranding" />
-        </div>
-      </template>
-    </PortalFrame>
-    <Toaster />
-    <PortalConfirmDialog cancel-label="Cancel" />
-    <PortalFormDialog close-label="Close" />
-    <PortalProseDialog close-label="Close" />
-  </TooltipProvider>
-</template>
 
 <!-- The print routes (plan R11) print the DOCUMENT: the chrome around it is
      navigation, and navigation does not belong on paper. Unscoped, because

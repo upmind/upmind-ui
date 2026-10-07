@@ -39,6 +39,7 @@ import type {
   useCollection
 } from "@upmind-automation/headless";
 import type { ComputedRef, MaybeRef } from "vue";
+// -----------------------------------------------------------------------------
 
 /** Mirrors the platform default (`PAGINATION.limit`, `query.utils.ts:39`) — a runtime const the types-only fence keeps out of reach. */
 export const MOCK_PAGE_LIMIT = 10;

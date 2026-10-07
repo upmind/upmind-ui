@@ -25,7 +25,7 @@ import { createModulesActions } from "./useModules.actions";
 import { createModulesContext } from "./useModules.context";
 import { createModulesInternals } from "./useModules.internals";
 import { createModulesMeta } from "./useModules.meta";
-import type { ModuleScopeMatrix } from "./module.types";
+import type { ModulesScopeMatrix } from "./module.types";
 import { ScopeActorTypes } from "../scope";
 import type { ScopeConfig, ScopeKey } from "../scope";
 // -----------------------------------------------------------------------------
@@ -78,8 +78,7 @@ function createModulesForScope(config: ScopeConfig, scopeKey: ScopeKey) {
  */
 export const useModules = createScopedComposable<
   ReturnType<typeof createModulesForScope>,
-  ModuleScopeMatrix
+  ModulesScopeMatrix
 >("module", createModulesForScope);
 
-// Type export for consumers
 export type UseModules = ReturnType<typeof useModules>;

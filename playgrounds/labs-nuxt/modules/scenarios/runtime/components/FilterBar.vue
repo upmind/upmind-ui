@@ -1,5 +1,5 @@
 <template>
-  <UpmForm
+  <Form
     :schema="schema"
     :uischema="uischema"
     :model-value="model"
@@ -31,10 +31,10 @@
  */
 
 import { computed } from "vue";
-import { UpmForm } from "@upmind-automation/client-vue";
+import { Form } from "@upmind-automation/foundation";
 import { assign, get, has, isEmpty } from "lodash-es";
 import type { FilterBarProps } from "./FilterBar.types";
-import type { FormProps } from "@upmind-automation/client-vue";
+import type { FormProps } from "@upmind/ui";
 // -----------------------------------------------------------------------------
 
 const props = defineProps<FilterBarProps>();

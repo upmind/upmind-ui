@@ -56,14 +56,6 @@ import { onMounted, onUnmounted, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { failureStrip } from "./ListSurface.styles";
 import type { RowFailureProps } from "./ListSurface.types";
-// -----------------------------------------------------------------------------
-
-/** sonner's own default display time — the toast this strip aligns with. */
-const TOAST_DISPLAY_MS = 4000;
-
-/** Long enough to read as a fade, short enough to not outstay the toast. */
-const FADE_MS = 500;
-
 const props = defineProps<RowFailureProps>();
 
 const emit = defineEmits<{
@@ -72,6 +64,14 @@ const emit = defineEmits<{
   /** The user has read it — the row returns to rest. */
   dismiss: [];
 }>();
+
+// -----------------------------------------------------------------------------
+
+/** sonner's own default display time — the toast this strip aligns with. */
+const TOAST_DISPLAY_MS = 4000;
+
+/** Long enough to read as a fade, short enough to not outstay the toast. */
+const FADE_MS = 500;
 
 const { t } = useI18n();
 

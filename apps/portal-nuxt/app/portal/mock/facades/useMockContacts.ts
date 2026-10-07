@@ -2,10 +2,9 @@
 /**
  * @module portal/mock/facades/useMockContacts
  * @description The client's four contact lists — emails, phones, addresses and
- * companies — as legacy's profile page manages them. No client-vue component is
- * REACHABLE for that page: client-vue draws addresses, phones and companies in
- * its checkout billing tabs, but `modules/billing/index.ts` publishes only
- * `UpmBilling` and `UpmBillingForm`, and emails have no row component at all.
+ * companies — as legacy's profile page manages them. `client` publishes the
+ * address, company and phone rows (`AddressItem`, `CompanyItem`, `PhoneItem`)
+ * but no list around them, and emails have no row component at all.
  * So every list is mocked here, pending the export decision
  * (`docs/client-vue-placeholder-audit.md` 2.1). The email facade is DECLARED with the real module's own
  * `Use<X>{Context,Meta,Actions}` types, so a member the real module renames
@@ -61,6 +60,7 @@ import type {
 import type { FormModel } from "@upmind/ui";
 import type { Email } from "@upmind-automation/headless";
 import type { MaybeRef } from "vue";
+// -----------------------------------------------------------------------------
 
 /** How long the code the verification mail carries is — the account module's own six. */
 const VERIFICATION_CODE_LENGTH = 6;

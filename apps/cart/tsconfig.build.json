@@ -8,6 +8,8 @@
     "declaration": false,
     "declarationMap": false,
     "paths": {
+      "@upmind/ui": ["../../design-system/packages/ui/src/index.ts"],
+      "@upmind/tokens": ["../../design-system/packages/tokens/src/index.ts"],
       "@/*": ["./src/*"]
     }
   },
@@ -17,6 +19,10 @@
     { "path": "../../packages/types/tsconfig.build.json" },
     { "path": "../../packages/headless/tsconfig.build.json" },
     { "path": "../../design-system/packages/ui/tsconfig.build.json" },
-    { "path": "../../packages/client-vue/tsconfig.build.json" }
+    { "path": "../../design-system/packages/tokens/tsconfig.build.json" },
+    { "path": "../../packages/modules-foundation/tsconfig.build.json" },
+    { "path": "../../packages/modules-auth/tsconfig.build.json" },
+    { "path": "../../packages/modules-payment/tsconfig.build.json" },
+    { "path": "../../packages/modules-product/tsconfig.build.json" }
   ]
 }

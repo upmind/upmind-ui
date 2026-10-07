@@ -1,0 +1,21 @@
+# Negative control — basket starts registering form controls, and the Nuxt
+# cart's spec does not check them, so a gap in basket's registration would pass.
+#
+# Intended RED:
+#   apps/cart-nuxt/tests/form-controls.test.ts
+#     "checks every package it depends on that registers controls"
+
+diff --git a/packages/modules-basket/src/index.ts b/packages/modules-basket/src/index.ts
+--- a/packages/modules-basket/src/index.ts
++++ b/packages/modules-basket/src/index.ts
+@@ -3,7 +3,10 @@
+  * @module basket
+  * @description The in-flight order: basket, basket product, billing, checkout and product setup.
+  */
++import { registerFormRenderers } from "@upmind-automation/foundation";
+ 
++registerFormRenderers([]);
++
+ // --- Export Views
+ export { default as UpmBasket } from "./components/Basket.vue";
+ export { default as UpmBasketUnavailable } from "./components/BasketUnavailable.vue";

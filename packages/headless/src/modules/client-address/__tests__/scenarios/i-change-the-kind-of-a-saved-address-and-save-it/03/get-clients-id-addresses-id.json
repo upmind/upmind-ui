@@ -1,0 +1,71 @@
+{
+  "version": 3,
+  "request": {
+    "method": "GET",
+    "path": "/api/clients/25d96e76-3ed0-913d-d52c-417482528340/addresses/785d26e9-6783-d16d-738b-314502e70439?with=region,country",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a422af023a2773ea-JNB",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json",
+      "date": "Mon, 28 Sep 2026 12:17:12 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=SSNZj4iZwCFrXCejp%2BvW00cNDz1y5wIZOYKMa6KAto8oZsG%2FEdSwX2Z3s0sa4sfeUquEUVDsdQ7c2Q5P%2FghW%2BimySe4TYpUVOMmGTtOG8xqENE16shHgo6tz8ODtuhOcEr%2BLiA1wnA%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-frame-options": "SAMEORIGIN"
+    },
+    "body": {
+      "status": "ok",
+      "data": {
+        "id": "785d26e9-6783-d16d-738b-314502e70439",
+        "import_id": null,
+        "staged_import": false,
+        "external_id": null,
+        "client_id": "25d96e76-3ed0-913d-d52c-417482528340",
+        "user_id": "sys",
+        "default": false,
+        "type": 1,
+        "name": "scenario-editable",
+        "address_1": "1 Scenario Street",
+        "address_2": "",
+        "region_id": "none",
+        "country_id": "825d96e7-63ed-0913-46c4-174825283406",
+        "city": "Manchester",
+        "county": null,
+        "postcode": "GU1 1AA",
+        "created_at": "2026-09-28 12:17:03",
+        "updated_at": "2026-09-28 12:17:08",
+        "deleted_at": null,
+        "verified": 0,
+        "can_delete": true
+      },
+      "related": null,
+      "total": null,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-09-28T12:17:12.369Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "i-change-the-kind-of-a-saved-address-and-save-it"
+  }
+}

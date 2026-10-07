@@ -1,0 +1,112 @@
+{
+  "version": 3,
+  "request": {
+    "method": "PATCH",
+    "path": "/api/contracts/98574264-8970-1202-2d5c-21e325d0ed36/payment_details",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": {
+      "payment_details_id": "20e43579-5e78-d187-432c-31643202d986"
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a42b151cebcdb169-JNB",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json",
+      "date": "Tue, 29 Sep 2026 12:45:00 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=e7ZBC8lzuPCY66DqMlecHlNHyndiBRGyzlNeqRLnVx8N2YuwDlCbXaJTdL89kE1pLRpBUj2R1IOK7qTJ8PwXaWvmUZTkVd8oFyvCnnmF%2BSaTetCPCGBJ6pBTsMjEveaEzj%2FSsgHrCg%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-frame-options": "SAMEORIGIN"
+    },
+    "body": {
+      "status": "ok",
+      "data": {
+        "id": "98574264-8970-1202-2d5c-21e325d0ed36",
+        "import_id": null,
+        "staged_import": false,
+        "finished_staged_import": null,
+        "external_id": null,
+        "name": null,
+        "notes": null,
+        "start_date": "2026-09-29",
+        "end_date": "0000-00-00",
+        "next_due_date": "2026-10-29",
+        "next_invoice_date": "2026-10-29",
+        "cancellation_date": "2026-09-29",
+        "cancellation_reason": null,
+        "activation_date": "2026-09-29",
+        "status_id": "47d73824-8507-9315-36f8-1e642d59e063",
+        "total_recurrent_amount": 4.8,
+        "total_amount": 4.8,
+        "account_id": "d0367942-4d0e-7109-92eb-3153698d582e",
+        "user_id": "sys",
+        "brand_id": "2785d26e-9678-3d16-999f-314502e70439",
+        "company_id": "47d73824-8507-9315-362c-81e642d59e06",
+        "phone_id": null,
+        "address_id": "d6325079-8065-d1e3-dd8b-8174e234e98d",
+        "billing_cycle_months": 1,
+        "currency_id": "3825d96e-763e-d091-3dc4-174825283406",
+        "main_invoice_id": "4038696e-5472-1d57-086d-c518d9305e7d",
+        "main_invoice_number": "QA-INV-25308",
+        "gateway_id": "5d085e69-d562-3719-e98a-218e940d4237",
+        "payment_details_id": "20e43579-5e78-d187-432c-31643202d986",
+        "promotion_id": null,
+        "promotion_code": null,
+        "created_at": "2026-09-29 12:44:20",
+        "updated_at": "2026-09-29 12:45:00",
+        "reseller_account_id": null,
+        "client_id": "25d96e76-3ed0-913d-d52c-417482528340",
+        "pricelist_id": "825d96e7-63ed-0913-d66c-417482528340",
+        "fraud_status": 1,
+        "currency_exchange_rate": "1.000000",
+        "locked": null,
+        "billing_cycle_days": 30,
+        "reconciliation_strict": 0,
+        "tax_type": 0,
+        "moved_from_contract_id": null,
+        "moved_to_contract_id": null,
+        "moved": false,
+        "partially_moved": false,
+        "total_recurrent_amount_formatted": "£4.80",
+        "total_amount_formatted": "£4.80",
+        "currency": {
+          "id": "3825d96e-763e-d091-3dc4-174825283406",
+          "name": "British Pound",
+          "prefix": "£",
+          "suffix": "",
+          "code": "GBP",
+          "created_at": "2017-10-18 14:16:22",
+          "updated_at": "2026-09-28 11:08:14",
+          "base": true,
+          "decimals": true,
+          "manual": 0
+        }
+      },
+      "related": null,
+      "total": null,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-09-29T12:45:00.697Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "contract"
+  }
+}

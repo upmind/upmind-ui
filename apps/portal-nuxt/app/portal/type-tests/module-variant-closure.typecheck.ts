@@ -12,6 +12,7 @@
 
 import { FIXTURE_MODULE_ID, moduleRef } from "../registry";
 import type { ModuleRef } from "../types";
+// -----------------------------------------------------------------------------
 
 export const fixtureModuleAcceptsItsOwnDeclaredVariant = moduleRef(
   FIXTURE_MODULE_ID,

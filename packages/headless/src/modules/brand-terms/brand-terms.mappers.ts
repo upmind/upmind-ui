@@ -3,6 +3,7 @@ import { useTranslateField, useTranslateName } from "../../utils";
 import { isNil } from "lodash-es";
 import type { TermsAndConditions } from "./brand-terms.types";
 import type { ITermsAndConditions } from "@upmind-automation/types";
+// -----------------------------------------------------------------------------
 
 // ---------------------------------------------------------------------------
 

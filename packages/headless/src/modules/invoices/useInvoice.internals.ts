@@ -1,21 +1,49 @@
-import type { InvoiceItemQuery } from "./invoices.types";
+import type { UseActor } from "../../utils";
+import type { usePaymentDetail, usePaymentGateway } from "../payment-details";
 import type { ScopeActorTypes } from "../scope/scope.types";
 // -----------------------------------------------------------------------------
 /**
  * @module invoices/useInvoice.internals
- * @description Single-read internals (debugging). Exposes the raw TanStack
- * query object backing this read.
- * @doctrine clause 1 (uniform four-layer default) — TanStack-variant form.
+ * @description Single-invoice internals — the raw machine handles for debugging,
+ * plus the delegated composables the pay UI provides/injects: `gateway` and
+ * `paymentDetail`.
+ *
+ * @decision
+ * what: expose the delegated `gateway` / `paymentDetail`
+ * composables on internals rather than on context (a departure from the
+ * canonical internals, which carries only `send` / `state` / `service`).
+ * why: the scenario port reflects `useContext()` with
+ * `omitBy(mapValues(ctx, unref), isFunction)` — a live composable placed on
+ * context would be serialised/reflected, and its reactive internals are not
+ * plain data. Internals is not reflected, so the pay UI still reaches them
+ * (`Order.vue` provides `paymentDetail`) without polluting the port.
+ * rejected: placing them on context — reflected by the scenario port; and a
+ * fifth top-level layer — the four-layer return is fixed (clause 1).
  */
 export function createInvoiceInternals(
   actorScope: ScopeActorTypes,
-  query: InvoiceItemQuery
+  actor: UseActor,
+  paymentDetail: ReturnType<typeof usePaymentDetail>,
+  gateway: ReturnType<typeof usePaymentGateway>
 ) {
   return {
     /** Actor scope for this instance. */
     actorScope,
-    /** Raw TanStack query object backing this read. */
-    query
+
+    /** Delegated payment-gateway composable. */
+    gateway,
+
+    /** Delegated payment-detail composable (for provide/inject). */
+    paymentDetail,
+
+    /** Raw send function for machine events. */
+    send: actor.send,
+
+    /** Raw XState service. */
+    service: actor.service,
+
+    /** Raw XState state ref. */
+    state: actor.state
   };
 }
 

@@ -1,0 +1,22 @@
+Negative control for contract.machine.ts loading `isUnrecognised` arm (D89c).
+
+RE-CUT (FE-3206): the loading status placement moved from a separate `always`
+list (guarded `isUnrecognised`) to the `onDone` array; the unrecognised fallback
+is now the final `onDone` branch (no cond) targeting `#error`. The mutation is
+unchanged — it still drops only `target: "#error"` from that branch, so an
+unrecognised status no longer settles on the error node and the machine stays
+in `loading`.
+
+Spec that goes red: contract.manager-unrecognised-status.test.ts
+diff --git a/packages/headless/src/modules/contract/contract.machine.ts b/packages/headless/src/modules/contract/contract.machine.ts
+--- a/packages/headless/src/modules/contract/contract.machine.ts
++++ b/packages/headless/src/modules/contract/contract.machine.ts
+@@ -105,7 +105,6 @@ export default createMachine(
+               cond: "isActive",
+               actions: ["setContract", "setLookups"]
+             },
+             {
+-              target: "#error",
+               // No status this machine knows (AC12).
+               actions: ["setContract", "setLookups", "setStatusError"]
+             }

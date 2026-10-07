@@ -9,12 +9,13 @@
  */
 
 import type { Component } from "vue";
+// -----------------------------------------------------------------------------
 
-export interface EmptyStateModuleProps {
+export type EmptyStateModuleProps = {
   /** Heading shown beneath the icon. No English default (CC22) — the consumer supplies its own copy. */
   readonly title?: string;
   /** Supporting copy. No English default (CC22). */
   readonly description?: string;
   /** The centered glyph. Absent = a generic inbox. */
   readonly icon?: Component;
-}
+};

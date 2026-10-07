@@ -1,5 +1,5 @@
+import { ROUTE, RegexMatch } from "../funnels/types";
 import { includes, trimStart } from "lodash-es";
-import { ROUTE, RegexMatch } from "~/funnels/types";
 
 /**
  * Global Redirects Middleware
@@ -81,7 +81,6 @@ export default defineNuxtRouteMiddleware(async to => {
 
   // --- Route Renames ---
 
-  // /order/cart -&gt; /order/basket
   if (path === "/order/cart") {
     return navigateTo(
       { name: ROUTE.BASKET, query: to.query },

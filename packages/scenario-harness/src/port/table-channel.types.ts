@@ -1,6 +1,8 @@
+// -----------------------------------------------------------------------------
 /**
- * Controlled-table channel types. TYPE only — zero table dependency; the
- * library choice stays the consumer's.
+ * @module port/table-channel.types
+ * @description Controlled-table channel types. TYPE only — zero table
+ * dependency; the library choice stays the consumer's.
  *
  * `graphify-out/graph.json` carries this file
  * (`packages_scenario_harness_src_port_table_channel_types_ts`) and

@@ -31,6 +31,7 @@ import type {
   MockNotificationPreference
 } from "../types";
 import type { FormModel } from "@upmind/ui";
+// -----------------------------------------------------------------------------
 
 /**
  * One cell's submitted answer, written onto the row it names. A MANDATORY

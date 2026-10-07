@@ -1,0 +1,21 @@
+# Negative control — velia-nuxt points `~` at cart-nuxt's app again, so an
+# alias of Velia's own decides where cart-nuxt's imports resolve.
+#
+# Intended RED:
+#   apps/velia-nuxt/tests/velia-layer.test.ts
+#     "declares no alias"
+
+diff --git a/apps/velia-nuxt/nuxt.config.ts b/apps/velia-nuxt/nuxt.config.ts
+--- a/apps/velia-nuxt/nuxt.config.ts
++++ b/apps/velia-nuxt/nuxt.config.ts
+@@ -4,6 +4,10 @@ import { find } from "lodash-es";
+ export default defineNuxtConfig({
+   extends: ["../cart-nuxt"],
+ 
++  alias: {
++    "~": resolve(__dirname, "../cart-nuxt/app")
++  },
++
+   hooks: {
+     // Swapped in place: a same-name middleware file would run after cart-nuxt's routing guard.
+     "app:resolve": app => {

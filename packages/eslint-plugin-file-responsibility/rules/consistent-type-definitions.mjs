@@ -57,9 +57,9 @@ export default {
           messageId: "preferType",
           fix(fixer) {
             const fixes = [];
-            // `interface` keyword → `type`. The declaration's first token is
-            // `interface` (an `export`/`declare` modifier sits on the parent).
-            const kw = sourceCode.getFirstToken(node);
+            // `interface` keyword → `type`. A `declare` modifier is part of the
+            // node, so find the keyword token itself, not the first token.
+            const kw = sourceCode.getFirstToken(node, (t) => t.value === "interface");
             if (kw) fixes.push(fixer.replaceText(kw, "type"));
 
             // Insert ` = ` between the name (and type params) and the body,

@@ -204,12 +204,14 @@ export function createClientCompanyManagerActions(
   }
 
   /** Clears the current form context. */
-  function clear(): void {
+  async function clear(): Promise<void> {
+    await debouncedInput.flush()?.catch(() => undefined);
     send({ type: "CLEAR" });
   }
 
   /** Stops the underlying machine, leaving the registry entry in place. */
-  function stop(): void {
+  async function stop(): Promise<void> {
+    await debouncedInput.flush()?.catch(() => undefined);
     stopService(machineService);
   }
 
@@ -219,7 +221,8 @@ export function createClientCompanyManagerActions(
    * because a query has no service to stop. Replaces the pre-conversion
    * `stop()` (`parity.yaml` C30).
    */
-  function destroy(): void {
+  async function destroy(): Promise<void> {
+    await debouncedInput.flush()?.catch(() => undefined);
     stopService(machineService);
     removeFromRegistry(scopeKey);
   }

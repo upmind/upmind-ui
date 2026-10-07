@@ -1,64 +1,73 @@
-import { computed } from "vue";
-import { mapToHeadlessError } from "../../utils";
+import { useContext } from "../../utils";
 import type {
-  ClientBillingSettingsRecordQuery,
-  ClientBillingSettingsServices
+  BillingSettingsContext,
+  BillingSettingsModel
 } from "./client-billing-settings.types";
-import type { ResponseError } from "../../utils";
+import type { ResponseError, UseActor } from "../../utils";
 import type { ScopeActorTypes } from "../scope/scope.types";
+import type { ICurrency } from "@upmind-automation/types";
+import type { ErrorObject } from "ajv";
 // -----------------------------------------------------------------------------
 /**
  * @module client-billing-settings/useBillingSettings.context
- * @description Read context — the reactive invoice-consolidation preference,
- * flat off the shared client-record query's own projection, plus the
- * session-resolved account values folded in 2026-09-09 (rows B1, X4, X7).
+ * @description Manager context — the reactive read side of the machine
+ * context. Every member goes through the `useContext` state-read utility;
+ * `state.value.context` is never read directly.
  *
- * ERRORS ARE STATE, NOT EVENTS. `error` is the query's own captured failure,
- * exposed for the consumer to render. This layer never raises it.
+ * THIS is where the schema and uischema surface. They enter the system in
+ * `useBillingSettings.machine.ts`'s `setSchemas`, live in machine
+ * context, and reach consumers HERE — the barrel exports no bare pair.
+ *
+ * ERRORS ARE STATE, NOT EVENTS. `errors` and `validationErrors` are the
+ * machine's captured failure, exposed for the consumer to render.
  *
  * @doctrine clause 2 — shared-only (armless).
  */
 export function createBillingSettingsContext(
   _actorScope: ScopeActorTypes,
-  service: ClientBillingSettingsServices,
-  query: ClientBillingSettingsRecordQuery
+  actor: UseActor
 ) {
-  /** The five persisted consolidation fields, mapped off the client record. */
-  const data = computed(() => query.data.value);
+  const { state } = actor;
 
-  /** The query's own captured error — read, never raised. */
-  const error = computed<ResponseError | undefined>(() =>
-    query.error.value ? mapToHeadlessError(query.error.value) : undefined
-  );
+  // No state flags here — `isVisible` and `hasPaymentCurrencyChoice` are
+  // meta (`useBillingSettings.meta.ts`); context carries data only.
 
   // --- actor-specific context: none earned (arms: none — parity.yaml).
 
   return {
-    /** The five persisted consolidation fields, plus `isStaged`. */
-    data,
+    /** The full data-manager context object. */
+    context: useContext<BillingSettingsContext>(state),
 
-    /** The query's own captured error — read, never raised. */
-    error,
+    /** Machine-captured error message, if any — read, never raised. */
+    errors: useContext<ResponseError["message"]>(state, "error.message"),
 
-    /**
-     * The session-resolved account's id (rows B1/X4) — a literal absence,
-     * never substituted, when the addressed client is not the session's own
-     * (row X7/AC25).
-     */
-    accountId: service.accountId,
+    /** The id of the client whose preference is being managed. */
+    id: useContext<string | undefined>(state, "id"),
 
-    /** The account's own billing currency id, off the session's own account list (rows B1/B5). */
-    currencyId: service.currencyId,
+    /** The current form model. */
+    model: useContext<BillingSettingsModel | undefined>(state, "model"),
 
-    /** The account's preferred payment currency id, or a literal absence when unset (rows B1/B4). */
-    preferredPaymentCurrencyId: service.preferredPaymentCurrencyId,
+    /** The base (persisted) model `revert()` restores to. */
+    baseModel: useContext<BillingSettingsModel | undefined>(state, "baseModel"),
 
     /**
-     * The currency options both account-currency controls offer — the
-     * brand's supported currencies ordered by name, plus the account's own
-     * currency when the brand list omits it (rows B2/B3).
+     * The currency options both account-currency controls offer — published
+     * from machine context, seeded by `loadLookups` from `useBrand().currencies`
+     * plus the account's own currency when the brand list omits it (rows B2/B3).
      */
-    currencyOptions: service.currencyOptions
+    currencyOptions: useContext<ICurrency[]>(state, "lookups.currencies"),
+
+    /** The JSON schema for the form (from machine context — see JSDoc). */
+    schema: useContext<BillingSettingsContext["schema"]>(state, "schema"),
+
+    /** Display title of the preference being edited. */
+    title: useContext<string | undefined>(state, "title"),
+
+    /** The UI schema for the form (from machine context — see JSDoc). */
+    uischema: useContext<BillingSettingsContext["uischema"]>(state, "uischema"),
+
+    /** Field-level validation errors (AJV `ErrorObject[]`) — read, never raised. */
+    validationErrors: useContext<ErrorObject[]>(state, "error.data")
 
     // The arm merges in HERE, last.
     // ...actorContext
