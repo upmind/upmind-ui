@@ -40,7 +40,7 @@ const { inertApp } = vi.hoisted(() => {
   return { inertApp };
 });
 
-// The entry runs for real; only the mount is inert, so no page renders.
+// The entry runs for real; only the mount and the platform boot are inert, so no page renders.
 vi.mock("vue", async importOriginal =>
   assign({}, await importOriginal<typeof import("vue")>(), {
     createApp: () => inertApp
@@ -108,6 +108,9 @@ let registered: FormRendererEntry[] = [];
 let foundation: FormRendererEntry[] = [];
 
 beforeAll(async () => {
+  // init boots the platform in the background and can outlive the test file.
+  const { default: upmind } = await import("@upmind-automation/headless");
+  vi.spyOn(upmind, "init").mockResolvedValue();
   await import("../src/main");
   const { foundationRenderers, useFormRenderers } =
     await import("@upmind-automation/foundation");

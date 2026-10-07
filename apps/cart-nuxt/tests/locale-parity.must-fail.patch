@@ -1,0 +1,15 @@
+# Negative control — translation downloads go back to ./src/assets/locales/, a
+# folder the Nuxt cart never reads, so refreshed copy never reaches the app.
+#
+# Intended RED:
+#   apps/cart-nuxt/tests/locale-parity.test.ts
+#     "downloads translations into the folder the app reads"
+
+diff --git a/apps/cart-nuxt/localazy.json b/apps/cart-nuxt/localazy.json
+--- a/apps/cart-nuxt/localazy.json
++++ b/apps/cart-nuxt/localazy.json
+@@ -5,3 +5,3 @@
+   "download": {
+-    "folder": "./app/assets/locales/",
++    "folder": "./src/assets/locales/",
+     "files": "${snakecase_lang}/${file}",

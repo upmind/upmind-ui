@@ -1,5 +1,8 @@
-// @upmind-automation/icons
-// This package provides shared icons for all Upmind Automation projects.
-// Icons are available as static assets via the ./assets/* export.
+// -----------------------------------------------------------------------------
+/**
+ * @module icons/index
+ * @description Shared icons for all Upmind Automation projects. The icons ship
+ * as static assets through the `./assets/*` export.
+ */
 
 export const ICONS_VERSION = "0.0.0";

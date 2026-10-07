@@ -1,6 +1,11 @@
 import type { ControlledTableChannel } from "./table-channel.types";
 import type { ReflectedSnapshot } from "../reflection/reflection.types";
 // -----------------------------------------------------------------------------
+/**
+ * @module port/port.types
+ * @description The composition port: the seam an adapter implements so the
+ * core can reflect a composable without importing it.
+ */
 
 /**
  * The seam port (ADR-027 d.4 shape). Meta rule, stated once: flags cross the

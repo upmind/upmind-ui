@@ -31,7 +31,7 @@
     "build": "pnpm type-check && pnpm build-only",
     "build:staging": "pnpm type-check && vite build --mode staging",
     "build-only": "vite build",
-    "type-check": "vue-tsc -p tsconfig.build.json --noEmit",
+    "type-check": "vue-tsc -b tsconfig.build.json",
     "preview": "vite preview",
     "test": "vitest run --config vitest.config.ts",
     "test:unit": "vitest run --config vitest.config.ts",

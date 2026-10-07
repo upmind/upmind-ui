@@ -243,7 +243,7 @@ const onBack = () => navigateBack();
 
 ### `mount(name?)`
 
-`(name?: string) => void` — Signal that a page component has mounted. Called by `RouteView` on `@vue:mounted`.
+`(name?: string) => void` — Signal that a page component has mounted. The host app calls it once per page with the route name, from a `RouteView` on `@vue:mounted` or from Nuxt's `page:finish` hook. `navigate`, `navigateNext` and `navigateBack` wait for this signal before `isNavigating` returns to `false`, so a host that never calls it leaves every navigation pending.
 
 ```typescript
 import { useRoutingEngine } from "@upmind-automation/headless";

@@ -8,7 +8,8 @@ import {
 import { SHELL, useShell } from "@upmind-automation/foundation";
 import {
   decorateRoutes,
-  registerOverlayRoutes
+  registerOverlayRoutes,
+  useRoutingEngine
 } from "@upmind-automation/headless";
 import "@upmind-automation/payment";
 import "@upmind-automation/product";
@@ -19,7 +20,7 @@ import { useFooter } from "../shell/components/footer/useFooter";
 import { useHeader } from "../shell/components/header/useHeader";
 import { useTheme } from "../shell/modules/theming/useTheme";
 import UpmindClient from "../shell/useUpmindClient";
-import { forEach } from "lodash-es";
+import { forEach, get, toString } from "lodash-es";
 import type { I18n } from "vue-i18n";
 import type { Router } from "vue-router";
 import { defineNuxtPlugin } from "#app";
@@ -107,5 +108,6 @@ export default defineNuxtPlugin(async nuxtApp => {
     if (!shell.has(SHELL.HEADER)) useHeader({});
     if (!shell.has(SHELL.FOOTER)) useFooter({});
     if (!shell.has(SHELL.LAYOUT)) useLayout({});
+    useRoutingEngine().mount(toString(get(router, "currentRoute.value.name")));
   });
 });

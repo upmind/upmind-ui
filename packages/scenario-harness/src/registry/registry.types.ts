@@ -1,3 +1,10 @@
+// -----------------------------------------------------------------------------
+/**
+ * @module registry/registry.types
+ * @description The registry type a consumer supplies to map its own manifest
+ * keys to live factories.
+ */
+
 /**
  * An executor's live-factory map, one entry per consumer-supplied manifest
  * key. `K` is never baked in here — the consumer's own manifest (an

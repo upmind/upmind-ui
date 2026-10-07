@@ -28,7 +28,8 @@ export default defineConfig({
     browser: {
       enabled: true,
       headless: true,
-      provider: playwright(),
+      // Animated stories draw one still frame; on CI the shader loop made axe time out.
+      provider: playwright({ contextOptions: { reducedMotion: "reduce" } }),
       instances: [{ browser: "chromium" }]
     }
   }

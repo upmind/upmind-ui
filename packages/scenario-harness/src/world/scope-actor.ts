@@ -1,6 +1,9 @@
 import { AccessRoleTypes } from "@upmind-automation/types";
 // -----------------------------------------------------------------------------
-// ----------------------------------------------------------------------------- // packages/types/src/data/enums.ts:16
+/**
+ * @module world/scope-actor
+ * @description The actor vocabulary a scope-matrix cell is booted for.
+ */
 
 /**
  * Mirror of headless `ScopeActorTypes` (`packages/headless/src/modules/scope/scope.types.ts:11-16`)
