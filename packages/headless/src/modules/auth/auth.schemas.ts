@@ -20,3 +20,8 @@ export {
 export { useRecoverSchema, useRecoverUischema } from "./auth.schemas.recover";
 // --- 2fa
 export { useTwoFASchema, useTwoFAUischema } from "./auth.schemas.twofa";
+// --- set password (registration-activation landing)
+export {
+  useSetPasswordSchema,
+  useSetPasswordUischema
+} from "./auth.schemas.registration";

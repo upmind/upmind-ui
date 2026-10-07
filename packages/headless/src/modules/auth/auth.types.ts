@@ -9,12 +9,17 @@
 
 import { AccessRoleTypes } from "@upmind-automation/types";
 import { ScopeActorTypes } from "../scope/scope.types";
-import type { ResponseError } from "../../utils";
+import type { DetailedError, ErrorObject, ResponseError } from "../../utils";
 import type { CustomField } from "../client-custom-fields";
 import type { PhoneModel } from "../client-phone";
 import type { ScopeContext } from "../scope/scope.types";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
-import type { IClient, IToken } from "@upmind-automation/types";
+import type {
+  IAuthenticate,
+  IClient,
+  IToken,
+  TwofaProviders
+} from "@upmind-automation/types";
 import type { AnyEventObject } from "xstate";
 // -----------------------------------------------------------------------------
 /**
@@ -267,4 +272,123 @@ export type VerifyFromLinkParams = {
   clientId: string;
   emailId: string;
   hash: string;
+};
+// -----------------------------------------------------------------------------
+/**
+ * Query keys of the registration-activation link that `QUERY_PARAMS` does not
+ * carry. `QUERY_PARAMS.USERNAME` and `QUERY_PARAMS.HASH` name the other two.
+ */
+export const LINK_PARAMS = {
+  EXPIRES: "expires",
+  REDIRECT: "redirect"
+} as const;
+
+/**
+ * Registration-landing scope matrix. Every actor reaches the one armless
+ * factory; no actor takes `.for()`.
+ */
+export const VERIFY_REGISTRATION_SCOPE_MATRIX = {
+  [ScopeActorTypes.SELF]: null as never,
+  [ScopeActorTypes.STAFF]: null as never,
+  [ScopeActorTypes.CLIENT]: null as never,
+  [ScopeActorTypes.GUEST]: null as never
+} as const;
+
+/**
+ * Registration-landing scope matrix type (derived from runtime const).
+ */
+export type VerifyRegistrationScopeMatrix =
+  typeof VERIFY_REGISTRATION_SCOPE_MATRIX;
+
+/**
+ * The raw values of the registration-activation link.
+ */
+export type VerifyRegistrationParams = {
+  username?: string;
+  hash?: string;
+  expires?: string;
+  redirect?: string;
+};
+
+/**
+ * Lower-cased two-factor provider of a verified link, or `""` when the API
+ * names none.
+ */
+export type VerifyRegistrationTwoFAProvider =
+  | Lowercase<`${TwofaProviders}`>
+  | "";
+
+/**
+ * The mapped answer of the registration verify request.
+ */
+export type VerifyRegistrationData = {
+  needsPassword: boolean;
+  needsCompleteStep: boolean;
+  twoFARequired: boolean;
+  twoFAProvider: VerifyRegistrationTwoFAProvider;
+};
+
+/**
+ * The published landing error. Keeps the structured API code of the failure.
+ */
+export type VerifyRegistrationError = ResponseError &
+  Pick<DetailedError, "apiCode">;
+
+/**
+ * The set-password form model.
+ */
+export type SetPasswordModel = {
+  username: string;
+  password?: string;
+  password_confirmation?: string;
+};
+
+/**
+ * The `complete_registration` grant body. The password is absent on the
+ * direct path.
+ */
+export type CompleteRegistrationPayload = Omit<IAuthenticate, "password"> & {
+  password?: IAuthenticate["password"];
+};
+
+/**
+ * Context of the registration landing machine.
+ */
+export type VerifyRegistrationContext = {
+  params: VerifyRegistrationParams;
+  data?: VerifyRegistrationData;
+  error?: VerifyRegistrationError;
+  model: SetPasswordModel;
+  validationErrors: ErrorObject[];
+  redirect?: string;
+  sessionId?: string;
+  schema: JsonSchema;
+  uischema: UISchemaElement;
+};
+
+/**
+ * Events of the registration landing machine.
+ */
+export type VerifyRegistrationEvents =
+  | { type: "VERIFY"; data: VerifyRegistrationParams }
+  | { type: "SET"; data: Partial<SetPasswordModel> }
+  | { type: "COMPLETE" }
+  | { type: "RESET" };
+
+/**
+ * The members that `useVerifyRegistration().useContext()` publishes.
+ */
+export type VerifyRegistrationContextMembers = Pick<
+  VerifyRegistrationContext,
+  | "data"
+  | "error"
+  | "validationErrors"
+  | "model"
+  | "redirect"
+  | "sessionId"
+  | "schema"
+  | "uischema"
+> & {
+  twoFAProvider: VerifyRegistrationTwoFAProvider | null;
+  currentState: string;
 };

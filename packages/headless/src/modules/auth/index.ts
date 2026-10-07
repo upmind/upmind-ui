@@ -14,6 +14,13 @@ export type { UseAuthContext } from "./useAuth.context";
 export type { UseAuthMeta } from "./useAuth.meta";
 export type { UseAuthInternals } from "./useAuth.internals";
 
+// --- Registration-activation link landing
+export * from "./useVerifyRegistration";
+export type { UseVerifyRegistrationActions } from "./useVerifyRegistration.actions";
+export type { UseVerifyRegistrationContext } from "./useVerifyRegistration.context";
+export type { UseVerifyRegistrationMeta } from "./useVerifyRegistration.meta";
+export type { UseVerifyRegistrationInternals } from "./useVerifyRegistration.internals";
+
 // --- Email-verification link flow (M2)
 export { useVerifyEmail, type UseVerifyEmail } from "./useVerifyEmail";
 

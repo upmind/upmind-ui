@@ -68,6 +68,27 @@
     "placeholder": "Password or passphrase",
     "show": "Show password"
   },
+  "auth_set_password": {
+    "description": null,
+    "error": {
+      "min_length": "Password must be at least 8 characters",
+      "min_length_letter": "Password must be at least 8 characters and contain a letter",
+      "min_length_letter_number": "Password must be at least 8 characters, contain a letter, and a number",
+      "min_length_number": "Password must be at least 8 characters and contain a number",
+      "missing_letter": "Password must contain a letter",
+      "missing_letter_number": "Password must contain a letter and a number",
+      "missing_number": "Password must contain a number"
+    },
+    "hint": "Password must be at least 8 characters and include a letter and a number.",
+    "label": "Set password",
+    "placeholder": "8+ characters, consisting of both numbers & letters"
+  },
+  "auth_set_password_confirmation": {
+    "description": null,
+    "error": "Enter the same password again",
+    "label": "Confirm password",
+    "placeholder": "Confirm password"
+  },
   "bounced_filter": {
     "description": null,
     "label": "Bounced",
