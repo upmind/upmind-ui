@@ -1,0 +1,17 @@
+AC: AC22 idle after destroy (a new .as("self") after destroy() is idle)
+Spec: auth.verify-registration.guest.int.test.ts
+Mutation: destroy() leaves the cached instance in the registry
+Apply from the repo root with: git apply -p1 packages/headless/src/modules/auth/__tests__/auth.verify-registration.destroy-noop.must-fail.patch
+
+diff --git a/packages/headless/src/modules/auth/useVerifyRegistration.actions.ts b/packages/headless/src/modules/auth/useVerifyRegistration.actions.ts
+index a53d5eb91c..1740d3c509 100644
+--- a/packages/headless/src/modules/auth/useVerifyRegistration.actions.ts
++++ b/packages/headless/src/modules/auth/useVerifyRegistration.actions.ts
+@@ -35,7 +35,6 @@ export function createVerifyRegistrationActions(
+ 
+   function destroy(): void {
+     stopService(service);
+-    remove(scopeKey);
+   }
+ 
+   async function isReady(): Promise<boolean> {

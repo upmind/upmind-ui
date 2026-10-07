@@ -1,0 +1,21 @@
+AC: model with errors stays at needsPassword
+Spec: useVerifyRegistration.machine.test.ts
+Mutation: validating always goes to completingWithPassword
+Apply from the repo root with: git apply -p1 packages/headless/src/modules/auth/__tests__/auth.verify-registration.validating-guard.must-fail.patch
+
+diff --git a/packages/headless/src/modules/auth/auth.registration.machine.ts b/packages/headless/src/modules/auth/auth.registration.machine.ts
+index 54b5a36f7a..654aa6235d 100644
+--- a/packages/headless/src/modules/auth/auth.registration.machine.ts
++++ b/packages/headless/src/modules/auth/auth.registration.machine.ts
+@@ -125,10 +125,7 @@ export const verifyRegistrationMachine = createMachine(
+       },
+ 
+       validating: {
+-        always: [
+-          { target: "needsPassword", cond: "hasValidationErrors" },
+-          { target: "completingWithPassword" }
+-        ]
++        always: [{ target: "completingWithPassword" }]
+       },
+ 
+       completing: {

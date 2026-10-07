@@ -1,0 +1,36 @@
+AC: an active client keys a new instance
+Spec: useVerifyRegistration.scope.test.ts
+Mutation: the instance key leaves out the resolved actor (every scope keys GUEST)
+Apply from the repo root with: git apply -p1 packages/headless/src/modules/auth/__tests__/auth.verify-registration.scope-key.must-fail.patch
+
+diff --git a/packages/headless/src/modules/auth/useVerifyRegistration.ts b/packages/headless/src/modules/auth/useVerifyRegistration.ts
+index dbe8443100..39030ffc2a 100644
+--- a/packages/headless/src/modules/auth/useVerifyRegistration.ts
++++ b/packages/headless/src/modules/auth/useVerifyRegistration.ts
+@@ -1,5 +1,5 @@
+ import { interpret } from "xstate";
+-import { createScopedComposable } from "../scope";
++import { createScopedComposable, ScopeActorTypes } from "../scope";
+ import { useI18n } from "../system-localisation";
+ import {
+   createVerifyRegistrationMachineContext,
+@@ -84,7 +84,7 @@ function createVerifyRegistrationForScope(
+  * landing.useActions().verify({ username, hash, expires, redirect })
+  * ```
+  */
+-export const useVerifyRegistration = createScopedComposable<
++const scopedLanding = createScopedComposable<
+   ReturnType<typeof createVerifyRegistrationForScope>,
+   VerifyRegistrationScopeMatrix
+ >(
+@@ -92,6 +92,10 @@ export const useVerifyRegistration = createScopedComposable<
+   createVerifyRegistrationForScope,
+   VERIFY_REGISTRATION_SCOPE_MATRIX
+ );
++export const useVerifyRegistration = () => {
++  const builder = scopedLanding();
++  return { as: (_actor: unknown) => builder.as(ScopeActorTypes.GUEST) };
++};
+ 
+ // Type export for consumers
+ export type UseVerifyRegistration = ReturnType<typeof useVerifyRegistration>;

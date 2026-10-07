@@ -1,0 +1,23 @@
+AC: D12 case /x/..//evil.example publishes undefined
+Spec: useVerifyRegistration.rules.test.ts
+Mutation: drop step 4 of toSafeRedirect
+Apply from the repo root with: git apply -p1 packages/headless/src/modules/auth/__tests__/auth.verify-registration.redirect-step4.must-fail.patch
+
+diff --git a/packages/headless/src/modules/auth/auth.mappers.ts b/packages/headless/src/modules/auth/auth.mappers.ts
+index 337085c514..ddc38c44c2 100644
+--- a/packages/headless/src/modules/auth/auth.mappers.ts
++++ b/packages/headless/src/modules/auth/auth.mappers.ts
+@@ -129,13 +129,6 @@ export function toSafeRedirect(raw: unknown): string | undefined {
+   const value = replace(raw, /^\\+/, "");
+   if (!/^\/(?![/\\])/.test(value)) return;
+ 
+-  try {
+-    const url = new URL(value, REDIRECT_BASE);
+-    if (url.origin !== REDIRECT_BASE || startsWith(url.pathname, "//")) return;
+-  } catch {
+-    return;
+-  }
+-
+   return value;
+ }
+ // -----------------------------------------------------------------------------

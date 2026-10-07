@@ -1,0 +1,25 @@
+AC: AC12 request count (a link with a missing value sends zero requests)
+Spec: auth.verify-registration.guest.int.test.ts
+Mutation: remove the checkingLink guard
+Apply from the repo root with: git apply -p1 packages/headless/src/modules/auth/__tests__/auth.verify-registration.missing-guard.must-fail.patch
+
+diff --git a/packages/headless/src/modules/auth/auth.registration.machine.ts b/packages/headless/src/modules/auth/auth.registration.machine.ts
+index 54b5a36f7a..15920bdfb4 100644
+--- a/packages/headless/src/modules/auth/auth.registration.machine.ts
++++ b/packages/headless/src/modules/auth/auth.registration.machine.ts
+@@ -81,14 +81,7 @@ export const verifyRegistrationMachine = createMachine(
+ 
+       checkingLink: {
+         entry: ["storeRedirect"],
+-        always: [
+-          {
+-            target: "expiredOrInvalid",
+-            cond: "isLinkIncomplete",
+-            actions: ["storeInvalidLinkError"]
+-          },
+-          { target: "verifying" }
+-        ]
++        always: [{ target: "verifying" }]
+       },
+ 
+       verifying: {

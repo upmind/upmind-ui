@@ -1,0 +1,18 @@
+AC: AC19 C1 rejection (the two-step read rejects with the /self error)
+Spec: auth.verify-registration.guest.int.test.ts
+Mutation: persist the token with no LOGIN event
+Apply from the repo root with: git apply -p1 packages/headless/src/modules/auth/__tests__/auth.verify-registration.no-event.must-fail.patch
+
+diff --git a/packages/headless/src/modules/auth/auth.services.client.registration.ts b/packages/headless/src/modules/auth/auth.services.client.registration.ts
+index 17dde4f99d..9346638c00 100644
+--- a/packages/headless/src/modules/auth/auth.services.client.registration.ts
++++ b/packages/headless/src/modules/auth/auth.services.client.registration.ts
+@@ -114,7 +114,7 @@ export async function completeRegistration({
+     withAccessToken: false
+   }).then(token => {
+     const clientToken = mapRegistrationToken(token);
+-    persistTokenToStorage(clientToken, { event: AuthEvents.LOGIN });
++    persistTokenToStorage(clientToken);
+     return clientToken;
+   });
+ }

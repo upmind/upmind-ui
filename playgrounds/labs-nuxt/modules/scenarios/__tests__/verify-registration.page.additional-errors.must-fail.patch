@@ -1,0 +1,17 @@
+AC: AC25 mismatch text (Enter the same password again renders)
+Spec: verify-registration.page.spec.ts
+Mutation: the page does not pass validationErrors to additionalErrors
+Apply from the repo root with: git apply -p1 playgrounds/labs-nuxt/modules/scenarios/__tests__/verify-registration.page.additional-errors.must-fail.patch
+
+diff --git a/playgrounds/labs-nuxt/modules/scenarios/useVerifyRegistration/verify-registration.page.vue b/playgrounds/labs-nuxt/modules/scenarios/useVerifyRegistration/verify-registration.page.vue
+index 7b803605f8..0a8c0bc81b 100644
+--- a/playgrounds/labs-nuxt/modules/scenarios/useVerifyRegistration/verify-registration.page.vue
++++ b/playgrounds/labs-nuxt/modules/scenarios/useVerifyRegistration/verify-registration.page.vue
+@@ -94,7 +94,6 @@
+           :uischema="context.uischema.value"
+           :model-value="context.model.value"
+           :additional-renderers="formRenderers"
+-          :additional-errors="context.validationErrors.value"
+           :data-attrs="{ 'data-test-key': 'verify-registration-form' }"
+           @update:model-value="actions.set($event)"
+           @resolve="actions.completeRegistration()"

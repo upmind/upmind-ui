@@ -1,0 +1,34 @@
+AC: AC22 same-instance assertion (two .as("self") calls return one instance)
+Spec: auth.verify-registration.guest.int.test.ts
+Mutation: the root factory builds a new instance on each call
+Apply from the repo root with: git apply -p1 packages/headless/src/modules/auth/__tests__/auth.verify-registration.instance-cache.must-fail.patch
+
+diff --git a/packages/headless/src/modules/auth/useVerifyRegistration.ts b/packages/headless/src/modules/auth/useVerifyRegistration.ts
+index dbe8443100..5b80853fe7 100644
+--- a/packages/headless/src/modules/auth/useVerifyRegistration.ts
++++ b/packages/headless/src/modules/auth/useVerifyRegistration.ts
+@@ -84,14 +84,16 @@ function createVerifyRegistrationForScope(
+  * landing.useActions().verify({ username, hash, expires, redirect })
+  * ```
+  */
+-export const useVerifyRegistration = createScopedComposable<
+-  ReturnType<typeof createVerifyRegistrationForScope>,
+-  VerifyRegistrationScopeMatrix
+->(
+-  "useVerifyRegistration",
+-  createVerifyRegistrationForScope,
+-  VERIFY_REGISTRATION_SCOPE_MATRIX
+-);
++let callSeed = 0;
++export const useVerifyRegistration = () =>
++  createScopedComposable<
++    ReturnType<typeof createVerifyRegistrationForScope>,
++    VerifyRegistrationScopeMatrix
++  >(
++    `useVerifyRegistration#${callSeed++}`,
++    createVerifyRegistrationForScope,
++    VERIFY_REGISTRATION_SCOPE_MATRIX
++  )();
+ 
+ // Type export for consumers
+ export type UseVerifyRegistration = ReturnType<typeof useVerifyRegistration>;

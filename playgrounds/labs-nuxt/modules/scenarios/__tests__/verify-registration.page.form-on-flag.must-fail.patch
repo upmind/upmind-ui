@@ -1,0 +1,18 @@
+AC: AC20 no form after a past expires
+Spec: verify-registration.page.spec.ts
+Mutation: the page renders the form on the needsPassword flag
+Apply from the repo root with: git apply -p1 playgrounds/labs-nuxt/modules/scenarios/__tests__/verify-registration.page.form-on-flag.must-fail.patch
+
+diff --git a/playgrounds/labs-nuxt/modules/scenarios/useVerifyRegistration/verify-registration.page.vue b/playgrounds/labs-nuxt/modules/scenarios/useVerifyRegistration/verify-registration.page.vue
+index 7b803605f8..0368ca2ea1 100644
+--- a/playgrounds/labs-nuxt/modules/scenarios/useVerifyRegistration/verify-registration.page.vue
++++ b/playgrounds/labs-nuxt/modules/scenarios/useVerifyRegistration/verify-registration.page.vue
+@@ -82,7 +82,7 @@
+       </Alert>
+ 
+       <UpmSection
+-        v-if="context.currentState.value === 'needsPassword'"
++        v-if="meta.needsPassword.value"
+         id="verify-registration-set-password"
+         value="verify-registration-set-password"
+         icon="lock-01"

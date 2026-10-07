@@ -1,0 +1,17 @@
+AC: D18 input 3 (a null verify value throws)
+Spec: useVerifyRegistration.rules.test.ts
+Mutation: map a null value with the defaults
+Apply from the repo root with: git apply -p1 packages/headless/src/modules/auth/__tests__/auth.verify-registration.mapper-null.must-fail.patch
+
+diff --git a/packages/headless/src/modules/auth/auth.mappers.ts b/packages/headless/src/modules/auth/auth.mappers.ts
+index 337085c514..85a1d62982 100644
+--- a/packages/headless/src/modules/auth/auth.mappers.ts
++++ b/packages/headless/src/modules/auth/auth.mappers.ts
+@@ -79,7 +79,6 @@ export function mapRecoverData(
+  * @throws {TypeError} when the value is `null` or `undefined`.
+  */
+ export function mapVerifyRegistration(value: unknown): VerifyRegistrationData {
+-  if (isNil(value)) throw new TypeError("Verify registration answer is empty");
+ 
+   return {
+     needsPassword: !get(value, "has_password", false),

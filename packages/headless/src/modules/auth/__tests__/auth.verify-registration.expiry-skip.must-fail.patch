@@ -1,0 +1,18 @@
+AC: AC10 case 1 (a past expires is refused at the set-password step)
+Spec: auth.verify-registration.guest.int.test.ts
+Mutation: skip checkingExpiry
+Apply from the repo root with: git apply -p1 packages/headless/src/modules/auth/__tests__/auth.verify-registration.expiry-skip.must-fail.patch
+
+diff --git a/packages/headless/src/modules/auth/auth.registration.machine.ts b/packages/headless/src/modules/auth/auth.registration.machine.ts
+index 54b5a36f7a..d06f45efab 100644
+--- a/packages/headless/src/modules/auth/auth.registration.machine.ts
++++ b/packages/headless/src/modules/auth/auth.registration.machine.ts
+@@ -102,7 +102,7 @@ export const verifyRegistrationMachine = createMachine(
+       routing: {
+         always: [
+           { target: "completing", cond: "hasPassword" },
+-          { target: "checkingExpiry" }
++          { target: "needsPassword" }
+         ]
+       },
+ 

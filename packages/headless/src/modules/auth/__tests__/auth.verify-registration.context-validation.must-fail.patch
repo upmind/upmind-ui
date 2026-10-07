@@ -1,0 +1,22 @@
+AC: the mismatch error is published
+Spec: useVerifyRegistration.context.test.ts
+Mutation: the context publishes a constant [] for validationErrors
+Apply from the repo root with: git apply -p1 packages/headless/src/modules/auth/__tests__/auth.verify-registration.context-validation.must-fail.patch
+
+diff --git a/packages/headless/src/modules/auth/useVerifyRegistration.context.ts b/packages/headless/src/modules/auth/useVerifyRegistration.context.ts
+index 869a6f8856..eca3f87fc5 100644
+--- a/packages/headless/src/modules/auth/useVerifyRegistration.context.ts
++++ b/packages/headless/src/modules/auth/useVerifyRegistration.context.ts
+@@ -33,11 +33,7 @@ export function createVerifyRegistrationContext(
+   const schema = useContext<JsonSchema>(state, "schema");
+   const sessionId = useContext<string>(state, "sessionId");
+   const uischema = useContext<UISchemaElement>(state, "uischema");
+-  const validationErrors = useContext<ErrorObject[]>(
+-    state,
+-    "validationErrors",
+-    []
+-  );
++  const validationErrors = computed((): ErrorObject[] => []);
+   const twoFAProvider = computed(
+     (): VerifyRegistrationTwoFAProvider | null =>
+       data.value?.twoFAProvider ?? null

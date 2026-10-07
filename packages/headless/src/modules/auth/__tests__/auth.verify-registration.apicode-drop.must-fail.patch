@@ -1,0 +1,20 @@
+AC: AC16 (error.apiCode is ip_address_disallowed)
+Spec: auth.verify-registration.guest.int.test.ts
+Mutation: do not copy apiCode
+Apply from the repo root with: git apply -p1 packages/headless/src/modules/auth/__tests__/auth.verify-registration.apicode-drop.must-fail.patch
+
+diff --git a/packages/headless/src/modules/auth/auth.mappers.ts b/packages/headless/src/modules/auth/auth.mappers.ts
+index 337085c514..3f75db9888 100644
+--- a/packages/headless/src/modules/auth/auth.mappers.ts
++++ b/packages/headless/src/modules/auth/auth.mappers.ts
+@@ -106,9 +106,7 @@ export function mapVerifyRegistrationError(
+ ): VerifyRegistrationError | undefined {
+   const mapped = mapToHeadlessError(error);
+   if (!mapped) return mapped;
+-  return error instanceof DetailedError
+-    ? { ...mapped, apiCode: error.apiCode }
+-    : mapped;
++  return mapped;
+ }
+ // -----------------------------------------------------------------------------
+ const REDIRECT_BASE = "https://verify-landing.invalid";

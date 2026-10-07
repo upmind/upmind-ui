@@ -1,0 +1,18 @@
+AC: AC2 header assertion (the grant carries no Authorization header)
+Spec: auth.verify-registration.guest.int.test.ts
+Mutation: the complete_registration grant uses withAccessToken: true
+Apply from the repo root with: git apply -p1 packages/headless/src/modules/auth/__tests__/auth.verify-registration.grant-bearer.must-fail.patch
+
+diff --git a/packages/headless/src/modules/auth/auth.services.client.registration.ts b/packages/headless/src/modules/auth/auth.services.client.registration.ts
+index 17dde4f99d..213693a747 100644
+--- a/packages/headless/src/modules/auth/auth.services.client.registration.ts
++++ b/packages/headless/src/modules/auth/auth.services.client.registration.ts
+@@ -111,7 +111,7 @@ export async function completeRegistration({
+     mutationKey: [...REGISTRATION_MUTATION_KEY, "complete"],
+     url: useUrl("access_token", {}, { context: "oauth" }),
+     data,
+-    withAccessToken: false
++    withAccessToken: true
+   }).then(token => {
+     const clientToken = mapRegistrationToken(token);
+     persistTokenToStorage(clientToken, { event: AuthEvents.LOGIN });

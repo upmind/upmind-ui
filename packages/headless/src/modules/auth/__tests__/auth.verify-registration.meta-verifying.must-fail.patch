@@ -1,0 +1,17 @@
+AC: isVerifying true in idle
+Spec: useVerifyRegistration.meta.test.ts
+Mutation: isVerifying leaves out idle
+Apply from the repo root with: git apply -p1 packages/headless/src/modules/auth/__tests__/auth.verify-registration.meta-verifying.must-fail.patch
+
+diff --git a/packages/headless/src/modules/auth/useVerifyRegistration.meta.ts b/packages/headless/src/modules/auth/useVerifyRegistration.meta.ts
+index 1fc580b994..da6a0354e9 100644
+--- a/packages/headless/src/modules/auth/useVerifyRegistration.meta.ts
++++ b/packages/headless/src/modules/auth/useVerifyRegistration.meta.ts
+@@ -27,7 +27,6 @@ export function createVerifyRegistrationMeta(
+   >(state, "validationErrors");
+ 
+   const isVerifying = useStateMatches(state, [
+-    "idle",
+     "checkingLink",
+     "verifying",
+     "routing",

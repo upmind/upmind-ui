@@ -1,0 +1,17 @@
+AC: isReady() waits for a settled state
+Spec: useVerifyRegistration.actions.test.ts
+Mutation: isReady() resolves at once
+Apply from the repo root with: git apply -p1 packages/headless/src/modules/auth/__tests__/auth.verify-registration.isready-early.must-fail.patch
+
+diff --git a/packages/headless/src/modules/auth/useVerifyRegistration.actions.ts b/packages/headless/src/modules/auth/useVerifyRegistration.actions.ts
+index a53d5eb91c..415512a459 100644
+--- a/packages/headless/src/modules/auth/useVerifyRegistration.actions.ts
++++ b/packages/headless/src/modules/auth/useVerifyRegistration.actions.ts
+@@ -39,6 +39,7 @@ export function createVerifyRegistrationActions(
+   }
+ 
+   async function isReady(): Promise<boolean> {
++    return Promise.resolve(true);
+     return waitFor(
+       service,
+       snapshot => stateMatches(snapshot, SETTLED_STATES),

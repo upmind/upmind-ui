@@ -1,0 +1,21 @@
+AC: AC11 meta.ga_client_id (the grant body carries the GA ids)
+Spec: auth.verify-registration.guest.int.test.ts
+Mutation: read the analytics cookies with the default decoder, so meta goes missing
+Apply from the repo root with: git apply -p1 packages/headless/src/modules/auth/__tests__/auth.verify-registration.ga-decoder.must-fail.patch
+
+diff --git a/packages/headless/src/modules/auth/auth.services.client.registration.ts b/packages/headless/src/modules/auth/auth.services.client.registration.ts
+index 17dde4f99d..58c6021c14 100644
+--- a/packages/headless/src/modules/auth/auth.services.client.registration.ts
++++ b/packages/headless/src/modules/auth/auth.services.client.registration.ts
+@@ -57,9 +57,9 @@ async function readAnalyticsMeta(): Promise<
+   // and would drop them.
+   const { get: getCookie } = useCookies();
+   const raw = (value: string) => value;
+-  const ga = split(String(getCookie("_ga", raw) ?? ""), ".");
++  const ga = split(String(getCookie("_ga") ?? ""), ".");
+   const gaSession = split(
+-    String(getCookie(`_ga_${measurementId}`, raw) ?? ""),
++    String(getCookie(`_ga_${measurementId}`) ?? ""),
+     "."
+   );
+ 

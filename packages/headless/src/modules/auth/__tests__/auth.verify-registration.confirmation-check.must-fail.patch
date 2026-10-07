@@ -1,0 +1,18 @@
+AC: AC8 mismatch case (instancePath /password_confirmation, keyword const)
+Spec: auth.verify-registration.guest.int.test.ts
+Mutation: drop the confirmation const check
+Apply from the repo root with: git apply -p1 packages/headless/src/modules/auth/__tests__/auth.verify-registration.confirmation-check.must-fail.patch
+
+diff --git a/packages/headless/src/modules/auth/auth.registration.machine.ts b/packages/headless/src/modules/auth/auth.registration.machine.ts
+index 54b5a36f7a..8bda4f5c25 100644
+--- a/packages/headless/src/modules/auth/auth.registration.machine.ts
++++ b/packages/headless/src/modules/auth/auth.registration.machine.ts
+@@ -196,7 +196,7 @@ export const verifyRegistrationMachine = createMachine(
+       validate: assign({
+         validationErrors: ({ model, schema }: VerifyRegistrationContext) => {
+           const errors = useValidation().validate(schema, model);
+-          if (model.password_confirmation === model.password) return errors;
++          return errors;
+           return [
+             ...errors,
+             {

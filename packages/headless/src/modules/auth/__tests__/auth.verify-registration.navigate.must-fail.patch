@@ -1,0 +1,25 @@
+AC: AC17 (zero router.push / router.replace / location calls over each outcome)
+Spec: auth.verify-registration.guest.int.test.ts
+Mutation: call router.replace("/") on success
+Apply from the repo root with: git apply -p1 packages/headless/src/modules/auth/__tests__/auth.verify-registration.navigate.must-fail.patch
+
+diff --git a/packages/headless/src/modules/auth/auth.registration.machine.ts b/packages/headless/src/modules/auth/auth.registration.machine.ts
+index 54b5a36f7a..866f001b54 100644
+--- a/packages/headless/src/modules/auth/auth.registration.machine.ts
++++ b/packages/headless/src/modules/auth/auth.registration.machine.ts
+@@ -1,5 +1,6 @@
+ /** @internal */
+ import { assign, createMachine } from "xstate";
++import { router } from "../routing/useRoutingEngine";
+ import { useI18n } from "../system-localisation";
+ import {
+   isLinkExpired,
+@@ -147,7 +148,7 @@ export const verifyRegistrationMachine = createMachine(
+         }
+       },
+ 
+-      success: {},
++      success: { entry: () => router.replace("/") },
+ 
+       expiredOrInvalid: {},
+ 

@@ -1,0 +1,17 @@
+AC: AC9 key set (no password_confirmation key in the grant body)
+Spec: auth.verify-registration.guest.int.test.ts
+Mutation: spread the model into the grant body
+Apply from the repo root with: git apply -p1 packages/headless/src/modules/auth/__tests__/auth.verify-registration.confirmation-leak.must-fail.patch
+
+diff --git a/packages/headless/src/modules/auth/auth.services.client.registration.ts b/packages/headless/src/modules/auth/auth.services.client.registration.ts
+index 17dde4f99d..5d66b7a6a8 100644
+--- a/packages/headless/src/modules/auth/auth.services.client.registration.ts
++++ b/packages/headless/src/modules/auth/auth.services.client.registration.ts
+@@ -100,6 +100,7 @@ export async function completeRegistration({
+   const meta = await readAnalyticsMeta();
+ 
+   const data: CompleteRegistrationPayload = {
++    ...model,
+     grant_type: GrantTypes.COMPLETE_REGISTRATION,
+     username: params.username ?? "",
+     reg_hash: params.hash,

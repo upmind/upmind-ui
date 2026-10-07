@@ -1,0 +1,19 @@
+AC: AC1 case C (staff + client token: the verify never carries the staff bearer)
+Spec: auth.verify-registration.guest.int.test.ts
+Mutation: the verify PATCH uses withAccessToken: true
+Apply from the repo root with: git apply -p1 packages/headless/src/modules/auth/__tests__/auth.verify-registration.client-token.must-fail.patch
+
+diff --git a/packages/headless/src/modules/auth/auth.services.client.registration.ts b/packages/headless/src/modules/auth/auth.services.client.registration.ts
+index 17dde4f99d..3ab1b1f45f 100644
+--- a/packages/headless/src/modules/auth/auth.services.client.registration.ts
++++ b/packages/headless/src/modules/auth/auth.services.client.registration.ts
+@@ -82,8 +82,7 @@ export async function verifyRegistrationLink({
+     mutationKey: [...REGISTRATION_MUTATION_KEY, "verify"],
+     url: useUrl("clients/reg_hash/verify"),
+     data: { username: params.username, reg_hash: params.hash },
+-    withAccessToken:
+-      getTokenFromStorage(AccessRoleTypes.CLIENT)?.access_token || false
++    withAccessToken: true
+   }).then(mapVerifyRegistration);
+ }
+ 
