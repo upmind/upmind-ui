@@ -1,0 +1,316 @@
+<template>
+  <Page :data-attrs="{ 'data-test-key': 'verify-registration-page' }">
+    <PageHeader>
+      <PageTitle>{{ t("labs.verify_registration_title") }}</PageTitle>
+      <PageDescription>
+        {{ t("labs.verify_registration_description") }}
+      </PageDescription>
+    </PageHeader>
+
+    <PageBody class="gap-10">
+      <UpmSection
+        id="verify-registration-link"
+        value="verify-registration-link"
+        icon="link-external-01"
+        :label="t('labs.verify_registration_link')"
+      >
+        <div class="flex flex-col gap-3">
+          <Input
+            v-model="pastedLink"
+            :placeholder="t('labs.verify_registration_link_placeholder')"
+            :data-attrs="{ 'data-test-key': 'verify-registration-link-input' }"
+          />
+          <div class="flex flex-wrap gap-3">
+            <Button
+              variant="secondary"
+              :data-attrs="{ 'data-test-key': 'verify-registration-read-link' }"
+              @click="readPastedLink"
+            >
+              {{ t("labs.verify_registration_read_link") }}
+            </Button>
+            <Button
+              variant="primary"
+              :loading="isStarting || meta.isProcessing.value"
+              :data-attrs="{ 'data-test-key': 'verify-registration-start' }"
+              @click="start"
+            >
+              {{ t("labs.verify_registration_start") }}
+            </Button>
+            <Button
+              variant="outline"
+              :data-attrs="{ 'data-test-key': 'verify-registration-retry' }"
+              @click="actions.reset()"
+            >
+              {{ t("labs.verify_registration_retry") }}
+            </Button>
+          </div>
+        </div>
+      </UpmSection>
+
+      <Alert
+        v-if="isBlockedIp"
+        variant="danger"
+        :title="t('labs.verify_registration_blocked_ip')"
+        :description="context.error.value?.message"
+        :data-attrs="{ 'data-test-key': 'verify-registration-blocked-ip' }"
+      >
+        <template #icon><Icon icon="lock-01" /></template>
+      </Alert>
+
+      <Alert
+        v-else-if="isFailure"
+        variant="danger"
+        :title="
+          meta.isExpiredOrInvalid.value
+            ? t('labs.verify_registration_expired')
+            : t('labs.verify_registration_completion_failed')
+        "
+        :description="
+          context.error.value?.message ??
+          t('labs.verify_registration_expired_text')
+        "
+        :data-attrs="{ 'data-test-key': 'verify-registration-expired' }"
+      >
+        <template #icon><Icon icon="alert-triangle" /></template>
+        <template #action>
+          <Button as-child variant="outline" size="sm">
+            <NuxtLink to="/" data-test-key="verify-registration-dashboard">
+              {{ t("labs.verify_registration_dashboard") }}
+            </NuxtLink>
+          </Button>
+        </template>
+      </Alert>
+
+      <UpmSection
+        v-if="context.currentState.value === 'needsPassword'"
+        id="verify-registration-set-password"
+        value="verify-registration-set-password"
+        icon="lock-01"
+        :label="t('labs.verify_registration_set_password')"
+      >
+        <UpmForm
+          class="max-w-xl"
+          :schema="context.schema.value"
+          :uischema="context.uischema.value"
+          :model-value="context.model.value"
+          :additional-renderers="formRenderers"
+          :additional-errors="context.validationErrors.value"
+          :data-attrs="{ 'data-test-key': 'verify-registration-form' }"
+          @update:model-value="actions.set($event)"
+          @resolve="actions.completeRegistration()"
+        >
+          <template #actions="{ doResolve }">
+            <Button
+              block
+              variant="primary"
+              :loading="meta.isProcessing.value"
+              :data-attrs="{ 'data-test-key': 'verify-registration-submit' }"
+              @click="doResolve"
+            >
+              {{ t("labs.verify_registration_submit") }}
+            </Button>
+          </template>
+        </UpmForm>
+      </UpmSection>
+
+      <Alert
+        v-if="meta.isSuccess.value"
+        appearance="muted"
+        variant="success"
+        :title="t('labs.verify_registration_signed_in')"
+        :description="
+          userError
+            ? t('labs.verify_registration_user_error')
+            : signedInUser
+              ? t('labs.verify_registration_signed_in_as', {
+                  name: signedInUser.fullName || signedInUser.email
+                })
+              : t('labs.verify_registration_verifying')
+        "
+        :data-attrs="{ 'data-test-key': 'verify-registration-success' }"
+      >
+        <template #icon><Icon icon="check-circle" /></template>
+        <template #action>
+          <Button as-child variant="outline" size="sm">
+            <NuxtLink
+              :to="context.redirect.value ?? '/'"
+              data-test-key="verify-registration-continue"
+            >
+              {{ t("labs.verify_registration_continue") }}
+            </NuxtLink>
+          </Button>
+        </template>
+      </Alert>
+
+      <UpmSection
+        id="verify-registration-state"
+        value="verify-registration-state"
+        icon="shield-tick"
+        :label="t('labs.verify_registration_state')"
+      >
+        <div class="flex flex-col gap-4">
+          <MetaPanel :meta="metaFlags" />
+          <ContextPanel :context="contextValues" />
+        </div>
+      </UpmSection>
+    </PageBody>
+  </Page>
+</template>
+
+<script lang="ts" setup>
+/**
+ * @module scenarios/useVerifyRegistration/verify-registration.page
+ * @description The consumer of `useVerifyRegistration`. It passes the link
+ * values, waits its own delay, renders each outcome, and offers the links —
+ * it never changes the route itself.
+ *
+ * Driving it by hand:
+ * - Get a real link: register a client on the staging brand with the
+ *   "Send registration email" action (no password set), or create one in the
+ *   admin with a password. The email holds `/verify?username=…&hash=…`.
+ * - Paste the link and press "Read link", or open this page with the link's
+ *   query. Then press "Verify link". The landing starts after 1000 ms.
+ * - No password: the set-password form renders. A mismatch shows "Enter the
+ *   same password again". A valid submit signs you in.
+ * - A password already set: the landing signs you in at once.
+ * - A used or made-up hash, or a missing value: the expired panel and a
+ *   dashboard link. Add `expires=2020-01-01` to a no-password link to see the
+ *   expired panel at the set-password step.
+ * - "Try again" runs the link check again. A link is single-use, so a retry
+ *   after success reports it as expired.
+ */
+
+import {
+  Alert,
+  Button,
+  Input,
+  Page,
+  PageBody,
+  PageDescription,
+  PageHeader,
+  PageTitle
+} from "@upmind/ui";
+import { computed, onUnmounted, ref, watch } from "vue";
+import { useI18n } from "vue-i18n";
+import {
+  formRenderers,
+  Icon,
+  UpmForm,
+  UpmSection,
+  useActiveSession
+} from "@upmind-automation/client-vue";
+import {
+  LINK_PARAMS,
+  ScopeActorTypes,
+  useVerifyRegistration
+} from "@upmind-automation/headless";
+import { QUERY_PARAMS } from "@upmind-automation/types";
+import ContextPanel from "../runtime/components/ContextPanel.vue";
+import MetaPanel from "../runtime/components/MetaPanel.vue";
+import { mapValues, toString } from "lodash-es";
+import type {
+  SessionUser,
+  VerifyRegistrationParams
+} from "@upmind-automation/headless";
+
+const START_DELAY_MS = 1000;
+const BLOCKED_IP_CODE = "ip_address_disallowed";
+
+const { t } = useI18n();
+const route = useRoute();
+
+await useActiveSession().useActions().isReady();
+
+const landing = useVerifyRegistration().as(ScopeActorTypes.SELF);
+const actions = landing.useActions();
+const context = landing.useContext();
+const meta = landing.useMeta();
+
+/** The link values, read from this page's own query. */
+function readLink(query: URLSearchParams | Record<string, unknown>) {
+  const read = (key: string) =>
+    query instanceof URLSearchParams
+      ? (query.get(key) ?? undefined)
+      : query[key]
+        ? toString(query[key])
+        : undefined;
+  return {
+    username: read(QUERY_PARAMS.USERNAME),
+    hash: read(QUERY_PARAMS.HASH),
+    expires: read(LINK_PARAMS.EXPIRES),
+    redirect: read(LINK_PARAMS.REDIRECT)
+  };
+}
+
+const link = ref<VerifyRegistrationParams>(readLink(route.query));
+const pastedLink = ref("");
+const isStarting = ref(false);
+const signedInUser = ref<SessionUser>();
+const userError = ref<unknown>();
+
+function readPastedLink() {
+  try {
+    link.value = readLink(new URL(pastedLink.value).searchParams);
+  } catch {
+    link.value = {};
+  }
+}
+
+let startTimer: ReturnType<typeof setTimeout> | undefined;
+
+function start() {
+  isStarting.value = true;
+  startTimer = setTimeout(() => {
+    isStarting.value = false;
+    actions.verify(link.value);
+  }, START_DELAY_MS);
+}
+
+/** Wait for the new session, then for its user. */
+function readNewSession(sessionId: string): Promise<SessionUser> {
+  const session = useActiveSession();
+  const { sessionId: activeSessionId } = session.useContext();
+  const switched =
+    activeSessionId.value === sessionId
+      ? Promise.resolve()
+      : new Promise<void>(resolve => {
+          const stop = watch(activeSessionId, next => {
+            if (next !== sessionId) return;
+            stop();
+            resolve();
+          });
+        });
+  return switched.then(() => session.useActions().whenAuthenticated());
+}
+
+watch(
+  () => meta.isSuccess.value && context.sessionId.value,
+  sessionId => {
+    if (!sessionId) return;
+    readNewSession(sessionId)
+      .then(user => (signedInUser.value = user))
+      .catch(error => (userError.value = error));
+  }
+);
+
+const isBlockedIp = computed(
+  () =>
+    context.error.value?.status === 403 &&
+    context.error.value?.apiCode === BLOCKED_IP_CODE
+);
+
+const isFailure = computed(
+  () => meta.isExpiredOrInvalid.value || meta.hasErrors.value
+);
+
+const metaFlags = computed(() => mapValues(meta, flag => flag.value));
+
+const contextValues = computed(() =>
+  mapValues(context, member => member.value)
+);
+
+onUnmounted(() => {
+  clearTimeout(startTimer);
+  actions.destroy();
+});
+</script>
