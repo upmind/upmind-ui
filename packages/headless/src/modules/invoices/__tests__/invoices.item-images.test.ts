@@ -27,6 +27,7 @@ import {
 import { useInvoice } from "..";
 import { queryClient } from "../../query/client";
 import billingCyclesRecording from "../../system/__tests__/fixtures/get-billing-cycles.json";
+import { loadItemImages } from "../invoice.services";
 import { mapInvoiceItems } from "../invoices.mappers";
 import { resetInvoiceScopes, seedClientSession } from "./invoices.int-helpers";
 import orderRecording from "./scenarios/see-the-catalogue-image-of-each-item-i-ordered/02/get-invoices-id-with-staged-imports-1.json";
@@ -215,6 +216,26 @@ describe("AC-33: the image and the billing cycle of an item", () => {
     expect(order.useMeta().hasError.value).toBe(false);
     expect(replay.gaps()).toEqual([]);
   }, 30000);
+
+  it("sends no catalogue image read for an order with no snapshot product ids", async () => {
+    const replay = startScenarioReplay(server);
+    await seedClientSession();
+    let imageReads = 0;
+    server?.use(
+      http.get("*/api/products", () => {
+        imageReads += 1;
+        return HttpResponse.error();
+      })
+    );
+
+    loadItemImages(recordedOrder.id, []);
+    const fetchingAtOpen = queryClient.isFetching();
+    await new Promise(resolve => setTimeout(resolve, 200));
+
+    expect(fetchingAtOpen).toBe(0);
+    expect(imageReads).toBe(0);
+    expect(replay.gaps()).toEqual([]);
+  });
 
   it("shows the catalogue image of each item the image read returned", () => {
     const items = mapInvoiceItems(withoutProductImages, {
