@@ -16723,8 +16723,8 @@
     }
   },
   "meta": {
-    "built_at": "2026-10-06T16:54:26.267Z",
-    "corpus_version": "1+cf75b12781c9",
+    "built_at": "2026-10-07T15:23:47.178Z",
+    "corpus_version": "1+afbd7741d151",
     "counts": {
       "adrs": 35,
       "changelogSymbols": 0,
@@ -16737,7 +16737,7 @@
       "symbols": 967
     },
     "relationsSha256": "9a6f85296b647222228f20f54141377046925e9862437ca4617d3a6a8b87e391",
-    "source_commit": "1944cfee0c0d03c8bd7709ce38d5488fd915688c"
+    "source_commit": "157b4f383b5ca71ef3925d13822301e53c30f5ec"
   },
   "relations": {
     "edges": [
@@ -59755,7 +59755,7 @@
       "name": "useRegisterSchema",
       "signature": "useRegisterSchema(customFields: CustomField[]): JsonSchema",
       "sourceFile": "packages/headless/src/modules/auth/auth.schemas.register.ts",
-      "sourceLine": 21,
+      "sourceLine": 22,
       "tsdoc": "JSON Schema for the registration form.\nIncludes custom fields from brand configuration."
     },
     "@upmind-automation/headless!useRegisterUischema": {
@@ -59766,7 +59766,7 @@
       "name": "useRegisterUischema",
       "signature": "useRegisterUischema(customFields: CustomField[]): UISchemaElement",
       "sourceFile": "packages/headless/src/modules/auth/auth.schemas.register.ts",
-      "sourceLine": 96,
+      "sourceLine": 100,
       "tsdoc": "UI Schema for the registration form."
     },
     "@upmind-automation/headless!useRoutingEngine": {
