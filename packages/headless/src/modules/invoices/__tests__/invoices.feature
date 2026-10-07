@@ -606,6 +606,18 @@ Feature: A client reads and manages their invoices
     When I open that order
     Then each item shows its catalogue image, or its product image when it has none
 
+  # FE-3237 AC16
+  # Blocker: staging holds no invoice of the client without a snapshot item to
+  # look up. Each of the newest 1000 invoices of every category, and each of the
+  # newest 1000 placed orders, read in full, holds a snapshot item with a
+  # product. No arrangement route for an invoice with no snapshot, or with an
+  # empty one, is known.
+  @AC-33 @client @cell:client-self @detail @todo
+  Scenario: Open an invoice with no snapshot without a catalogue image read
+    Given one of my invoices has no snapshot of its items
+    When I open that invoice of mine
+    Then I see each item from the invoice's live products, and no catalogue image is read
+
   # FE-3237 AC18
   @AC-34 @client @cell:client-self @detail
   Scenario: Read an unpaid order as due and payable
