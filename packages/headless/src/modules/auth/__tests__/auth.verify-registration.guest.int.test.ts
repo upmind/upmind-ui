@@ -43,9 +43,9 @@ import {
   VERIFY_ROUTE,
   landing,
   overrideSelf,
-  overrideToken,
   recordingsDir,
   serve,
+  serveControl,
   server,
   useLandingHarness
 } from "./useVerifyRegistration.kit";
@@ -277,7 +277,9 @@ describe("registration landing, guest x self (recorded staging answers)", () => 
 
     it("AC-3 saves the token as a client even when the grant names no actor type", async () => {
       serve("patch", VERIFY_ROUTE, RECORDING.hasPassword);
-      serveGrantEdited(RECORDING.grantDirect, body => omit(body, "actor_type"));
+      serve("post", GRANT_ROUTE, RECORDING.grantDirect, body =>
+        omit(body, "actor_type")
+      );
       overrideSelf(RECORDING.self);
       const grant = grantBody(RECORDING.grantDirect);
 
@@ -581,7 +583,7 @@ describe("registration landing, guest x self (recorded staging answers)", () => 
     });
 
     it("AC-13 keeps the 500 status of a server failure", async () => {
-      serveStatus("patch", VERIFY_ROUTE, 500);
+      serveControl("patch", VERIFY_ROUTE, 500);
       const outbound = recordOutbound();
 
       const instance = landing();
@@ -596,7 +598,9 @@ describe("registration landing, guest x self (recorded staging answers)", () => 
   });
 
   describe("AC-14 a refused activation after the form shows the failure", () => {
-    async function submitValidPassword(): Promise<ReturnType<typeof landing>> {
+    async function submitValidPassword(
+      settle = true
+    ): Promise<ReturnType<typeof landing>> {
       const instance = landing();
       await instance.useActions().verify(LINK);
       await instance.useActions().isReady();
@@ -604,7 +608,7 @@ describe("registration landing, guest x self (recorded staging answers)", () => 
         .useActions()
         .set({ password: "abcdefg1", password_confirmation: "abcdefg1" });
       await instance.useActions().completeRegistration();
-      await instance.useActions().isReady();
+      if (settle) await instance.useActions().isReady();
       return instance;
     }
 
@@ -628,12 +632,12 @@ describe("registration landing, guest x self (recorded staging answers)", () => 
         omit(body, "access_token")
       );
 
-      const instance = await submitValidPassword();
+      const instance = await submitValidPassword(false);
+      await awaitState(instance, "expiredOrInvalid");
 
-      expect(instance.useContext().currentState.value).toBe("expiredOrInvalid");
       expect(instance.useMeta().isExpiredOrInvalid.value).toBe(true);
       expect(instance.useMeta().hasErrors.value).toBe(true);
-      expect(instance.useContext().error.value).toBeTruthy();
+      expect(instance.useContext().error.value).toMatchObject(NO_TOKEN_ERROR);
       expect(instance.useMeta().isProcessing.value).toBe(false);
       expect(instance.useMeta().isSuccess.value).toBe(false);
       expect(document.cookie).not.toContain("upm_client_session=");
@@ -641,7 +645,7 @@ describe("registration landing, guest x self (recorded staging answers)", () => 
 
     it("AC-14 keeps the 500 status of a server failure on the grant", async () => {
       serve("patch", VERIFY_ROUTE, RECORDING.noPassword);
-      serveStatus("post", GRANT_ROUTE, 500);
+      serveControl("post", GRANT_ROUTE, 500);
 
       const instance = await submitValidPassword();
 
@@ -677,11 +681,10 @@ describe("registration landing, guest x self (recorded staging answers)", () => 
 
       const instance = landing();
       await instance.useActions().verify(LINK);
-      await instance.useActions().isReady();
+      await awaitState(instance, "completionFailed");
 
-      expect(instance.useContext().currentState.value).toBe("completionFailed");
       expect(instance.useMeta().hasErrors.value).toBe(true);
-      expect(instance.useContext().error.value).toBeTruthy();
+      expect(instance.useContext().error.value).toMatchObject(NO_TOKEN_ERROR);
       expect(instance.useMeta().isProcessing.value).toBe(false);
       expect(instance.useMeta().isSuccess.value).toBe(false);
       expect(document.cookie).not.toContain("upm_client_session=");
@@ -689,7 +692,7 @@ describe("registration landing, guest x self (recorded staging answers)", () => 
 
     it("AC-15 keeps the 500 status of a server failure on the grant", async () => {
       serve("patch", VERIFY_ROUTE, RECORDING.hasPassword);
-      serveStatus("post", GRANT_ROUTE, 500);
+      serveControl("post", GRANT_ROUTE, 500);
 
       const instance = landing();
       await instance.useActions().verify(LINK);
@@ -1107,19 +1110,13 @@ function grantBody(key: string): GrantBody {
   return getFixtureBody<GrantBody>(key, { recordingsDir });
 }
 
-function serveGrantEdited(
-  key: string,
-  edit: (body: Record<string, unknown>) => Record<string, unknown>
-): void {
-  serve("post", GRANT_ROUTE, key, edit);
-}
+const NO_TOKEN_ERROR = { message: "error.token_not_available", status: 422 };
 
-function serveStatus(
-  method: "patch" | "post",
-  route: string,
-  status: number
-): void {
-  server?.use(http[method](route, () => new HttpResponse(null, { status })));
+/** Bounds the settle step so a machine that never arrives fails on its state. */
+async function awaitState(instance: Landing, state: string): Promise<void> {
+  await vi.waitFor(() =>
+    expect(instance.useContext().currentState.value).toBe(state)
+  );
 }
 
 function clientCookie(): string {
