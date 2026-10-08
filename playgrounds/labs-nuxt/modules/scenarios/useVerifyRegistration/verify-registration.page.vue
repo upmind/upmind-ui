@@ -8,7 +8,7 @@
     </PageHeader>
 
     <PageBody class="gap-10">
-      <UpmSection
+      <Section
         id="verify-registration-link"
         value="verify-registration-link"
         icon="link-external-01"
@@ -45,7 +45,7 @@
             </Button>
           </div>
         </div>
-      </UpmSection>
+      </Section>
 
       <Alert
         v-if="isBlockedIp"
@@ -81,19 +81,18 @@
         </template>
       </Alert>
 
-      <UpmSection
+      <Section
         v-if="context.currentState.value === 'needsPassword'"
         id="verify-registration-set-password"
         value="verify-registration-set-password"
         icon="lock-01"
         :label="t('labs.verify_registration_set_password')"
       >
-        <UpmForm
+        <Form
           class="max-w-xl"
           :schema="context.schema.value"
           :uischema="context.uischema.value"
           :model-value="context.model.value"
-          :additional-renderers="formRenderers"
           :additional-errors="context.validationErrors.value"
           :data-attrs="{ 'data-test-key': 'verify-registration-form' }"
           @update:model-value="actions.set($event)"
@@ -110,8 +109,8 @@
               {{ t("labs.verify_registration_submit") }}
             </Button>
           </template>
-        </UpmForm>
-      </UpmSection>
+        </Form>
+      </Section>
 
       <Alert
         v-if="meta.isSuccess.value"
@@ -142,7 +141,7 @@
         </template>
       </Alert>
 
-      <UpmSection
+      <Section
         id="verify-registration-state"
         value="verify-registration-state"
         icon="shield-tick"
@@ -152,7 +151,7 @@
           <MetaPanel :meta="metaFlags" />
           <ContextPanel :context="contextValues" />
         </div>
-      </UpmSection>
+      </Section>
     </PageBody>
   </Page>
 </template>
@@ -192,16 +191,11 @@ import {
 } from "@upmind/ui";
 import { computed, onUnmounted, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
-import {
-  formRenderers,
-  Icon,
-  UpmForm,
-  UpmSection,
-  useActiveSession
-} from "@upmind-automation/client-vue";
+import { Form, Icon, Section } from "@upmind-automation/foundation";
 import {
   LINK_PARAMS,
   ScopeActorTypes,
+  useActiveSession,
   useVerifyRegistration
 } from "@upmind-automation/headless";
 import { QUERY_PARAMS } from "@upmind-automation/types";
