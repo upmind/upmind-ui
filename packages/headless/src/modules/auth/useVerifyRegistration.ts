@@ -75,7 +75,8 @@ function createVerifyRegistrationForScope(
 }
 // -----------------------------------------------------------------------------
 /**
- * Scoped composable for the registration-activation link landing.
+ * Scoped composable for the registration-activation link landing. An instance
+ * per scope key: interpret and start per scope; call `destroy()` on unmount.
  *
  * @example
  * ```ts

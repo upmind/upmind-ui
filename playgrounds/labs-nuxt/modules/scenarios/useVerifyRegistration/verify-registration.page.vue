@@ -256,6 +256,7 @@ function readPastedLink() {
 let startTimer: ReturnType<typeof setTimeout> | undefined;
 
 function start() {
+  if (isStarting.value) return;
   isStarting.value = true;
   startTimer = setTimeout(() => {
     isStarting.value = false;
@@ -302,6 +303,8 @@ watch(
   () => meta.isSuccess.value && context.sessionId.value,
   sessionId => {
     if (!sessionId) return;
+    signedInUser.value = undefined;
+    userError.value = undefined;
     readNewSession(sessionId)
       .then(user => (signedInUser.value = user))
       .catch(error => (userError.value = error));

@@ -2,7 +2,7 @@ import { unref } from "vue";
 import { waitFor } from "xstate/lib/waitFor";
 import { remove } from "../scope";
 import { stateMatches, stopService } from "../../utils";
-import type { SetPasswordModel, VerifyRegistrationParams } from "./auth.types";
+import type { VerifyRegistrationEvents } from "./auth.types";
 import type { UseActor } from "../../utils";
 import type { ScopeActorTypes } from "../scope";
 // -----------------------------------------------------------------------------
@@ -10,6 +10,11 @@ import type { ScopeActorTypes } from "../scope";
  * @module auth/useVerifyRegistration.actions
  * @description Registration landing actions factory (machine events).
  */
+
+type VerifyRegistrationEventData<T extends "SET" | "VERIFY"> = Extract<
+  VerifyRegistrationEvents,
+  { type: T }
+>["data"];
 
 const SETTLED_STATES = [
   "needsPassword",
@@ -52,11 +57,11 @@ export function createVerifyRegistrationActions(
     send({ type: "RESET" });
   }
 
-  function set(model: Partial<SetPasswordModel>): void {
+  function set(model: VerifyRegistrationEventData<"SET">): void {
     send({ type: "SET", data: unref(model) });
   }
 
-  function verify(params: VerifyRegistrationParams): void {
+  function verify(params: VerifyRegistrationEventData<"VERIFY">): void {
     send({ type: "VERIFY", data: unref(params) });
   }
 

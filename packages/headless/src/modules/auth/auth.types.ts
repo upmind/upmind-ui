@@ -20,7 +20,9 @@ import type {
   IToken,
   TwofaProviders
 } from "@upmind-automation/types";
+import type { UseVerifyRegistrationContext } from "./useVerifyRegistration.context";
 import type { AnyEventObject } from "xstate";
+import type { UnwrapRef } from "vue";
 // -----------------------------------------------------------------------------
 /**
  * Context types for auth module.
@@ -376,19 +378,10 @@ export type VerifyRegistrationEvents =
   | { type: "RESET" };
 
 /**
- * The members that `useVerifyRegistration().useContext()` publishes.
+ * The members that `useVerifyRegistration().useContext()` publishes, unwrapped.
  */
-export type VerifyRegistrationContextMembers = Pick<
-  VerifyRegistrationContext,
-  | "data"
-  | "error"
-  | "validationErrors"
-  | "model"
-  | "redirect"
-  | "sessionId"
-  | "schema"
-  | "uischema"
-> & {
-  twoFAProvider: VerifyRegistrationTwoFAProvider | null;
-  currentState: string;
+export type VerifyRegistrationContextMembers = {
+  [K in keyof UseVerifyRegistrationContext]: UnwrapRef<
+    UseVerifyRegistrationContext[K]
+  >;
 };

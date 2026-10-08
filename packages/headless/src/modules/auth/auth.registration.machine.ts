@@ -13,7 +13,7 @@ import {
   verifyRegistrationLink
 } from "./auth.services.client.registration";
 import { ErrorOrigin, responseCodes, useValidation } from "../../utils";
-import { isEmpty } from "lodash-es";
+import { defaultsDeep, isEmpty, omit } from "lodash-es";
 import type {
   VerifyRegistrationContext,
   VerifyRegistrationError
@@ -120,7 +120,13 @@ export const verifyRegistrationMachine = createMachine(
 
       needsPassword: {
         on: {
-          SET: { actions: ["setModel", "clearValidationErrors"] },
+          SET: [
+            {
+              cond: "hasValidationErrors",
+              actions: ["setModel", "validate"]
+            },
+            { actions: ["setModel"] }
+          ],
           COMPLETE: { target: "validating", actions: ["validate"] }
         }
       },
@@ -197,7 +203,12 @@ export const verifyRegistrationMachine = createMachine(
         model: (
           { model }: VerifyRegistrationContext,
           { data }: AnyEventObject
-        ) => ({ ...model, ...data })
+        ) =>
+          defaultsDeep(
+            {},
+            omit(data, ["__proto__", "constructor", "prototype"]),
+            model
+          )
       }),
 
       validate: assign({
@@ -222,8 +233,6 @@ export const verifyRegistrationMachine = createMachine(
       ) => {
         persistTokenToStorage(data, { event: AuthEvents.LOGIN });
       },
-
-      clearValidationErrors: assign({ validationErrors: () => [] }),
 
       setSession: assign({
         sessionId: (
