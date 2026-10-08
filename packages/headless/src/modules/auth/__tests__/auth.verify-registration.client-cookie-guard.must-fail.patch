@@ -1,0 +1,18 @@
+AC: AC11 meta is sent only when both GA cookies are present
+Spec: auth.verify-registration.guest.int.test.ts
+Mutation: drop the client-id half of the presence guard, so a missing _ga cookie still sends meta with an empty ga_client_id
+Apply from the repo root with: git apply -p1 packages/headless/src/modules/auth/__tests__/auth.verify-registration.client-cookie-guard.must-fail.patch
+
+diff --git a/packages/headless/src/modules/auth/auth.services.client.registration.ts b/packages/headless/src/modules/auth/auth.services.client.registration.ts
+index 46d609af7c..5f9b771d5f 100644
+--- a/packages/headless/src/modules/auth/auth.services.client.registration.ts
++++ b/packages/headless/src/modules/auth/auth.services.client.registration.ts
+@@ -64,7 +64,7 @@ async function readAnalyticsMeta(): Promise<
+ 
+   const gaClientId = join(compact([get(ga, 2), get(ga, 3)]), ".");
+   const gaSessionId = get(gaSession, 2);
+-  if (isEmpty(gaClientId) || isEmpty(gaSessionId)) return;
++  if (isEmpty(gaSessionId)) return;
+ 
+   return { ga_client_id: gaClientId, ga_session_id: gaSessionId };
+ }

@@ -1,0 +1,18 @@
+AC: every scenario declared @todo (no unbootable scenario reads as driven)
+Spec: auth.traceability.test.ts
+Mutation: drop the @todo tag from the AC-4 scenario of auth.feature, so it reads as driven while its AC link stays intact
+Apply from the repo root with: git apply -p1 packages/headless/src/modules/auth/__tests__/auth.traceability.todo-dropped.must-fail.patch
+
+diff --git a/packages/headless/src/modules/auth/__tests__/auth.feature b/packages/headless/src/modules/auth/__tests__/auth.feature
+index 988bc29839..9235dc4918 100644
+--- a/packages/headless/src/modules/auth/__tests__/auth.feature
++++ b/packages/headless/src/modules/auth/__tests__/auth.feature
+@@ -64,7 +64,7 @@   # integration spec prove it.
+ 
+   # Blocker: no World boots the landing. The AC-4 cases of the
+   # integration spec prove it.
+-  @FE-2984 @AC-4 @guest @todo
++  @FE-2984 @AC-4 @guest
+   Scenario: A landing that has not started waits and sends nothing
+     When nobody starts the landing
+     Then the landing reports that it is verifying
