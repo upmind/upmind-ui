@@ -1,15 +1,15 @@
 mutant: retry-disabled
 patch: playgrounds/labs-nuxt/modules/scenarios/__tests__/verify-registration.page.retry-and-timeout.retry-enabled.must-fail.patch
+head: 3147412f261a8a92452af442483d16a577c047cd
+spec: modules/scenarios/__tests__/verify-registration.page.retry-and-timeout.spec.ts
 --- RED (patch applied)
-   × the retry control > is disabled while the link check is in flight and enabled once it settles 1165ms
+   × the retry control > is disabled while the link check is in flight and enabled once it settles 1159ms
 ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
  FAIL  |module| modules/scenarios/__tests__/verify-registration.page.retry-and-timeout.spec.ts > the retry control > is disabled while the link check is in flight and enabled once it settles
  Test Files  1 failed (1)
       Tests  1 failed | 1 passed (2)
-Error: ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL
-  × "pnpm recursive exec" failed in /Users/dom/Documents/upmind-monorepo/
-exit-red: 
+exit-red: 1
 --- GREEN (patch reverted)
  Test Files  1 passed (1)
       Tests  2 passed (2)
-exit-green: 
+exit-green: 0

@@ -1,17 +1,17 @@
 mutant: reset-persist
 patch: packages/headless/src/modules/auth/__tests__/useVerifyRegistration.reset-persist.persist-in-service.must-fail.patch
+head: 3147412f261a8a92452af442483d16a577c047cd
+spec: src/modules/auth/__tests__/useVerifyRegistration.reset-persist.test.ts
 --- RED (patch applied)
-   × a reset during the activation grant > never saves the client session when the direct grant is reset 292ms
-   × a reset during the activation grant > never saves the client session when the set-password grant is reset 214ms
+   × a reset during the activation grant > never saves the client session when the direct grant is reset 293ms
+   × a reset during the activation grant > never saves the client session when the set-password grant is reset 213ms
 ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
  FAIL  |unit| src/modules/auth/__tests__/useVerifyRegistration.reset-persist.test.ts > a reset during the activation grant > never saves the client session when the direct grant is reset
  FAIL  |unit| src/modules/auth/__tests__/useVerifyRegistration.reset-persist.test.ts > a reset during the activation grant > never saves the client session when the set-password grant is reset
  Test Files  1 failed (1)
       Tests  2 failed | 1 passed (3)
-Error: ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL
-  × "pnpm recursive exec" failed in /Users/dom/Documents/upmind-monorepo/
-exit-red: 
+exit-red: 1
 --- GREEN (patch reverted)
  Test Files  1 passed (1)
       Tests  3 passed (3)
-exit-green: 
+exit-green: 0
