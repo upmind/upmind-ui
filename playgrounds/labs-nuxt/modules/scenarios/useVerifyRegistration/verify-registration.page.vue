@@ -31,6 +31,7 @@
             <Button
               variant="primary"
               :loading="isStarting || meta.isProcessing.value"
+              :disabled="context.currentState.value !== 'idle'"
               :data-attrs="{ 'data-test-key': 'verify-registration-start' }"
               @click="start"
             >
@@ -267,7 +268,7 @@ let stopSwitchWait: (() => void) | undefined;
 /**
  * Wait for the new session, then for its user. The wait is bounded: when
  * another client is signed in the active session never becomes the new one
- * (the known AC-19 limit), so the panel shows the error text instead of
+ * and the session store keeps the signed-in client, so the panel shows the error text instead of
  * "Checking the link" for ever.
  */
 function readNewSession(sessionId: string): Promise<SessionUser> {

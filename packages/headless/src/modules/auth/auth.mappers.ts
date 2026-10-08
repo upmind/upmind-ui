@@ -6,14 +6,21 @@
  */
 import { AccessRoleTypes, TwofaProviders } from "@upmind-automation/types";
 import { useI18n } from "../system-localisation";
-import { DetailedError, mapToHeadlessError } from "../../utils";
 import {
+  DetailedError,
+  ErrorOrigin,
+  mapToHeadlessError,
+  responseCodes
+} from "../../utils";
+import {
+  concat,
   floor,
   get,
   isNil,
   isString,
   isUndefined,
   replace,
+  slice,
   some,
   startsWith,
   toLower,
@@ -117,8 +124,19 @@ export function mapVerifyRegistration(value: unknown): VerifyRegistrationData {
 
 /**
  * Coerce a `complete_registration` grant token to the CLIENT actor.
+ * @throws {DetailedError} when the grant carries no `access_token`, so the
+ * invoke fails into its `onError` route instead of throwing in the save action.
  */
 export function mapRegistrationToken(token: IToken): IToken {
+  if (!token?.access_token) {
+    const { t } = useI18n();
+    throw new DetailedError(
+      t("error.token_not_available"),
+      responseCodes.Unprocessable_Entity,
+      ErrorOrigin.Headless,
+      token
+    );
+  }
   return { ...token, actor_type: AccessRoleTypes.CLIENT };
 }
 
@@ -176,12 +194,12 @@ const EXPIRY_OFFSET = /^([+-])(\d{2}):?(\d{2})?$/;
  */
 function expiryFields(value: string): (string | undefined)[] | undefined {
   const extended = EXPIRY_EXTENDED.exec(value);
-  if (extended) return extended.slice(1, 9);
+  if (extended) return slice(extended, 1, 9);
 
   const basic = EXPIRY_BASIC.exec(value);
   if (!basic) return;
   if (!isUndefined(basic[2])) return [basic[1], basic[2]];
-  return basic.slice(1, 2).concat(basic.slice(3, 10));
+  return concat(slice(basic, 1, 2), slice(basic, 3, 10));
 }
 
 /**
