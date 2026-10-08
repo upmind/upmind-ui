@@ -1,0 +1,28 @@
+# Negative-control mutant — a re-read cannot drop the invoice a write is raising
+#
+# Spec it must flip: contract-product.client.unit.test.ts > "AC-44 — a re-read while an invoice-raising write is in flight"
+# Mutation: `issuingNextInvoice` and `endingTrial` let `REFRESH` and
+#   `UNAUTHENTICATED` through.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+
+diff --git a/packages/headless/src/modules/contract-product/contract-product.machine.ts b/packages/headless/src/modules/contract-product/contract-product.machine.ts
+--- a/packages/headless/src/modules/contract-product/contract-product.machine.ts
++++ b/packages/headless/src/modules/contract-product/contract-product.machine.ts
+@@ -882,7 +882,6 @@
+           // it raises.
+           issuingNextInvoice: {
+             entry: ["clearIssuedInvoice"],
+-            on: { REFRESH: undefined, UNAUTHENTICATED: undefined },
+             invoke: {
+               src: "issueNextInvoice",
+               onDone: { target: "#loading", actions: ["setIssuedInvoice"] },
+@@ -891,7 +890,6 @@
+           },
+           endingTrial: {
+             entry: ["clearIssuedInvoice"],
+-            on: { REFRESH: undefined, UNAUTHENTICATED: undefined },
+             invoke: {
+               src: "endTrial",
+               onDone: { target: "#loading", actions: ["setIssuedInvoice"] },

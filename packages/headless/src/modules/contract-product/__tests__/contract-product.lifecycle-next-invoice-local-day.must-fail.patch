@@ -1,0 +1,21 @@
+# Negative-control mutant — the next invoice date is read at the UTC end of day
+#
+# Spec it must flip: contract-product.client.unit.test.ts > "AC-38 — isNextInvoiceDateInFuture > reads the UTC day, whatever the clock of the machine says"
+# Mutation: `isNextInvoiceDateInFuture` reads the local end of day.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+
+diff --git a/packages/headless/src/modules/contract-product/contract-product.utils.ts b/packages/headless/src/modules/contract-product/contract-product.utils.ts
+index 149d0f25fc..81ea07b311 100644
+--- a/packages/headless/src/modules/contract-product/contract-product.utils.ts
++++ b/packages/headless/src/modules/contract-product/contract-product.utils.ts
+@@ -543,7 +543,7 @@ export function isNextInvoiceDateInFuture(
+ ): boolean {
+   return (
+     !!product.nextInvoiceDate &&
+-    dayjs.utc(product.nextInvoiceDate).endOf("day").isAfter(dayjs())
++    dayjs(product.nextInvoiceDate).endOf("day").isAfter(dayjs())
+   );
+ }
+ 

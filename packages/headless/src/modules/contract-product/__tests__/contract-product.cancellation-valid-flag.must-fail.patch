@@ -1,25 +1,20 @@
 # Negative-control mutant — the cancellation form's valid flag reads the valid node
 #
-# Scenario it must flip: contract-product.feature >
-#   "A cancellation form I submit without a choice is not sent and tells me why"
-# Test that goes red: contract-product.replay.int.test.ts > that scenario —
-#   "Then the cancellation form stays open and is not valid" — `isCancellationValid`
-#   reads true on the invalid form.
-# Mutation: `isCancellationValid` matches `available.cancelling.available.invalid`
-#   instead of `.valid`.
+# Spec it must flip: contract-product.replay.int.test.ts > "A cancellation form I submit without a choice is not sent and tells me why"
+# Mutation: `isCancellationValid` matches the `invalid` node.
 #
 # Apply with:  git apply <this file>   (run from repo root)
 # Revert with: git apply -R <this file>
+
 diff --git a/packages/headless/src/modules/contract-product/useContractProduct.meta.ts b/packages/headless/src/modules/contract-product/useContractProduct.meta.ts
-index 3d214fa21..9e663b60f 100644
 --- a/packages/headless/src/modules/contract-product/useContractProduct.meta.ts
 +++ b/packages/headless/src/modules/contract-product/useContractProduct.meta.ts
-@@ -145,7 +145,7 @@ export function createContractProductMeta(
-     /** True when the open cancellation form passes validation. */
-     isCancellationValid: useStateMatches(
-       state,
--      "available.cancelling.available.valid"
-+      "available.cancelling.available.invalid"
-     ),
-
-     /** True on `unavailable.cancelled`. */
+@@ -234,7 +234,7 @@
+   ]);
+   const isCancellationValid = useStateMatches(
+     state,
+-    "available.cancelling.available.valid"
++    "available.cancelling.available.invalid"
+   );
+   const isCancelled = useStateMatches(state, ContractProductState.CANCELLED);
+   const isCancelling = useStateMatches(state, ContractProductState.CANCELLING);

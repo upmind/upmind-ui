@@ -1,24 +1,19 @@
-# Negative-control mutant — a scheduled future cancellation hides the whole cancel entry (AC-11)
+# Negative-control mutant — a booked future cancellation hides the cancellation form
 #
-# Scenario it must flip: contract-product.feature >
-#   "I am told whether the cancellation form is offered before I open it — a product with a cancellation booked for a future date"
-# Test that goes red: contract-product.replay.int.test.ts > that scenario —
-#   "Then I am told the cancellation form is not offered" — the booked product is
-#   offered the end-of-term option again.
-# Mutation: drops the `hasScheduledFutureCancellation` early return from
-#   `cancellationOptions`.
+# Spec it must flip: contract-product.replay.int.test.ts > "@AC-11 I am told whether the cancellation form is offered before I open it — booked for a future date"
+# Mutation: `canRequestCancellation` drops the scheduled-future term.
 #
 # Apply with:  git apply <this file>   (run from repo root)
 # Revert with: git apply -R <this file>
+
 diff --git a/packages/headless/src/modules/contract-product/contract-product.utils.ts b/packages/headless/src/modules/contract-product/contract-product.utils.ts
 --- a/packages/headless/src/modules/contract-product/contract-product.utils.ts
 +++ b/packages/headless/src/modules/contract-product/contract-product.utils.ts
-@@ -127,7 +127,7 @@
-   if (!product.isSubscription) return options;
-   if (hasAutoExpireEnabled(product)) return options;
-   if (hasHardCancellationRequest(product)) return options;
--  if (product.hasScheduledFutureCancellation) return options;
-+
-   // Legacy cProdProvider.vue cancelOption: a pending pro-rata invoice, or a
-   // client the platform does not allow to cancel, disables cancelling.
-   if (product.proRataPending) return options;
+@@ -116,7 +116,6 @@
+     product.isSubscription &&
+     !hasAutoExpireEnabled(product) &&
+     !hasHardCancellationRequest(product) &&
+-    !product.hasScheduledFutureCancellation &&
+     !product.proRataPending &&
+     !!product.canCancel
+   );

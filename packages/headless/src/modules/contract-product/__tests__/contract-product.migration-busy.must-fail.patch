@@ -1,23 +1,20 @@
-# Negative-control mutant 24 — busy (FE-3206)
+# Negative-control mutant — the migration commit counts as a write in flight
 #
-# Mutation: leave the commit out of `isProcessing`.
-# Spec it must turn red: "Change my subscription ...".
-#
-# Authored by the developer seat against the landed production source. The
-# prover applies it blind (tasks.md T41): apply, run the named spec, revert.
+# Spec it must flip: contract-product.replay.int.test.ts > "@AC-31 @AC-32 @AC-25 Change my subscription to the plan I chose"
+# Mutation: the region-write states name a node the commit never enters.
 #
 # Apply with:  git apply <this file>   (run from repo root)
 # Revert with: git apply -R <this file>
-diff --git a/packages/headless/src/modules/contract-product/useContractProduct.meta.ts b/packages/headless/src/modules/contract-product/useContractProduct.meta.ts
---- a/packages/headless/src/modules/contract-product/useContractProduct.meta.ts
-+++ b/packages/headless/src/modules/contract-product/useContractProduct.meta.ts
-@@ -349,8 +349,7 @@
-     isProcessing: useStateMatches(state, [
-       "processing",
-       "available.cancelling.processing",
--      "available.consolidating.processing",
--      "available.migrating.configuring.processing"
-+      "available.consolidating.processing"
-     ]),
+
+diff --git a/packages/headless/src/modules/contract-product/contract-product.types.ts b/packages/headless/src/modules/contract-product/contract-product.types.ts
+--- a/packages/headless/src/modules/contract-product/contract-product.types.ts
++++ b/packages/headless/src/modules/contract-product/contract-product.types.ts
+@@ -431,7 +431,7 @@
+   CONSOLIDATING = "available.consolidating.processing",
+   BILLING_ENTITY = "available.billingEntity.processing",
+   BILLING_ENTITY_UNAVAILABLE = "unavailable.billingEntity.processing",
+-  MIGRATING = "available.migrating.configuring.processing"
++  MIGRATING = "available.migrating.configuring.committing"
+ }
  
-     /** True on `available.setup.incomplete`. */
+ /**

@@ -26,6 +26,7 @@ export const OVERLAY_UPGRADE_SCENARIO = "overlay_upgrade";
 
 export default {
   key: OVERLAY_UPGRADE_SCENARIO,
+  page: "OverlayUpgradePage.vue",
   presentation: {
     icon: "switch-horizontal-01"
   }

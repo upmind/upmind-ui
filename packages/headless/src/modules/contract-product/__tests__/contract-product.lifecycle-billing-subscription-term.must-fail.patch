@@ -1,0 +1,20 @@
+# Negative-control mutant — a one-time product is not offered a billing-entity change
+#
+# Spec it must flip: contract-product.client.unit.test.ts > "AC-41 — canSetBillingEntity"
+# Mutation: the meta `canSetBillingEntity` drops its subscription term.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+
+diff --git a/packages/headless/src/modules/contract-product/useContractProduct.meta.ts b/packages/headless/src/modules/contract-product/useContractProduct.meta.ts
+--- a/packages/headless/src/modules/contract-product/useContractProduct.meta.ts
++++ b/packages/headless/src/modules/contract-product/useContractProduct.meta.ts
+@@ -142,7 +142,7 @@
+       canScheduleFutureCancellation(contractProduct.value)
+   );
+   const canSetBillingEntity = computed(
+-    () => isLifecycleOpen.value && !!contractProduct.value?.isSubscription
++    () => isLifecycleOpen.value && !!contractProduct.value
+   );
+   const canUpdateContractProduct = computed(
+     () => isLifecycleOpen.value && !!contractProduct.value

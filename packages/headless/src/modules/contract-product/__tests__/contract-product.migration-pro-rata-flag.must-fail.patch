@@ -1,20 +1,18 @@
-# Negative-control mutant 33 — pro-rata-flag (FE-3206)
+# Negative-control mutant — an unpaid pro-rata invoice is reported
 #
-# Mutation: map `proRataPending` as false.
-# Spec it must turn red: "... while a pro-rata invoice ..." ("a pro-rata invoice of mine is unpaid"), and the AC-33 unit spec, the pro-rata report.
-#
-# Authored by the developer seat against the landed production source. The
-# prover applies it blind (tasks.md T41): apply, run the named spec, revert.
+# Spec it must flip: contract-product.migration.unit.test.ts > "AC-33 — the pro-rata report"
+# Mutation: the mapper reads `proRataPending` as false.
 #
 # Apply with:  git apply <this file>   (run from repo root)
 # Revert with: git apply -R <this file>
+
 diff --git a/packages/headless/src/modules/contract-product/contract-product.mappers.ts b/packages/headless/src/modules/contract-product/contract-product.mappers.ts
 --- a/packages/headless/src/modules/contract-product/contract-product.mappers.ts
 +++ b/packages/headless/src/modules/contract-product/contract-product.mappers.ts
-@@ -247,7 +247,7 @@
-     name: raw.name,
-     title: mapContractProductTitle(raw),
+@@ -257,7 +257,7 @@
+     trialEndAction: raw.trial_end_action,
      canCancel: raw.can_cancel,
+     invoiceConsolidationEnabled: raw.invoice_consolidation_enabled,
 -    proRataPending: !!raw.pro_rata_pending,
 +    proRataPending: false,
      canModify: !!raw.can_modify,

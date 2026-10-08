@@ -1,13 +1,11 @@
-# Negative-control mutant 6 — offer-empty (FE-3206)
+# Negative-control mutant — a plan that allows no change is not offered a migration
 #
-# Mutation: count and offer with no allowed plan: drop the allowed-plans clause of the gate and of the read inputs.
-# Spec it must turn red: "... not offered when my plan allows no change".
-#
-# Authored by the developer seat against the landed production source. The
-# prover applies it blind (tasks.md T41): apply, run the named spec, revert.
+# Spec it must flip: contract-product.replay.int.test.ts > "@AC-26 @AC-28 A change of plan is not offered when my plan allows no change"
+# Mutation: the gate and the read inputs drop the allowed-plans clause.
 #
 # Apply with:  git apply <this file>   (run from repo root)
 # Revert with: git apply -R <this file>
+
 diff --git a/packages/headless/src/modules/contract-product/contract-product.utils.ts b/packages/headless/src/modules/contract-product/contract-product.utils.ts
 --- a/packages/headless/src/modules/contract-product/contract-product.utils.ts
 +++ b/packages/headless/src/modules/contract-product/contract-product.utils.ts

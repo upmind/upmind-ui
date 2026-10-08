@@ -1,0 +1,20 @@
+# Negative-control mutant — a missing switch-off permission defaults to allowed
+#
+# Spec it must flip: contract-product.client.unit.test.ts > "AC-36 — canDisableAutoRenew"
+# Mutation: `?? true` becomes `?? false` in `canDisableAutoRenew`.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+
+diff --git a/packages/headless/src/modules/contract-product/contract-product.utils.ts b/packages/headless/src/modules/contract-product/contract-product.utils.ts
+--- a/packages/headless/src/modules/contract-product/contract-product.utils.ts
++++ b/packages/headless/src/modules/contract-product/contract-product.utils.ts
+@@ -306,7 +306,7 @@
+   return (
+     product.isSubscription &&
+     product.autoCreateRenewInvoice &&
+-    (product.product?.can_disable_auto_create_renew_invoice ?? true) &&
++    (product.product?.can_disable_auto_create_renew_invoice ?? false) &&
+     !product.meta.isPending &&
+     !product.meta.isCancelled &&
+     !product.meta.isClosed &&

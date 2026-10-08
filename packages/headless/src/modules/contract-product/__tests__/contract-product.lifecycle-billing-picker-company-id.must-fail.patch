@@ -1,0 +1,20 @@
+# Negative-control mutant — a picked company id resolves to a company
+#
+# Spec it must flip: contract-product.replay.int.test.ts > "@AC-41 @AC-42 @AC-45 Change what my subscription bills to — one of my companies"
+# Mutation: the billing write never matches a company id.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+
+diff --git a/packages/headless/src/modules/contract-product/contract-product.services.ts b/packages/headless/src/modules/contract-product/contract-product.services.ts
+--- a/packages/headless/src/modules/contract-product/contract-product.services.ts
++++ b/packages/headless/src/modules/contract-product/contract-product.services.ts
+@@ -469,7 +469,7 @@
+   const { put, useUrl } = useQuery();
+   const { addresses, companies } = await loadBillingEntities(scopeActor);
+   const id = model?.billing_entity;
+-  const company = find(companies, { id });
++  const company = find(companies, { id: `${id}-` });
+   const address = find(addresses, { id });
+   const choice = company ? { company } : address && { address };
+   if (!ids.contractId || !ids.contractProductId || !choice) {

@@ -1,28 +1,20 @@
-# Negative-control mutant — the manager names the product it addresses as `id` (AC-4)
+# Negative-control mutant — the manager names the product it addresses as id
 #
-# Scenario it must flip: contract-product.feature >
-#   "Open one of my products with what its detail view needs"
-# Test that goes red: contract-product.replay.int.test.ts > that scenario —
-#   "Then it is the very product I opened, under its own name and description" —
-#   the manager context publishes no `id` member.
-# Mutation: reverts the context export to `contractProductId`, dropping `id`.
+# Spec it must flip: contract-product.replay.int.test.ts > "@AC-4 Open one of my products with what its detail view needs"
+# Mutation: the context's `id` reads the contract id.
 #
 # Apply with:  git apply <this file>   (run from repo root)
 # Revert with: git apply -R <this file>
+
 diff --git a/packages/headless/src/modules/contract-product/useContractProduct.context.ts b/packages/headless/src/modules/contract-product/useContractProduct.context.ts
 --- a/packages/headless/src/modules/contract-product/useContractProduct.context.ts
 +++ b/packages/headless/src/modules/contract-product/useContractProduct.context.ts
-@@ -79,8 +79,11 @@ export function createContractProductContext(
-     /** Machine-captured error message, if any — read, never raised. */
+@@ -94,7 +94,7 @@
      errors: useContext<ResponseError["message"]>(state, "error.message"),
  
--    /** The product this manager acts on (undefined for a new item). */
+     /** The product this manager acts on. */
 -    id: useContext<string | undefined>(state, "contractProductId"),
-+    /** The product this manager acts on. */
-+    contractProductId: useContext<string | undefined>(
-+      state,
-+      "contractProductId"
-+    ),
++    id: useContext<string | undefined>(state, "contractId"),
  
-     /** Reference data the machine's `load` service resolved (the CANCEL_REQUEST custom fields). */
-     lookups: useContext<ContractProductContext["lookups"]>(state, "lookups"),
+     /**
+      * The result of the last next-invoice or end-of-trial write: `undefined`

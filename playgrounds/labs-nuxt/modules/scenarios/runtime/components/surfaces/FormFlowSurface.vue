@@ -94,8 +94,7 @@
  * @description The Form-Flow archetype surface — `UpmForm` bound to
  * `snapshot.context.{schema,uischema,model}`, driven by the action names the
  * scenario DECLARES (`presentation.form`) and falling back to the archetype's
- * own `set`/`resolve` convention (the `useAuth` reference usage,
- * `pages/useAuth/[...scopeSuffix].vue`) — never invented here.
+ * own `set`/`resolve` convention — never invented here.
  *
  * The save goes out through the same feedback seam a row action does, so a
  * refused save is a sentence the user can read and act on — including the one

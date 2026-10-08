@@ -5,7 +5,7 @@
  * total invoices, unpaid invoices, active tickets) AND the Upmind-usage block,
  * on ONE scenario, because the module behind them is ONE composable.
  *
- * This module DRAWS ITSELF: `stats.page.vue` beside this file is the route's
+ * This module DRAWS ITSELF: `StatsPage.vue` beside this file is the route's
  * component, so the shared renderer never sees it. `useStats` binds no
  * `useList` and no `useMutate` — it is five scoped single reads with no
  * context (design 8.9, ruling R11 B1) — so there is no table, card or detail
@@ -27,6 +27,7 @@ export const STATS_SCENARIO = "stats";
 
 export default {
   key: STATS_SCENARIO,
+  page: "StatsPage.vue",
   // No route params: the identity is always the signed-in client, self —
   // never a record id (design 8.9).
 

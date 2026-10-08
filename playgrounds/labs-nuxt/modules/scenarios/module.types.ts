@@ -21,4 +21,6 @@ export type DiscoveredScenario = {
   file: string;
   /** Route params the declaration declares (`params: ["oid"]`), as `/:param` segments. */
   params: string[];
+  /** The declared page file, absolute — absent when the shared playground draws it. */
+  page?: string;
 };

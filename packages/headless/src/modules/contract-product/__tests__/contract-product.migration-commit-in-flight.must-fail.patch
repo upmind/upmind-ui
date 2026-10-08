@@ -1,13 +1,11 @@
-# Negative-control mutant 32 — commit-in-flight (FE-3206)
+# Negative-control mutant — a commit in flight lands its invoice
 #
-# Mutation: let `processing` pass `CANCEL.MIGRATION` to the `configuring` parent.
-# Spec it must turn red: the AC-31 unit spec, a commit in flight.
-#
-# Authored by the developer seat against the landed production source. The
-# prover applies it blind (tasks.md T41): apply, run the named spec, revert.
+# Spec it must flip: contract-product.migration.unit.test.ts > "AC-31 — a commit in flight > a close, a child failure and a refresh leave a commit in flight to land its invoice"
+# Mutation: `processing` passes `CANCEL.MIGRATION` to the `configuring` parent.
 #
 # Apply with:  git apply <this file>   (run from repo root)
 # Revert with: git apply -R <this file>
+
 diff --git a/packages/headless/src/modules/contract-product/contract-product.machine.ts b/packages/headless/src/modules/contract-product/contract-product.machine.ts
 --- a/packages/headless/src/modules/contract-product/contract-product.machine.ts
 +++ b/packages/headless/src/modules/contract-product/contract-product.machine.ts

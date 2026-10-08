@@ -1,29 +1,21 @@
-# Negative-control mutant — the published cancellation flag follows the product's options (AC-11)
+# Negative-control mutant — the cancellation gate follows the product's options
 #
-# Scenario it must flip: contract-product.feature >
-#   "I am told whether the cancellation form is offered before I open it — a product with a cancellation request already pending"
-# Test that goes red: contract-product.replay.int.test.ts > that scenario —
-#   "Then I am told the cancellation form is not offered" — `hasCancellationOptions`
-#   reads true on a product with no option left.
-# Mutation: the meta flag keeps the `isAvailable` gate but drops the
-#   `!isEmpty(cancellationOptions(...))` check.
-# Collateral: the AC-11 rows "a subscription already set to expire", "a product with a
-#   cancellation booked for a future date" and "a live one-off purchase".
+# Spec it must flip: contract-product.replay.int.test.ts > "@AC-11 I am told whether the cancellation form is offered before I open it"
+# Mutation: `canRequestCancellation` drops its eligibility rule.
 #
 # Apply with:  git apply <this file>   (run from repo root)
 # Revert with: git apply -R <this file>
+
 diff --git a/packages/headless/src/modules/contract-product/useContractProduct.meta.ts b/packages/headless/src/modules/contract-product/useContractProduct.meta.ts
-index f450389bc..aac806b9c 100644
 --- a/packages/headless/src/modules/contract-product/useContractProduct.meta.ts
 +++ b/packages/headless/src/modules/contract-product/useContractProduct.meta.ts
-@@ -119,9 +119,7 @@ export function createContractProductMeta(
-      */
-     hasCancellationOptions: computed(
-       () =>
--        isAvailable.value &&
--        !!contractProduct.value &&
--        !isEmpty(cancellationOptions(contractProduct.value))
-+        isAvailable.value && !!contractProduct.value
-     ),
- 
-     /** True if the machine captured an error. */
+@@ -124,8 +124,7 @@
+     () =>
+       isAvailable.value &&
+       !isRegionWriteActive.value &&
+-      !!contractProduct.value &&
+-      canRequestCancellation(contractProduct.value)
++      !!contractProduct.value
+   );
+   const canRequestEnd = computed(
+     () =>

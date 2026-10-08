@@ -1,0 +1,27 @@
+# Negative-control mutant — the renewal gates refuse a PENDING record
+#
+# Spec it must flip: contract-product.client.unit.test.ts > "AC-36 — canDisableAutoRenew / canEnableAutoRenew"
+# Mutation: both renewal gates drop the PENDING term.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+
+diff --git a/packages/headless/src/modules/contract-product/contract-product.utils.ts b/packages/headless/src/modules/contract-product/contract-product.utils.ts
+--- a/packages/headless/src/modules/contract-product/contract-product.utils.ts
++++ b/packages/headless/src/modules/contract-product/contract-product.utils.ts
+@@ -307,7 +307,6 @@
+     product.isSubscription &&
+     product.autoCreateRenewInvoice &&
+     (product.product?.can_disable_auto_create_renew_invoice ?? true) &&
+-    !product.meta.isPending &&
+     !product.meta.isCancelled &&
+     !product.meta.isClosed &&
+     !product.inTrial &&
+@@ -330,7 +329,6 @@
+   return (
+     product.isSubscription &&
+     !product.autoCreateRenewInvoice &&
+-    !product.meta.isPending &&
+     !product.meta.isCancelled &&
+     !product.meta.isClosed &&
+     !hasAutoExpireEnabled(product)

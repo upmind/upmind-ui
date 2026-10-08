@@ -1,0 +1,20 @@
+# Negative-control mutant — a billing-entity change is refused on a one-time purchase
+#
+# Spec it must flip: contract-product.client.unit.test.ts > "AC-41 — canSetBillingEntity"
+# Mutation: the `canSetBillingEntity` guard drops its subscription term.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+
+diff --git a/packages/headless/src/modules/contract-product/contract-product.machine.ts b/packages/headless/src/modules/contract-product/contract-product.machine.ts
+--- a/packages/headless/src/modules/contract-product/contract-product.machine.ts
++++ b/packages/headless/src/modules/contract-product/contract-product.machine.ts
+@@ -1255,7 +1255,7 @@
+         { contractProduct }: ContractProductContext,
+         _event: AnyEventObject,
+         { state }
+-      ) => !hasRegionWrite(state) && !!contractProduct?.isSubscription,
++      ) => !hasRegionWrite(state) && !!contractProduct,
+ 
+       isStaged: (_context: ContractProductContext, { data }: AnyEventObject) =>
+         data.stagedImport,

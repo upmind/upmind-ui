@@ -1,0 +1,19 @@
+# Negative-control mutant — ending a trial clears the earlier write's invoice
+#
+# Spec it must flip: contract-product.client.unit.test.ts > "AC-44 — the invoice survives the re-read"
+# Mutation: `processing.endingTrial` no longer runs `clearIssuedInvoice`.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+
+diff --git a/packages/headless/src/modules/contract-product/contract-product.machine.ts b/packages/headless/src/modules/contract-product/contract-product.machine.ts
+--- a/packages/headless/src/modules/contract-product/contract-product.machine.ts
++++ b/packages/headless/src/modules/contract-product/contract-product.machine.ts
+@@ -890,7 +890,6 @@
+             }
+           },
+           endingTrial: {
+-            entry: ["clearIssuedInvoice"],
+             on: { REFRESH: undefined, UNAUTHENTICATED: undefined },
+             invoke: {
+               src: "endTrial",

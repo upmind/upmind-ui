@@ -61,6 +61,10 @@ test("barrel-only-reexports", () => {
       { code: `export * from "./account.utils";`, filename: barrel },
       { code: `export { helper } from "./account.utils";`, filename: barrel },
       {
+        code: `export { mapAccount } from "./account.mappers";`,
+        filename: barrel
+      },
+      {
         code: `export { default as thing } from "./account.utils";`,
         filename: barrel
       },
@@ -172,11 +176,6 @@ test("barrel-only-reexports", () => {
       },
       {
         code: `export { fetchAccount } from "./account.services.client";`,
-        filename: barrel,
-        errors: [{ messageId: "internalReexport" }]
-      },
-      {
-        code: `export { mapAccount } from "./account.mappers";`,
         filename: barrel,
         errors: [{ messageId: "internalReexport" }]
       },

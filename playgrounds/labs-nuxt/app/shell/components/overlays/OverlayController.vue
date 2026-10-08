@@ -10,7 +10,11 @@
     :open="open"
     @update:open="handleDismiss"
   >
-    <component :is="overlayComponent" @close="handleClose" />
+    <component
+      :is="overlayComponent"
+      @close="handleClose"
+      @vue:mounted="mountOverlay"
+    />
   </OverlayContainer>
 </template>
 
@@ -24,11 +28,11 @@
  * Components are resolved from the vue-router route record, not a separate registry.
  */
 
-import { computed, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 import { OverlayContainer } from "@upmind-automation/foundation";
+import { useRoutingEngine } from "@upmind-automation/headless";
 import { useOverlayRoute } from "./useOverlayRoute";
-import { defaults, find, pick, some } from "lodash-es";
+import { defaults, find, pick, some, toString } from "lodash-es";
 import type { OverlayContainerProps } from "@upmind-automation/foundation";
 
 // -----------------------------------------------------------------------------
@@ -40,6 +44,10 @@ const props = withDefaults(defineProps<Omit<OverlayContainerProps, "type">>(), {
 
 const route = useRoute();
 const { isOpen, overlayType, close, dismiss } = useOverlayRoute();
+const { mount } = useRoutingEngine();
+
+/** Local open state — synced with route, but can be closed independently */
+const open = ref(props.open ?? false);
 
 /** Matched route with overlay meta */
 const overlayRoute = computed(() => find(route.matched, "meta.overlay"));
@@ -81,9 +89,6 @@ const safeProps = computed(() =>
   pick(defaults({}, overlayRoute.value?.meta ?? {}, props), CONTAINER_PROP_KEYS)
 );
 
-/** Local open state — synced with route, but can be closed independently */
-const open = ref(props.open ?? false);
-
 watch(
   isOpen,
   value => {
@@ -91,6 +96,14 @@ watch(
   },
   { immediate: true }
 );
+
+/**
+ * An overlay renders here, not in the page outlet, so Nuxt's `page:finish`
+ * never fires for it. Its mount is the engine's signal that the navigation landed.
+ */
+function mountOverlay(): void {
+  mount(toString(route.name));
+}
 
 /** Close after overlay flow completes (e.g. auth success) → returnUrl */
 function handleClose(): void {

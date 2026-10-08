@@ -1,6 +1,6 @@
 // -----------------------------------------------------------------------------
 /**
- * @fileoverview Contract-Product API Fixtures Generator (ADR 035 Am.1, FE-3145)
+ * @fileoverview Contract-Product API Fixtures Generator (ADR 035)
  *
  * ## Job To Be Done
  * One recording per DRIVEN `contract-product.feature` scenario — one step folder
@@ -71,7 +71,7 @@ const featureText = readFileSync(
   "utf-8"
 );
 
-/** The 13 `with` members of the client products-list read (`design ✅.md` §8.1). */
+/** The 13 `with` members of the client products-list read. */
 const LIST_WITH = [
   "clients",
   "clients.image",
@@ -88,7 +88,7 @@ const LIST_WITH = [
   "tags"
 ].join(",");
 
-/** The 36 `with` members of the client product detail read (`design ✅.md` §8.1). */
+/** The 36 `with` members of the client product detail read. */
 const PRODUCT_WITH = [
   "contract",
   "contract.account",
@@ -128,7 +128,7 @@ const PRODUCT_WITH = [
   "unpaid_recurring_invoices"
 ].join(",");
 
-/** The 9 `with` members of the grouped-counts read (`design ✅.md` §8.1). */
+/** The 9 `with` members of the grouped-counts read. */
 const GROUPED_WITH = [
   "status",
   "product.image",
@@ -391,11 +391,11 @@ describe("Contract-Product scenario recordings", () => {
   const readProduct = (generator: Generator) =>
     generator.get(`/api/contract_products/${productId}?with=${PRODUCT_WITH}`);
 
-  /** The purchased-categories read (AC-20, ruling R10). */
+  /** The purchased-categories read. */
   const readCategories = (generator: Generator) =>
     generator.get("/api/contract_product_categories?exclude_delegated=1");
 
-  /** The dashboard grouped-counts read (AC-19) — the rows ride `total`. */
+  /** The dashboard grouped-counts read — the rows ride `total`. */
   const readGroupedCounts = (generator: Generator, filters = "") =>
     generator.get(
       `/api/clients/${clientId}/contracts/products?limit=count` +
@@ -450,7 +450,7 @@ describe("Contract-Product scenario recordings", () => {
     contractId = subscription.contract_id;
     currentConsolidation = subscription.invoice_consolidation_enabled;
 
-    // A product whose renewal invoicing is switched off (AC-21 "off" row).
+    // A product whose renewal invoicing is switched off.
     const offResp = await control(
       "GET",
       "/api/contracts_products?with=status&filter[auto_create_renew_invoice]=0&limit=5",
@@ -465,7 +465,7 @@ describe("Contract-Product scenario recordings", () => {
       );
   }, 60000);
 
-  // === AC-1 · THE COLLECTION ================================================
+  // === THE COLLECTION =======================================================
 
   describe("See the products on my own account", () => {
     const s = "See the products on my own account";
@@ -515,7 +515,7 @@ describe("Contract-Product scenario recordings", () => {
       recordStep(s, "no other client's products are ever loaded", noRequest));
   });
 
-  // === AC-1 · NARROW, CLEAR, ORDER, PAGE, TOGGLE ============================
+  // === NARROW, CLEAR, ORDER, PAGE, TOGGLE ===================================
   // The collection's criteria scenarios. A narrowing is proven on a product
   // ARRANGED for it — a fresh one-off Hat ordered pay-later, whose name,
   // category, status, purchase date and price the rows narrow by — and the
@@ -866,7 +866,7 @@ describe("Contract-Product scenario recordings", () => {
     }
   });
 
-  // === AC-1 / AC-19 · A BRAND THAT HIDES ONE-OFF PURCHASES =================
+  // === A BRAND THAT HIDES ONE-OFF PURCHASES =================================
   // Staff set the portal brand's `@context.oneTimePurchases` to "hidden" (legacy
   // `brand/hideOneTimePurchases`) for the scenario and put the brand's meta back
   // after it. The Background step records the portal brand read, so the seed
@@ -1225,7 +1225,7 @@ describe("Contract-Product scenario recordings", () => {
     });
   }
 
-  // === AC-17 · MY PRODUCT'S OWN STATE (outline, one arranged product per row) =
+  // === MY PRODUCT'S OWN STATE (outline, one arranged product per row) =======
 
   const stateRows: [
     string,
@@ -1318,21 +1318,24 @@ describe("Contract-Product scenario recordings", () => {
     }
   );
 
-  // === AC-17 · A STATE ONLY THE PLATFORM PUTS IT IN ==========================
+  // === A STATE ONLY THE PLATFORM PUTS IT IN =================================
   // The trial that runs on: the catalogue's optional-trial product, ordered
   // with its trial started. It is priced for my currency on the annual cycle
   // only.
 
   const TRIAL_PRODUCT = "3de78642-de53-9714-986f-21208469530d";
 
-  async function orderTrial(): Promise<Arranged> {
+  async function orderTrial(
+    productId: string = TRIAL_PRODUCT,
+    billingCycleMonths = 12
+  ): Promise<Arranged> {
     const order = await asClient("POST", "/api/orders", {
       category_slug: "new_contract",
       products: [
         {
-          product_id: TRIAL_PRODUCT,
+          product_id: productId,
           quantity: 1,
-          billing_cycle_months: 12,
+          billing_cycle_months: billingCycleMonths,
           start_trial: true
         }
       ]
@@ -1443,7 +1446,7 @@ describe("Contract-Product scenario recordings", () => {
     });
   }
 
-  // === AC-15 · WHAT IS SCHEDULED TO HAPPEN TO ONE OF MY PRODUCTS ============
+  // === WHAT IS SCHEDULED TO HAPPEN TO ONE OF MY PRODUCTS ====================
   // Staff schedule a price change on a fresh subscription of mine; the action
   // is deleted after the recording.
 
@@ -1479,7 +1482,7 @@ describe("Contract-Product scenario recordings", () => {
     }
   );
 
-  // === AC-10 · AN OUTSTANDING RENEWAL INVOICE ================================
+  // === AN OUTSTANDING RENEWAL INVOICE =======================================
 
   recordArrangedScenario(
     "Know whether an outstanding invoice is still due, and still cancellable",
@@ -1497,7 +1500,7 @@ describe("Contract-Product scenario recordings", () => {
     }
   );
 
-  // === AC-11 · A SUSPENDED SUBSCRIPTION IS STILL OFFERED EVERY CHANGE ======
+  // === A SUSPENDED SUBSCRIPTION IS STILL OFFERED EVERY CHANGE ===============
   // The three rows share ONE arranged suspended subscription, so they record
   // together: re-record the outline by its title, never one row alone.
 
@@ -1581,7 +1584,7 @@ describe("Contract-Product scenario recordings", () => {
     });
   }
 
-  // === AC-11 / AC-9 · IS EACH FORM OFFERED BEFORE I OPEN IT ================
+  // === IS EACH FORM OFFERED BEFORE I OPEN IT ================================
 
   const ONE_OFF_PRODUCT = "47d73824-8507-9315-9e0b-81e642d59e06";
 
@@ -1871,7 +1874,7 @@ describe("Contract-Product scenario recordings", () => {
       after
     );
 
-  // === FE-3029 · THE CANCELLATION OPTIONS FOLLOW THE PRODUCT'S STATE =======
+  // === THE CANCELLATION OPTIONS FOLLOW THE PRODUCT'S STATE ==================
 
   recordArrangedScenario(
     "The cancellation form on a pending product offers the immediate request",
@@ -1884,7 +1887,7 @@ describe("Contract-Product scenario recordings", () => {
     () => orderSubscription()
   );
 
-  // === FE-3029 · A PRODUCT THAT IS NOT MINE =================================
+  // === A PRODUCT THAT IS NOT MINE ===========================================
   // Another client orders a pending subscription (uncaptured); my session
   // then reads it and records the refusal. Staff close it in `afterAll`.
 
@@ -1958,7 +1961,7 @@ describe("Contract-Product scenario recordings", () => {
       it(line, () => recordStep(s, line, noRequest));
   });
 
-  // === FE-3029 · THE MANAGER FORMS (open / validate / close / reset) ========
+  // === THE MANAGER FORMS (open / validate / close / reset) ==================
   // Each opens from the manager boot alone — the forms open, validate and close
   // client-side, and a submit with no choice sends NO request (the wall proves
   // it). `reset` re-reads the product, answered by the boot's armed recording.
@@ -2007,7 +2010,8 @@ describe("Contract-Product scenario recordings", () => {
       "I have the consolidation form open on one of my subscriptions, with no choice made",
       [
         "I submit the consolidation form choosing the value my subscription already has",
-        "my consolidation choice is not sent and the consolidation form stays open"
+        "my consolidation choice is not sent and the consolidation form closes",
+        "I am given my subscription as it stands"
       ]
     ],
     ...(["reset", "refresh"] as const).map(
@@ -2039,7 +2043,7 @@ describe("Contract-Product scenario recordings", () => {
     });
   }
 
-  // === AC-4 · OPEN ONE OF MY PRODUCTS =======================================
+  // === OPEN ONE OF MY PRODUCTS ==============================================
 
   describe("Open one of my products with what its detail view needs", () => {
     const s = "Open one of my products with what its detail view needs";
@@ -2076,7 +2080,7 @@ describe("Contract-Product scenario recordings", () => {
     );
   };
 
-  // === AC-6 · HARD CANCELLATION =============================================
+  // === HARD CANCELLATION ====================================================
   // The request's re-read is recorded BEFORE the request is withdrawn.
 
   describe("Ask for one of my products to be cancelled outright", () => {
@@ -2114,7 +2118,7 @@ describe("Contract-Product scenario recordings", () => {
       it(line, () => recordStep(s, line, noRequest));
   });
 
-  // === AC-7 · WITHDRAW A CANCELLATION REQUEST ===============================
+  // === WITHDRAW A CANCELLATION REQUEST ======================================
 
   describe("Change my mind about a cancellation I asked for", () => {
     const s = "Change my mind about a cancellation I asked for";
@@ -2173,7 +2177,7 @@ describe("Contract-Product scenario recordings", () => {
     .toISOString()
     .slice(0, 10);
 
-  // === AC-5 · STOP-RENEWING IS NOT THE RENEWAL-INVOICING PERMISSION ==========
+  // === STOP-RENEWING IS NOT THE RENEWAL-INVOICING PERMISSION ================
   // "not allowed" is the stable subscription (its catalogue product forbids
   // switching renewal invoicing off); "allowed" is a fresh Starter Hosting
   // subscription, whose catalogue product permits it.
@@ -2219,7 +2223,7 @@ describe("Contract-Product scenario recordings", () => {
     });
   }
 
-  // === AC-22 · BOOK A CANCELLATION ON A DATE I CHOOSE (outline, 2 rows) ======
+  // === BOOK A CANCELLATION ON A DATE I CHOOSE (outline, 2 rows) =============
   // The booking's re-read is recorded BEFORE the booking is revoked, so the
   // scenario reads the date the platform booked.
 
@@ -2275,7 +2279,7 @@ describe("Contract-Product scenario recordings", () => {
     });
   }
 
-  // === AC-9 · CONSOLIDATION (outline, 3 rows) ===============================
+  // === CONSOLIDATION (outline, 3 rows) ======================================
   // Each row first moves the stable subscription to a value OTHER than the
   // one it chooses (uncaptured), records the boot reading it, submits the
   // choice and records the re-read, then restores the original value.
@@ -2330,7 +2334,7 @@ describe("Contract-Product scenario recordings", () => {
     });
   }
 
-  // === AC-21 · RENEWAL-INVOICING ON / OFF (outline, 2 rows) =================
+  // === RENEWAL-INVOICING ON / OFF (outline, 2 rows) =========================
 
   for (const [state, id] of [
     ["on", () => productId],
@@ -2365,7 +2369,7 @@ describe("Contract-Product scenario recordings", () => {
     });
   }
 
-  // === AC-25 · A CHANGE IN FLIGHT ===========================================
+  // === A CHANGE IN FLIGHT ===================================================
 
   describe("While a change of mine is in flight, the module says so", () => {
     const s = "While a change of mine is in flight, the module says so";
@@ -2400,7 +2404,7 @@ describe("Contract-Product scenario recordings", () => {
       it(line, () => recordStep(s, line, noRequest));
   });
 
-  // === AC-23 · REVOKE A BOOKED CANCELLATION =================================
+  // === REVOKE A BOOKED CANCELLATION =========================================
 
   describe("Revoke a scheduled cancellation I booked", () => {
     const s = "Revoke a scheduled cancellation I booked";
@@ -2453,7 +2457,7 @@ describe("Contract-Product scenario recordings", () => {
       ));
   });
 
-  // === AC-1 · A PRODUCT'S NEXT-DUE AND BILLING CYCLE ========================
+  // === A PRODUCT'S NEXT-DUE AND BILLING CYCLE ===============================
 
   describe("My product shows when it next falls due and how often it bills", () => {
     const s = "My product shows when it next falls due and how often it bills";
@@ -2470,7 +2474,7 @@ describe("Contract-Product scenario recordings", () => {
       it(line, () => recordStep(s, line, noRequest));
   });
 
-  // === AC-22 · THE EARLIEST CANCELLATION DATE ===============================
+  // === THE EARLIEST CANCELLATION DATE =======================================
 
   describe("The earliest date I can book a cancellation for is the one my product allows", () => {
     const s =
@@ -2494,7 +2498,7 @@ describe("Contract-Product scenario recordings", () => {
       ));
   });
 
-  // === AC-5 · STOP RENEWING, AND CHANGE MY MIND (outline, 2 rows) ============
+  // === STOP RENEWING, AND CHANGE MY MIND (outline, 2 rows) ==================
 
   for (const giving of ["with my reason", "without a reason"] as const) {
     const s = `Stop one of my subscriptions renewing, and change my mind — ${giving}`;
@@ -2540,7 +2544,7 @@ describe("Contract-Product scenario recordings", () => {
     });
   }
 
-  // === AC-20 · THE PURCHASED CATEGORIES =====================================
+  // === THE PURCHASED CATEGORIES =============================================
 
   describe("Browse the categories I have already bought into", () => {
     const s = "Browse the categories I have already bought into";
@@ -2567,7 +2571,7 @@ describe("Contract-Product scenario recordings", () => {
       it(line, () => recordStep(s, line, noRequest));
   });
 
-  // === AC-19 · THE GROUPED COUNTS ===========================================
+  // === THE GROUPED COUNTS ===================================================
 
   describe("Ask for my products grouped by category and see a count for each", () => {
     const s =
@@ -2586,7 +2590,7 @@ describe("Contract-Product scenario recordings", () => {
       it(line, () => recordStep(s, line, noRequest));
   });
 
-  // === AC-1 · THE LIST ROWS, THE PRICES AND THE PICKER ======================
+  // === THE LIST ROWS, THE PRICES AND THE PICKER =============================
 
   /** The collection boot, then the paged read and its count, narrowed by `filter`. */
   const readNarrowedList = (filter: string) => async (generator: Generator) => {
@@ -2708,7 +2712,7 @@ describe("Contract-Product scenario recordings", () => {
       ));
   });
 
-  // === AC-2 / AC-18 · NEVER SHOWN DELEGATED PRODUCTS I DO NOT HAVE ==========
+  // === NEVER SHOWN DELEGATED PRODUCTS I DO NOT HAVE =========================
   // The recording client has NOTHING delegated to it (its `/self` carries
   // `delegated_ids: null`, checked below). Each row ARRANGES the choice it
   // made before on the client's own meta (the key legacy stores,
@@ -2807,7 +2811,7 @@ describe("Contract-Product scenario recordings", () => {
         recordStep(s, "delegated products are excluded", noRequest));
     });
   }
-  // === AC-2 / AC-18 · PRODUCTS DELEGATED TO ME ==============================
+  // === PRODUCTS DELEGATED TO ME =============================================
   // A REAL delegation: the delegate owner invites my account, I accept from the
   // invitation email, and the owner grants me one of its products (legacy
   // useDelegate `full_delegate:false` + `add_contract_product_ids`). The
@@ -3093,9 +3097,8 @@ describe("Contract-Product scenario recordings", () => {
     });
   }
 
-  // === FE-3206 · CHANGING THE PLAN ==========================================
-  // Staff ARRANGE the change of plan for the recording (tasks.md, the
-  // arrangement table): the source plan S allows five monthly plans, and the
+  // === CHANGING THE PLAN ====================================================
+  // Staff ARRANGE the change of plan for the recording: the source plan S allows five monthly plans, and the
   // empty source plan S0 allows only the one-off plan. A staff change moves
   // the product onto its new plan while the pro-rata invoice is unpaid, so the
   // plan it moves to allows a change back (arrangement check 7 reads the new
@@ -4274,4 +4277,984 @@ describe("Contract-Product scenario recordings", () => {
       ]
     );
   });
+
+  // === THE FIVE LIFECYCLE WRITES ============================================
+  // Each row arranges its own fresh subscription (staff only ARRANGE, nothing
+  // staff does is recorded). A write the platform must refuse is made to refuse
+  // by a change between the read and the write, put back at once. The
+  // end-of-trial success rows record only if the platform lets a client end a
+  // trial; a platform that refuses stops the row before anything is recorded.
+
+  type Req = (generator: Generator, target: Arranged) => Promise<unknown>;
+
+  const mustAnswer = (
+    answer: { status: number; body: unknown },
+    status: number,
+    what: string
+  ): void => {
+    if (answer.status !== status)
+      throw new Error(
+        `${what} answered ${answer.status}, not ${status}: ${JSON.stringify(answer.body)}`
+      );
+  };
+
+  const starterCatalogue = `/api/admin/products/${STARTER_HOSTING}`;
+  const pastDay = new Date(Date.now() - 10 * 24 * 60 * 60 * 1000)
+    .toISOString()
+    .slice(0, 10);
+  const SETTLE_MS = 3000;
+  const settleBetweenCalls = () =>
+    new Promise(resolve => setTimeout(resolve, SETTLE_MS));
+
+  type WireRead = {
+    status?: { code: string };
+    renew: boolean;
+    in_trial: boolean;
+    client_label: string | null;
+    next_invoice_date: string | null;
+    can_create_next_invoice: boolean;
+    auto_create_renew_invoice: boolean;
+    product?: { can_disable_auto_create_renew_invoice: boolean };
+    contract?: { address_id: string | null; company_id: string | null };
+  };
+
+  const wireRead = async (target: Arranged): Promise<WireRead> =>
+    (
+      (
+        await asClient(
+          "GET",
+          `/api/contract_products/${target.cpId}?with=status,product,contract`
+        )
+      ).body as { data: WireRead }
+    ).data;
+
+  const expectRead = (
+    read: WireRead,
+    row: string,
+    holds: (read: WireRead) => boolean
+  ): void => {
+    if (!holds(read))
+      throw new Error(
+        `${row}: the product reads ${JSON.stringify({
+          status: read.status?.code,
+          renew: read.renew,
+          in_trial: read.in_trial,
+          label: read.client_label,
+          next_invoice_date: read.next_invoice_date,
+          can_create_next_invoice: read.can_create_next_invoice,
+          invoicing: read.auto_create_renew_invoice,
+          can_disable: read.product?.can_disable_auto_create_renew_invoice,
+          billing: read.contract
+        })}.`
+      );
+  };
+
+  /** A subscription of the Starter Hosting plan, in trial, waiting for activation. */
+  async function orderStarterTrial(): Promise<Arranged> {
+    const set = await asStaff("PUT", starterCatalogue, {
+      trial_supported: true,
+      trial_duration: 7
+    });
+    mustAnswer(set, 200, "Allowing a trial on the plan");
+    return orderTrial(STARTER_HOSTING, 1).finally(() =>
+      asStaff("PUT", starterCatalogue, { trial_supported: false })
+    );
+  }
+
+  const stopInvoicingThen =
+    (...more: ((target: Arranged) => Promise<void>)[]) =>
+    async (): Promise<Arranged> => {
+      const target = await arrangeActive();
+      await stopInvoicingOf(target);
+      for (const move of more) await move(target);
+      return target;
+    };
+
+  /**
+   * One lifecycle scenario: the Background, the Given booting the arranged
+   * product (plus whatever `bootMore` reads with it), then each later line with
+   * the requests it makes.
+   */
+  function recordLifecycle(
+    scenario: string,
+    given: string,
+    arrange: () => Promise<Arranged>,
+    lines: [string, Req?][],
+    bootMore: Req = noRequest,
+    check: (read: WireRead) => boolean = () => true
+  ): void {
+    describe(scenario, () => {
+      let target: Arranged;
+      it(MANAGER_BG, () => recordStep(scenario, MANAGER_BG, noRequest));
+      it(
+        given,
+        async () => {
+          target = await arrange();
+          expectRead(await wireRead(target), scenario, check);
+          await recordStep(scenario, given, async generator => {
+            await readManagerBootOf(target.cpId)(generator);
+            await bootMore(generator, target);
+          });
+        },
+        120000
+      );
+      for (const [line, requests] of lines)
+        it(
+          line,
+          () =>
+            recordStep(scenario, line, generator =>
+              (requests ?? noRequest)(generator, target)
+            ),
+          120000
+        );
+    });
+  }
+
+  const quietLines = (...text: string[]): [string, Req?][] =>
+    text.map(line => [line]);
+
+  const rereadProduct: Req = (generator, target) =>
+    generator.get(`/api/contract_products/${target.cpId}?with=${PRODUCT_WITH}`);
+
+  // --- renewal invoicing off and on -----------------------------------------
+
+  const stopStartPath = (target: Arranged) =>
+    `/api/contracts/${target.contractId}/products/${target.cpId}/stop_start_invoicing`;
+
+  for (const [from, to] of [
+    ["on", "off"],
+    ["off", "on"]
+  ] as const)
+    recordLifecycle(
+      `Turn the renewal invoicing of my subscription off or on — ${from}`,
+      `a subscription of mine whose renewal invoicing is ${from} and that permits the change`,
+      from === "on" ? () => arrangeActive() : stopInvoicingThen(),
+      [
+        [
+          `I turn its renewal invoicing ${to}`,
+          async (generator, target) => {
+            await generator.put(stopStartPath(target), {
+              invoicing: to === "on"
+            });
+            await rereadProduct(generator, target);
+          }
+        ],
+        ...quietLines(
+          `the platform is asked to set its renewal invoicing ${to}`,
+          "nothing is sent to change its renewal",
+          "the subscription is read again",
+          `I am told its renewal invoicing is ${to}`
+        )
+      ],
+      noRequest,
+      read =>
+        read.auto_create_renew_invoice === (from === "on") &&
+        read.product?.can_disable_auto_create_renew_invoice === true
+    );
+
+  // --- a renewal invoicing change that is not offered -----------------------
+
+  const NOT_OFFERED_FEATURE =
+    "I am not offered a renewal invoicing change that legacy does not offer";
+  for (const [product, to, arrange, check] of [
+    [
+      "a subscription whose product forbids stopping renewal invoicing",
+      "off",
+      async (): Promise<Arranged> => ({
+        contractId,
+        cpId: productId,
+        invoiceId: ""
+      }),
+      (read: WireRead) =>
+        read.product?.can_disable_auto_create_renew_invoice === false &&
+        read.auto_create_renew_invoice
+    ],
+    [
+      "a subscription in trial whose renewal invoicing is on",
+      "off",
+      orderStarterTrial,
+      (read: WireRead) =>
+        read.in_trial &&
+        read.auto_create_renew_invoice &&
+        read.product?.can_disable_auto_create_renew_invoice === true
+    ],
+    [
+      "a subscription that expires at the end of its term",
+      "on",
+      stopInvoicingThen(stopRenewingOf),
+      (read: WireRead) => !read.renew && !read.auto_create_renew_invoice
+    ],
+    [
+      "a cancelled subscription whose renewal invoicing is off",
+      "on",
+      stopInvoicingThen(target => setStatus(target, "contract_cancelled")),
+      (read: WireRead) =>
+        read.status?.code === "contract_cancelled" &&
+        !read.auto_create_renew_invoice
+    ]
+  ] as const)
+    recordLifecycle(
+      `${NOT_OFFERED_FEATURE} — ${product}`,
+      product,
+      arrange,
+      quietLines(
+        `I ask to turn its renewal invoicing ${to}`,
+        "I am told the change is not offered",
+        "nothing is sent to the platform"
+      ),
+      noRequest,
+      check
+    );
+
+  // --- the next invoice -----------------------------------------------------
+
+  const nextInvoiceOf = async (target: Arranged) =>
+    (await wireRead(target)).next_invoice_date;
+
+  recordLifecycle(
+    "Issue the next invoice of my subscription now",
+    "a subscription of mine that can raise its next invoice",
+    () => arrangeActive(),
+    [
+      [
+        "I ask for its next invoice",
+        async (generator, target) => {
+          const answer = await generator.post(
+            `/api/contracts/${target.contractId}/products/${target.cpId}/recurring`,
+            { next_invoice_date: await nextInvoiceOf(target) }
+          );
+          mustAnswer(answer, 200, "The next invoice");
+          await rereadProduct(generator, target);
+        }
+      ],
+      ...quietLines(
+        "the platform is asked for it with the next invoice date of the subscription",
+        "I am given the invoice that it raised",
+        "the subscription is read again"
+      )
+    ],
+    noRequest,
+    read => read.can_create_next_invoice && !!read.next_invoice_date
+  );
+
+  recordLifecycle(
+    "I am not offered a next invoice that the platform cannot raise",
+    "a subscription of mine that cannot raise its next invoice",
+    () => orderSubscription(),
+    quietLines(
+      "I ask for its next invoice",
+      "I am told it is not offered",
+      "nothing is sent to the platform"
+    ),
+    noRequest,
+    read => !read.can_create_next_invoice
+  );
+
+  recordLifecycle(
+    "I am told if the next invoice of my subscription is late — still to come",
+    "a subscription of mine whose next invoice date is still to come",
+    () => arrangeActive(),
+    quietLines(
+      "I look at when its next invoice falls due",
+      "I am told its next invoice is not yet due"
+    ),
+    noRequest,
+    read => !!read.next_invoice_date && read.next_invoice_date > pastDay
+  );
+
+  recordLifecycle(
+    "I am told if the next invoice of my subscription is late — already passed",
+    "a subscription of mine whose next invoice date is already passed",
+    async () => {
+      const target = await arrangeActive();
+      const set = await asStaff(
+        "PUT",
+        `/api/admin/contracts/${target.contractId}/products/${target.cpId}/properties`,
+        { next_invoice_date: pastDay }
+      );
+      mustAnswer(set, 200, "Setting the next invoice date");
+      return target;
+    },
+    quietLines(
+      "I look at when its next invoice falls due",
+      "I am told its next invoice is late"
+    ),
+    noRequest,
+    read => read.next_invoice_date === pastDay
+  );
+
+  // --- the trial ------------------------------------------------------------
+
+  for (const [action, arrange] of [
+    ["continuing", () => orderTrial()],
+    ["cancelling", orderEndingTrial]
+  ] as const)
+    recordLifecycle(
+      `I am told how the trial of my product ends — ${action}`,
+      `a product of mine in trial whose trial ends by ${action}`,
+      arrange,
+      quietLines(
+        "I look at how its trial ends",
+        `I am told its trial ends by ${action}`
+      ),
+      noRequest,
+      read => read.in_trial
+    );
+
+  recordLifecycle(
+    "I cannot end a trial that waits for activation",
+    "a product of mine in trial that waits for activation",
+    orderStarterTrial,
+    quietLines(
+      "I end its trial",
+      "I am told it is not offered",
+      "nothing is sent to the platform"
+    ),
+    noRequest,
+    read =>
+      read.in_trial && read.status?.code === "contract_awaiting_activation"
+  );
+
+  const endTrialPath = (target: Arranged) =>
+    `/api/contracts/${target.contractId}/products/${target.cpId}/trial_end_action_manual`;
+
+  for (const [action, arrange, result] of [
+    ["continuing", () => orderTrial(), "the invoice that it raised"],
+    ["cancelling", orderEndingTrial, "no invoice"]
+  ] as const) {
+    const scenario = `End the trial of my product early — ${action}`;
+    const given = `a product of mine in trial whose trial ends by ${action}`;
+    describe(scenario, () => {
+      let target: Arranged;
+      it(MANAGER_BG, () => recordStep(scenario, MANAGER_BG, noRequest));
+      it(
+        given,
+        async () => {
+          target = await arrange();
+          await recordStep(scenario, given, readManagerBootOf(target.cpId));
+        },
+        120000
+      );
+      it(
+        "I end its trial",
+        () =>
+          recordStep(scenario, "I end its trial", async generator => {
+            await generator.post(endTrialPath(target));
+            await rereadProduct(generator, target);
+          }),
+        120000
+      );
+      for (const line of [
+        "the platform is asked to end its trial, with nothing else sent",
+        result === "no invoice"
+          ? "I am given no invoice"
+          : `I am given ${result}`,
+        "the product is read again"
+      ])
+        it(line, () => recordStep(scenario, line, noRequest));
+    });
+  }
+
+  // --- the label ------------------------------------------------------------
+
+  const labelPath = (target: Arranged) =>
+    `/api/contract_products/${target.cpId}`;
+  const WEB_BOX = "Web box";
+
+  const listAsTheLabelShows = async (generator: Generator): Promise<void> => {
+    await readCollectionBoot(generator);
+    await readCriteria(generator, { order: "-created_at" });
+  };
+
+  for (const [from, to] of [
+    ["empty", WEB_BOX],
+    [`"${WEB_BOX}"`, ""]
+  ] as const) {
+    const toText = to === "" ? "empty" : `"${to}"`;
+    recordLifecycle(
+      `Give my product my own label — ${from}`,
+      `a product of mine whose label is ${from}`,
+      async () => {
+        const target = await arrangeActive();
+        if (from !== "empty")
+          mustAnswer(
+            await asClient("PUT", labelPath(target), {
+              client_label: WEB_BOX
+            }),
+            200,
+            "Labelling the arranged product"
+          );
+        return target;
+      },
+      [
+        [
+          `I set its label to ${toText}`,
+          async (generator, target) => {
+            mustAnswer(
+              await generator.put(labelPath(target), { client_label: to }),
+              200,
+              "The label"
+            );
+            await rereadProduct(generator, target);
+          }
+        ],
+        ...quietLines(
+          `the platform is asked to set its label to ${toText}`,
+          "the product is read again",
+          `I am told its label is ${toText}`
+        ),
+        ["my products list gives that label on its row", listAsTheLabelShows]
+      ]
+    );
+  }
+
+  // --- the billing entity ---------------------------------------------------
+
+  type Listed = { id: string; address_id?: string };
+  const clientList = async (kind: "addresses" | "companies") =>
+    (
+      (await asClient("GET", `/api/clients/${clientId}/${kind}`)).body as {
+        data: Listed[];
+      }
+    ).data;
+
+  const readEntities = async (generator: Generator): Promise<void> => {
+    await generator.get(
+      `/api/clients/${clientId}/addresses?with=region,country&limit=0`
+    );
+    await generator.get(
+      `/api/clients/${clientId}/companies?with=address,address.country,address.region&with_staged_imports=1&order=created_at&limit=0&offset=0`
+    );
+  };
+
+  const billingPath = (target: Arranged) =>
+    `/api/contracts/${target.contractId}/address_company_vat`;
+
+  const billTo = async (
+    target: Arranged,
+    addressId: string,
+    companyId: string | null
+  ): Promise<void> => {
+    mustAnswer(
+      await asClient("PUT", billingPath(target), {
+        address_id: addressId,
+        company_id: companyId
+      }),
+      200,
+      "Arranging what the subscription bills to"
+    );
+    await settleBetweenCalls();
+  };
+
+  const billsToAddress = async (): Promise<Arranged> => {
+    const target = await arrangeActive();
+    const [, other] = await clientList("addresses");
+    await billTo(target, other.id, null);
+    return target;
+  };
+
+  const billsToCompany = async (): Promise<Arranged> => {
+    const target = await arrangeActive();
+    const [company] = await clientList("companies");
+    await billTo(target, company.address_id ?? "", company.id);
+    return target;
+  };
+
+  const bills = (company: boolean) => (read: WireRead) =>
+    company ? !!read.contract?.company_id : read.contract?.company_id === null;
+
+  recordLifecycle(
+    "Change what my subscription bills to — an address",
+    "a subscription of mine that bills to an address",
+    billsToAddress,
+    [
+      [
+        "I pick one of my companies",
+        async (generator, target) => {
+          await readEntities(generator);
+          const [company] = await clientList("companies");
+          mustAnswer(
+            await generator.put(billingPath(target), {
+              address_id: company.address_id,
+              company_id: company.id
+            }),
+            200,
+            "The billing entity"
+          );
+          await rereadProduct(generator, target);
+        }
+      ],
+      ...quietLines(
+        "the platform is asked to bill it to the address of that company and that company",
+        "the subscription is read again",
+        "I am told it bills to the address of that company and that company"
+      )
+    ],
+    noRequest,
+    bills(false)
+  );
+
+  recordLifecycle(
+    "Change what my subscription bills to — one of my companies",
+    "a subscription of mine that bills to one of my companies",
+    billsToCompany,
+    [
+      [
+        "I pick another address",
+        async (generator, target) => {
+          await readEntities(generator);
+          const [, other] = await clientList("addresses");
+          mustAnswer(
+            await generator.put(billingPath(target), {
+              address_id: other.id,
+              company_id: null
+            }),
+            200,
+            "The billing entity"
+          );
+          await rereadProduct(generator, target);
+        }
+      ],
+      ...quietLines(
+        "the platform is asked to bill it to that address and no company",
+        "the subscription is read again",
+        "I am told it bills to that address and no company"
+      )
+    ],
+    noRequest,
+    bills(true)
+  );
+
+  recordLifecycle(
+    "Picking what my subscription already bills to sends nothing",
+    "a subscription of mine that bills to one of my companies",
+    billsToCompany,
+    [
+      ["I pick that same company", readEntities],
+      ...quietLines(
+        "I am given my subscription as it stands",
+        "nothing is sent to the platform"
+      )
+    ],
+    noRequest,
+    bills(true)
+  );
+
+  recordLifecycle(
+    "Change what a cancelled subscription of mine bills to",
+    "a cancelled subscription of mine that bills to one of my companies",
+    async () => {
+      const target = await billsToCompany();
+      await setStatus(target, "contract_cancelled");
+      return target;
+    },
+    [
+      [
+        "I pick another address",
+        async (generator, target) => {
+          await readEntities(generator);
+          const [, other] = await clientList("addresses");
+          mustAnswer(
+            await generator.put(billingPath(target), {
+              address_id: other.id,
+              company_id: null
+            }),
+            200,
+            "The billing entity of a cancelled subscription"
+          );
+          await rereadProduct(generator, target);
+        }
+      ],
+      ...quietLines(
+        "the platform is asked to bill it to that address and no company",
+        "the subscription is read again",
+        "I am told it bills to that address and no company"
+      )
+    ],
+    noRequest,
+    read =>
+      read.status?.code === "contract_cancelled" && !!read.contract?.company_id
+  );
+
+  // --- a write the platform refuses -----------------------------------------
+
+  const REFUSED_LINES = [
+    "I am told the platform refused it",
+    "the product is read again",
+    "my product is still given to me"
+  ];
+
+  recordLifecycle(
+    "A lifecycle write that the platform refuses — turn its renewal invoicing off",
+    "a product of mine where the platform will refuse to turn its renewal invoicing off",
+    () => arrangeActive(),
+    [
+      [
+        "I ask to turn its renewal invoicing off",
+        async (generator, target) => {
+          mustAnswer(
+            await asStaff("PUT", starterCatalogue, {
+              can_disable_auto_create_renew_invoice: false
+            }),
+            200,
+            "Closing the permission"
+          );
+          await generator
+            .put(stopStartPath(target), { invoicing: false })
+            .then(answer =>
+              mustAnswer(answer, 409, "The refused renewal invoicing change")
+            )
+            .finally(() =>
+              asStaff("PUT", starterCatalogue, {
+                can_disable_auto_create_renew_invoice: true
+              })
+            );
+          await rereadProduct(generator, target);
+        }
+      ],
+      ...quietLines(...REFUSED_LINES)
+    ]
+  );
+
+  recordLifecycle(
+    "A lifecycle write that the platform refuses — raise its next invoice",
+    "a product of mine where the platform will refuse to raise its next invoice",
+    () => arrangeActive(),
+    [
+      [
+        "I ask to raise its next invoice",
+        async (generator, target) => {
+          await raiseRenewalInvoice(target);
+          const answer = await generator.post(
+            `/api/contracts/${target.contractId}/products/${target.cpId}/recurring`,
+            { next_invoice_date: await nextInvoiceOf(target) }
+          );
+          if (answer.status < 400)
+            throw new Error(
+              `The platform raised a second next invoice: ${JSON.stringify(answer.body)}`
+            );
+          await rereadProduct(generator, target);
+        }
+      ],
+      ...quietLines(...REFUSED_LINES)
+    ]
+  );
+
+  recordLifecycle(
+    "A lifecycle write that the platform refuses — end its trial",
+    "a product of mine where the platform will refuse to end its trial",
+    () => orderTrial(),
+    [
+      [
+        "I ask to end its trial",
+        async (generator, target) => {
+          mustAnswer(
+            await generator.post(endTrialPath(target)),
+            409,
+            "The refused end of trial"
+          );
+          await rereadProduct(generator, target);
+        }
+      ],
+      ...quietLines(...REFUSED_LINES)
+    ]
+  );
+
+  recordLifecycle(
+    "A lifecycle write that the platform refuses — set its label",
+    "a product of mine where the platform will refuse to set its label",
+    () => arrangeActive(),
+    [
+      [
+        "I ask to set its label",
+        async (generator, target) => {
+          mustAnswer(
+            await generator.put(labelPath(target), {
+              client_label: "x".repeat(300)
+            }),
+            422,
+            "The refused label"
+          );
+          await rereadProduct(generator, target);
+        }
+      ],
+      ...quietLines(...REFUSED_LINES)
+    ]
+  );
+
+  {
+    let temporary: string | undefined;
+    recordLifecycle(
+      "A billing-entity change that the platform refuses keeps my pick",
+      "a product of mine where the platform will refuse to change what it bills to",
+      async () => {
+        const [model] = await clientList("addresses");
+        const wire = (
+          (
+            await asClient(
+              "GET",
+              `/api/clients/${clientId}/addresses/${model.id}`
+            )
+          ).body as { data: Record<string, unknown> }
+        ).data;
+        const made = await asClient(
+          "POST",
+          `/api/clients/${clientId}/addresses`,
+          {
+            name: "FE-3207 temporary",
+            address_1: "1 Temporary Road",
+            city: "London",
+            postcode: "SW1A 1AA",
+            country_id: wire.country_id,
+            type: wire.type,
+            region_id: wire.region_id
+          }
+        );
+        mustAnswer(made, 200, "Adding the temporary address");
+        temporary = (made.body as { data: { id: string } }).data.id;
+        return arrangeActive();
+      },
+      [
+        [
+          "I ask to change what it bills to",
+          async (generator, target) => {
+            await readEntities(generator);
+            mustAnswer(
+              await asClient(
+                "DELETE",
+                `/api/clients/${clientId}/addresses/${temporary}`
+              ),
+              200,
+              "Removing the temporary address"
+            );
+            const removed = temporary;
+            temporary = undefined;
+            mustAnswer(
+              await generator.put(billingPath(target), {
+                address_id: removed,
+                company_id: null
+              }),
+              404,
+              "The refused billing entity"
+            );
+          }
+        ],
+        ...quietLines(
+          "I am told the platform refused it",
+          "the billing form stays open on my pick",
+          "my product is not read again"
+        )
+      ]
+    );
+  }
+
+  // --- a landed write refreshes my lists ------------------------------------
+
+  const raiseNextInvoice: Req = async (generator, target) => {
+    mustAnswer(
+      await generator.post(
+        `/api/contracts/${target.contractId}/products/${target.cpId}/recurring`,
+        { next_invoice_date: await nextInvoiceOf(target) }
+      ),
+      200,
+      "The next invoice"
+    );
+    await rereadProduct(generator, target);
+  };
+
+  const endTrialNow: Req = async (generator, target) => {
+    mustAnswer(
+      await generator.post(endTrialPath(target)),
+      200,
+      "A client ending the trial"
+    );
+    await rereadProduct(generator, target);
+  };
+
+  const landedWrites: [string, () => Promise<Arranged>, Req][] = [
+    [
+      "turn its renewal invoicing off",
+      () => arrangeActive(),
+      async (generator, target) => {
+        mustAnswer(
+          await generator.put(stopStartPath(target), { invoicing: false }),
+          200,
+          "The renewal invoicing change"
+        );
+        await rereadProduct(generator, target);
+      }
+    ],
+    ["raise its next invoice", () => arrangeActive(), raiseNextInvoice],
+    ["end its trial", () => orderTrial(), endTrialNow],
+    [
+      "set its label",
+      () => arrangeActive(),
+      async (generator, target) => {
+        mustAnswer(
+          await generator.put(labelPath(target), { client_label: WEB_BOX }),
+          200,
+          "The label"
+        );
+        await rereadProduct(generator, target);
+      }
+    ],
+    [
+      "change what it bills to",
+      billsToAddress,
+      async (generator, target) => {
+        await readEntities(generator);
+        const [company] = await clientList("companies");
+        mustAnswer(
+          await generator.put(billingPath(target), {
+            address_id: company.address_id,
+            company_id: company.id
+          }),
+          200,
+          "The billing entity"
+        );
+        await rereadProduct(generator, target);
+      }
+    ]
+  ];
+
+  for (const [write, arrange, request] of landedWrites)
+    recordLifecycle(
+      `A lifecycle write refreshes my products list — ${write}`,
+      `my products list and a product of mine where I can ${write}`,
+      arrange,
+      [
+        [
+          `I ${write}`,
+          async (generator, target) => {
+            await request(generator, target);
+            await readCriteria(generator);
+          }
+        ],
+        ...quietLines("my products list is read again")
+      ],
+      readCollectionBoot
+    );
+
+  const readInvoiceList: Req = async generator => {
+    await generator.get(`/api/invoices?limit=10&offset=0`);
+  };
+
+  for (const [write, arrange, request] of landedWrites.filter(([write]) =>
+    ["raise its next invoice", "end its trial"].includes(write)
+  ))
+    recordLifecycle(
+      `A write that raises an invoice refreshes my invoices — ${write}`,
+      `my invoices list and a product of mine where I can ${write}`,
+      arrange,
+      [
+        [
+          `I ${write}`,
+          async (generator, target) => {
+            await request(generator, target);
+            await readInvoiceList(generator, target);
+          }
+        ],
+        ...quietLines("my invoices list is read again")
+      ],
+      readInvoiceList
+    );
+
+  // --- the cases the writes above do not reach -------------------------------
+
+  {
+    let drifted: { companyId: string; addressId: string } | undefined;
+    const companyPath = (companyId: string) =>
+      `/api/clients/${clientId}/companies/${companyId}`;
+    const restoreCompany = async (): Promise<void> => {
+      if (!drifted) return;
+      const { companyId, addressId } = drifted;
+      drifted = undefined;
+      mustAnswer(
+        await asClient("PUT", companyPath(companyId), {
+          address_id: addressId
+        }),
+        200,
+        "Putting the company's address back"
+      );
+    };
+    recordLifecycle(
+      "Picking the company my subscription bills to sends nothing, even at another address",
+      "a subscription of mine that bills to one of my companies at an address that is not that company's",
+      async () => {
+        const target = await arrangeActive();
+        const [company] = await clientList("companies");
+        const companyAddress = company.address_id ?? "";
+        await billTo(target, companyAddress, company.id);
+        const other = find(
+          await clientList("addresses"),
+          address => address.id !== companyAddress
+        );
+        if (!other)
+          throw new Error(
+            "The client holds no address other than its company's."
+          );
+        drifted = { companyId: company.id, addressId: companyAddress };
+        mustAnswer(
+          await asClient("PUT", companyPath(company.id), {
+            address_id: other.id
+          }),
+          200,
+          "Moving the company to another address"
+        );
+        await settleBetweenCalls();
+        const moved = find(
+          await clientList("companies"),
+          row => row.id === company.id
+        );
+        expectRead(
+          await wireRead(target),
+          "A company moved off the address the subscription bills to",
+          read =>
+            read.contract?.company_id === company.id &&
+            read.contract?.address_id === companyAddress &&
+            moved?.address_id === other.id
+        );
+        return target;
+      },
+      [
+        [
+          "I pick that same company",
+          generator => readEntities(generator).finally(restoreCompany)
+        ],
+        ...quietLines(
+          "I am given my subscription as it stands",
+          "nothing is sent to the platform"
+        )
+      ]
+    );
+    afterAll(restoreCompany);
+  }
+
+  recordLifecycle(
+    "A lifecycle write shows on the first page of my products list",
+    "my products list, newest first, and a subscription of mine whose renewal invoicing is on",
+    () => arrangeActive(),
+    [
+      [
+        "I turn its renewal invoicing off",
+        async (generator, target) => {
+          mustAnswer(
+            await generator.put(stopStartPath(target), { invoicing: false }),
+            200,
+            "The renewal invoicing change"
+          );
+          await rereadProduct(generator, target);
+          await readCriteria(generator, { order: "-created_at" });
+        }
+      ],
+      ...quietLines(
+        "my products list is read again",
+        "its row on my products list shows its renewal invoicing off"
+      )
+    ],
+    listAsTheLabelShows,
+    read =>
+      read.auto_create_renew_invoice &&
+      read.product?.can_disable_auto_create_renew_invoice === true
+  );
 });

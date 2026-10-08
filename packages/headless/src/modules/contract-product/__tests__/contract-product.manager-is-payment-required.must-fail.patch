@@ -1,0 +1,20 @@
+# Negative-control mutant — the manager publishes a payment still due
+#
+# Spec it must flip: contract-product.migration.unit.test.ts > "AC-31 — the manager publishes the payment still due"
+# Mutation: `isPaymentRequired` reads a path that is never written.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+
+diff --git a/packages/headless/src/modules/contract-product/useContractProduct.meta.ts b/packages/headless/src/modules/contract-product/useContractProduct.meta.ts
+--- a/packages/headless/src/modules/contract-product/useContractProduct.meta.ts
++++ b/packages/headless/src/modules/contract-product/useContractProduct.meta.ts
+@@ -198,7 +198,7 @@
+     () => !!contextValue(state, "migration.preview.isFree")
+   );
+   const isPaymentRequired = computed(
+-    () => !!contextValue(state, "migrationResult.requiresPayment")
++    () => !!contextValue(state, "migrationResult.paymentRequired")
+   );
+   const hasMigrationTargetsError = computed(() => !!listMeta.value?.hasError);
+   const hasMoreMigrationTargets = computed(() => !!listMeta.value?.hasNextPage);

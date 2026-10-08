@@ -1,0 +1,20 @@
+# Negative-control mutant — the products list row carries the label
+#
+# Spec it must flip: contract-product.replay.int.test.ts > "@AC-40 Give my product my own label"
+# Mutation: the mapper drops `clientLabel`.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+
+diff --git a/packages/headless/src/modules/contract-product/contract-product.mappers.ts b/packages/headless/src/modules/contract-product/contract-product.mappers.ts
+--- a/packages/headless/src/modules/contract-product/contract-product.mappers.ts
++++ b/packages/headless/src/modules/contract-product/contract-product.mappers.ts
+@@ -199,7 +199,7 @@
+     name: raw.name,
+     title: mapContractProductTitle(raw),
+     description: raw.description,
+-    clientLabel: raw.client_label,
++    clientLabel: undefined,
+     isDelegatedObject: raw.is_delegated_object,
+     // --- billing
+     renew: raw.renew,

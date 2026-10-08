@@ -1,0 +1,24 @@
+# Negative-control mutant — a write asked for while another is in flight resolves false
+#
+# Spec it must flip: contract-product.client.unit.test.ts > "AC-44 — a write asked for while another is in flight"
+# Mutation: `writeProduct` drops its in-flight refusal before the send.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+
+diff --git a/packages/headless/src/modules/contract-product/useContractProduct.actions.ts b/packages/headless/src/modules/contract-product/useContractProduct.actions.ts
+--- a/packages/headless/src/modules/contract-product/useContractProduct.actions.ts
++++ b/packages/headless/src/modules/contract-product/useContractProduct.actions.ts
+@@ -74,12 +74,6 @@
+   event: AnyEventObject,
+   message: string
+ ): Promise<ContractProduct | false> {
+-  if (
+-    stateMatches(actor.state, "processing") ||
+-    hasRegionWrite(actor.state.value)
+-  ) {
+-    return false;
+-  }
+ 
+   actor.send(event);
+   if (!stateMatches(actor.state, "processing")) return false;

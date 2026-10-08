@@ -1,12 +1,15 @@
-import { waitFor } from "xstate/lib/waitFor";
 import { resetQueryByKey } from "../query";
 import { remove as removeFromRegistry } from "../scope/scope.registry";
 import { useI18n } from "../system-localisation";
-import { queryKey } from "./contract-product.services";
 import {
+  CANCEL_OPTION_EVENT,
   ContractProductCancelOption,
-  ContractProductFormTypes
+  ContractProductFormTypes,
+  ContractProductRegionLoadingStates,
+  ContractProductRegionWriteStates
 } from "./contract-product.types";
+import { hasRegionWrite } from "./contract-product.utils";
+import { queryKey } from "./contract-products.services";
 import {
   contextValue,
   DetailedError,
@@ -16,10 +19,13 @@ import {
   stopService,
   waitForProcessing
 } from "../../utils";
-import { find, isNil } from "lodash-es";
+import { find, isNil, isString, values } from "lodash-es";
 import type {
+  BillingEntityChoice,
+  BillingEntityModel,
   CancellationModel,
   ContractProduct,
+  ContractProductActionMembers,
   ContractProductWriteModel,
   MigrationHolders,
   MigrationResult,
@@ -29,146 +35,185 @@ import type {
   SoftCancelModel
 } from "./contract-product.types";
 import type { ResponseError, UseActor } from "../../utils";
+import type { Invoice } from "../invoices";
 import type { ScopeActorTypes } from "../scope/scope.types";
+import type { AnyEventObject } from "xstate";
 // -----------------------------------------------------------------------------
 /**
  * @module contract-product/useContractProduct.actions
- * @description Manager actions — every cancellation write (R33) plus the
- * consolidation write, driven the auth way: `openCancellation` /
- * `openConsolidation` open a form, `set` feeds a model, `cancelForm` closes it,
- * `submitCancellation` / `submitConsolidation` send the write (the cancellation
- * submit routes off `model.option`). The legacy direct calls — `stopRenewing`,
- * `resumeRenewing`, `scheduleCancellation`, `requestCancellation`,
- * `setConsolidation` — open + set + submit in one, so every existing caller
- * keeps working and every model is validated by the machine. `withdrawCancellation`
- * and `revokeScheduledCancellation` are formless. Nothing here raises feedback —
- * a failure rejects with a `DetailedError` for the CALLER to render.
- *
- * @doctrine clause 2 (fresh modules start armless).
+ * @description Manager actions. The form writes are driven the auth way: an
+ * `open*` member opens a form, `set` feeds a model, `cancelForm` closes it and
+ * a `submit*` member sends the write (the cancellation submit routes off
+ * `model.option`). The direct calls (`stopRenewing`, `scheduleCancellation`,
+ * `requestCancellation`, `setConsolidation`, `setBillingEntity`) open, set and
+ * submit in one, so every model is validated by the machine. The other writes
+ * are formless. Nothing here raises feedback: a failure rejects with a
+ * `DetailedError` for the caller to render.
  */
 
-/** The submit event each cancellation option routes to (routing lives here, R33). */
-const CANCEL_OPTION_EVENT: Record<ContractProductCancelOption, string> = {
-  [ContractProductCancelOption.SOFT]: "STOP_RENEWING",
-  [ContractProductCancelOption.SCHEDULE_FUTURE]: "SCHEDULE_CANCEL",
-  [ContractProductCancelOption.HARD]: "REQUEST_CANCEL"
-};
+/** The error a settled write throws: the status of the recorded error, else a timeout. */
+function failure(actor: UseActor, message: string): DetailedError {
+  const error = contextValue<ResponseError>(actor.state, "error");
+
+  return new DetailedError(
+    message,
+    error?.status ?? responseCodes.Timeout,
+    ErrorOrigin.Headless,
+    { error, state: actor.state.value.value }
+  );
+}
+
+/**
+ * Sends one formless write and resolves the re-read product.
+ * @returns `false`, with nothing sent, when the machine refuses the event or
+ *   another write is already in flight.
+ * @throws {DetailedError} when the write or the re-read recorded an error.
+ */
+async function writeProduct(
+  actor: UseActor,
+  event: AnyEventObject,
+  message: string
+): Promise<ContractProduct | false> {
+  if (
+    stateMatches(actor.state, "processing") ||
+    hasRegionWrite(actor.state.value)
+  ) {
+    return false;
+  }
+
+  actor.send(event);
+  if (!stateMatches(actor.state, "processing")) return false;
+
+  const settled = await waitForProcessing(
+    actor.service,
+    ["available", "unavailable"],
+    "error"
+  );
+  const contractProduct = contextValue<ContractProduct>(
+    actor.state,
+    "contractProduct"
+  );
+  if (contextValue(actor.state, "error") || !settled || !contractProduct) {
+    throw failure(actor, message);
+  }
+
+  return contractProduct;
+}
+
+/**
+ * Resolves the re-read product once a form write has settled.
+ * @throws {DetailedError} when the model is invalid or the write failed.
+ */
+async function resolveFormWrite(
+  actor: UseActor,
+  message: string
+): Promise<ContractProduct> {
+  const settled = await waitForProcessing(
+    actor.service,
+    ["available", "unavailable"],
+    "error",
+    values(ContractProductRegionWriteStates)
+  );
+  const contractProduct = contextValue<ContractProduct>(
+    actor.state,
+    "contractProduct"
+  );
+
+  if (contextValue(actor.state, "error") || !settled || !contractProduct) {
+    throw failure(actor, message);
+  }
+
+  return contractProduct;
+}
+
+/**
+ * Opens a form region on the placed node that holds it, and resolves once the
+ * form takes a model.
+ * @returns `false` at once when no placed node holds the region, and `false`
+ *   when the region refuses to open.
+ */
+async function openForm(
+  actor: UseActor,
+  form: ContractProductFormTypes,
+  region: string
+): Promise<boolean> {
+  const node = find(["available", "unavailable"], placed =>
+    stateMatches(actor.state, `${placed}.${region}`)
+  );
+  if (!node) return false;
+
+  actor.send({ type: form });
+  return waitForProcessing(actor.service, `${node}.${region}.available`, [
+    `${node}.${region}.idle`,
+    "error"
+  ]);
+}
 
 export function createContractProductActions(
   _actorScope: ScopeActorTypes,
   actor: UseActor,
   scopeKey: string,
   holders: MigrationHolders
-) {
-  const { state, send, service } = actor;
+): ContractProductActionMembers {
   const { t } = useI18n();
+  const { state, send, service } = actor;
 
-  /**
-   * Resolves once the product is placed on a node.
-   * @returns true once `available` or `unavailable`; false on `error`, or if the
-   *   read never settled.
-   */
-  function isReady(): Promise<boolean> {
+  /** Resolves once the product is placed on a node. */
+  async function isReady(): Promise<boolean> {
     return waitForProcessing(service, ["available", "unavailable"], "error");
   }
 
   /**
-   * Resolves once a write leaves `processing` or `available.<region>.processing`
-   * (region: `cancelling` | `consolidating`).
-   * @returns true once the write settles on `available` or `unavailable`; false
-   *   on `error`, on `done`, or if it never settled.
+   * Resolves once no write is in flight and the product is placed again.
+   * @returns `true` on a placed node, `false` on `error`.
    */
-  function onDone(): Promise<boolean> {
-    const transient = [
+  async function onDone(): Promise<boolean> {
+    return waitForProcessing(service, ["available", "unavailable"], "error", [
       "processing",
-      "available.cancelling.processing",
-      "available.consolidating.processing",
-      "available.migrating.configuring.processing"
-    ];
-
-    return waitFor(
-      service,
-      s =>
-        !stateMatches(s, transient) &&
-        (stateMatches(s, ["available", "unavailable", "error"]) || s.done),
-      { timeout: 60_000 }
-    )
-      .then(s => !s.done && stateMatches(s, ["available", "unavailable"]))
-      .catch(() => false);
+      ...values(ContractProductRegionLoadingStates),
+      ...values(ContractProductRegionWriteStates)
+    ]);
   }
 
-  /**
-   * Resolves the re-read product once a write has settled.
-   * @throws {DetailedError} when the write or the re-read recorded an error.
-   */
-  async function resolveContractProduct(
-    message: string
-  ): Promise<ContractProduct> {
-    const settled = await waitForProcessing(
-      service,
-      ["available", "unavailable"],
-      "error"
-    );
-    const error = contextValue<ResponseError>(state, "error");
-    const contractProduct = contextValue<ContractProduct>(
-      state,
-      "contractProduct"
-    );
-
-    if (error || !settled || !contractProduct) {
-      throw new DetailedError(
-        message,
-        error?.status ?? responseCodes.Timeout,
-        ErrorOrigin.Headless,
-        { error, state: state.value.value }
-      );
-    }
-
-    return contractProduct;
+  /** Stops the underlying machine, leaving the registry entry in place. */
+  function stop(): void {
+    holders.dispose();
+    stopService(service);
   }
 
-  /**
-   * Resolves the re-read product once a form write has settled.
-   * @throws {DetailedError} when the model is invalid or the write failed.
-   */
-  async function resolveFormWrite(
-    region: string,
-    message: string
-  ): Promise<ContractProduct> {
-    const settled = await waitForProcessing(
-      service,
-      [`available.${region}.idle`, "unavailable"],
-      [`available.${region}.available.error`, "error"]
-    );
-    const error = contextValue<ResponseError>(state, "error");
-    const contractProduct = contextValue<ContractProduct>(
-      state,
-      "contractProduct"
-    );
-
-    if (error || !settled || !contractProduct) {
-      throw new DetailedError(
-        message,
-        error?.status ?? responseCodes.Timeout,
-        ErrorOrigin.Headless,
-        { error, state: state.value.value }
-      );
-    }
-
-    return contractProduct;
+  /** Destroys this scoped instance — stops the machine and deregisters it. */
+  function destroy(): void {
+    stop();
+    removeFromRegistry(scopeKey);
   }
 
-  /** Opens the combined cancellation form — the machine builds its schema on entry. */
+  /** Re-reads the product. */
+  function refresh(): void {
+    send({ type: "REFRESH" });
+  }
+
+  /** Drops the module's cache entries and re-drives the read. */
+  async function reset(): Promise<void> {
+    await resetQueryByKey(queryKey)();
+    send({ type: "REFRESH" });
+  }
+
+  /** Opens the combined cancellation form. */
   function openCancellation(): void {
-    send({ type: "CANCELLATION" });
+    send({ type: ContractProductFormTypes.CANCELLATION });
   }
 
-  /** Opens the consolidation form — the machine builds its schema on entry. */
+  /** Opens the consolidation form. */
   function openConsolidation(): void {
-    send({ type: "CONSOLIDATION" });
+    send({ type: ContractProductFormTypes.CONSOLIDATION });
   }
 
-  /** Feeds a model into an open form; the machine parses and validates it. */
+  /** Opens the billing-entity form once the client's addresses and companies are read. */
+  function openBillingEntity(): void {
+    send({ type: ContractProductFormTypes.BILLING_ENTITY });
+  }
+
+  /** Feeds a model into the open form. */
   function set(
     form: ContractProductFormTypes,
     model: Partial<ContractProductWriteModel>
@@ -176,7 +221,7 @@ export function createContractProductActions(
     send({ type: `SET.${form}`, data: model });
   }
 
-  /** Closes an open form, its model cleared. */
+  /** Closes the open form, cleared. */
   function cancelForm(form: ContractProductFormTypes): void {
     send({ type: `CANCEL.${form}` });
   }
@@ -192,133 +237,294 @@ export function createContractProductActions(
     if (!type) return false;
 
     send({ type });
-    if (!stateMatches(state, "available.cancelling.processing")) return false;
+    if (!stateMatches(state, ContractProductRegionWriteStates.CANCELLING)) {
+      return false;
+    }
 
-    return resolveFormWrite(
-      "cancelling",
-      t("error.contract_product_cancel_failed")
-    );
+    return resolveFormWrite(actor, t("error.contract_product_cancel_failed"));
   }
 
   /**
-   * Submits the open consolidation form. As legacy's `formIsChanged` gate
-   * (`cProdInvoiceConsolidationForm.vue:58-61`), a choice equal to the
-   * product's current value is not sent and the form stays open.
-   * @returns the re-read product, or `false` when there is no changed choice
-   *   or the node refused the event.
+   * Opens the cancellation form, feeds it the chosen option and its model, and
+   * submits it.
+   * @returns `false` when the form does not open.
+   */
+  async function cancelWith(
+    model: Partial<CancellationModel>
+  ): Promise<ContractProduct | false> {
+    if (
+      !(await openForm(
+        actor,
+        ContractProductFormTypes.CANCELLATION,
+        "cancelling"
+      ))
+    ) {
+      return false;
+    }
+
+    send({ type: `SET.${ContractProductFormTypes.CANCELLATION}`, data: model });
+
+    return submitCancellation();
+  }
+
+  /**
+   * Submits the open consolidation form. A choice equal to the product's
+   * current value sends nothing, closes the form and resolves the current
+   * product.
    */
   async function submitConsolidation(): Promise<ContractProduct | false> {
     const model = contextValue<SetConsolidationModel>(
       state,
       "consolidation.model"
     );
+    const product = contextValue<ContractProduct>(state, "contractProduct");
     if (isNil(model?.invoiceConsolidationEnabled)) return false;
     if (
-      model.invoiceConsolidationEnabled ===
-      contextValue<number>(
-        state,
-        "rawContractProduct.invoice_consolidation_enabled"
-      )
+      product &&
+      model.invoiceConsolidationEnabled === product.invoiceConsolidationEnabled
     ) {
-      return false;
+      send({ type: `CANCEL.${ContractProductFormTypes.CONSOLIDATION}` });
+      return product;
     }
 
     send({ type: "SET_CONSOLIDATION" });
-    if (!stateMatches(state, "available.consolidating.processing")) {
+    if (!stateMatches(state, ContractProductRegionWriteStates.CONSOLIDATING)) {
       return false;
     }
 
     return resolveFormWrite(
-      "consolidating",
+      actor,
       t("error.contract_product_set_consolidation_failed")
     );
   }
 
-  async function stopRenewing(
-    model?: Omit<SoftCancelModel, "renew">
-  ): Promise<ContractProduct | false> {
-    openCancellation();
-    set(ContractProductFormTypes.CANCELLATION, {
-      option: ContractProductCancelOption.SOFT,
-      ...(model ?? {})
-    });
-
-    return submitCancellation();
-  }
-
-  async function resumeRenewing(): Promise<ContractProduct | false> {
-    send({ type: "RESUME" });
-    if (!stateMatches(state, "processing")) return false;
-
-    return resolveContractProduct(t("error.contract_product_cancel_failed"));
-  }
-
-  async function scheduleCancellation(
-    model: ScheduleCancellationModel
-  ): Promise<ContractProduct | false> {
-    openCancellation();
-    set(ContractProductFormTypes.CANCELLATION, {
-      option: ContractProductCancelOption.SCHEDULE_FUTURE,
-      ...model
-    });
-
-    return submitCancellation();
-  }
-
-  async function requestCancellation(
-    model?: Omit<RequestCancellationModel, "productIds">
-  ): Promise<ContractProduct | false> {
-    openCancellation();
-    set(ContractProductFormTypes.CANCELLATION, {
-      option: ContractProductCancelOption.HARD,
-      ...(model ?? {})
-    });
-
-    return submitCancellation();
-  }
-
+  /** Sets the invoice consolidation value: opens the form, feeds it and submits it. */
   async function setConsolidation(
     model: SetConsolidationModel
   ): Promise<ContractProduct | false> {
-    openConsolidation();
-    set(ContractProductFormTypes.CONSOLIDATION, model);
+    if (
+      !(await openForm(
+        actor,
+        ContractProductFormTypes.CONSOLIDATION,
+        "consolidating"
+      ))
+    ) {
+      return false;
+    }
+
+    send({
+      type: `SET.${ContractProductFormTypes.CONSOLIDATION}`,
+      data: model
+    });
 
     return submitConsolidation();
   }
 
-  async function withdrawCancellation(): Promise<ContractProduct | false> {
-    send({ type: "WITHDRAW" });
-    if (!stateMatches(state, "processing")) return false;
-
-    return resolveContractProduct(
-      t("error.contract_product_withdraw_cancellation_failed")
+  /**
+   * Submits the open billing-entity form. A pick of what the contract bills to
+   * now sends nothing, closes the form and resolves the current product.
+   */
+  async function submitBillingEntity(): Promise<ContractProduct | false> {
+    const picked = contextValue<BillingEntityModel["billing_entity"]>(
+      state,
+      "billingEntity.model.billing_entity"
     );
-  }
+    const product = contextValue<ContractProduct>(state, "contractProduct");
+    if (isNil(picked)) return false;
+    if (
+      product &&
+      picked === (product.billingCompanyId ?? product.billingAddressId)
+    ) {
+      send({ type: `CANCEL.${ContractProductFormTypes.BILLING_ENTITY}` });
+      return product;
+    }
 
-  async function revokeScheduledCancellation(): Promise<
-    ContractProduct | false
-  > {
-    send({ type: "SCHEDULE_CANCEL_REVOKE" });
-    if (!stateMatches(state, "processing")) return false;
+    send({ type: "SET_BILLING_ENTITY" });
+    if (
+      !stateMatches(state, [
+        ContractProductRegionWriteStates.BILLING_ENTITY,
+        ContractProductRegionWriteStates.BILLING_ENTITY_UNAVAILABLE
+      ])
+    ) {
+      return false;
+    }
 
-    return resolveContractProduct(
-      t("error.contract_product_revoke_scheduled_cancellation_failed")
+    return resolveFormWrite(
+      actor,
+      t("error.contract_product_billing_entity_failed")
     );
   }
 
   /**
-   * Opens the change of product: the product list starts to load.
-   * @returns true once the list is open; false when the product cannot change product.
+   * Changes the billing entity to one picked address or company, by its id or
+   * the entity in hand: opens the form, waits for its lists, feeds it the id
+   * and submits it.
    */
+  async function setBillingEntity(
+    pick: BillingEntityChoice | string
+  ): Promise<ContractProduct | false> {
+    if (
+      !(await openForm(
+        actor,
+        ContractProductFormTypes.BILLING_ENTITY,
+        "billingEntity"
+      ))
+    ) {
+      return false;
+    }
+
+    let id: string;
+    if (isString(pick)) id = pick;
+    else id = "company" in pick ? pick.company.id : pick.address.id;
+    send({
+      type: `SET.${ContractProductFormTypes.BILLING_ENTITY}`,
+      data: { billing_entity: id }
+    });
+
+    return submitBillingEntity();
+  }
+
+  /** Stops the renewal (`PUT …/modify_renew`, `renew: false`); a subscription only. */
+  function stopRenewing(
+    model?: Omit<SoftCancelModel, "renew">
+  ): Promise<ContractProduct | false> {
+    return cancelWith({
+      option: ContractProductCancelOption.SOFT,
+      ...model
+    });
+  }
+
+  /** Books a cancellation for a chosen date. */
+  function scheduleCancellation(
+    model: ScheduleCancellationModel
+  ): Promise<ContractProduct | false> {
+    return cancelWith({
+      option: ContractProductCancelOption.SCHEDULE_FUTURE,
+      ...model
+    });
+  }
+
+  /** Requests immediate cancellation of this product (HARD). */
+  function requestCancellation(
+    model?: Omit<RequestCancellationModel, "productIds">
+  ): Promise<ContractProduct | false> {
+    return cancelWith({
+      option: ContractProductCancelOption.HARD,
+      ...model
+    });
+  }
+
+  /** Aborts a pending renewal stop (`PUT …/modify_renew`, `renew: true`). */
+  function resumeRenewing(): Promise<ContractProduct | false> {
+    return writeProduct(
+      actor,
+      { type: "RESUME" },
+      t("error.contract_product_cancel_failed")
+    );
+  }
+
+  /** Withdraws this product's pending cancellation request. */
+  function withdrawCancellation(): Promise<ContractProduct | false> {
+    return writeProduct(
+      actor,
+      { type: "WITHDRAW" },
+      t("error.contract_product_withdraw_cancellation_failed")
+    );
+  }
+
+  /** Revokes a scheduled cancellation. */
+  function revokeScheduledCancellation(): Promise<ContractProduct | false> {
+    return writeProduct(
+      actor,
+      { type: "SCHEDULE_CANCEL_REVOKE" },
+      t("error.contract_product_revoke_scheduled_cancellation_failed")
+    );
+  }
+
+  /** Turns renewal invoicing on or off (`PUT …/stop_start_invoicing`). */
+  function setAutoRenew(on: boolean): Promise<ContractProduct | false> {
+    return writeProduct(
+      actor,
+      { type: "AUTO_RENEW.SET", data: { on } },
+      t("error.contract_product_auto_renew_failed")
+    );
+  }
+
+  /** Sets the client label of the product; an empty string clears it. */
+  function setClientLabel(label: string): Promise<ContractProduct | false> {
+    return writeProduct(
+      actor,
+      { type: "LABEL.SET", data: { label } },
+      t("error.contract_product_label_failed")
+    );
+  }
+
+  /**
+   * Ends the trial early and resolves the invoice it raised, or `null` when it
+   * raised none. A failed re-read does not hide an invoice already raised.
+   */
+  async function endTrial(): Promise<Invoice | null | false> {
+    if (stateMatches(state, "processing")) return false;
+    send({ type: "TRIAL.END" });
+    if (!stateMatches(state, "processing")) return false;
+
+    await waitForProcessing(service, ["available", "unavailable"], "error");
+    const issuedInvoice = contextValue<Invoice | null>(state, "issuedInvoice");
+    if (issuedInvoice === undefined) {
+      throw failure(actor, t("error.contract_product_end_trial_failed"));
+    }
+
+    return issuedInvoice;
+  }
+
+  /**
+   * Raises the next invoice now and resolves it. A failed re-read does not
+   * hide an invoice already raised.
+   * @throws {DetailedError} when the write failed or raised no invoice.
+   */
+  async function issueNextInvoice(): Promise<Invoice | false> {
+    const message = t("error.contract_product_next_invoice_failed");
+    if (stateMatches(state, "processing")) return false;
+    send({ type: "NEXT_INVOICE.ISSUE" });
+    if (!stateMatches(state, "processing")) return false;
+
+    await waitForProcessing(service, ["available", "unavailable"], "error");
+    const issuedInvoice = contextValue<Invoice | null>(state, "issuedInvoice");
+    if (issuedInvoice === undefined) throw failure(actor, message);
+    if (issuedInvoice === null) {
+      throw new DetailedError(
+        message,
+        responseCodes.Unprocessable_Entity,
+        ErrorOrigin.Headless,
+        { state: state.value.value }
+      );
+    }
+
+    return issuedInvoice;
+  }
+
+  /** Opens the migration; true once the product list is open. */
   function openMigration(): boolean {
     send({ type: "MIGRATION" });
     return stateMatches(state, "available.migrating.choosing");
   }
 
-  /**
-   * Chooses one product of the loaded list; its configurator starts to load.
-   * @returns false, with nothing sent, when the loaded list holds no product of that id.
-   */
+  /** Loads the next page of the product list. */
+  async function loadMoreMigrationTargets(): Promise<void> {
+    await holders.list.value?.nextPage();
+  }
+
+  /** Loads the chosen product again after it failed to load. */
+  function reloadMigrationTarget(): void {
+    send({ type: "MIGRATION.RELOAD" });
+  }
+
+  /** Closes the migration. */
+  function cancelMigration(): void {
+    send({ type: "CANCEL.MIGRATION" });
+  }
+
+  /** Chooses one product of the loaded list; false, with nothing sent, when the list holds no product of that id. */
   async function selectMigrationTarget(id: string): Promise<boolean> {
     const row = find(holders.list.value?.data.value, ["id", id]);
     if (!row) return false;
@@ -327,31 +533,13 @@ export function createContractProductActions(
     return stateMatches(state, "available.migrating.configuring");
   }
 
-  /** Loads the next page of the product list. */
-  async function loadMoreMigrationTargets(): Promise<void> {
-    await holders.list.value?.nextPage();
-  }
-
-  /** Loads the chosen product again, from the start, after it failed to load. */
-  function reloadMigrationTarget(): void {
-    send({ type: "MIGRATION.RELOAD" });
-  }
-
-  /** Closes the change of product. The chosen product's configurator stops. */
-  function cancelMigration(): void {
-    send({ type: "CANCEL.MIGRATION" });
-  }
-
   /**
-   * Commits the change of product. The platform judges the commit, not the local
-   * validation.
-   * @returns the invoice the change raised, or `false` when the commit is not
-   *   offered now: no dry run or refused state, or the configurator is not ready.
+   * Commits the migration and resolves the invoice it raised, or `false` when
+   * the commit is not offered now. The platform judges the commit, not the
+   * local validation.
    * @throws {DetailedError} when the platform refuses the change.
    */
   async function migrate(): Promise<MigrationResult | false> {
-    if (!holders.isMigrationTargetReady.value) return false;
-
     send({ type: "MIGRATE" });
     if (!stateMatches(state, "available.migrating.configuring.processing"))
       return false;
@@ -361,197 +549,77 @@ export function createContractProductActions(
       ["available.migrating.idle", "unavailable"],
       ["available.migrating.configuring.error", "error"]
     );
-    const error = contextValue<ResponseError>(state, "error");
     const result = contextValue<MigrationResult>(state, "migrationResult");
-
-    if (!result) {
-      throw new DetailedError(
-        t("error.contract_product_migrate_failed"),
-        error?.status ?? responseCodes.Timeout,
-        ErrorOrigin.Headless,
-        { error, state: state.value.value }
-      );
-    }
+    if (!result)
+      throw failure(actor, t("error.contract_product_migrate_failed"));
 
     return result;
   }
 
-  function refresh(): void {
-    send({ type: "REFRESH" });
-  }
-
-  /**
-   * Drops the module's cache entries and re-drives the read through `REFRESH`,
-   * so the editor asks again rather than restoring stale rows from memory.
-   */
-  async function reset(): Promise<void> {
-    await resetQueryByKey(queryKey)();
-    send({ type: "REFRESH", data: {} });
-  }
-
-  function stop(): void {
-    holders.dispose();
-    stopService(service);
-  }
-
-  function destroy(): void {
-    holders.dispose();
-    stopService(service);
-    removeFromRegistry(scopeKey);
-  }
-
-  // --- actor-specific actions: none earned (clause 2, design 8.8).
-
   return {
-    /**
-     * Closes the open form and re-places the node, form cleared.
-     * @scenario-include
-     */
+    /** @scenario-include */
     cancelForm,
-
-    /**
-     * Closes the change of product.
-     * @scenario-include
-     */
+    /** @scenario-include */
     cancelMigration,
-
-    /**
-     * Destroys this scoped instance — stops the machine and deregisters it.
-     * @scenario-include
-     */
+    /** @scenario-include */
     destroy,
-
-    /**
-     * Resolves once the product is placed on a node.
-     * @scenario-include
-     */
+    /** @scenario-include */
+    endTrial,
+    /** @scenario-include */
     isReady,
-
-    /**
-     * Loads the next page of the product list.
-     * @scenario-include
-     */
+    /** @scenario-include */
+    issueNextInvoice,
+    /** @scenario-include */
     loadMoreMigrationTargets,
-
-    /**
-     * Commits the change of product and resolves the invoice it raised.
-     * @scenario-include
-     */
+    /** @scenario-include */
     migrate,
-
-    /**
-     * Resolves once a write leaves `processing`, settled on `available` or
-     * `unavailable`; false on `error`.
-     * @scenario-include
-     */
+    /** @scenario-include */
     onDone,
-
-    /**
-     * Opens the combined cancellation form (R33).
-     * @scenario-include
-     */
+    /** @scenario-include */
+    openBillingEntity,
+    /** @scenario-include */
     openCancellation,
-
-    /**
-     * Opens the consolidation form.
-     * @scenario-include
-     */
+    /** @scenario-include */
     openConsolidation,
-
-    /**
-     * Opens the change of product.
-     * @scenario-include
-     */
+    /** @scenario-include */
     openMigration,
-
-    /**
-     * Re-reads the product.
-     * @scenario-include
-     */
+    /** @scenario-include */
     refresh,
-
-    /**
-     * Loads the chosen product again after it failed to load.
-     * @scenario-include
-     */
+    /** @scenario-include */
     reloadMigrationTarget,
-
-    /**
-     * Requests immediate cancellation of this product (HARD, R33).
-     * @scenario-include
-     */
+    /** @scenario-include */
     requestCancellation,
-
-    /**
-     * Drops the module's cache entries and re-drives the read.
-     * @scenario-include
-     */
+    /** @scenario-include */
     reset,
-
-    /**
-     * Aborts a pending renewal stop (`PUT …/modify_renew`, `renew: true`).
-     * @scenario-include
-     */
+    /** @scenario-include */
     resumeRenewing,
-
-    /**
-     * Revokes a scheduled cancellation (R18).
-     * @scenario-include
-     */
+    /** @scenario-include */
     revokeScheduledCancellation,
-
-    /**
-     * Books a cancellation for a chosen date (R18).
-     * @scenario-include
-     */
+    /** @scenario-include */
     scheduleCancellation,
-
-    /**
-     * Chooses one product of the loaded list.
-     * @scenario-include
-     */
+    /** @scenario-include */
     selectMigrationTarget,
-
-    /**
-     * Feeds a model into the open form.
-     * @scenario-include
-     */
+    /** @scenario-include */
     set,
-
-    /**
-     * Sets the invoice consolidation value; a subscription only.
-     * @scenario-include
-     */
+    /** @scenario-include */
+    setAutoRenew,
+    /** @scenario-include */
+    setBillingEntity,
+    /** @scenario-include */
+    setClientLabel,
+    /** @scenario-include */
     setConsolidation,
-
-    /**
-     * Stops the underlying machine, leaving the registry entry in place.
-     * @scenario-include
-     */
+    /** @scenario-include */
     stop,
-
-    /**
-     * Stops the renewal (`PUT …/modify_renew`, `renew: false`); a subscription only.
-     * @scenario-include
-     */
+    /** @scenario-include */
     stopRenewing,
-
-    /**
-     * Submits the open cancellation form, routed off `model.option`.
-     * @scenario-include
-     */
+    /** @scenario-include */
+    submitBillingEntity,
+    /** @scenario-include */
     submitCancellation,
-
-    /**
-     * Submits the open consolidation form.
-     * @scenario-include
-     */
+    /** @scenario-include */
     submitConsolidation,
-
-    /**
-     * Withdraws this product's pending cancellation request (R33).
-     * @scenario-include
-     */
+    /** @scenario-include */
     withdrawCancellation
   };
 }

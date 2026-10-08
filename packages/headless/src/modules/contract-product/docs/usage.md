@@ -33,14 +33,19 @@ await refresh();   // forces a re-read; throws NotAuthenticatedError when unaddr
 ### Filtering, sorting & paging
 
 ```typescript
-import { ScopeActorTypes, SortDirection, useContractProducts } from "@upmind-automation/headless";
+import {
+  ContractProductsSortableProperties,
+  ScopeActorTypes,
+  SortDirection,
+  useContractProducts
+} from "@upmind-automation/headless";
 import { ContractStatusCodes } from "@upmind-automation/types";
 
 const products = useContractProducts().as(ScopeActorTypes.CLIENT);
 const { filterBy, sortBy, setCriteria, nextPage, prevPage } = products.useActions();
 
 filterBy({ "status.code": ContractStatusCodes.ACTIVE });
-sortBy([{ field: "next_due_date", dir: SortDirection.ASC }]);
+sortBy([{ field: ContractProductsSortableProperties.NEXT_DUE_DATE, dir: SortDirection.ASC }]);
 setCriteria({ pagination: { limit: 20 } });
 
 await nextPage();
@@ -98,7 +103,7 @@ const product = useContractProduct().as(ScopeActorTypes.CLIENT).withId(id);
 const { isReady, onDone, refresh, stop, destroy } = product.useActions();
 
 await isReady();  // resolves once the product is placed on `available` or `unavailable`
-await onDone();    // resolves once an in-flight write settles: true on available/unavailable, false on error or a timeout
+await onDone();    // resolves once no write or form load is in flight and the product is placed again: true on available/unavailable, false on error or a timeout
 refresh();         // re-reads the product
 stop();            // stops the machine, keeps the registry entry
 destroy();          // stops the machine and deregisters it
@@ -173,7 +178,7 @@ await submitConsolidation();
 cancelForm(ContractProductFormTypes.CONSOLIDATION);
 ```
 
-`submitConsolidation()` (and so `setConsolidation()`) sends nothing and resolves `false` when the chosen value equals the product's current setting. The form stays open.
+`submitConsolidation()` (and so `setConsolidation()`) sends nothing when the chosen value equals the product's current setting. It closes the form and resolves the current product.
 
 Every write resolves the re-read `ContractProduct`, or `false` when the machine refused the event outright (e.g. a subscription-only write sent on a one-time product, or a form opened when the record does not currently allow it). This is distinct from a write that reaches the server and fails, or whose re-read fails, or a submitted model that fails validation: any of those **rejects** the promise with a `DetailedError` — an invalid model rejects with a 422 carrying the AJV errors, before any request is sent:
 
@@ -273,6 +278,72 @@ if (canMigrate.value && migrationsCount.value > 0) {
 
 `migrationConfig` is the configurator of the chosen plan (`null` when none is chosen). It is a subset of the product configurator: it carries the plan's schema, uischema and option setters, but no provision fields and no trial choice, and it has no way to commit; only `migrate()` commits.
 
+#### Lifecycle writes
+
+Five single-call writes. Four are formless. `setBillingEntity` drives the billing-entity form region and submits it in the same call. Each resolves its result, or `false` with nothing sent when the matching gate in `useMeta()` is closed. Each rejects with a `DetailedError` when the platform refuses it.
+
+The gates are open on any placed product, `unavailable` included, so the platform judges a write on a staged, cancelled, lapsed or fraud product. A gate is closed while a cancellation, consolidation, billing-entity or change-of-plan write is in flight. A write sent while another write is in flight also resolves `false`, with nothing sent.
+
+| Action | Does | Resolves | Gate |
+|--------|------|----------|------|
+| `setAutoRenew(on)` | Turns renewal invoicing on or off (`PUT …/stop_start_invoicing`). Not `stopRenewing`, which books an end of term | the re-read `ContractProduct` | `canDisableAutoRenew` for `false`, `canEnableAutoRenew` for `true` |
+| `issueNextInvoice()` | Raises the next invoice now (`POST …/recurring`), sending the product's `nextInvoiceDate` when it has one | the `Invoice`; rejects when the platform returns none | `canIssueNextInvoice` |
+| `endTrial()` | Ends the trial early (`POST …/trial_end_action_manual`) | the `Invoice` it raised (the platform's credit note, category `credit_note`, when the trial ends by cancelling), or `null` when it raised none | `canEndTrial` |
+| `setClientLabel(label)` | Sets the client label (`PUT contract_products/{id}`); `""` clears it | the re-read `ContractProduct` | `canUpdateContractProduct` |
+| `setBillingEntity(pick)` | Changes what the contract bills to (`PUT contracts/{c}/address_company_vat`). `pick` is a `BillingEntityChoice \| string`: the picker id, or `{ address }` or `{ company }` in hand. Opens the billing-entity form, feeds it the id and submits it | the re-read `ContractProduct`; the current `ContractProduct`, with nothing sent, when the pick is what the contract already bills to; rejects with the validation errors when the pick fails the form's schema, an id the picker does not hold included; rejects and keeps the form open when the platform refuses; `false` when the gate is closed | `canSetBillingEntity` |
+
+An object `pick` is `{ address }` or `{ company }`; a string `pick` is the picker id. An address pick clears the company. A company pick carries the company's own address. The form validates the pick against its schema (`billingEntity.schema`) before it sends, and that schema's `default` is the current billing entity: the company when the contract has one, else the address. To build a picker, call `openBillingEntity()`, read `billingEntity` from `useContext()`, feed the choice with `set(ContractProductFormTypes.BILLING_ENTITY, { billing_entity: id })` and send it with `submitBillingEntity()`. `cancelForm(ContractProductFormTypes.BILLING_ENTITY)` closes the form.
+
+```typescript
+import { ScopeActorTypes, useContractProduct } from "@upmind-automation/headless";
+import type { Address } from "@upmind-automation/headless";
+
+declare const productId: string;
+declare const address: Address;
+
+async function lifecycle() {
+  const product = useContractProduct().as(ScopeActorTypes.CLIENT).withId(productId);
+  await product.useActions().isReady();
+
+  const { setAutoRenew, issueNextInvoice, endTrial, setClientLabel, setBillingEntity } =
+    product.useActions();
+  const { canDisableAutoRenew, canIssueNextInvoice, canEndTrial } = product.useMeta();
+  const { issuedInvoice } = product.useContext();
+
+  if (canDisableAutoRenew.value) await setAutoRenew(false);
+  if (canIssueNextInvoice.value) await issueNextInvoice();
+  if (canEndTrial.value) {
+    const invoice = await endTrial(); // null: the end of trial raised no invoice
+    console.log(invoice, issuedInvoice.value);
+  }
+  await setClientLabel("Marketing site");
+  await setBillingEntity({ address });
+}
+```
+
+`canDisableAutoRenew` does not read the unpaid invoices of the product. The platform allows the switch-off with unpaid invoices and refuses only when the catalogue product's `can_disable_auto_create_renew_invoice` is `false` (`409`). A hint about unpaid invoices is a choice of your interface. To show one, read the set through `useInvoices`:
+
+```typescript
+import {
+  InvoicesContextTypes,
+  ScopeActorTypes,
+  useContractProduct,
+  useInvoices
+} from "@upmind-automation/headless";
+
+declare const productId: string;
+
+const product = useContractProduct().as(ScopeActorTypes.CLIENT).withId(productId);
+const invoices = useInvoices()
+  .as(ScopeActorTypes.CLIENT)
+  .for(InvoicesContextTypes.CONTRACT_PRODUCT, productId);
+
+await invoices.useActions().isReady();
+const { canDisableAutoRenew } = product.useMeta(); // the switch-off is offered whether or not the set is empty
+```
+
+`issueNextInvoice()` and `endTrial()` invalidate the invoices list, as does the `migrate()` of a change of plan, so a read of the unpaid set is fresh after each.
+
 ## Meta (State Flags)
 
 All return Vue `ComputedRef<boolean>`.
@@ -298,7 +369,7 @@ All return Vue `ComputedRef<boolean>`.
 | `isStaged` / `isCancelled` / `isLapsed` / `isFraud` | Which unavailable node |
 | `isOnTrial` / `isOnTerminatingTrial` | Trial region |
 | `isSetupIncomplete` | Setup region |
-| `isProcessing` | A write is in flight |
+| `isProcessing` | A write is in flight, or a form is loading its lists |
 | `isSubscription` | `billingCycleMonths > 0` |
 | `canCancel` | Platform-reported cancellable (the hard-cancellation record fact) |
 | `canRequestCancellation` | May open a HARD (immediate) cancellation request: no hard request already pending, none scheduled |
@@ -306,13 +377,26 @@ All return Vue `ComputedRef<boolean>`.
 | `canScheduleFutureCancellation` | Not cancelling, not pending, none booked, an anniversary exists |
 | `hasScheduledFutureCancellation` | A future cancellation is booked |
 | `hasAutoRenewDisabled` | `autoCreateRenewInvoice` is false |
-| `hasUnpaidRecurringInvoices` / `isDue` / `isCancellable` | Unpaid-invoice facts |
+| `isUnavailable` | Placed on any `unavailable` node (staged, cancelled, lapsed or fraud). The five lifecycle writes are still accepted here |
+| `hasUnpaidRecurringInvoices` / `isDue` / `isCancellable` | Unpaid-invoice facts: any unpaid, any due, any cancellable |
 | `hasMoved` | Product moved to another contract product |
 | `isDelegatedAccess` | Delegated to this client |
 | `isImported` | Product was imported |
 | `hasFetchedScheduledActions` | The read carried the `scheduled_actions` include |
 | `hasError` | The machine captured an error |
 | `isEmpty` | No product loaded |
+
+**Lifecycle-write gates** (open on any placed product, closed while a cancellation, consolidation, billing-entity or change-of-plan write is in flight)
+
+| Flag | Description |
+|------|-------------|
+| `canDisableAutoRenew` | Renewal invoicing may be turned off: a subscription whose invoicing is on, whose catalogue product allows stopping it, outside a trial and auto-expire, and not pending, cancelled or closed. It does not read the unpaid invoices |
+| `canEnableAutoRenew` | Renewal invoicing may be turned on: a subscription whose invoicing is off, outside auto-expire, and not pending, cancelled or closed |
+| `canIssueNextInvoice` | A subscription that is not a staged import and that the platform lets raise the next invoice |
+| `canEndTrial` | The product is on a trial and is not awaiting activation |
+| `canUpdateContractProduct` | A product is loaded, so its client label may be set |
+| `canSetBillingEntity` | The product is a subscription |
+| `isNextInvoiceDateInFuture` | The next invoice date is ahead by the UTC end of its day; `false` when the product has no date |
 
 **Change-of-plan flags**
 
@@ -334,7 +418,7 @@ All return Vue `ComputedRef<boolean>`.
 | `isMigrationPreviewed` | The dry run returned a cost |
 | `isMigrationFree` | The dry run's converted total is zero |
 | `isMigrationProcessing` | The commit is in flight |
-| `requiresPayment` | The committed change left an amount to pay |
+| `isPaymentRequired` | The committed change left an amount to pay |
 
 ## Context (Computed Values)
 
@@ -357,7 +441,7 @@ const {
 
 Each `ContractProduct` in `data` carries a display `title` (the shared product title, e.g. "Starter Hosting (testdomain.com)") and a `priceTermSummary` (the price and, for a subscription, its lower-cased cycle — "£4 monthly", "£60"). The picker's options read the same title.
 
-A `ContractProduct` also carries `contractBillingCycleLabel`, the owning contract's translated billing-cycle label (the product record's "Contract billing cycle"; "One time" for a one-off contract). It is `undefined` when the read carries no contract relation, and it is absent from the type of a product embedded in a contract read (`ContractProductEmbedded`). It is distinct from the product's own `billingCycle`.
+A `ContractProduct` also carries `contractBillingCycleLabel`, the owning contract's translated billing-cycle label (the product record's "Contract billing cycle"; "One time" for a one-off contract). It is `undefined` when the read carries no contract relation. It is absent from the type of a product embedded in a contract read (`ContractProductEmbedded`). It is distinct from the product's own `billingCycle`.
 
 ### `useContractProduct().useContext()`
 
@@ -372,6 +456,7 @@ const {
   contractId,                // the contract this product belongs to
   contractProduct,           // ComputedRef<ContractProduct | undefined> — the mapped view model
   id,                        // the product this manager acts on
+  issuedInvoice,             // Invoice | null | undefined — the result of the last next-invoice or end-of-trial write; null when the end of trial raised none; survives refresh and later writes of other kinds
   cancellation,              // the open cancellation form: { schema, uischema, model } | undefined
   consolidation,             // the open consolidation form: { schema, uischema, model } | undefined
   description,               // ComputedRef<string | undefined> — the product's description, off the raw wire record
@@ -394,26 +479,21 @@ const {
 
 `MigrationPreview` is `{ invoice, total, isFree }` (`total` is the dry-run invoice's formatted total). `MigrationResult` is `{ invoiceId?, unpaidAmount, requiresPayment, invoice? }`. The types `MigrationConfig`, `MigrationPreview`, `MigrationResult` and `MigrationTarget` are exported from the package root.
 
-`cancellation` and `consolidation` are `undefined` until their `open*` action runs; each becomes `{ schema, uischema, model }` for the lifetime of that form and clears again on `cancelForm()` or on a successful submit (which re-reads the product and returns to `#loading`).
+The view model `contractProduct.value` also carries `clientLabel`, `canCreateNextInvoice`, `nextInvoiceDate`, and, on the manager's read only, `billingAddressId` and `billingCompanyId`. A list row leaves the last two `undefined`, which does not mean no address or no company.
 
-## Future-cancellation date helpers
+`cancellation`, `consolidation` and `billingEntity` are `undefined` until their `open*` action runs. Each becomes `{ schema, uischema, model }` for the lifetime of that form. It clears again on `cancelForm()` or on a successful submit (which re-reads the product and returns to `#loading`).
 
-Pure functions, not tied to a loaded instance — import from the package root:
+## Future-cancellation date helper
+
+A pure function, not tied to a loaded instance — import it from the package root:
 
 ```typescript
-import {
-  minFutureCancellationDate,
-  isSelectableFutureCancellationDate,
-  anniversaryCycleForDate
-} from "@upmind-automation/headless";
+import { minFutureCancellationDate } from "@upmind-automation/headless";
 import type { ContractProduct } from "@upmind-automation/headless";
 
 declare const contractProduct: ContractProduct;
-declare const pickedDate: string;
 
-const earliest = minFutureCancellationDate(contractProduct);
-const valid = isSelectableFutureCancellationDate(contractProduct, pickedDate);
-const cycle = anniversaryCycleForDate(contractProduct, pickedDate); // whole cycles from nextDueDate, or null
+const earliest = minFutureCancellationDate(contractProduct); // the next anniversary after today, or `nextDueDate` when the product has no cycle
 ```
 
 A loaded manager instance also exposes its own instance-bound `minFutureCancellationDate`, computed off the loaded product — no import or manual argument needed:
@@ -425,18 +505,6 @@ declare const id: string;
 
 const product = useContractProduct().as(ScopeActorTypes.CLIENT).withId(id);
 const { minFutureCancellationDate } = product.useContext();
-```
-
-## Unpaid-invoice predicates
-
-```typescript
-import { isDue, isCancellable } from "@upmind-automation/headless";
-import type { ContractProduct } from "@upmind-automation/headless";
-
-declare const contractProduct: ContractProduct;
-
-contractProduct.unpaidRecurringInvoices.filter(isDue);
-contractProduct.unpaidRecurringInvoices.filter(isCancellable);
 ```
 
 ## Vue Component Integration

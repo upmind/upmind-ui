@@ -1,0 +1,19 @@
+# Negative-control mutant — the manager reports a direct write busy while its form opens
+#
+# Spec it must flip: contract-product.replay.int.test.ts > "@AC-25 While a change of mine is in flight, the module says so"
+# Mutation: `isProcessing` drops the form loading states.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+
+diff --git a/packages/headless/src/modules/contract-product/useContractProduct.meta.ts b/packages/headless/src/modules/contract-product/useContractProduct.meta.ts
+--- a/packages/headless/src/modules/contract-product/useContractProduct.meta.ts
++++ b/packages/headless/src/modules/contract-product/useContractProduct.meta.ts
+@@ -283,7 +283,6 @@
+   const isPending = useStateMatches(state, ContractProductState.PENDING);
+   const isProcessing = useStateMatches(state, [
+     "processing",
+-    ...values(ContractProductRegionLoadingStates),
+     ...values(ContractProductRegionWriteStates)
+   ]);
+   const isSetupIncomplete = useStateMatches(

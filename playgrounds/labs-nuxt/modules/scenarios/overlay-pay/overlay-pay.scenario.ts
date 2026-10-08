@@ -3,7 +3,7 @@
  * @module scenarios/overlay-pay/overlay-pay.scenario
  * @description The off-site gateway-RETURN overlay — the "resuming payment"
  * surface the funnel parks the payer on while an `?operation_id` return is dealt
- * with, injected as `<order>--pay` (FE-3133 / FE-3030). It does no work by
+ * with, injected as `<useInvoice>--pay` (FE-3133 / FE-3030). It does no work by
  * design; the funnel navigates away the moment the operation settles.
  *
  * It is a MODULE rather than a loose page under `app/pages/overlays/` — the same
@@ -25,6 +25,7 @@ export const OVERLAY_PAY_SCENARIO = "overlay_pay";
 
 export default {
   key: OVERLAY_PAY_SCENARIO,
+  page: "OverlayPayPage.vue",
   presentation: {
     icon: "internet"
   }

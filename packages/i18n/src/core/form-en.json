@@ -180,6 +180,11 @@
     "label": "Linked product",
     "placeholder": "Select a product…"
   },
+  "contract_product_billing_entity": {
+    "description": null,
+    "label": "Billing address or company",
+    "placeholder": "Select an address or company"
+  },
   "contract_product_cancellation_option": {
     "description": null,
     "label": "Cancellation option",

@@ -4,7 +4,7 @@
  * @description Storing a payment method with no basket, invoice or order behind
  * it — the payment-detail machine's ADD context.
  *
- * This module DRAWS ITSELF: `payment-detail-add.page.vue` beside this file is
+ * This module DRAWS ITSELF: `PaymentDetailAddPage.vue` beside this file is
  * the route's component, so the shared renderer never sees it. The reason is
  * `usePaymentDetails`, which is not four-layer yet — it publishes no `.as(actor)`
  * builder, so it cannot be a `useList` and the declared table, card and detail
@@ -25,6 +25,7 @@ export const PAYMENT_DETAIL_ADD_SCENARIO = "payment_detail_add";
 
 export default {
   key: PAYMENT_DETAIL_ADD_SCENARIO,
+  page: "PaymentDetailAddPage.vue",
   presentation: {
     icon: "credit-card-01"
   }

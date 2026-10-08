@@ -1,27 +1,22 @@
 <template>
-  <UpmAuthRecoverPassword
-    :login-route="{ name: ROUTE.SESSION_LOGIN }"
-    :recover-route="{ name: ROUTE.SESSION_RECOVER_PASSWORD }"
-    :register-route="{ name: ROUTE.SESSION_REGISTER }"
-  >
-    <template #default="{ template }">
-      <component :is="sessionTemplate(template)" />
-    </template>
-    <template #summary="summary">
-      <UpmSessionSummary v-bind="summary" />
-    </template>
-  </UpmAuthRecoverPassword>
+  <Auth :actor="actor" :flow="AuthFlowTypes.RECOVER" fresh @resolve="done" />
 </template>
 
 <script lang="ts" setup>
 import { useI18n } from "vue-i18n";
-import { UpmAuthRecoverPassword } from "@upmind-automation/auth";
+import { AuthFlowTypes } from "@upmind-automation/headless";
+import Auth from "./-Auth.vue";
+import { useActorScope } from "~/composables/scope";
 import { ROUTE } from "~/funnels/types";
-import UpmSessionSummary from "~/shell/modules/session/components/SessionSummary.vue";
-import { sessionTemplate } from "~/shell/shell";
-const { t } = useI18n();
 
-// SEO: Password recovery page
+definePageMeta({
+  name: ROUTE.SESSION_RECOVER_PASSWORD
+});
+
+const router = useRouter();
+const { t } = useI18n();
+const actor = useActorScope();
+
 useHead({
   title: t("seo.page_recover_title")
 });
@@ -30,16 +25,7 @@ useSeoMeta({
   description: t("seo.page_recover_description")
 });
 
-// Schema.org: WebPage for password recovery
-useSchemaOrg([
-  defineWebPage({
-    "@type": "WebPage",
-    name: t("seo.page_recover_title"),
-    description: t("seo.page_recover_description")
-  })
-]);
-
-definePageMeta({
-  name: ROUTE.SESSION_RECOVER_PASSWORD
-});
+function done(): void {
+  router.replace({ name: ROUTE.HOME });
+}
 </script>

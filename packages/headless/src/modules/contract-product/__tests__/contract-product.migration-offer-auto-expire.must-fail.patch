@@ -1,13 +1,11 @@
-# Negative-control mutant 4 — offer-auto-expire (FE-3206)
+# Negative-control mutant — an auto-expiring subscription is not offered a migration
 #
-# Mutation: drop the auto-expire clause.
-# Spec it must turn red: "... held back" row 3 (check 8), and the AC-26 unit spec, the change rule.
-#
-# Authored by the developer seat against the landed production source. The
-# prover applies it blind (tasks.md T41): apply, run the named spec, revert.
+# Spec it must flip: contract-product.migration.unit.test.ts > "AC-26 — the change rule > a subscription set to expire at the end of its term closes it"
+# Mutation: `canMigrateProduct` drops the auto-expire clause.
 #
 # Apply with:  git apply <this file>   (run from repo root)
 # Revert with: git apply -R <this file>
+
 diff --git a/packages/headless/src/modules/contract-product/contract-product.utils.ts b/packages/headless/src/modules/contract-product/contract-product.utils.ts
 --- a/packages/headless/src/modules/contract-product/contract-product.utils.ts
 +++ b/packages/headless/src/modules/contract-product/contract-product.utils.ts

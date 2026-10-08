@@ -1,0 +1,20 @@
+# Negative-control mutant — the sort schema offers every recorded ordering
+#
+# Spec it must flip: contract-product.sort.unit.test.ts > "AC-1 — the sort vocabulary the list declares > offers exactly the orderings"
+# Mutation: the schema drops the last member of its sort vocabulary.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+
+diff --git a/packages/headless/src/modules/contract-product/contract-product.schemas.ts b/packages/headless/src/modules/contract-product/contract-product.schemas.ts
+--- a/packages/headless/src/modules/contract-product/contract-product.schemas.ts
++++ b/packages/headless/src/modules/contract-product/contract-product.schemas.ts
+@@ -107,7 +107,7 @@
+         default: DEFAULT_SORT,
+         minItems: 1,
+         uniqueItems: true,
+-        items: useSortItemSchema(values(ContractProductsSortableProperties))
++        items: useSortItemSchema(values(ContractProductsSortableProperties).slice(0, -1))
+       },
+       pagination: usePaginationSchema()
+     }

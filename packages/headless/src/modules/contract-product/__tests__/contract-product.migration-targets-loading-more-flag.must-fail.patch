@@ -1,24 +1,20 @@
-# Negative-control mutant 51 — targets-loading-more-flag (FE-3206)
+# Negative-control mutant — the load-more flag is true while more plans load
 #
-# Mutation: Make the load-more flag always false.
-# Spec it must turn red: a unit spec of `isMigrationTargetsLoadingMore` (true while a further page loads) (prover authors it; this patch is the contract).
-#
-# Authored by the developer seat against the landed production source. The
-# prover applies it blind (tasks.md T41): apply, run the named spec, revert.
+# Spec it must flip: contract-product.migration.unit.test.ts > "AC-28 — the list load states (P5a)"
+# Mutation: `isMigrationTargetsLoadingMore` is always false.
 #
 # Apply with:  git apply <this file>   (run from repo root)
 # Revert with: git apply -R <this file>
+
 diff --git a/packages/headless/src/modules/contract-product/useContractProduct.meta.ts b/packages/headless/src/modules/contract-product/useContractProduct.meta.ts
 --- a/packages/headless/src/modules/contract-product/useContractProduct.meta.ts
 +++ b/packages/headless/src/modules/contract-product/useContractProduct.meta.ts
-@@ -323,9 +323,7 @@ export function createContractProductMeta(
-     ),
+@@ -210,7 +210,7 @@
+     () => !!listMeta.value?.isLoading && !listMeta.value.isLoadingMore
+   );
+   const isMigrationTargetsLoadingMore = computed(
+-    () => !!listMeta.value?.isLoadingMore
++    () => false
+   );
  
-     /** True while the plan list loads another page. */
--    isMigrationTargetsLoadingMore: computed(
--      () => !!listMeta.value?.isLoadingMore
--    ),
-+    isMigrationTargetsLoadingMore: computed(() => false),
- 
-     /** True on `available.status.inactive` (awaiting activation). */
-     isInactive: useStateMatches(state, ContractProductState.INACTIVE),
+   // --- nodes

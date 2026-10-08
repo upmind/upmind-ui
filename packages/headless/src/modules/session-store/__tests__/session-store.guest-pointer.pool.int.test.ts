@@ -36,7 +36,9 @@ import {
   includes,
   isObject,
   keys,
-  times
+  sortBy,
+  times,
+  uniq
 } from "lodash-es";
 import type { IToken, ISelf } from "@upmind-automation/types";
 
@@ -595,5 +597,152 @@ describe("session-store integration (the guest pool holds more than the cookie)"
       .activate(AccessRoleTypes.GUEST, remoteId);
 
     expect(activeSessionId.value).toBe(remoteId);
+  });
+
+  /**
+   * Signs a recorded client in and leaves the client active after this device
+   * has come to hold two guests of its own minting.
+   *
+   * @returns The client token and the two guest ids, in the order they were held.
+   */
+  async function signedInClientBesideTwoGuests(): Promise<{
+    client: IToken;
+    firstGuestId: string;
+    secondGuestId: string;
+  }> {
+    overrideToken("post-oauth-access-token-guest");
+    overrideSelf("get-self");
+    const client = getFixtureBody<IToken>("post-oauth-access-token-client", {
+      recordingsDir
+    });
+    const selfBody = getFixtureBody<{ data: ISelf }>("get-self", {
+      recordingsDir
+    }).data;
+
+    await ctx.useSessionStore().initStore();
+    await ctx
+      .useSessionStore()
+      .useActions()
+      .add(client, true, ctx.mapSessionUser(selfBody));
+
+    const { activeSessionId } = ctx.useSessionStore().useContext();
+    const actions = ctx.useSessionStore().useActions();
+
+    await actions.activate(AccessRoleTypes.GUEST);
+    const firstGuestId = activeSessionId.value as string;
+    await actions.addGuest();
+    const secondGuestId = activeSessionId.value as string;
+
+    // Choosing the first guest again moves the single guest cookie back onto
+    // it, so the second guest is neither the first held nor the cookie-backed
+    // one: a pick that ignores the id cannot land on it by accident.
+    await actions.activate(AccessRoleTypes.GUEST, firstGuestId);
+    await actions.activate(AccessRoleTypes.CLIENT, client.actor_id as string);
+
+    expect(firstGuestId).toBeTruthy();
+    expect(secondGuestId).toBeTruthy();
+    expect(secondGuestId).not.toBe(firstGuestId);
+
+    return { client, firstGuestId, secondGuestId };
+  }
+
+  it("lists every guest this device holds as its own session beside the signed-in client @AC-G18", async () => {
+    const { client, firstGuestId, secondGuestId } =
+      await signedInClientBesideTwoGuests();
+    const clientId = client.actor_id as string;
+
+    const { activeActor, allSessions, guestSessions, clientSessions } = ctx
+      .useSessionStore()
+      .useContext();
+
+    expect(activeActor.value).toBe(AccessRoleTypes.CLIENT);
+    expect(keys(allSessions.value)).toEqual(
+      expect.arrayContaining([clientId, firstGuestId, secondGuestId])
+    );
+    expect(sortBy(keys(allSessions.value))).toEqual(
+      sortBy(
+        uniq([...keys(clientSessions.value), ...keys(guestSessions.value)])
+      )
+    );
+    expect(allSessions.value[firstGuestId]?.scope).toBe(AccessRoleTypes.GUEST);
+    expect(allSessions.value[secondGuestId]?.scope).toBe(AccessRoleTypes.GUEST);
+    expect(allSessions.value[clientId]?.scope).toBe(AccessRoleTypes.CLIENT);
+    expect(allSessions.value[clientId]?.token.access_token).toBe(
+      client.access_token
+    );
+  });
+
+  it("picking the second listed guest makes that guest active, not the first @AC-G19", async () => {
+    const { firstGuestId, secondGuestId } =
+      await signedInClientBesideTwoGuests();
+
+    const requests: string[] = [];
+    server?.events.on("request:start", ({ request }) => {
+      requests.push(request.url);
+    });
+
+    await ctx
+      .useSessionStore()
+      .useActions()
+      .activate(AccessRoleTypes.GUEST, secondGuestId);
+
+    const { activeActor, activeSessionId, guestSession } = ctx
+      .useSessionStore()
+      .useContext();
+
+    expect(activeActor.value).toBe(AccessRoleTypes.GUEST);
+    expect(activeSessionId.value).toBe(secondGuestId);
+    expect(activeSessionId.value).not.toBe(firstGuestId);
+    expect(guestSession.value?.actor_id).toBe(secondGuestId);
+    expect(ctx.getTokenFromStorage(AccessRoleTypes.GUEST)?.actor_id).toBe(
+      secondGuestId
+    );
+    expect(requests).toEqual([]);
+  });
+
+  it("a signed-in client who takes up guest mode browses as a guest and returns to the client with nothing asked of the server @AC-G20", async () => {
+    overrideToken("post-oauth-access-token-guest");
+    overrideSelf("get-self");
+    const client = getFixtureBody<IToken>("post-oauth-access-token-client", {
+      recordingsDir
+    });
+    const selfBody = getFixtureBody<{ data: ISelf }>("get-self", {
+      recordingsDir
+    }).data;
+    const clientId = client.actor_id as string;
+
+    await ctx.useSessionStore().initStore();
+    await ctx
+      .useSessionStore()
+      .useActions()
+      .add(client, true, ctx.mapSessionUser(selfBody));
+
+    const { activeActor, activeSessionId, activeSession, allSessions } = ctx
+      .useSessionStore()
+      .useContext();
+
+    await ctx.useSessionStore().useActions().activate(AccessRoleTypes.GUEST);
+
+    expect(activeActor.value).toBe(AccessRoleTypes.GUEST);
+    expect(activeSessionId.value).toBeTruthy();
+    expect(activeSessionId.value).not.toBe(clientId);
+    expect(allSessions.value[clientId]?.token.access_token).toBe(
+      client.access_token
+    );
+
+    const requests: string[] = [];
+    server?.events.on("request:start", ({ request }) => {
+      requests.push(request.url);
+    });
+
+    await ctx
+      .useSessionStore()
+      .useActions()
+      .activate(AccessRoleTypes.CLIENT, clientId);
+
+    expect(activeActor.value).toBe(AccessRoleTypes.CLIENT);
+    expect(activeSessionId.value).toBe(clientId);
+    expect(activeSession.value?.access_token).toBe(client.access_token);
+    expect(requests).toEqual([]);
   });
 });

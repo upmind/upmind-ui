@@ -1,13 +1,11 @@
-# Negative-control mutant 11 — count-gate (FE-3206)
+# Negative-control mutant — the plans are counted whatever holds the migration back
 #
-# Mutation: count only when `canMigrate` is true.
-# Spec it must turn red: "... held back" rows, "... before my subscription is active" and "... while a pro-rata invoice ..." ("still read").
-#
-# Authored by the developer seat against the landed production source. The
-# prover applies it blind (tasks.md T41): apply, run the named spec, revert.
+# Spec it must flip: contract-product.replay.int.test.ts > "A change of plan is not offered while my subscription is held back"; "before my subscription is active"; "while a pro-rata invoice of mine is unpaid"
+# Mutation: the count is built only for a product the change rule lets migrate.
 #
 # Apply with:  git apply <this file>   (run from repo root)
 # Revert with: git apply -R <this file>
+
 diff --git a/packages/headless/src/modules/contract-product/useContractProduct.ts b/packages/headless/src/modules/contract-product/useContractProduct.ts
 --- a/packages/headless/src/modules/contract-product/useContractProduct.ts
 +++ b/packages/headless/src/modules/contract-product/useContractProduct.ts
@@ -19,7 +17,7 @@ diff --git a/packages/headless/src/modules/contract-product/useContractProduct.t
  import {
    omitMigrationSchema,
    omitMigrationUischema
-@@ -137,7 +138,8 @@
+@@ -144,7 +145,8 @@
      if (
        !ids.length ||
        !product?.contractCurrencyId ||

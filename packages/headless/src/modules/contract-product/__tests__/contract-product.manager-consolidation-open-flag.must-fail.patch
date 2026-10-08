@@ -1,27 +1,20 @@
-# Negative-control mutant — the published consolidation flag follows the account's setting (AC-9)
+# Negative-control mutant — the consolidation gate follows the account's setting
 #
-# Scenario it must flip: contract-product.feature >
-#   "I am told whether the consolidation form is offered before I open it — a subscription, and my account never consolidates"
-# Test that goes red: contract-product.replay.int.test.ts > that scenario —
-#   "Then I am told the consolidation form is not offered" — `canConsolidate` reads
-#   true for an account that never consolidates.
-# Mutation: the meta flag keeps the `isAvailable` gate but collapses the record
-#   predicate to bare `isSubscription`.
+# Spec it must flip: contract-product.replay.int.test.ts > "@AC-9 I am told whether the consolidation form is offered before I open it — my account never consolidates"
+# Mutation: `canConsolidate` reads `isSubscription` alone.
 #
 # Apply with:  git apply <this file>   (run from repo root)
 # Revert with: git apply -R <this file>
+
 diff --git a/packages/headless/src/modules/contract-product/useContractProduct.meta.ts b/packages/headless/src/modules/contract-product/useContractProduct.meta.ts
-index f450389bc..66b2ef3d9 100644
 --- a/packages/headless/src/modules/contract-product/useContractProduct.meta.ts
 +++ b/packages/headless/src/modules/contract-product/useContractProduct.meta.ts
-@@ -66,9 +66,7 @@ export function createContractProductMeta(
-      */
-     canConsolidate: computed(
-       () =>
--        isAvailable.value &&
--        !!contractProduct.value &&
--        isConsolidationEligible(contractProduct.value)
-+        isAvailable.value && !!contractProduct.value?.isSubscription
-     ),
- 
-     /**
+@@ -87,7 +87,7 @@
+       isAvailable.value &&
+       !isRegionWriteActive.value &&
+       !!contractProduct.value &&
+-      isConsolidationEligible(contractProduct.value)
++      contractProduct.value.isSubscription
+   );
+   const canDisable = computed(
+     () =>

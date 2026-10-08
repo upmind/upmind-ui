@@ -1,17 +1,11 @@
-# Negative-control mutant — the brand's tax rule picks the net or gross price (B1)
+# Negative-control mutant — the brand's tax rule picks the net or gross price
 #
-# Spec it must flip: contract-product.replay.int.test.ts,
-#   "A subscription shows what it costs each time it renews, as my brand's
-#   tax rule prices it — I open one of my subscriptions" and "A one-time
-#   purchase shows the price I paid for it, as my brand's tax rule prices it".
-# RED-verified 2026-09-29.
-#
-# Mutation: `mapContractProductPrice` forces `excludesTax = false`, so under an
-#   EXCLUDE_TAX brand each row takes the gross branch and no longer shows its net
-#   figure — the tax-rule selection the spec exercises breaks.
+# Spec it must flip: contract-product.replay.int.test.ts > "@AC-1 A one-time purchase shows the price I paid for it, as my brand's tax rule prices it"
+# Mutation: `mapContractProductPrice` forces `excludesTax = false`.
 #
 # Apply with:  git apply <this file>   (run from repo root)
 # Revert with: git apply -R <this file>
+
 diff --git a/packages/headless/src/modules/contract-product/contract-product.mappers.ts b/packages/headless/src/modules/contract-product/contract-product.mappers.ts
 --- a/packages/headless/src/modules/contract-product/contract-product.mappers.ts
 +++ b/packages/headless/src/modules/contract-product/contract-product.mappers.ts

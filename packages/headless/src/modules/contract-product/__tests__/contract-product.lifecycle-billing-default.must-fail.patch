@@ -1,0 +1,19 @@
+# Negative-control mutant — the billing-entity picker opens on the current entity
+#
+# Spec it must flip: contract-product.client.unit.test.ts > "AC-45 — the billing-entity picker > opens on the company the contract bills to"
+# Mutation: the schema drops its `default`.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+
+diff --git a/packages/headless/src/modules/contract-product/contract-product.schemas.ts b/packages/headless/src/modules/contract-product/contract-product.schemas.ts
+--- a/packages/headless/src/modules/contract-product/contract-product.schemas.ts
++++ b/packages/headless/src/modules/contract-product/contract-product.schemas.ts
+@@ -401,7 +401,6 @@
+     properties: {
+       billing_entity: {
+         type: "string",
+-        ...(current ? { default: current } : {}),
+         ...(isEmpty(options) ? {} : { oneOf: options })
+       }
+     }

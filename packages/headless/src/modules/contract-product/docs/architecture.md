@@ -2,11 +2,11 @@
 
 ## Overview
 
-The module ships two scoped composables under one module name: `useContractProducts` (a TanStack-query-backed collection, no machine) and `useContractProduct` (a bespoke XState machine, one instance per contract product). Both are armless — the parity table carries the one cell `client×self`, so there is no per-actor `.client.ts`/`.staff.ts` split and `scopedServices` returns `{}` for every case. The two matrices say this differently: the collection resolves a context for `client` alone, and the manager, a single-record read, resolves one for nobody. One services file, `contract-product.services.ts`, backs both composables and owns the module's one cache key, `["contracts"]`; every write invalidates it whole rather than a narrower key.
+The module ships two scoped composables under one module name: `useContractProducts` (a TanStack-query-backed collection, no machine) and `useContractProduct` (a bespoke XState machine, one instance per contract product). Both are armless — the parity table carries the one cell `client×self`, so there is no per-actor `.client.ts`/`.staff.ts` split and `scopedServices` returns `{}` for every case. The two matrices say this differently: the collection resolves a context for `client` alone, and the manager, a single-record read, resolves one for nobody. Two services files back them: `contract-products.services.ts` holds the collection's reads and owns the module's one cache key, `["contracts"]`; `contract-product.services.ts` holds the manager's reads and writes, and imports that key. Every write invalidates the key whole rather than a narrower key.
 
 ## State Machine (`useContractProduct`)
 
-`contract-product.machine.ts` follows the house write-spine convention: every FORMLESS write (`RESUME`, `WITHDRAW`, `SCHEDULE_CANCEL_REVOKE`) runs through one top-level `processing` state, which invokes one named service and returns to `#loading`. Each write that takes a MODEL — the combined cancellation form and the consolidation form — is instead its own PARALLEL REGION of `available`, beside `status`/`setup`/`trial`: opening the form never leaves the status node, so every status flag stays live while the client edits it, and each form has its own `processing` child so a failed submit returns the client to the open form's `error` node with the model still in place, rather than to the machine's top-level one. A load failure, or an unrecognised status code, is instead routed to a distinct top-level `error` node (`id: "error"`); the only way out is `REFRESH`, which re-enters `#loading` from the top.
+`contract-product.machine.ts` follows the house write-spine convention: every FORMLESS write (`RESUME`, `WITHDRAW`, `SCHEDULE_CANCEL_REVOKE` and the four formless lifecycle writes) runs through one top-level `processing` state, which invokes one named service and returns to `#loading`. Each write that takes a MODEL — the combined cancellation form, the consolidation form and the billing-entity form — is instead its own PARALLEL REGION beside `status`/`setup`/`trial`: opening the form never leaves the status node, so every status flag stays live while the client edits it, and each form has its own `processing` child so a failed submit returns the client to the open form's `error` node with the model still in place, rather than to the machine's top-level one. A load failure, or an unrecognised status code, is instead routed to a distinct top-level `error` node (`id: "error"`); the only way out is `REFRESH`, which re-enters `#loading` from the top.
 
 ```mermaid
 stateDiagram-v2
@@ -36,6 +36,14 @@ stateDiagram-v2
         cancellingForm_processing --> available_.error: onError
         available_ --> idle: CANCEL.CANCELLATION
       }
+      state "billingEntity FORM (parallel)" as billingForm {
+        bidle --> bloading: BILLING_ENTITY (cond canSetBillingEntity)
+        bloading --> bavailable: onDone
+        bavailable --> billingForm_processing: SET_BILLING_ENTITY (cond canSetBillingEntity)
+        billingForm_processing --> "#loading": onDone
+        billingForm_processing --> bavailable.error: onError
+        bavailable --> bidle: CANCEL.BILLING_ENTITY
+      }
       state "consolidating FORM (parallel)" as consolidatingForm {
         cidle --> cavailable: CONSOLIDATION (cond canConsolidate)
         cavailable --> consolidatingForm_processing: SET_CONSOLIDATION (cond canConsolidate)
@@ -45,10 +53,13 @@ stateDiagram-v2
       }
     }
     state unavailable {
-      staged
-      cancelled
-      lapsed
-      fraud
+      state "status (parallel)" as ustatus {
+        staged
+        cancelled
+        lapsed
+        fraud
+      }
+      state "billingEntity FORM (parallel)" as ubilling
     }
 
     processing_ --> loading: onDone/onError
@@ -60,11 +71,11 @@ stateDiagram-v2
     error --> loading: REFRESH
 ```
 
-`available` is `type: "parallel"` over six regions — `status`, `setup`, `trial`, `cancelling`, `consolidating`, `migrating` — evaluated simultaneously off one read. `unavailable` (staged/cancelled/lapsed/fraud) has no transition that leaves it; the only way out is a fresh `loading` cycle from `REFRESH` or re-subscription.
+`available` is `type: "parallel"` over seven regions — `status`, `setup`, `trial`, `cancelling`, `consolidating`, `billingEntity`, `migrating` — evaluated simultaneously off one read. `unavailable` (staged/cancelled/lapsed/fraud) is `type: "parallel"` over two regions: `status`, which holds the four nodes, and its own `billingEntity` form region. The four formless lifecycle writes (`AUTO_RENEW.SET`, `NEXT_INVOICE.ISSUE`, `TRIAL.END`, `LABEL.SET`) are declared inline on `available` and on `unavailable`, each into its own `processing` node. The billing-entity form opens, validates and submits in the `billingEntity` region of whichever node holds the product. No other event leaves `unavailable`; the only way back to `available` is a fresh `loading` cycle from `REFRESH` or re-subscription.
 
 The `loading` state's `onDone` is an ordered list of guarded transitions over the record the settled read returned (the event, never the previous context). The order is staged → cancelled → lapsed → fraud → cancelling → expiring → pending → inactive → active → suspended, so that, e.g., a staged-import record is never routed into a status-code branch at all. Each guard is a one-line check on a raw wire field. A record that matches none takes the last entry, records a status error and lands on `error`.
 
-`cancelling` and `consolidating` are the write-form regions. Each has its own `idle` → `available` (`checking`/`valid`/`invalid`/`error`, re-entered on every `SET.<form>`) → `processing` (its own `validating` → `updating` children) cycle, entirely independent of the `status`/`setup`/`trial` regions beside it. Opening the cancellation form is itself guarded — `CANCELLATION` only transitions when `hasCancellationOptions` is true, i.e. the record currently offers at least one of the three cancellation options; opening the consolidation form is guarded the same way by `canConsolidate`.
+`cancelling`, `consolidating` and `billingEntity` are the write-form regions. Each has its own `idle` → `available` (`checking`/`valid`/`invalid`/`error`, re-entered on every `SET.<form>`) → `processing` (its own `validating` → `updating` children) cycle, entirely independent of the `status`/`setup`/`trial` regions beside it. Opening the cancellation form is itself guarded — `CANCELLATION` only transitions when `hasCancellationOptions` is true, i.e. the record currently offers at least one of the three cancellation options; opening the consolidation form is guarded the same way by `canConsolidate`, and the billing-entity form by `canSetBillingEntity`. `cancelling` and `billingEntity` read their lists before the form opens (`loading`), so a direct write waits there. A failed submit returns to the form's `error` node with the model kept, so a platform refusal keeps the form open. A billing-entity or consolidation pick equal to the current value sends no request: the action closes the form with `CANCEL.<form>` and resolves the product.
 
 ## Data Flow
 
@@ -84,25 +95,25 @@ The `loading` state's `onDone` is an ordered list of guarded transitions over th
                         useMeta() / useContext() (readers)
 ```
 
-1. **`useActions().<write>()`** — a formless write sends its event directly; a form write (cancellation, consolidation) opens the form, feeds it a model (parsed and validated against that form's own JSONForms schema), then submits — and waits for the machine to settle back on `available`/`unavailable`.
+1. **`useActions().<write>()`** — a formless write sends its event directly; a form write (cancellation, consolidation, billing entity) opens the form, feeds it a model (parsed and validated against that form's own JSONForms schema), then submits — and waits for the machine to settle back on `available`/`unavailable`.
 2. **The invoked `processing` child** (top-level for a formless write, or the form's own region-scoped one) invokes the matching service from `contract-product.services.ts`, which issues the request, invalidates the `["contracts"]` cache key, and returns the raw updated record.
-3. **`setContractProduct`** maps the raw record through `contract-product.mappers.ts` and assigns both the raw record and the mapped view model onto context; the settled form's slot (`cancellation`/`consolidation`) is cleared as the machine returns to `#loading`.
+3. **`setContractProduct`** maps the raw record through `contract-product.mappers.ts` and assigns both the raw record and the mapped view model onto context; the settled form's slot (`cancellation`/`consolidation`/`billingEntity`) is cleared as the machine returns to `#loading`.
 4. **`useMeta()`/`useContext()`** read the settled state and context reactively; every published flag is a `computed` over `state`/`context`, never a snapshot.
 
 ## Sub-Composables
 
 | Sub-composable | `useContractProducts` | `useContractProduct` |
 |----------------|------------------------|------------------------|
-| `useActions()` | `filterBy`, `sortBy`, `setCriteria`, `nextPage`, `prevPage`, `loadGroupedCounts`, `loadPurchasedCategories`, `isReady`, `refresh`, `invalidate`, `reset`, `destroy` (`invalidate`/`reset` are `@scenario-exclude` internal) | `openCancellation`, `openConsolidation`, `set`, `cancelForm`, `submitCancellation`, `submitConsolidation`, `stopRenewing`, `resumeRenewing`, `requestCancellation`, `withdrawCancellation`, `scheduleCancellation`, `revokeScheduledCancellation`, `setConsolidation`, `isReady`, `onDone`, `refresh`, `stop`, `destroy` |
-| `useContext()` | `data`, `error`, `findOne`, `getOne`, `pagination`, `query`, `schemas` | `context`, `contractId`, `contractProduct`, `id`, `cancellation`, `consolidation`, `description`, `error`, `errors`, `lookups`, `minFutureCancellationDate`, `rawContractProduct`, `scheduledActions`, `title`, `validationErrors` |
+| `useActions()` | `filterBy`, `sortBy`, `setCriteria`, `nextPage`, `prevPage`, `loadGroupedCounts`, `loadPurchasedCategories`, `isReady`, `refresh`, `invalidate`, `reset`, `destroy` (`invalidate`/`reset` are `@scenario-exclude` internal) | `openCancellation`, `openConsolidation`, `openBillingEntity`, `set`, `cancelForm`, `submitCancellation`, `submitConsolidation`, `submitBillingEntity`, `stopRenewing`, `resumeRenewing`, `requestCancellation`, `withdrawCancellation`, `scheduleCancellation`, `revokeScheduledCancellation`, `setConsolidation`, `setBillingEntity`, `setAutoRenew`, `issueNextInvoice`, `endTrial`, `setClientLabel`, the migration actions, `isReady`, `onDone`, `refresh`, `reset`, `stop`, `destroy` |
+| `useContext()` | `data`, `error`, `findOne`, `getOne`, `pagination`, `query`, `schemas` | `context`, `contractId`, `contractProduct`, `id`, `billingEntity`, `cancellation`, `consolidation`, `description`, `error`, `errors`, `lookups`, `minFutureCancellationDate`, `rawContractProduct`, `scheduledActions`, `title`, `validationErrors` |
 | `useMeta()` | `isAvailable`, `isLoading`, `isEmpty`, `isFiltered`, `hasPages`, `hasError` | the thirteen status/setup/trial node flags, the `isAvailable`/`isLoading`/`isProcessing` state-derived flags, `canRequestCancellation`/`canRequestEndOfTerm`/`canScheduleFutureCancellation`, plus the other record-fact flags (see usage.md) |
 | `useInternals()` | raw query access | raw machine-state access |
 
-`migrating` is the change-of-plan region. `MIGRATION` (guarded by `canMigrate`) moves it from `idle` to `choosing`, where the plan list loads. `MIGRATION.SELECT` (guarded to a plan the product allows) spawns a configurator child and moves to `configuring`, which holds `loading`, `unavailable`, `previewing`, `previewed`, `unpreviewed`, `error` and `processing`. A new child model re-runs the dry run (`previewing`); a failed dry run lands on `unpreviewed` and clears the cost. `MIGRATE` sends a forced update to the child, which answers with the commit model; `processing` then sends the write and returns to `#loading`. The plan count, the plan list and the configurator are three scoped holders built when their inputs resolve and stopped on a rebuild or `destroy`. The count and list are catalogue instances scoped to the contract's currency and account, with the allowed plan ids carried in the catalogue query schema.
+`migrating` is the change-of-plan region. `MIGRATION` (guarded by `canMigrate`) moves it from `idle` to `choosing`, where the plan list loads. `MIGRATION.SELECT` spawns a configurator child and moves to `configuring`. It is guarded to a plan the product allows. The `configuring` state holds `loading`, `unavailable`, `previewing`, `previewed`, `unpreviewed`, `error` and `processing`. A new child model re-runs the dry run (`previewing`); a failed dry run lands on `unpreviewed` and clears the cost. `MIGRATE` sends a forced update to the child, which answers with the commit model; `processing` then sends the write and returns to `#loading`. The plan count, the plan list and the configurator are three scoped holders built when their inputs resolve and stopped on a rebuild or `destroy`. The count and list are catalogue instances scoped to the contract's currency and account, with the allowed plan ids carried in the catalogue query schema.
 
 ## Services
 
-The collection (`useContractProducts`) resolves its requests through `createContractProductServices`. The manager (`useContractProduct`) does not call that factory — it interprets `contract-product.machine.ts`, whose services import `contractProductMachineServices` directly. Both sides come from the one services file, `contract-product.services.ts`; there is no per-actor split — the parity table carries the one cell `client×self`.
+The collection (`useContractProducts`) resolves its requests through `createContractProductsServices`, from `contract-products.services.ts`. The manager (`useContractProduct`) builds one `createContractProductServices` object per scope, from `contract-product.services.ts`, and adapts it with `useContractProductMachineServices(service)` into the services map `contract-product.machine.ts` invokes. There is no per-actor split — the parity table carries the one cell `client×self`.
 
 | Concern | Function | Endpoint |
 |---------|----------|----------|
@@ -118,6 +129,14 @@ The collection (`useContractProducts`) resolves its requests through `createCont
 | Change of plan: dry run / commit | `previewMigration` / `migrate` | `PUT contracts/{c}/products/{p}/change` (`dry_run: true` for the preview) |
 | Cancellation form validation | `validateCancellation` | none (local — rejects with a 422 on an invalid model) |
 | Consolidation form validation | `validateConsolidation` | none (local — rejects with a 422 on an invalid model) |
+| Billing-entity form validation | `validateBillingEntity` | none (local — rejects with a 422 on an invalid model) |
+| Client label validation | `validateClientLabel` | none (local — validates the label before the write) |
+| Auto-renew | `setAutoRenew` | `PUT contracts/{c}/products/{p}/stop_start_invoicing` |
+| Issue next invoice | `issueNextInvoice` | `POST contracts/{c}/products/{p}/recurring` |
+| End trial | `endTrial` | `POST contracts/{c}/products/{p}/trial_end_action_manual` |
+| Client label | `setClientLabel` | `PUT contract_products/{p}` |
+| Billing-entity lists | `loadBillingEntities` | the client's address and company lists, read through their owner modules |
+| Billing entity | `setBillingEntity` | `PUT contracts/{c}/address_company_vat` |
 
 ## Dependencies
 

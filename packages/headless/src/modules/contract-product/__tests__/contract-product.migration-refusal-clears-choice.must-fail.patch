@@ -1,13 +1,11 @@
-# Negative-control mutant 44 — refusal-clears-choice (FE-3206)
+# Negative-control mutant — a refused commit keeps the choice
 #
-# Mutation: on the commit error, run `clearMigration` in place of `setError` and `answerMigrationTargetError`.
-# Spec it must turn red: "A change of plan the platform refuses keeps my choice" ("stays open on the plan I chose").
-#
-# Authored by the developer seat against the landed production source. The
-# prover applies it blind (tasks.md T41): apply, run the named spec, revert.
+# Spec it must flip: contract-product.replay.int.test.ts > "@AC-31 @AC-34 A change of plan the platform refuses keeps my choice"
+# Mutation: the commit error runs `clearMigration` in place of `setError`.
 #
 # Apply with:  git apply <this file>   (run from repo root)
 # Revert with: git apply -R <this file>
+
 diff --git a/packages/headless/src/modules/contract-product/contract-product.machine.ts b/packages/headless/src/modules/contract-product/contract-product.machine.ts
 --- a/packages/headless/src/modules/contract-product/contract-product.machine.ts
 +++ b/packages/headless/src/modules/contract-product/contract-product.machine.ts

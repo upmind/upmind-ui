@@ -1,0 +1,21 @@
+# Negative-control mutant — a billing write on an unavailable product counts as a write in flight
+#
+# Spec it must flip: contract-product.client.unit.test.ts > "AC-41 — the billing entity of an unavailable product > closes the label and billing gates / refuses a label write while its billing write is in flight"
+# Mutation: the region-write states name a node the unavailable billing write
+#   never enters.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+
+diff --git a/packages/headless/src/modules/contract-product/contract-product.types.ts b/packages/headless/src/modules/contract-product/contract-product.types.ts
+--- a/packages/headless/src/modules/contract-product/contract-product.types.ts
++++ b/packages/headless/src/modules/contract-product/contract-product.types.ts
+@@ -430,7 +430,7 @@
+   CANCELLING = "available.cancelling.processing",
+   CONSOLIDATING = "available.consolidating.processing",
+   BILLING_ENTITY = "available.billingEntity.processing",
+-  BILLING_ENTITY_UNAVAILABLE = "unavailable.billingEntity.processing",
++  BILLING_ENTITY_UNAVAILABLE = "unavailable.billingEntity.processed",
+   MIGRATING = "available.migrating.configuring.processing"
+ }
+ 

@@ -126,8 +126,8 @@ export function parseScopeSuffix(suffix: string | undefined): ParsedScope {
  * @returns Path without scope suffix
  *
  * @example
- * stripScopeSuffix("/org/useAuth/as/user")
- * // => "/org/useAuth"
+ * stripScopeSuffix("/org/useInvoices/as/user")
+ * // => "/org/useInvoices"
  *
  * stripScopeSuffix("/useClientCustomFields/for/invoice")
  * // => "/useClientCustomFields"

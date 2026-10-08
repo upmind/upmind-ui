@@ -1,0 +1,21 @@
+# Negative-control mutant — the sortable-properties enum names the wire field
+#
+# Spec it must flip: contract-product.sort.unit.test.ts > "AC-1 — the sort vocabulary the list declares > offers exactly the orderings the platform was asked for in the recorded order reads"
+# Mutation: `ContractProductsSortableProperties.NEXT_DUE_DATE` holds `due_date`.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+
+diff --git a/packages/headless/src/modules/contract-product/contract-product.types.ts b/packages/headless/src/modules/contract-product/contract-product.types.ts
+index aebd086add..e9b222c6b0 100644
+--- a/packages/headless/src/modules/contract-product/contract-product.types.ts
++++ b/packages/headless/src/modules/contract-product/contract-product.types.ts
+@@ -882,7 +882,7 @@ export type FilterModel = NonNullable<QueryModel["filters"]>;
+ export enum ContractProductsSortableProperties {
+   STATUS = "status",
+   CREATED_AT = "created_at",
+-  NEXT_DUE_DATE = "next_due_date",
++  NEXT_DUE_DATE = "due_date",
+   CANCELLED_DATE = "cancelled_date"
+ }
+ 

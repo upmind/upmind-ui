@@ -1,0 +1,20 @@
+# Negative-control mutant — an unchanged consolidation choice resolves the current product
+#
+# Spec it must flip: contract-product.replay.int.test.ts > "@AC-9 A consolidation choice that changes nothing is not sent"
+# Mutation: the consolidation no-op resolves `false`.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+
+diff --git a/packages/headless/src/modules/contract-product/useContractProduct.actions.ts b/packages/headless/src/modules/contract-product/useContractProduct.actions.ts
+--- a/packages/headless/src/modules/contract-product/useContractProduct.actions.ts
++++ b/packages/headless/src/modules/contract-product/useContractProduct.actions.ts
+@@ -284,7 +284,7 @@
+       model.invoiceConsolidationEnabled === product.invoiceConsolidationEnabled
+     ) {
+       send({ type: `CANCEL.${ContractProductFormTypes.CONSOLIDATION}` });
+-      return product;
++      return false;
+     }
+ 
+     send({ type: "SET_CONSOLIDATION" });

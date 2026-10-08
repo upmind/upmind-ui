@@ -27,8 +27,8 @@ export const INVOICE_SCENARIO = "invoice";
 export default {
   key: INVOICE_SCENARIO,
   useManage: useInvoice,
-  // `oid`, not `id`: the word `/order/:oid` uses and the `?init=pay` overlay
-  // reads off its parent's params. UUID-shaped, because the scope suffix
+  // `oid`, not `id`: the word the `?init=pay` overlay reads off its parent's
+  // params. UUID-shaped, because the scope suffix
   // follows it.
   params: ["oid([0-9a-fA-F-]{36})?"],
   tracks: { module: "invoices", without: ["@collection"] },

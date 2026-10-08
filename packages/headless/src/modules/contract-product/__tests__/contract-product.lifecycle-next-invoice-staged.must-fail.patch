@@ -1,0 +1,20 @@
+# Negative-control mutant — a staged product is not offered the next invoice
+#
+# Spec it must flip: contract-product.client.unit.test.ts > "AC-37 — canIssueNextInvoice > is closed for a staged import"
+# Mutation: `canIssueNextInvoice` drops the staged term.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+
+diff --git a/packages/headless/src/modules/contract-product/contract-product.utils.ts b/packages/headless/src/modules/contract-product/contract-product.utils.ts
+index 149d0f25fc..b93b897ff0 100644
+--- a/packages/headless/src/modules/contract-product/contract-product.utils.ts
++++ b/packages/headless/src/modules/contract-product/contract-product.utils.ts
+@@ -506,7 +506,6 @@ export function canIssueNextInvoice(
+ ): boolean {
+   return (
+     product.isSubscription &&
+-    !product.stagedImport &&
+     product.canCreateNextInvoice
+   );
+ }

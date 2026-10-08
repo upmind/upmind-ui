@@ -28,12 +28,6 @@ import { parseScopeSuffix } from "~/composables/scope/scope-mapper";
 const AUTH_OVERLAY_ID = "session";
 
 /**
- * The overlay suffix `registerOverlayRoutes` injects the pay modal under — the
- * key of `LABS_OVERLAYS`, matching the `--pay` child of the order page.
- */
-const PAY_OVERLAY_ID = "pay";
-
-/**
  * The actor a session is collected for when the entry names none — the one the
  * url carries, which is the only thing that moves a page off SELF (`R6-30b`).
  * That is what `guardScenario` rejects on, so the overlay opens on the journey
@@ -166,33 +160,13 @@ export function authOverlayTarget(
 }
 
 /**
- * The pay overlay's location over the order page — the `<order>--pay` child the
- * overlay registry injects, carrying the page's params and the return query
- * (`operation_id`) so the resume hook reads the reference off the route
- * (FE-3133). It mirrors `authOverlayTarget`: the funnel re-targets here on an
- * off-site return, and the overlay opens by navigation, not imperative mount.
- */
-export function payOverlayTarget(
-  route?: Pick<RouteLocation, "name" | "params" | "query">
-) {
-  const parent = overlayParent(route);
-
-  return {
-    name: `${parent}--${PAY_OVERLAY_ID}`,
-    params: route?.params,
-    query: route?.query
-  };
-}
-
-/**
  * The location an admitted `?init` intent opens — the `<page>--<overlay>` child
  * the overlay registry injects, carrying the page's own params and its query
  * MINUS the spent intent.
  *
- * The OMISSION is the point. `payOverlayTarget` above carries `route.query`
- * verbatim and the middleware navigates that object
- * (`app/middleware/routing.global.ts:32`), so a target built straight off the
- * route writes the param the guard has just acted on back into the url. Nothing
+ * The OMISSION is the point. The middleware navigates the funnel's target
+ * object (`app/middleware/routing.global.ts:32`), so a target built straight off
+ * the route's query writes the param the guard has just acted on back into the url. Nothing
  * else clears it either: no clear mutates `router.currentRoute`, so this guard
  * must stay idempotent, and it is the omission that makes it so.
  *
@@ -280,7 +254,7 @@ const scenarioStates = mapValues(scenarioRoutes, () => ({
   invoke: {
     // Session gate THEN `?init` intent — so a `?init=pay` deep link (or the
     // invoice page's Pay button) opens the pay overlay over the scenario, the
-    // same way `[ROUTE.ORDER]` does. `guardScenarioIntent` resolves when there
+    // same way `[ROUTE.CONTRACT_PRODUCT]` does. `guardScenarioIntent` resolves when there
     // is no intent; on an admitted intent it rejects carrying the overlay child.
     src: "guardScenarioIntent",
     onDone: { actions: ["setResolved"] },
@@ -325,36 +299,6 @@ export default <FunnelProps>{
      */
     idle: {
       entry: ["setResolved"]
-    },
-
-    /**
-     * 🎯 ROUTE.ORDER
-     * The order/invoice pay page. An off-site gateway return lands here carrying
-     * `?operation_id`; `guardOrderReturn` rejects on that reference so the funnel
-     * re-targets the `<order>--pay` overlay child (the auth overlay-target
-     * pattern). A plain visit resolves with no redirect (FE-3133).
-     *
-     * `?init=pay` is one more reason the SAME guard rejects — the order page is
-     * the invoice pay page, so the intent needs no state of its own. A rejection
-     * that names its own target takes it; one that names none is the off-site
-     * return, which the pay overlay answers.
-     */
-    [ROUTE.ORDER]: {
-      invoke: {
-        src: "guardOrderReturn",
-        onDone: { actions: ["setResolved"] },
-        onError: {
-          actions: [
-            assign({
-              targetRoute: (
-                { currentRoute }: FunnelContext,
-                { data }: AnyEventObject
-              ) => get(data, "target") ?? payOverlayTarget(currentRoute)
-            }),
-            "setResolved"
-          ]
-        }
-      }
     },
 
     /**

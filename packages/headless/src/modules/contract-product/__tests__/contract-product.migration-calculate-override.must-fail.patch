@@ -1,26 +1,29 @@
-# Negative-control mutant 29 — calculate-override (FE-3206)
+# Negative-control mutant — a configured plan is priced by a dry run of the change
 #
-# Mutation: drop the `calculate` override.
-# Spec it must turn red: "Choose a plan ..." (a calculation request with no recording).
-#
-# Authored by the developer seat against the landed production source. The
-# prover applies it blind (tasks.md T41): apply, run the named spec, revert.
+# Spec it must flip: contract-product.migration.unit.test.ts > "AC-30 — the dry-run trigger"
+# Mutation: the configurator's `calculate` override is dropped, so it prices
+#   through the basket.
 #
 # Apply with:  git apply <this file>   (run from repo root)
 # Revert with: git apply -R <this file>
+
 diff --git a/packages/headless/src/modules/contract-product/contract-product.utils.ts b/packages/headless/src/modules/contract-product/contract-product.utils.ts
 --- a/packages/headless/src/modules/contract-product/contract-product.utils.ts
 +++ b/packages/headless/src/modules/contract-product/contract-product.utils.ts
-@@ -561,12 +561,6 @@
- export const migrationTargetConfig = {
-   actions: {
-     setBasketHelper: assign<ProductConfigContext, AnyEventObject>({}),
--    calculate: sendParent<ProductConfigContext, AnyEventObject, AnyEventObject>(
--      (context: ProductConfigContext): AnyEventObject => ({
--        type: "MIGRATION.CHANGED",
--        data: migrationChange(context)
--      })
--    ),
-     update: sendParent<ProductConfigContext, AnyEventObject, AnyEventObject>(
-       (context: ProductConfigContext): AnyEventObject => ({
-         type: "MIGRATION.COMMIT",
+@@ -446,16 +446,6 @@
+       .withConfig({
+         actions: {
+           setBasketHelper: assign<ProductConfigContext, AnyEventObject>({}),
+-          calculate: sendParent<
+-            ProductConfigContext,
+-            AnyEventObject,
+-            AnyEventObject
+-          >(
+-            ({ model, rawProduct }): AnyEventObject => ({
+-              type: "MIGRATION.CHANGED",
+-              data: { model: cloneDeep(model), rawProduct }
+-            })
+-          ),
+           update: sendParent<
+             ProductConfigContext,
+             AnyEventObject,

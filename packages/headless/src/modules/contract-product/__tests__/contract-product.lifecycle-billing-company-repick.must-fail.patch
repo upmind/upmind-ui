@@ -1,0 +1,20 @@
+# Negative-control mutant — re-picking the current company sends nothing, whatever its address
+#
+# Spec it must flip: contract-product.replay.int.test.ts > "@AC-41 Picking the company my subscription bills to sends nothing"
+# Mutation: the no-op compares the pick with the contract's address alone.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+
+diff --git a/packages/headless/src/modules/contract-product/useContractProduct.actions.ts b/packages/headless/src/modules/contract-product/useContractProduct.actions.ts
+--- a/packages/headless/src/modules/contract-product/useContractProduct.actions.ts
++++ b/packages/headless/src/modules/contract-product/useContractProduct.actions.ts
+@@ -333,7 +333,7 @@
+     if (isNil(picked)) return false;
+     if (
+       product &&
+-      picked === (product.billingCompanyId ?? product.billingAddressId)
++      picked === product.billingAddressId
+     ) {
+       send({ type: `CANCEL.${ContractProductFormTypes.BILLING_ENTITY}` });
+       return product;
