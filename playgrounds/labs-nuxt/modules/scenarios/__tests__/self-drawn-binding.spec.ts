@@ -99,7 +99,8 @@ const UNBOUND_ROUTES = [
   "overlay-pay",
   "overlay-payment",
   "overlay-upgrade",
-  "usePaymentDetailAdd"
+  "usePaymentDetailAdd",
+  "useVerifyRegistration"
 ];
 
 // -----------------------------------------------------------------------------
@@ -120,19 +121,19 @@ describe("a self-drawn page binds nothing — unless it says otherwise", () => {
     expect(sortBy(boundSelfDrawnKeys())).toStrictEqual(sortBy(OPTED_IN));
   });
 
-  it("leaves every other self-drawn page exactly where it was — the five, by name", () => {
+  it("leaves every other self-drawn page exactly where it was, by name", () => {
     expect(
       sortBy(map(unboundKeys(), key => registry[key].route))
     ).toStrictEqual(UNBOUND_ROUTES);
   });
 
-  it("keeps all five out of the registry the harness boots from", () => {
+  it("keeps every unbound page out of the registry the harness boots from", () => {
     expect(
       filter(unboundKeys(), key => includes(keys(scenarioRegistry), key))
     ).toStrictEqual([]);
   });
 
-  it("keeps all five declaring no playlist, so their bar is Live-only as before", () => {
+  it("keeps every unbound page declaring no playlist, so their bar is Live-only as before", () => {
     expect(filter(unboundKeys(), key => !!registry[key].tracks)).toStrictEqual(
       []
     );
