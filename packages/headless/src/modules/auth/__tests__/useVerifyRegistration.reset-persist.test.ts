@@ -29,8 +29,8 @@ import {
   server,
   useLandingHarness
 } from "./useVerifyRegistration.kit";
-import { useSessionStore } from "../../session-store";
-import { includes } from "lodash-es";
+import { AuthEvents, useSessionStore } from "../../session-store";
+import { filter, includes, isPlainObject, get } from "lodash-es";
 import type { Landing } from "./useVerifyRegistration.kit";
 
 // -----------------------------------------------------------------------------
@@ -48,10 +48,17 @@ const CLIENT_COOKIE = "upm_client_session=";
 const GRANT_PATH = "/oauth/access_token";
 const LATE_ANSWER_WAIT_MS = 100;
 
+const loginEvents = (): unknown[] =>
+  filter(
+    get(window, "dataLayer", []) as unknown[],
+    entry => isPlainObject(entry) && get(entry, "event") === AuthEvents.LOGIN
+  );
+
 const isGrant = (request: Request): boolean =>
   new URL(request.url).pathname.endsWith(GRANT_PATH);
 
 beforeEach(() => {
+  Reflect.deleteProperty(window, "dataLayer");
   server?.events.removeAllListeners("request:start");
   server?.events.removeAllListeners("response:mocked");
 });
@@ -67,7 +74,7 @@ beforeEach(() => {
 async function resetWhileGranting(
   instance: Landing,
   grantKey: string,
-  trigger: () => Promise<void>
+  trigger: () => void
 ): Promise<{ grants: number; answered: boolean }> {
   let grants = 0;
   let answered = false;
@@ -95,6 +102,7 @@ function expectNoSession(instance: Landing): void {
   expect(useSessionStore().useMeta().hasClientSession.value).toBe(false);
   expect(instance.useContext().sessionId.value).toBeUndefined();
   expect(instance.useMeta().isSuccess.value).toBe(false);
+  expect(loginEvents()).toHaveLength(0);
 }
 
 describe("a reset during the activation grant", () => {
@@ -140,6 +148,7 @@ describe("a reset during the activation grant", () => {
     await vi.waitFor(() => {
       expect(includes(document.cookie, CLIENT_COOKIE)).toBe(true);
       expect(useSessionStore().useMeta().hasClientSession.value).toBe(true);
+      expect(loginEvents()).toHaveLength(1);
     });
   });
 });
