@@ -1,0 +1,3 @@
+command: ls *.must-fail.patch for reset-persist, set-clears-errors, retry-and-timeout
+head: 55b32ff3126f7283ca6fbb25c4462cec9a8e8392
+result: none present; mutants A, B, C not applied (prover does not author or read the mutated source)

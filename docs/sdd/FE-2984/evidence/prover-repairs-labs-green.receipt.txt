@@ -1,0 +1,6 @@
+command: pnpm exec vitest run modules/scenarios/__tests__/verify-registration.page.retry-and-timeout.spec.ts
+head: 55b32ff3126f7283ca6fbb25c4462cec9a8e8392
+ ✓ |module| modules/scenarios/__tests__/verify-registration.page.retry-and-timeout.spec.ts (2 tests) 399ms
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+exit: 0
