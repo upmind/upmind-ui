@@ -1,0 +1,15 @@
+mutant: set-clears-errors
+patch: packages/headless/src/modules/auth/__tests__/useVerifyRegistration.set-clears-errors.keep-errors.must-fail.patch
+--- RED (patch applied)
+   × a set after a mismatched confirmation > clears the validation errors and the flag 90ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  |unit| src/modules/auth/__tests__/useVerifyRegistration.set-clears-errors.test.ts > a set after a mismatched confirmation > clears the validation errors and the flag
+ Test Files  1 failed (1)
+      Tests  1 failed (1)
+Error: ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL
+  × "pnpm recursive exec" failed in /Users/dom/Documents/upmind-monorepo/
+exit-red: 
+--- GREEN (patch reverted)
+ Test Files  1 passed (1)
+      Tests  1 passed (1)
+exit-green: 

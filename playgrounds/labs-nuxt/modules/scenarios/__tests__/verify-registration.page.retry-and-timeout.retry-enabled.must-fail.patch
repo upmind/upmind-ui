@@ -1,0 +1,17 @@
+AC: the retry control is disabled while the link check is in flight
+Spec: verify-registration.page.retry-and-timeout.spec.ts
+Mutation: the retry button is never disabled
+Apply from the repo root with: git apply -p1 playgrounds/labs-nuxt/modules/scenarios/__tests__/verify-registration.page.retry-and-timeout.retry-enabled.must-fail.patch
+
+diff --git a/playgrounds/labs-nuxt/modules/scenarios/useVerifyRegistration/verify-registration.page.vue b/playgrounds/labs-nuxt/modules/scenarios/useVerifyRegistration/verify-registration.page.vue
+index fdcf0e3e1f..b07447f1ee 100644
+--- a/playgrounds/labs-nuxt/modules/scenarios/useVerifyRegistration/verify-registration.page.vue
++++ b/playgrounds/labs-nuxt/modules/scenarios/useVerifyRegistration/verify-registration.page.vue
+@@ -38,7 +38,6 @@
+             </Button>
+             <Button
+               variant="outline"
+-              :disabled="meta.isProcessing.value"
+               :data-attrs="{ 'data-test-key': 'verify-registration-retry' }"
+               @click="actions.reset()"
+             >

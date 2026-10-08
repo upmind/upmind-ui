@@ -1,0 +1,52 @@
+AC: a reset during the activation grant never persists the session
+Spec: useVerifyRegistration.reset-persist.test.ts
+Mutation: the token is persisted in the grant service instead of the machine
+Apply from the repo root with: git apply -p1 packages/headless/src/modules/auth/__tests__/useVerifyRegistration.reset-persist.persist-in-service.must-fail.patch
+
+diff --git a/packages/headless/src/modules/auth/auth.registration.machine.ts b/packages/headless/src/modules/auth/auth.registration.machine.ts
+index 63dd9825c0..e15f8acbd2 100644
+--- a/packages/headless/src/modules/auth/auth.registration.machine.ts
++++ b/packages/headless/src/modules/auth/auth.registration.machine.ts
+@@ -137,7 +137,7 @@ export const verifyRegistrationMachine = createMachine(
+           src: "completeRegistration",
+           onDone: {
+             target: "success",
+-            actions: ["persistSession", "setSession"]
++            actions: ["setSession"]
+           },
+           onError: { target: "completionFailed", actions: ["setError"] }
+         }
+@@ -148,7 +148,7 @@ export const verifyRegistrationMachine = createMachine(
+           src: "completeRegistration",
+           onDone: {
+             target: "success",
+-            actions: ["persistSession", "setSession"]
++            actions: ["setSession"]
+           },
+           onError: { target: "expiredOrInvalid", actions: ["setError"] }
+         }
+diff --git a/packages/headless/src/modules/auth/auth.services.client.registration.ts b/packages/headless/src/modules/auth/auth.services.client.registration.ts
+index f4196788d7..f8995fd05b 100644
+--- a/packages/headless/src/modules/auth/auth.services.client.registration.ts
++++ b/packages/headless/src/modules/auth/auth.services.client.registration.ts
+@@ -6,7 +6,8 @@ import {
+ } from "@upmind-automation/types";
+ import { useBrand } from "../brand";
+ import { useQuery } from "../query";
+-import { getTokenFromStorage } from "../session-store";
++import { AuthEvents, getTokenFromStorage } from "../session-store";
++import { persistTokenToStorage } from "../session-store/session-store.utils";
+ import { mapRegistrationToken, mapVerifyRegistration } from "./auth.mappers";
+ import { AUTH_SESSION_QUERY_KEY_BASE } from "./auth.types";
+ import { useCookies } from "../../utils";
+@@ -111,5 +112,9 @@ export async function completeRegistration({
+     url: useUrl("access_token", {}, { context: "oauth" }),
+     data,
+     withAccessToken: false
+-  }).then(mapRegistrationToken);
++  }).then(token => {
++    const clientToken = mapRegistrationToken(token);
++    persistTokenToStorage(clientToken, { event: AuthEvents.LOGIN });
++    return clientToken;
++  });
+ }
