@@ -1,7 +1,6 @@
 /** @internal */
 import { assign, createMachine } from "xstate";
-import { AuthEvents } from "../session-store";
-import { persistTokenToStorage } from "../session-store/session-store.utils";
+import { AuthEvents, persistTokenToStorage } from "../session-store";
 import { useI18n } from "../system-localisation";
 import {
   isLinkExpired,

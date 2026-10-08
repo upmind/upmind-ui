@@ -309,14 +309,19 @@ function readVerifyLinks(): {
         `exported in the shell. Missing: ${missing.join(", ")}.`
     );
   }
+  const readEnv = (key: (typeof VERIFY_LINK_KEYS)[number]): string => {
+    const value = process.env[key];
+    if (!value) throw new Error(`${key} is not exported in the shell.`);
+    return value;
+  };
   return {
     noPassword: {
-      username: process.env.RECORDING_VERIFY_USERNAME_NO_PASSWORD as string,
-      hash: process.env.RECORDING_VERIFY_HASH_NO_PASSWORD as string
+      username: readEnv("RECORDING_VERIFY_USERNAME_NO_PASSWORD"),
+      hash: readEnv("RECORDING_VERIFY_HASH_NO_PASSWORD")
     },
     withPassword: {
-      username: process.env.RECORDING_VERIFY_USERNAME_WITH_PASSWORD as string,
-      hash: process.env.RECORDING_VERIFY_HASH_WITH_PASSWORD as string
+      username: readEnv("RECORDING_VERIFY_USERNAME_WITH_PASSWORD"),
+      hash: readEnv("RECORDING_VERIFY_HASH_WITH_PASSWORD")
     }
   };
 }
