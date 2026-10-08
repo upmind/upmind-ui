@@ -51,7 +51,7 @@
         v-if="isBlockedIp"
         variant="danger"
         :title="t('labs.verify_registration_blocked_ip')"
-        :description="context.error.value?.message"
+        :description="errorMessage"
         :data-attrs="{ 'data-test-key': 'verify-registration-blocked-ip' }"
       >
         <template #icon><Icon icon="lock-01" /></template>
@@ -66,8 +66,7 @@
             : t('labs.verify_registration_completion_failed')
         "
         :description="
-          context.error.value?.message ??
-          t('labs.verify_registration_expired_text')
+          errorMessage ?? t('labs.verify_registration_expired_text')
         "
         :data-attrs="{ 'data-test-key': 'verify-registration-expired' }"
       >
@@ -93,7 +92,7 @@
           :schema="context.schema.value"
           :uischema="context.uischema.value"
           :model-value="context.model.value"
-          :additional-errors="context.validationErrors.value"
+          :additional-errors="formErrors"
           :data-attrs="{ 'data-test-key': 'verify-registration-form' }"
           @update:model-value="actions.set($event)"
           @resolve="actions.completeRegistration()"
@@ -201,7 +200,7 @@ import {
 import { QUERY_PARAMS } from "@upmind-automation/types";
 import ContextPanel from "../runtime/components/ContextPanel.vue";
 import MetaPanel from "../runtime/components/MetaPanel.vue";
-import { mapValues, toString } from "lodash-es";
+import { map, mapValues, toString } from "lodash-es";
 import type {
   SessionUser,
   VerifyRegistrationParams
@@ -210,7 +209,7 @@ import type {
 const START_DELAY_MS = 1000;
 const BLOCKED_IP_CODE = "ip_address_disallowed";
 
-const { t } = useI18n();
+const { t, te } = useI18n();
 const route = useRoute();
 
 await useActiveSession().useActions().isReady();
@@ -295,6 +294,28 @@ const isBlockedIp = computed(
 
 const isFailure = computed(
   () => meta.isExpiredOrInvalid.value || meta.hasErrors.value
+);
+
+/**
+ * The landing's message is a catalogue key until headless localisation is
+ * booted, and finished text after; only a key is translated here.
+ */
+const errorMessage = computed(() => {
+  const message = context.error.value?.message;
+  return message && te(message) ? t(message) : message;
+});
+
+/**
+ * A confirmation mismatch is raised by the landing with no copy of its own, so
+ * its text comes from the field's catalogue entry rather than headless
+ * localisation.
+ */
+const formErrors = computed(() =>
+  map(context.validationErrors.value, error =>
+    error.keyword === "const"
+      ? { ...error, message: t("form.auth_set_password_confirmation.error") }
+      : error
+  )
 );
 
 const metaFlags = computed(() => mapValues(meta, flag => flag.value));
