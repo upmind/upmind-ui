@@ -1,19 +1,20 @@
-AC: AC1 cases A and D (no session or a guest token only: the verify carries no bearer)
+AC: AC1 case C (staff + client token: the verify never carries the staff bearer)
 Spec: auth.verify-registration.guest.int.test.ts
-Mutation: the verify PATCH uses withAccessToken: true
-Apply from the repo root with: git apply -p1 packages/headless/src/modules/auth/__tests__/auth.verify-registration.client-token.must-fail.patch
+Mutation: the verify PATCH prefers the staff token over the client token
+Apply from the repo root with: git apply -p1 packages/headless/src/modules/auth/__tests__/auth.verify-registration.staff-bearer.must-fail.patch
 
 diff --git a/packages/headless/src/modules/auth/auth.services.client.registration.ts b/packages/headless/src/modules/auth/auth.services.client.registration.ts
-index 17dde4f99d..3ab1b1f45f 100644
+index 17dde4f99d..3e2a6e7728 100644
 --- a/packages/headless/src/modules/auth/auth.services.client.registration.ts
 +++ b/packages/headless/src/modules/auth/auth.services.client.registration.ts
-@@ -82,8 +82,7 @@ export async function verifyRegistrationLink({
-     mutationKey: [...REGISTRATION_MUTATION_KEY, "verify"],
+@@ -83,7 +83,9 @@ export async function verifyRegistrationLink({
      url: useUrl("clients/reg_hash/verify"),
      data: { username: params.username, reg_hash: params.hash },
--    withAccessToken:
+     withAccessToken:
 -      getTokenFromStorage(AccessRoleTypes.CLIENT)?.access_token || false
-+    withAccessToken: true
++      getTokenFromStorage(AccessRoleTypes.STAFF)?.access_token ||
++      getTokenFromStorage(AccessRoleTypes.CLIENT)?.access_token ||
++      false
    }).then(mapVerifyRegistration);
  }
  

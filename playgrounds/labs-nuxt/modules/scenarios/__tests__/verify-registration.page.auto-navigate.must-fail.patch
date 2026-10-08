@@ -4,10 +4,10 @@ Mutation: the page calls navigateTo(redirect) on success
 Apply from the repo root with: git apply -p1 playgrounds/labs-nuxt/modules/scenarios/__tests__/verify-registration.page.auto-navigate.must-fail.patch
 
 diff --git a/playgrounds/labs-nuxt/modules/scenarios/useVerifyRegistration/verify-registration.page.vue b/playgrounds/labs-nuxt/modules/scenarios/useVerifyRegistration/verify-registration.page.vue
-index 7b803605f8..4df0345a68 100644
+index a21b24f842..d5fa7120a2 100644
 --- a/playgrounds/labs-nuxt/modules/scenarios/useVerifyRegistration/verify-registration.page.vue
 +++ b/playgrounds/labs-nuxt/modules/scenarios/useVerifyRegistration/verify-registration.page.vue
-@@ -287,6 +287,7 @@ watch(
+@@ -281,6 +281,7 @@ watch(
    () => meta.isSuccess.value && context.sessionId.value,
    sessionId => {
      if (!sessionId) return;
