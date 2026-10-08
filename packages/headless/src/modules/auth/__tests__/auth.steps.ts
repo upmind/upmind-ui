@@ -11,9 +11,11 @@
  *   grant;
  * - the API error: the published `error.status` equals the status of the
  *   recorded refusal the Given armed;
- * - no request: no verify answer was ever published (`twoFAProvider` is null).
- *   A refused request also leaves it null, so in the missing-hash scenario the
- *   invalid-link Then (the landing's own 400) is the one that turns red.
+ * - no link-check answer: no verify answer was ever published (`twoFAProvider`
+ *   is null). A refused request also leaves it null, so the step names the
+ *   published answer, not the wire; the integration spec proves that nothing
+ *   is sent, and in the missing-hash scenario the invalid-link Then (the
+ *   landing's own 400) is the one that turns red.
  *
  * A Given that names an account state ("my account has no password") arranges
  * nothing: the answer the World serves decides that state, and the scenario's
@@ -130,7 +132,7 @@ const apiError = (world: World): Promise<void> => {
   );
 };
 
-const sentNothing = (world: World): Promise<void> =>
+const noLinkCheckAnswer = (world: World): Promise<void> =>
   settles(() => world.expectContext!({ twoFAProvider: null }));
 
 const expiredOrInvalid = (world: World): Promise<void> =>
@@ -240,14 +242,14 @@ export const authSteps = defineSteps(({ Given, When, Then }) => {
     })
   );
 
-  Then("no request goes out", async world => {
+  Then("the landing publishes no link-check answer", async world => {
     await world.expectMeta({ isProcessing: false });
-    await sentNothing(world);
+    await noLinkCheckAnswer(world);
   });
 
-  Then("the new landing waits and sends nothing", async world => {
+  Then("the new landing waits with no link-check answer", async world => {
     await world.expectMeta({ isVerifying: true, isProcessing: false });
-    await sentNothing(world);
+    await noLinkCheckAnswer(world);
   });
 
   Then("the landing reports that a complete step is necessary", world =>
@@ -273,7 +275,7 @@ export const authSteps = defineSteps(({ Given, When, Then }) => {
       )
   );
 
-  Then("no activation goes out", world =>
+  Then("the landing reports no activation", world =>
     world.expectMeta({ isSuccess: false, isComplete: false })
   );
 

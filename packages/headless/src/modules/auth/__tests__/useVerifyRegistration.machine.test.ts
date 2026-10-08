@@ -73,7 +73,11 @@ describe("registration landing machine", () => {
     await instance.useActions().isReady();
 
     expect(instance.useContext().currentState.value).toBe("expiredOrInvalid");
-    expect(instance.useContext().error.value).toBeDefined();
+    expect(instance.useMeta().hasErrors.value).toBe(true);
+    expect(instance.useContext().error.value).toMatchObject({
+      origin: "headless",
+      message: "error.session_verify_link_invalid"
+    });
   });
 
   it("keeps the 403 status and the API code of a refused verify", async () => {
@@ -136,49 +140,41 @@ describe("registration landing machine", () => {
     expect(instance.useContext().validationErrors.value).toStrictEqual([]);
   });
 
-  it("drops the late answer of a stopped attempt after a reset", async () => {
-    const hasPassword = getFixture(RECORDING.hasPassword, {
-      recordingsDir
-    }).response;
+  it("drops the late answer of a stopped attempt while the restarted verify is still held", async () => {
+    const stale = getFixture(RECORDING.noPassword, { recordingsDir }).response;
     const refused = getFixture(RECORDING.invalidHash, {
       recordingsDir
     }).response;
-    let release: () => void = () => undefined;
-    const gate = new Promise<void>(resolve => {
-      release = resolve;
-    });
-    let calls = 0;
-    let delivered = false;
+    const releases: Array<() => void> = [];
+    const answered: number[] = [];
     server?.use(
       http.patch(VERIFY_ROUTE, async () => {
-        calls += 1;
-        if (calls === 1) {
-          await gate;
-          delivered = true;
-          return HttpResponse.json(
-            hasPassword.body as Record<string, unknown>,
-            { status: hasPassword.status }
-          );
-        }
-        return HttpResponse.json(refused.body as Record<string, unknown>, {
-          status: refused.status
-        });
+        const attempt = releases.length;
+        await new Promise<void>(resolve => releases.push(resolve));
+        answered.push(attempt);
+        const { body, status } = attempt === 0 ? stale : refused;
+        return HttpResponse.json(body as Record<string, unknown>, { status });
       })
     );
     const instance = landing();
 
     void instance.useActions().verify(LINK);
-    await vi.waitFor(() => expect(calls).toBe(1));
+    await vi.waitFor(() => expect(releases).toHaveLength(1));
     instance.useActions().reset();
-    await vi.waitFor(() =>
-      expect(instance.useContext().currentState.value).toBe("expiredOrInvalid")
-    );
-    release();
-    await vi.waitFor(() => expect(delivered).toBe(true));
+    await vi.waitFor(() => expect(releases).toHaveLength(2));
+    releases[0]();
+    await vi.waitFor(() => expect(answered).toStrictEqual([0]));
     await new Promise(resolve => setImmediate(resolve));
 
+    expect(instance.useContext().currentState.value).toBe("verifying");
+    expect(instance.useMeta().needsPassword.value).toBe(false);
+
+    releases[1]();
+    await instance.useActions().isReady();
+
     expect(instance.useContext().currentState.value).toBe("expiredOrInvalid");
-    expect(instance.useMeta().isSuccess.value).toBe(false);
+    expect(instance.useMeta().needsPassword.value).toBe(false);
+    expect(instance.useContext().error.value?.status).toBe(refused.status);
   });
 
   it("ignores a second verify outside the idle state", async () => {

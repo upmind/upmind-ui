@@ -1,9 +1,9 @@
 # auth — the module's ONE feature file: its capability spec, the source
 # `auth.steps.ts` implements, and the playlist the scenario bar plays.
 #
-# SOURCE: the planner seat writes this file under docs/sdd/FE-2984/. Task T21
-# copies it, unchanged, to packages/headless/src/modules/auth/__tests__/auth.feature
-# and writes auth.steps.ts and auth.traceability.test.ts beside it.
+# The planner's draft lives under docs/sdd/FE-2984/. This copy is the one the
+# scenario bar plays: its Then steps name only what auth.steps.ts can observe
+# on the landing, so a wire fact stays with the integration spec.
 #
 # Story FE-2984 adds the registration-activation landing. One scenario per
 # composable capability. Business language only, declarative only: no selector,
@@ -64,7 +64,7 @@ Feature: Registration activation landing
     When nobody starts the landing
     Then the landing reports that it is verifying
     And it reports no other outcome
-    And no request goes out
+    And the landing publishes no link-check answer
 
   # Blocker: no staging capture reaches a two-factor account, and the World
   # cannot serve a two-factor answer. The AC-5 cases of the integration spec
@@ -89,7 +89,7 @@ Feature: Registration activation landing
     When the landing checks my link
     Then the landing waits at the set-password step
     And it offers the set-password form with my username as its username
-    And no activation goes out
+    And the landing reports no activation
 
   @FE-2984 @AC-8 @guest
   Scenario Outline: A password that breaks a rule is refused
@@ -97,7 +97,7 @@ Feature: Registration activation landing
     When I submit the password "<password>" with the confirmation "<confirmation>"
     Then the landing reports one validation error for the <field> under the <rule> rule
     And it stays at the set-password step
-    And no activation goes out
+    And the landing reports no activation
 
     Examples:
       | password | confirmation | field                 | rule      |
@@ -121,7 +121,7 @@ Feature: Registration activation landing
     And my link expired in 2020
     When the landing checks my link
     Then the landing reports the expired-or-invalid outcome with the invalid-link error
-    And no activation goes out
+    And the landing reports no activation
 
   # Blocker: the World cannot set a brand setting or a cookie and reads no
   # request body. The AC-11 cases of the integration spec prove it.
@@ -138,14 +138,14 @@ Feature: Registration activation landing
     Given my link has a username but no hash
     When the landing checks my link
     Then the landing reports the expired-or-invalid outcome with the invalid-link error
-    And no request goes out
+    And the landing publishes no link-check answer
 
   @FE-2984 @AC-13 @guest
   Scenario: A refused link check shows the failure
     Given the API refuses my link
     When the landing checks my link
     Then the landing reports the expired-or-invalid outcome with the API error
-    And no activation goes out
+    And the landing reports no activation
 
   @FE-2984 @AC-14 @guest
   Scenario: A refused activation after the set-password step shows the failure
@@ -209,4 +209,4 @@ Feature: Registration activation landing
   Scenario: A destroyed landing starts fresh
     Given the landing reached the activated state
     When the consumer destroys the landing and opens it again
-    Then the new landing waits and sends nothing
+    Then the new landing waits with no link-check answer

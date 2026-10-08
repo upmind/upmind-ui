@@ -1,9 +1,9 @@
 // @vitest-environment happy-dom
 /**
- * @fileoverview Registration landing, RESET during an activation grant (integration)
+ * @fileoverview Registration landing, RESET during an activation grant (unit)
  *
  * ## Job To Be Done
- * flow.md §4: a `RESET` during `completing` or `completingWithPassword` stops
+ * A `RESET` during `completing` or `completingWithPassword` stops
  * the grant, and the late answer of the stopped grant never activates a
  * session. Driven through the public `useVerifyRegistration` composable with a
  * held, recorded grant answer.
@@ -15,6 +15,7 @@
  */
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { AuthEvents, useSessionStore } from "../../session-store";
 import {
   GRANT_ROUTE,
   LINK,
@@ -29,7 +30,6 @@ import {
   server,
   useLandingHarness
 } from "./useVerifyRegistration.kit";
-import { AuthEvents, useSessionStore } from "../../session-store";
 import { filter, includes, isPlainObject, get } from "lodash-es";
 import type { Landing } from "./useVerifyRegistration.kit";
 

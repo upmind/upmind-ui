@@ -12,9 +12,8 @@
  * link reuses the guest instance and its stale outcome.
  */
 
-import { describe, expect, it } from "vitest";
-import { vi } from "vitest";
-import { getFixture } from "@upmind-automation/test-fixtures";
+import { describe, expect, it, vi } from "vitest";
+import { getFixtureBody } from "@upmind-automation/test-fixtures";
 import { ScopeActorTypes } from "../../scope";
 import { persistTokenToStorage, useSessionStore } from "../../session-store";
 import {
@@ -50,8 +49,7 @@ describe("registration landing scope", () => {
   it("keys a new instance once a client is signed in", async () => {
     const guestService = landing().useInternals().service;
     await persistTokenToStorage(
-      getFixture(RECORDING.grantDirect, { recordingsDir }).response
-        .body as unknown as IToken
+      getFixtureBody<IToken>(RECORDING.grantDirect, { recordingsDir })
     );
     await vi.waitFor(() => {
       if (!useSessionStore().useMeta().hasClientSession.value) {

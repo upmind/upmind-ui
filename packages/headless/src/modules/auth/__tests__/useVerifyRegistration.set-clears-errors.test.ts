@@ -1,9 +1,9 @@
 // @vitest-environment happy-dom
 /**
- * @fileoverview Registration landing, SET after a refused form (integration)
+ * @fileoverview Registration landing, SET after a refused form (unit)
  *
  * ## Job To Be Done
- * flow.md §4: at the set-password step a `SET` clears the validation errors.
+ * At the set-password step a `SET` clears the validation errors.
  * After a mismatched confirmation, correcting a field leaves no stale error
  * and no stale `hasValidationErrors` flag. Driven through the public
  * `useVerifyRegistration` composable against the recorded verify answer.

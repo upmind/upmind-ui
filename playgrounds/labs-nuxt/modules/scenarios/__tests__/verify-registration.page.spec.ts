@@ -190,8 +190,11 @@ const selfName = (): string =>
     "data.actor.fullname"
   );
 
+const formItem = (field: string): string =>
+  `${key("form-item")}[data-test-value="${field}"]`;
+
 const passwordField = (wrapper: VueWrapper, field: string) =>
-  wrapper.find(`fieldset[data-test-value="${field}"] input`);
+  wrapper.find(`${formItem(field)} ${key("input-password")}`);
 
 async function fillPasswords(
   wrapper: VueWrapper,
@@ -353,16 +356,13 @@ describe("AC-25 the new texts render from the source", () => {
     const generators = wrapper.findAll(key("password-generate"));
     expect(generators).toHaveLength(1);
     expect(
-      wrapper
-        .find('fieldset[data-test-value="password"]')
-        .find(key("password-generate"))
-        .exists()
+      wrapper.find(formItem("password")).find(key("password-generate")).exists()
     ).toBe(true);
   });
 
   const confirmationMessage = (wrapper: VueWrapper) =>
     wrapper.find(
-      `p${key("form-item-message")}[data-test-value="password-confirmation"]`
+      `${key("form-item-message")}[data-test-value="password-confirmation"]`
     );
 
   it("AC-25 shows the landing's mismatch text on the confirmation field after a submit", async () => {

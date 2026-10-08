@@ -32,6 +32,7 @@ import {
   clearSessionCookies,
   makeFixtureOverrides
 } from "../../../__tests__/int-test-helpers";
+import { messageDisplays, useFeedback, useMessage } from "../../feedback";
 import { useRoutingEngine } from "../../routing";
 import { ScopeActorTypes } from "../../scope";
 import {
@@ -51,6 +52,7 @@ import {
   keys,
   map,
   omit,
+  reject,
   size,
   sortBy
 } from "lodash-es";
@@ -1071,23 +1073,43 @@ describe("registration landing, guest x self (recorded staging answers)", () => 
       expect(instance.useContext().error.value).toMatchObject({ status: 401 });
     });
 
-    it("D16 401 ends at expired-or-invalid with an error when no session is held", async () => {
+    it("D16 401 shows the 401 interstitial and ends at expired-or-invalid when no token is stored", async () => {
       clearSessionCookies();
+      const shownBefore = map(useFeedback().messages.value, "id");
 
       const { instance } = await verifyRefused();
 
+      await vi.waitFor(() => {
+        const shown = map(
+          reject(useFeedback().messages.value, ({ id }) =>
+            includes(shownBefore, id)
+          ),
+          item => useMessage(item).message.value
+        );
+        expect(shown).toContainEqual(
+          expect.objectContaining({
+            display: messageDisplays.INTERSTITIAL,
+            data: { status: 401 }
+          })
+        );
+      });
       expect(instance.useMeta().isExpiredOrInvalid.value).toBe(true);
       expect(instance.useContext().error.value).toMatchObject({ status: 401 });
     });
 
-    it("D16 401 resends the guest bearer on the second request when only a guest token is held", async () => {
+    it("D16 401 resends the refreshed guest bearer on the second request when only a guest token is held", async () => {
+      await seedSession("guest-bearer", AccessRoleTypes.GUEST);
+
       const { verifies, instance } = await verifyRefused();
 
+      const refreshed = grantBody(RECORDING.guestToken).access_token;
+      expect(refreshed).not.toBe("guest-bearer");
       expect(verifies.length).toBeGreaterThan(1);
       expect(verifies[0].authorization).toBeNull();
-      expect(verifies[1].authorization).toBe(
-        `Bearer ${grantBody(RECORDING.guestToken).access_token}`
-      );
+      expect(verifies[1].authorization).toBe(`Bearer ${refreshed}`);
+      expect(
+        useSessionStore().useContext().guestSession.value?.access_token
+      ).toBe(refreshed);
       expect(instance.useMeta().isExpiredOrInvalid.value).toBe(true);
       expect(instance.useContext().error.value).toMatchObject({ status: 401 });
     });
