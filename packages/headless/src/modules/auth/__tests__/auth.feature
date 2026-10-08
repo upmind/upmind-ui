@@ -66,7 +66,10 @@ Feature: Registration activation landing
     And it reports no other outcome
     And no request goes out
 
-  @FE-2984 @AC-5 @guest
+  # Blocker: no staging capture reaches a two-factor account, and the World
+  # cannot serve a two-factor answer. The AC-5 cases of the integration spec
+  # and the rules spec prove it.
+  @FE-2984 @AC-5 @guest @todo
   Scenario: A two-factor account is reported with its provider
     Given my account has two-factor sign-in with the TOTP provider
     When the landing checks my link

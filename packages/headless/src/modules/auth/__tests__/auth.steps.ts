@@ -150,10 +150,6 @@ export const authSteps = defineSteps(({ Given, When, Then }) => {
   Given("my account already has a password", () => undefined);
   Given("my account already has a password but no name", () => undefined);
   Given("my account has no password", () => undefined);
-  Given(
-    "my account has two-factor sign-in with the TOTP provider",
-    () => undefined
-  );
   Given("the API refuses my link", () => {
     refusedStatus = refusedLinkRecording.response.status;
   });
@@ -253,14 +249,6 @@ export const authSteps = defineSteps(({ Given, When, Then }) => {
     await world.expectMeta({ isVerifying: true, isProcessing: false });
     await sentNothing(world);
   });
-
-  Then("the landing reports that two-factor sign-in is necessary", world =>
-    settles(() => world.expectMeta({ twoFARequired: true }))
-  );
-
-  Then("it reports the provider as totp", world =>
-    settles(() => world.expectContext!({ twoFAProvider: "totp" }))
-  );
 
   Then("the landing reports that a complete step is necessary", world =>
     settles(() => world.expectMeta({ needsCompleteStep: true }))
