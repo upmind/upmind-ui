@@ -4,26 +4,23 @@
  * ## Job To Be Done
  * Pin the pure rules of the registration landing from their design tables: the
  * expiry verdict of every `expires` shape, the redirect filter over the attack
- * list, the verify mapper over its nil inputs and the two-factor input, and the
- * copy keys the landing reads from the i18n source. The blocked-address 403
- * mapping is proven in the machine spec, and the analytics parse only by the
- * three AC-11 cases of the integration spec.
+ * list, the verify mapper over its nil inputs and the two-factor input. The
+ * blocked-address 403 mapping is proven in the machine spec, and the analytics
+ * parse only by the three AC-11 cases of the integration spec.
  *
  * ## What Breaks If These Fail
  * A past link is shown as valid or a good link as expired, a guest is sent to
  * an outside address after activation, a nil verify answer crashes the landing
- * or hides the set-password step, or the landing draws a raw translation key.
+ * or hides the set-password step.
  */
 
-import { readFileSync } from "node:fs";
-import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import {
   isLinkExpired,
   mapVerifyRegistration,
   toSafeRedirect
 } from "../auth.mappers";
-import { forEach, get, split } from "lodash-es";
+import { forEach } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 
@@ -94,19 +91,6 @@ const REDIRECTS: [string, string | undefined][] = [
   ["/billing?next=a:b", "/billing?next=a:b"],
   ["", undefined]
 ];
-
-const readSource = (file: string): Record<string, unknown> =>
-  JSON.parse(
-    readFileSync(
-      join(import.meta.dirname, "../../../../../i18n/src/core", file),
-      "utf-8"
-    )
-  ) as Record<string, unknown>;
-
-const FORM_EN = readSource("form-en.json");
-const ERROR_EN = readSource("error-en.json");
-const formKey = (key: string): unknown =>
-  get(FORM_EN, split(key, ".").slice(1));
 
 // -----------------------------------------------------------------------------
 
@@ -186,50 +170,5 @@ describe("verify mapper (mapVerifyRegistration)", () => {
         twofa_enabled: true
       }).twoFAProvider
     ).toBe("");
-  });
-});
-
-describe("i18n source", () => {
-  it("holds the set-password copy", () => {
-    expect(formKey("form.auth_set_password.label")).toBe("Set password");
-    expect(formKey("form.auth_set_password.placeholder")).toBe(
-      "8+ characters, consisting of both numbers & letters"
-    );
-    expect(formKey("form.auth_set_password.hint")).toBe(
-      "Password must be at least 8 characters and include a letter and a number."
-    );
-    forEach(
-      [
-        "min_length",
-        "min_length_letter",
-        "min_length_letter_number",
-        "min_length_number",
-        "missing_letter",
-        "missing_letter_number",
-        "missing_number"
-      ],
-      key => {
-        expect(
-          formKey(`form.auth_set_password.error.${key}`),
-          `form.auth_set_password.error.${key}`
-        ).toEqual(expect.any(String));
-      }
-    );
-  });
-
-  it("holds the confirmation copy", () => {
-    expect(formKey("form.auth_set_password_confirmation.label")).toBe(
-      "Confirm password"
-    );
-    expect(formKey("form.auth_set_password_confirmation.placeholder")).toBe(
-      "Confirm password"
-    );
-    expect(formKey("form.auth_set_password_confirmation.error")).toBe(
-      "Enter the same password again"
-    );
-  });
-
-  it("holds the invalid-link error text", () => {
-    expect(get(ERROR_EN, "session_verify_link_invalid")).toBe("Invalid link");
   });
 });

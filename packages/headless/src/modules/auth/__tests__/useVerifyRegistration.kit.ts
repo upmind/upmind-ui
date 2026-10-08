@@ -36,6 +36,8 @@ export const RECORDING = {
   grantWithPassword:
     "post-oauth-access-token-case-complete-with-password-client",
   grantDirect: "post-oauth-access-token-case-complete-direct-client",
+  badBearer: "patch-clients-reg-hash-verify-case-bad-bearer",
+  guestToken: "post-oauth-access-token-guest",
   self: "get-self"
 } as const;
 
@@ -60,20 +62,23 @@ const { overrideToken, overrideSelf } = makeFixtureOverrides(
   recordingsDir
 );
 
-export { overrideSelf };
+export { overrideSelf, overrideToken };
 
-/** Serves a recording's recorded status and body on `route`. */
+/**
+ * Serves a recording's recorded status and body on `route`, optionally with
+ * one documented field of the body edited.
+ */
 export function serve(
   method: "patch" | "post",
   route: string,
-  key: string
+  key: string,
+  edit?: (body: Record<string, unknown>) => Record<string, unknown>
 ): void {
   const { response } = getFixture(key, { recordingsDir });
+  const body = response.body as Record<string, unknown>;
   server?.use(
     http[method](route, () =>
-      HttpResponse.json(response.body as Record<string, unknown>, {
-        status: response.status
-      })
+      HttpResponse.json(edit ? edit(body) : body, { status: response.status })
     )
   );
 }
@@ -124,7 +129,7 @@ export function landing(): Landing {
   return useVerifyRegistration().as(ScopeActorTypes.SELF);
 }
 
-function destroyLandings(): void {
+export function destroyLandings(): void {
   forEach(
     [
       ScopeActorTypes.SELF,

@@ -1,4 +1,4 @@
-AC: AC19 C1 rejection (the two-step read rejects with the /self error)
+AC: AC-19 keeps the signed-in client active when /self fails for the new token
 Spec: auth.verify-registration.guest.int.test.ts
 Mutation: persist the token with no LOGIN event
 Apply from the repo root with: git apply -p1 packages/headless/src/modules/auth/__tests__/auth.verify-registration.no-event.must-fail.patch

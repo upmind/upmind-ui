@@ -70,10 +70,7 @@ vi.mock("../../../../../packages/headless/src/modules/brand", () => ({
 }));
 
 const server = startReplayServer({ recordingsDir });
-const { overrideToken } = makeFixtureOverrides(
-  server,
-  recordingsDir
-);
+const { overrideToken } = makeFixtureOverrides(server, recordingsDir);
 
 const NuxtLinkStub = defineComponent({
   props: { to: { type: String, required: true } },
@@ -200,6 +197,36 @@ describe("the retry control", () => {
   });
 });
 
+describe("the start control", () => {
+  const startButton = (wrapper: VueWrapper) =>
+    wrapper.find(key("verify-registration-start"));
+
+  it("is enabled before the first start and disabled once the landing leaves idle, through Try again", async () => {
+    const release = serveHeld(VERIFY_ROUTE, RECORDING.noPassword);
+    mounted = await mountPage();
+    expect(startButton(mounted).attributes("disabled")).toBeUndefined();
+
+    await start(mounted);
+    expect(startButton(mounted).attributes("disabled")).toBe("");
+    release();
+    await vi.waitFor(() => {
+      expect(
+        (mounted as VueWrapper).find(key("verify-registration-form")).exists()
+      ).toBe(true);
+    });
+    expect(startButton(mounted).attributes("disabled")).toBe("");
+
+    await retryButton(mounted).trigger("click");
+    await flushPromises();
+    await vi.waitFor(() => {
+      expect(
+        (mounted as VueWrapper).find(key("verify-registration-form")).exists()
+      ).toBe(true);
+    });
+    expect(startButton(mounted).attributes("disabled")).toBe("");
+  });
+});
+
 describe("the bounded wait for the new session", () => {
   it("shows the user-error text after the switch timeout when another client stays active", async () => {
     const recorded = getFixtureBody<IToken>(RECORDING.grantDirect, {
@@ -231,7 +258,11 @@ describe("the bounded wait for the new session", () => {
 
     await start(mounted);
     await vi.waitFor(() => {
-      if (!(mounted as VueWrapper).find(key("verify-registration-success")).exists()) {
+      if (
+        !(mounted as VueWrapper)
+          .find(key("verify-registration-success"))
+          .exists()
+      ) {
         throw new Error("the landing has not reached success");
       }
     });
@@ -240,8 +271,8 @@ describe("the bounded wait for the new session", () => {
     vi.advanceTimersByTime(SESSION_SWITCH_TIMEOUT_MS);
     await flushPromises();
 
-    expect(
-      mounted.find(key("verify-registration-success")).text()
-    ).toContain(labs.verify_registration_user_error);
+    expect(mounted.find(key("verify-registration-success")).text()).toContain(
+      labs.verify_registration_user_error
+    );
   });
 });

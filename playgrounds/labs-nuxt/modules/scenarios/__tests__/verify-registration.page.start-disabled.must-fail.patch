@@ -1,4 +1,4 @@
-AC: the start control is disabled outside idle and enabled again after Try again resets to idle
+AC: the start control is enabled before the first start and disabled once the landing leaves idle, in flight, at the form and after Try again (a retry re-checks the link and never returns to idle)
 Spec: verify-registration.page.retry-and-timeout.spec.ts
 Mutation: the start button is never disabled
 Apply from the repo root with: git apply -p1 playgrounds/labs-nuxt/modules/scenarios/__tests__/verify-registration.page.start-disabled.must-fail.patch

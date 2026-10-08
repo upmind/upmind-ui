@@ -267,9 +267,11 @@ let stopSwitchWait: (() => void) | undefined;
 
 /**
  * Wait for the new session, then for its user. The wait is bounded: when
- * another client is signed in the active session never becomes the new one
- * and the session store keeps the signed-in client, so the panel shows the error text instead of
- * "Checking the link" for ever.
+ * another client is signed in and `/self` fails for the new token, the
+ * session store keeps the signed-in client active and the active session never
+ * becomes the new one, so the panel shows the error text instead of
+ * "Checking the link" for ever. When `/self` succeeds the new client becomes
+ * the active session.
  */
 function readNewSession(sessionId: string): Promise<SessionUser> {
   const session = useActiveSession();

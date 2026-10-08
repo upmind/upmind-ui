@@ -28,20 +28,28 @@ import {
 import { createMemoryHistory, createRouter } from "vue-router";
 import { getFixture, getFixtureBody } from "@upmind-automation/test-fixtures";
 import { AccessRoleTypes, BrandConfigKeys } from "@upmind-automation/types";
-import {
-  clearSessionCookies,
-  makeFixtureOverrides
-} from "../../../__tests__/int-test-helpers";
+import { clearSessionCookies } from "../../../__tests__/int-test-helpers";
 import { messageDisplays, useFeedback, useMessage } from "../../feedback";
 import { useRoutingEngine } from "../../routing";
-import { ScopeActorTypes } from "../../scope";
 import {
   persistTokenToStorage,
   useActiveSession,
   useSessionStore
 } from "../../session-store";
-import { useVerifyRegistration } from "../useVerifyRegistration";
-import { server } from "./setup.integration";
+import {
+  GRANT_ROUTE,
+  LINK,
+  RECORDING,
+  VERIFY_ROUTE,
+  landing,
+  overrideSelf,
+  overrideToken,
+  recordingsDir,
+  serve,
+  server,
+  useLandingHarness
+} from "./useVerifyRegistration.kit";
+import type { Landing } from "./useVerifyRegistration.kit";
 import {
   filter,
   find,
@@ -60,26 +68,6 @@ import type { IToken } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
 
-const recordingsDir = join(import.meta.dirname, "fixtures");
-
-const VERIFY_ROUTE = "*/api/clients/reg_hash/verify";
-const GRANT_ROUTE = "*/oauth/access_token";
-
-const RECORDING = {
-  noPassword: "patch-clients-reg-hash-verify-case-no-password",
-  invalidHash: "patch-clients-reg-hash-verify-case-invalid-hash",
-  badBearer: "patch-clients-reg-hash-verify-case-bad-bearer",
-  grantRefused: "post-oauth-access-token-case-complete-refused",
-  grantWithPassword:
-    "post-oauth-access-token-case-complete-with-password-client",
-  hasPassword: "patch-clients-reg-hash-verify-case-has-password",
-  grantDirect: "post-oauth-access-token-case-complete-direct-client",
-  self: "get-self",
-  guestToken: "post-oauth-access-token-guest"
-} as const;
-
-const LINK = { username: "link-user@example.com", hash: "link-hash-value" };
-
 const router = createRouter({
   history: createMemoryHistory(),
   routes: [{ path: "/", component: { render: () => null } }]
@@ -95,11 +83,6 @@ vi.mock("../../brand", () => ({
     getConfigValue: (key: string) => brandConfig[key]
   })
 }));
-
-const { overrideToken, overrideSelf } = makeFixtureOverrides(
-  server,
-  recordingsDir
-);
 
 type Outbound = {
   method: string;
@@ -147,22 +130,6 @@ const isGrant = (call: Outbound): boolean =>
 const isVerify = (call: Outbound): boolean =>
   call.pathname.endsWith("/reg_hash/verify");
 
-/** Serves a recording's recorded status and body on `route`. */
-function serve(
-  method: "patch" | "post",
-  route: string,
-  key: string,
-  edit?: (body: Record<string, unknown>) => Record<string, unknown>
-): void {
-  const { response } = getFixture(key, { recordingsDir });
-  const body = response.body as Record<string, unknown>;
-  server?.use(
-    http[method](route, () =>
-      HttpResponse.json(edit ? edit(body) : body, { status: response.status })
-    )
-  );
-}
-
 /** Edits one documented field of a recorded verify body. */
 const withVerifyField =
   (field: string, value: unknown) =>
@@ -171,22 +138,6 @@ const withVerifyField =
     data: { ...(body.data as Record<string, unknown>), [field]: value }
   });
 
-function landing(): ReturnType<ReturnType<typeof useVerifyRegistration>["as"]> {
-  return useVerifyRegistration().as(ScopeActorTypes.SELF);
-}
-
-function destroyLandings(): void {
-  forEach(
-    [
-      ScopeActorTypes.SELF,
-      ScopeActorTypes.GUEST,
-      ScopeActorTypes.CLIENT,
-      ScopeActorTypes.STAFF
-    ],
-    actor => useVerifyRegistration().as(actor).useActions().destroy()
-  );
-}
-
 // -----------------------------------------------------------------------------
 
 describe("registration landing, guest x self (recorded staging answers)", () => {
@@ -194,37 +145,16 @@ describe("registration landing, guest x self (recorded staging answers)", () => 
     useRoutingEngine().init(router);
   });
 
-  beforeEach(async () => {
+  useLandingHarness();
+
+  beforeEach(() => {
     forEach(keys(brandConfig), key => delete brandConfig[key]);
-    clearSessionCookies();
-    sessionStorage.clear();
-    destroyLandings();
-    overrideToken("post-oauth-access-token-guest");
-    useSessionStore().useActions().clear();
-    await useSessionStore().useActions().isReady();
-    await vi.waitFor(() => {
-      if (includes(document.cookie, "upm_client_session=")) {
-        clearSessionCookies();
-        useSessionStore().useActions().clear();
-        throw new Error("a client session of the previous test came back");
-      }
-    });
-    await useSessionStore().useActions().isReady();
   });
 
-  afterEach(async () => {
-    await vi.waitFor(() => {
-      if (
-        includes(document.cookie, "upm_client_session=") !==
-        useSessionStore().useMeta().hasClientSession.value
-      ) {
-        throw new Error("session-store write still settling");
-      }
-    });
+  afterEach(() => {
     server?.events.removeAllListeners("request:start");
     vi.unstubAllGlobals();
     vi.restoreAllMocks();
-    destroyLandings();
   });
 
   it("AC-4 a landing that has not started waits and sends nothing", async () => {
@@ -692,6 +622,23 @@ describe("registration landing, guest x self (recorded staging answers)", () => 
       expect(instance.useContext().error.value?.status).toBe(refusal.status);
     });
 
+    it("AC-14 publishes expired-or-invalid when a 2xx grant carries no access_token", async () => {
+      serve("patch", VERIFY_ROUTE, RECORDING.noPassword);
+      serve("post", GRANT_ROUTE, RECORDING.grantWithPassword, body =>
+        omit(body, "access_token")
+      );
+
+      const instance = await submitValidPassword();
+
+      expect(instance.useContext().currentState.value).toBe("expiredOrInvalid");
+      expect(instance.useMeta().isExpiredOrInvalid.value).toBe(true);
+      expect(instance.useMeta().hasErrors.value).toBe(true);
+      expect(instance.useContext().error.value).toBeTruthy();
+      expect(instance.useMeta().isProcessing.value).toBe(false);
+      expect(instance.useMeta().isSuccess.value).toBe(false);
+      expect(document.cookie).not.toContain("upm_client_session=");
+    });
+
     it("AC-14 keeps the 500 status of a server failure on the grant", async () => {
       serve("patch", VERIFY_ROUTE, RECORDING.noPassword);
       serveStatus("post", GRANT_ROUTE, 500);
@@ -720,6 +667,24 @@ describe("registration landing, guest x self (recorded staging answers)", () => 
       expect(instance.useMeta().hasErrors.value).toBe(true);
       expect(instance.useMeta().isExpiredOrInvalid.value).toBe(false);
       expect(instance.useContext().error.value?.status).toBe(refusal.status);
+    });
+
+    it("AC-15 reports a completion failure when a 2xx grant carries no access_token", async () => {
+      serve("patch", VERIFY_ROUTE, RECORDING.hasPassword);
+      serve("post", GRANT_ROUTE, RECORDING.grantDirect, body =>
+        omit(body, "access_token")
+      );
+
+      const instance = landing();
+      await instance.useActions().verify(LINK);
+      await instance.useActions().isReady();
+
+      expect(instance.useContext().currentState.value).toBe("completionFailed");
+      expect(instance.useMeta().hasErrors.value).toBe(true);
+      expect(instance.useContext().error.value).toBeTruthy();
+      expect(instance.useMeta().isProcessing.value).toBe(false);
+      expect(instance.useMeta().isSuccess.value).toBe(false);
+      expect(document.cookie).not.toContain("upm_client_session=");
     });
 
     it("AC-15 keeps the 500 status of a server failure on the grant", async () => {
@@ -929,6 +894,26 @@ describe("registration landing, guest x self (recorded staging answers)", () => 
         grantBody(RECORDING.grantDirect).actor_id
       );
     });
+
+    it("AC-19 C1 makes the new client the active session when /self succeeds for its token", async () => {
+      await seedSession("client-a-bearer", AccessRoleTypes.CLIENT);
+      overrideSelf(RECORDING.self);
+      serve("patch", VERIFY_ROUTE, RECORDING.hasPassword);
+      serve("post", GRANT_ROUTE, RECORDING.grantDirect);
+      const grant = grantBody(RECORDING.grantDirect);
+      const self = getFixture(RECORDING.self, { recordingsDir }).response.body;
+
+      const instance = landing();
+      await instance.useActions().verify(LINK);
+      await instance.useActions().isReady();
+      const user = await twoStepRead(instance);
+
+      expect(clientCookie()).toContain(grant.access_token);
+      expect(useActiveSession().useContext().sessionId.value).toBe(
+        grant.actor_id
+      );
+      expect(get(user, "id")).toBe(get(self, "data.actor.id"));
+    });
   });
 
   describe("AC-21 a retry runs the link check again", () => {
@@ -1116,12 +1101,10 @@ describe("registration landing, guest x self (recorded staging answers)", () => 
   });
 });
 
-type Landing = ReturnType<ReturnType<typeof useVerifyRegistration>["as"]>;
-
 type GrantBody = { access_token: string; actor_id: string };
 
 function grantBody(key: string): GrantBody {
-  return getFixture(key, { recordingsDir }).response.body as GrantBody;
+  return getFixtureBody<GrantBody>(key, { recordingsDir });
 }
 
 function serveGrantEdited(
