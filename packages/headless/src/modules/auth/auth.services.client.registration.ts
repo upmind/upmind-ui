@@ -62,11 +62,11 @@ async function readAnalyticsMeta(): Promise<
     "."
   );
 
-  const ga_client_id = join(compact([get(ga, 2), get(ga, 3)]), ".");
-  const ga_session_id = get(gaSession, 2);
-  if (isEmpty(ga_client_id) || isEmpty(ga_session_id)) return;
+  const gaClientId = join(compact([get(ga, 2), get(ga, 3)]), ".");
+  const gaSessionId = get(gaSession, 2);
+  if (isEmpty(gaClientId) || isEmpty(gaSessionId)) return;
 
-  return { ga_client_id, ga_session_id };
+  return { ga_client_id: gaClientId, ga_session_id: gaSessionId };
 }
 
 /**
