@@ -3,15 +3,21 @@ Spec: useVerifyRegistration.set-clears-errors.test.ts
 Mutation: SET keeps the previous validation errors
 Apply from the repo root with: git apply -p1 packages/headless/src/modules/auth/__tests__/useVerifyRegistration.set-clears-errors.keep-errors.must-fail.patch
 
+
 diff --git a/packages/headless/src/modules/auth/auth.registration.machine.ts b/packages/headless/src/modules/auth/auth.registration.machine.ts
-index 63dd9825c0..cf6fdb4f93 100644
 --- a/packages/headless/src/modules/auth/auth.registration.machine.ts
 +++ b/packages/headless/src/modules/auth/auth.registration.machine.ts
-@@ -120,7 +120,7 @@ export const verifyRegistrationMachine = createMachine(
+@@ -120,13 +120,7 @@ export const verifyRegistrationMachine = createMachine(
  
        needsPassword: {
          on: {
--          SET: { actions: ["setModel", "clearValidationErrors"] },
+-          SET: [
+-            {
+-              cond: "hasValidationErrors",
+-              actions: ["setModel", "validate"]
+-            },
+-            { actions: ["setModel"] }
+-          ],
 +          SET: { actions: ["setModel"] },
            COMPLETE: { target: "validating", actions: ["validate"] }
          }

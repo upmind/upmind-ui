@@ -3,10 +3,11 @@ Spec: auth.verify-registration.guest.int.test.ts
 Mutation: persist the token with no LOGIN event
 Apply from the repo root with: git apply -p1 packages/headless/src/modules/auth/__tests__/auth.verify-registration.no-event.must-fail.patch
 
+
 diff --git a/packages/headless/src/modules/auth/auth.registration.machine.ts b/packages/headless/src/modules/auth/auth.registration.machine.ts
 --- a/packages/headless/src/modules/auth/auth.registration.machine.ts
 +++ b/packages/headless/src/modules/auth/auth.registration.machine.ts
-@@ -221,7 +221,7 @@ export const verifyRegistrationMachine = createMachine(
+@@ -231,7 +231,7 @@ export const verifyRegistrationMachine = createMachine(
          _context: VerifyRegistrationContext,
          { data }: AnyEventObject
        ) => {
@@ -14,4 +15,4 @@ diff --git a/packages/headless/src/modules/auth/auth.registration.machine.ts b/p
 +        persistTokenToStorage(data);
        },
  
-       clearValidationErrors: assign({ validationErrors: () => [] }),
+       setSession: assign({
