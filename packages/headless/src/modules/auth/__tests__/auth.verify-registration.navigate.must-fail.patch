@@ -3,18 +3,20 @@ Spec: auth.verify-registration.guest.int.test.ts
 Mutation: call router.replace("/") on success
 Apply from the repo root with: git apply -p1 packages/headless/src/modules/auth/__tests__/auth.verify-registration.navigate.must-fail.patch
 
+
 diff --git a/packages/headless/src/modules/auth/auth.registration.machine.ts b/packages/headless/src/modules/auth/auth.registration.machine.ts
+index 63dd9825c0..2688629748 100644
 --- a/packages/headless/src/modules/auth/auth.registration.machine.ts
 +++ b/packages/headless/src/modules/auth/auth.registration.machine.ts
-@@ -2,6 +2,7 @@
+@@ -1,6 +1,7 @@
+ /** @internal */
  import { assign, createMachine } from "xstate";
- import { AuthEvents } from "../session-store";
- import { persistTokenToStorage } from "../session-store/session-store.utils";
+ import { AuthEvents, persistTokenToStorage } from "../session-store";
 +import { router } from "../routing/useRoutingEngine";
  import { useI18n } from "../system-localisation";
  import {
    isLinkExpired,
-@@ -155,7 +156,7 @@ export const verifyRegistrationMachine = createMachine(
+@@ -154,7 +155,7 @@ export const verifyRegistrationMachine = createMachine(
          }
        },
  
