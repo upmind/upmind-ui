@@ -1,14 +1,11 @@
-# Negative-control mutant — a row's status badge reads its `meta` flag (R38 item 9, G4; B5)
+# Negative-control mutant — a row's status badge reads its meta flag
 #
-# Spec it must flip: contract-product.replay.int.test.ts,
-#   "Each of my products shows its status in words, with one flag for that
-#   status".
-# RED-verified 2026-09-29.
-#
-# Mutation: `isClosed` is always false, so a closed product draws no badge.
+# Spec it must flip: contract-product.replay.int.test.ts > "@AC-1 Each of my products shows its status in words, with one flag for that status"
+# Mutation: `isClosed` is always false.
 #
 # Apply with:  git apply <this file>   (run from repo root)
 # Revert with: git apply -R <this file>
+
 diff --git a/packages/headless/src/modules/contract-product/contract-product.mappers.ts b/packages/headless/src/modules/contract-product/contract-product.mappers.ts
 --- a/packages/headless/src/modules/contract-product/contract-product.mappers.ts
 +++ b/packages/headless/src/modules/contract-product/contract-product.mappers.ts

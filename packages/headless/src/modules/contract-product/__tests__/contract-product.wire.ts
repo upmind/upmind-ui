@@ -4,13 +4,12 @@
  * @description The live wire of ONE replayed scenario: the requests the module
  * itself sent, as the replay's passive observer saw them, and the scenario
  * they belong to. The replay opens the window before the first step boots the
- * product and closes it after the last (bdd.md section 2, "The observer
- * window"); the step catalog only reads it. A wire line never reads a
+ * product and closes it after the last; the step catalog only reads it. A wire line never reads a
  * recording to prove what went out — the replay matcher ignores `limit`,
  * `offset`, `order` and `with`, so only the live request can.
  */
 
-import { filter } from "lodash-es";
+import { filter, flatMap, map } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 
@@ -27,8 +26,8 @@ export type SentBody = SentRequest & { body: Promise<unknown> };
 export type BodySource = { all: () => SentBody[]; stop: () => void };
 
 let source: WireSource | undefined;
-let bodies: BodySource | undefined;
-let bodiesAtWhen = 0;
+let bodies: BodySource[] = [];
+let bodiesAtWhen: number[] = [];
 let scenario = "";
 let whenStartsAt = 0;
 
@@ -36,11 +35,11 @@ let whenStartsAt = 0;
 export function openWire(
   name: string,
   observer: WireSource,
-  bodyObserver?: BodySource
+  ...bodyObservers: BodySource[]
 ): void {
   source = observer;
-  bodies = bodyObserver;
-  bodiesAtWhen = 0;
+  bodies = bodyObservers;
+  bodiesAtWhen = map(bodyObservers, () => 0);
   scenario = name;
   whenStartsAt = 0;
 }
@@ -48,10 +47,10 @@ export function openWire(
 /** Closes the window and stops its observer. */
 export function closeWire(): void {
   source?.stop();
-  bodies?.stop();
+  for (const observer of bodies) observer.stop();
   source = undefined;
-  bodies = undefined;
-  bodiesAtWhen = 0;
+  bodies = [];
+  bodiesAtWhen = [];
   scenario = "";
   whenStartsAt = 0;
 }
@@ -62,7 +61,7 @@ export const wireScenario = (): string => scenario;
 /** Marks where the `When` of the scenario starts. */
 export function markWhen(): void {
   whenStartsAt = source?.all().length ?? 0;
-  bodiesAtWhen = bodies?.all().length ?? 0;
+  bodiesAtWhen = map(bodies, observer => observer.all().length);
 }
 
 /** Each request of the whole window that `match` selects. */
@@ -82,8 +81,9 @@ export const bodiesInWindow = (
   match: (request: URL, method: string) => boolean
 ): Promise<unknown[]> =>
   Promise.all(
-    filter(bodies?.all() ?? [], ({ url, method }) =>
-      match(new URL(url), method)
+    filter(
+      flatMap(bodies, observer => observer.all()),
+      ({ url, method }) => match(new URL(url), method)
     ).map(({ body }) => body)
   );
 
@@ -92,7 +92,10 @@ export const bodiesByWhen = (
   match: (request: URL, method: string) => boolean
 ): Promise<unknown[]> =>
   Promise.all(
-    filter((bodies?.all() ?? []).slice(bodiesAtWhen), ({ url, method }) =>
-      match(new URL(url), method)
+    filter(
+      flatMap(bodies, (observer, index) =>
+        observer.all().slice(bodiesAtWhen[index])
+      ),
+      ({ url, method }) => match(new URL(url), method)
     ).map(({ body }) => body)
   );

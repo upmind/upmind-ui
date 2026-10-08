@@ -776,11 +776,13 @@ export default createMachine(
       ) => {
         //  NB: data is raw basket data so use snake_case for comparison
 
-        const clientChanged = clientId !== data?.client_id!;
+        const clientChanged = clientId !== data?.client_id;
         const basketChanged = basketId !== data?.id;
-        const promotionsChanged = !isEmpty(
-          xorBy(promotions, data?.promotions, "promotion_id")
-        );
+        // A product that omits promotions (`false`) prices with none, so the
+        // basket's promotions are no change to it.
+        const promotionsChanged =
+          isArray(promotions) &&
+          !isEmpty(xorBy(promotions, data?.promotions, "promotion_id"));
 
         // NB check if our underlying basketProduct has changed as well ( if we have one )
         const basketProductChanged =

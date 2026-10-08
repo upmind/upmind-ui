@@ -1,13 +1,12 @@
-# Negative-control mutant 22 — failed-preview-keeps-cost (FE-3206)
+# Negative-control mutant — a dry run the platform refuses shows no cost
 #
-# Mutation: leave `clearMigrationPreview` out of the `unpreviewed` entry and the `previewing` entry.
-# Spec it must turn red: "A choice of options the platform cannot price shows no cost", and the AC-30 unit spec, a cost that cannot be priced.
-#
-# Authored by the developer seat against the landed production source. The
-# prover applies it blind (tasks.md T41): apply, run the named spec, revert.
+# Spec it must flip: contract-product.migration.unit.test.ts > "AC-30 — a cost that cannot be priced > a first dry run the platform refuses leaves the change open with no cost"
+# Mutation: `clearMigrationPreview` leaves the `unpreviewed` and `previewing`
+#   entries.
 #
 # Apply with:  git apply <this file>   (run from repo root)
 # Revert with: git apply -R <this file>
+
 diff --git a/packages/headless/src/modules/contract-product/contract-product.machine.ts b/packages/headless/src/modules/contract-product/contract-product.machine.ts
 --- a/packages/headless/src/modules/contract-product/contract-product.machine.ts
 +++ b/packages/headless/src/modules/contract-product/contract-product.machine.ts

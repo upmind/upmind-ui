@@ -1,33 +1,20 @@
-# Negative-control mutant — the manager publishes the product's description (AC-4)
+# Negative-control mutant — the manager publishes the product's description
 #
-# Scenario it must flip: contract-product.feature >
-#   "Open one of my products with what its detail view needs"
-# Test that goes red: contract-product.replay.int.test.ts > that scenario —
-#   "Then it is the very product I opened, under its own name and description" —
-#   the manager context publishes no `description` member.
-# Mutation: drops the `description` computed and its return entry from the
-#   manager context.
+# Spec it must flip: contract-product.replay.int.test.ts > "@AC-4 Open one of my products with what its detail view needs"
+# Mutation: the context's `description` reads the product name.
 #
 # Apply with:  git apply <this file>   (run from repo root)
 # Revert with: git apply -R <this file>
+
 diff --git a/packages/headless/src/modules/contract-product/useContractProduct.context.ts b/packages/headless/src/modules/contract-product/useContractProduct.context.ts
 --- a/packages/headless/src/modules/contract-product/useContractProduct.context.ts
 +++ b/packages/headless/src/modules/contract-product/useContractProduct.context.ts
-@@ -53,8 +53,6 @@
-   /** Display title of the product — derived off the view model, as `scheduledActions` is. */
-   const title = computed(() => contractProduct.value?.name);
- 
--  /** Description of the product — derived off the raw wire record, as `scheduledActions` is. */
--  const description = computed(() => contractProduct.value?.raw?.description);
- 
-   const allowedMigrations = computed<IProductMigration[]>(
-     () => contractProduct.value?.allowedMigrations ?? []
-@@ -85,8 +83,6 @@
-     /** The mapped contract product. */
-     contractProduct,
- 
--    /** Display description of the product. */
--    description,
- 
-     /** Machine-captured error, if any — read, never raised. */
-     error: useContext<ResponseError | undefined>(state, "error"),
+@@ -42,7 +42,7 @@
+       ? resolveMinFutureCancellationDate(contractProduct.value)
+       : null
+   );
+-  const description = computed(() => contractProduct.value?.description);
++  const description = computed(() => contractProduct.value?.name);
+   const title = computed(() => contractProduct.value?.title);
+   const migrationConfig = computed(() => holders.config.value?.config ?? null);
+   const migrationResult = computed(

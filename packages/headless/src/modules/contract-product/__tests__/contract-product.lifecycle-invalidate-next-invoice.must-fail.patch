@@ -1,0 +1,19 @@
+# Negative-control mutant — raising the next invoice refreshes the products list
+#
+# Spec it must flip: contract-product.replay.int.test.ts > "@AC-43 A lifecycle write refreshes my products list — raise its next invoice"
+# Mutation: `issueNextInvoice` drops its invalidation.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+
+diff --git a/packages/headless/src/modules/contract-product/contract-product.services.ts b/packages/headless/src/modules/contract-product/contract-product.services.ts
+--- a/packages/headless/src/modules/contract-product/contract-product.services.ts
++++ b/packages/headless/src/modules/contract-product/contract-product.services.ts
+@@ -418,7 +418,6 @@
+     data: nextInvoiceDate ? { next_invoice_date: nextInvoiceDate } : undefined,
+     withAccessToken: true
+   })
+-    .then(invalidateWithInvoices)
+     .then(response =>
+       isObject(response) && "id" in response ? response : null
+     );

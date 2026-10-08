@@ -26,12 +26,12 @@ export type ScopeConfig = {
  * @returns Brand scope configuration
  *
  * @example
- * // URL: /org/useAuth
+ * // URL: /org/useInvoices
  * const brand = useBrandScope();
  * // => { mode: 'org' }
  *
  * @example
- * // URL: /brand-x/useAuth
+ * // URL: /brand-x/useInvoices
  * const brand = useBrandScope();
  * // => { mode: 'brand', brandId: 'brand-x' }
  */
@@ -121,7 +121,7 @@ export function useContextScope<
  * @returns Complete scope configuration
  *
  * @example
- * // URL: /brand-x/useAuth/as/staff/for/client/123
+ * // URL: /brand-x/useInvoices/as/staff/for/client/123
  * const scope = useScopeConfig();
  * // => { brandId: 'brand-x', actor: 'staff', context: { type: 'client', id: '123' } }
  */

@@ -26,6 +26,7 @@
 import { RuleEffect } from "@jsonforms/core";
 import {
   ContractProductFormTypes,
+  QUERY_PARAMS,
   ScopeActorTypes,
   TicketsContextTypes,
   useContractProducts,
@@ -39,7 +40,13 @@ import {
 import { contractSummary } from "../useContract/contract.summary";
 import { ticketSummary } from "../useTicket/ticket.summary";
 import { contractProductSummary } from "./contract-product.summary";
-import type { RecordUischema, TableCell } from "../runtime/scenario.types";
+import type {
+  RecordFormDeclaration,
+  RecordUischema,
+  TableCell
+} from "../runtime/scenario.types";
+import type { VerticalLayout } from "@jsonforms/core";
+import { InitIntent } from "~/funnels/labs.constants";
 
 export { contractProductSummary } from "./contract-product.summary";
 
@@ -157,10 +164,38 @@ export const contractProductOptions: TableCell[] = [
   }
 ];
 
+/** The raised invoice's id on the model — set once a write that raises one has settled. */
+const ISSUED_INVOICE_ID = "#/properties/issuedInvoice/properties/id";
+
+/** The one-checkbox form that turns renewal invoicing `on` (`true`) or off (`false`); the read-only default is what a submit sends. */
+function autoRenewForm(on: boolean): RecordFormDeclaration {
+  return {
+    schema: {
+      type: "object",
+      properties: { on: { type: "boolean", default: on } }
+    },
+    uischema: {
+      type: "VerticalLayout",
+      elements: [
+        {
+          type: "Control",
+          scope: "#/properties/on",
+          i18n: "labs.contract_product_auto_renew_field",
+          options: { readonly: true }
+        }
+      ]
+    } satisfies VerticalLayout,
+    submit: "setAutoRenew",
+    args: ["#/properties/on"],
+    submitI18n: "action.confirm"
+  };
+}
+
 /** The contract product, drawn whole as one record. */
 export const contractProductRecord: RecordUischema = {
   type: "RecordLayout",
   record: "contractProduct",
+  siblings: ["issuedInvoice"],
   header: {
     title: "#/properties/title",
     status: "#/properties/status/properties/name",
@@ -188,6 +223,27 @@ export const contractProductRecord: RecordUischema = {
     ]
   },
   sections: [
+    {
+      kind: "alert",
+      key: "renewal",
+      alerts: [
+        {
+          // cProdProvider.vue:571-575 — the next invoice is a late renewal when its date is not in the future.
+          /**
+           * @decision
+           * what: the notice opens on a two-flag gate array.
+           * why: a record notice takes only `gate` (a string or an array); it has no
+           *   uischema `rule`, and the playground engine is frozen.
+           * rejected: a single `isLateRenewal` meta flag (a headless change, out of scope).
+           */
+          name: "late-renewal",
+          gate: ["canIssueNextInvoice", "!isNextInvoiceDateInFuture"],
+          i18n: { title: "labs.contract_product_late_renewal" },
+          variant: "warning",
+          icon: "alert-circle"
+        }
+      ]
+    },
     {
       kind: "fields",
       key: "details",
@@ -300,6 +356,100 @@ export const contractProductRecord: RecordUischema = {
         valid: "isConsolidationValid",
         i18n: "labs.contract_product_consolidation",
         submitI18n: "labs.contract_product_consolidation_submit"
+      }
+    },
+    {
+      name: "enable-auto-renew",
+      i18n: "labs.contract_product_auto_renew_enable",
+      icon: "refresh-cw-01",
+      gate: "canEnableAutoRenew",
+      form: {
+        ...autoRenewForm(true),
+        i18n: "labs.contract_product_auto_renew_enable"
+      }
+    },
+    {
+      name: "disable-auto-renew",
+      i18n: "labs.contract_product_auto_renew_disable",
+      icon: "x-close",
+      gate: "canDisableAutoRenew",
+      form: {
+        ...autoRenewForm(false),
+        i18n: "labs.contract_product_auto_renew_disable"
+      }
+    },
+    {
+      name: "issue-next-invoice",
+      i18n: "labs.contract_product_next_invoice",
+      icon: "receipt",
+      /**
+       * @decision
+       * what: the action is gated on `canIssueNextInvoice` alone.
+       * why: a record action takes one `gate` string and has no uischema `rule`,
+       *   so `!#/issuedInvoice/id` cannot join it; the playground engine is frozen.
+       * rejected: a meta flag that folds `issuedInvoice` into the gate (a headless change, out of scope).
+       */
+      gate: "canIssueNextInvoice",
+      navigate: { query: { [QUERY_PARAMS.INIT]: InitIntent.NEXT_INVOICE } }
+    },
+    {
+      name: "view-invoice",
+      i18n: "labs.contract_product_view_invoice",
+      icon: "arrow-right",
+      gate: ISSUED_INVOICE_ID,
+      navigate: { route: "/useInvoice/:id", idScope: ISSUED_INVOICE_ID }
+    },
+    {
+      name: "end-trial",
+      i18n: "labs.contract_product_end_trial",
+      icon: "check",
+      gate: "canEndTrial",
+      navigate: { query: { [QUERY_PARAMS.INIT]: InitIntent.END_TRIAL } }
+    },
+    {
+      name: "client-label",
+      i18n: "labs.contract_product_label_open",
+      icon: "edit-01",
+      placement: RecordActionPlacementTypes.OVERFLOW,
+      gate: "canUpdateContractProduct",
+      form: {
+        schema: {
+          type: "object",
+          properties: { clientLabel: { type: ["string", "null"] } }
+        },
+        uischema: {
+          type: "VerticalLayout",
+          elements: [
+            {
+              type: "Control",
+              scope: "#/properties/clientLabel",
+              i18n: "labs.contract_product_label_field"
+            }
+          ]
+        } satisfies VerticalLayout,
+        prefill: true,
+        submit: "setClientLabel",
+        args: ["#/properties/clientLabel"],
+        i18n: "labs.contract_product_label_open",
+        submitI18n: "labs.contract_product_label_save"
+      }
+    },
+    {
+      name: "billing-entity",
+      i18n: "labs.contract_product_billing_entity_open",
+      icon: "building-02",
+      placement: RecordActionPlacementTypes.OVERFLOW,
+      gate: "canSetBillingEntity",
+      run: "openBillingEntity",
+      form: {
+        context: "billingEntity",
+        set: "set",
+        target: ContractProductFormTypes.BILLING_ENTITY,
+        submit: "submitBillingEntity",
+        cancel: "cancelForm",
+        valid: "isBillingEntityValid",
+        i18n: "labs.contract_product_billing_entity_open",
+        submitI18n: "labs.contract_product_billing_entity_save"
       }
     },
     {

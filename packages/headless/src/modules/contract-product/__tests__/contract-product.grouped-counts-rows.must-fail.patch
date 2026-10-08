@@ -1,27 +1,20 @@
-# Negative-control mutant — the grouped-count read returns the envelope's rows (AC-19, R36)
+# Negative-control mutant — the grouped counts are the rows the envelope's total carries
 #
-# Scenario it must flip: contract-product.feature >
-#   "See my products grouped by category, with a count for each"
-#   (the recorded grouped rows come back as the action's result).
-# Test that goes red: contract-product.reads.int.test.ts >
-#   "AC-19 the recorded grouped rows come back as the action's result —
-#   one entry per category, each with its count". The load-bearing assertion:
-#   `loadGroupedCounts()` resolves to `recorded.groupedCounts().total`.
-# Mutation: read the envelope's `data` again instead of its `total`. With
-#   `limit=count` the API returns `data: []` and rides the grouped rows on the
-#   envelope's `total`, so reading `data` yields `[]` and the scenario goes red.
+# Spec it must flip: contract-product.replay.int.test.ts > "@AC-19 Ask for my products grouped by category and see a count for each"
+# Mutation: the grouped-count select reads the envelope's `data`, not its `total`.
 #
 # Apply with:  git apply <this file>   (run from repo root)
 # Revert with: git apply -R <this file>
-diff --git a/packages/headless/src/modules/contract-product/contract-product.services.ts b/packages/headless/src/modules/contract-product/contract-product.services.ts
---- a/packages/headless/src/modules/contract-product/contract-product.services.ts
-+++ b/packages/headless/src/modules/contract-product/contract-product.services.ts
-@@ -261,7 +261,7 @@ async function loadGroupedCounts(
-     withAccessToken: true
-   });
 
--  return (response.total as unknown as ICProdGroup[] | null) ?? [];
-+  return (response.data as unknown as ICProdGroup[] | null) ?? [];
- }
-
- /** The purchased categories (R10, ADR-20) — the SAME force-set the list sends. */
+diff --git a/packages/headless/src/modules/contract-product/contract-products.services.ts b/packages/headless/src/modules/contract-product/contract-products.services.ts
+--- a/packages/headless/src/modules/contract-product/contract-products.services.ts
++++ b/packages/headless/src/modules/contract-product/contract-products.services.ts
+@@ -174,7 +174,7 @@
+       return true;
+     },
+     select: (_data, response) => {
+-      const groups: unknown = response.total;
++      const groups: unknown = response.data;
+       return isArray(groups) ? groups : [];
+     },
+     withAccessToken: true,

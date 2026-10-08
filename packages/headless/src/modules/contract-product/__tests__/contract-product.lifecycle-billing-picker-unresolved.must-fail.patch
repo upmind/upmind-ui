@@ -1,0 +1,20 @@
+# Negative-control mutant — an id the picker does not list is refused before it is sent
+#
+# Spec it must flip: contract-product.client.unit.test.ts > "AC-45 — the billing-entity picker > picking an id that resolves to nothing is refused and sends nothing"
+# Mutation: the schema carries no `oneOf`, so an unlisted id passes the check.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+
+diff --git a/packages/headless/src/modules/contract-product/contract-product.schemas.ts b/packages/headless/src/modules/contract-product/contract-product.schemas.ts
+--- a/packages/headless/src/modules/contract-product/contract-product.schemas.ts
++++ b/packages/headless/src/modules/contract-product/contract-product.schemas.ts
+@@ -402,7 +402,7 @@
+       billing_entity: {
+         type: "string",
+         ...(current ? { default: current } : {}),
+-        ...(isEmpty(options) ? {} : { oneOf: options })
++        ...(isEmpty(options) ? {} : {})
+       }
+     }
+   };

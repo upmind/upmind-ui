@@ -1,16 +1,12 @@
-# Negative-control mutant — contract-product cancellation-body custom fields (AC-5/AC-22, R28-D6/D7)
+# Negative-control mutant — an empty custom-fields bag sends no custom_fields key
 #
-# Scenario it must flip: an empty (or absent) customFields bag emits no
-#   `custom_fields` key on the schedule-cancel write.
-# Test that goes red: contract-product.cancellation-mappers.test.ts >
-#   toScheduleCancellationBody > "emits no custom_fields key for an empty object"
-#   (with the guard gone `custom_fields: {}` is always spread onto the body,
-#   so `"custom_fields" in body` resolves `true` and the `toBe(false)` flips).
-# Mutation: `toScheduleCancellationBody` drops the `isEmpty` guard and always
-#   spreads `custom_fields`, even for an empty bag.
+# Spec it must flip: contract-product.cancellation-mappers.unit.test.ts > "toScheduleCancellationBody > emits no custom_fields key for an empty object"
+# Mutation: `toScheduleCancellationBody` drops its `isEmpty` guard on custom
+#   fields.
 #
 # Apply with:  git apply <this file>   (run from repo root)
 # Revert with: git apply -R <this file>
+
 diff --git a/packages/headless/src/modules/contract-product/contract-product.mappers.ts b/packages/headless/src/modules/contract-product/contract-product.mappers.ts
 index 472778942..097c28b93 100644
 --- a/packages/headless/src/modules/contract-product/contract-product.mappers.ts

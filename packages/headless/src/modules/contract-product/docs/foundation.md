@@ -2,7 +2,7 @@
 
 ## What it is
 
-The **contract-product** module is where a signed-in client reads and manages the individual products living inside their own contracts — the concrete, billable line items (a hosting plan, a domain, a service subscription) rather than the contract envelope that groups them. It offers two working surfaces over the same server resource: a **collection**, which lists and filters the client's own contract products for dashboards and browse views, and a **manager**, which loads one contract product in full detail and drives every change a client is allowed to make directly to it — pausing or resuming automatic renewal, requesting or withdrawing an immediate cancellation, booking or revoking a future-dated cancellation, and choosing whether its invoices consolidate with the rest of the contract's billing.
+The **contract-product** module is where a signed-in client reads and manages the individual products living inside their own contracts — the concrete, billable line items (a hosting plan, a domain, a service subscription) rather than the contract envelope that groups them. It offers two working surfaces over the same server resource: a **collection**, which lists and filters the client's own contract products for dashboards and browse views, and a **manager**, which loads one contract product in full detail and drives every change a client is allowed to make directly to it — pausing or resuming automatic renewal, requesting or withdrawing an immediate cancellation, booking or revoking a future-dated cancellation, choosing whether its invoices consolidate with the rest of the contract's billing, turning renewal invoicing on or off, raising the next invoice now, ending a trial early, labelling the product, and choosing which address or company the contract bills to.
 
 Cancellation of every kind is this module's responsibility, not the contract's: a contract only holds the list of product ids it groups, and every write that changes what happens to a product — including an immediate ("hard") cancellation request historically thought of as a contract-level action — is this module's write, addressed at one product at a time. The sibling **contract** module keeps exactly one write of its own: changing which stored payment method pays the contract's future invoices. It also never acts on behalf of another client or on a staff operator's authority; every read and write here resolves to the signed-in client's own identity, with one narrow exception: a client can be granted delegated access to another client's products, and the collection can choose whether or not to include those alongside the client's own — there is no dedicated view of only the delegated set.
 
@@ -19,6 +19,12 @@ Cancellation of every kind is this module's responsibility, not the contract's: 
   - **The whole form disappears, rather than offering a refused option, once**: the subscription has already stopped renewing with a calculated end date (auto-expiring), a hard request is already pending, or a future cancellation is already booked. Each of the three options additionally has its own narrower condition (a live subscription that is not already pending, for the soft and scheduled options; the platform's own cancellable flag, for the hard option; a computable billing anniversary, for the scheduled option).
 - **Invoice consolidation** — a subscription client can choose whether this product's future invoices are billed together with the rest of the contract's invoices, or kept separate. The form is offered only to a live (not staged), non-cancelled, non-lapsed subscription whose client-level consolidation preference is enabled or inherited and whose catalogue product itself allows consolidation.
 - **Change of plan** — a client can move a recurring single product to another plan its current plan allows, on the same billing term. The offer requires that the platform allows a modification, the product is active or suspended, plans are allowed, no hard cancellation request is pending, auto-expire is not set, the product is not a staged import and no pro-rata invoice from an earlier change is unpaid. The client picks a plan from a paged list, adjusts its options, sees the cost of the change from a dry run, and commits. The platform judges the commit; local validation does not gate it. The result is the invoice the change raised and whether an amount is left to pay. The plan's provision fields and trial choice are not offered.
+- **Lifecycle writes** — five single-call changes a client makes to one contract product. Each sends one request, and is accepted on every placed product, including a staged, cancelled, lapsed or flagged-fraudulent one, because the platform judges the request. Four of the five are offered only when the record's own facts allow them:
+  - **Renewal invoicing** is the product's own invoice generation for the next term. It is a different fact from "renews" (`renew`): stopping renewal books an end of term, and turning invoicing off stops the next invoice from being created. Turning it off is offered to a subscription whose invoicing is on, whose catalogue product allows it to stop (an absent answer counts as allowed), that is not on a trial, not awaiting auto-expiry, and not pending, cancelled or closed. Turning it on is offered to a subscription whose invoicing is off, outside auto-expiry, and not pending, cancelled or closed. The platform allows turning it off while unpaid invoices exist, and refuses only when the catalogue product does not allow it to stop (`409`). Any unpaid-invoice hint is the consumer's choice. The unpaid invoices of one contract product are a read of the invoices resource, filtered to that product.
+  - **Next invoice** is offered to a subscription that is not a staged import and that the platform reports as able to raise it now. The request carries the product's next invoice date when it has one. The platform returns the invoice it raised.
+  - **End of trial** is offered to a product on a trial that is not awaiting activation. A trial that ends in cancellation counts as a trial. The platform returns the invoice the end of trial raised, or `null` when it raised none. A trial ended by cancelling returns the platform's credit note (category `credit_note`).
+  - **Billing entity** is offered to a subscription. A client picks one address or one company. An address pick clears the company. A company pick carries the company's own address. The pick is validated against the picker's schema before it sends, and the picker opens on the entity the contract bills to now (the company when set, else the address). A pick equal to what the contract already bills to is not sent: the form closes and the write resolves the current product. A refusal by the platform keeps the form open with the pick.
+  - **Client label** is offered on every placed product. An empty string clears the label.
 - **Unpaid invoices** — a contract product carries its own list of recurring invoices that are currently outstanding; each is independently reported as "still due" or "still eligible to be cancelled", which are overlapping but not identical states (an adjusted invoice, for example, is still due but is no longer cancellable).
 
 ## Operations
@@ -37,12 +43,17 @@ Cancellation of every kind is this module's responsibility, not the contract's: 
 | 10  | **Book a future-dated cancellation**                                              | a valid future anniversary date, an optional reason and custom fields | The cancellation is scheduled; the re-read product reports it as booked                  |
 | 11  | **Revoke a booked future-dated cancellation**                                     | none                                                            | The booking is removed; the re-read product reports it as no longer booked                   |
 | 12  | **Set the invoice-consolidation preference** (open the form, then set it)         | the desired consolidation setting                                | The preference is applied; the re-read product reflects it. A choice equal to the current setting is not sent |
-| 13  | **Compute the valid future-cancellation date range**                              | the product's billing facts, and (to validate one) a candidate date | The earliest bookable date, and whether a given date lands on a valid anniversary        |
+| 13  | **Compute the valid future-cancellation date range**                              | the product's billing facts                                      | The earliest bookable date; later dates step whole billing cycles from it                |
 | 14  | **Judge an unpaid invoice's due/cancellable state**                               | one invoice                                                     | Whether it is still due, and whether it is still eligible to be included in a cancellation    |
 | 15  | **Include or exclude delegated products from the list**                           | a client-held choice, or an explicit request to turn exclusion off | The list scope changes accordingly — delegated products join the client's own, never replace them. Always excluded when nothing is delegated |
 | 16  | **Read how many plans a product can change to**                                     | the product's allowed plans                                      | A count of orderable, recurring plans in the contract's currency |
 | 17  | **List the plans a product can change to, and price a change**                    | a chosen plan and its options                                    | A paged list of plans on the current term; for a chosen plan, the cost of the change from a dry run (absent when the platform cannot price the choice) |
 | 18  | **Commit a change of plan**                                                       | the chosen plan and its options                                  | The invoice the change raised, and whether an amount is left to pay; the re-read product reflects the change |
+| 19  | **Turn renewal invoicing on or off**                                              | on or off                                                        | The invoicing is switched; the re-read product reflects it                                  |
+| 20  | **Raise the next invoice now**                                                    | none (the product's next invoice date travels in the body)      | The invoice the platform raised                                                             |
+| 21  | **End a trial early**                                                             | none                                                            | The invoice the end of trial raised, or `null` when it raised none                           |
+| 22  | **Set the client label**                                                          | a label of up to 255 characters; an empty string clears it       | The label is stored; the re-read product reflects it                                         |
+| 23  | **Change the billing entity**                                                     | one address, or one company                                     | The contract bills to the pick; the re-read product reflects it. A pick that fails validation rejects. A pick equal to the current entity is not sent and resolves the current product |
 
 **Additional always-on behaviours:**
 
@@ -51,7 +62,8 @@ Cancellation of every kind is this module's responsibility, not the contract's: 
 - Forcing a re-read of the list, or of one product.
 - Paging the list forward keeps the total the first page reported; the total is read only once the list's own addressability check has passed.
 - Reporting live state flags for a loaded product — whether it is active, cancelling, staged, cancelled, lapsed, flagged fraudulent, mid-trial, mid-setup, submitting a write, or carrying an error — and reporting whether the collection's own read is loading, empty, filtered, paginated, or has failed.
-- Both the cancellation form and the consolidation form stay open, mid-edit or mid-submit, without moving the product off its current status — a client can be mid-way through cancelling a product that is still reported as, say, "active" until the write actually settles.
+- A write that raises an invoice (raise the next invoice, end a trial, commit a change of plan) also refreshes the invoices list, so the new invoice and the product's unpaid set are not stale.
+- The cancellation, consolidation and billing-entity forms stay open, mid-edit or mid-submit, without moving the product off its current status — a client can be mid-way through cancelling a product that is still reported as, say, "active" until the write actually settles.
 
 ## Data shape
 
@@ -103,6 +115,16 @@ type ContractProduct = {
   canCancel: boolean;
   isDelegatedObject: boolean;
   autoCreateRenewInvoice: boolean;
+  /** The client's own label for the product (`client_label`); absent or empty when none is set. */
+  clientLabel?: string | null;
+  /** The platform reports the next invoice as raisable now (`can_create_next_invoice`). */
+  canCreateNextInvoice: boolean;
+  /** The date the next invoice is due (`next_invoice_date`); the date the next-invoice request sends. */
+  nextInvoiceDate?: string | null;
+  /** The address the contract bills to. Present on a single-product read only. A list row carries `undefined`, which does not mean no address. */
+  billingAddressId?: string | null;
+  /** The company the contract bills to. Present on a single-product read only. A list row carries `undefined`, which does not mean no company. */
+  billingCompanyId?: string | null;
   /** Each row is the invoice's line for this product; its status arrives on the wire as `invoice_status`, not `status`. */
   unpaidRecurringInvoices: { status?: { code: InvoiceStatus } }[];
   /** The members inside each scheduled action stay in their WIRE (snake_case)
@@ -174,6 +196,16 @@ type ScheduleCancellationModel = { futureCancellationDate: string; reason?: stri
 type SetConsolidationModel = { invoiceConsolidationEnabled: InvoiceConsolidationTypes };
 ```
 
+The five lifecycle writes take these inputs. The billing-entity pick is one address or one company, each by its record:
+
+```ts
+import type { Address, Company } from "@upmind-automation/headless";
+
+type AutoRenewInput = { on: boolean };
+type ClientLabelInput = { label: string }; // an empty string clears the label
+type BillingEntityChoice = { address: Address } | { company: Company };
+```
+
 `customFields` on every cancellation model is a plain `{ [fieldCode]: value }` map, not the definition-shaped list the platform's custom-field type uses elsewhere — the fields on offer come from the brand's own cancellation-request field catalogue, not from this module.
 
 The wire record underneath (`GET .../contract_products/{id}`) carries a `tags` array that the server returns but that is not yet declared on the shared platform contract-product interface; this module reads it through a local augmentation until the shared type catches up. Any `meta`/`object_meta` bag on the raw record is client-UI-specific and out of scope for this document.
@@ -195,7 +227,7 @@ The wire record underneath (`GET .../contract_products/{id}`) carries a `tags` a
 - **Localisation** — the human-readable failure messages returned when a write does not succeed.
 - **Product configurator** — the product module's configurator, spawned for the plan a client chooses in a change of plan.
 - **Product catalogue** — the plan count and the paged plan list of a change of plan.
-- **Invoices** — the invoice mapper that maps a change of plan's dry-run invoice.
+- **Invoices** — the invoice mapper that maps an invoice a write returns (a change of plan's dry run and commit, the next invoice, the end of trial).
 - **Brand** — the portal brand's tax type (for the formatted price) and its one-off-purchases visibility setting (for the forced hide).
 - **Lookups** — the shared lookup-item shape that status, tag and currency fields of the product view model are typed against (type only).
 - **Product titles** — the shared product title and product name rules the display title is built from.
@@ -357,23 +389,197 @@ curl -X PUT "$API/contracts/$CONTRACT_ID/products/$CONTRACT_PRODUCT_ID/change" \
 
 The body names the chosen plan, one entry per chosen option (with its term, quantity and, only when it differs from the old price, a price) and one per attribute. The commit sends the same body without `dry_run`. The response is the invoice the change raised.
 
+### PUT /contracts/{contractId}/products/{contractProductId}/stop_start_invoicing
+
+Role: turns renewal invoicing on or off. `invoicing: false` stops the next invoice from being created. `invoicing: true` resumes it. Not the same call as `modify_renew`.
+
+```bash
+curl -X PUT "$API/contracts/$CONTRACT_ID/products/$CONTRACT_PRODUCT_ID/stop_start_invoicing" \
+  -H "Authorization: Bearer $ACCESS_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"invoicing": false}'
+```
+
+Request body: `{"invoicing": false}` or `{"invoicing": true}`. The response data is the contract product record, excerpted here.
+
+```json
+{
+  "status": "ok",
+  "data": {
+    "id": "5d96e763-ed09-13d2-86ea-417482528340",
+    "contract_id": "4038696e-5472-1d56-d95a-518d9305e7d2",
+    "name": " Starter Hosting",
+    "renew": true,
+    "auto_create_renew_invoice": false,
+    "next_invoice_date": "2026-11-06"
+  },
+  "error": null,
+  "messages": [],
+  "meta": null,
+  "related": null
+}
+```
+
+Fixtures: `put-contracts-id-products-id-stop-start-invoicing.json` (`{"invoicing": false}` and `{"invoicing": true}`, 200).
+
+### POST /contracts/{contractId}/products/{contractProductId}/recurring
+
+Role: raises the next invoice now. The body is the product's next invoice date when it has one. With no date, the request has no body.
+
+```bash
+curl -X POST "$API/contracts/$CONTRACT_ID/products/$CONTRACT_PRODUCT_ID/recurring" \
+  -H "Authorization: Bearer $ACCESS_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"next_invoice_date": "2026-11-06"}'
+```
+
+Request body: `{"next_invoice_date": "<date>"}`, or no body when the product has no next invoice date. The response data is the invoice record, excerpted here.
+
+```json
+{
+  "status": "ok",
+  "data": {
+    "id": "98574264-8970-1206-e704-a21e325d0ed3",
+    "number": "QA-INV-26097",
+    "due_date": "2026-11-06",
+    "total_amount": 4.8,
+    "currency_id": "3825d96e-763e-d091-3dc4-174825283406",
+    "contract_id": "085e69d5-6237-197e-989a-218e940d4237"
+  },
+  "error": null,
+  "messages": [],
+  "meta": null,
+  "related": null
+}
+```
+
+Fixture: `post-contracts-id-products-id-recurring.json` (200).
+
+### POST /contracts/{contractId}/products/{contractProductId}/trial_end_action_manual
+
+Role: ends a trial early. No body. The response data is the invoice the end of trial raised, or `null` when it raised none.
+
+```bash
+curl -X POST "$API/contracts/$CONTRACT_ID/products/$CONTRACT_PRODUCT_ID/trial_end_action_manual" \
+  -H "Authorization: Bearer $ACCESS_TOKEN"
+```
+
+The request has no body. The success response data is the invoice the end of trial raised, excerpted here.
+
+```json
+{
+  "status": "ok",
+  "data": {
+    "id": "85d26e96-783d-1670-8389-f314502e7043",
+    "number": "QA-INV-26261",
+    "due_date": "2026-10-09",
+    "total_amount": 12,
+    "currency_id": "3825d96e-763e-d091-3dc4-174825283406",
+    "contract_id": "0e435795-e78d-1847-522a-31643202d986"
+  },
+  "error": null,
+  "messages": [],
+  "meta": null,
+  "related": null
+}
+```
+
+Fixture: `post-contracts-id-products-id-trial-end-action-manual.json` (200). One recorded capture is a `409` with the message "Clients are not allowed to manually select a billing cycle when migrating from a trial product!".
+
+### PUT /contract_products/{contractProductId}
+
+Role: sets the client label. This is the product path, not the contract path: the label belongs to the contract product alone.
+
+```bash
+curl -X PUT "$API/contract_products/$CONTRACT_PRODUCT_ID" \
+  -H "Authorization: Bearer $ACCESS_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"client_label": ""}'
+```
+
+Request body: `{"client_label": "<label>"}`. The response data is the contract product record, excerpted here.
+
+```json
+{
+  "status": "ok",
+  "data": {
+    "id": "03679424-d0e7-1095-096a-3153698d582e",
+    "contract_id": "0e435795-e78d-1847-330a-31643202d986",
+    "name": " Starter Hosting",
+    "client_label": ""
+  },
+  "error": null,
+  "messages": [],
+  "meta": null,
+  "related": null
+}
+```
+
+Fixture: `put-contract-products-id.json` (`{"client_label": ""}`, 200). A label over 255 characters returns `422` with the message under `error.data.client_label`.
+
+### PUT /contracts/{contractId}/address_company_vat
+
+Role: changes the billing entity. Contract-scoped, with no product id. An address pick sends `company_id: null`. A company pick sends the company's own address with the company.
+
+```bash
+curl -X PUT "$API/contracts/$CONTRACT_ID/address_company_vat" \
+  -H "Authorization: Bearer $ACCESS_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"address_id": "<address id>", "company_id": null}'
+```
+
+Request body: `{"address_id": "<id>", "company_id": "<id>" | null}`. The response data is the contract record, excerpted here.
+
+```json
+{
+  "status": "ok",
+  "data": {
+    "id": "d7382485-0793-153e-250b-81e642d59e06",
+    "company_id": "2785d26e-9678-3d16-737f-314502e70439",
+    "address_id": "20e43579-5e78-d184-78db-31643202d986",
+    "billing_cycle_months": 1,
+    "currency_id": "3825d96e-763e-d091-3dc4-174825283406",
+    "total_amount": 4
+  },
+  "error": null,
+  "messages": [],
+  "meta": null,
+  "related": null
+}
+```
+
+Fixture: `put-contracts-id-address-company-vat.json` (an address pick `{"address_id": "...", "company_id": null}` and a company pick `{"address_id": "...", "company_id": "..."}`, 200). The body has no tax field: the tax number travels with the company.
+
 ## Failure modes
 
 - **An unauthenticated or unaddressable caller** — every read and write rejects rather than silently returning nothing, so a caller cannot mistake "not signed in" for "the client has no products".
 - **An unrecognised status code** — a product whose status does not match any of the module's published codes settles on the module's error state at once: the settled read is checked against one ordered list of status conditions, and a record that matches none records a status error. A caller's readiness check resolves `false` immediately, with no wait. The product never reports itself as "active" or as any other status. A fresh read re-runs the load and re-checks the status.
-- **A write attempted from the wrong lifecycle point** — stopping/resuming renewal or setting consolidation on a one-time (non-subscription) product is refused rather than sent to the server; a caller checks the relevant state flag first. Booking a future-dated cancellation carries NO such client-side check: the module sends whatever date the caller supplies, valid anniversary or not, and the module publishes the maths (see Compute the valid future-cancellation date range) purely as a helper — a caller that wants to refuse an invalid date must call it and check the result itself before booking.
+- **A write attempted from the wrong lifecycle point** — stopping/resuming renewal or setting consolidation on a one-time (non-subscription) product is refused rather than sent to the server; a caller checks the relevant state flag first. Booking a future-dated cancellation carries NO such client-side check: the module sends whatever date the caller supplies, valid anniversary or not, and the module publishes the earliest bookable date (see Compute the valid future-cancellation date range) purely as a helper — a caller that wants to refuse an invalid date must offer only that date and whole billing cycles after it.
 - **A second write while one is already in flight** — the module resolves the product to one definite state before accepting the next write; a caller that fires a second write while the first is still processing is left to the same one-write-at-a-time discipline the platform enforces generally.
 - **Submitting the open form with an invalid selection** — the module validates the open form's model against its own schema before any request leaves; an invalid model (a missing required field, a `SCHEDULE_FUTURE` option with no date) never reaches the server at all, and the form's own error state reports the rejection.
 - **A permission check this module does not make** — the platform's own cancellation and consolidation permission model is not read here at all: the module offers every option its record facts allow, with no separate permission read behind it (see Lessons).
+- **A lifecycle write the record does not allow** — the request is refused before it leaves, so nothing is sent.
+- **A lifecycle write on a staged, cancelled, lapsed or flagged-fraudulent product** — the request is sent when the record's own facts allow it. The platform judges it. A refusal rejects the write.
+- **A billing-entity pick that equals the current entity** — nothing is sent and the write resolves the current product.
+- **A billing-entity pick that fails validation** — nothing is sent and the write rejects with the validation errors.
+- **An end of trial that the platform refuses** — the platform answers `409`, and the write rejects.
+- **An end of trial that raises no invoice** — the request succeeds and the response data is `null`.
+- **An end of trial by cancelling** — the response data is the platform's credit note (category `credit_note`).
 - **A dry run that fails** — the module shows no cost and raises no error; the commit stays available and the platform judges it.
 - **A commit refused by the platform** — the write rejects and the form stays open on the chosen plan with its error.
 
 ## Lessons (hard-won)
 
+- **Renewal invoicing and renewal are two facts.** Stopping renewal books an end of term. Turning invoicing off stops the next invoice from being created. A product can show either, both or neither, and the two writes go to different endpoints.
+- **Unpaid invoices do not close the invoicing switch-off.** The platform allows it with unpaid invoices and refuses only when the catalogue product does not allow it to stop. The product record carries a list of unpaid recurring invoices, but the full set is a filtered read of the invoices resource, for a consumer that wants to show a hint.
+- **The billing entity is absent on a list row.** The list read does not include the contract, so the address and company the contract bills to are `undefined` on every row. `undefined` does not mean the contract has no address or no company.
+- **A write that raises an invoice leaves two caches behind.** The product and the invoices list both change. The invoices list can be cached for a day, so a raised invoice is missing from it until the list is read again.
+- **An absent platform answer counts as allowed.** The catalogue product's own "may stop invoicing" flag can be missing. The offer treats missing as allowed, which matches the platform's own reading.
+
 - **A contract product's lifecycle is three parallel facts, not one status string.** A product can be simultaneously "active" and "on a trial that is ending soon" and "setup is still incomplete" — treating status/setup/trial as one linear state loses information a caller needs (e.g. a client should see both "your subscription is active" and "finish your setup" at once, not one or the other).
 - **"Not cancellable yet" and "not due" are different facts about the same unpaid invoice.** An invoice that has already been adjusted is still due (it must still be paid or resolved) but is no longer eligible to be swept up into a cancellation; conflating the two under a single "unpaid" flag would let a caller offer to cancel an invoice that the server will refuse.
-- **A future cancellation date is only valid on a billing anniversary.** It is not simply "today or later" — a client-picked date has to land exactly on the product's next-due-date, or that date plus a whole number of billing cycles, and not fall before the next anniversary that is still strictly in the future. A caller building a date picker needs both the earliest bookable date and a per-date validity check, not just a minimum bound.
-- **The exclude-delegated flag depends on whether anything is delegated at all.** A client with nothing delegated always sends "exclude", so a previously held "include" choice has no effect for them. A client with delegated products gets their held choice, and "include" when none is held. The list read is gated on the client id alone, not on the held choice, so the first read can go out with "include" before a stored "exclude" choice has loaded.
-- **The billing-anniversary maths is a helper, not a gate.** The write that books a future cancellation sends whatever date it is given — the module never refuses an off-anniversary date itself. A caller that wants that refusal to be client-side (rather than discovered from the server's response) has to call the minimum-date and validity helpers and act on the result before sending the write.
-- **The whole cancellation form vanishes rather than degrading to a smaller offer.** Once auto-expire is already set up, a hard request is already pending, or a future date is already booked, the module offers NONE of the three cancellation options — not "whichever ones still make sense". A caller cannot assume seeing zero options means "cancellation is unsupported for this product" versus "cancellation is already in motion for this product"; the record's own request/schedule/renewal facts distinguish the two, the options list alone does not.
-- **The consolidation and cancellation forms read no permission and no brand setting.** Both are gated purely on the product/client record facts this module already reads — a live, non-staged subscription and the client's own consolidation preference for consolidation; the record's cancellation and scheduling facts alone for cancellation. The platform's own actor-permission model (whether this particular signed-in identity is allowed to modify this product at all) is a known gap, not a considered omission — a caller relying on this module to enforce that permission is relying on something it does not do.
+- **A future cancellation date is only valid on a billing anniversary.** It is not simply "today or later". A client-picked date has to land exactly on the product's next-due-date, or on that date plus a whole number of billing cycles. It must not fall before the next anniversary that is still strictly in the future. A caller building a date picker needs both the earliest bookable date and a per-date validity check, not just a minimum bound.
+- **The exclude-delegated flag depends on whether anything is delegated at all.** A client with nothing delegated always sends "exclude", so a previously held "include" choice has no effect for them. A client with delegated products gets their held choice, and "include" when none is held. The list read waits on the client id alone, not on the held choice. So the first read can go out with "include" before a stored "exclude" choice has loaded.
+- **The billing-anniversary maths is a helper, not a gate.** The write that books a future cancellation sends whatever date it is given — the module never refuses an off-anniversary date itself. A caller can refuse an off-anniversary date on the client side, rather than learn of it from the server's response. To do so, it offers only the minimum date and whole billing cycles after it before it sends the write.
+- **The whole cancellation form vanishes rather than degrading to a smaller offer.** Once auto-expire is set up, a hard request is pending, or a future date is booked, the module offers NONE of the three cancellation options. It does not offer "whichever ones still make sense". A caller cannot assume that zero options means "cancellation is unsupported for this product". It can also mean "cancellation is already in motion for this product". The record's own request, schedule and renewal facts tell the two apart. The options list alone does not.
+- **The consolidation and cancellation forms read no permission and no brand setting.** Both read only the product and client record facts this module already holds. Consolidation needs a live, non-staged subscription and the client's own consolidation preference. Cancellation needs the record's cancellation and scheduling facts alone. The platform's own actor-permission model is a known gap, not a considered omission. That model decides whether this signed-in identity may modify this product at all. A caller that relies on this module to enforce that permission relies on something it does not do.

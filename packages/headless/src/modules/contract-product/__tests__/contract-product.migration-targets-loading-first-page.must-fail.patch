@@ -1,22 +1,20 @@
-# Negative-control mutant 52 — targets-loading-first-page (FE-3206)
+# Negative-control mutant — the first-page flag is false while more plans load
 #
-# Mutation: Let the first-page flag stay true during load-more.
-# Spec it must turn red: a unit spec: `isMigrationTargetsLoading` is false while `isMigrationTargetsLoadingMore` is true (prover authors it; this patch is the contract).
-#
-# Authored by the developer seat against the landed production source. The
-# prover applies it blind (tasks.md T41): apply, run the named spec, revert.
+# Spec it must flip: contract-product.migration.unit.test.ts > "AC-28 — the list load states"
+# Mutation: `isMigrationTargetsLoading` stays true during a load-more.
 #
 # Apply with:  git apply <this file>   (run from repo root)
 # Revert with: git apply -R <this file>
+
 diff --git a/packages/headless/src/modules/contract-product/useContractProduct.meta.ts b/packages/headless/src/modules/contract-product/useContractProduct.meta.ts
 --- a/packages/headless/src/modules/contract-product/useContractProduct.meta.ts
 +++ b/packages/headless/src/modules/contract-product/useContractProduct.meta.ts
-@@ -319,7 +319,7 @@ export function createContractProductMeta(
- 
-     /** True while the plan list loads its first page. */
-     isMigrationTargetsLoading: computed(
--      () => !!listMeta.value?.isLoading && !listMeta.value.isLoadingMore
-+      () => !!listMeta.value?.isLoading
-     ),
- 
-     /** True while the plan list loads another page. */
+@@ -207,7 +207,7 @@
+       !!listMeta.value && !listMeta.value.isLoading && listMeta.value.isEmpty
+   );
+   const isMigrationTargetsLoading = computed(
+-    () => !!listMeta.value?.isLoading && !listMeta.value.isLoadingMore
++    () => !!listMeta.value?.isLoading
+   );
+   const isMigrationTargetsLoadingMore = computed(
+     () => !!listMeta.value?.isLoadingMore

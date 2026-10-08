@@ -1,22 +1,20 @@
-# Negative-control mutant 53 — option-price-discount-order (FE-3206)
+# Negative-control mutant — an option the plan discounts carries the discounted price
 #
-# Mutation: Prefer `price` over `price_discounted`.
-# Spec it must turn red: the AC-32 unit case with a non-null `price_discounted` that differs from `price` (prover authors it; this patch is the contract).
-#
-# Authored by the developer seat against the landed production source. The
-# prover applies it blind (tasks.md T41): apply, run the named spec, revert.
+# Spec it must flip: contract-product.migration.unit.test.ts > "AC-32 — the change body > an option the plan discounts carries the discounted price"
+# Mutation: `price` is preferred over `price_discounted`.
 #
 # Apply with:  git apply <this file>   (run from repo root)
 # Revert with: git apply -R <this file>
-diff --git a/packages/headless/src/modules/contract-product/contract-product.utils.ts b/packages/headless/src/modules/contract-product/contract-product.utils.ts
---- a/packages/headless/src/modules/contract-product/contract-product.utils.ts
-+++ b/packages/headless/src/modules/contract-product/contract-product.utils.ts
-@@ -433,7 +433,7 @@ function optionUnitTotal(
+
+diff --git a/packages/headless/src/modules/contract-product/contract-product.mappers.ts b/packages/headless/src/modules/contract-product/contract-product.mappers.ts
+--- a/packages/headless/src/modules/contract-product/contract-product.mappers.ts
++++ b/packages/headless/src/modules/contract-product/contract-product.mappers.ts
+@@ -481,7 +481,7 @@
          price.currency_id === input.currencyId)
    );
  
--  return first(without([row?.price_discounted, row?.price], null)) as
-+  return first(without([row?.price, row?.price_discounted], null)) as
-     | number
-     | undefined;
+-  const price = first(without([row?.price_discounted, row?.price], null));
++  const price = first(without([row?.price, row?.price_discounted], null));
+ 
+   return isNil(price) ? undefined : price;
  }

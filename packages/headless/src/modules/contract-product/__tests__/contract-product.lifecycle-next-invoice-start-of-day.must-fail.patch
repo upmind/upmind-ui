@@ -1,0 +1,21 @@
+# Negative-control mutant — a next invoice date of today reads as in the future
+#
+# Spec it must flip: contract-product.client.unit.test.ts > "AC-38 — isNextInvoiceDateInFuture > reads a date of today (UTC) as in the future until UTC midnight"
+# Mutation: `isNextInvoiceDateInFuture` compares the start of the UTC day.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+
+diff --git a/packages/headless/src/modules/contract-product/contract-product.utils.ts b/packages/headless/src/modules/contract-product/contract-product.utils.ts
+index 149d0f25fc..f065bfa800 100644
+--- a/packages/headless/src/modules/contract-product/contract-product.utils.ts
++++ b/packages/headless/src/modules/contract-product/contract-product.utils.ts
+@@ -543,7 +543,7 @@ export function isNextInvoiceDateInFuture(
+ ): boolean {
+   return (
+     !!product.nextInvoiceDate &&
+-    dayjs.utc(product.nextInvoiceDate).endOf("day").isAfter(dayjs())
++    dayjs.utc(product.nextInvoiceDate).startOf("day").isAfter(dayjs())
+   );
+ }
+ 

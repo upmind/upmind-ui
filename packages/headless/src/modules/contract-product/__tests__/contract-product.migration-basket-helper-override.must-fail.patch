@@ -1,21 +1,19 @@
-# Negative-control mutant 41 — basket-helper-override (FE-3206)
+# Negative-control mutant — the configurator holds no basket helper
 #
-# Mutation: drop the `setBasketHelper` override.
-# Spec it must turn red: the AC-29 unit spec, no basket helper.
-#
-# Authored by the developer seat against the landed production source. The
-# prover applies it blind (tasks.md T41): apply, run the named spec, revert.
+# Spec it must flip: contract-product.migration.unit.test.ts > "AC-29 — no basket helper"
+# Mutation: the `setBasketHelper` override is dropped.
 #
 # Apply with:  git apply <this file>   (run from repo root)
 # Revert with: git apply -R <this file>
+
 diff --git a/packages/headless/src/modules/contract-product/contract-product.utils.ts b/packages/headless/src/modules/contract-product/contract-product.utils.ts
 --- a/packages/headless/src/modules/contract-product/contract-product.utils.ts
 +++ b/packages/headless/src/modules/contract-product/contract-product.utils.ts
-@@ -560,7 +560,6 @@
-  */
- export const migrationTargetConfig = {
-   actions: {
--    setBasketHelper: assign<ProductConfigContext, AnyEventObject>({}),
-     calculate: sendParent<ProductConfigContext, AnyEventObject, AnyEventObject>(
-       (context: ProductConfigContext): AnyEventObject => ({
-         type: "MIGRATION.CHANGED",
+@@ -445,7 +445,6 @@
+       })
+       .withConfig({
+         actions: {
+-          setBasketHelper: assign<ProductConfigContext, AnyEventObject>({}),
+           calculate: sendParent<
+             ProductConfigContext,
+             AnyEventObject,

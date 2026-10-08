@@ -1,7 +1,7 @@
 import { fileURLToPath } from "node:url";
 import { resolve } from "path";
 import vue from "@vitejs/plugin-vue";
-import { defaultExclude, defineConfig, mergeConfig } from "vitest/config";
+import { defineConfig, mergeConfig } from "vitest/config";
 import { workerPool } from "../../vitest.workers";
 import type { Alias } from "vite";
 
@@ -113,12 +113,6 @@ const alias: Alias[] = [
   }
 ];
 
-// The audit gates read the tree off disk rather than importing it, so they run
-// in their own node lane. Their files sit inside `modules/scenarios/__tests__`,
-// which the "module" project also matches — hence the same list is subtracted
-// there, or every audit runs twice, once in an environment it has no use for.
-const auditInclude = ["modules/scenarios/__tests__/*vocabulary*.spec.ts"];
-
 const base = defineConfig({
   plugins: [vue()],
   resolve: { alias },
@@ -130,7 +124,7 @@ export default defineConfig({
     // The worker ceiling belongs HERE, on the root `test` object — never in
     // `base` above, and never inside a `projects[]` entry.
     //
-    // All four projects below share ONE memoised fork pool: vitest buckets
+    // All three projects below share ONE memoised fork pool: vitest buckets
     // specs by pool TYPE, not by project (`coverage.DL5VHqXY.js:3410-3419`),
     // and sizes that single pool from the ROOT context
     // (`:2610-2613` — `vitest.config.maxWorkers ?? cores-1`). A cap merged
@@ -148,8 +142,6 @@ export default defineConfig({
             name: "unit",
             environment: "node",
             include: [
-              "app/composables/**/__tests__/**/*.spec.ts",
-              "app/services/**/__tests__/**/*.spec.ts",
               "modules/scenarios/runtime/composables/**/__tests__/**/*.spec.ts",
               "modules/scenarios/runtime/force/**/__tests__/**/*.spec.ts"
             ]
@@ -163,18 +155,6 @@ export default defineConfig({
             name: "component",
             environment: "jsdom",
             include: [
-              "app/components/**/__tests__/**/*.spec.ts",
-              // The funnel is not a component, but its `?init` guard clears the
-              // param with a real `history.replaceState` — so it needs a
-              // document, and the `unit` project is `environment: "node"`.
-              "app/funnels/**/__tests__/**/*.spec.ts",
-              "app/layouts/**/__tests__/**/*.spec.ts",
-              "app/pages/**/__tests__/**/*.spec.ts",
-              "app/shell/**/__tests__/**/*.spec.ts",
-              // A Nuxt plugin renders nothing, but it boots the domain packages
-              // and the ui plugin set, so it needs a document — not the node lane
-              // its "not a component" shape suggests.
-              "app/plugins/**/__tests__/**/*.spec.ts",
               "modules/scenarios/runtime/components/**/__tests__/**/*.spec.ts"
             ],
             setupFiles: ["modules/scenarios/testing/component.setup.ts"]
@@ -192,27 +172,12 @@ export default defineConfig({
             name: "module",
             environment: "jsdom",
             include: ["modules/scenarios/__tests__/**/*.spec.ts"],
-            exclude: [...defaultExclude, ...auditInclude],
             // The registrar's own seam with the app mounts components — the
             // derived navigation resolves a scenario's declared `nav.i18n` —
             // so this lane needs the same installed catalogue the component
             // lane does, for the same reason: a missing translator is a raw
             // key on screen that still passes a shape assertion.
             setupFiles: ["modules/scenarios/testing/component.setup.ts"],
-            testTimeout: 20000
-          }
-        })
-      ),
-      mergeConfig(
-        base,
-        defineConfig({
-          test: {
-            name: "audits",
-            environment: "node",
-            include: auditInclude,
-            // A gate that walks `app/** + modules/**` on disk is IO-bound and
-            // widens twice more (T2.6, T6.2); the default 5s is the run's only
-            // ceiling it could ever reach.
             testTimeout: 20000
           }
         })

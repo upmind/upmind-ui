@@ -29,7 +29,7 @@ import { beforeAll, describe, expect, it } from "vitest";
 import { createMemoryHistory, createRouter } from "vue-router";
 import { parseScopeSuffix } from "../../../app/composables/scope";
 import routerOptions from "../../../app/router.options";
-import { scanDeclaredParams } from "../declared-params";
+import { scanDeclaredPage, scanDeclaredParams } from "../declared-params";
 import { SCENARIO_ROUTE_META_KEY } from "../runtime/scenario.constants";
 import { registerScenarioRoutes } from "./nuxt-build-context";
 import {
@@ -82,15 +82,20 @@ function declaredParamsOf(name: string): string[] {
 }
 
 /**
- * The page a module draws itself with, when it ships one — the same file the
- * registrar switches on. A module without one is drawn by the shared
+ * The page a module declares for itself, when it names one — the same literal
+ * the registrar reads. A module without one is drawn by the shared
  * playground, and both routes are registered identically otherwise.
  */
 const ownPageOf = (directory: string): string | undefined => {
-  const own = find(readdirSync(join(MODULE_DIR, directory)), file =>
-    file.endsWith(".page.vue")
+  const declaration = find(readdirSync(join(MODULE_DIR, directory)), file =>
+    file.endsWith(".scenario.ts")
   );
-  return own && join(MODULE_DIR, directory, own);
+  const page =
+    declaration &&
+    scanDeclaredPage(
+      readFileSync(join(MODULE_DIR, directory, declaration), "utf-8")
+    );
+  return page && join(MODULE_DIR, directory, page);
 };
 
 /** The client-emails page, and the editor its rows hand off to. */

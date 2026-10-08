@@ -1,0 +1,23 @@
+# Negative-control mutant — a billing write the platform refuses keeps the form and the pick
+#
+# Spec it must flip: contract-product.replay.int.test.ts > "@AC-44 A billing-entity change that the platform refuses keeps my pick"
+# Mutation: a refused billing write re-reads the product, which drops the form.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+
+diff --git a/packages/headless/src/modules/contract-product/contract-product.machine.ts b/packages/headless/src/modules/contract-product/contract-product.machine.ts
+--- a/packages/headless/src/modules/contract-product/contract-product.machine.ts
++++ b/packages/headless/src/modules/contract-product/contract-product.machine.ts
+@@ -700,10 +700,7 @@
+                         invoke: {
+                           src: "setBillingEntity",
+                           onDone: { target: "#loading" },
+-                          onError: {
+-                            target: "#billingEntity.available.error",
+-                            actions: ["setError"]
+-                          }
++                          onError: { target: "#loading", actions: ["setError"] }
+                         }
+                       }
+                     }

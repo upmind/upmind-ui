@@ -1,0 +1,20 @@
+# Negative-control mutant — a cancelled subscription is offered a billing-entity change
+#
+# Spec it must flip: contract-product.client.unit.test.ts > "AC-41 — the billing entity of an unavailable product > is offered on a cancelled subscription"
+# Mutation: the meta `canSetBillingEntity` requires an `available` node.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+
+diff --git a/packages/headless/src/modules/contract-product/useContractProduct.meta.ts b/packages/headless/src/modules/contract-product/useContractProduct.meta.ts
+--- a/packages/headless/src/modules/contract-product/useContractProduct.meta.ts
++++ b/packages/headless/src/modules/contract-product/useContractProduct.meta.ts
+@@ -142,7 +142,7 @@
+       canScheduleFutureCancellation(contractProduct.value)
+   );
+   const canSetBillingEntity = computed(
+-    () => isLifecycleOpen.value && !!contractProduct.value?.isSubscription
++    () => isAvailable.value && !!contractProduct.value?.isSubscription
+   );
+   const canUpdateContractProduct = computed(
+     () => isLifecycleOpen.value && !!contractProduct.value

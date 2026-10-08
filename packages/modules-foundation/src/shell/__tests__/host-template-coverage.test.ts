@@ -63,18 +63,6 @@ const RECORDS: Array<{
     types: "apps/portal-nuxt/app/portal/billing/types.ts"
   },
   {
-    host: "labs-nuxt",
-    page: "auth",
-    record: "playgrounds/labs-nuxt/app/shell/shell.ts",
-    types: "playgrounds/labs-nuxt/app/shell/modules/session/types.ts"
-  },
-  {
-    host: "labs-nuxt",
-    page: "order",
-    record: "playgrounds/labs-nuxt/app/shell/shell.ts",
-    types: "playgrounds/labs-nuxt/app/shell/modules/order/types.ts"
-  },
-  {
     host: "cart",
     page: "auth",
     record: "apps/cart/src/shell/modules/session/shell.ts",

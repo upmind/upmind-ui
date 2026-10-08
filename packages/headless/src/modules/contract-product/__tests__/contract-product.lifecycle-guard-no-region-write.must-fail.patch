@@ -1,0 +1,20 @@
+# Negative-control mutant — resume, withdraw and revoke are refused while a form-region write is in flight
+#
+# Spec it must flip: contract-product.replay.int.test.ts > "@AC-7 Change my mind about a cancellation I asked for"; "@AC-23 Revoke a scheduled cancellation"
+# Mutation: the `hasNoRegionWrite` guard always refuses.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+
+diff --git a/packages/headless/src/modules/contract-product/contract-product.machine.ts b/packages/headless/src/modules/contract-product/contract-product.machine.ts
+--- a/packages/headless/src/modules/contract-product/contract-product.machine.ts
++++ b/packages/headless/src/modules/contract-product/contract-product.machine.ts
+@@ -1214,7 +1214,7 @@
+         _context: ContractProductContext,
+         _event: AnyEventObject,
+         { state }
+-      ) => !hasRegionWrite(state),
++      ) => !state,
+ 
+       canSetAutoRenew: (
+         { contractProduct }: ContractProductContext,

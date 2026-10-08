@@ -1,0 +1,20 @@
+# Negative-control mutant — the label is validated before it is sent
+#
+# Spec it must flip: contract-product.client.unit.test.ts > "AC-40 — the label is validated before it is sent > refuses a label the platform refuses as too long, and sends nothing"
+# Mutation: the label check validates nothing, so a label over 255 characters is
+#   sent.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+
+diff --git a/packages/headless/src/modules/contract-product/contract-product.services.ts b/packages/headless/src/modules/contract-product/contract-product.services.ts
+--- a/packages/headless/src/modules/contract-product/contract-product.services.ts
++++ b/packages/headless/src/modules/contract-product/contract-product.services.ts
+@@ -548,7 +548,6 @@
+     { data }: AnyEventObject
+   ): Promise<ClientLabelModel> => {
+     const model = { client_label: data.label };
+-    await validateForm({ schema: useClientLabelSchema(), model });
+     return model;
+   },
+   requestSoftCancel: context =>

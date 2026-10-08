@@ -1,25 +1,20 @@
 # Negative-control mutant — the manager publishes a refused form's field errors
 #
-# Scenario it must flip: contract-product.feature >
-#   "A cancellation form I submit without a choice is not sent and tells me why"
-# Test that goes red: contract-product.replay.int.test.ts > that scenario —
-#   "Then I am shown that an option is required" — the manager context publishes
-#   no `validationErrors` member.
-# Mutation: drops the `validationErrors` member from the manager context factory.
+# Spec it must flip: contract-product.replay.int.test.ts > "A cancellation form I submit without a choice is not sent and tells me why"
+# Mutation: the context's `validationErrors` reads a path no error carries.
 #
 # Apply with:  git apply <this file>   (run from repo root)
 # Revert with: git apply -R <this file>
+
 diff --git a/packages/headless/src/modules/contract-product/useContractProduct.context.ts b/packages/headless/src/modules/contract-product/useContractProduct.context.ts
 --- a/packages/headless/src/modules/contract-product/useContractProduct.context.ts
 +++ b/packages/headless/src/modules/contract-product/useContractProduct.context.ts
-@@ -99,9 +99,6 @@ export function createContractProductContext(
-     scheduledActions,
+@@ -141,7 +141,7 @@
+     title,
  
-     /** Display title of the product. */
--    title,
--
--    /** Field-level validation errors (AJV `ErrorObject[]`) — read, never raised. */
+     /** Field-level validation errors (AJV `ErrorObject[]`) — read, never raised. */
 -    validationErrors: useContext<ErrorObject[]>(state, "error.data")
-+    title
++    validationErrors: useContext<ErrorObject[]>(state, "error.errors")
    };
  }
+ 

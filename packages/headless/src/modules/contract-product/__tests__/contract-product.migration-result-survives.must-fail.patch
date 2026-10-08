@@ -1,27 +1,21 @@
-# Negative-control mutant 27 — result-survives (FE-3206)
+# Negative-control mutant — the commit's result survives the re-read
 #
-# Mutation: clear `migrationResult` on the `loading` entry.
-# Spec it must turn red: "Change my subscription ...", the last line.
-#
-# Authored by the developer seat against the landed production source. The
-# prover applies it blind (tasks.md T41): apply, run the named spec, revert.
+# Spec it must flip: contract-product.migration.unit.test.ts > "AC-31 — the invoice of a commit > outlives the re-read of my product"
+# Mutation: the `loading` entry clears the migration result.
 #
 # Apply with:  git apply <this file>   (run from repo root)
 # Revert with: git apply -R <this file>
+
 diff --git a/packages/headless/src/modules/contract-product/contract-product.machine.ts b/packages/headless/src/modules/contract-product/contract-product.machine.ts
 --- a/packages/headless/src/modules/contract-product/contract-product.machine.ts
 +++ b/packages/headless/src/modules/contract-product/contract-product.machine.ts
-@@ -88,7 +88,12 @@
-         // A form's context slot is the form's own — outliving the read that
-         // re-placed the product would leave a page drawing a dead form beside
-         // its re-shown "open" control.
--        entry: ["clearCancellation", "clearConsolidation", "clearMigration"],
-+        entry: [
-+          "clearCancellation",
-+          "clearConsolidation",
+@@ -81,7 +81,8 @@
+           "clearCancellation",
+           "clearConsolidation",
+           "clearBillingEntity",
+-          "clearMigration"
 +          "clearMigration",
 +          "clearMigrationResult"
-+        ],
+         ],
          invoke: {
            src: "load",
-           // The settled read places the status node; the guards read the

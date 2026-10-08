@@ -1,0 +1,34 @@
+# Negative-control mutant — a trial that ends by cancelling can be ended early
+#
+# Spec it must flip: contract-product.client.unit.test.ts > "AC-39 — canEndTrial > is open on a trial that ends by cancelling"
+# Mutation: `canEndTrial` refuses a trial whose end action cancels.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+
+diff --git a/packages/headless/src/modules/contract-product/contract-product.utils.ts b/packages/headless/src/modules/contract-product/contract-product.utils.ts
+--- a/packages/headless/src/modules/contract-product/contract-product.utils.ts
++++ b/packages/headless/src/modules/contract-product/contract-product.utils.ts
+@@ -5,7 +5,8 @@
+   CancellationRequestStatusCodes,
+   ContractStatusCodes,
+   InvoiceConsolidationTypes,
+-  ProductTypes
++  ProductTypes,
++  TrialEndActionTypes
+ } from "@upmind-automation/types";
+ import { productMachine } from "../product";
+ import { BACKEND_DATE_FORMAT } from "../stats";
+@@ -359,7 +360,11 @@
+ export function canEndTrial(
+   product: Pick<ContractProduct, "inTrial" | "meta">
+ ): boolean {
+-  return product.inTrial && !product.meta.isAwaitingActivation;
++  return (
++    product.inTrial &&
++    !product.meta.isAwaitingActivation &&
++    product.trialEndAction !== TrialEndActionTypes.CANCEL
++  );
+ }
+ 
+ /**

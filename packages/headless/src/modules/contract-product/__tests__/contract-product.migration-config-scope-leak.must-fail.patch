@@ -1,21 +1,19 @@
-# Negative-control mutant 48 — config-scope-leak (FE-3206)
+# Negative-control mutant — a rebuilt holder stops the scope before it
 #
-# Mutation: rebuild a holder with no `stop()` of the old `effectScope`.
-# Spec it must turn red: the AC-34 unit spec, one change of plan at a time (the rebuild case).
-#
-# Authored by the developer seat against the landed production source. The
-# prover applies it blind (tasks.md T41): apply, run the named spec, revert.
+# Spec it must flip: contract-product.migration.unit.test.ts > "AC-34 — one change of plan at a time > a rebuild of the configurator lets go of the configurator before it"
+# Mutation: a holder rebuild drops the old effect scope without stopping it.
 #
 # Apply with:  git apply <this file>   (run from repo root)
 # Revert with: git apply -R <this file>
+
 diff --git a/packages/headless/src/modules/contract-product/useContractProduct.ts b/packages/headless/src/modules/contract-product/useContractProduct.ts
 --- a/packages/headless/src/modules/contract-product/useContractProduct.ts
 +++ b/packages/headless/src/modules/contract-product/useContractProduct.ts
-@@ -71,7 +71,6 @@
+@@ -79,7 +79,6 @@
    let last: TInputs | null | undefined;
  
-   function stop() {
+   const stop = (): void => {
 -    scope?.stop();
      scope = undefined;
      holder.value = null;
-   }
+   };

@@ -1,0 +1,20 @@
+# Negative-control mutant — the billing-entity pick is validated before it is sent
+#
+# Spec it must flip: contract-product.client.unit.test.ts > "AC-45 — the billing-entity picker > picking an id that resolves to nothing is refused and sends nothing"
+# Mutation: the billing-entity check validates nothing.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+
+diff --git a/packages/headless/src/modules/contract-product/contract-product.services.ts b/packages/headless/src/modules/contract-product/contract-product.services.ts
+--- a/packages/headless/src/modules/contract-product/contract-product.services.ts
++++ b/packages/headless/src/modules/contract-product/contract-product.services.ts
+@@ -542,7 +542,7 @@
+   loadCancellationFields: () => service.loadCancellationFields(),
+   validateCancellation: ({ cancellation }) => validateForm(cancellation),
+   validateConsolidation: ({ consolidation }) => validateForm(consolidation),
+-  validateBillingEntity: ({ billingEntity }) => validateForm(billingEntity),
++  validateBillingEntity: () => validateForm(),
+   validateClientLabel: async (
+     _context,
+     { data }: AnyEventObject

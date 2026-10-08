@@ -1,0 +1,20 @@
+# Negative-control mutant — ending a trial is refused while a form-region write is in flight
+#
+# Spec it must flip: contract-product.client.unit.test.ts > "AC-44 — a write in flight > TRIAL.END"
+# Mutation: the `canEndTrial` guard drops its no-region-write term.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+
+diff --git a/packages/headless/src/modules/contract-product/contract-product.machine.ts b/packages/headless/src/modules/contract-product/contract-product.machine.ts
+--- a/packages/headless/src/modules/contract-product/contract-product.machine.ts
++++ b/packages/headless/src/modules/contract-product/contract-product.machine.ts
+@@ -1241,7 +1241,7 @@
+         _event: AnyEventObject,
+         { state }
+       ) =>
+-        !hasRegionWrite(state) &&
++        !!state &&
+         !!contractProduct &&
+         canEndTrial(contractProduct),
+ 

@@ -1,0 +1,55 @@
+{
+  "version": 3,
+  "request": {
+    "method": "POST",
+    "path": "/api/contracts/03679424-d0e7-1092-ee6a-3153698d582e/products/e78642de-5397-1458-366c-21208469530d/recurring",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": {
+      "next_invoice_date": "2026-12-06"
+    }
+  },
+  "response": {
+    "status": 409,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a4683a0b88a1881b-DUR",
+      "connection": "keep-alive",
+      "content-type": "application/json",
+      "date": "Tue, 06 Oct 2026 22:50:44 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=zPGEtyNlcf7Lw9YhhDvxzCjtaDN1oVJlRUT%2FjCayQayE3awcq2Ip3Mb%2BxdHqODf0Yxavkx3feDWQUANMBi4sdeWwpXJwe1X7qs7nIHIcGXMBK3R1GEGVeXaWJoJdrdY%2FLlqsbEP3aA%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "x-frame-options": "SAMEORIGIN"
+    },
+    "body": {
+      "status": "error",
+      "data": null,
+      "related": null,
+      "total": null,
+      "error": {
+        "id": "340b3298b02ac6cc289d29f1ebdde0c86bd3eb91",
+        "type": 0,
+        "code": 409,
+        "message": "Recurring invoice is not allowed to be created!",
+        "data": []
+      },
+      "messages": null,
+      "meta": null
+    }
+  },
+  "captured_at": "2026-10-06T22:50:44.690Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "contract-product"
+  }
+}

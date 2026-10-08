@@ -1,13 +1,11 @@
-# Negative-control mutant 9 — start-pro-rata (FE-3206)
+# Negative-control mutant — an unpaid pro-rata invoice closes the migration
 #
-# Mutation: drop the pro-rata clause.
-# Spec it must turn red: the AC-26 unit spec, the change rule.
-#
-# Authored by the developer seat against the landed production source. The
-# prover applies it blind (tasks.md T41): apply, run the named spec, revert.
+# Spec it must flip: contract-product.migration.unit.test.ts > "AC-26 — the change rule > a pro-rata invoice still unpaid closes it"
+# Mutation: `canMigrateProduct` drops the pro-rata clause.
 #
 # Apply with:  git apply <this file>   (run from repo root)
 # Revert with: git apply -R <this file>
+
 diff --git a/packages/headless/src/modules/contract-product/contract-product.utils.ts b/packages/headless/src/modules/contract-product/contract-product.utils.ts
 --- a/packages/headless/src/modules/contract-product/contract-product.utils.ts
 +++ b/packages/headless/src/modules/contract-product/contract-product.utils.ts

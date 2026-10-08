@@ -1,13 +1,12 @@
-# Negative-control mutant 43 — cancel-keeps-child (FE-3206)
+# Negative-control mutant — closing a migration stops its configurator
 #
-# Mutation: let `CANCEL.MIGRATION` from `configuring` go to `idle` with no `clearMigration`.
-# Spec it must turn red: "Close a change of plan without changing" ("no plan is configured for a change any more"), and the AC-34 unit spec, one change of plan at a time.
-#
-# Authored by the developer seat against the landed production source. The
-# prover applies it blind (tasks.md T41): apply, run the named spec, revert.
+# Spec it must flip: contract-product.migration.unit.test.ts > "AC-34 — one change of plan at a time > closing the change of plan stops its configurator and empties the slot"
+# Mutation: `CANCEL.MIGRATION` from `configuring` goes to `idle` with no
+#   `clearMigration`.
 #
 # Apply with:  git apply <this file>   (run from repo root)
 # Revert with: git apply -R <this file>
+
 diff --git a/packages/headless/src/modules/contract-product/contract-product.machine.ts b/packages/headless/src/modules/contract-product/contract-product.machine.ts
 --- a/packages/headless/src/modules/contract-product/contract-product.machine.ts
 +++ b/packages/headless/src/modules/contract-product/contract-product.machine.ts

@@ -3915,6 +3915,7 @@
         "[Unreleased]",
         "Added",
         "Changed",
+        "Removed",
         "Added",
         "Migration Guide"
       ],
@@ -3980,6 +3981,11 @@
         "POST /contracts/{contractId}/cancel/request",
         "DELETE /contracts/{contractId}/cancel/request",
         "PUT /contracts/{contractId}/products/{contractProductId}/change",
+        "PUT /contracts/{contractId}/products/{contractProductId}/stop_start_invoicing",
+        "POST /contracts/{contractId}/products/{contractProductId}/recurring",
+        "POST /contracts/{contractId}/products/{contractProductId}/trial_end_action_manual",
+        "PUT /contract_products/{contractProductId}",
+        "PUT /contracts/{contractId}/address_company_vat",
         "Failure modes",
         "Lessons (hard-won)"
       ],
@@ -3994,7 +4000,12 @@
         "Subscription-only writes fail silently, not loudly 🧪",
         "A future-cancellation date must land exactly on a billing anniversary 🧪",
         "Quick search silently drops terms under three characters 🧪",
-        "`unavailable` (staged/cancelled/lapsed/fraud) has no way out except a fresh read",
+        "`unavailable` (staged/cancelled/lapsed/fraud) accepts the five lifecycle writes and nothing else",
+        "Unpaid invoices do not close the auto-renew switch-off",
+        "`setBillingEntity()` validates, and a pick of the current entity is a no-op",
+        "`billingAddressId` and `billingCompanyId` are `undefined` on a list row",
+        "Two invoice writes and `migrate` also invalidate `[\"invoices\"]`",
+        "`endTrial()` can resolve `null`; `issueNextInvoice()` cannot",
         "The cancellation form can vanish entirely, not just lose one option 🧪",
         "The consolidation form reads no brand setting and no permission",
         "No actor-permission check backs the cancellation or consolidation forms — a known limitation, not a design choice",
@@ -4034,14 +4045,14 @@
         "Cancellation — one combined form, three options",
         "Consolidation — its own form",
         "Change of plan",
+        "Lifecycle writes",
         "Meta (State Flags)",
         "`useContractProducts().useMeta()`",
         "`useContractProduct().useMeta()`",
         "Context (Computed Values)",
         "`useContractProducts().useContext()`",
         "`useContractProduct().useContext()`",
-        "Future-cancellation date helpers",
-        "Unpaid-invoice predicates",
+        "Future-cancellation date helper",
         "Vue Component Integration"
       ],
       "id": "guide:packages/headless/src/modules/contract-product/docs/usage",
@@ -6227,6 +6238,12 @@
       "path": "packages/headless/src/modules/system-places/system-places.types.ts",
       "title": "AutocompleteSuggestions"
     },
+    "@upmind-automation/headless!BACKEND_DATE_FORMAT": {
+      "kind": "symbol",
+      "module": "stats",
+      "path": "packages/headless/src/modules/stats/stats.utils.ts",
+      "title": "BACKEND_DATE_FORMAT"
+    },
     "@upmind-automation/headless!BADGE_APPEARANCE": {
       "kind": "symbol",
       "module": "config",
@@ -6340,6 +6357,12 @@
       "module": "product",
       "path": "packages/headless/src/modules/product/product.types.ts",
       "title": "BillingCycleFormats"
+    },
+    "@upmind-automation/headless!BillingEntityChoice": {
+      "kind": "symbol",
+      "module": "contract-product",
+      "path": "packages/headless/src/modules/contract-product/contract-product.types.ts",
+      "title": "BillingEntityChoice"
     },
     "@upmind-automation/headless!BillingModel": {
       "kind": "symbol",
@@ -6845,12 +6868,6 @@
       "path": "packages/headless/src/modules/contract-product/contract-product.types.ts",
       "title": "ContractProductRequest"
     },
-    "@upmind-automation/headless!ContractProductRequestStatus": {
-      "kind": "symbol",
-      "module": "contract-product",
-      "path": "packages/headless/src/modules/contract-product/contract-product.types.ts",
-      "title": "ContractProductRequestStatus"
-    },
     "@upmind-automation/headless!ContractProductState": {
       "kind": "symbol",
       "module": "contract-product",
@@ -6874,6 +6891,12 @@
       "module": "contract-product",
       "path": "packages/headless/src/modules/contract-product/contract-product.types.ts",
       "title": "ContractProductsScopeMatrix"
+    },
+    "@upmind-automation/headless!ContractProductsSortableProperties": {
+      "kind": "symbol",
+      "module": "contract-product",
+      "path": "packages/headless/src/modules/contract-product/contract-product.types.ts",
+      "title": "ContractProductsSortableProperties"
     },
     "@upmind-automation/headless!ContractState": {
       "kind": "symbol",
@@ -8177,12 +8200,6 @@
       "path": "packages/headless/src/modules/config/schema/types.ts",
       "title": "ProductListStyle"
     },
-    "@upmind-automation/headless!ProductLoadContext": {
-      "kind": "symbol",
-      "module": "product",
-      "path": "packages/headless/src/modules/product/product.types.ts",
-      "title": "ProductLoadContext"
-    },
     "@upmind-automation/headless!ProductModel": {
       "kind": "symbol",
       "module": "product",
@@ -9160,12 +9177,6 @@
       "module": "basket-billing",
       "path": "packages/headless/src/modules/basket-billing/unified/types.ts",
       "title": "UnifiedType"
-    },
-    "@upmind-automation/headless!UnpaidInvoice": {
-      "kind": "symbol",
-      "module": "contract-product",
-      "path": "packages/headless/src/modules/contract-product/contract-product.types.ts",
-      "title": "UnpaidInvoice"
     },
     "@upmind-automation/headless!UploadContext": {
       "kind": "symbol",
@@ -10553,24 +10564,6 @@
       "path": "packages/headless/src/modules/delegates/delegates.services.ts",
       "title": "acceptDelegateInvite"
     },
-    "@upmind-automation/headless!anniversaryAnchor": {
-      "kind": "symbol",
-      "module": "contract-product",
-      "path": "packages/headless/src/modules/contract-product/contract-product.utils.ts",
-      "title": "anniversaryAnchor"
-    },
-    "@upmind-automation/headless!anniversaryAtCycle": {
-      "kind": "symbol",
-      "module": "contract-product",
-      "path": "packages/headless/src/modules/contract-product/contract-product.utils.ts",
-      "title": "anniversaryAtCycle"
-    },
-    "@upmind-automation/headless!anniversaryCycleForDate": {
-      "kind": "symbol",
-      "module": "contract-product",
-      "path": "packages/headless/src/modules/contract-product/contract-product.utils.ts",
-      "title": "anniversaryCycleForDate"
-    },
     "@upmind-automation/headless!applyConfigDefaults": {
       "kind": "symbol",
       "module": "product",
@@ -10841,12 +10834,6 @@
       "path": "packages/headless/src/modules/config/config.mappers.ts",
       "title": "isApplicable"
     },
-    "@upmind-automation/headless!isCancellable": {
-      "kind": "symbol",
-      "module": "contract-product",
-      "path": "packages/headless/src/modules/contract-product/contract-product.utils.ts",
-      "title": "isCancellable"
-    },
     "@upmind-automation/headless!isConditionalValue": {
       "kind": "symbol",
       "module": "config",
@@ -10865,23 +10852,11 @@
       "path": "packages/headless/src/modules/domain/domain.utils.ts",
       "title": "isDomainProduct"
     },
-    "@upmind-automation/headless!isDue": {
-      "kind": "symbol",
-      "module": "contract-product",
-      "path": "packages/headless/src/modules/contract-product/contract-product.utils.ts",
-      "title": "isDue"
-    },
     "@upmind-automation/headless!isNetworkError": {
       "kind": "symbol",
       "module": "query",
       "path": "packages/headless/src/modules/query/query.utils.ts",
       "title": "isNetworkError"
-    },
-    "@upmind-automation/headless!isSelectableFutureCancellationDate": {
-      "kind": "symbol",
-      "module": "contract-product",
-      "path": "packages/headless/src/modules/contract-product/contract-product.utils.ts",
-      "title": "isSelectableFutureCancellationDate"
     },
     "@upmind-automation/headless!localStoragePersister": {
       "kind": "symbol",
@@ -10996,12 +10971,6 @@
       "module": "feedback",
       "path": "packages/headless/src/modules/feedback/feedback.types.ts",
       "title": "messageTypes"
-    },
-    "@upmind-automation/headless!minFutureCancellationCycle": {
-      "kind": "symbol",
-      "module": "contract-product",
-      "path": "packages/headless/src/modules/contract-product/contract-product.utils.ts",
-      "title": "minFutureCancellationCycle"
     },
     "@upmind-automation/headless!minFutureCancellationDate": {
       "kind": "symbol",
@@ -16723,21 +16692,21 @@
     }
   },
   "meta": {
-    "built_at": "2026-10-07T15:23:47.178Z",
-    "corpus_version": "1+afbd7741d151",
+    "built_at": "2026-10-08T08:06:53.617Z",
+    "corpus_version": "1+8eaf8387e9aa",
     "counts": {
       "adrs": 35,
       "changelogSymbols": 0,
       "examples": 0,
       "glossaryTerms": 27,
       "guides": 192,
-      "indexEntries": 1779,
+      "indexEntries": 1772,
       "relationEdges": 4073,
       "relationsPruned": 3464,
-      "symbols": 967
+      "symbols": 960
     },
     "relationsSha256": "9a6f85296b647222228f20f54141377046925e9862437ca4617d3a6a8b87e391",
-    "source_commit": "157b4f383b5ca71ef3925d13822301e53c30f5ec"
+    "source_commit": "f3a12ff90a7aacfbe85ab617cea8849c7c6348c9"
   },
   "relations": {
     "edges": [
@@ -49660,6 +49629,17 @@
       "sourceLine": 32,
       "tsdoc": "Type alias for an array of Google Maps Autocomplete suggestions.\nThis is the raw type returned by the Google Places API for autocomplete queries."
     },
+    "@upmind-automation/headless!BACKEND_DATE_FORMAT": {
+      "id": "@upmind-automation/headless!BACKEND_DATE_FORMAT",
+      "kind": "Variable",
+      "lessons": [],
+      "module": "stats",
+      "name": "BACKEND_DATE_FORMAT",
+      "signature": "BACKEND_DATE_FORMAT: \"YYYY-MM-DD\"",
+      "sourceFile": "packages/headless/src/modules/stats/stats.utils.ts",
+      "sourceLine": 23,
+      "tsdoc": "The backend's fixed date format — a local constant, on the\n`client-custom-fields.mappers.ts:48` `BACKEND_DATETIME_FORMAT` precedent.\nNever imported from a legacy file (design 8.1)."
+    },
     "@upmind-automation/headless!BADGE_APPEARANCE": {
       "id": "@upmind-automation/headless!BADGE_APPEARANCE",
       "kind": "Variable",
@@ -49868,6 +49848,17 @@
       "sourceFile": "packages/headless/src/modules/product/product.types.ts",
       "sourceLine": 548,
       "tsdoc": "Type alias for various formats of billing cycle descriptions."
+    },
+    "@upmind-automation/headless!BillingEntityChoice": {
+      "id": "@upmind-automation/headless!BillingEntityChoice",
+      "kind": "2097152",
+      "lessons": [],
+      "module": "contract-product",
+      "name": "BillingEntityChoice",
+      "signature": "Symbol BillingEntityChoice",
+      "sourceFile": "packages/headless/src/modules/contract-product/contract-product.types.ts",
+      "sourceLine": 497,
+      "tsdoc": "The one picked address or company a billing-entity write takes."
     },
     "@upmind-automation/headless!BillingModel": {
       "id": "@upmind-automation/headless!BillingModel",
@@ -50152,7 +50143,7 @@
       "name": "CONTRACT_PRODUCTS_SCOPE_MATRIX",
       "signature": "CONTRACT_PRODUCTS_SCOPE_MATRIX: object",
       "sourceFile": "packages/headless/src/modules/contract-product/contract-product.types.ts",
-      "sourceLine": 63,
+      "sourceLine": 81,
       "tsdoc": "Scope matrix for `useContractProducts`. `client` is the only actor that resolves."
     },
     "@upmind-automation/headless!CancellationModel": {
@@ -50163,8 +50154,8 @@
       "name": "CancellationModel",
       "signature": "Symbol CancellationModel",
       "sourceFile": "packages/headless/src/modules/contract-product/contract-product.types.ts",
-      "sourceLine": 586,
-      "tsdoc": "The ONE cancellation form model. `futureCancellationDate` is required only\nfor `SCHEDULE_FUTURE` (the schema's `if`/`then`); `customFields` is the\nCANCEL_REQUEST catalogue."
+      "sourceLine": 720,
+      "tsdoc": "The cancellation form model. `futureCancellationDate` is required only for\n`SCHEDULE_FUTURE`; `customFields` is the CANCEL_REQUEST catalogue."
     },
     "@upmind-automation/headless!CategoryGridLayout": {
       "id": "@upmind-automation/headless!CategoryGridLayout",
@@ -50735,8 +50726,8 @@
       "name": "ContractProduct",
       "signature": "Symbol ContractProduct",
       "sourceFile": "packages/headless/src/modules/contract-product/contract-product.types.ts",
-      "sourceLine": 207,
-      "tsdoc": "The view model `mapContractProduct` maps `IContractProduct` into — only the\nfields this module reads, plus the two derived readings every layer shares.\nThe wire record sits beside it on machine context (`rawContractProduct`)."
+      "sourceLine": 291,
+      "tsdoc": "The view model `mapContractProduct` maps `IContractProduct` into."
     },
     "@upmind-automation/headless!ContractProductCancelOption": {
       "id": "@upmind-automation/headless!ContractProductCancelOption",
@@ -50746,8 +50737,8 @@
       "name": "ContractProductCancelOption",
       "signature": "Enum ContractProductCancelOption",
       "sourceFile": "packages/headless/src/modules/contract-product/contract-product.types.ts",
-      "sourceLine": 572,
-      "tsdoc": "The client cancellation options a product may offer (legacy `CancelOptions`,\n`contractCancellation.ts:303-333`). The chosen option routes the submit to\none of four writes."
+      "sourceLine": 696,
+      "tsdoc": "The client cancellation options a product may offer. The chosen option\nroutes the submit to one of three writes."
     },
     "@upmind-automation/headless!ContractProductContext": {
       "id": "@upmind-automation/headless!ContractProductContext",
@@ -50757,7 +50748,7 @@
       "name": "ContractProductContext",
       "signature": "Symbol ContractProductContext",
       "sourceFile": "packages/headless/src/modules/contract-product/contract-product.types.ts",
-      "sourceLine": 333,
+      "sourceLine": 448,
       "tsdoc": "Context for the contract-product manager machine."
     },
     "@upmind-automation/headless!ContractProductEmbedded": {
@@ -50768,8 +50759,8 @@
       "name": "ContractProductEmbedded",
       "signature": "Symbol ContractProductEmbedded",
       "sourceFile": "packages/headless/src/modules/contract-product/contract-product.types.ts",
-      "sourceLine": 295,
-      "tsdoc": "A `ContractProduct` as a read that embeds it carries it — without the members that need `allowed_migrations` or the parent `contract` relation, which such a read never supplies. The `contract` read and the `tickets` single read both embed a product this way."
+      "sourceLine": 388,
+      "tsdoc": "A `ContractProduct` as a read that embeds it carries it: the `contract` read and the `tickets` single read."
     },
     "@upmind-automation/headless!ContractProductFormTypes": {
       "id": "@upmind-automation/headless!ContractProductFormTypes",
@@ -50779,8 +50770,8 @@
       "name": "ContractProductFormTypes",
       "signature": "Enum ContractProductFormTypes",
       "sourceFile": "packages/headless/src/modules/contract-product/contract-product.types.ts",
-      "sourceLine": 380,
-      "tsdoc": "The two write forms, each a parallel region of `available`."
+      "sourceLine": 512,
+      "tsdoc": "The write forms, each a parallel region of `available`."
     },
     "@upmind-automation/headless!ContractProductRequest": {
       "id": "@upmind-automation/headless!ContractProductRequest",
@@ -50790,19 +50781,8 @@
       "name": "ContractProductRequest",
       "signature": "Symbol ContractProductRequest",
       "sourceFile": "packages/headless/src/modules/contract-product/contract-product.types.ts",
-      "sourceLine": 139,
+      "sourceLine": 237,
       "tsdoc": "The `status` and `id` members of `IContractCancellationRequest` this module reads."
-    },
-    "@upmind-automation/headless!ContractProductRequestStatus": {
-      "id": "@upmind-automation/headless!ContractProductRequestStatus",
-      "kind": "2097152",
-      "lessons": [],
-      "module": "contract-product",
-      "name": "ContractProductRequestStatus",
-      "signature": "Symbol ContractProductRequestStatus",
-      "sourceFile": "packages/headless/src/modules/contract-product/contract-product.types.ts",
-      "sourceLine": 134,
-      "tsdoc": "`IStatus.code`, narrowed to the cancellation-request vocabulary."
     },
     "@upmind-automation/headless!ContractProductState": {
       "id": "@upmind-automation/headless!ContractProductState",
@@ -50812,8 +50792,8 @@
       "name": "ContractProductState",
       "signature": "Enum ContractProductState",
       "sourceFile": "packages/headless/src/modules/contract-product/contract-product.types.ts",
-      "sourceLine": 314,
-      "tsdoc": "The fifteen nodes of the locked product chart. Thirteen are reportable\nstates; `SETUP_COMPLETE` and `TRIAL_NONE` are the neutral defaults of their\nregion and carry no meta value."
+      "sourceLine": 401,
+      "tsdoc": "The fifteen nodes of the product chart. `SETUP_COMPLETE` and `TRIAL_NONE`\nare the neutral defaults of their region and carry no meta value."
     },
     "@upmind-automation/headless!ContractProductStatus": {
       "id": "@upmind-automation/headless!ContractProductStatus",
@@ -50823,7 +50803,7 @@
       "name": "ContractProductStatus",
       "signature": "Symbol ContractProductStatus",
       "sourceFile": "packages/headless/src/modules/contract-product/contract-product.types.ts",
-      "sourceLine": 112,
+      "sourceLine": 214,
       "tsdoc": "`IStatus.code`, narrowed to the contract vocabulary, and the status's translated name."
     },
     "@upmind-automation/headless!ContractProductsContextTypes": {
@@ -50834,8 +50814,8 @@
       "name": "ContractProductsContextTypes",
       "signature": "Enum ContractProductsContextTypes",
       "sourceFile": "packages/headless/src/modules/contract-product/contract-product.types.ts",
-      "sourceLine": 57,
-      "tsdoc": "Context types for the contract-product COLLECTION. `DELEGATED` is a\nSELECTOR context with no id: it narrows the same collection to the client's\ndelegated products, it does not name a different entity."
+      "sourceLine": 75,
+      "tsdoc": "Context types for the collection. `DELEGATED` is a selector context with no\nid: it narrows the same collection to the client's delegated products."
     },
     "@upmind-automation/headless!ContractProductsScopeMatrix": {
       "id": "@upmind-automation/headless!ContractProductsScopeMatrix",
@@ -50845,8 +50825,19 @@
       "name": "ContractProductsScopeMatrix",
       "signature": "Symbol ContractProductsScopeMatrix",
       "sourceFile": "packages/headless/src/modules/contract-product/contract-product.types.ts",
-      "sourceLine": 71,
+      "sourceLine": 89,
       "tsdoc": "Scope matrix type for `useContractProducts` (derived from the runtime const)."
+    },
+    "@upmind-automation/headless!ContractProductsSortableProperties": {
+      "id": "@upmind-automation/headless!ContractProductsSortableProperties",
+      "kind": "Enum",
+      "lessons": [],
+      "module": "contract-product",
+      "name": "ContractProductsSortableProperties",
+      "signature": "Enum ContractProductsSortableProperties",
+      "sourceFile": "packages/headless/src/modules/contract-product/contract-product.types.ts",
+      "sourceLine": 823,
+      "tsdoc": "Properties the collection can be sorted by."
     },
     "@upmind-automation/headless!ContractState": {
       "id": "@upmind-automation/headless!ContractState",
@@ -52341,8 +52332,8 @@
       "name": "MigrationConfig",
       "signature": "Symbol MigrationConfig",
       "sourceFile": "packages/headless/src/modules/contract-product/contract-product.types.ts",
-      "sourceLine": 479,
-      "tsdoc": "The configurator of the chosen product: a subset of `useProductConfig` over the\nchild. It has no `service`, no term setter, no quantity member, no provision\nmember and no trial setter, so a commit cannot skip `migrate()`. Its\n`setConfig` drops `startTrial` and `provisionFields`. Its `schema` and\n`uischema` hold no provision field and no `startTrial`. It has no `id` and no\n`state`, so the child's own state stays out of reach."
+      "sourceLine": 606,
+      "tsdoc": "The configurator of the chosen product: `useProductConfig` over the child,\nwithout the members a commit could skip `migrate()` with, its own state, or\na provision field or trial. Its `setConfig` drops `startTrial` and\n`provisionFields`, and its `schema` and `uischema` hold neither."
     },
     "@upmind-automation/headless!MigrationPreview": {
       "id": "@upmind-automation/headless!MigrationPreview",
@@ -52352,7 +52343,7 @@
       "name": "MigrationPreview",
       "signature": "Symbol MigrationPreview",
       "sourceFile": "packages/headless/src/modules/contract-product/contract-product.types.ts",
-      "sourceLine": 422,
+      "sourceLine": 551,
       "tsdoc": "The pro-rata cost a dry run gave."
     },
     "@upmind-automation/headless!MigrationResult": {
@@ -52363,8 +52354,8 @@
       "name": "MigrationResult",
       "signature": "Symbol MigrationResult",
       "sourceFile": "packages/headless/src/modules/contract-product/contract-product.types.ts",
-      "sourceLine": 432,
-      "tsdoc": "What a committed change of product gave."
+      "sourceLine": 561,
+      "tsdoc": "What a committed migration gave."
     },
     "@upmind-automation/headless!MigrationTarget": {
       "id": "@upmind-automation/headless!MigrationTarget",
@@ -52374,7 +52365,7 @@
       "name": "MigrationTarget",
       "signature": "Symbol MigrationTarget",
       "sourceFile": "packages/headless/src/modules/contract-product/contract-product.types.ts",
-      "sourceLine": 397,
+      "sourceLine": 532,
       "tsdoc": "The chosen product: its id and its row of the product list."
     },
     "@upmind-automation/headless!MutationParams": {
@@ -53235,17 +53226,6 @@
       "sourceLine": 104,
       "tsdoc": null
     },
-    "@upmind-automation/headless!ProductLoadContext": {
-      "id": "@upmind-automation/headless!ProductLoadContext",
-      "kind": "2097152",
-      "lessons": [],
-      "module": "product",
-      "name": "ProductLoadContext",
-      "signature": "Symbol ProductLoadContext",
-      "sourceFile": "packages/headless/src/modules/product/product.types.ts",
-      "sourceLine": 958,
-      "tsdoc": "The context the product `load` service reads. `promotions: false` omits\npromotions from the load (`omit_promotions=1`, no `promotions`) and is part\nof its cache key. An array behaves as it does for every other caller."
-    },
     "@upmind-automation/headless!ProductModel": {
       "id": "@upmind-automation/headless!ProductModel",
       "kind": "2097152",
@@ -53837,8 +53817,8 @@
       "name": "RequestCancellationModel",
       "signature": "Symbol RequestCancellationModel",
       "sourceFile": "packages/headless/src/modules/contract-product/contract-product.types.ts",
-      "sourceLine": 617,
-      "tsdoc": "The mapper input the hard-cancellation request builds (R33)."
+      "sourceLine": 757,
+      "tsdoc": "The mapper input the hard-cancellation request builds."
     },
     "@upmind-automation/headless!RequestFilterOperator": {
       "id": "@upmind-automation/headless!RequestFilterOperator",
@@ -53991,8 +53971,8 @@
       "name": "ScheduleCancellationModel",
       "signature": "Symbol ScheduleCancellationModel",
       "sourceFile": "packages/headless/src/modules/contract-product/contract-product.types.ts",
-      "sourceLine": 610,
-      "tsdoc": "The mapper input `scheduleCancellation` builds from the cancellation model (R18)."
+      "sourceLine": 750,
+      "tsdoc": "The mapper input `scheduleCancellation` builds from the cancellation model."
     },
     "@upmind-automation/headless!ScheduledAction": {
       "id": "@upmind-automation/headless!ScheduledAction",
@@ -54002,8 +53982,8 @@
       "name": "ScheduledAction",
       "signature": "Symbol ScheduledAction",
       "sourceFile": "packages/headless/src/modules/contract-product/contract-product.types.ts",
-      "sourceLine": 146,
-      "tsdoc": "The `scheduled_actions` member this module reads."
+      "sourceLine": 244,
+      "tsdoc": "One `scheduled_actions` row."
     },
     "@upmind-automation/headless!ScopeActor": {
       "id": "@upmind-automation/headless!ScopeActor",
@@ -54398,8 +54378,8 @@
       "name": "SetConsolidationModel",
       "signature": "Symbol SetConsolidationModel",
       "sourceFile": "packages/headless/src/modules/contract-product/contract-product.types.ts",
-      "sourceLine": 605,
-      "tsdoc": "The model `setConsolidation` takes."
+      "sourceLine": 745,
+      "tsdoc": "The model of the consolidation form."
     },
     "@upmind-automation/headless!SetPaymentMethodModel": {
       "id": "@upmind-automation/headless!SetPaymentMethodModel",
@@ -54442,7 +54422,7 @@
       "name": "SoftCancelModel",
       "signature": "Symbol SoftCancelModel",
       "sourceFile": "packages/headless/src/modules/contract-product/contract-product.types.ts",
-      "sourceLine": 598,
+      "sourceLine": 728,
       "tsdoc": "The mapper input the two `modify_renew` writes share; `renew` is set by the service."
     },
     "@upmind-automation/headless!SortDirection": {
@@ -55038,17 +55018,6 @@
       "sourceFile": "packages/headless/src/modules/basket-billing/unified/types.ts",
       "sourceLine": 18,
       "tsdoc": "Enumeration representing the two primary types of unified profiles or entities:\n'personal' for individual clients and 'business' for corporate or organisational clients.\nThis helps in distinguishing the nature of a client's profile for the appropriate data handling\nand form rendering."
-    },
-    "@upmind-automation/headless!UnpaidInvoice": {
-      "id": "@upmind-automation/headless!UnpaidInvoice",
-      "kind": "2097152",
-      "lessons": [],
-      "module": "contract-product",
-      "name": "UnpaidInvoice",
-      "signature": "Symbol UnpaidInvoice",
-      "sourceFile": "packages/headless/src/modules/contract-product/contract-product.types.ts",
-      "sourceLine": 152,
-      "tsdoc": "The `unpaid_recurring_invoices` member this module reads — the row's `invoice_status`, as `status`."
     },
     "@upmind-automation/headless!UploadContext": {
       "id": "@upmind-automation/headless!UploadContext",
@@ -56455,7 +56424,7 @@
       "name": "UseContractProduct",
       "signature": "Symbol UseContractProduct",
       "sourceFile": "packages/headless/src/modules/contract-product/useContractProduct.ts",
-      "sourceLine": 329,
+      "sourceLine": 273,
       "tsdoc": null
     },
     "@upmind-automation/headless!UseContractProductActions": {
@@ -56466,7 +56435,7 @@
       "name": "UseContractProductActions",
       "signature": "Symbol UseContractProductActions",
       "sourceFile": "packages/headless/src/modules/contract-product/useContractProduct.actions.ts",
-      "sourceLine": 559,
+      "sourceLine": 627,
       "tsdoc": null
     },
     "@upmind-automation/headless!UseContractProductContext": {
@@ -56477,7 +56446,7 @@
       "name": "UseContractProductContext",
       "signature": "Symbol UseContractProductContext",
       "sourceFile": "packages/headless/src/modules/contract-product/useContractProduct.context.ts",
-      "sourceLine": 151,
+      "sourceLine": 148,
       "tsdoc": null
     },
     "@upmind-automation/headless!UseContractProductInternals": {
@@ -56499,7 +56468,7 @@
       "name": "UseContractProductMeta",
       "signature": "Symbol UseContractProductMeta",
       "sourceFile": "packages/headless/src/modules/contract-product/useContractProduct.meta.ts",
-      "sourceLine": 385,
+      "sourceLine": 428,
       "tsdoc": null
     },
     "@upmind-automation/headless!UseContractProducts": {
@@ -56510,7 +56479,7 @@
       "name": "UseContractProducts",
       "signature": "Symbol UseContractProducts",
       "sourceFile": "packages/headless/src/modules/contract-product/useContractProducts.ts",
-      "sourceLine": 155,
+      "sourceLine": 87,
       "tsdoc": null
     },
     "@upmind-automation/headless!UseContractProductsActions": {
@@ -56521,7 +56490,7 @@
       "name": "UseContractProductsActions",
       "signature": "Symbol UseContractProductsActions",
       "sourceFile": "packages/headless/src/modules/contract-product/useContractProducts.actions.ts",
-      "sourceLine": 205,
+      "sourceLine": 147,
       "tsdoc": null
     },
     "@upmind-automation/headless!UseContractProductsContext": {
@@ -56532,7 +56501,7 @@
       "name": "UseContractProductsContext",
       "signature": "Symbol UseContractProductsContext",
       "sourceFile": "packages/headless/src/modules/contract-product/useContractProducts.context.ts",
-      "sourceLine": 100,
+      "sourceLine": 95,
       "tsdoc": null
     },
     "@upmind-automation/headless!UseContractProductsInternals": {
@@ -56543,7 +56512,7 @@
       "name": "UseContractProductsInternals",
       "signature": "Symbol UseContractProductsInternals",
       "sourceFile": "packages/headless/src/modules/contract-product/useContractProducts.internals.ts",
-      "sourceLine": 22,
+      "sourceLine": 24,
       "tsdoc": null
     },
     "@upmind-automation/headless!UseContractProductsMeta": {
@@ -56554,7 +56523,7 @@
       "name": "UseContractProductsMeta",
       "signature": "Symbol UseContractProductsMeta",
       "sourceFile": "packages/headless/src/modules/contract-product/useContractProducts.meta.ts",
-      "sourceLine": 67,
+      "sourceLine": 68,
       "tsdoc": null
     },
     "@upmind-automation/headless!UseContracts": {
@@ -57591,39 +57560,6 @@
       "sourceLine": 106,
       "tsdoc": "Accept a delegate invitation.\n\nCalled by the INVITEE, authenticated as themselves — the hash is the\ninvitation's own credential and arrives in the invitation email, so it is the\ncaller's proof they were the one invited.\n\nOn success the grant takes effect: the owner's row flips to accepted, and the\ninvitee's identity profile begins reporting the granted ids."
     },
-    "@upmind-automation/headless!anniversaryAnchor": {
-      "id": "@upmind-automation/headless!anniversaryAnchor",
-      "kind": "Function",
-      "lessons": [],
-      "module": "contract-product",
-      "name": "anniversaryAnchor",
-      "signature": "anniversaryAnchor(product: Pick<ContractProduct, \"nextDueDate\" | \"billingCycleMonths\">): AnniversaryAnchor | null",
-      "sourceFile": "packages/headless/src/modules/contract-product/contract-product.utils.ts",
-      "sourceLine": 247,
-      "tsdoc": "The anchor for every future-cancellation calculation: `next_due_date` plus\nthe billing cycle length. `null` when either input is missing."
-    },
-    "@upmind-automation/headless!anniversaryAtCycle": {
-      "id": "@upmind-automation/headless!anniversaryAtCycle",
-      "kind": "Function",
-      "lessons": [],
-      "module": "contract-product",
-      "name": "anniversaryAtCycle",
-      "signature": "anniversaryAtCycle(product: Pick<ContractProduct, \"nextDueDate\" | \"billingCycleMonths\">, cycles: number): Dayjs | null",
-      "sourceFile": "packages/headless/src/modules/contract-product/contract-product.utils.ts",
-      "sourceLine": 258,
-      "tsdoc": "The anniversary date at a given cycle count off the product's own anchor."
-    },
-    "@upmind-automation/headless!anniversaryCycleForDate": {
-      "id": "@upmind-automation/headless!anniversaryCycleForDate",
-      "kind": "Function",
-      "lessons": [],
-      "module": "contract-product",
-      "name": "anniversaryCycleForDate",
-      "signature": "anniversaryCycleForDate(product: Pick<ContractProduct, \"nextDueDate\" | \"billingCycleMonths\">, date: string | Date): number | null",
-      "sourceFile": "packages/headless/src/modules/contract-product/contract-product.utils.ts",
-      "sourceLine": 295,
-      "tsdoc": "Which cycle `date` lands on off the product's anchor, or `null` when it isn't an exact multiple of the billing cycle."
-    },
     "@upmind-automation/headless!applyConfigDefaults": {
       "id": "@upmind-automation/headless!applyConfigDefaults",
       "kind": "Function",
@@ -57632,7 +57568,7 @@
       "name": "applyConfigDefaults",
       "signature": "applyConfigDefaults(baseModel: ProductProps, raw: IProduct): ProductProps",
       "sourceFile": "packages/headless/src/modules/product/product.services.ts",
-      "sourceLine": 71,
+      "sourceLine": 70,
       "tsdoc": "Synchronous wrapper around the canonical `useProductConfigSchema +\nuseModelParser` pipeline. Hydrates `baseModel` with any defaults the\nschema declares for `term` / `options` / `attributes` based on the raw\n`IProduct` — same machinery the configurator's `parse` service uses\n(`product/services.ts:289-290`), but without the async\n`loadProvisioningFields` step. For typical TLD-style products with no\nrequired option/attribute categories this is effectively a clone of\n`baseModel`; the value is in keeping all basket-add paths consistent\nso a brand configuring a required category doesn't 422 the add.\n\nReturns `baseModel` unchanged (cloned) when `raw` is undefined or has\nan unparseable shape (e.g. a malformed product from domain suggestion\nresults). This is the documented safe behavior — the function never\nthrows on malformed input."
     },
     "@upmind-automation/headless!authSubscription": {
@@ -58119,17 +58055,6 @@
       "sourceLine": 124,
       "tsdoc": "Checks if a UI property applies to the given context."
     },
-    "@upmind-automation/headless!isCancellable": {
-      "id": "@upmind-automation/headless!isCancellable",
-      "kind": "Function",
-      "lessons": [],
-      "module": "contract-product",
-      "name": "isCancellable",
-      "signature": "isCancellable(invoice: UnpaidInvoice): boolean",
-      "sourceFile": "packages/headless/src/modules/contract-product/contract-product.utils.ts",
-      "sourceLine": 350,
-      "tsdoc": "True while cancelling the invoice still means anything."
-    },
     "@upmind-automation/headless!isConditionalValue": {
       "id": "@upmind-automation/headless!isConditionalValue",
       "kind": "Function",
@@ -58163,17 +58088,6 @@
       "sourceLine": 703,
       "tsdoc": "Determines if a product is a domain product based on provided indicators.\nWe check against blueprint code and provision fields to make a determination.\nHowever, if no indicators are provided, we fall back to parsing the service identifier."
     },
-    "@upmind-automation/headless!isDue": {
-      "id": "@upmind-automation/headless!isDue",
-      "kind": "Function",
-      "lessons": [],
-      "module": "contract-product",
-      "name": "isDue",
-      "signature": "isDue(invoice: UnpaidInvoice): boolean",
-      "sourceFile": "packages/headless/src/modules/contract-product/contract-product.utils.ts",
-      "sourceLine": 345,
-      "tsdoc": "True while the invoice still carries an outstanding balance."
-    },
     "@upmind-automation/headless!isNetworkError": {
       "id": "@upmind-automation/headless!isNetworkError",
       "kind": "Function",
@@ -58184,17 +58098,6 @@
       "sourceFile": "packages/headless/src/modules/query/query.utils.ts",
       "sourceLine": 482,
       "tsdoc": "Detects whether a caught query-layer rejection represents a browser-level\nnetwork failure (API unreachable / CORS) rather than a structured API error.\n\n`fetch` throws a `TypeError` on network failures, and some environments\nsurface the message `\"Network Error\"` (net::ERR_FAILED). Structured API\nerrors carry a `status` and never reach this helper — the caller\nshort-circuits on `response.status`."
-    },
-    "@upmind-automation/headless!isSelectableFutureCancellationDate": {
-      "id": "@upmind-automation/headless!isSelectableFutureCancellationDate",
-      "kind": "Function",
-      "lessons": [],
-      "module": "contract-product",
-      "name": "isSelectableFutureCancellationDate",
-      "signature": "isSelectableFutureCancellationDate(product: Pick<ContractProduct, \"nextDueDate\" | \"billingCycleMonths\">, date: string | Date): boolean",
-      "sourceFile": "packages/headless/src/modules/contract-product/contract-product.utils.ts",
-      "sourceLine": 313,
-      "tsdoc": "Whether `date` is a valid future-cancellation anniversary: an exact cycle, on or after `minFutureCancellationDate`."
     },
     "@upmind-automation/headless!localStoragePersister": {
       "id": "@upmind-automation/headless!localStoragePersister",
@@ -58257,10 +58160,10 @@
       "lessons": [],
       "module": "contract-product",
       "name": "mapContractProduct",
-      "signature": "mapContractProduct(raw: IContractProduct): ContractProduct",
+      "signature": "mapContractProduct(raw: IContractProduct, taxType: BrandTaxTypes): ContractProduct",
       "sourceFile": "packages/headless/src/modules/contract-product/contract-product.mappers.ts",
-      "sourceLine": 211,
-      "tsdoc": "Maps one wire record to the view model, deriving the two shared readings once."
+      "sourceLine": 174,
+      "tsdoc": "Maps one wire record to the view model."
     },
     "@upmind-automation/headless!mapContractProductEmbedded": {
       "id": "@upmind-automation/headless!mapContractProductEmbedded",
@@ -58270,8 +58173,8 @@
       "name": "mapContractProductEmbedded",
       "signature": "mapContractProductEmbedded(raw: IContractProduct): ContractProductEmbedded",
       "sourceFile": "packages/headless/src/modules/contract-product/contract-product.mappers.ts",
-      "sourceLine": 221,
-      "tsdoc": "One embedded product off a read that does not carry `allowed_migrations` or\nthe parent `contract` relation: `mapContractProduct` without the members that\nread them, so the runtime matches `ContractProductEmbedded`. The `contract`\nread and the `tickets` single read both embed a product this way."
+      "sourceLine": 315,
+      "tsdoc": "One embedded product off a read that does not carry `allowed_migrations` or\nthe parent `contract` relation: the view model without the members that read\nthem. The `contract` read and the `tickets` single read embed a product this\nway."
     },
     "@upmind-automation/headless!mapCustomField": {
       "id": "@upmind-automation/headless!mapCustomField",
@@ -58405,17 +58308,6 @@
       "sourceLine": 53,
       "tsdoc": "Enumeration defining the different types of messages based on their severity or purpose.\nThis is used for styling and categorisation of alerts.\n\nValues are the design system's colour intents, because consumers bind them\nstraight to a component's `variant`; an unlisted value renders unstyled.\nThe sole severity enum in the graph (graphify-out/GRAPH_REPORT.md)."
     },
-    "@upmind-automation/headless!minFutureCancellationCycle": {
-      "id": "@upmind-automation/headless!minFutureCancellationCycle",
-      "kind": "Function",
-      "lessons": [],
-      "module": "contract-product",
-      "name": "minFutureCancellationCycle",
-      "signature": "minFutureCancellationCycle(product: Pick<ContractProduct, \"nextDueDate\" | \"billingCycleMonths\">): number | null",
-      "sourceFile": "packages/headless/src/modules/contract-product/contract-product.utils.ts",
-      "sourceLine": 269,
-      "tsdoc": "The earliest cycle a client may schedule for: the next anniversary strictly after today."
-    },
     "@upmind-automation/headless!minFutureCancellationDate": {
       "id": "@upmind-automation/headless!minFutureCancellationDate",
       "kind": "Function",
@@ -58424,7 +58316,7 @@
       "name": "minFutureCancellationDate",
       "signature": "minFutureCancellationDate(product: Pick<ContractProduct, \"nextDueDate\" | \"billingCycleMonths\">): string | null",
       "sourceFile": "packages/headless/src/modules/contract-product/contract-product.utils.ts",
-      "sourceLine": 283,
+      "sourceLine": 249,
       "tsdoc": "The earliest selectable future-cancellation date, as a wire date string."
     },
     "@upmind-automation/headless!normalizeValue": {
@@ -59291,9 +59183,9 @@
       "lessons": [],
       "module": "contract-product",
       "name": "useContractProduct",
-      "signature": "useContractProduct: ScopedComposable<object, object>",
+      "signature": "useContractProduct: ScopedComposable<ContractProductScope, object>",
       "sourceFile": "packages/headless/src/modules/contract-product/useContractProduct.ts",
-      "sourceLine": 320,
+      "sourceLine": 264,
       "tsdoc": "Scoped composable for ONE contract product."
     },
     "@upmind-automation/headless!useContractProducts": {
@@ -59302,9 +59194,9 @@
       "lessons": [],
       "module": "contract-product",
       "name": "useContractProducts",
-      "signature": "useContractProducts: ScopedComposable<object, object>",
+      "signature": "useContractProducts: ScopedComposable<ContractProductsScope, object>",
       "sourceFile": "packages/headless/src/modules/contract-product/useContractProducts.ts",
-      "sourceLine": 146,
+      "sourceLine": 78,
       "tsdoc": "Scoped composable for a client's own contract products."
     },
     "@upmind-automation/headless!useContracts": {

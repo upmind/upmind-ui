@@ -82,11 +82,18 @@ export function contractProductScopeKeys(): string[] {
 }
 
 /**
- * The custom-fields collections the manager composes for its forms. They
- * register under their own namespace, so a manager's cancellation-fields read
- * outlives its scenario and re-fires on the next sign-in unless evicted too.
+ * The owner-module scopes the two composables compose. Each registers under
+ * its own namespace, so it outlives its scenario unless evicted too: a stale
+ * show-delegated preference sends the next scenario's first list read with the
+ * previous scenario's choice.
  */
-const CONSUMED_NAMESPACES = ["client-custom-fields"];
+const CONSUMED_NAMESPACES = [
+  "client-custom-fields",
+  "client-personal-details",
+  "client-address",
+  "client-company",
+  "invoices"
+];
 
 /**
  * Evict every contract-product scope entry, and every collection it composes,
@@ -112,7 +119,7 @@ let pendingBootStepDir: string | undefined;
 /**
  * Names the scenario's step-01 folder so the next seed answers its boot reads
  * — `brand/settings`, and the session's `/self` when step 01 recorded one — in
- * front of the owner recordings (the client-personal-details AC-35 seam).
+ * front of the owner recordings.
  */
 export function armBootStep(dir: string): void {
   pendingBootStepDir = dir;

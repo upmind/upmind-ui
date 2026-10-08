@@ -1,0 +1,23 @@
+# Negative-control mutant — picking a listed guest makes that guest active
+#
+# Spec it must flip: session-store.guest-pointer.pool.int.test.ts > "picking the second listed guest makes that guest active, not the first @AC-G19"
+# Mutation: a named guest switch goes to the first pooled guest.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+
+diff --git a/packages/headless/src/modules/session-store/useSessionStore.actions.ts b/packages/headless/src/modules/session-store/useSessionStore.actions.ts
+--- a/packages/headless/src/modules/session-store/useSessionStore.actions.ts
++++ b/packages/headless/src/modules/session-store/useSessionStore.actions.ts
+@@ -137,9 +137,9 @@
+       AccessRoleTypes.GUEST
+     ) as IToken | null;
+     const targetId =
++      first(keys(store.state.guestSessions)) ??
+       sessionId ??
+-      guestCookie?.actor_id ??
+-      first(keys(store.state.guestSessions));
++      guestCookie?.actor_id;
+     if (!targetId) return;
+ 
+     // A named pooled guest is switched to exactly as a client or staff session

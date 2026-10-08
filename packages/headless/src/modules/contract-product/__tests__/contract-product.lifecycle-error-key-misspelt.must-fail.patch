@@ -1,0 +1,20 @@
+# Negative-control mutant — a refused label write carries real error copy
+#
+# Spec it must flip: contract-product.client.unit.test.ts > "AC-44 — a refused write carries its error copy"
+# Mutation: `setClientLabel` reads `error.contract_product_label_faild`.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+
+diff --git a/packages/headless/src/modules/contract-product/useContractProduct.actions.ts b/packages/headless/src/modules/contract-product/useContractProduct.actions.ts
+--- a/packages/headless/src/modules/contract-product/useContractProduct.actions.ts
++++ b/packages/headless/src/modules/contract-product/useContractProduct.actions.ts
+@@ -455,7 +455,7 @@
+     return writeProduct(
+       actor,
+       { type: "LABEL.SET", data: { label } },
+-      t("error.contract_product_label_failed")
++      t("error.contract_product_label_faild")
+     );
+   }
+ 

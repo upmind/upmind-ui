@@ -1,22 +1,20 @@
-# Negative-control mutant 15 — list-offset (FE-3206)
+# Negative-control mutant — loading more plans asks for the next page
 #
-# Mutation: ask for the plan list again from offset 0 in place of the next page.
-# Spec it must turn red: "See more of the plans ..." ("from the fifth plan on"), and the AC-28 unit spec, the next page.
-#
-# Authored by the developer seat against the landed production source. The
-# prover applies it blind (tasks.md T41): apply, run the named spec, revert.
+# Spec it must flip: contract-product.migration.unit.test.ts > "AC-28 — the next page"
+# Mutation: loading more plans asks for the first page again.
 #
 # Apply with:  git apply <this file>   (run from repo root)
 # Revert with: git apply -R <this file>
+
 diff --git a/packages/headless/src/modules/contract-product/useContractProduct.actions.ts b/packages/headless/src/modules/contract-product/useContractProduct.actions.ts
 --- a/packages/headless/src/modules/contract-product/useContractProduct.actions.ts
 +++ b/packages/headless/src/modules/contract-product/useContractProduct.actions.ts
-@@ -329,7 +329,7 @@
+@@ -511,7 +511,7 @@
  
-   /** Loads the next page of the plan list. */
+   /** Loads the next page of the product list. */
    async function loadMoreMigrationTargets(): Promise<void> {
 -    await holders.list.value?.nextPage();
 +    await holders.list.value?.refresh();
    }
  
-   /** Loads the chosen plan again, from the start, after it failed to load. */
+   /** Loads the chosen product again after it failed to load. */

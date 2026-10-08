@@ -1,30 +1,20 @@
-Negative control for contract-product.i18n-keys.int.test.ts (FE-3029, R38 item 1).
-
-Assertion it attacks: every position the subscription-type toggle lays out
-(`options.items[].member`) labels itself from `<control.i18n>.<member>`, and
-that key must resolve to real copy in `packages/i18n/src/core/form-en.json`.
-The spec derives the positions off the module's LIVE published uischema.
-
-The mutation: the One-time position's member regresses to the pre-R38 name
-`one_time_only`. The catalogue carries `form.contract_product_subscription_type`
-`.all`, `.subscriptions` and `.one_time`, but no `.one_time_only`, so the case
-`AC-1 the toggle position form.contract_product_subscription_type.one_time_only
-resolves to copy` goes red. The control label and the other positions still
-resolve.
-
-Apply with:  git apply <this file>   (run from repo root)
-Revert with: git apply -R <this file>
+# Negative-control mutant — each subscription-type position labels itself from real copy
+#
+# Spec it must flip: contract-product.i18n-keys.unit.test.ts > "AC-1 the toggle position ... resolves to copy"
+# Mutation: the One-time position's member is `one_time_only`.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
 
 diff --git a/packages/headless/src/modules/contract-product/contract-product.schemas.ts b/packages/headless/src/modules/contract-product/contract-product.schemas.ts
-index 07a4747dc..1a71e3c72 100644
 --- a/packages/headless/src/modules/contract-product/contract-product.schemas.ts
 +++ b/packages/headless/src/modules/contract-product/contract-product.schemas.ts
-@@ -247,7 +247,7 @@ export function useQueryUischema(): UISchemaElement {
-           items: [
-             { member: "all" },
-             { member: "subscriptions", key: "neq", value: 0 },
--            ...(forced ? [] : [{ member: "one_time", key: "eq", value: 0 }])
-+            ...(forced ? [] : [{ member: "one_time_only", key: "eq", value: 0 }])
-           ]
-         }
+@@ -232,7 +232,7 @@
+         items: [
+           { member: "all" },
+           { member: "subscriptions", key: "neq", value: 0 },
+-          ...(forced ? [] : [{ member: "one_time", key: "eq", value: 0 }])
++          ...(forced ? [] : [{ member: "one_time_only", key: "eq", value: 0 }])
+         ]
        }
+     }

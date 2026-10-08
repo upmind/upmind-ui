@@ -1,25 +1,23 @@
-# Negative-control mutant — the manager reports a write in flight as `isProcessing` (AC-25)
+# Negative-control mutant — the manager reports a write in flight
 #
-# Scenario it must flip: contract-product.feature >
-#   "While a change of mine is in flight, the module says so"
-# Test that goes red: contract-product.replay.int.test.ts > that scenario —
-#   "Then the module reports itself busy while the change is in flight" — the
-#   manager meta publishes no `isProcessing` member.
-# Mutation: reverts the meta flag to the `isSubmitting` name.
-# Collateral: the driven write scenarios that wait on `isProcessing` (AC-5,
-#   AC-6, AC-7, AC-9, AC-11, AC-16 and AC-22 rows).
+# Spec it must flip: contract-product.replay.int.test.ts > "@AC-31 @AC-32 @AC-25 Change my subscription to the plan I chose"
+# Mutation: `isProcessing` drops the top-level `processing` node and the region
+#   writes.
 #
 # Apply with:  git apply <this file>   (run from repo root)
 # Revert with: git apply -R <this file>
+
 diff --git a/packages/headless/src/modules/contract-product/useContractProduct.meta.ts b/packages/headless/src/modules/contract-product/useContractProduct.meta.ts
 --- a/packages/headless/src/modules/contract-product/useContractProduct.meta.ts
 +++ b/packages/headless/src/modules/contract-product/useContractProduct.meta.ts
-@@ -349,7 +349,7 @@
-     isPending,
- 
-     /** True while a write is in flight. */
--    isProcessing: useStateMatches(state, [
-+    isSubmitting: useStateMatches(state, [
-       "processing",
-       "available.cancelling.processing",
-       "available.consolidating.processing",
+@@ -282,9 +282,7 @@
+   const isOnTrial = useStateMatches(state, ContractProductState.TRIAL_RUNNING);
+   const isPending = useStateMatches(state, ContractProductState.PENDING);
+   const isProcessing = useStateMatches(state, [
+-    "processing",
+-    ...values(ContractProductRegionLoadingStates),
+-    ...values(ContractProductRegionWriteStates)
++    ...values(ContractProductRegionLoadingStates)
+   ]);
+   const isSetupIncomplete = useStateMatches(
+     state,

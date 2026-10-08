@@ -1,0 +1,21 @@
+# Negative-control mutant — the invoice a write raised survives the re-read
+#
+# Spec it must flip: contract-product.client.unit.test.ts > "AC-44 — the invoice survives the re-read"
+# Mutation: the `loading` entry clears the issued invoice.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+
+diff --git a/packages/headless/src/modules/contract-product/contract-product.machine.ts b/packages/headless/src/modules/contract-product/contract-product.machine.ts
+--- a/packages/headless/src/modules/contract-product/contract-product.machine.ts
++++ b/packages/headless/src/modules/contract-product/contract-product.machine.ts
+@@ -81,7 +81,8 @@
+           "clearCancellation",
+           "clearConsolidation",
+           "clearBillingEntity",
+-          "clearMigration"
++          "clearMigration",
++          "clearIssuedInvoice"
+         ],
+         invoke: {
+           src: "load",

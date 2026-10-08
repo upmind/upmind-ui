@@ -1,13 +1,11 @@
-# Negative-control mutant 20 — repreview (FE-3206)
+# Negative-control mutant — changing an option re-prices the change
 #
-# Mutation: do not run the dry run again on a change: `previewed` takes no `MIGRATION.CHANGED`.
-# Spec it must turn red: "Changing an option ... re-prices what the change costs".
-#
-# Authored by the developer seat against the landed production source. The
-# prover applies it blind (tasks.md T41): apply, run the named spec, revert.
+# Spec it must flip: contract-product.replay.int.test.ts > "@AC-30 @AC-32 Changing an option of the chosen plan re-prices what the change costs"
+# Mutation: `previewed` takes no `MIGRATION.CHANGED`.
 #
 # Apply with:  git apply <this file>   (run from repo root)
 # Revert with: git apply -R <this file>
+
 diff --git a/packages/headless/src/modules/contract-product/contract-product.machine.ts b/packages/headless/src/modules/contract-product/contract-product.machine.ts
 --- a/packages/headless/src/modules/contract-product/contract-product.machine.ts
 +++ b/packages/headless/src/modules/contract-product/contract-product.machine.ts

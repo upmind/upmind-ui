@@ -21,21 +21,16 @@ export enum ROUTE {
   // --- HOME ROUTE ------------------------------------------------------------
   HOME = "home",
 
-  // --- ORDER ROUTES ----------------------------------------------------------
-  /**
-   * The order/invoice pay page — the parent the pay overlay opens over.
-   */
-  ORDER = "order",
-
+  // --- PAY OVERLAYS ----------------------------------------------------------
   /**
    * The pay OVERLAY — the payment surface an off-site gateway return re-opens
-   * over the order page, injected as `<order>--pay` (FE-3133).
+   * over the invoice page, injected as `<useInvoice>--pay` (FE-3133).
    */
   OVERLAY_PAY = "overlay-pay",
 
   /**
    * The pay-INIT overlay — the live pay control an `?init=pay` deep link opens
-   * over the order page, injected as `<order>--payment`. Distinct from
+   * over the invoice page, injected as `<useInvoice>--payment`. Distinct from
    * `OVERLAY_PAY`, which resumes an off-site return and does no work.
    */
   OVERLAY_PAYMENT = "overlay-payment",
@@ -63,6 +58,12 @@ export enum ROUTE {
    * `<parent>--upgrade`. STUB until CT-1 (FE-3029) + CT-2 (FE-3206).
    */
   OVERLAY_UPGRADE = "overlay-upgrade",
+
+  /**
+   * The confirmation OVERLAY — asks before a write that raises an invoice runs,
+   * injected as `<parent>--confirm`.
+   */
+  OVERLAY_CONFIRM = "overlay-confirm",
 
   // --- SESSION/AUTH ROUTES ---------------------------------------------------
   /**

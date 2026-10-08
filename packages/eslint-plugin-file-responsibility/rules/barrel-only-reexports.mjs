@@ -5,9 +5,14 @@
  * In a module `index.ts`, flag:
  *  - any declaration (function, class, variable, type, enum, default export);
  *  - `export *` from a file outside the module folder (a sibling module);
- *  - a named re-export of an `@internal` file.
+ *  - a named re-export of an `@internal` file, except a `*.mappers.ts` file.
  *
- * `export * from "./x.types"` inside the module stays legal.
+ * `export * from "./x.types"` inside the module stays legal. A named
+ * re-export of a mapper stays legal too: a pure wire-to-domain mapper is the
+ * one internal kind another module may share (the `contract` module maps its
+ * `products` relation with `contract-product`'s mapper), and
+ * `@internal/no-cross-module-imports` forbids the deep import, so the barrel
+ * is the only legal door. Machine, services and schemas files stay closed.
  *
  * @module packages/eslint-plugin-file-responsibility/rules/barrel-only-reexports
  */
@@ -16,6 +21,7 @@ import path from "node:path";
 import {
   isBarrelFile,
   isInternalByName,
+  isMappersFile,
   moduleDirOf,
   resolveRelative
 } from "../util.mjs";
@@ -36,7 +42,7 @@ export default {
     type: "problem",
     docs: {
       description:
-        "Allow only curated re-exports in a module `index.ts`: no declaration, no `export *` of a sibling module, no re-export of an @internal file."
+        "Allow only curated re-exports in a module `index.ts`: no declaration, no `export *` of a sibling module, no re-export of an @internal file other than a mapper."
     },
     schema: [],
     messages: {
@@ -90,7 +96,7 @@ export default {
         if (!node.source) return;
         const source = node.source.value;
         const target = resolveRelative(filename, source);
-        if (target && isInternalByName(target)) {
+        if (target && isInternalByName(target) && !isMappersFile(target)) {
           context.report({
             node,
             messageId: "internalReexport",

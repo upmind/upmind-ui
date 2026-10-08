@@ -1,0 +1,21 @@
+# Negative-control mutant — the billing-entity form opens only where it can change
+#
+# Spec it must flip: contract-product.client.unit.test.ts > "AC-45 — the billing-entity picker > the picker reads nothing while the billing entity cannot change"
+# Mutation: opening the billing-entity form drops its gate.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+
+diff --git a/packages/headless/src/modules/contract-product/contract-product.machine.ts b/packages/headless/src/modules/contract-product/contract-product.machine.ts
+--- a/packages/headless/src/modules/contract-product/contract-product.machine.ts
++++ b/packages/headless/src/modules/contract-product/contract-product.machine.ts
+@@ -635,8 +635,7 @@
+               idle: {
+                 on: {
+                   BILLING_ENTITY: {
+-                    target: "loading",
+-                    cond: "canSetBillingEntity"
++                    target: "loading"
+                   }
+                 }
+               },

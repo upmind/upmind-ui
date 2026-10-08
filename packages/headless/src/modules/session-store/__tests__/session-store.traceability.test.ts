@@ -51,20 +51,12 @@ const FEATURES = map(
 );
 
 /**
- * The specs that prove this feature. The two outside the module are listed by
- * hand because guest capability is proven where it is consumed as well as where
- * it is stored; moving either one is a break this test is meant to report.
+ * The specs outside the module that prove this feature, listed by hand because
+ * guest capability is also proven where the auth module mints it; moving one is
+ * a break this test is meant to report.
  */
 const EXTERNAL_SPECS = [
-  join(here, "../../auth/__tests__/auth.guest-session.int.test.ts"),
-  join(
-    here,
-    "../../../../../../playgrounds/labs-nuxt/app/components/scope/__tests__/guest-session-rows.spec.ts"
-  ),
-  join(
-    here,
-    "../../../../../../playgrounds/labs-nuxt/app/components/scope/__tests__/guest-brand-validity.spec.ts"
-  )
+  join(here, "../../auth/__tests__/auth.guest-session.int.test.ts")
 ];
 
 /**

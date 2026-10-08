@@ -51,10 +51,10 @@ const HOSTS = [
   }
 ];
 
-const TEMPLATE_TREES = concat(
-  map(HOSTS, host => ({ name: host.name, tree: host.tree })),
-  [{ name: "labs-nuxt", tree: "playgrounds/labs-nuxt/app" }]
-);
+const TEMPLATE_TREES = map(HOSTS, host => ({
+  name: host.name,
+  tree: host.tree
+}));
 
 // Domain's record is keyed by its one template, so its pick is graded in the app shell's own spec.
 const RECORDED = { modules: 10, templates: 43, picks: 11 };

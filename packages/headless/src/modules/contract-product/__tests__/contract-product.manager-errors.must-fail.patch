@@ -1,24 +1,20 @@
-# Negative-control mutant — the manager publishes the failed read's messages
+# Negative-control mutant — the manager publishes the failed read's message
 #
-# Scenario it must flip: contract-product.feature >
-#   "Opening a product that is not mine fails, and I am shown why at once"
-# Test that goes red: contract-product.replay.int.test.ts > that scenario —
-#   "Then I am shown the reason my read of it was refused" — the manager context
-#   publishes no `errors` member.
-# Mutation: drops the `errors` member from the manager context factory.
+# Spec it must flip: contract-product.replay.int.test.ts > "Opening a product that is not mine fails, and I am shown why at once"
+# Mutation: the context's `errors` reads a path no error carries.
 #
 # Apply with:  git apply <this file>   (run from repo root)
 # Revert with: git apply -R <this file>
+
 diff --git a/packages/headless/src/modules/contract-product/useContractProduct.context.ts b/packages/headless/src/modules/contract-product/useContractProduct.context.ts
 --- a/packages/headless/src/modules/contract-product/useContractProduct.context.ts
 +++ b/packages/headless/src/modules/contract-product/useContractProduct.context.ts
-@@ -76,9 +76,6 @@ export function createContractProductContext(
-     /** Machine-captured error, if any — read, never raised. */
+@@ -91,7 +91,7 @@
      error: useContext<ResponseError | undefined>(state, "error"),
  
--    /** Machine-captured error message, if any — read, never raised. */
+     /** Machine-captured error message, if any — read, never raised. */
 -    errors: useContext<ResponseError["message"]>(state, "error.message"),
--
-     /** The product this manager acts on (undefined for a new item). */
-     id: useContext<string | undefined>(state, "contractProductId"),
++    errors: useContext<ResponseError["message"]>(state, "error.reason"),
  
+     /** The product this manager acts on. */
+     id: useContext<string | undefined>(state, "contractProductId"),

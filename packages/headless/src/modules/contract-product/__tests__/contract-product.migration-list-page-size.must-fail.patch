@@ -1,22 +1,20 @@
-# Negative-control mutant 14 — list-page-size (FE-3206)
+# Negative-control mutant — the plan list asks for four plans
 #
-# Mutation: ask for a page of 5.
-# Spec it must turn red: "See the plans ..." ("four plans are asked for").
-#
-# Authored by the developer seat against the landed production source. The
-# prover applies it blind (tasks.md T41): apply, run the named spec, revert.
+# Spec it must flip: contract-product.replay.int.test.ts > "@AC-28 See the plans I can change my subscription to"
+# Mutation: the page size is 5.
 #
 # Apply with:  git apply <this file>   (run from repo root)
 # Revert with: git apply -R <this file>
-diff --git a/packages/headless/src/modules/contract-product/useContractProduct.ts b/packages/headless/src/modules/contract-product/useContractProduct.ts
---- a/packages/headless/src/modules/contract-product/useContractProduct.ts
-+++ b/packages/headless/src/modules/contract-product/useContractProduct.ts
-@@ -37,7 +37,7 @@
- import type { ActorRef, AnyEventObject } from "xstate";
- // -----------------------------------------------------------------------------
- /** The page size of the plan list — four plans for each page, as legacy asks [o5]. */
--const MIGRATION_PAGE_SIZE = 4;
-+const MIGRATION_PAGE_SIZE = 5;
+
+diff --git a/packages/headless/src/modules/contract-product/contract-product.types.ts b/packages/headless/src/modules/contract-product/contract-product.types.ts
+--- a/packages/headless/src/modules/contract-product/contract-product.types.ts
++++ b/packages/headless/src/modules/contract-product/contract-product.types.ts
+@@ -711,7 +711,7 @@
+   };
  
- /** The members of `useProductConfig` a change of plan does not give. */
- const MIGRATION_CONFIG_OMITTED = [
+ /** The page size of the migration product list. */
+-export const MIGRATION_PAGE_SIZE = 4;
++export const MIGRATION_PAGE_SIZE = 5;
+ 
+ /**
+  * The cancellation form model. `futureCancellationDate` is required only for

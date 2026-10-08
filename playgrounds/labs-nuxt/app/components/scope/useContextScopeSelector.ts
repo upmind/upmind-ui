@@ -104,7 +104,7 @@ const recentContexts = useStorage<RecentContext[]>(
  *
  * @example
  * ```ts
- * // In a page using useAuth
+ * // In a scenario page
  * const { register } = useContextScopeSelector();
  *
  * // Register auth's context matrix on mount

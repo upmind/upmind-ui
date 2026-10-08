@@ -1,0 +1,21 @@
+# Negative-control mutant — the owner lists are read only once the form opens
+#
+# Spec it must flip: contract-product.client.unit.test.ts > "AC-45 — the billing-entity picker > the picker reads nothing while the billing entity cannot change"
+# Mutation: the product read also reads the address and company lists.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+
+diff --git a/packages/headless/src/modules/contract-product/contract-product.services.ts b/packages/headless/src/modules/contract-product/contract-product.services.ts
+--- a/packages/headless/src/modules/contract-product/contract-product.services.ts
++++ b/packages/headless/src/modules/contract-product/contract-product.services.ts
+@@ -128,7 +128,8 @@
+       staleTime: 0,
+       gcTime: 0
+     }),
+-    loadCancellationFields(scopeActor)
++    loadCancellationFields(scopeActor),
++    loadBillingEntities(scopeActor)
+   ]);
+ 
+   return contractProduct;

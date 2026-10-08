@@ -1,0 +1,20 @@
+# Negative-control mutant — the label goes to the product path
+#
+# Spec it must flip: contract-product.replay.int.test.ts > "@AC-40 Give my product my own label"
+# Mutation: `setClientLabel` sends to `contracts/{c}/products/{p}`.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+
+diff --git a/packages/headless/src/modules/contract-product/contract-product.services.ts b/packages/headless/src/modules/contract-product/contract-product.services.ts
+--- a/packages/headless/src/modules/contract-product/contract-product.services.ts
++++ b/packages/headless/src/modules/contract-product/contract-product.services.ts
+@@ -454,7 +454,7 @@
+ 
+   return put<IContractProduct>({
+     mutationKey: [...queryKey, ids.contractProductId, "client-label"],
+-    url: useUrl(`contract_products/${ids.contractProductId}`),
++    url: useUrl(`contracts/${ids.contractId}/products/${ids.contractProductId}`),
+     data: model,
+     withAccessToken: true
+   }).then(invalidateQueryByKey(queryKey, { exact: false }));

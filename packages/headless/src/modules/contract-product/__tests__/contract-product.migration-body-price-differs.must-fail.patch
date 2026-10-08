@@ -1,22 +1,20 @@
-# Negative-control mutant 18 — body-price-differs (FE-3206)
+# Negative-control mutant — an option whose price differs carries its new price
 #
-# Mutation: leave out a differing price.
-# Spec it must turn red: "Choose a plan ..." (the live body), and the AC-32 unit spec.
-#
-# Authored by the developer seat against the landed production source. The
-# prover applies it blind (tasks.md T41): apply, run the named spec, revert.
+# Spec it must flip: contract-product.migration.unit.test.ts > "AC-32 — the change body"
+# Mutation: a differing price is left out.
 #
 # Apply with:  git apply <this file>   (run from repo root)
 # Revert with: git apply -R <this file>
-diff --git a/packages/headless/src/modules/contract-product/contract-product.utils.ts b/packages/headless/src/modules/contract-product/contract-product.utils.ts
---- a/packages/headless/src/modules/contract-product/contract-product.utils.ts
-+++ b/packages/headless/src/modules/contract-product/contract-product.utils.ts
-@@ -457,7 +457,7 @@
+
+diff --git a/packages/headless/src/modules/contract-product/contract-product.mappers.ts b/packages/headless/src/modules/contract-product/contract-product.mappers.ts
+--- a/packages/headless/src/modules/contract-product/contract-product.mappers.ts
++++ b/packages/headless/src/modules/contract-product/contract-product.mappers.ts
+@@ -503,7 +503,7 @@
+ 
+   let price: number | undefined;
    if (isNumber(input.customPrice)) price = input.customPrice;
-   else if (oldPrice !== total) price = total;
+-  else if (oldPrice !== total) price = total;
++  else if (oldPrice === total) price = total;
  
--  return price === oldPrice ? undefined : price;
-+  return undefined;
+   return price === oldPrice ? undefined : price;
  }
- 
- /**

@@ -1,24 +1,20 @@
-# Negative-control mutant 55 — config-omits-trial (FE-3206)
+# Negative-control mutant — the configurator exposes no trial setter
 #
-# Mutation: Let `migrationConfig` expose `setTrial`.
-# Spec it must turn red: a unit spec: `migrationConfig` has no `setTrial` member (prover authors it; this patch is the contract).
-#
-# Authored by the developer seat against the landed production source. The
-# prover applies it blind (tasks.md T41): apply, run the named spec, revert.
+# Spec it must flip: contract-product.migration.unit.test.ts > "AC-34 — the configuration surface"
+# Mutation: the omitted members no longer name `setTrial`.
 #
 # Apply with:  git apply <this file>   (run from repo root)
 # Revert with: git apply -R <this file>
-diff --git a/packages/headless/src/modules/contract-product/useContractProduct.ts b/packages/headless/src/modules/contract-product/useContractProduct.ts
-index dc66893f5c..095c67194b 100644
---- a/packages/headless/src/modules/contract-product/useContractProduct.ts
-+++ b/packages/headless/src/modules/contract-product/useContractProduct.ts
-@@ -53,8 +53,7 @@ const MIGRATION_CONFIG_OMITTED = [
-   "provisionFields",
-   "provisionFieldsSchema",
-   "setProvisioningFields",
--  "getProvisioningField",
--  "setTrial"
-+  "getProvisioningField"
- ];
+
+diff --git a/packages/headless/src/modules/contract-product/contract-product.types.ts b/packages/headless/src/modules/contract-product/contract-product.types.ts
+--- a/packages/headless/src/modules/contract-product/contract-product.types.ts
++++ b/packages/headless/src/modules/contract-product/contract-product.types.ts
+@@ -197,7 +197,7 @@
+   PROVISION_FIELDS_SCHEMA = "provisionFieldsSchema",
+   SET_PROVISIONING_FIELDS = "setProvisioningFields",
+   GET_PROVISIONING_FIELD = "getProvisioningField",
+-  SET_TRIAL = "setTrial"
++  SET_TRIAL = "setTrail"
+ }
  
- /** The model keys a change of plan never sets: its form holds no trial and no provision field. */
+ /** The product model fields a migration never sets: its form holds no trial and no provision field. */

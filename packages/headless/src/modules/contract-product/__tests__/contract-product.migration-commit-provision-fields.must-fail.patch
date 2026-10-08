@@ -1,27 +1,24 @@
-# Negative-control mutant 40 — commit-provision-fields (FE-3206)
+# Negative-control mutant — the change body carries no provisioning details
 #
-# Mutation: put the child's provision fields in the change body.
-# Spec it must turn red: "A plan that needs provisioning details ..." ("carries no provisioning details"), and the AC-32 unit spec.
-#
-# Authored by the developer seat against the landed production source. The
-# prover applies it blind (tasks.md T41): apply, run the named spec, revert.
+# Spec it must flip: contract-product.migration.unit.test.ts > "AC-32 — the change body > sends no provisioning details, even when the configurator holds some"
+# Mutation: the change body carries the model's provision fields.
 #
 # Apply with:  git apply <this file>   (run from repo root)
 # Revert with: git apply -R <this file>
-diff --git a/packages/headless/src/modules/contract-product/contract-product.utils.ts b/packages/headless/src/modules/contract-product/contract-product.utils.ts
---- a/packages/headless/src/modules/contract-product/contract-product.utils.ts
-+++ b/packages/headless/src/modules/contract-product/contract-product.utils.ts
-@@ -491,8 +491,11 @@
+
+diff --git a/packages/headless/src/modules/contract-product/contract-product.mappers.ts b/packages/headless/src/modules/contract-product/contract-product.mappers.ts
+--- a/packages/headless/src/modules/contract-product/contract-product.mappers.ts
++++ b/packages/headless/src/modules/contract-product/contract-product.mappers.ts
+@@ -538,6 +538,9 @@
      ),
      attributes: flatMap(model.attributes, category =>
        map(category, value => ({ product_id: value.productId }))
 -    )
 -  };
+-}
 +    ),
 +    ...(model.provisionFields
 +      ? { provision_fields: model.provisionFields }
 +      : {})
-+  } as ChangeProductBody;
- }
- 
- /**
++  };
++}

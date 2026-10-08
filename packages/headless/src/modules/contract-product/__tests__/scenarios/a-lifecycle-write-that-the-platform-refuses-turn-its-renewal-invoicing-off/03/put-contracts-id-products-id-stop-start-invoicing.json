@@ -1,0 +1,55 @@
+{
+  "version": 3,
+  "request": {
+    "method": "PUT",
+    "path": "/api/contracts/085e69d5-6237-197e-995b-218e940d4237/products/4038696e-5472-1d50-465f-518d9305e7d2/stop_start_invoicing",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": {
+      "invoicing": false
+    }
+  },
+  "response": {
+    "status": 409,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a46839a3eaaf881b-DUR",
+      "connection": "keep-alive",
+      "content-type": "application/json",
+      "date": "Tue, 06 Oct 2026 22:50:28 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=QJTT2sDt0yCGchMLiwvvaeXVVYGrfUWJK5LwFlpjUriXaVXzwpk0tuOngHP%2FyfC0TeBk4Tl6PYGymz0bq931Tfm689%2B2%2F6%2FzLxevw6SJ%2F7qpQJ5we5xK7KBZ8ElrBvx%2Bemh6VtqYYQ%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "x-frame-options": "SAMEORIGIN"
+    },
+    "body": {
+      "status": "error",
+      "data": null,
+      "related": null,
+      "total": null,
+      "error": {
+        "id": "abd01f868bee49dd11387e834e17a660d736e21b",
+        "type": 0,
+        "code": 409,
+        "message": "Stopping automatic invoicing is not allowed for this product!",
+        "data": []
+      },
+      "messages": null,
+      "meta": null
+    }
+  },
+  "captured_at": "2026-10-06T22:50:27.991Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "contract-product"
+  }
+}

@@ -1,22 +1,20 @@
-# Negative-control mutant 50 — targets-error-flag (FE-3206)
+# Negative-control mutant — the plans list reports its failure
 #
-# Mutation: Make the plan-list error flag always false.
-# Spec it must turn red: a unit spec of `hasMigrationTargetsError` (plan list read fails, flag true; recovers, false) (prover authors it; this patch is the contract).
-#
-# Authored by the developer seat against the landed production source. The
-# prover applies it blind (tasks.md T41): apply, run the named spec, revert.
+# Spec it must flip: contract-product.migration.unit.test.ts > "AC-28 — the plans list failure flag"
+# Mutation: `hasMigrationTargetsError` is always false.
 #
 # Apply with:  git apply <this file>   (run from repo root)
 # Revert with: git apply -R <this file>
+
 diff --git a/packages/headless/src/modules/contract-product/useContractProduct.meta.ts b/packages/headless/src/modules/contract-product/useContractProduct.meta.ts
 --- a/packages/headless/src/modules/contract-product/useContractProduct.meta.ts
 +++ b/packages/headless/src/modules/contract-product/useContractProduct.meta.ts
-@@ -149,7 +149,7 @@ export function createContractProductMeta(
-     ),
- 
-     /** True if the plan list failed to load. */
--    hasMigrationTargetsError: computed(() => !!listMeta.value?.hasError),
-+    hasMigrationTargetsError: computed(() => false),
- 
-     /** True if the plan list has another page. */
-     hasMoreMigrationTargets: computed(() => !!listMeta.value?.hasNextPage),
+@@ -200,7 +200,7 @@
+   const isPaymentRequired = computed(
+     () => !!contextValue(state, "migrationResult.requiresPayment")
+   );
+-  const hasMigrationTargetsError = computed(() => !!listMeta.value?.hasError);
++  const hasMigrationTargetsError = computed(() => !listMeta);
+   const hasMoreMigrationTargets = computed(() => !!listMeta.value?.hasNextPage);
+   const hasNoMigrationTargets = computed(
+     () =>

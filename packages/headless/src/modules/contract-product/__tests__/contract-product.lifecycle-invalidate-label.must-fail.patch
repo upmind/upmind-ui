@@ -1,0 +1,20 @@
+# Negative-control mutant — setting the label refreshes the products list
+#
+# Spec it must flip: contract-product.replay.int.test.ts > "@AC-43 A lifecycle write refreshes my products list — set its label"
+# Mutation: `setClientLabel` drops its invalidation.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+
+diff --git a/packages/headless/src/modules/contract-product/contract-product.services.ts b/packages/headless/src/modules/contract-product/contract-product.services.ts
+--- a/packages/headless/src/modules/contract-product/contract-product.services.ts
++++ b/packages/headless/src/modules/contract-product/contract-product.services.ts
+@@ -457,7 +457,7 @@
+     url: useUrl(`contract_products/${ids.contractProductId}`),
+     data: model,
+     withAccessToken: true
+-  }).then(invalidateQueryByKey(queryKey, { exact: false }));
++  });
+ }
+ 
+ /** Resolves the picked id against the owner lists, then writes the contract's address and company. */

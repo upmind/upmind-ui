@@ -1,17 +1,11 @@
-# Negative-control mutant 49 — count-reread-key (FE-3206)
+# Negative-control mutant — a re-read with changed plans re-counts them
 #
-# Mutation: drop the ids leaf from the scope filters, so the criteria (and so
-# the query key) carry no ids and a re-read with changed ids sends no
-# `filter[id]` (R20).
-# Spec it must turn red: the AC-28 unit spec, the scope holders (the re-read
-# case) — `contract-product.migration.test.ts` (~line 985, the `filter[id]`
-# assertion on the last count read).
-#
-# Authored by the developer seat against the landed production source. The
-# prover applies it blind (tasks.md T41): apply, run the named spec, revert.
+# Spec it must flip: contract-product.migration.unit.test.ts > "AC-28 — the scope holders > a re-read that changes the plans my plan allows stops the old instances, and counts and lists the new plans"
+# Mutation: the scope filters drop the ids leaf.
 #
 # Apply with:  git apply <this file>   (run from repo root)
 # Revert with: git apply -R <this file>
+
 diff --git a/packages/headless/src/modules/product-catalogue/product-catalogue.schemas.ts b/packages/headless/src/modules/product-catalogue/product-catalogue.schemas.ts
 --- a/packages/headless/src/modules/product-catalogue/product-catalogue.schemas.ts
 +++ b/packages/headless/src/modules/product-catalogue/product-catalogue.schemas.ts

@@ -61,7 +61,9 @@ export const UPGRADE_OVERLAY_ID = "upgrade";
  */
 export const InitIntent = {
   PAY: "pay",
-  UPGRADE: "upgrade"
+  UPGRADE: "upgrade",
+  END_TRIAL: "end-trial",
+  NEXT_INVOICE: "next-invoice"
 } as const;
 
 export type InitIntent = (typeof InitIntent)[keyof typeof InitIntent];
@@ -72,5 +74,18 @@ export type InitIntent = (typeof InitIntent)[keyof typeof InitIntent];
  */
 export const INIT_INTENT_OVERLAY: Record<InitIntent, string> = {
   [InitIntent.PAY]: PAYMENT_OVERLAY_ID,
-  [InitIntent.UPGRADE]: UPGRADE_OVERLAY_ID
+  [InitIntent.UPGRADE]: UPGRADE_OVERLAY_ID,
+  [InitIntent.END_TRIAL]: `${InitIntent.END_TRIAL}/confirm`,
+  [InitIntent.NEXT_INVOICE]: `${InitIntent.NEXT_INVOICE}/confirm`
 };
+
+/**
+ * The write a confirmation overlay runs, keyed by the route segment that names
+ * it: `/<record>/<segment>/confirm`.
+ */
+export const CONFIRM_WRITES = {
+  [InitIntent.END_TRIAL]: "endTrial",
+  [InitIntent.NEXT_INVOICE]: "issueNextInvoice"
+} as const;
+
+export type ConfirmSegment = keyof typeof CONFIRM_WRITES;

@@ -106,7 +106,7 @@ export function servesContext(
 }
 
 export type ScopePathConfig = {
-  /** Page path (e.g., "useAuth", "products") */
+  /** Page path (e.g., "useInvoices", "products") */
   page: string;
   /** Brand ID or 'org' for org-wide mode */
   brandId?: string;
@@ -133,12 +133,12 @@ export type ScopePathConfig = {
  * // => "/as/user" (STAFF = "user", not "staff")
  *
  * @example
- * buildScopePath({ page: "useAuth", actor: ScopeActorTypes.STAFF })
- * // => "/useAuth/as/user"
+ * buildScopePath({ page: "useInvoices", actor: ScopeActorTypes.STAFF })
+ * // => "/useInvoices/as/user"
  *
  * @example
- * buildScopePath({ page: "useAuth", brandId: "brand-x", actor: ScopeActorTypes.STAFF })
- * // => "/brand-x/useAuth/as/user"
+ * buildScopePath({ page: "useInvoices", brandId: "brand-x", actor: ScopeActorTypes.STAFF })
+ * // => "/brand-x/useInvoices/as/user"
  *
  * @example
  * buildScopePath({
@@ -217,14 +217,14 @@ export function useScopeNavigation() {
    * @returns Promise that resolves when navigation completes
    *
    * @example
-   * // Current URL: /useAuth/as/user (STAFF = "user")
+   * // Current URL: /useInvoices/as/user (STAFF = "user")
    * await updateScopeParam("context", { type: "client", id: "123" })
-   * // New URL: /useAuth/as/user/for/client/123
+   * // New URL: /useInvoices/as/user/for/client/123
    *
    * @example
-   * // Current URL: /brand-x/useAuth/as/user/for/client/123
+   * // Current URL: /brand-x/useInvoices/as/user/for/client/123
    * await updateScopeParam("actor", ScopeActorTypes.CLIENT)
-   * // New URL: /brand-x/useAuth/as/client
+   * // New URL: /brand-x/useInvoices/as/client
    */
   function updateScopeParam(
     param: "brandId" | "actor" | "context",
