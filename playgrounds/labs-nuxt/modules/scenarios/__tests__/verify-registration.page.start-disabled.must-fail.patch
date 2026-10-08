@@ -1,0 +1,17 @@
+AC: the start control is disabled outside idle and enabled again after Try again resets to idle
+Spec: verify-registration.page.retry-and-timeout.spec.ts
+Mutation: the start button is never disabled
+Apply from the repo root with: git apply -p1 playgrounds/labs-nuxt/modules/scenarios/__tests__/verify-registration.page.start-disabled.must-fail.patch
+
+diff --git a/playgrounds/labs-nuxt/modules/scenarios/useVerifyRegistration/verify-registration.page.vue b/playgrounds/labs-nuxt/modules/scenarios/useVerifyRegistration/verify-registration.page.vue
+index 64a5067c07..c129861b82 100644
+--- a/playgrounds/labs-nuxt/modules/scenarios/useVerifyRegistration/verify-registration.page.vue
++++ b/playgrounds/labs-nuxt/modules/scenarios/useVerifyRegistration/verify-registration.page.vue
+@@ -31,7 +31,6 @@
+             <Button
+               variant="primary"
+               :loading="isStarting || meta.isProcessing.value"
+-              :disabled="context.currentState.value !== 'idle'"
+               :data-attrs="{ 'data-test-key': 'verify-registration-start' }"
+               @click="start"
+             >

@@ -1,0 +1,18 @@
+AC: a complete_registration grant without access_token ends in completionFailed with the error published and isProcessing false
+Spec: auth.verify-registration.guest.int.test.ts
+Mutation: mapRegistrationToken no longer rejects a grant that has no access_token
+Apply from the repo root with: git apply -p1 packages/headless/src/modules/auth/__tests__/auth.verify-registration.token-guard.must-fail.patch
+
+diff --git a/packages/headless/src/modules/auth/auth.mappers.ts b/packages/headless/src/modules/auth/auth.mappers.ts
+index 85eea48f89..73ba9a7188 100644
+--- a/packages/headless/src/modules/auth/auth.mappers.ts
++++ b/packages/headless/src/modules/auth/auth.mappers.ts
+@@ -128,7 +128,7 @@ export function mapVerifyRegistration(value: unknown): VerifyRegistrationData {
+  * invoke fails into its `onError` route instead of throwing in the save action.
+  */
+ export function mapRegistrationToken(token: IToken): IToken {
+-  if (!token?.access_token) {
++  if (false) {
+     const { t } = useI18n();
+     throw new DetailedError(
+       t("error.token_not_available"),
