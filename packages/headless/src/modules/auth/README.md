@@ -28,6 +28,7 @@ Think of `auth` like a bouncer at a club. The bouncer knows the rules for each t
 import {
   useAuth, // Main scoped composable
   useVerifyEmail, // URL-hash email verification flow (M2)
+  useVerifyRegistration, // registration-activation link landing
   mapClient, // IClient → Client view model (M7)
   mapIClient // Client → IClient (lossy)
 } from "@upmind-automation/headless";

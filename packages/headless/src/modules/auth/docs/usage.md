@@ -1,6 +1,6 @@
 # Auth Module Usage
 
-API reference for `useAuth`, `useVerifyEmail`, and the exported register schemas. All examples are copy-paste ready.
+API reference for `useAuth`, `useVerifyEmail`, `useVerifyRegistration`, and the exported register schemas. All examples are copy-paste ready.
 
 ## Getting an instance
 
@@ -235,6 +235,90 @@ useVerifyEmail().verifyFromLink();
 Fire-and-forget: it never throws, and the redirect happens synchronously — success or failure surfaces via the refreshed session state, not a return value.
 
 > **🧪 For Testers:** Opening a valid verification link marks the email verified (the account's unverified banner/standing clears after the session refreshes). Opening a link with missing or mangled params leaves the email unverified — and no verify request reaches the API when any param is absent.
+
+## Registration activation landing — `useVerifyRegistration()`
+
+For the landing page of a registration-activation link (`?username=…&hash=…&expires=…&redirect=…`). The composable checks the link, verifies it with the API, asks for a password when the account has none, completes the registration and saves the client token. It never navigates: the page reads the outcome and routes.
+
+```ts
+import {
+  ScopeActorTypes,
+  useVerifyRegistration
+} from "@upmind-automation/headless";
+
+declare const query: {
+  username?: string;
+  hash?: string;
+  expires?: string;
+  redirect?: string;
+};
+declare function goTo(path: string): void;
+
+const landing = useVerifyRegistration().as(ScopeActorTypes.SELF);
+const actions = landing.useActions();
+const { currentState, redirect, error } = landing.useContext();
+const { isSuccess, isExpiredOrInvalid } = landing.useMeta();
+
+actions.verify(query);
+await actions.isReady();
+
+if (isSuccess.value) goTo(redirect.value ?? "/");
+else if (isExpiredOrInvalid.value) console.warn(error.value?.message);
+// currentState.value === "needsPassword" -> render the set-password form
+
+actions.destroy(); // on unmount
+```
+
+Pass the raw link values to `verify()`. A missing `username` or `hash`, or an `expires` in the past, ends in `expiredOrInvalid` with no verify request sent.
+
+### Actions
+
+| Action                   | Effect                                                                                                                                     |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| `verify(params)`         | Starts the landing with the raw link values. Handled only in `idle`.                                                                       |
+| `set(model)`             | Merges a partial set-password model. While the form shows validation errors, each `set()` re-validates, so a fixed field clears its error. |
+| `completeRegistration()` | Submits the set-password form. Validates first; no request is sent while the form is invalid. No effect outside `needsPassword`.           |
+| `reset()`                | Runs the link check again from any state except `idle`.                                                                                    |
+| `isReady()`              | Resolves once the landing settles at `needsPassword` or an outcome.                                                                        |
+| `destroy()`              | Stops the instance and removes it from the registry.                                                                                       |
+
+### Context
+
+`currentState` (`"needsPassword"` is the form view key), `data` (mapped verify answer), `error` (published failure, with the API `apiCode` when the API sent one), `model` (set-password form model, prefilled with the link username), `redirect` (same-app return path, `undefined` when unsafe or absent; navigate without decoding it), `schema` and `uischema` (the set-password form), `sessionId` (the new client session id, set when the grant succeeds), `twoFAProvider` (lower-cased provider, `""` when none, `null` before the verify) and `validationErrors` (pass to `UpmForm` `additionalErrors`).
+
+### Meta
+
+`isVerifying`, `isProcessing`, `isSuccess` (alias `isComplete`), `isExpiredOrInvalid`, `needsPassword`, `needsCompleteStep`, `twoFARequired`, `hasErrors`, `hasValidationErrors`. `needsPassword` is not a view key; branch on `currentState`.
+
+### Failures
+
+A refused link, a past expiry and a failed set-password grant all end in `expiredOrInvalid`. A failed grant for an account that already has a password ends in `completionFailed`. A blocked IP answers 403 with API code `ip_address_disallowed`; test `error.status === 403 && error.apiCode === "ip_address_disallowed"` first and show `error.message` rather than the expired message.
+
+### Waiting for the new user
+
+`success` means the client token is saved, not that the session switch has finished. The new session becomes active after its `/self` request settles. A consumer that needs the user before it navigates waits in two steps. Read the instance-key and signed-in-client caveats in the gotchas first (gotcha 12).
+
+```ts
+import {
+  ScopeActorTypes,
+  useActiveSession,
+  useVerifyRegistration
+} from "@upmind-automation/headless";
+import { until } from "@vueuse/core";
+
+const landing = useVerifyRegistration().as(ScopeActorTypes.SELF);
+const { sessionId } = landing.useContext();
+const session = useActiveSession();
+
+// 1. wait for the new session to become the active one
+await until(session.useContext().sessionId).toBe(sessionId.value);
+// 2. then read the outcome of its /self request: the user, or a rejection
+const user = await session.useActions().whenAuthenticated();
+```
+
+> **🧪 For Testers:** Opening a valid link for an account with no password shows the set-password form; a mismatched confirmation keeps the form up with a field error and sends nothing. Opening a link for an account that has a password signs the user in with no form. A link with a missing value, a past expiry or a refused verify shows the expired state.
+
+> **👩‍💻 For Developers:** Hold the one instance you created. Do not call `.as("self")` again after `success`; see gotcha 12.
 
 ## Register schemas — `useRegisterSchema` / `useRegisterUischema`
 

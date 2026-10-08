@@ -14,6 +14,7 @@ Baseline entry for the module as it exists after the @next structure adoption + 
 - `onError` settlement callback alongside `onDone`, so unattended flows (e.g. the boot-time guest mint) never hang on a failed attempt.
 - Register form schema exports (`useRegisterSchema` / `useRegisterUischema`) reused by the `account` module's guest-upgrade form.
 - Co-located wire recordings under `__tests__/fixtures/` (ADR-025): oauth password/guest/refresh grants, bad-password 401, malformed 400, register 200/422/401. 2FA-grant recordings pending FE-2788.
+- Scoped composable `useVerifyRegistration().as(actor)` for the registration-activation link landing: verifies the link, collects a password when the account has none, completes the registration through the `complete_registration` grant and saves the client token. Publishes `sessionId`, `redirect` (same-app paths only), `twoFAProvider` and the API `apiCode` on failures; never navigates. See usage and gotcha 12 for the instance-key and signed-in-client limits.
 - Documentation suite (`docs/`): foundation (platform reference), README, architecture, usage, gotchas, this changelog.
 
 ### Changed

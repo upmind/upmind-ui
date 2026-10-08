@@ -110,3 +110,18 @@ if (activeUser.value?.isGuest) showGuestBanner();
 **Problem:** `useAuth().as("staff")` exposes only login (+2FA via the `twofa-admin` grant) through `start()`. Register and recover services exist for staff (org registration, admin password reset) but `start("register" | "recover")` is a client-only signature — the staff action set doesn't offer flow selection. Impersonation (`.as("staff").for("client", id)`) mints a client-scoped token via the admin path and registers the impersonation with session-store; `canRegister`/`canRecover` are `false` whenever a `scopeContext` is set.
 
 > **🧪 For Testers:** A staff instance never shows register or recover forms. When staff impersonate a client, the resulting session acts as that client and is tracked as an impersonated session.
+
+## 12. The instance key moves when the client session activates
+
+**Problem:** `useVerifyRegistration().as("self")` keys its instance by the actor that `self` resolves to at the first call. On a registration link opened with no client signed in, that actor is guest, so the key is `useVerifyRegistration:guest`. With a client or staff session already active, `self` resolves to that actor and the key carries it. The key then moves: the new client session becomes active only after its `/self` request settles, not at `success`. Between `success` and that point, `.as("self")` still returns the held instance. After it, `.as("self")` resolves to client and builds a new, idle instance, while the held one keeps its outcome.
+
+Rules that follow: hold the one instance across the grant, never call `.as("self")` again after `success`, and call `destroy()` on the held instance on unmount. `.as("guest")` is not needed.
+
+**Signed known limit — another client already signed in.** When client A is signed in and the link activates client B, the session store decides which session is active:
+
+- If the `/self` request for B succeeds, B becomes the active client.
+- If the `/self` request for B fails, A stays the active client. The session store does not switch to a session whose `/self` failed, and this module does not change that.
+
+`success` is reached in both cases, because it means the token is saved. `useActiveSession().useActions().whenAuthenticated()` on its own resolves at once with A, so a page that awaits it navigates as A and never sees B's `/self` failure. Wait in the two steps shown in the usage doc: first until the active `sessionId` equals the landing's `sessionId`, then `whenAuthenticated()`. One residual case: when the grant returns the same actor id as the signed-in client, the first step passes before the new `/self` settles.
+
+> **🧪 For Testers:** With no client signed in, opening an activation link signs the new client in once their profile loads. With client A signed in, a link whose new client loads fine makes the new client the active one. If the new client's profile request fails, client A stays active and the page that waited only for "authenticated" treats A as the result; this is a known limit, not a regression.

@@ -37,16 +37,17 @@ const { isAuthenticated, is2faRequired, hasErrors } = auth.useMeta();
 
 ## Features
 
-| Capability                              | Actor scopes     | How                                              |
-| --------------------------------------- | ---------------- | ------------------------------------------------ |
-| Username/password login                 | client, staff    | `start("login")` → `resolve(model)`              |
-| Two-factor verification                 | client, staff    | `resolve({ token: code })` while `is2faRequired` |
-| Registration (with brand custom fields) | client           | `start("register")` → `resolve(model)`           |
-| Two-step guest-customer registration    | client (guarded) | `registerAsGuest()`                              |
-| Password recovery                       | client, staff    | `start("recover")` → `resolve(model)`            |
-| Anonymous guest-token mint              | guest            | machine boots straight into it                   |
-| Email verification from a link          | any              | `useVerifyEmail().verifyFromLink()`              |
-| Form schemas (JSON Forms)               | all              | `useContext().schema` / `.uischema`              |
+| Capability                              | Actor scopes     | How                                                     |
+| --------------------------------------- | ---------------- | ------------------------------------------------------- |
+| Username/password login                 | client, staff    | `start("login")` → `resolve(model)`                     |
+| Two-factor verification                 | client, staff    | `resolve({ token: code })` while `is2faRequired`        |
+| Registration (with brand custom fields) | client           | `start("register")` → `resolve(model)`                  |
+| Two-step guest-customer registration    | client (guarded) | `registerAsGuest()`                                     |
+| Password recovery                       | client, staff    | `start("recover")` → `resolve(model)`                   |
+| Anonymous guest-token mint              | guest            | machine boots straight into it                          |
+| Email verification from a link          | any              | `useVerifyEmail().verifyFromLink()`                     |
+| Registration activation landing         | self (any actor) | `useVerifyRegistration().as("self")` → `verify(params)` |
+| Form schemas (JSON Forms)               | all              | `useContext().schema` / `.uischema`                     |
 
 ## Key Concepts
 
@@ -63,10 +64,10 @@ const { isAuthenticated, is2faRequired, hasErrors } = auth.useMeta();
 
 ## Documentation
 
-| Doc                                  | What's inside                                                 |
-| ------------------------------------ | ------------------------------------------------------------- |
-| [architecture.md](./architecture.md) | State machine diagram, data flow, integration points          |
-| [usage.md](./usage.md)               | Full API reference with copy-paste examples                   |
-| [gotchas.md](./gotchas.md)           | Edge cases: 2FA, guest tokens, refresh, final-state semantics |
-| [foundation.md](./foundation.md)     | Platform-level reference (framework-agnostic, for rebuilders) |
-| [CHANGELOG.md](./CHANGELOG.md)       | Version history                                               |
+| Doc                                  | What's inside                                                                                  |
+| ------------------------------------ | ---------------------------------------------------------------------------------------------- |
+| [architecture.md](./architecture.md) | State machine diagram, data flow, integration points                                           |
+| [usage.md](./usage.md)               | Full API reference with copy-paste examples                                                    |
+| [gotchas.md](./gotchas.md)           | Edge cases: 2FA, guest tokens, refresh, final-state semantics, activation-landing instance key |
+| [foundation.md](./foundation.md)     | Platform-level reference (framework-agnostic, for rebuilders)                                  |
+| [CHANGELOG.md](./CHANGELOG.md)       | Version history                                                                                |
