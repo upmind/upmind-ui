@@ -7,8 +7,7 @@
  * The three raw "type an ID" popovers this replaced — `BrandScopeSelector`,
  * `ActorScopeSelector`, `ContextScopeSelector` — and the `ImpersonationBar` are
  * gone (`AC1.1`, `F5 CORRECTED`); their mechanisms live on in the segments and
- * in `useActorScopeSelector`, which the segments and the `useAuth` scenario page
- * both consume.
+ * in `useActorScopeSelector`, which the segments consume.
  */
 
 export { default as ActingForSegment } from "./ActingForSegment.vue";

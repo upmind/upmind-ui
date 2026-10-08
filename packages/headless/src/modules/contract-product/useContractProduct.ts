@@ -9,7 +9,17 @@ import {
   omitMigrationSchema,
   omitMigrationUischema
 } from "./contract-product.schemas";
-import { CONTRACT_PRODUCT_SCOPE_MATRIX } from "./contract-product.types";
+import {
+  createContractProductServices,
+  useContractProductMachineServices
+} from "./contract-product.services";
+import {
+  CONTRACT_PRODUCT_SCOPE_MATRIX,
+  ContractProductMigrationStates,
+  MIGRATION_PAGE_SIZE,
+  MigrationConfigOmittedMembers,
+  MigrationModelOmittedFields
+} from "./contract-product.types";
 import { createContractProductActions } from "./useContractProduct.actions";
 import { createContractProductContext } from "./useContractProduct.context";
 import { createContractProductInternals } from "./useContractProduct.internals";
@@ -22,50 +32,38 @@ import {
   responseCodes,
   stateMatches
 } from "../../utils";
-import { compact, isEqual, isNumber, map, omit } from "lodash-es";
+import { compact, isEqual, isNumber, map, omit, values } from "lodash-es";
 import type {
   ContractProduct,
-  ContractProductContext,
+  ContractProductActionMembers,
+  ContractProductContextMembers,
+  ContractProductInternalMembers,
+  ContractProductMetaMembers,
+  ContractProductScope,
   ContractProductScopeMatrix,
   MigrationConfig,
   MigrationConfigHolder,
-  MigrationHolders
+  MigrationConfigInputs,
+  MigrationHolders,
+  MigrationListInputs,
+  MigrationReadInputs,
+  ScopedHolder
 } from "./contract-product.types";
-import type { UseActor } from "../../utils";
 import type { ScopeConfig, ScopeKey } from "../scope";
 import type { ComputedRef, EffectScope } from "vue";
 import type { ActorRef, AnyEventObject } from "xstate";
 // -----------------------------------------------------------------------------
-/** The page size of the product list — four products for each page, as legacy asks [o5]. */
-const MIGRATION_PAGE_SIZE = 4;
-
-/** The members of `useProductConfig` a change of product does not give. */
-const MIGRATION_CONFIG_OMITTED = [
-  "id",
-  "state",
-  "service",
-  "onDone",
-  "updateTerm",
-  "isSelectedTerm",
-  "updateQuantity",
-  "incrementQuantity",
-  "decrementQuantity",
-  "provisionFields",
-  "provisionFieldsSchema",
-  "setProvisioningFields",
-  "getProvisioningField",
-  "setTrial"
-];
-
-/** The model keys a change of product never sets: its form holds no trial and no provision field. */
-const MIGRATION_MODEL_OMITTED = ["startTrial", "provisionFields"];
-
-/** The inputs both product reads need before their `const` filter leaves can be built. */
-type MigrationReadInputs = {
-  ids: string[];
-  currencyId: string;
-  accountId: string;
-};
+/**
+ * @module contract-product/useContractProduct
+ * @description Scoped manager for ONE contract product, backed by
+ * `contract-product.machine.ts`. An instance: one interpreter per concrete
+ * `(actor, id)` pair, the product coming from `.withId(id)`; `destroy()` stops
+ * it and removes it from the registry. Registered under the same module name
+ * as `useContractProducts`; the scope key carries the differentiation. It also
+ * owns the three scoped holders of a migration (the product count, the product
+ * list and the configurator of the chosen product), so every sub-composable
+ * reads the same instances.
+ */
 
 /**
  * One scoped holder: `null` until its inputs are resolved, built inside its
@@ -75,16 +73,16 @@ type MigrationReadInputs = {
 function createHolder<TInputs, THolder>(
   inputs: ComputedRef<TInputs | null>,
   build: (resolved: TInputs) => THolder
-) {
+): ScopedHolder<THolder> {
   const holder = shallowRef<THolder | null>(null);
   let scope: EffectScope | undefined;
   let last: TInputs | null | undefined;
 
-  function stop() {
+  const stop = (): void => {
     scope?.stop();
     scope = undefined;
     holder.value = null;
-  }
+  };
 
   const unwatch = watch(
     inputs,
@@ -98,48 +96,46 @@ function createHolder<TInputs, THolder>(
     },
     { immediate: true, flush: "sync" }
   );
-
-  return {
-    holder,
-    dispose() {
-      unwatch();
-      stop();
-    }
+  const dispose = (): void => {
+    unwatch();
+    stop();
   };
+
+  return { dispose, holder };
 }
 
-/** The configurator of the chosen product, over its child. */
-function buildMigrationConfig(
-  child: ActorRef<AnyEventObject>
-): MigrationConfigHolder {
-  const full = useProductConfig(child);
+function createContractProductForScope(
+  config: ScopeConfig,
+  scopeKey: ScopeKey
+): ContractProductScope {
+  const actorScope = config.actor;
 
-  return {
-    config: {
-      ...omit(full, MIGRATION_CONFIG_OMITTED),
-      setConfig: data => full.setConfig(omit(data, MIGRATION_MODEL_OMITTED)),
-      schema: computed(() => omitMigrationSchema(full.schema.value)),
-      uischema: computed(() => omitMigrationUischema(full.uischema.value))
-    } as MigrationConfig,
-    isReady: computed(() => stateMatches(full.state, ["available"]))
-  };
-}
+  /** ONE services instance for this scope, threaded into the machine config. */
+  const service = createContractProductServices(actorScope, config.context);
 
-/**
- * The count, the list and the configurator of one manager. The two product reads
- * need their ids, currency and account before they can be built, and the list
- * needs the current term too.
- */
-function createMigrationHolders(actor: UseActor): MigrationHolders {
+  const machineService = interpret(
+    contractProductMachine
+      .withConfig({ services: useContractProductMachineServices(service) })
+      .withContext({ scopeActor: actorScope, contractProductId: config.id }),
+    // The scope key, not the product id: two managers on different products
+    // are two distinct interpreters.
+    { id: scopeKey, devTools: false }
+  );
+  machineService.start();
+
+  const actor = createActor(machineService);
+  if (!actor) {
+    throw new DetailedError(
+      useI18n().t("error.contract_product_not_available"),
+      responseCodes.Service_Unavailable,
+      ErrorOrigin.Headless,
+      { scope: config }
+    );
+  }
   const { state } = actor;
 
-  const isOpen = computed(() =>
-    stateMatches(state, [
-      "available.migrating.choosing",
-      "available.migrating.configuring"
-    ])
-  );
-
+  // The two product reads need their ids, currency and account before their
+  // `const` filter leaves can be built, and the list needs the current term.
   const readInputs = computed<MigrationReadInputs | null>(() => {
     const product = contextValue<ContractProduct>(state, "contractProduct");
     const ids = compact(
@@ -158,8 +154,7 @@ function createMigrationHolders(actor: UseActor): MigrationHolders {
       accountId: product.contractAccountId
     };
   });
-
-  const listInputs = computed(() => {
+  const listInputs = computed<MigrationListInputs | null>(() => {
     const term = contextValue<number>(
       state,
       "contractProduct.billingCycleMonths"
@@ -168,13 +163,9 @@ function createMigrationHolders(actor: UseActor): MigrationHolders {
       ? { ...readInputs.value, term }
       : null;
   });
-
-  const configInputs = computed(() => {
-    const id = contextValue<ActorRef<AnyEventObject>>(
-      state,
-      "migration.ref"
-    )?.id;
-    return id ? { id } : null;
+  const configInputs = computed<MigrationConfigInputs | null>(() => {
+    const ref = contextValue<ActorRef<AnyEventObject>>(state, "migration.ref");
+    return ref ? { id: ref.id, ref } : null;
   });
 
   const count = createHolder(readInputs, ({ ids, currencyId, accountId }) =>
@@ -190,7 +181,6 @@ function createMigrationHolders(actor: UseActor): MigrationHolders {
       }
     })
   );
-
   const list = createHolder(
     listInputs,
     ({ ids, currencyId, accountId, term }) =>
@@ -204,106 +194,60 @@ function createMigrationHolders(actor: UseActor): MigrationHolders {
           billingCycleMonths: term,
           orderable: true,
           categories: false,
-          enabled: () => isOpen.value
+          enabled: () =>
+            stateMatches(state, values(ContractProductMigrationStates))
         }
       })
   );
-
-  const config = createHolder(configInputs, () =>
-    buildMigrationConfig(
-      contextValue<ActorRef<AnyEventObject>>(state, "migration.ref")!
-    )
+  const migrationConfig = createHolder(
+    configInputs,
+    ({ ref }): MigrationConfigHolder => {
+      const full = useProductConfig(ref);
+      const configurator: MigrationConfig = {
+        ...omit(full, values(MigrationConfigOmittedMembers)),
+        setConfig: data =>
+          full.setConfig(omit(data, values(MigrationModelOmittedFields))),
+        schema: computed(() => omitMigrationSchema(full.schema.value)),
+        uischema: computed(() => omitMigrationUischema(full.uischema.value))
+      };
+      return { config: configurator, state: full.state };
+    }
   );
 
-  return {
+  const holders: MigrationHolders = {
+    config: migrationConfig.holder,
     count: count.holder,
-    list: list.holder,
-    config: config.holder,
-    isMigrationTargetReady: computed(
-      () => config.holder.value?.isReady.value ?? false
-    ),
-    dispose() {
+    dispose: () => {
       count.dispose();
       list.dispose();
-      config.dispose();
-    }
+      migrationConfig.dispose();
+    },
+    list: list.holder
   };
-}
 
-// -----------------------------------------------------------------------------
-/**
- * @module contract-product/useContractProduct
- * @description Scoped manager for ONE contract product, backed by the locked
- * `contract-product.machine.ts` (R4). One interpreter per concrete
- * `(actor, id)` pair: the product comes from `.withId(id)`,
- * the single-record read form (templates/SINGLE-READ.md). Registered under the same module name as
- * `useContractProducts`; the scope key carries the differentiation. It also owns
- * the three scoped holders of a change of product (the product count, the product list
- * and the configurator of the chosen product), so every sub-composable reads the
- * same instances.
- *
- * @doctrine clause 1 (uniform four-layer default).
- * @doctrine clause 4 — `config.actor` arriving here is ALREADY a concrete actor.
- */
-function createContractProductForScope(
-  config: ScopeConfig,
-  scopeKey: ScopeKey
-) {
-  const { t } = useI18n();
-
-  const actorScope = config.actor;
-
-  // SINGLE-READ step 3: the id comes from `.withId(id)` — `config.id` — and is
-  // never re-derived from `config.context` (templates/SINGLE-READ.md).
-  const contractProductId = config.id;
-
-  const machineService = interpret(
-    contractProductMachine.withContext({
-      scopeActor: actorScope,
-      contractProductId
-    } as ContractProductContext),
-    {
-      // The scope key, not the product id: two managers on different products
-      // are two distinct interpreters.
-      id: scopeKey,
-      devTools: false
-    }
-  );
-  machineService.start();
-
-  const actorRef = createActor(machineService);
-  if (!actorRef) {
-    throw new DetailedError(
-      t("error.contract_product_not_available"),
-      responseCodes.Service_Unavailable,
-      ErrorOrigin.Headless,
-      { scope: config }
-    );
-  }
-
-  const holders = createMigrationHolders(actorRef);
-
+  /** ONE actions instance per scope; the layers below stay lazy. */
   const actions = createContractProductActions(
     actorScope,
-    actorRef,
+    actor,
     scopeKey,
     holders
   );
 
   return {
-    // --- Sub-composables (no direct props — clause 1 four-layer return)
-    /** Sub-composable for manager actions (the five writes, lifecycle). */
-    useActions: () => actions,
+    /** Sub-composable for manager actions (the writes, lifecycle). */
+    useActions: (): ContractProductActionMembers => actions,
 
     /** Sub-composable for manager context (the product, its error, derived values). */
-    useContext: () =>
-      createContractProductContext(actorScope, actorRef, holders),
+    useContext: (): ContractProductContextMembers =>
+      createContractProductContext(actorScope, actor, holders),
 
     /** Sub-composable for advanced debugging and internal access. */
-    useInternals: () => createContractProductInternals(actorScope, actorRef),
+    useInternals: (): ContractProductInternalMembers =>
+      createContractProductInternals(actorScope, actor),
 
     /** Sub-composable for manager meta (node flags and record facts). */
-    useMeta: () => createContractProductMeta(actorScope, actorRef, holders)
+    useMeta: (): ContractProductMetaMembers =>
+      createContractProductMeta(actorScope, actor, holders)
   };
 }
 // -----------------------------------------------------------------------------

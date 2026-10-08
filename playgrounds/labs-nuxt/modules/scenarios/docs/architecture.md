@@ -22,6 +22,8 @@ modules/scenarios/
 
 **At runtime**, every one of those routes renders the same one shared page component. On mount, that component reads which directory the current route came from, looks up the matching declaration in an in-memory registry built the same way (by scanning every declaration file, this time for real, inside the running app), and boots from there. Nothing else about "how a page exists" needs to be true for a new module to get one: keep a declaration in its own named directory, and the page exists.
 
+A module that no generic surface can draw names its own page in its declaration (`page: "StatsPage.vue"`, relative to its directory). The registrar reads that literal from the declaration's source, routes the directory to that file instead of the shared page component, and fails the build when the named file does not exist. A page file is never found by name or glob.
+
 This is deliberately the same discovery law the page router already used before this system existed — a directory _is_ a route, and nothing is ever separately registered.
 
 ## The runtime pipeline: registry → declaration → renderers → criteria/url → replay/forcing
@@ -117,4 +119,4 @@ Arming installs an in-browser network intercept for the tab and immediately clea
 
 ## Module boundary
 
-This module owns everything above: the shared page component, every cell renderer, the replay and forcing machinery, and the registry that finds a declaration. It has no concept, anywhere, of what a _specific_ module's fields or actions are — that knowledge lives entirely in each module's own declaration and presentation file, and in the composable those files name. Nothing here is imported by, or exported to, the composable layer itself; the relationship is one-directional, and this module is the only side of it that knows the other exists.
+This module owns everything above: the shared page component, every cell renderer, the replay and forcing machinery, and the registry that finds a declaration. It has no concept, anywhere, of what a _specific_ module's fields or actions are — that knowledge lives entirely in each module's own declaration and presentation file, and in the composable those files name. Nothing here is imported by, or exported to, the composable layer itself. The relationship is one-directional. This module is the only side that knows the other exists.

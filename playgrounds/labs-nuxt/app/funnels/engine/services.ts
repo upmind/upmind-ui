@@ -14,10 +14,15 @@ import { InvoiceStatus } from "@upmind-automation/types";
 import { ROUTE } from "..";
 import { scenarioRoutes } from "../../../modules/scenarios/runtime/registry";
 import { intentOverlayTarget, intentRefusedTarget } from "../labs";
-import { INIT_INTENT_OVERLAY, InitIntent } from "../labs.constants";
+import {
+  CONFIRM_WRITES,
+  INIT_INTENT_OVERLAY,
+  InitIntent
+} from "../labs.constants";
 import {
   endsWith,
   get,
+  has,
   includes,
   isArray,
   isEmpty,
@@ -81,6 +86,9 @@ async function admitsIntent(
   // contracts module CT-1 has not built yet; a guessed gate is worse than none.
   if (intent === InitIntent.UPGRADE) return true;
 
+  // A confirmed write: the overlay runs only the write its route names.
+  if (has(CONFIRM_WRITES, intent)) return true;
+
   const invoiceId = useQueryParams(route).getParam(QUERY_PARAMS.ORDER_ID);
   if (!invoiceId) return false;
 
@@ -128,6 +136,7 @@ async function guardScenario({
 
   if (authenticated) return { type: FunnelActions.NEXT };
 
+  // The funnel contract rejects with the FunnelResponse to navigate to, not an Error.
   return Promise.reject({
     target: { name: ROUTE.SESSION }
   } as FunnelResponse);
@@ -160,6 +169,7 @@ async function guardInitIntent({
   const admits = overlay
     ? admitsIntent(intent as InitIntent, route)
     : Promise.resolve(false);
+  // The funnel contract rejects with the FunnelResponse to navigate to, not an Error.
   const settle = admits.then(admitted =>
     Promise.reject<FunnelResponse>({
       target: admitted
@@ -176,6 +186,53 @@ async function guardInitIntent({
   });
 }
 
+/**
+ * Runs the operation an off-site gateway return names, if the registry holds it.
+ * `consumeParam` clears the reference off the url so a reload never replays it.
+ */
+async function resumeOperationReturn(route: RouteLocation): Promise<void> {
+  const { executeOperation, getOperation } = useOperations();
+
+  const operationId = useQueryParams(route).consumeParam(
+    QUERY_PARAMS.OPERATION_ID
+  );
+
+  if (operationId && getOperation(operationId))
+    await executeOperation(operationId);
+}
+
+/**
+ * Where an authenticated visitor leaves an auth page for: the `returnUrl`, else
+ * home — not "/account", which would set brandIdOrOrg="account".
+ *
+ * The return url is matched by resolved route NAME, never by a path substring.
+ * The overlay suffix was renamed `--auth` → `--session`, so `includes("/auth")`
+ * stopped matching the very surface it exists to refuse, and a path test would
+ * have caught any brand slug that happened to read `/login` too.
+ */
+function sessionReturnRedirect(returnUrl?: string): FunnelResponse {
+  const { router } = useRoutingEngine();
+  const returnUrlRaw = returnUrl || "/";
+  const resolved = router.resolve(returnUrlRaw);
+  const resolvedName = toString(resolved.name);
+  const isSessionRoute =
+    startsWith(resolvedName, ROUTE.SESSION) ||
+    endsWith(resolvedName, `--${ROUTE.SESSION}`);
+  const finalReturnUrl = isSessionRoute ? "/" : returnUrlRaw;
+  const resolvedRoute = isSessionRoute ? router.resolve("/") : resolved;
+
+  return {
+    type: FunnelActions.REDIRECT,
+    target: resolvedRoute.name
+      ? {
+          name: resolvedRoute.name,
+          params: resolvedRoute.params,
+          query: resolvedRoute.query
+        }
+      : { path: resolvedRoute.path || finalReturnUrl }
+  };
+}
+
 // -----------------------------------------------------------------------------
 /**
  * Services to handle asynchronous operations and validations within states.
@@ -190,12 +247,7 @@ export default {
   extractScope: async ({
     targetRoute
   }: FunnelContext): Promise<FunnelResponse> => {
-    if (!targetRoute?.params?.scopeSuffix) {
-      // No scope suffix - valid, proceed
-      return {
-        type: FunnelActions.NEXT
-      };
-    }
+    if (!targetRoute?.params?.scopeSuffix) return { type: FunnelActions.NEXT };
 
     // Nuxt catch-all routes return an array of path segments
     const rawSuffix = targetRoute.params.scopeSuffix;
@@ -205,16 +257,11 @@ export default {
     const parsed = parseScopeSuffix(suffix);
 
     if (!parsed.valid) {
-      // Invalid scope format - redirect to base route without scope
       const basePath = stripScopeCatchAll(targetRoute.path || "", rawSuffix);
       console.warn(
         `[extractScope] Invalid scope suffix: ${parsed.error}. Redirecting to: ${basePath}`
       );
-
-      return {
-        type: FunnelActions.REDIRECT,
-        target: { path: basePath }
-      };
+      return { type: FunnelActions.REDIRECT, target: { path: basePath } };
     }
 
     // Valid scope - attach to meta for composables to read
@@ -225,17 +272,21 @@ export default {
       };
     }
 
-    return {
-      type: FunnelActions.NEXT
-    };
+    return { type: FunnelActions.NEXT };
   },
 
   guardScenario,
 
   /**
-   * The session gate, THEN the intent — the order is the invariant. An `?init`
-   * intent may not fire for a visitor the session gate is about to bounce, or
-   * the overlay opens over a page that never renders.
+   * The session gate, THEN the off-site return, THEN the intent — the order is
+   * the invariant. An `?init` intent may not fire for a visitor the session gate
+   * is about to bounce, or the overlay opens over a page that never renders.
+   *
+   * An off-site gateway return lands on the invoice page carrying
+   * `?operation_id`; the operation names the work, so the guard runs it and
+   * proceeds (FE-3133). An unknown reference names nothing and is ignored. The
+   * return is read on the invoice page only: other scenarios own their own
+   * `operation_id`.
    *
    * One invocation owns the state, so the two rejections are told apart by the
    * target each carries: `isSession` takes the auth arm, and anything else is
@@ -245,6 +296,10 @@ export default {
     context: FunnelContext
   ): Promise<FunnelResponse> => {
     await guardScenario(context);
+
+    const route = (context.targetRoute ??
+      context.currentRoute) as RouteLocation;
+    if (route?.name === ROUTE.INVOICE) await resumeOperationReturn(route);
 
     return guardInitIntent(context);
   },
@@ -263,6 +318,7 @@ export default {
 
     if (authenticated) return { type: FunnelActions.NEXT };
 
+    // The funnel contract rejects with the FunnelResponse to navigate to, not an Error.
     return Promise.reject({
       target: { name: ROUTE.SESSION }
     } as FunnelResponse);
@@ -270,34 +326,9 @@ export default {
 
   guardInitIntent,
 
-  /**
-   * The order page's gate. An off-site return lands here carrying
-   * `?operation_id`; the operation names the work, so the guard runs it and
-   * proceeds (FE-3133). An unknown reference names nothing and is ignored.
-   *
-   * The page is also where `?init=pay` lands — the order page IS the invoice pay
-   * page — so the intent runs on this same invocation rather than on a second
-   * state, and rejects toward the pay-init overlay when the invoice is payable.
-   */
-  guardOrderReturn: async (context: FunnelContext): Promise<FunnelResponse> => {
-    const route = context.targetRoute ?? context.currentRoute;
-    const { executeOperation, getOperation } = useOperations();
-
-    const operationId = useQueryParams(route as RouteLocation).consumeParam(
-      QUERY_PARAMS.OPERATION_ID
-    );
-
-    if (operationId && getOperation(operationId))
-      await executeOperation(operationId);
-
-    return guardInitIntent(context);
-  },
-
   guardSession: async ({
     targetRoute
   }: FunnelContext): Promise<FunnelResponse> => {
-    const { router } = useRoutingEngine();
-
     // NB for session guard, we want to REJECT if authenticated, so that we can redirect away from auth pages
     // EXCEPT for the logout route, where we want to allow the user to proceed with logging out.
     if (targetRoute?.name === ROUTE.SESSION_END) {
@@ -317,34 +348,10 @@ export default {
     if (meta.isAuthenticated.value) {
       // We are authenticated and profile is loaded
     } else {
+      // The funnel contract rejects with no reason: the machine's onError arm carries the branch, not a payload.
       return Promise.reject();
     }
 
-    // Default to home, not "/account" which would set brandIdOrOrg="account"
-    const returnUrlRaw = targetRoute?.query?.returnUrl?.toString() || "/";
-
-    // Matched by resolved route NAME, never by a path substring. The overlay
-    // suffix was renamed `--auth` → `--session`, so `includes("/auth")` stopped
-    // matching the very surface it exists to refuse — and a path test would
-    // have caught any brand slug that happened to read `/login` too.
-    const resolved = router.resolve(returnUrlRaw);
-    const resolvedName = toString(resolved.name);
-    const isSessionRoute =
-      startsWith(resolvedName, ROUTE.SESSION) ||
-      endsWith(resolvedName, `--${ROUTE.SESSION}`);
-
-    const finalReturnUrl = isSessionRoute ? "/" : returnUrlRaw;
-    const resolvedRoute = isSessionRoute ? router.resolve("/") : resolved;
-
-    return {
-      type: FunnelActions.REDIRECT,
-      target: resolvedRoute.name
-        ? {
-            name: resolvedRoute.name,
-            params: resolvedRoute.params,
-            query: resolvedRoute.query
-          }
-        : { path: resolvedRoute.path || finalReturnUrl }
-    };
+    return sessionReturnRedirect(targetRoute?.query?.returnUrl?.toString());
   }
 };

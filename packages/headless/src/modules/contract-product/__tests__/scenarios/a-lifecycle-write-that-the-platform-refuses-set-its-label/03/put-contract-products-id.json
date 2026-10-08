@@ -1,0 +1,59 @@
+{
+  "version": 3,
+  "request": {
+    "method": "PUT",
+    "path": "/api/contract_products/0e435795-e78d-1842-87df-31643202d986",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": {
+      "client_label": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+    }
+  },
+  "response": {
+    "status": 422,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a4683a96fcb9881b-DUR",
+      "connection": "keep-alive",
+      "content-type": "application/json",
+      "date": "Tue, 06 Oct 2026 22:51:07 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=YCcSEmy2jbVYT1iRRaXMcYkqeEC04iU%2Bt0yzj6xWO3h2XlYeiTsQxqPQ%2FuxMBb0c8qM7ksjAPGUeMQNa0fN7StXQWz9Fq82zIj9ZyIKxhVjkSzZE62H0h9JVnYTzhIgf6P9RSfyKdg%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "x-frame-options": "SAMEORIGIN"
+    },
+    "body": {
+      "status": "error",
+      "data": null,
+      "related": null,
+      "total": null,
+      "error": {
+        "id": "218ddae095656d6359ef6e5418e4e8c604d5b5ee",
+        "type": 0,
+        "code": 422,
+        "message": "API request invalid!",
+        "data": {
+          "client_label": [
+            "The client label may not be greater than 255 characters."
+          ]
+        }
+      },
+      "messages": null,
+      "meta": null
+    }
+  },
+  "captured_at": "2026-10-06T22:51:06.834Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "contract-product"
+  }
+}

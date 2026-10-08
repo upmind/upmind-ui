@@ -1,91 +1,59 @@
-import { watch } from "vue";
+import { until } from "@vueuse/core";
 import { invalidateQueryByKey, resetQueryByKey } from "../query";
 import { remove as removeFromRegistry } from "../scope/scope.registry";
-import { useActiveSession } from "../session-store";
+import { resolveClientId, useActiveSession } from "../session-store";
 import { NotAuthenticatedError } from "../../utils";
 import type {
+  ContractProductGroupedCountsQuery,
   ContractProductListQuery,
-  ContractProductServices,
+  ContractProductsActionMembers,
+  ContractProductsServices,
   FilterModel,
-  ShowDelegatedPreference,
   SortModel
 } from "./contract-product.types";
-import type { ScopeActorTypes } from "../scope/scope.types";
+import type { ScopeActorTypes, ScopeContext } from "../scope/scope.types";
 import type { ICProdGroup } from "@upmind-automation/types";
-import type { ComputedRef, Ref } from "vue";
 // -----------------------------------------------------------------------------
 /**
  * @module contract-product/useContractProducts.actions
- * @description Collection actions — list controls, the two extra reads and
- * lifecycle. Query-backed: `destroy()` removes the registry entry and stops
- * the scoped preference reader; there is no service to stop.
- *
- * @doctrine clause 2 (fresh modules start armless).
+ * @description Collection actions: list controls, the two extra reads and
+ * lifecycle. Query-backed: `destroy()` removes the registry entry, because
+ * there is no machine to stop.
  */
+
 export function createContractProductsActions(
   _actorScope: ScopeActorTypes,
-  service: ContractProductServices,
+  service: ContractProductsServices,
   query: ContractProductListQuery,
+  groupedCounts: ContractProductGroupedCountsQuery,
   scopeKey: string,
-  groupedCounts: Ref<ICProdGroup[]>,
-  clientId: ComputedRef<string | undefined>,
-  preference: ShowDelegatedPreference
-) {
+  scopeContext?: ScopeContext
+): ContractProductsActionMembers {
   const {
     isAuthenticated,
     isAvailable: isSessionInitialised,
     isLoading: isSessionSettling
   } = useActiveSession().useMeta();
+  const clientId = resolveClientId(scopeContext);
 
   /**
-   * This scope's settled addressability outcome, or `undefined` while the
-   * session is still settling. The same check the query's `enabled` and
-   * `guard` make, so "ready to read" and "will ever fetch" are the same question.
-   */
-  function addressableOutcome(): boolean | undefined {
-    if (isAuthenticated.value && clientId.value) return true;
-    if (isSessionInitialised.value || !isSessionSettling.value) return false;
-    return undefined;
-  }
-
-  function whenSessionSettles(): Promise<boolean> {
-    const settled = addressableOutcome();
-    if (settled !== undefined) return Promise.resolve(settled);
-
-    return new Promise<boolean>(resolve => {
-      const stop = watch(
-        [isAuthenticated, clientId, isSessionInitialised, isSessionSettling],
-        () => {
-          const outcome = addressableOutcome();
-          if (outcome === undefined) return;
-          stop();
-          resolve(outcome);
-        }
-      );
-    });
-  }
-
-  function whenListFetched(): Promise<boolean> {
-    if (query.isFetched.value) return Promise.resolve(true);
-
-    return new Promise<boolean>(resolve => {
-      const stop = watch(query.isFetched, fetched => {
-        if (!fetched) return;
-        stop();
-        resolve(true);
-      });
-    });
-  }
-
-  /**
-   * Resolves once the collection is ready to read.
+   * Resolves once the collection is ready to read. The session gate is
+   * load-bearing: the list query is disabled until this scope can address a
+   * client.
    * @returns true once the first fetch has settled, false if the session
    * settles without an addressable client.
    */
   async function isReady(): Promise<boolean> {
-    if (!(await whenSessionSettles())) return false;
+    await until(
+      () =>
+        (isAuthenticated.value && !!clientId.value) ||
+        isSessionInitialised.value ||
+        !isSessionSettling.value
+    ).toBe(true);
+    if (!isAuthenticated.value || !clientId.value) return false;
 
-    return whenListFetched();
+    await until(query.isFetched).toBe(true);
+    return true;
   }
 
   /**
@@ -93,8 +61,8 @@ export function createContractProductsActions(
    * @throws {NotAuthenticatedError} when the session cannot address a client.
    */
   async function refresh(): Promise<void> {
-    // TanStack's `refetch()` resolves with the error on the result rather
-    // than rejecting, so a forced read has to be wrapped to reject at all.
+    // TanStack's `refetch()` resolves with the error on the result rather than
+    // rejecting, so a forced read checks the session and the result itself.
     if (!isAuthenticated.value || !clientId.value)
       throw new NotAuthenticatedError();
 
@@ -102,43 +70,36 @@ export function createContractProductsActions(
     if (error instanceof NotAuthenticatedError) throw error;
   }
 
+  /** Applies a filter intent: the `filters` branch of the one query model. */
   function filterBy(intent: FilterModel): void {
     query.setCriteria({ filters: intent });
   }
 
+  /** Applies a sort intent: the `sort` branch of the one query model. */
   function sortBy(intent: SortModel): void {
     query.setCriteria({ sort: intent });
   }
 
+  /**
+   * Reads the dashboard's grouped counts, and publishes them on
+   * `useContext().groupedCounts`.
+   */
+  async function loadGroupedCounts(): Promise<ICProdGroup[]> {
+    const { data, error } = await groupedCounts.refetch();
+    if (error) throw error;
+    return data ?? [];
+  }
+
+  /** Destroys this scoped instance — removes it from the registry. */
   function destroy(): void {
-    preference.destroy();
     removeFromRegistry(scopeKey);
   }
 
-  /**
-   * Reads the dashboard's grouped counts and publishes them on
-   * `useContext().groupedCounts` (G1), so a page has a reactive channel and
-   * not only a promise to await.
-   */
-  async function loadGroupedCounts(): Promise<ICProdGroup[]> {
-    const groups = await service.loadGroupedCounts();
-    groupedCounts.value = groups;
-    return groups;
-  }
-
-  // --- actor-specific actions: none earned (clause 2, design 8.8).
-
   return {
-    /**
-     * Destroys this scoped instance — deregisters it and stops the preference reader.
-     * @scenario-include
-     */
+    /** @scenario-include */
     destroy,
 
-    /**
-     * Applies a filter intent — the `filters` branch of the one query model.
-     * @scenario-include
-     */
+    /** @scenario-include */
     filterBy,
 
     /**
@@ -146,41 +107,25 @@ export function createContractProductsActions(
      */
     invalidate: invalidateQueryByKey(service.queryKey, { exact: false }),
 
-    /**
-     * Resolves once the collection is ready to read.
-     * @scenario-include
-     */
+    /** @scenario-include */
     isReady,
 
-    /**
-     * The dashboard's grouped counts (design 8.1); publishes them on
-     * `useContext().groupedCounts` (G1).
-     * @scenario-include
-     */
+    /** @scenario-include */
     loadGroupedCounts,
 
     /**
-     * The categories the client has purchased into (R10).
+     * The categories the client has purchased into.
      * @scenario-include
      */
     loadPurchasedCategories: service.loadPurchasedCategories,
 
-    /**
-     * Fetches the next page.
-     * @scenario-include
-     */
+    /** @scenario-include */
     nextPage: query.fetchNextPage,
 
-    /**
-     * Fetches the previous page.
-     * @scenario-include
-     */
+    /** @scenario-include */
     prevPage: query.fetchPreviousPage,
 
-    /**
-     * Forces a re-read of the list.
-     * @scenario-include
-     */
+    /** @scenario-include */
     refresh,
 
     /**
@@ -189,15 +134,12 @@ export function createContractProductsActions(
     reset: resetQueryByKey(service.queryKey),
 
     /**
-     * Merges `filters` / `sort` / `pagination` into the one query model — the door that sets the page size.
+     * Merges `filters` / `sort` / `pagination` into the one query model; the door that sets the page size.
      * @scenario-include
      */
     setCriteria: query.setCriteria,
 
-    /**
-     * Applies a sort intent — the `sort` branch of the one query model.
-     * @scenario-include
-     */
+    /** @scenario-include */
     sortBy
   };
 }

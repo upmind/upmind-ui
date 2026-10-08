@@ -1,0 +1,20 @@
+# Negative-control mutant — renewal invoicing goes to the invoicing endpoint
+#
+# Spec it must flip: contract-product.replay.int.test.ts > "@AC-35 Turn the renewal invoicing of my subscription off or on"
+# Mutation: `setAutoRenew` sends to `modify_renew`.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+
+diff --git a/packages/headless/src/modules/contract-product/contract-product.services.ts b/packages/headless/src/modules/contract-product/contract-product.services.ts
+--- a/packages/headless/src/modules/contract-product/contract-product.services.ts
++++ b/packages/headless/src/modules/contract-product/contract-product.services.ts
+@@ -388,7 +388,7 @@
+   return put<IContractProduct>({
+     mutationKey: [...queryKey, ids.contractProductId, "auto-renew"],
+     url: useUrl(
+-      `contracts/${ids.contractId}/products/${ids.contractProductId}/stop_start_invoicing`
++      `contracts/${ids.contractId}/products/${ids.contractProductId}/modify_renew`
+     ),
+     data: { invoicing: on },
+     withAccessToken: true

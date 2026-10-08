@@ -1,19 +1,19 @@
+import type { ContractProductInternalMembers } from "./contract-product.types";
 import type { UseActor } from "../../utils";
 import type { ScopeActorTypes } from "../scope/scope.types";
 // -----------------------------------------------------------------------------
 /**
  * @module contract-product/useContractProduct.internals
- * @description Manager internals (debugging). The machine half exposes
- * `send`/`state`/`service`; the collection half exposes the raw `query`.
- * @doctrine clause 1 (uniform four-layer default) — machine-variant form.
+ * @description Manager internals: the raw `send`, `state` and `service`, for
+ * debugging.
  */
 export function createContractProductInternals(
   actorScope: ScopeActorTypes,
   actor: UseActor
-) {
+): ContractProductInternalMembers {
   return {
     /** Actor scope for this instance. */
-    actorScope,
+    scopeActor: actorScope,
     /** Raw send function for machine events. */
     send: actor.send,
     /** Raw XState service. */

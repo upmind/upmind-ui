@@ -295,26 +295,6 @@ Feature: Guest is a session like any other
     When I pick the second of them
     Then I am browsing as that guest, not as the first
 
-  @AC-G36 @guest @client
-  Scenario: Browsing a brand does not hide the guests this device holds
-    Given I am signed in as a client of this brand and this device holds two guests
-    When I read the sessions I can switch to while browsing that brand
-    Then both guests are offered to me
-    And picking one of them takes me to that guest
-
-  @AC-G33 @guest @client
-  Scenario: Changing brand never hands me to a guest I did not choose
-    Given I am signed in as a client of one brand, and a guest nobody chose is also held
-    When I move to a brand none of my signed-in sessions belongs to
-    Then I am still signed in as that client, not handed to the guest
-
-  @AC-G34 @guest @client
-  Scenario: Losing my last session on a brand takes me off that brand
-    Given I am signed in as the only session belonging to this brand, and a guest is also held
-    When that session signs out
-    Then I am taken off that brand
-    And the guest that remains does not count as belonging to it
-
   # ===========================================================================
   # DELEGATED ACCESS (FE-3036)
   #

@@ -1,0 +1,20 @@
+# Negative-control mutant — changing the billing entity refreshes the products list
+#
+# Spec it must flip: contract-product.replay.int.test.ts > "@AC-43 A lifecycle write refreshes my products list — change what it bills to"
+# Mutation: `setBillingEntity` drops its invalidation.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+
+diff --git a/packages/headless/src/modules/contract-product/contract-product.services.ts b/packages/headless/src/modules/contract-product/contract-product.services.ts
+--- a/packages/headless/src/modules/contract-product/contract-product.services.ts
++++ b/packages/headless/src/modules/contract-product/contract-product.services.ts
+@@ -481,7 +481,7 @@
+     url: useUrl(`contracts/${ids.contractId}/address_company_vat`),
+     data: toBillingEntityBody(choice),
+     withAccessToken: true
+-  }).then(invalidateQueryByKey(queryKey, { exact: false }));
++  });
+ }
+ 
+ // -----------------------------------------------------------------------------

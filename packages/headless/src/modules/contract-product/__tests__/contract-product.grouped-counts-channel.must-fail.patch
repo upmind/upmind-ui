@@ -1,35 +1,20 @@
-# Negative-control mutant — the grouped counts publish onto a reactive channel (G1)
+# Negative-control mutant — the grouped counts publish on the context
 #
-# Scenario it must flip: no spec exists yet for this member — it is new production
-#   surface closing playground-derivation.md gap G1 ("the grouped counts have no
-#   channel the page can read"). The prover authors the assertion from the
-#   public-surface hand-off: after
-#   `await useContractProducts().useActions().loadGroupedCounts()` resolves,
-#   `useContractProducts().useContext().groupedCounts.value` must equal the
-#   resolved rows — a reactive channel, not only the settled promise.
-# Test that must go red: an integration or unit test asserting
-#   `groupedCounts.value` holds the recorded rows after `loadGroupedCounts()`
-#   resolves. With the mutation below the action still resolves the same
-#   promise (so an `await`-only assertion stays green), but never writes the
-#   shared `groupedCounts` ref, so the CONTEXT channel stays empty forever —
-#   exactly the gap G1 reports (a promise with no reactive channel).
-# Mutation: `loadGroupedCounts` drops the `groupedCounts.value = groups`
-#   publish and returns the service call directly.
+# Spec it must flip: contract-product.replay.int.test.ts > "Ask for my products grouped by category and see a count for each"
+# Mutation: the context publishes an empty list in place of the grouped counts.
 #
 # Apply with:  git apply <this file>   (run from repo root)
 # Revert with: git apply -R <this file>
-diff --git a/packages/headless/src/modules/contract-product/useContractProducts.actions.ts b/packages/headless/src/modules/contract-product/useContractProducts.actions.ts
-index 000000000..000000000 100644
---- a/packages/headless/src/modules/contract-product/useContractProducts.actions.ts
-+++ b/packages/headless/src/modules/contract-product/useContractProducts.actions.ts
-@@ -113,9 +113,7 @@ export function createContractProductsActions(
-    * not only a promise to await.
-    */
-   async function loadGroupedCounts(): Promise<ICProdGroup[]> {
--    const groups = await service.loadGroupedCounts();
--    groupedCounts.value = groups;
--    return groups;
-+    return service.loadGroupedCounts();
-   }
 
-   // --- actor-specific actions: none earned (clause 2, design 8.8).
+diff --git a/packages/headless/src/modules/contract-product/useContractProducts.context.ts b/packages/headless/src/modules/contract-product/useContractProducts.context.ts
+--- a/packages/headless/src/modules/contract-product/useContractProducts.context.ts
++++ b/packages/headless/src/modules/contract-product/useContractProducts.context.ts
+@@ -63,7 +63,7 @@
+      * The dashboard's grouped counts, once `useActions().loadGroupedCounts`
+      * resolves; empty until then.
+      */
+-    groupedCounts: groupedCounts.data,
++    groupedCounts: computed(() => []),
+ 
+     /** Reactive pagination descriptor for the list query. */
+     pagination: query.pagination,

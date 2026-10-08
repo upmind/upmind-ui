@@ -1,0 +1,20 @@
+# Negative-control mutant — the list starts in the recorded default order
+#
+# Spec it must flip: contract-product.sort.unit.test.ts > "AC-1 — the sort vocabulary the list declares > starts in the order of the recorded default read"
+# Mutation: `DEFAULT_SORT` leads with the status field.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+
+diff --git a/packages/headless/src/modules/contract-product/contract-product.types.ts b/packages/headless/src/modules/contract-product/contract-product.types.ts
+--- a/packages/headless/src/modules/contract-product/contract-product.types.ts
++++ b/packages/headless/src/modules/contract-product/contract-product.types.ts
+@@ -839,7 +839,7 @@
+ /** The order the list starts in. */
+ export const DEFAULT_SORT: SortModel = [
+   {
+-    field: ContractProductsSortableProperties.CREATED_AT,
++    field: ContractProductsSortableProperties.STATUS,
+     dir: SortDirection.ASC
+   }
+ ];

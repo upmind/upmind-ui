@@ -1,0 +1,29 @@
+# Negative-control mutant — a client who browses as a guest returns to the client
+#
+# Spec it must flip: session-store.guest-pointer.pool.int.test.ts > "... browses as a guest and returns to the client with nothing asked of the server @AC-G20"
+# Mutation: `resolveActiveSession` drops its guest arm, so a chosen guest falls
+#   back to the signed-in client.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+
+diff --git a/packages/headless/src/modules/session-store/session-store.store.ts b/packages/headless/src/modules/session-store/session-store.store.ts
+--- a/packages/headless/src/modules/session-store/session-store.store.ts
++++ b/packages/headless/src/modules/session-store/session-store.store.ts
+@@ -87,16 +87,6 @@
+     };
+ 
+   if (
+-    s.activeActor === AccessRoleTypes.GUEST &&
+-    s.activeSessionId &&
+-    s.guestSessions[s.activeSessionId]
+-  )
+-    return {
+-      activeActor: AccessRoleTypes.GUEST,
+-      activeSessionId: s.activeSessionId
+-    };
+-
+-  if (
+     s.activeActor === AccessRoleTypes.CLIENT &&
+     s.activeSessionId &&
+     s.clientSessions[s.activeSessionId]

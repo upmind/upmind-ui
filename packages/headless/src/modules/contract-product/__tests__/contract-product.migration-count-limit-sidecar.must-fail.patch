@@ -1,13 +1,11 @@
-# Negative-control mutant 47 — count-limit-sidecar (FE-3206)
+# Negative-control mutant — the plan count is a count read, not a page
 #
-# Mutation: send the count as a `limit=count` URL sidecar through `loadList`.
-# Spec it must turn red: "I am told how many plans ..." ("asked for a count of plans, not a page of them"), and the AC-28 unit spec, the scope instance.
-#
-# Authored by the developer seat against the landed production source. The
-# prover applies it blind (tasks.md T41): apply, run the named spec, revert.
+# Spec it must flip: contract-product.replay.int.test.ts > "@AC-28 I am told how many plans I can change my subscription to"
+# Mutation: the count is sent as a `limit=count` sidecar through `loadList`.
 #
 # Apply with:  git apply <this file>   (run from repo root)
 # Revert with: git apply -R <this file>
+
 diff --git a/packages/headless/src/modules/product-catalogue/useProductCatalogue.ts b/packages/headless/src/modules/product-catalogue/useProductCatalogue.ts
 --- a/packages/headless/src/modules/product-catalogue/useProductCatalogue.ts
 +++ b/packages/headless/src/modules/product-catalogue/useProductCatalogue.ts

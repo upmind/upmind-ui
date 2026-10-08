@@ -2,7 +2,7 @@
 /**
  * @module composables/useNavigation
  * @description The playground's ONE navigation derivation. Two declarative
- * sources feed the same tree — a route's `meta.nav` (the `useAuth` precedent)
+ * sources feed the same tree — a route's `meta.nav`
  * and the scenario contract (`factory/registry`) — so a module
  * reaching the factory as a registry entry appears in the sidebar AND on the
  * landing page with neither hand-edited.

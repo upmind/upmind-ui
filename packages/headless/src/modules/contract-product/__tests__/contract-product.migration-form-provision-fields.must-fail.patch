@@ -1,23 +1,20 @@
-# Negative-control mutant 34 — form-provision-fields (FE-3206)
+# Negative-control mutant — the configurator form holds no provision field
 #
-# Mutation: let `migrationConfig.uischema` keep the provision controls.
-# Spec it must turn red: the AC-34 unit spec, the form field set.
-#
-# Authored by the developer seat against the landed production source. The
-# prover applies it blind (tasks.md T41): apply, run the named spec, revert.
+# Spec it must flip: contract-product.migration.unit.test.ts > "AC-34 — the form field set"
+# Mutation: the omitted model fields no longer name `provisionFields`.
 #
 # Apply with:  git apply <this file>   (run from repo root)
 # Revert with: git apply -R <this file>
-diff --git a/packages/headless/src/modules/contract-product/contract-product.schemas.ts b/packages/headless/src/modules/contract-product/contract-product.schemas.ts
---- a/packages/headless/src/modules/contract-product/contract-product.schemas.ts
-+++ b/packages/headless/src/modules/contract-product/contract-product.schemas.ts
-@@ -566,8 +566,7 @@
- function isMigrationOmittedScope(scope?: string): boolean {
-   return (
-     !!scope &&
--    (startsWith(scope, "#/properties/provisionFields") ||
--      scope === "#/properties/startTrial")
-+    scope === "#/properties/startTrial"
-   );
+
+diff --git a/packages/headless/src/modules/contract-product/contract-product.types.ts b/packages/headless/src/modules/contract-product/contract-product.types.ts
+--- a/packages/headless/src/modules/contract-product/contract-product.types.ts
++++ b/packages/headless/src/modules/contract-product/contract-product.types.ts
+@@ -202,7 +202,7 @@
+ 
+ /** The product model fields a migration never sets: its form holds no trial and no provision field. */
+ export enum MigrationModelOmittedFields {
+-  PROVISION_FIELDS = "provisionFields",
++  PROVISION_FIELDS = "provisionFieldz",
+   START_TRIAL = "startTrial"
  }
  

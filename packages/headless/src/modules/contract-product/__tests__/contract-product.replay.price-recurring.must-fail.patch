@@ -1,16 +1,12 @@
-# Negative-control mutant — a subscription shows its recurring price (B4, legacy cProdMixin.ts:35-59)
+# Negative-control mutant — a subscription shows its net recurring price
 #
-# Spec it must flip: contract-product.replay.int.test.ts,
-#   "A subscription shows what it costs each time it renews, as my brand's
-#   tax rule prices it — I open one of my subscriptions".
-# RED-verified 2026-09-29.
-#
-# Mutation: the subscription branch returns the GROSS recurring figure under
-#   EXCLUDE_TAX, so a subscription whose net and gross differ no longer shows
-#   its net recurring price and the assertion breaks.
+# Spec it must flip: contract-product.replay.int.test.ts > "@AC-1 A subscription in my list shows what it costs each time it renews, as my brand's tax rule prices it"
+# Mutation: the subscription branch returns the gross recurring figure under
+#   EXCLUDE_TAX.
 #
 # Apply with:  git apply <this file>   (run from repo root)
 # Revert with: git apply -R <this file>
+
 diff --git a/packages/headless/src/modules/contract-product/contract-product.mappers.ts b/packages/headless/src/modules/contract-product/contract-product.mappers.ts
 --- a/packages/headless/src/modules/contract-product/contract-product.mappers.ts
 +++ b/packages/headless/src/modules/contract-product/contract-product.mappers.ts

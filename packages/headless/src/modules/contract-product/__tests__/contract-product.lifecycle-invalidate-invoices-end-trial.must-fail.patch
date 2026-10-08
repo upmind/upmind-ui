@@ -1,0 +1,19 @@
+# Negative-control mutant — a write that raises an invoice refreshes the invoices list
+#
+# Spec it must flip: contract-product.replay.int.test.ts > "@AC-43 A write that raises an invoice refreshes my invoices"; migration.unit "refreshes the invoices list"
+# Mutation: `invalidateWithInvoices` drops its `["invoices"]` invalidation.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+
+diff --git a/packages/headless/src/modules/contract-product/contract-product.services.ts b/packages/headless/src/modules/contract-product/contract-product.services.ts
+--- a/packages/headless/src/modules/contract-product/contract-product.services.ts
++++ b/packages/headless/src/modules/contract-product/contract-product.services.ts
+@@ -97,7 +97,6 @@
+  */
+ async function invalidateWithInvoices<T>(result: T): Promise<T> {
+   await invalidateQueryByKey(queryKey, { exact: false })();
+-  await invalidateQueryByKey(["invoices"], { exact: false })();
+   return result;
+ }
+ 

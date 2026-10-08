@@ -1,0 +1,20 @@
+# Negative-control mutant — the picker writes the billing_entity property
+#
+# Spec it must flip: contract-product.replay.int.test.ts > "@AC-41 @AC-42 @AC-45 Change what my subscription bills to"
+# Mutation: the schema names its one property `billingEntity`.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+
+diff --git a/packages/headless/src/modules/contract-product/contract-product.schemas.ts b/packages/headless/src/modules/contract-product/contract-product.schemas.ts
+--- a/packages/headless/src/modules/contract-product/contract-product.schemas.ts
++++ b/packages/headless/src/modules/contract-product/contract-product.schemas.ts
+@@ -399,7 +399,7 @@
+     additionalProperties: false,
+     required: ["billing_entity"],
+     properties: {
+-      billing_entity: {
++      billingEntity: {
+         type: "string",
+         ...(current ? { default: current } : {}),
+         ...(isEmpty(options) ? {} : { oneOf: options })

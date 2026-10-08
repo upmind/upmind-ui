@@ -222,7 +222,7 @@
       data-test-key="record-footer"
     >
       <div
-        v-if="primaryItems.length || moreItems.length"
+        v-if="primaryItems.length"
         :class="recordSurface.writes()"
         data-test-key="record-actions"
       >
@@ -250,30 +250,6 @@
             {{ item.label }}
           </Button>
         </Tooltip>
-
-        <DropdownMenu v-if="moreItems.length" :items="moreMenu">
-          <template #trigger>
-            <Button
-              size="sm"
-              variant="ghost"
-              :class="recordSurface.utility()"
-              :disabled="locked"
-              :title="locked ? t('labs.replay_locked') : undefined"
-              :data-attrs="{
-                'data-test-key': 'record-more',
-                'data-test-value': 'show-more-options'
-              }"
-            >
-              {{ t("text.more") }}
-              <Icon icon="chevron-down" size="nano" aria-hidden="true" />
-            </Button>
-          </template>
-          <template #item="{ item }">
-            <span :data-test-value="item.dataAttrs?.['data-test-value']">
-              {{ item.label }}
-            </span>
-          </template>
-        </DropdownMenu>
       </div>
 
       <div
@@ -302,6 +278,30 @@
           {{ item.label }}
         </Button>
       </div>
+      <DropdownMenu v-if="moreItems.length" :items="moreMenu">
+        <template #trigger>
+          <Button
+            size="sm"
+            variant="outline"
+            icon-only
+            :disabled="locked"
+            :title="locked ? t('labs.replay_locked') : undefined"
+            :aria-label="t('action.show_more_options')"
+            :data-attrs="{
+              'data-test-key': 'record-more',
+              'data-test-value': 'show-more-options'
+            }"
+          >
+            <Icon icon="dots-vertical" size="nano" aria-hidden="true" />
+            <span class="sr-only">{{ t("action.show_more_options") }}</span>
+          </Button>
+        </template>
+        <template #item="{ item }">
+          <span :data-test-value="item.dataAttrs?.['data-test-value']">
+            {{ item.label }}
+          </span>
+        </template>
+      </DropdownMenu>
     </footer>
   </section>
 

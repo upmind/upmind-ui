@@ -1,13 +1,11 @@
-# Negative-control mutant 1 — offer-can-modify (FE-3206)
+# Negative-control mutant — a product the platform does not let me modify is not offered a migration
 #
-# Mutation: drop the `canModify` clause of `canMigrateProduct`.
-# Spec it must turn red: the AC-26 unit spec, the change rule.
-#
-# Authored by the developer seat against the landed production source. The
-# prover applies it blind (tasks.md T41): apply, run the named spec, revert.
+# Spec it must flip: contract-product.migration.unit.test.ts > "AC-26 — the change rule > a product the platform does not let me modify cannot change plan"
+# Mutation: `canMigrateProduct` drops the `canModify` clause.
 #
 # Apply with:  git apply <this file>   (run from repo root)
 # Revert with: git apply -R <this file>
+
 diff --git a/packages/headless/src/modules/contract-product/contract-product.utils.ts b/packages/headless/src/modules/contract-product/contract-product.utils.ts
 --- a/packages/headless/src/modules/contract-product/contract-product.utils.ts
 +++ b/packages/headless/src/modules/contract-product/contract-product.utils.ts

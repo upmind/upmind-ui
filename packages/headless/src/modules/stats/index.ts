@@ -20,6 +20,7 @@ export type { StatsScopeMatrix } from "./stats.types";
 
 // --- Public model types
 export { StatType } from "./stats.types";
+export { BACKEND_DATE_FORMAT } from "./stats.utils";
 export type { PackageLimits, StatsData, UpmindUsageData } from "./stats.types";
 
 // --- Sub-composable type exports for consumers

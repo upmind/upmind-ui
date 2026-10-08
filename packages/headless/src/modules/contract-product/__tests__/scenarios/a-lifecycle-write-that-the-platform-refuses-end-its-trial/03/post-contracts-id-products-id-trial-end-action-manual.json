@@ -1,0 +1,53 @@
+{
+  "version": 3,
+  "request": {
+    "method": "POST",
+    "path": "/api/contracts/63250798-065d-1e35-229a-8174e234e98d/products/98574264-8970-120d-428b-21e325d0ed36/trial_end_action_manual",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": null
+  },
+  "response": {
+    "status": 409,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a4683a46bc06881b-DUR",
+      "connection": "keep-alive",
+      "content-type": "application/json",
+      "date": "Tue, 06 Oct 2026 22:50:54 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=5ToUrO93nSPTbrveC6vzoeH9v71fusYRhTT3%2BAYtLLEkO2F8PapUOhAqlvYI%2BbatjLV6W4j1bj4DSllDwsQR%2BdONSWI4mVkgP1H%2Fj8fL5V4N%2FaYb4gSbyPSs6qIyvouSuYZalukT1g%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "x-frame-options": "SAMEORIGIN"
+    },
+    "body": {
+      "status": "error",
+      "data": null,
+      "related": null,
+      "total": null,
+      "error": {
+        "id": "6fb42aadff386b9c8960d8394ede2d41a9412428",
+        "type": 0,
+        "code": 409,
+        "message": "Clients are not allowed to manually select a billing cycle when migrating from a trial product!",
+        "data": []
+      },
+      "messages": null,
+      "meta": null
+    }
+  },
+  "captured_at": "2026-10-06T22:50:54.097Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "contract-product"
+  }
+}

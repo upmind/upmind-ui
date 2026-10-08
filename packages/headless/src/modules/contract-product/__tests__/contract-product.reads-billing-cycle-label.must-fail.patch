@@ -1,28 +1,20 @@
-# Negative-control mutant — a contract product carries its owning contract's
-#   billing-cycle label (FE-3206, commit 501214e80c).
+# Negative-control mutant — the owning contract's billing cycle is labelled
 #
-# Spec it must flip: contract-product.reads.int.test.ts,
-#   "useContractProduct — contractBillingCycleLabel" >
-#   "labels the owning contract's billing cycle".
-# RED-verified 2026-10-01.
-#
-# Mutation: the `contractBillingCycleLabel` mapping is dropped, so the product
-#   record shows a blank "Contract billing cycle".
+# Spec it must flip: contract-product.reads.unit.test.ts > "mapContractProduct — contractBillingCycleLabel > labels the owning contract's billing cycle from the recorded contract term"
+# Mutation: the label is left out whenever the contract has a term.
 #
 # Apply with:  git apply <this file>   (run from repo root)
 # Revert with: git apply -R <this file>
+
 diff --git a/packages/headless/src/modules/contract-product/contract-product.mappers.ts b/packages/headless/src/modules/contract-product/contract-product.mappers.ts
-index dfac094a1f..d618780b4a 100644
 --- a/packages/headless/src/modules/contract-product/contract-product.mappers.ts
 +++ b/packages/headless/src/modules/contract-product/contract-product.mappers.ts
-@@ -259,10 +259,6 @@ function toContractProduct(
-     contractCurrencyCode: raw.currency_code,
+@@ -233,7 +233,7 @@
      contractAccountId: raw.contract?.account_id ?? raw.account_id,
      contractTaxType: raw.contract?.tax_type,
--    contractBillingCycleLabel:
+     contractBillingCycleLabel:
 -      raw.contract?.billing_cycle_months == null
--        ? undefined
--        : mapContractProductBillingCycle(raw.contract.billing_cycle_months),
-     isDelegatedObject: raw.is_delegated_object,
-     autoCreateRenewInvoice: raw.auto_create_renew_invoice,
-     unpaidRecurringInvoices: map(
++      raw.contract?.billing_cycle_months != null
+         ? undefined
+         : parseBillingCycle(raw.contract.billing_cycle_months)[
+             raw.contract.billing_cycle_months > 0 ? "adverbial" : "descriptive"

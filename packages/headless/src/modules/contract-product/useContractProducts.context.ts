@@ -10,28 +10,28 @@ import { mapToHeadlessError, useCollection } from "../../utils";
 import { isArray } from "lodash-es";
 import type {
   ContractProduct,
+  ContractProductGroupedCountsQuery,
   ContractProductListQuery,
-  ContractProductServices
+  ContractProductPickerLookupService,
+  ContractProductsContextMembers
 } from "./contract-product.types";
 import type { ResponseError } from "../../utils";
 import type { ScopeActorTypes } from "../scope/scope.types";
-import type { ICProdGroup } from "@upmind-automation/types";
-import type { Ref } from "vue";
 // -----------------------------------------------------------------------------
 /**
  * @module contract-product/useContractProducts.context
- * @description Collection context — the reactive list, its lookup helpers and
- * the query schema family. Data is mapped in `contract-product.services.ts`
- * via `select`, never here. Errors are state, not events.
- *
- * @doctrine clause 2 — shared-only (armless).
+ * @description Collection context: the reactive list, its lookup helpers, the
+ * grouped counts and the query schema family. Data is mapped in
+ * `contract-products.services.ts` via `select`, never here. Errors are state,
+ * not events.
  */
+
 export function createContractProductsContext(
   _actorScope: ScopeActorTypes,
-  service: ContractProductServices,
+  lookup: ContractProductPickerLookupService,
   query: ContractProductListQuery,
-  groupedCounts: Ref<ICProdGroup[]>
-) {
+  groupedCounts: ContractProductGroupedCountsQuery
+): ContractProductsContextMembers {
   const { findOne, getOne } = useCollection<ContractProduct>(query.data);
 
   // `castArray(undefined)` yields a phantom element, so the empty case is
@@ -61,9 +61,9 @@ export function createContractProductsContext(
 
     /**
      * The dashboard's grouped counts, once `useActions().loadGroupedCounts`
-     * resolves — empty until then (G1).
+     * resolves; empty until then.
      */
-    groupedCounts,
+    groupedCounts: groupedCounts.data,
 
     /** Reactive pagination descriptor for the list query. */
     pagination: query.pagination,
@@ -79,19 +79,14 @@ export function createContractProductsContext(
      * port's `JSON` round-trip. `useContext()` is the renderer's only door to it.
      */
     schemas: {
+      contractProductPicker: {
+        schema: useContractProductPickerSchema(),
+        uischema: useContractProductPickerUischema(lookup)
+      },
       query: {
         schema: useQuerySchema(),
         uischema: useQueryUischema(),
         sortUischema: useSortUischema()
-      },
-      /**
-       * The product picker's pair, its lookup already bound to THIS scope's
-       * service (R38 item 2) — the same shape `useTickets` publishes for its
-       * `ticketPicker`.
-       */
-      contractProductPicker: {
-        schema: useContractProductPickerSchema(),
-        uischema: useContractProductPickerUischema(service.lookups)
       }
     }
   };

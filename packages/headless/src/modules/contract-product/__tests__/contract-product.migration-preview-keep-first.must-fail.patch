@@ -1,13 +1,11 @@
-# Negative-control mutant 21 — preview-keep-first (FE-3206)
+# Negative-control mutant — a changed model is priced again
 #
-# Mutation: drop `clearMigrationPreview` from the `previewing` entry, and let `setMigrationPreview` write only an empty slot.
-# Spec it must turn red: "Changing an option ..." (the last line), and the AC-30 unit spec, the preview.
-#
-# Authored by the developer seat against the landed production source. The
-# prover applies it blind (tasks.md T41): apply, run the named spec, revert.
+# Spec it must flip: contract-product.migration.unit.test.ts > "AC-30 — the preview > clears the cost of the model before while the new model is priced"
+# Mutation: `previewing` keeps the first preview.
 #
 # Apply with:  git apply <this file>   (run from repo root)
 # Revert with: git apply -R <this file>
+
 diff --git a/packages/headless/src/modules/contract-product/contract-product.machine.ts b/packages/headless/src/modules/contract-product/contract-product.machine.ts
 --- a/packages/headless/src/modules/contract-product/contract-product.machine.ts
 +++ b/packages/headless/src/modules/contract-product/contract-product.machine.ts

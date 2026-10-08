@@ -1,22 +1,20 @@
-# Negative-control mutant 25 — commit-dry-run (FE-3206)
+# Negative-control mutant — the commit is not a dry run
 #
-# Mutation: send the commit with `dry_run: true`.
-# Spec it must turn red: "Change my subscription ..." ("sent without the dry-run flag", the live body).
-#
-# Authored by the developer seat against the landed production source. The
-# prover applies it blind (tasks.md T41): apply, run the named spec, revert.
+# Spec it must flip: contract-product.replay.int.test.ts > "@AC-31 @AC-32 @AC-25 Change my subscription to the plan I chose"
+# Mutation: the commit is sent with `dry_run: true`.
 #
 # Apply with:  git apply <this file>   (run from repo root)
 # Revert with: git apply -R <this file>
+
 diff --git a/packages/headless/src/modules/contract-product/contract-product.services.ts b/packages/headless/src/modules/contract-product/contract-product.services.ts
 --- a/packages/headless/src/modules/contract-product/contract-product.services.ts
 +++ b/packages/headless/src/modules/contract-product/contract-product.services.ts
-@@ -697,7 +697,7 @@
-   return put<IInvoice>({
-     mutationKey: [...queryKey, context.contractProductId, "change"],
-     url: await productUrl(context, "change"),
--    data: await changeBody(context),
-+    data: { ...(await changeBody(context)), dry_run: true },
+@@ -367,7 +367,7 @@
+     url: useUrl(
+       `contracts/${input.contractId}/products/${input.contractProductId}/change`
+     ),
+-    data: toChangeProductBody(input),
++    data: { ...toChangeProductBody(input), dry_run: true },
      withAccessToken: true
-   }).then(invalidateQueryByKey(queryKey, { exact: false }));
+   }).then(invalidateWithInvoices);
  }

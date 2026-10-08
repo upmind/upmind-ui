@@ -1,32 +1,20 @@
-Negative control for contract-product.machine.ts top-level `error` node (D43 B9).
+# Negative-control mutant — a failed read settles on the error node
+#
+# Spec it must flip: contract-product.replay.int.test.ts > "Opening a product that is not mine fails, and I am shown why at once"
+# Mutation: the read's `onError` records the error and stays in `loading`.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
 
-Spec that must flip: contract-product.manager-members.int.test.ts
-(the "a read that fails settles on the error node" block) — asserts a failed `load` (or an unrecognised status)
-settles the machine on the top-level `error` state, and that a subsequent
-`REFRESH` leaves it back to `loading`.
-
-Mutation: drops the `error` state node and re-targets `loading`'s invoke
-`onError` and the `isUnrecognised` branch back to leaving the machine parked
-in `loading` (no target), reproducing the pre-restore drift.
 diff --git a/packages/headless/src/modules/contract-product/contract-product.machine.ts b/packages/headless/src/modules/contract-product/contract-product.machine.ts
 --- a/packages/headless/src/modules/contract-product/contract-product.machine.ts
 +++ b/packages/headless/src/modules/contract-product/contract-product.machine.ts
-@@ -145,17 +145,12 @@
-               actions: ["setContractProduct", "setLookups"]
-             },
-             {
--              target: "#error",
-               // No status this machine knows (AC12).
-               actions: ["setContractProduct", "setLookups", "setStatusError"]
+@@ -142,7 +142,7 @@
+               actions: ["setContractProduct", "setStatusError"]
              }
            ],
 -          onError: { target: "#error", actions: ["setError"] }
 +          onError: { actions: ["setError"] }
          }
--      },
--
--      error: {
--        id: "error"
        },
  
-       available: {

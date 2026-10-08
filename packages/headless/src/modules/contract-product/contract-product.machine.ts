@@ -1,30 +1,36 @@
 /** @internal */
 import { assign, createMachine, pure, spawn, stop } from "xstate";
-import {
-  CancellationRequestStatusCodes,
-  ContractStatusCodes,
-  TrialEndActionTypes
-} from "@upmind-automation/types";
+import { TrialEndActionTypes } from "@upmind-automation/types";
+import { mapInvoice } from "../invoices";
 import { authSubscription } from "../session-store";
 import { useI18n } from "../system-localisation";
 import {
-  mapContractProduct,
   mapMigrationPreview,
   mapMigrationResult
 } from "./contract-product.mappers";
 import {
+  useBillingEntitySchema,
+  useBillingEntityUischema,
   useCancellationSchema,
   useCancellationUischema,
   useSetConsolidationSchema,
   useSetConsolidationUischema
 } from "./contract-product.schemas";
-import { contractProductMachineServices as services } from "./contract-product.services";
 import { ContractProductState } from "./contract-product.types";
 import {
   canConsolidate,
+  canDisableAutoRenew,
+  canEnableAutoRenew,
+  canEndTrial,
+  canIssueNextInvoice,
   canMigrateProduct,
+  canRequestCancellation,
+  canRequestEndOfTerm,
+  canScheduleFutureCancellation,
   cancellationOptions,
+  hasAutoExpireEnabled,
   hasHardCancellationRequest,
+  hasRegionWrite,
   minFutureCancellationDate,
   spawnMigrationChild
 } from "./contract-product.utils";
@@ -37,31 +43,30 @@ import {
   useModelParser,
   useValidationParser
 } from "../../utils";
-import { isEmpty, isEqual, some } from "lodash-es";
+import { isEqual, isNil, some } from "lodash-es";
 import type {
+  BillingEntityModel,
+  CancellationModel,
   ContractProductContext,
-  ContractProductLoaded,
-  ContractProductWriteModel,
-  MigrationChange,
-  MigrationTarget
+  SetConsolidationModel
 } from "./contract-product.types";
 import type { AnyEventObject } from "xstate";
 // -----------------------------------------------------------------------------
 /**
  * @module contract-product/contract-product.machine
- * @description The contract-product manager machine (R4) on the house write
- * spine of `data-manager.machine.ts` (R20, R20a). `available` is parallel over
- * `status`, `setup`, `trial`, `cancelling` and `consolidating`; the last two are
- * the auth-shaped write forms, so an open form never leaves the status node.
- * `unavailable` holds staged · cancelled · lapsed · fraud.
+ * @description The contract-product manager machine. `available` is parallel
+ * over `status`, `setup`, `trial` and the write regions `cancelling`,
+ * `migrating`, `consolidating` and `billingEntity`; a form region never leaves
+ * the status node. `unavailable` is parallel over `status` (staged ·
+ * cancelled · lapsed · fraud) and its own `billingEntity` form, and takes the
+ * formless lifecycle writes as `available` does.
  */
 
-export const contractProductMachine = createMachine(
+export const contractProductMachine = createMachine<ContractProductContext>(
   {
     id: "contractProductManager",
     predictableActionArguments: true,
     initial: "subscribing",
-    context: {} as ContractProductContext,
     states: {
       subscribing: {
         entry: ["setAuthHelper"],
@@ -70,69 +75,71 @@ export const contractProductMachine = createMachine(
 
       loading: {
         id: "loading",
-        // A form's context slot is the form's own — outliving the read that
-        // re-placed the product would leave a page drawing a dead form beside
-        // its re-shown "open" control.
-        entry: ["clearCancellation", "clearConsolidation", "clearMigration"],
+        // A form's slot outliving the read that re-placed the product would
+        // leave a page drawing a dead form beside its re-shown open control.
+        entry: [
+          "clearCancellation",
+          "clearConsolidation",
+          "clearBillingEntity",
+          "clearMigration"
+        ],
         invoke: {
           src: "load",
-          // The settled read places the status node; the guards read the
-          // record THIS read returned (the event), never the previous one.
+          // The guards read the product THIS read returned (the event).
           onDone: [
             {
               target: ContractProductState.STAGED,
               cond: "isStaged",
-              actions: ["setContractProduct", "setLookups"]
+              actions: ["setContractProduct"]
             },
             {
               target: ContractProductState.CANCELLED,
               cond: "isCancelled",
-              actions: ["setContractProduct", "setLookups"]
+              actions: ["setContractProduct"]
             },
             {
               target: ContractProductState.LAPSED,
               cond: "isLapsed",
-              actions: ["setContractProduct", "setLookups"]
+              actions: ["setContractProduct"]
             },
             {
               target: ContractProductState.FRAUD,
               cond: "isFraud",
-              actions: ["setContractProduct", "setLookups"]
+              actions: ["setContractProduct"]
             },
             {
               target: ContractProductState.CANCELLING,
               cond: "isCancelling",
-              actions: ["setContractProduct", "setLookups"]
+              actions: ["setContractProduct"]
             },
             {
               target: ContractProductState.EXPIRING,
               cond: "isExpiring",
-              actions: ["setContractProduct", "setLookups"]
+              actions: ["setContractProduct"]
             },
             {
               target: ContractProductState.PENDING,
               cond: "isPending",
-              actions: ["setContractProduct", "setLookups"]
+              actions: ["setContractProduct"]
             },
             {
               target: ContractProductState.INACTIVE,
               cond: "isInactive",
-              actions: ["setContractProduct", "setLookups"]
+              actions: ["setContractProduct"]
             },
             {
               target: ContractProductState.ACTIVE,
               cond: "isActive",
-              actions: ["setContractProduct", "setLookups"]
+              actions: ["setContractProduct"]
             },
             {
               target: ContractProductState.SUSPENDED,
               cond: "isSuspended",
-              actions: ["setContractProduct", "setLookups"]
+              actions: ["setContractProduct"]
             },
             {
               target: "#error",
-              // No status this machine knows (AC12).
-              actions: ["setContractProduct", "setLookups", "setStatusError"]
+              actions: ["setContractProduct", "setStatusError"]
             }
           ],
           onError: { target: "#error", actions: ["setError"] }
@@ -146,52 +153,50 @@ export const contractProductMachine = createMachine(
       available: {
         id: "available",
         type: "parallel",
+        on: {
+          "AUTO_RENEW.SET": {
+            target: "#processing.settingAutoRenew",
+            cond: "canSetAutoRenew"
+          },
+          "NEXT_INVOICE.ISSUE": {
+            target: "#processing.issuingNextInvoice",
+            cond: "canIssueNextInvoice"
+          },
+          "TRIAL.END": {
+            target: "#processing.endingTrial",
+            cond: "canEndTrial"
+          },
+          "LABEL.SET": {
+            target: "#processing.settingClientLabel",
+            cond: "canUpdateContractProduct"
+          }
+        },
         states: {
           status: {
+            on: {
+              SCHEDULE_CANCEL_REVOKE: {
+                target: "#processing.revokingScheduledCancellation",
+                cond: "hasNoRegionWrite"
+              }
+            },
             states: {
-              pending: {
-                on: {
-                  SCHEDULE_CANCEL_REVOKE: {
-                    target: "#processing.revokingScheduledCancellation"
-                  }
-                }
-              },
-              inactive: {
-                on: {
-                  SCHEDULE_CANCEL_REVOKE: {
-                    target: "#processing.revokingScheduledCancellation"
-                  }
-                }
-              },
-              active: {
-                on: {
-                  SCHEDULE_CANCEL_REVOKE: {
-                    target: "#processing.revokingScheduledCancellation"
-                  }
-                }
-              },
-              suspended: {
-                on: {
-                  SCHEDULE_CANCEL_REVOKE: {
-                    target: "#processing.revokingScheduledCancellation"
-                  }
-                }
-              },
+              pending: {},
+              inactive: {},
+              active: {},
+              suspended: {},
               expiring: {
                 on: {
-                  RESUME: { target: "#processing.resumingRenewal" },
-                  SCHEDULE_CANCEL_REVOKE: {
-                    target: "#processing.revokingScheduledCancellation"
+                  RESUME: {
+                    target: "#processing.resumingRenewal",
+                    cond: "hasNoRegionWrite"
                   }
                 }
               },
               cancelling: {
                 on: {
-                  SCHEDULE_CANCEL_REVOKE: {
-                    target: "#processing.revokingScheduledCancellation"
-                  },
                   WITHDRAW: {
-                    target: "#processing.withdrawingCancellation"
+                    target: "#processing.withdrawingCancellation",
+                    cond: "hasNoRegionWrite"
                   }
                 }
               }
@@ -241,10 +246,21 @@ export const contractProductMachine = createMachine(
               idle: {
                 on: {
                   CANCELLATION: {
-                    target: "available",
-                    actions: "setCancellationSchemas",
-                    cond: "hasCancellationOptions"
+                    target: "loading",
+                    cond: "canRequestCancellation"
                   }
+                }
+              },
+              // The form draws the CANCEL_REQUEST fields, so it opens once they
+              // are read.
+              loading: {
+                invoke: {
+                  src: "loadCancellationFields",
+                  onDone: {
+                    target: "available",
+                    actions: "setCancellationSchemas"
+                  },
+                  onError: { target: "idle", actions: ["setError"] }
                 }
               },
               available: {
@@ -258,14 +274,15 @@ export const contractProductMachine = createMachine(
                   },
                   STOP_RENEWING: {
                     target: "#cancelling.processing.stoppingRenewal",
-                    cond: "isSubscription"
+                    cond: "canRequestEndOfTerm"
                   },
                   SCHEDULE_CANCEL: {
-                    target: "#cancelling.processing.schedulingCancellation"
+                    target: "#cancelling.processing.schedulingCancellation",
+                    cond: "canScheduleFutureCancellation"
                   },
                   REQUEST_CANCEL: {
                     target: "#cancelling.processing.requestingCancellation",
-                    cond: "canRequestHardCancellation"
+                    cond: "canRequestCancellation"
                   }
                 },
                 states: {
@@ -282,9 +299,8 @@ export const contractProductMachine = createMachine(
                   error: {}
                 }
               },
-              // Its own `processing`, unlike the formless writes: a failed
-              // submit returns to this form's `error` node with the model kept,
-              // and the product never leaves its status node.
+              // A failed submit returns to this form's `error` node with the
+              // model kept, and the product never leaves its status node.
               processing: {
                 entry: ["clearError"],
                 states: {
@@ -573,9 +589,6 @@ export const contractProductMachine = createMachine(
                   error: {}
                 }
               },
-              // Its own `processing`, unlike the formless writes: a failed
-              // submit returns to this form's `error` node with the model kept,
-              // and the product never leaves its status node.
               processing: {
                 entry: ["clearError"],
                 states: {
@@ -613,17 +626,223 @@ export const contractProductMachine = createMachine(
                 actions: "clearConsolidation"
               }
             }
+          },
+
+          billingEntity: {
+            id: "billingEntity",
+            initial: "idle",
+            states: {
+              idle: {
+                on: {
+                  BILLING_ENTITY: {
+                    target: "loading",
+                    cond: "canSetBillingEntity"
+                  }
+                }
+              },
+              // The picker lists the client's addresses and companies, so the
+              // form opens once both owner lists are read.
+              loading: {
+                invoke: {
+                  src: "loadBillingEntities",
+                  onDone: {
+                    target: "available",
+                    actions: "setBillingEntitySchemas"
+                  },
+                  onError: { target: "idle", actions: ["setError"] }
+                }
+              },
+              available: {
+                initial: "checking",
+                on: {
+                  // Re-enter the node: `.checking` would not restart an in-flight
+                  // validation, so a stale result would land.
+                  "SET.BILLING_ENTITY": {
+                    target: "available",
+                    actions: "setBillingEntityModel"
+                  },
+                  SET_BILLING_ENTITY: {
+                    target: "#billingEntity.processing.settingBillingEntity",
+                    cond: "canSetBillingEntity"
+                  }
+                },
+                states: {
+                  checking: {
+                    entry: ["clearError"],
+                    invoke: {
+                      src: "validateBillingEntity",
+                      onDone: { target: "valid" },
+                      onError: { target: "invalid", actions: ["setError"] }
+                    }
+                  },
+                  valid: {},
+                  invalid: {},
+                  error: {}
+                }
+              },
+              processing: {
+                entry: ["clearError"],
+                states: {
+                  settingBillingEntity: {
+                    initial: "validating",
+                    states: {
+                      validating: {
+                        invoke: {
+                          src: "validateBillingEntity",
+                          onDone: { target: "updating" },
+                          onError: {
+                            target: "#billingEntity.available.error",
+                            actions: ["setError"]
+                          }
+                        }
+                      },
+                      updating: {
+                        invoke: {
+                          src: "setBillingEntity",
+                          onDone: { target: "#loading" },
+                          onError: {
+                            target: "#billingEntity.available.error",
+                            actions: ["setError"]
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            on: {
+              "CANCEL.BILLING_ENTITY": {
+                target: ".idle",
+                actions: "clearBillingEntity"
+              }
+            }
           }
         }
       },
 
       unavailable: {
         id: "unavailable",
+        on: {
+          "AUTO_RENEW.SET": {
+            target: "#processing.settingAutoRenew",
+            cond: "canSetAutoRenew"
+          },
+          "NEXT_INVOICE.ISSUE": {
+            target: "#processing.issuingNextInvoice",
+            cond: "canIssueNextInvoice"
+          },
+          "TRIAL.END": {
+            target: "#processing.endingTrial",
+            cond: "canEndTrial"
+          },
+          "LABEL.SET": {
+            target: "#processing.settingClientLabel",
+            cond: "canUpdateContractProduct"
+          }
+        },
+        type: "parallel",
         states: {
-          staged: {},
-          cancelled: {},
-          lapsed: {},
-          fraud: {}
+          status: {
+            states: {
+              staged: {},
+              cancelled: {},
+              lapsed: {},
+              fraud: {}
+            }
+          },
+
+          billingEntity: {
+            id: "billingEntityUnavailable",
+            initial: "idle",
+            states: {
+              idle: {
+                on: {
+                  BILLING_ENTITY: {
+                    target: "loading",
+                    cond: "canSetBillingEntity"
+                  }
+                }
+              },
+              // The picker lists the client's addresses and companies, so the
+              // form opens once both owner lists are read.
+              loading: {
+                invoke: {
+                  src: "loadBillingEntities",
+                  onDone: {
+                    target: "available",
+                    actions: "setBillingEntitySchemas"
+                  },
+                  onError: { target: "idle", actions: ["setError"] }
+                }
+              },
+              available: {
+                initial: "checking",
+                on: {
+                  // Re-enter the node: `.checking` would not restart an in-flight
+                  // validation, so a stale result would land.
+                  "SET.BILLING_ENTITY": {
+                    target: "available",
+                    actions: "setBillingEntityModel"
+                  },
+                  SET_BILLING_ENTITY: {
+                    target:
+                      "#billingEntityUnavailable.processing.settingBillingEntity",
+                    cond: "canSetBillingEntity"
+                  }
+                },
+                states: {
+                  checking: {
+                    entry: ["clearError"],
+                    invoke: {
+                      src: "validateBillingEntity",
+                      onDone: { target: "valid" },
+                      onError: { target: "invalid", actions: ["setError"] }
+                    }
+                  },
+                  valid: {},
+                  invalid: {},
+                  error: {}
+                }
+              },
+              processing: {
+                entry: ["clearError"],
+                states: {
+                  settingBillingEntity: {
+                    initial: "validating",
+                    states: {
+                      validating: {
+                        invoke: {
+                          src: "validateBillingEntity",
+                          onDone: { target: "updating" },
+                          onError: {
+                            target: "#billingEntityUnavailable.available.error",
+                            actions: ["setError"]
+                          }
+                        }
+                      },
+                      updating: {
+                        invoke: {
+                          src: "setBillingEntity",
+                          onDone: { target: "#loading" },
+                          onError: {
+                            target: "#billingEntityUnavailable.available.error",
+                            actions: ["setError"]
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            on: {
+              "CANCEL.BILLING_ENTITY": {
+                target: ".idle",
+                actions: "clearBillingEntity"
+              }
+            }
+          }
         }
       },
 
@@ -651,6 +870,52 @@ export const contractProductMachine = createMachine(
               onDone: { target: "#loading" },
               onError: { target: "#loading", actions: ["setError"] }
             }
+          },
+          settingAutoRenew: {
+            invoke: {
+              src: "setAutoRenew",
+              onDone: { target: "#loading" },
+              onError: { target: "#loading", actions: ["setError"] }
+            }
+          },
+          // Forbidden while the POST is out: a re-read would drop the invoice
+          // it raises.
+          issuingNextInvoice: {
+            entry: ["clearIssuedInvoice"],
+            on: { REFRESH: undefined, UNAUTHENTICATED: undefined },
+            invoke: {
+              src: "issueNextInvoice",
+              onDone: { target: "#loading", actions: ["setIssuedInvoice"] },
+              onError: { target: "#loading", actions: ["setError"] }
+            }
+          },
+          endingTrial: {
+            entry: ["clearIssuedInvoice"],
+            on: { REFRESH: undefined, UNAUTHENTICATED: undefined },
+            invoke: {
+              src: "endTrial",
+              onDone: { target: "#loading", actions: ["setIssuedInvoice"] },
+              onError: { target: "#loading", actions: ["setError"] }
+            }
+          },
+          settingClientLabel: {
+            initial: "validating",
+            states: {
+              validating: {
+                invoke: {
+                  src: "validateClientLabel",
+                  onDone: { target: "updating" },
+                  onError: { target: "#loading", actions: ["setError"] }
+                }
+              },
+              updating: {
+                invoke: {
+                  src: "setClientLabel",
+                  onDone: { target: "#loading" },
+                  onError: { target: "#loading", actions: ["setError"] }
+                }
+              }
+            }
           }
         }
       }
@@ -669,34 +934,17 @@ export const contractProductMachine = createMachine(
       }),
 
       setContractProduct: assign(
-        (context: ContractProductContext, { data }: AnyEventObject) => {
-          const raw = (data as ContractProductLoaded).record;
-          return {
-            rawContractProduct: raw,
-            contractProduct: mapContractProduct(raw),
-            contractId: context.contractId || raw.contract_id
-          };
-        }
+        (context: ContractProductContext, { data }: AnyEventObject) => ({
+          contractProduct: data,
+          contractId: context.contractId || data.contractId
+        })
       ),
 
-      clearContractProduct: assign({
-        rawContractProduct: undefined,
-        contractProduct: undefined
-      }),
-
-      setLookups: assign({
-        lookups: (_context: ContractProductContext, { data }: AnyEventObject) =>
-          (data as ContractProductLoaded).lookups
-      }),
-
-      // The open transition builds the combined cancellation form on context
-      // from the product's eligible options, its earliest anniversary and the
-      // CANCEL_REQUEST catalogue, then seeds an empty model.
       setCancellationSchemas: assign({
-        cancellation: ({
-          contractProduct,
-          lookups
-        }: ContractProductContext) => ({
+        cancellation: (
+          { contractProduct }: ContractProductContext,
+          { data }: AnyEventObject
+        ) => ({
           schema: useCancellationSchema({
             options: contractProduct
               ? cancellationOptions(contractProduct)
@@ -704,9 +952,9 @@ export const contractProductMachine = createMachine(
             minDate: contractProduct
               ? minFutureCancellationDate(contractProduct)
               : null,
-            customFields: lookups?.customFields
+            customFields: data
           }),
-          uischema: useCancellationUischema(lookups?.customFields),
+          uischema: useCancellationUischema(data),
           model: {}
         })
       }),
@@ -719,16 +967,27 @@ export const contractProductMachine = createMachine(
         })
       }),
 
+      setBillingEntitySchemas: assign({
+        billingEntity: (
+          { contractProduct }: ContractProductContext,
+          { data }: AnyEventObject
+        ) => ({
+          schema: useBillingEntitySchema(data, contractProduct),
+          uischema: useBillingEntityUischema(),
+          model: {}
+        })
+      }),
+
       setCancellationModel: assign({
         cancellation: (
           { cancellation }: ContractProductContext,
           { data }: AnyEventObject
         ) => ({
           ...cancellation,
-          model: useModelParser(
+          model: useModelParser<CancellationModel>(
             cancellation?.schema,
-            (data ?? {}) as Record<string, unknown>
-          ) as ContractProductWriteModel
+            data ?? {}
+          )
         })
       }),
 
@@ -738,10 +997,23 @@ export const contractProductMachine = createMachine(
           { data }: AnyEventObject
         ) => ({
           ...consolidation,
-          model: useModelParser(
+          model: useModelParser<SetConsolidationModel>(
             consolidation?.schema,
-            (data ?? {}) as Record<string, unknown>
-          ) as ContractProductWriteModel
+            data ?? {}
+          )
+        })
+      }),
+
+      setBillingEntityModel: assign({
+        billingEntity: (
+          { billingEntity }: ContractProductContext,
+          { data }: AnyEventObject
+        ) => ({
+          ...billingEntity,
+          model: useModelParser<BillingEntityModel>(
+            billingEntity?.schema,
+            data ?? {}
+          )
         })
       }),
 
@@ -749,15 +1021,17 @@ export const contractProductMachine = createMachine(
 
       clearConsolidation: assign({ consolidation: undefined }),
 
+      clearBillingEntity: assign({ billingEntity: undefined }),
+
       clearMigrationResult: assign({ migrationResult: null }),
 
       spawnMigrationTarget: assign(
-        (context: ContractProductContext, { data }: AnyEventObject) => {
-          const target = data as MigrationTarget;
-          return {
-            migration: { target, ref: spawnMigrationChild(context, target) }
-          };
-        }
+        (context: ContractProductContext, { data }: AnyEventObject) => ({
+          migration: {
+            target: data,
+            ref: spawnMigrationChild(context, data)
+          }
+        })
       ),
 
       respawnMigrationTarget: pure<ContractProductContext, AnyEventObject>(
@@ -796,8 +1070,8 @@ export const contractProductMachine = createMachine(
           { data }: AnyEventObject
         ) => ({
           ...migration,
-          model: (data as MigrationChange).model,
-          rawProduct: (data as MigrationChange).rawProduct
+          model: data.model,
+          rawProduct: data.rawProduct
         })
       }),
 
@@ -840,6 +1114,16 @@ export const contractProductMachine = createMachine(
         migration?.ref?.send({ type: "ERROR", data });
       },
 
+      // Outside the form slots, so the re-read keeps the result for the action.
+      setIssuedInvoice: assign({
+        issuedInvoice: (
+          _context: ContractProductContext,
+          { data }: AnyEventObject
+        ) => (isNil(data) ? null : mapInvoice(data))
+      }),
+
+      clearIssuedInvoice: assign({ issuedInvoice: undefined }),
+
       setError: assign({
         error: (_context: ContractProductContext, { data }: AnyEventObject) => {
           const error = mapToHeadlessError(data);
@@ -857,7 +1141,7 @@ export const contractProductMachine = createMachine(
               useI18n().t("error.contract_product_status_unrecognised"),
               responseCodes.Unprocessable_Entity,
               ErrorOrigin.Headless,
-              { code: contractProduct?.status?.code }
+              { code: contractProduct?.raw.status?.code }
             )
           )
       }),
@@ -875,77 +1159,142 @@ export const contractProductMachine = createMachine(
       ) =>
         some(contractProduct?.allowedMigrations, [
           "migration_product_id",
-          (data as MigrationTarget)?.id
+          data?.id
         ]),
 
       isNewMigrationModel: (
         { migration }: ContractProductContext,
         { data }: AnyEventObject
-      ) => !isEqual((data as MigrationChange)?.model, migration?.model),
+      ) => !isEqual(data?.model, migration?.model),
 
-      isMigrationTargetReady: ({ migration }: ContractProductContext) =>
-        stateMatches(migration?.ref, ["available"]),
+      isMigrationTargetReady: (
+        { migration }: ContractProductContext,
+        _event: AnyEventObject,
+        { state }
+      ) =>
+        !hasRegionWrite(state) && stateMatches(migration?.ref, ["available"]),
 
-      hasCancellationOptions: ({ contractProduct }: ContractProductContext) =>
-        !!contractProduct && !isEmpty(cancellationOptions(contractProduct)),
+      canRequestEndOfTerm: (
+        { contractProduct }: ContractProductContext,
+        _event: AnyEventObject,
+        { state }
+      ) =>
+        !hasRegionWrite(state) &&
+        !!contractProduct &&
+        canRequestEndOfTerm(contractProduct),
 
-      isSubscription: ({ contractProduct }: ContractProductContext) =>
-        !!contractProduct?.isSubscription,
+      canRequestCancellation: (
+        { contractProduct }: ContractProductContext,
+        _event: AnyEventObject,
+        { state }
+      ) =>
+        !hasRegionWrite(state) &&
+        !!contractProduct &&
+        canRequestCancellation(contractProduct),
 
-      canConsolidate: ({ contractProduct }: ContractProductContext) =>
-        !!contractProduct && canConsolidate(contractProduct),
+      canScheduleFutureCancellation: (
+        { contractProduct }: ContractProductContext,
+        _event: AnyEventObject,
+        { state }
+      ) =>
+        !hasRegionWrite(state) &&
+        !!contractProduct &&
+        canScheduleFutureCancellation(contractProduct),
 
-      // HARD request eligibility (ADR-25 subscription, ADR-27 no scheduled
-      // future cancellation), derived from the record — no brand setting read.
-      canRequestHardCancellation: ({
-        contractProduct
-      }: ContractProductContext) =>
-        !!contractProduct?.isSubscription &&
-        !!contractProduct?.canCancel &&
-        !hasHardCancellationRequest(contractProduct) &&
-        !contractProduct?.hasScheduledFutureCancellation,
+      canConsolidate: (
+        { contractProduct }: ContractProductContext,
+        _event: AnyEventObject,
+        { state }
+      ) =>
+        !hasRegionWrite(state) &&
+        !!contractProduct &&
+        canConsolidate(contractProduct),
+
+      hasNoRegionWrite: (
+        _context: ContractProductContext,
+        _event: AnyEventObject,
+        { state }
+      ) => !hasRegionWrite(state),
+
+      canSetAutoRenew: (
+        { contractProduct }: ContractProductContext,
+        { data }: AnyEventObject,
+        { state }
+      ) =>
+        !hasRegionWrite(state) &&
+        !!contractProduct &&
+        (data.on
+          ? canEnableAutoRenew(contractProduct)
+          : canDisableAutoRenew(contractProduct)),
+
+      canIssueNextInvoice: (
+        { contractProduct }: ContractProductContext,
+        _event: AnyEventObject,
+        { state }
+      ) =>
+        !hasRegionWrite(state) &&
+        !!contractProduct &&
+        canIssueNextInvoice(contractProduct),
+
+      canEndTrial: (
+        { contractProduct }: ContractProductContext,
+        _event: AnyEventObject,
+        { state }
+      ) =>
+        !hasRegionWrite(state) &&
+        !!contractProduct &&
+        canEndTrial(contractProduct),
+
+      canUpdateContractProduct: (
+        { contractProduct }: ContractProductContext,
+        _event: AnyEventObject,
+        { state }
+      ) => !hasRegionWrite(state) && !!contractProduct,
+
+      canSetBillingEntity: (
+        { contractProduct }: ContractProductContext,
+        _event: AnyEventObject,
+        { state }
+      ) => !hasRegionWrite(state) && !!contractProduct?.isSubscription,
 
       isStaged: (_context: ContractProductContext, { data }: AnyEventObject) =>
-        data.record.staged_import,
+        data.stagedImport,
       isCancelled: (
         _context: ContractProductContext,
         { data }: AnyEventObject
-      ) => data.record.status?.code === ContractStatusCodes.CANCELLED,
+      ) => data.meta.isCancelled,
       isLapsed: (_context: ContractProductContext, { data }: AnyEventObject) =>
-        data.record.status?.code === ContractStatusCodes.CLOSED,
+        data.meta.isClosed,
       isFraud: (_context: ContractProductContext, { data }: AnyEventObject) =>
-        data.record.status?.code === ContractStatusCodes.FRAUD,
+        data.meta.isFraud,
       isCancelling: (
         _context: ContractProductContext,
         { data }: AnyEventObject
-      ) =>
-        data.record.contract_request?.status?.code ===
-        CancellationRequestStatusCodes.REQUEST_CANCELLATION_REQUEST,
+      ) => hasHardCancellationRequest(data),
       isExpiring: (
         _context: ContractProductContext,
         { data }: AnyEventObject
-      ) =>
-        data.record.billing_cycle_months > 0 &&
-        !data.record.renew &&
-        !!data.record.calculated_cancel_date,
+      ) => hasAutoExpireEnabled(data),
       isPending: (_context: ContractProductContext, { data }: AnyEventObject) =>
-        data.record.status?.code === ContractStatusCodes.PENDING,
+        data.meta.isPending,
       isInactive: (
         _context: ContractProductContext,
         { data }: AnyEventObject
-      ) => data.record.status?.code === ContractStatusCodes.AWAITING_ACTIVATION,
+      ) => data.meta.isAwaitingActivation,
       isActive: (_context: ContractProductContext, { data }: AnyEventObject) =>
-        data.record.status?.code === ContractStatusCodes.ACTIVE,
+        data.meta.isActive,
       isSuspended: (
         _context: ContractProductContext,
         { data }: AnyEventObject
-      ) => data.record.status?.code === ContractStatusCodes.SUSPENDED,
+      ) => data.meta.isSuspended,
 
       isSetupIncomplete: ({ contractProduct }: ContractProductContext) =>
-        contractProduct?.provisionSetupFieldsConfirmed === false,
+        !isNil(contractProduct?.provisionSetupFieldsConfirmed) &&
+        !contractProduct.provisionSetupFieldsConfirmed,
       isSetupComplete: ({ contractProduct }: ContractProductContext) =>
         !!contractProduct &&
-        contractProduct.provisionSetupFieldsConfirmed !== false,
+        (isNil(contractProduct.provisionSetupFieldsConfirmed) ||
+          contractProduct.provisionSetupFieldsConfirmed),
 
       isTrialRunning: ({ contractProduct }: ContractProductContext) =>
         !!contractProduct?.inTrial &&
@@ -955,9 +1304,7 @@ export const contractProductMachine = createMachine(
         contractProduct.trialEndAction === TrialEndActionTypes.CANCEL,
       isTrialNone: ({ contractProduct }: ContractProductContext) =>
         !!contractProduct && !contractProduct.inTrial
-    },
-
-    services
+    }
   }
 );
 

@@ -1,0 +1,21 @@
+# Negative-control mutant — a company pick sends the company's address
+#
+# Spec it must flip: contract-product.replay.int.test.ts > "@AC-41 @AC-42 @AC-45 Change what my subscription bills to — one of my companies"
+# Mutation: the company branch of `buildBillingEntityBody` sends the company id as
+#   the address.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+
+diff --git a/packages/headless/src/modules/contract-product/contract-product.mappers.ts b/packages/headless/src/modules/contract-product/contract-product.mappers.ts
+--- a/packages/headless/src/modules/contract-product/contract-product.mappers.ts
++++ b/packages/headless/src/modules/contract-product/contract-product.mappers.ts
+@@ -454,7 +454,7 @@
+ ): BillingEntityBody {
+   if ("company" in choice) {
+     return {
+-      address_id: choice.company.addressId,
++      address_id: choice.company.id,
+       company_id: choice.company.id
+     };
+   }

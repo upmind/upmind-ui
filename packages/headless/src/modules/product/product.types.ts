@@ -864,8 +864,12 @@ export type ProductConfigContext = {
   currencyId?: ProductProps["currencyId"];
   /** Optional currency code for pricing. */
   currencyCode?: ProductProps["currencyCode"];
-  /** Optional array of {@link IBasketPromotion} for promotions. */
-  promotions?: IBasketPromotion[];
+  /**
+   * The {@link IBasketPromotion}s the product prices with. `false` omits
+   * promotions from the load (`omit_promotions=1`, no `promotions`) and is
+   * part of its cache key.
+   */
+  promotions?: IBasketPromotion[] | false;
   /** Optional array of coupon codes. */
   coupons?: ProductProps["coupons"];
   /** Optional array of subproduct IDs. */
@@ -948,13 +952,4 @@ export type ProductConfigContext = {
   parseBasketProduct?: (item: ProductModel) => ProductModel;
   /** A function to parse a {@link BasketProduct} for comparison with a partial {@link ProductModel}. */
   parseBasketProductComparison?: (item: BasketProduct) => Partial<ProductModel>;
-};
-
-/**
- * The context the product `load` service reads. `promotions: false` omits
- * promotions from the load (`omit_promotions=1`, no `promotions`) and is part
- * of its cache key. An array behaves as it does for every other caller.
- */
-export type ProductLoadContext = Omit<ProductConfigContext, "promotions"> & {
-  promotions?: IBasketPromotion[] | false;
 };

@@ -6,12 +6,13 @@ import {
 } from "@upmind-automation/foundation";
 import {
   decorateRoutes,
-  registerOverlayRoutes
+  registerOverlayRoutes,
+  useRoutingEngine
 } from "@upmind-automation/headless";
 import "@upmind-automation/payment";
 import "@upmind-automation/product";
 import { AccessRoleTypes } from "@upmind-automation/types";
-import { forEach } from "lodash-es";
+import { forEach, get, toString } from "lodash-es";
 import type { I18n } from "vue-i18n";
 import type { Router } from "vue-router";
 import { LABS_OVERLAYS, registerFunnels } from "~/funnels";
@@ -20,15 +21,32 @@ import UpmindClient from "~/shell/useUpmindClient";
 
 registerFormRenderers(foundationRenderers);
 
-export default defineNuxtPlugin(async nuxtApp => {
+/** The client options that read nothing from the running app. */
+const CLIENT_OPTIONS = {
+  allowedScopes: [
+    AccessRoleTypes.STAFF,
+    AccessRoleTypes.CLIENT,
+    AccessRoleTypes.GUEST
+  ],
+  analytics: {
+    enabled: false
+  },
+  icons: import.meta.glob("@icons/**/*.svg", {
+    query: "?raw",
+    eager: false,
+    import: "default"
+  }),
+  animations: import.meta.glob("@animations/**/*.json", {
+    query: "?url",
+    eager: false,
+    import: "default"
+  })
+};
+
+/** Boot the Upmind client against this app's router, i18n and runtime config. */
+function initUpmind(i18n: I18n, router: Router): void {
   const runtimeConfig = useRuntimeConfig();
-  const router = nuxtApp.$router as Router;
 
-  // 0. Inject the overlay routes onto every eligible page before the engine
-  //    guards the first navigation — a deep-linked `<route>--session` must resolve.
-  registerOverlayRoutes(router, LABS_OVERLAYS);
-
-  // 1. Initialize Upmind
   UpmindClient.init({
     debug: import.meta.dev,
     pop: {
@@ -36,13 +54,9 @@ export default defineNuxtPlugin(async nuxtApp => {
       apiUrl: runtimeConfig.public.API_URL,
       region: runtimeConfig.public.API_REGION
     },
-    allowedScopes: [
-      AccessRoleTypes.STAFF,
-      AccessRoleTypes.CLIENT,
-      AccessRoleTypes.GUEST
-    ],
+    ...CLIENT_OPTIONS,
     i18n: {
-      instance: nuxtApp.$i18n as I18n,
+      instance: i18n,
       // Glob pattern adapted for relative path from this plugin
       files: import.meta.glob<Record<string, string>>(
         "../assets/locales/**/*.json",
@@ -60,21 +74,19 @@ export default defineNuxtPlugin(async nuxtApp => {
     recaptcha: {
       siteKey: runtimeConfig.public.GOOGLE_RECAPTCHA_V3_SITE_KEY,
       enabled: true
-    },
-    analytics: {
-      enabled: false
-    },
-    icons: import.meta.glob("@icons/**/*.svg", {
-      query: "?raw",
-      eager: false,
-      import: "default"
-    }),
-    animations: import.meta.glob("@animations/**/*.json", {
-      query: "?url",
-      eager: false,
-      import: "default"
-    })
+    }
   });
+}
+
+export default defineNuxtPlugin(async nuxtApp => {
+  const router = nuxtApp.$router as Router;
+
+  // 0. Inject the overlay routes onto every eligible page before the engine
+  //    guards the first navigation — a deep-linked `<route>--session` must resolve.
+  registerOverlayRoutes(router, LABS_OVERLAYS);
+
+  // 1. Initialize Upmind
+  initUpmind(nuxtApp.$i18n as I18n, router);
 
   // 2. Register Plugins
   forEach(UpmindClient.plugins, ({ plugin, options }) => {
@@ -94,7 +106,12 @@ export default defineNuxtPlugin(async nuxtApp => {
   //    off the ruled token colours.
   await useTheme("default").isReady();
 
-  // 5. Scope devtools (dev only)
+  // page:finish = the engine's mount signal; without it every navigation stays pending.
+  nuxtApp.hook("page:finish", () => {
+    useRoutingEngine().mount(toString(get(router, "currentRoute.value.name")));
+  });
+
+  // 6. Scope devtools (dev only)
   if (import.meta.dev) {
     import("@upmind-automation/headless").then(
       ({ setupScopeDevtools, getRegistry }) => {

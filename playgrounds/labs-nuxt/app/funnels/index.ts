@@ -1,6 +1,11 @@
 import labs from "./labs";
-import { PAYMENT_OVERLAY_ID, UPGRADE_OVERLAY_ID } from "./labs.constants";
+import {
+  CONFIRM_WRITES,
+  PAYMENT_OVERLAY_ID,
+  UPGRADE_OVERLAY_ID
+} from "./labs.constants";
 import { ROUTE } from "./types";
+import { mapKeys, mapValues } from "lodash-es";
 
 export * from "./types";
 
@@ -22,7 +27,12 @@ export const LABS_OVERLAYS: Record<string, string> = {
   session: ROUTE.OVERLAY_AUTH,
   pay: ROUTE.OVERLAY_PAY,
   [PAYMENT_OVERLAY_ID]: ROUTE.OVERLAY_PAYMENT,
-  [UPGRADE_OVERLAY_ID]: ROUTE.OVERLAY_UPGRADE
+  [UPGRADE_OVERLAY_ID]: ROUTE.OVERLAY_UPGRADE,
+  // `/<record>/<segment>/confirm` — one confirmation route per confirmed write.
+  ...mapValues(
+    mapKeys(CONFIRM_WRITES, (_write, segment) => `${segment}/confirm`),
+    () => ROUTE.OVERLAY_CONFIRM
+  )
 };
 
 export const registerFunnels = () => {

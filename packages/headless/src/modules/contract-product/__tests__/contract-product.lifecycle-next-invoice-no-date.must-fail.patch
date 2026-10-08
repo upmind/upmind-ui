@@ -1,0 +1,19 @@
+# Negative-control mutant — the next invoice request carries the next invoice date
+#
+# Spec it must flip: contract-product.replay.int.test.ts > "@AC-37 Issue the next invoice of my subscription now"
+# Mutation: `issueNextInvoice` sends no body.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+
+diff --git a/packages/headless/src/modules/contract-product/contract-product.services.ts b/packages/headless/src/modules/contract-product/contract-product.services.ts
+--- a/packages/headless/src/modules/contract-product/contract-product.services.ts
++++ b/packages/headless/src/modules/contract-product/contract-product.services.ts
+@@ -415,7 +415,6 @@
+     url: useUrl(
+       `contracts/${ids.contractId}/products/${ids.contractProductId}/recurring`
+     ),
+-    data: nextInvoiceDate ? { next_invoice_date: nextInvoiceDate } : undefined,
+     withAccessToken: true
+   })
+     .then(invalidateWithInvoices)

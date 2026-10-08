@@ -44,7 +44,6 @@ import {
 import type {
   ProductModel,
   ProductConfigContext,
-  ProductLoadContext,
   ProductProps
 } from "./product.types";
 import type { ErrorObject } from "ajv";
@@ -140,7 +139,7 @@ async function load(
     promotions: basketPromotions,
     basketId,
     rawBasketProduct
-  }: ProductLoadContext,
+  }: ProductConfigContext,
   _event: AnyEventObject
 ) {
   const { t } = useI18n();

@@ -21,17 +21,16 @@
  * routes), and a dev restart when a scenario directory appears or leaves.
  */
 
-import { readFileSync } from "node:fs";
-import { basename, dirname } from "node:path";
+import { existsSync, readFileSync } from "node:fs";
+import { basename, dirname, join as joinPath } from "node:path";
 import {
   createResolver,
   defineNuxtModule,
   extendPages,
   resolveFiles
 } from "nuxt/kit";
-import { scanDeclaredParams } from "./declared-params";
+import { scanDeclaredPage, scanDeclaredParams } from "./declared-params";
 import {
-  MODULE_PAGE_GLOB,
   SCENARIO_DECLARATION_GLOB,
   SCENARIO_ROUTE_META_KEY,
   SCOPE_SUFFIX_SEGMENT
@@ -41,9 +40,7 @@ import {
   endsWith,
   filter,
   forEach,
-  get,
   join,
-  keyBy,
   keys,
   map,
   pickBy
@@ -71,6 +68,23 @@ function declaredParams(file: string): string[] {
   return scanDeclaredParams(readFileSync(file, "utf-8"));
 }
 
+/**
+ * The absolute path of the page a declaration draws itself with, if it names
+ * one. A named file that is absent fails the build rather than silently
+ * falling back to the shared playground.
+ */
+function declaredPage(file: string): string | undefined {
+  const page = scanDeclaredPage(readFileSync(file, "utf-8"));
+  if (!page) return undefined;
+
+  const path = joinPath(dirname(file), page);
+  if (!existsSync(path))
+    throw new Error(
+      `[${MODULE_NAME}] ${file} declares page "${page}", but ${path} does not exist.`
+    );
+  return path;
+}
+
 export default defineNuxtModule({
   meta: { name: MODULE_NAME, configKey: MODULE_NAME },
 
@@ -83,23 +97,17 @@ export default defineNuxtModule({
       SCENARIO_DECLARATION_GLOB
     );
 
-    // A module that draws itself, addressed by the directory it sits in. One
-    // page per directory, so a second is a declaration the build cannot honour.
-    const ownPages = keyBy(
-      await resolveFiles(resolve("."), MODULE_PAGE_GLOB),
-      file => basename(dirname(file))
-    );
-
     const scenarios: DiscoveredScenario[] = map(declarations, file => ({
       route: basename(dirname(file)),
       file,
       // A module may declare route PARAMS (`params: ["oid"]`) so its url carries
-      // an id segment — `/useInvoice/:oid` — the same way `/order/:oid` does. We
+      // an id segment — `/useInvoice/:oid`. We
       // read them from the declaration SOURCE, not by importing it: this runs in
       // the Node/jiti config context where the declaration's own imports may not
       // be reached (module.types docblock). The declaration files are plain
       // literals, so a scan for the `params` array is exact.
-      params: declaredParams(file)
+      params: declaredParams(file),
+      page: declaredPage(file)
     }));
 
     extendPages(pages => {
@@ -113,10 +121,10 @@ export default defineNuxtModule({
             map(scenario.params, p => `/:${p}`),
             ""
           )}${SCOPE_SUFFIX_SEGMENT}`,
-          // The module's own page wins; absent one, the shared playground draws
-          // the declaration. Registration, url and nav entry are identical
+          // The page the declaration names wins; absent one, the shared
+          // playground draws it. Registration, url and nav entry are identical
           // either way — only the component differs.
-          file: get(ownPages, scenario.route, playground),
+          file: scenario.page ?? playground,
           meta: { [SCENARIO_ROUTE_META_KEY]: scenario.route }
         } satisfies NuxtPage)
       );
@@ -141,12 +149,11 @@ export default defineNuxtModule({
 
     // `modules/` sits outside `srcDir`, so a directory appearing or leaving is
     // not otherwise watched — and a new route can only be registered by
-    // re-running the discovery above.
+    // re-running the discovery above. A page rename is declared in the
+    // `.scenario.ts`, so that file's changes restart too.
     nuxt.options.watch.push(resolve("."));
     nuxt.hook("builder:watch", (event, path) => {
-      if (event === "add" || event === "unlink")
-        if (endsWith(path, ".scenario.ts") || endsWith(path, ".page.vue"))
-          nuxt.callHook("restart");
+      if (endsWith(path, ".scenario.ts")) nuxt.callHook("restart");
     });
   }
 });

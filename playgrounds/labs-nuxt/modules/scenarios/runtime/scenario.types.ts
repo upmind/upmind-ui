@@ -1078,7 +1078,7 @@ export type ScenarioBinding = (
   | { useList: FourLayerComposable; useMutate?: FourLayerComposable }
   | { useList?: FourLayerComposable; useMutate: FourLayerComposable }
   /**
-   * A module that DRAWS ITSELF binds nothing: its own `*.page.vue` is the
+   * A module that DRAWS ITSELF binds nothing: its own page, named by {@link ScenarioDeclaration.page}, is the
    * route's component, so no collection or editor is booted for it and the
    * shared renderer never sees it. It still declares, still registers, still
    * carries its nav entry — a module whose composable is not four-layer yet
@@ -1181,6 +1181,13 @@ export type ScenarioDeclaration = ScenarioBinding & {
   tracks?: ScenarioTracks;
   /** Route params this module's url carries — `["oid"]` gives `/useInvoice/:oid`. */
   params?: string[];
+  /**
+   * The page a module draws itself with, relative to its directory
+   * (`"StatsPage.vue"`). Present, that file is the route's component instead of
+   * the shared playground; the registrar reads it from the declaration source
+   * and fails the build when the file does not exist. Must be a string literal.
+   */
+  page?: string;
 };
 
 /** A declaration once the registry has attached the directory it was found in. */

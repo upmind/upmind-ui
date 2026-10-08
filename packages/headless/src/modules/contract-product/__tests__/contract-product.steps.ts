@@ -20,9 +20,8 @@
  * A scenario earns steps ONLY where a real step drives every line of it.
  * REQUEST-SHAPE lines — which `with` members / filters / routes a request
  * carried, and that no request was made — a `World` step cannot read, so the
- * AC-1 "arrives with <member>" lines settle on `hasError:false` (the read that
- * carries all 12 members landed) and the finer per-member proof is a documented
- * gap of this conversion (was `contract-product.reads.int.test.ts`).
+ * "arrives with <member>" lines settle on `hasError:false` (the read that
+ * carries all 12 members landed), and the per-member proof is a gap.
  *
  * Every value a step fires or expects is read off the module's own committed
  * recordings under `scenarios/`, never hand-authored.
@@ -32,11 +31,14 @@ import { args, defineSteps } from "@upmind-automation/scenario-harness";
 import {
   CancellationRequestStatusCodes,
   ContractStatusCodes,
+  InvoiceCategoryCode,
   InvoiceConsolidationTypes,
-  ProvisionCategoryCodes
+  ProvisionCategoryCodes,
+  TrialEndActionTypes
 } from "@upmind-automation/types";
 import { SortDirection } from "../../query/query.types";
 import { ScopeActorTypes } from "../../scope/scope.types";
+import { ContractProductsSortableProperties } from "../contract-product.types";
 import {
   ContractProductCancelOption,
   ContractProductFormTypes
@@ -167,12 +169,15 @@ import {
   every,
   filter,
   find,
+  get,
   groupBy,
   has,
   includes,
   isEmpty,
   isEqual,
+  isNil,
   isObject,
+  isString,
   keys,
   map,
   omit,
@@ -185,6 +190,7 @@ import {
   values
 } from "lodash-es";
 import type { DetailedError } from "../../../utils";
+import type { BillingEntityOption } from "../contract-product.types";
 import type { World } from "@upmind-automation/scenario-harness";
 
 // -----------------------------------------------------------------------------
@@ -243,7 +249,7 @@ const MANAGER_PRODUCT_ID = (
 ).response.body.data.id;
 
 /**
- * The first grouped-counts entry the AC-19 read answered with — the rows ride
+ * The first grouped-counts entry the grouped-counts read answered with — the rows ride
  * `total`, read off the recording rather than a copied literal.
  */
 const GROUPS = (
@@ -262,7 +268,7 @@ const GROUPS = (
 
 const FIRST_GROUP = GROUPS[0];
 
-/** The first page a session with nothing delegated to it is answered with (AC-2). */
+/** The first page a session with nothing delegated to it is answered with. */
 const NO_DELEGATED_ROWS = map(
   (
     noDelegatedListRecording as {
@@ -281,9 +287,8 @@ const RECORDING_SPLITS_A_CATEGORY = some(
 );
 
 /**
- * The earliest cancellation date the recorded product allows (AC-22). Legacy
- * (contractCancellation.ts ~L396-470): the earliest is `next_due_date` (cycle
- * 0), stepped forward in whole billing cycles only when `next_due_date` is past.
+ * The earliest cancellation date the recorded product allows: the earliest
+ * is `next_due_date` (cycle 0), stepped forward in whole billing cycles only when `next_due_date` is past.
  * The recorded product's `next_due_date` is future, so the earliest IS that
  * date — read off the recording, never a copied literal.
  */
@@ -293,7 +298,7 @@ const RECORDED_NEXT_DUE_DATE = (
   }
 ).response.body.data.next_due_date;
 
-/** The recorded product's next-due date and billing cycle (AC-1 detail read). */
+/** The recorded product's next-due date and billing cycle, off its detail read. */
 const NEXT_DUE = (
   nextDueRecording as {
     response: {
@@ -302,7 +307,7 @@ const NEXT_DUE = (
   }
 ).response.body.data;
 
-/** The renewal-invoicing-OFF product (AC-21 "off" row) — id read off its recording. */
+/** The product whose renewal invoicing is off — id read off its recording. */
 const RENEWAL_OFF_PRODUCT_ID = (
   renewalOffRecording as { response: { body: { data: { id: string } } } }
 ).response.body.data.id;
@@ -331,7 +336,7 @@ function recordedParam(recording: unknown, key: string): string {
 const likeTerm = (wire: string) => wire.replace(/^%|%$/g, "");
 
 /**
- * The AC-1 narrowing rows: each row's recorded page read, and the narrowing
+ * The narrowing rows: each row's recorded page read, and the narrowing
  * a hand makes — its value read off that recorded request.
  */
 const NARROWINGS: [
@@ -493,6 +498,7 @@ type WireProduct = {
   next_due_date: string | null;
   billing_cycle_months: number;
   auto_create_renew_invoice: boolean;
+  next_invoice_date: string | null;
   provision_setup_fields_confirmed: boolean;
   in_trial: boolean;
   trial_end_action: number;
@@ -523,7 +529,7 @@ const productOf = (recording: unknown): WireProduct =>
   (recording as { response: { body: { data: WireProduct } } }).response.body
     .data;
 
-/** The reportable lifecycle flags, one per status node (AC-17). */
+/** The reportable lifecycle flags, one per status node. */
 const LIFECYCLE_FLAGS = [
   "isPending",
   "isInactive",
@@ -541,7 +547,7 @@ const LIFECYCLE_FLAGS = [
 const onlyLifecycleFlag = (flag: (typeof LIFECYCLE_FLAGS)[number]) =>
   Object.fromEntries(LIFECYCLE_FLAGS.map(f => [f, f === flag]));
 
-/** The AC-17 rows: the client's words, the row's recording, the flag it raises. */
+/** The status rows: the client's words, the row's recording, the flag it raises. */
 const LIFECYCLE_ROWS: [string, unknown, (typeof LIFECYCLE_FLAGS)[number]][] = [
   ["pending", pendingStateRecording, "isPending"],
   ["awaiting activation", awaitingActivationStateRecording, "isInactive"],
@@ -586,7 +592,7 @@ const rowsIn = (recording: unknown): RecordedRow[] =>
   (recording as { response: { body: { data: RecordedRow[] } } }).response.body
     .data;
 
-/** The AC-1 first page, as the list read recorded it. */
+/** The first page, as the list read recorded it. */
 const LIST_ROWS = rowsIn(listRecording);
 const rowOf = (recording: unknown): RecordedRow =>
   (recording as { response: { body: { data: RecordedRow } } }).response.body
@@ -678,7 +684,7 @@ const trimTrailingZeros = (price: string) =>
   price.replace(/\.00(\s[\s\S]{1,3})?$/, "$1");
 
 /**
- * Legacy `getPriceTermSummary` (vue-app mixins/cProdMixin.ts:36-56) for a brand
+ * The legacy price-term summary for a brand
  * that prices without tax: the net discounted price of a one-time purchase, or
  * the net recurring price and the lower-cased cycle of a subscription. A free
  * or post-paid row reads a word this catalog does not pin, so it fails loudly.
@@ -749,7 +755,7 @@ type ScheduleBody = {
   cancellation_reason?: string;
 };
 
-/** The date the platform booked, as BOTH AC-22 rows' re-reads recorded it. */
+/** The date the platform booked, as BOTH booking rows' re-reads recorded it. */
 const BOOKED_DATE = (() => {
   const [first, second] = [
     bookedWithReasonRecording,
@@ -763,7 +769,7 @@ const BOOKED_DATE = (() => {
   return first;
 })();
 
-/** The reason the AC-6 recorded request sent. */
+/** The reason the recorded hard-cancellation request sent. */
 const RECORDED_HARD_REASON = (
   hardRequestRecording as { request: { body: { cancellation_reason: string } } }
 ).request.body.cancellation_reason;
@@ -781,7 +787,7 @@ const FOREIGN_READ_REFUSAL = (
 /** How long "at once" may take: well inside any load timeout. */
 const READY_AT_ONCE_MS = 2000;
 
-/** The AC-11 cancellation-offer rows, each with its own arranged product. */
+/** The cancellation-offer rows, each with its own arranged product. */
 const CANCELLATION_OFFER_ROWS: [string, unknown][] = [
   ["an active subscription", cancellationOfferRecording0],
   ["a subscription already set to expire", cancellationOfferRecording1],
@@ -797,7 +803,7 @@ const CANCELLATION_OFFER_ROWS: [string, unknown][] = [
   ["a live one-off purchase", cancellationOfferRecording5]
 ];
 
-/** The AC-9 consolidation-offer rows, each with its own arranged product. */
+/** The consolidation-offer rows, each with its own arranged product. */
 const CONSOLIDATION_OFFER_ROWS: [string, unknown][] = [
   ["a subscription, and my account consolidates", consolidationOfferRecording0],
   [
@@ -859,6 +865,8 @@ async function openCollection(world: World) {
 async function openManager(world: World, id: string = MANAGER_PRODUCT_ID) {
   holding = false;
   heldOutcome = undefined;
+  outcome = undefined;
+  askedGate = undefined;
   await world.boot(CONTRACT_PRODUCT_SCENARIO, {
     actor: ScopeActorTypes.CLIENT,
     id
@@ -873,11 +881,47 @@ async function openActiveSubscription(world: World) {
     world.expectMeta({
       isActive: true,
       isSubscription: true,
-      hasCancellationOptions: true,
       canConsolidate: true
     })
   );
+  await settles(async () =>
+    mustHold(
+      await cancellationOffered(),
+      "the cancellation form is not offered"
+    )
+  );
 }
+
+/** The cancellation form is offered when the product offers at least one cancellation option. */
+async function cancellationOffered(): Promise<boolean> {
+  const meta = (await liveManager()).useMeta();
+  return (
+    meta.canRequestCancellation.value ||
+    meta.canRequestEndOfTerm.value ||
+    meta.canScheduleFutureCancellation.value
+  );
+}
+
+/** Whether the live manager offers the named write form. */
+async function formOffered(
+  form: "cancellation" | "consolidation"
+): Promise<boolean> {
+  return form === "cancellation"
+    ? cancellationOffered()
+    : (await liveManager()).useMeta().canConsolidate.value;
+}
+
+/** Settles once the live manager offers, or does not offer, the named form. */
+const settlesOffered = (
+  form: "cancellation" | "consolidation",
+  offered: boolean
+) =>
+  settles(async () =>
+    mustHold(
+      (await formOffered(form)) === offered,
+      `the ${form} form is ${offered ? "not " : ""}offered`
+    )
+  );
 
 // -----------------------------------------------------------------------------
 
@@ -963,7 +1007,7 @@ const openMigrationScenario = (world: World) =>
  * file: `02` is the Given, `03` the When.
  */
 const CHANGE_RECORDINGS = import.meta.glob<unknown>(
-  "./scenarios/*/*/{get-contract-products-id,get-basket-products-*,put-contracts-id-products-id-change}.json",
+  "./scenarios/*/*/{get-contract-products-id,get-basket-products-*,put-contracts-id-products-id-change,put-contracts-id-products-id-stop-start-invoicing,post-contracts-id-products-id-recurring,post-contracts-id-products-id-trial-end-action-manual,put-contract-products-id,put-contracts-id-address-company-vat,get-clients-id-addresses*,get-clients-id-companies*,get-contracts-products-exclude-delegated-1-skip-count-1-split-count-1,get-invoices}.json",
   { eager: true, import: "default" }
 );
 
@@ -1183,6 +1227,199 @@ const landed = async (world: World): Promise<unknown> =>
       ))
     : undefined;
 
+// --- the five lifecycle writes ----------------------------------------------
+
+const STOP_START = /^put-contracts-id-products-id-stop-start-invoicing\.json$/;
+const RECURRING = /^post-contracts-id-products-id-recurring\.json$/;
+const END_TRIAL =
+  /^post-contracts-id-products-id-trial-end-action-manual\.json$/;
+const LABEL_WRITE = /^put-contract-products-id\.json$/;
+const BILLING_WRITE = /^put-contracts-id-address-company-vat\.json$/;
+const ADDRESS_LIST = /^get-clients-id-addresses/;
+const COMPANY_LIST = /^get-clients-id-companies/;
+const PRODUCTS_PAGE =
+  /^get-contracts-products-exclude-delegated-1-skip-count-1-split-count-1\.json$/;
+const INVOICES_PAGE = /^get-invoices\.json$/;
+const LIFECYCLE_WRITES = [
+  STOP_START,
+  RECURRING,
+  END_TRIAL,
+  LABEL_WRITE,
+  BILLING_WRITE
+];
+
+/** A recorded write: the request the generator sent and the answer the platform gave. */
+type RecordedWrite = {
+  request: { path: string; body?: Record<string, unknown> };
+  response: {
+    status: number;
+    body: { data?: { id?: string; number?: string } };
+  };
+};
+
+const recordedWrite = (file: RegExp): RecordedWrite =>
+  mustRecord(3, file) as RecordedWrite;
+
+/** The write this scenario recorded, whichever of the five it is. */
+function anyRecordedWrite(): RecordedWrite {
+  const hit = find(
+    map(LIFECYCLE_WRITES, file => changeRecordingOf(3, file)),
+    Boolean
+  );
+  if (!hit) throw new Error(`"${wireScenario()}" recorded no lifecycle write.`);
+  return hit as RecordedWrite;
+}
+
+/** The document-raising write this scenario performed: its next invoice or its trial end. */
+function raisedByTheWrite(): RecordedWrite {
+  const hit = find(
+    map([RECURRING, END_TRIAL], file => changeRecordingOf(3, file)),
+    Boolean
+  );
+  if (!hit)
+    throw new Error(`"${wireScenario()}" recorded no document-raising write.`);
+  return hit as RecordedWrite;
+}
+
+const pathOfWrite = (write: RecordedWrite) =>
+  new URL(write.request.path, "http://recorded").pathname;
+
+const requestTo =
+  (write: RecordedWrite, verb: string) => (url: URL, method: string) =>
+    method === verb && url.pathname === pathOfWrite(write);
+
+/** The one body the `When` sent to the recorded write's address. */
+async function bodySent(write: RecordedWrite, verb: string): Promise<unknown> {
+  const sent = await bodiesByWhen(requestTo(write, verb));
+  mustHold(
+    sent.length === 1,
+    `${sent.length} ${verb} requests went to ${pathOfWrite(write)}, not one`
+  );
+  return sent[0];
+}
+
+type LiveActions = ReturnType<
+  Awaited<ReturnType<typeof liveManager>>["useActions"]
+>;
+
+/** What the last lifecycle action resolved with, or the refusal it rejected with. */
+let outcome: { value?: unknown; refusal?: unknown } | undefined;
+/** The meta gate the last lifecycle action was asked through. */
+let askedGate: string | undefined;
+
+/** Boots the manager on the product this scenario's own recording read. */
+async function openLifecycle(world: World): Promise<void> {
+  await openManager(world, changeProduct().id);
+}
+
+/** Asks one lifecycle action through the live manager and settles on its outcome. */
+async function attempt(
+  world: World,
+  gate: string | undefined,
+  call: (actions: LiveActions) => Promise<unknown>
+): Promise<void> {
+  markWhen();
+  askedGate = gate;
+  const manager = await liveManager();
+  outcome = await call(manager.useActions()).then(
+    value => ({ value }),
+    (refusal: unknown) => ({ refusal })
+  );
+  await settles(async () =>
+    mustHold(
+      !manager.useMeta().isProcessing.value,
+      "the write is still in flight"
+    )
+  );
+}
+
+/** The gate the last action was asked through reads closed, and the action said so. */
+async function refusedByGate(world: World): Promise<void> {
+  mustHold(outcome?.value === false, "the action did not resolve false");
+  mustHold(!!askedGate, "no gate was asked");
+  await settles(() => world.expectMeta({ [askedGate as string]: false }));
+}
+
+/** The basket's session claim, which a signed-in boot can still send after the Given settles. */
+const BASKET_CLAIM = "/api/orders/claim";
+
+const nothingSentToThePlatform = () =>
+  mustHold(
+    sentByWhen(
+      (url, method) => method !== "GET" && url.pathname !== BASKET_CLAIM
+    ).length === 0,
+    "a write went to the platform"
+  );
+
+const productReadAgain = () =>
+  settles(async () =>
+    mustHold(
+      sentByWhen(
+        (url, method) =>
+          method === "GET" &&
+          url.pathname.endsWith(`/contract_products/${changeProduct().id}`)
+      ).length > 0,
+      "the product was not read again"
+    )
+  );
+
+/** The mapped product the live manager holds now. */
+const liveProduct = async () => {
+  const product = (await liveManager()).useContext().contractProduct.value;
+  if (!product) throw new Error("The manager holds no product.");
+  return product;
+};
+
+/** A recorded list read's rows, as the platform answered them. */
+const recordedList = (file: RegExp): { id: string; address_id?: string }[] =>
+  (
+    mustRecord(3, file) as {
+      response: { body: { data: { id: string; address_id?: string }[] } };
+    }
+  ).response.body.data;
+
+/** The options the live manager's billing-entity picker offers. */
+const pickerOptions = async (): Promise<BillingEntityOption[]> =>
+  filter(
+    get(
+      (await liveManager()).useContext().billingEntity.value?.schema,
+      "properties.billing_entity.oneOf",
+      []
+    ),
+    (option): option is BillingEntityOption =>
+      isString(get(option, "const")) && isString(get(option, "title"))
+  );
+
+/**
+ * Opens the billing-entity picker, which reads the lists of the client only
+ * then, and settles on the option that carries `id`. The id is what a consumer
+ * submits to `setBillingEntity`.
+ */
+async function offeredPick(id: string): Promise<string> {
+  mustHold(
+    sentInWindow(
+      url =>
+        url.pathname.endsWith("/addresses") ||
+        url.pathname.endsWith("/companies")
+    ).length === 0,
+    "the lists of the client were read before the picker was opened"
+  );
+  (await liveManager()).useActions().openBillingEntity();
+  await settles(async () =>
+    mustHold(
+      some(await pickerOptions(), { const: id }),
+      `my billing choices do not offer ${id}`
+    )
+  );
+  return id;
+}
+
+/** The id of the billing entity the recorded write names, offered by the picker. */
+async function recordedPick(): Promise<string> {
+  const body = recordedWrite(BILLING_WRITE).request.body ?? {};
+  return offeredPick(String(body.company_id ?? body.address_id));
+}
+
 /** Settles once the chosen plan has loaded and its dry run has landed. */
 const configured = (world: World) =>
   settles(() =>
@@ -1232,7 +1469,7 @@ export const contractProductSteps = defineSteps(({ Given, When, Then }) => {
     async () => {}
   );
 
-  // === AC-1 · SEE THE PRODUCTS ON MY OWN ACCOUNT =============================
+  // === SEE THE PRODUCTS ON MY OWN ACCOUNT ===================================
 
   When("I open my products", openCollection);
 
@@ -1330,7 +1567,7 @@ export const contractProductSteps = defineSteps(({ Given, When, Then }) => {
     )
   );
 
-  // === AC-1 · NARROW MY PRODUCTS ============================================
+  // === NARROW MY PRODUCTS ===================================================
 
   // The row a `When` narrowed by, so the shared `Then` reads that row's
   // recorded rows and total.
@@ -1355,7 +1592,7 @@ export const contractProductSteps = defineSteps(({ Given, When, Then }) => {
       })
   );
 
-  // === AC-1 · CLEAR WHAT I NARROWED BY ======================================
+  // === CLEAR WHAT I NARROWED BY =============================================
 
   Given("I have narrowed my products", async world => {
     await openCollection(world);
@@ -1391,7 +1628,7 @@ export const contractProductSteps = defineSteps(({ Given, When, Then }) => {
     settles(() => world.expectMeta({ isFiltered: false, hasError: false }))
   );
 
-  // === AC-1 · ORDER MY PRODUCTS =============================================
+  // === ORDER MY PRODUCTS ====================================================
 
   Given("I have more products than fit on one page", async world => {
     await openCollection(world);
@@ -1422,7 +1659,7 @@ export const contractProductSteps = defineSteps(({ Given, When, Then }) => {
     settles(() => world.expectContext({ data: recordedRows(orderedBy) }))
   );
 
-  // === AC-1 · MOVE THROUGH THE PAGES ========================================
+  // === MOVE THROUGH THE PAGES ===============================================
 
   Given("I am on the first page of them", world =>
     settles(() => world.expectContext({ pagination: { page: 1 } }))
@@ -1480,7 +1717,7 @@ export const contractProductSteps = defineSteps(({ Given, When, Then }) => {
       )
   );
 
-  // === AC-1 / AC-19 · A BRAND THAT HIDES ONE-OFF PURCHASES ================
+  // === A BRAND THAT HIDES ONE-OFF PURCHASES =================================
 
   // The page and count the "only my subscriptions" Then reads — set by the
   // step that asked for them, so one Then serves the toggle and the brand rows.
@@ -1565,7 +1802,7 @@ export const contractProductSteps = defineSteps(({ Given, When, Then }) => {
     )
   );
 
-  // === AC-1 · THE SUBSCRIPTION-TYPE TOGGLE ==================================
+  // === THE SUBSCRIPTION-TYPE TOGGLE =========================================
 
   Given(
     "I am looking at my products with the subscription-type toggle at All",
@@ -1620,7 +1857,7 @@ export const contractProductSteps = defineSteps(({ Given, When, Then }) => {
       )
   );
 
-  // === AC-17 · MY PRODUCT'S OWN STATE (one arranged product per row) =======
+  // === MY PRODUCT'S OWN STATE (one arranged product per row) ================
 
   When("I look at it", async world =>
     settles(() => world.expectMeta({ hasError: false, isLoading: false }))
@@ -1643,7 +1880,7 @@ export const contractProductSteps = defineSteps(({ Given, When, Then }) => {
     settles(() => world.expectMeta({ isSetupIncomplete: false }))
   );
 
-  // === AC-17 · AN EXPIRING SUBSCRIPTION ====================================
+  // === AN EXPIRING SUBSCRIPTION =============================================
 
   Given(
     "one of my subscriptions is set to expire at the end of its term",
@@ -1676,7 +1913,7 @@ export const contractProductSteps = defineSteps(({ Given, When, Then }) => {
       )
   );
 
-  // === AC-17 · A STATE ONLY THE PLATFORM PUTS IT IN ========================
+  // === A STATE ONLY THE PLATFORM PUTS IT IN =================================
 
   Given("one of my products is on trial", world =>
     openManager(world, productOf(onTrialStateRecording).id)
@@ -1717,7 +1954,7 @@ export const contractProductSteps = defineSteps(({ Given, When, Then }) => {
     settles(() => world.expectMeta({ isImported: true, isStaged: false }))
   );
 
-  // === AC-15 · WHAT IS SCHEDULED TO HAPPEN TO ONE OF MY PRODUCTS ===========
+  // === WHAT IS SCHEDULED TO HAPPEN TO ONE OF MY PRODUCTS ====================
 
   Given("one of my products has billing actions scheduled against it", world =>
     openManager(world, productOf(scheduledActionsRecording).id)
@@ -1748,7 +1985,7 @@ export const contractProductSteps = defineSteps(({ Given, When, Then }) => {
             ).response.body.data.scheduled_actions,
             action => ({
               id: action.id,
-              action_code: action.action,
+              action: action.action,
               executed_at: action.executed_at,
               created_at: action.created_at
             })
@@ -1767,7 +2004,7 @@ export const contractProductSteps = defineSteps(({ Given, When, Then }) => {
       )
   );
 
-  // === AC-10 · AN OUTSTANDING RENEWAL INVOICE ===============================
+  // === AN OUTSTANDING RENEWAL INVOICE =======================================
 
   Given("one of my products has an outstanding recurring invoice", world =>
     openManager(world, productOf(unpaidInvoiceRecording).id)
@@ -1782,7 +2019,7 @@ export const contractProductSteps = defineSteps(({ Given, When, Then }) => {
     settles(() => world.expectMeta({ isCancellable: true }))
   );
 
-  // === AC-4 · OPEN ONE OF MY PRODUCTS =======================================
+  // === OPEN ONE OF MY PRODUCTS ==============================================
 
   When("I open one of my products", openManager);
 
@@ -1866,9 +2103,9 @@ export const contractProductSteps = defineSteps(({ Given, When, Then }) => {
     }
   }));
 
-  // === AC-22 · THE EARLIEST CANCELLATION DATE ===============================
+  // === THE EARLIEST CANCELLATION DATE =======================================
 
-  // Shared with AC-5: booting an active subscription's manager.
+  // Shared with stopping renewal: booting an active subscription's manager.
   Given("an active subscription on my account", openManager);
 
   When("I look at when I could book its cancellation for", async world =>
@@ -1883,7 +2120,7 @@ export const contractProductSteps = defineSteps(({ Given, When, Then }) => {
     )
   );
 
-  // === AC-5 · STOP RENEWING, AND CHANGE MY MIND =============================
+  // === STOP RENEWING, AND CHANGE MY MIND ====================================
 
   When("I ask for it to stop renewing", async world => {
     await world.fire(CONTRACT_PRODUCT_COVERED_ACTIONS.stopRenewing);
@@ -1921,7 +2158,7 @@ export const contractProductSteps = defineSteps(({ Given, When, Then }) => {
     settles(() => world.expectContext({ contractProduct: { renew: true } }))
   );
 
-  // === AC-5 · STOP-RENEWING IS NOT THE RENEWAL-INVOICING PERMISSION ==========
+  // === STOP-RENEWING IS NOT THE RENEWAL-INVOICING PERMISSION ================
 
   Given(
     "a subscription on my account that is not allowed to have its renewal invoicing switched off",
@@ -1945,7 +2182,7 @@ export const contractProductSteps = defineSteps(({ Given, When, Then }) => {
     )
   );
 
-  // === AC-22 · BOOK A CANCELLATION ON A DATE I CHOOSE =======================
+  // === BOOK A CANCELLATION ON A DATE I CHOOSE ===============================
 
   Given(
     "an active product on my account, with no cancellation already booked",
@@ -2042,7 +2279,7 @@ export const contractProductSteps = defineSteps(({ Given, When, Then }) => {
     )
   );
 
-  // === AC-1 · A PRODUCT'S NEXT-DUE AND BILLING CYCLE ========================
+  // === A PRODUCT'S NEXT-DUE AND BILLING CYCLE ===============================
 
   When("it is read", async world =>
     settles(() => world.expectMeta({ hasError: false, isLoading: false }))
@@ -2068,7 +2305,7 @@ export const contractProductSteps = defineSteps(({ Given, When, Then }) => {
     )
   );
 
-  // === AC-1 · THE LIST ROWS ================================================
+  // === THE LIST ROWS ========================================================
 
   Given("I am looking at my products", openCollection);
 
@@ -2122,7 +2359,7 @@ export const contractProductSteps = defineSteps(({ Given, When, Then }) => {
       )
   );
 
-  // === AC-1 · PRICES, AS THE BRAND'S TAX RULE PRICES THEM ===================
+  // === PRICES, AS THE BRAND'S TAX RULE PRICES THEM ==========================
 
   // The staging brand's own tax rule, verified and recorded by the generator.
   Given("my brand prices its products without tax", async () => {});
@@ -2202,7 +2439,7 @@ export const contractProductSteps = defineSteps(({ Given, When, Then }) => {
       )
   );
 
-  // === FE-3029 · THE PICKER ================================================
+  // === THE PICKER ===========================================================
 
   Given("I have no product open yet", openCollection);
 
@@ -2223,7 +2460,7 @@ export const contractProductSteps = defineSteps(({ Given, When, Then }) => {
     )
   );
 
-  // === AC-21 · RENEWAL-INVOICING ON / OFF ===================================
+  // === RENEWAL-INVOICING ON / OFF ===========================================
 
   Given("a product whose renewal invoicing is on", world => openManager(world));
   Given("a product whose renewal invoicing is off", world =>
@@ -2247,7 +2484,7 @@ export const contractProductSteps = defineSteps(({ Given, When, Then }) => {
     )
   );
 
-  // === AC-25 · A CHANGE IN FLIGHT ===========================================
+  // === A CHANGE IN FLIGHT ===================================================
 
   Given("one of my products", openManager);
 
@@ -2289,7 +2526,7 @@ export const contractProductSteps = defineSteps(({ Given, When, Then }) => {
     )
   );
 
-  // === AC-23 · REVOKE A BOOKED CANCELLATION =================================
+  // === REVOKE A BOOKED CANCELLATION =========================================
 
   Given(
     "one of my products has a cancellation booked for a future date",
@@ -2315,7 +2552,7 @@ export const contractProductSteps = defineSteps(({ Given, When, Then }) => {
     async world => settles(() => world.expectMeta({ isCancelling: false }))
   );
 
-  // === AC-9 · CONSOLIDATION =================================================
+  // === CONSOLIDATION ========================================================
 
   const consolidationChoice = {
     "opted out": InvoiceConsolidationTypes.DISABLED,
@@ -2393,7 +2630,7 @@ export const contractProductSteps = defineSteps(({ Given, When, Then }) => {
     settles(() => world.expectMeta({ isConsolidationOpen: false }))
   );
 
-  // === AC-11 · A SUSPENDED SUBSCRIPTION IS STILL OFFERED EVERY CHANGE =======
+  // === A SUSPENDED SUBSCRIPTION IS STILL OFFERED EVERY CHANGE ===============
 
   Given("a suspended subscription on my account", world =>
     openManager(world, productOf(suspendedRowRecording).id)
@@ -2402,7 +2639,7 @@ export const contractProductSteps = defineSteps(({ Given, When, Then }) => {
     settles(() => world.expectMeta({ hasScheduledFutureCancellation: true }))
   );
 
-  // === AC-20 · THE PURCHASED CATEGORIES =====================================
+  // === THE PURCHASED CATEGORIES =============================================
 
   Given(
     "I am signed in and I have bought products in several categories",
@@ -2426,7 +2663,7 @@ export const contractProductSteps = defineSteps(({ Given, When, Then }) => {
     // proof; a `World` step cannot read a request query.
   });
 
-  // === AC-19 · THE GROUPED COUNTS ===========================================
+  // === THE GROUPED COUNTS ===================================================
 
   Given("I have opened my products", openCollection);
 
@@ -2464,7 +2701,7 @@ export const contractProductSteps = defineSteps(({ Given, When, Then }) => {
     }
   );
 
-  // === FE-3029 · THE MANAGER FORMS =========================================
+  // === THE MANAGER FORMS ====================================================
 
   Given("I have one of my active subscriptions open", openActiveSubscription);
   Given(
@@ -2569,24 +2806,24 @@ export const contractProductSteps = defineSteps(({ Given, When, Then }) => {
 
   When(
     "I submit the consolidation form choosing the value my subscription already has",
-    async world => {
-      await world.fire(
-        CONTRACT_PRODUCT_COVERED_ACTIONS.set,
-        args(ContractProductFormTypes.CONSOLIDATION, {
+    world =>
+      attempt(world, undefined, actions => {
+        actions.set(ContractProductFormTypes.CONSOLIDATION, {
           invoiceConsolidationEnabled: productOf(
             unchangedConsolidationRecording
           ).invoice_consolidation_enabled
-        })
-      );
-      await world.fire(CONTRACT_PRODUCT_COVERED_ACTIONS.submitConsolidation);
-    }
+        });
+        return actions.submitConsolidation();
+      })
   );
   Then(
-    "my consolidation choice is not sent and the consolidation form stays open",
-    world =>
-      settles(() =>
-        world.expectMeta({ isConsolidationOpen: true, isProcessing: false })
-      )
+    "my consolidation choice is not sent and the consolidation form closes",
+    async world => {
+      nothingSentToThePlatform();
+      await settles(() =>
+        world.expectMeta({ isConsolidationOpen: false, isProcessing: false })
+      );
+    }
   );
 
   When("I reset my product", world =>
@@ -2609,7 +2846,7 @@ export const contractProductSteps = defineSteps(({ Given, When, Then }) => {
     })
   );
 
-  // === AC-2 / AC-18 · NEVER SHOWN DELEGATED PRODUCTS I DO NOT HAVE ========
+  // === NEVER SHOWN DELEGATED PRODUCTS I DO NOT HAVE =========================
   // Both Givens are arranged by the recording: the seeded session's `/self`
   // carries nothing delegated, and the choice sits on the recorded account
   // read the collection's boot makes.
@@ -2629,7 +2866,7 @@ export const contractProductSteps = defineSteps(({ Given, When, Then }) => {
     await settles(() => world.expectContext({ data: NO_DELEGATED_ROWS }));
   });
 
-  // === AC-2 / AC-18 · PRODUCTS DELEGATED TO ME ============================
+  // === PRODUCTS DELEGATED TO ME =============================================
   // The delegation rides the session's own recorded `/self`, and my choice
   // the show-delegated preference the collection reads on boot.
 
@@ -2711,7 +2948,7 @@ export const contractProductSteps = defineSteps(({ Given, When, Then }) => {
     world => world.expectMeta({ hasError: false, isLoading: false })
   );
 
-  // === AC-16 · NOTHING WITHOUT AN AUTHENTICATED CLIENT SESSION ============
+  // === NOTHING WITHOUT AN AUTHENTICATED CLIENT SESSION ======================
   // The `@signed-out` seed boots the guest session. `isReady` never settles
   // for a surface the session cannot address, so it is held, not awaited.
 
@@ -2781,7 +3018,7 @@ export const contractProductSteps = defineSteps(({ Given, When, Then }) => {
     world.expectMeta({ hasError: false, isProcessing: false })
   );
 
-  // === AC-11 / AC-9 · IS EACH FORM OFFERED BEFORE I OPEN IT ================
+  // === IS EACH FORM OFFERED BEFORE I OPEN IT ================================
 
   for (const [state, recording] of [
     ...CANCELLATION_OFFER_ROWS,
@@ -2798,40 +3035,35 @@ export const contractProductSteps = defineSteps(({ Given, When, Then }) => {
     settles(() => world.expectMeta({ hasError: false, isLoading: false }))
   );
 
-  for (const [form, flag, open, isOpen] of [
+  for (const [form, open, isOpen] of [
     [
       "cancellation",
-      "hasCancellationOptions",
       CONTRACT_PRODUCT_COVERED_ACTIONS.openCancellation,
       "isCancellationOpen"
     ],
     [
       "consolidation",
-      "canConsolidate",
       CONTRACT_PRODUCT_COVERED_ACTIONS.openConsolidation,
       "isConsolidationOpen"
     ]
   ] as const) {
-    Then(`I am told the ${form} form is offered`, world =>
-      settles(() => world.expectMeta({ [flag]: true }))
+    Then(`I am told the ${form} form is offered`, () =>
+      settlesOffered(form, true)
     );
-    Then(`I am told the ${form} form is not offered`, world =>
-      settles(() => world.expectMeta({ [flag]: false }))
+    Then(`I am told the ${form} form is not offered`, () =>
+      settlesOffered(form, false)
     );
     Then(
       `what I am told matches whether the ${form} form opens when I ask for it`,
       async world => {
-        const offered = await world
-          .expectMeta({ [flag]: true })
-          .then(() => true)
-          .catch(() => false);
+        const offered = await formOffered(form);
         await world.fire(open);
         await settles(() => world.expectMeta({ [isOpen]: offered }));
       }
     );
   }
 
-  // === AC-11 · WHY THE CANCELLATION FORM IS NOT AVAILABLE ==================
+  // === WHY THE CANCELLATION FORM IS NOT AVAILABLE ===========================
 
   Given(
     "one of my products is held back from cancelling because its cancellation request was already accepted",
@@ -2846,7 +3078,10 @@ export const contractProductSteps = defineSteps(({ Given, When, Then }) => {
   );
   Then("I am told the cancellation is not shown", world =>
     settles(async () => {
-      await world.expectMeta({ hasCancellationOptions: false });
+      mustHold(
+        !(await cancellationOffered()),
+        "the cancellation form is offered"
+      );
       await world.expectContext({
         contractProduct: {
           contractRequest: {
@@ -2859,18 +3094,18 @@ export const contractProductSteps = defineSteps(({ Given, When, Then }) => {
       });
     })
   );
-  Then("I am told the cancellation is offered", world =>
-    settles(() =>
+  Then("I am told the cancellation is offered", async world => {
+    await settlesOffered("cancellation", true);
+    await settles(() =>
       world.expectMeta({
-        hasCancellationOptions: true,
         isExpiring: false,
         hasAutoRenewDisabled: !productOf(renewalInvoicingOffRecording)
           .auto_create_renew_invoice
       })
-    )
-  );
+    );
+  });
 
-  // === AC-11 · A PRODUCT THE PLATFORM HOLDS BACK FROM CANCELLING ==========
+  // === A PRODUCT THE PLATFORM HOLDS BACK FROM CANCELLING ====================
 
   Given("one of my products has a pending pro-rata invoice", world =>
     openManager(world, productOf(proRataGuardRecording).id)
@@ -2906,8 +3141,8 @@ export const contractProductSteps = defineSteps(({ Given, When, Then }) => {
       .fire(CONTRACT_PRODUCT_COVERED_ACTIONS.submitCancellation)
       .catch(() => {});
   });
-  Then("I am told I cannot ask to cancel it", world =>
-    settles(() => world.expectMeta({ hasCancellationOptions: false }))
+  Then("I am told I cannot ask to cancel it", () =>
+    settlesOffered("cancellation", false)
   );
   Then("no cancellation form opens and no cancellation is sent", world =>
     settles(() =>
@@ -2920,7 +3155,7 @@ export const contractProductSteps = defineSteps(({ Given, When, Then }) => {
     )
   );
 
-  // === FE-3029 · THE CANCELLATION OPTIONS FOLLOW THE PRODUCT'S STATE =======
+  // === THE CANCELLATION OPTIONS FOLLOW THE PRODUCT'S STATE ==================
 
   Given("I have one of my products open that is still pending", world =>
     openManager(world, productOf(pendingOptionsRecording).id)
@@ -2937,7 +3172,7 @@ export const contractProductSteps = defineSteps(({ Given, When, Then }) => {
     )
   );
 
-  // === FE-3029 · A PRODUCT THAT IS NOT MINE =================================
+  // === A PRODUCT THAT IS NOT MINE ===========================================
 
   Given("a product that is on another client's account", async () => {});
 
@@ -2963,7 +3198,7 @@ export const contractProductSteps = defineSteps(({ Given, When, Then }) => {
     await world.expectMeta({ hasError: true, isAvailable: false });
   });
 
-  // === AC-6 · HARD CANCELLATION =============================================
+  // === HARD CANCELLATION ====================================================
 
   Given(
     "an active product on my account, with the cancellation form open",
@@ -3016,7 +3251,7 @@ export const contractProductSteps = defineSteps(({ Given, When, Then }) => {
     settles(() => world.expectMeta({ isCancellationOpen: false }))
   );
 
-  // === AC-7 · WITHDRAW A CANCELLATION REQUEST ===============================
+  // === WITHDRAW A CANCELLATION REQUEST ======================================
 
   Given(
     "I have an outstanding cancellation request on one of my products",
@@ -3049,7 +3284,7 @@ export const contractProductSteps = defineSteps(({ Given, When, Then }) => {
     settles(() => world.expectMeta({ isCancelling: false, isActive: true }))
   );
 
-  // === AC-26 TO AC-28 · THE CHANGE OF PLAN (FE-3206) ========================
+  // === THE CHANGE OF PLAN ===================================================
   // Each scenario boots the product its own recording read; the wire lines
   // read the requests the module sent in this scenario's window.
 
@@ -3315,7 +3550,7 @@ export const contractProductSteps = defineSteps(({ Given, When, Then }) => {
     settles(() => world.expectMeta({ hasNoMigrationTargets: true }))
   );
 
-  // === AC-29 TO AC-34 · CONFIGURE, PRICE AND COMMIT A CHANGE OF PLAN ==========
+  // === CONFIGURE, PRICE AND COMMIT A CHANGE OF PLAN =========================
   // Each value a line expects is read off the scenario's own recordings; each
   // wire line and body line reads what the module sent in this window.
 
@@ -3752,14 +3987,14 @@ export const contractProductSteps = defineSteps(({ Given, When, Then }) => {
         (changeAnswerOf(3).body.data?.unpaid_amount ?? 0) !== 0,
         "the recorded invoice leaves nothing to pay"
       );
-      await settles(() => world.expectMeta({ requiresPayment: true }));
+      await settles(() => world.expectMeta({ isPaymentRequired: true }));
     }
   );
   Then(
     "I am told I do not have to pay for the change to take effect",
     async world => {
       await landed(world);
-      await settles(() => world.expectMeta({ requiresPayment: false }));
+      await settles(() => world.expectMeta({ isPaymentRequired: false }));
     }
   );
   Then("my product is read again", async world => {
@@ -3806,6 +4041,10 @@ export const contractProductSteps = defineSteps(({ Given, When, Then }) => {
     );
   });
   Then("I am given no invoice", async world => {
+    if (outcome) {
+      mustHold(outcome.value === null, "the action gave an invoice");
+      return;
+    }
     await landed(world);
     await settles(() => world.expectContext({ migrationResult: null }));
   });
@@ -3834,6 +4073,609 @@ export const contractProductSteps = defineSteps(({ Given, When, Then }) => {
   });
   Then("my product is still active", world =>
     settles(() => world.expectMeta({ isActive: true }))
+  );
+
+  // === THE FIVE LIFECYCLE WRITES ============================================
+  // Each scenario boots the product its own recording read. The wire lines
+  // read the requests the module sent in this scenario's window, and the
+  // answer lines read what the action gave back.
+
+  for (const [from, to] of [
+    ["on", "off"],
+    ["off", "on"]
+  ] as const) {
+    Given(
+      `a subscription of mine whose renewal invoicing is ${from} and that permits the change`,
+      async world => {
+        await openLifecycle(world);
+        await settles(() =>
+          world.expectMeta(
+            from === "on"
+              ? { hasAutoRenewDisabled: false, canDisableAutoRenew: true }
+              : { hasAutoRenewDisabled: true, canEnableAutoRenew: true }
+          )
+        );
+      }
+    );
+    When(`I turn its renewal invoicing ${to}`, world =>
+      attempt(world, undefined, actions => actions.setAutoRenew(to === "on"))
+    );
+    Then(
+      `the platform is asked to set its renewal invoicing ${to}`,
+      async () => {
+        const sent = await bodySent(recordedWrite(STOP_START), "PUT");
+        mustHold(
+          isEqual(sent, { invoicing: to === "on" }),
+          `the request carried ${JSON.stringify(sent)}`
+        );
+      }
+    );
+  }
+
+  Then("nothing is sent to change its renewal", () =>
+    mustHold(
+      sentByWhen(
+        (url, method) =>
+          method === "PUT" && url.pathname.endsWith("/modify_renew")
+      ).length === 0,
+      "a renewal change went to the platform"
+    )
+  );
+  Then("the subscription is read again", () => productReadAgain());
+  Then("the product is read again", () => productReadAgain());
+
+  for (const product of [
+    "a subscription whose product forbids stopping renewal invoicing",
+    "a subscription in trial whose renewal invoicing is on",
+    "a subscription that expires at the end of its term",
+    "a cancelled subscription whose renewal invoicing is off"
+  ])
+    Given(product, openLifecycle);
+  for (const to of ["off", "on"] as const)
+    When(`I ask to turn its renewal invoicing ${to}`, world =>
+      attempt(
+        world,
+        to === "off" ? "canDisableAutoRenew" : "canEnableAutoRenew",
+        actions => actions.setAutoRenew(to === "on")
+      )
+    );
+  Then("I am told the change is not offered", world => refusedByGate(world));
+  Then("I am told it is not offered", world => refusedByGate(world));
+  Then("nothing is sent to the platform", () => nothingSentToThePlatform());
+
+  Given(
+    "a subscription of mine that can raise its next invoice",
+    async world => {
+      await openLifecycle(world);
+      await settles(() => world.expectMeta({ canIssueNextInvoice: true }));
+    }
+  );
+  Given(
+    "a subscription of mine that cannot raise its next invoice",
+    openLifecycle
+  );
+  When("I ask for its next invoice", world =>
+    attempt(world, "canIssueNextInvoice", actions => actions.issueNextInvoice())
+  );
+  Then(
+    "the platform is asked for it with the next invoice date of the subscription",
+    async () => {
+      const recorded = recordedWrite(RECURRING).request.body;
+      const sent = await bodySent(recordedWrite(RECURRING), "POST");
+      mustHold(
+        isEqual(sent, recorded),
+        `the request carried ${JSON.stringify(sent)}, not ${JSON.stringify(recorded)}`
+      );
+      mustHold(
+        recorded?.next_invoice_date === changeProduct().next_invoice_date,
+        "the recorded request does not carry the next invoice date of the subscription"
+      );
+    }
+  );
+  Then("I am given the invoice that it raised", () => {
+    const given = outcome?.value as { id?: string } | undefined;
+    const raised = raisedByTheWrite().response.body.data?.id;
+    mustHold(
+      !!raised && given?.id === raised,
+      `the action gave ${JSON.stringify(given?.id)}, not the invoice ${raised}`
+    );
+  });
+  Then("I am given the credit note that it raised", () => {
+    const given = outcome?.value as
+      | { id?: string; number?: string; category?: { slug?: string } }
+      | null
+      | undefined;
+    const raised = raisedByTheWrite().response.body.data;
+    mustHold(!!raised?.id, "the recording holds no document");
+    mustHold(
+      given?.id === raised?.id && given?.number === raised?.number,
+      `the action gave ${given?.number}, not the credit note ${raised?.number}`
+    );
+    mustHold(
+      given?.category?.slug === InvoiceCategoryCode.CREDIT_NOTE,
+      `the document is a ${given?.category?.slug}, not a credit note`
+    );
+  });
+
+  for (const [when, timing, late] of [
+    ["still to come", "not yet due", false],
+    ["already passed", "late", true]
+  ] as const) {
+    Given(
+      `a subscription of mine whose next invoice date is ${when}`,
+      openLifecycle
+    );
+    Then(`I am told its next invoice is ${timing}`, world =>
+      settles(() => world.expectMeta({ isNextInvoiceDateInFuture: !late }))
+    );
+  }
+  for (const look of [
+    "I look at when its next invoice falls due",
+    "I look at how its trial ends"
+  ])
+    When(look, world =>
+      settles(() => world.expectMeta({ hasError: false, isLoading: false }))
+    );
+
+  for (const [action, kind] of [
+    ["continuing", TrialEndActionTypes.CONTINUE],
+    ["cancelling", TrialEndActionTypes.CANCEL]
+  ] as const) {
+    Given(
+      `a product of mine in trial whose trial ends by ${action}`,
+      async world => {
+        await openLifecycle(world);
+        await settles(() =>
+          world.expectMeta(
+            action === "continuing"
+              ? { isOnTrial: true }
+              : { isOnTerminatingTrial: true }
+          )
+        );
+      }
+    );
+    Then(`I am told its trial ends by ${action}`, world =>
+      settles(() =>
+        world.expectContext({ contractProduct: { trialEndAction: kind } })
+      )
+    );
+  }
+  Given("a product of mine in trial that waits for activation", openLifecycle);
+  When("I end its trial", world =>
+    attempt(world, "canEndTrial", actions => actions.endTrial())
+  );
+  Then(
+    "the platform is asked to end its trial, with nothing else sent",
+    async () => {
+      const sent = await bodySent(recordedWrite(END_TRIAL), "POST");
+      mustHold(
+        sent === undefined,
+        `the request carried ${JSON.stringify(sent)}`
+      );
+    }
+  );
+
+  for (const from of ["empty", '"Web box"'] as const) {
+    Given(`a product of mine whose label is ${from}`, async world => {
+      await openLifecycle(world);
+      await settles(async () =>
+        mustHold(
+          from === "empty"
+            ? isEmpty((await liveProduct()).clientLabel)
+            : (await liveProduct()).clientLabel === "Web box",
+          "the product does not hold the label of the row"
+        )
+      );
+    });
+  }
+  for (const to of ['"Web box"', "empty"] as const) {
+    When(`I set its label to ${to}`, world =>
+      attempt(world, undefined, actions =>
+        actions.setClientLabel(
+          String(recordedWrite(LABEL_WRITE).request.body?.client_label)
+        )
+      )
+    );
+    Then(`the platform is asked to set its label to ${to}`, async () => {
+      const sent = await bodySent(recordedWrite(LABEL_WRITE), "PUT");
+      mustHold(
+        isEqual(sent, { client_label: to === "empty" ? "" : "Web box" }),
+        `the request carried ${JSON.stringify(sent)}`
+      );
+    });
+    Then(`I am told its label is ${to}`, async () =>
+      settles(async () => {
+        const label = (await liveProduct()).clientLabel;
+        mustHold(
+          to === "empty" ? isEmpty(label) : label === "Web box",
+          `the product holds the label ${JSON.stringify(label)}`
+        );
+      })
+    );
+  }
+  Then("my products list gives that label on its row", async world => {
+    await world.boot(CONTRACT_PRODUCTS_SCENARIO, {
+      actor: ScopeActorTypes.CLIENT
+    });
+    await world.fire(CONTRACT_PRODUCTS_COVERED_ACTIONS.isReady).catch(() => {});
+    await world.fire(CONTRACT_PRODUCTS_COVERED_ACTIONS.sortBy, [
+      { field: "created_at", dir: SortDirection.DESC }
+    ]);
+    const label = recordedWrite(LABEL_WRITE).request.body?.client_label;
+    moduleLoad ??= import("..");
+    const { useContractProducts } = await moduleLoad;
+    const list = useContractProducts().as(ScopeActorTypes.CLIENT);
+    await settles(async () => {
+      const row = find(list.useContext().data.value, {
+        id: changeProduct().id
+      });
+      mustHold(!!row, "my product is not on the first page of my products");
+      mustHold(
+        isEmpty(label) ? isEmpty(row?.clientLabel) : row?.clientLabel === label,
+        `the row holds the label ${JSON.stringify(row?.clientLabel)}`
+      );
+    });
+  });
+
+  Given("a subscription of mine that bills to an address", async world => {
+    await openLifecycle(world);
+    await settles(async () =>
+      mustHold(
+        isNil((await liveProduct()).billingCompanyId) &&
+          !isNil((await liveProduct()).billingAddressId),
+        "the subscription does not bill to an address alone"
+      )
+    );
+  });
+  Given(
+    "a cancelled subscription of mine that bills to one of my companies",
+    async world => {
+      await openLifecycle(world);
+      await settles(() => world.expectMeta({ isCancelled: true }));
+      await settles(async () =>
+        mustHold(
+          !isNil((await liveProduct()).billingCompanyId),
+          "the subscription does not bill to a company"
+        )
+      );
+    }
+  );
+  Given(
+    "a subscription of mine that bills to one of my companies",
+    async world => {
+      await openLifecycle(world);
+      await settles(async () =>
+        mustHold(
+          !isNil((await liveProduct()).billingCompanyId),
+          "the subscription does not bill to a company"
+        )
+      );
+    }
+  );
+  When("I pick one of my companies", world =>
+    attempt(world, "canSetBillingEntity", async actions =>
+      actions.setBillingEntity(await recordedPick())
+    )
+  );
+  When("I pick another address", world =>
+    attempt(world, "canSetBillingEntity", async actions =>
+      actions.setBillingEntity(await recordedPick())
+    )
+  );
+  When("I pick that same company", world =>
+    attempt(world, "canSetBillingEntity", async actions => {
+      const current = (await liveProduct()).billingCompanyId;
+      mustHold(!!current, "the subscription bills to no company");
+      return actions.setBillingEntity(await offeredPick(current as string));
+    })
+  );
+  Then(
+    "the platform is asked to bill it to the address of that company and that company",
+    async () => {
+      const recorded = recordedWrite(BILLING_WRITE).request.body;
+      const sent = await bodySent(recordedWrite(BILLING_WRITE), "PUT");
+      mustHold(
+        isEqual(sent, recorded),
+        `the request carried ${JSON.stringify(sent)}, not ${JSON.stringify(recorded)}`
+      );
+      const company = find(recordedList(COMPANY_LIST), {
+        id: recorded?.company_id as string
+      });
+      mustHold(
+        !!company && recorded?.address_id === company.address_id,
+        "the recorded pick is not a company billed at its own address"
+      );
+    }
+  );
+  Then(
+    "the platform is asked to bill it to that address and no company",
+    async () => {
+      const recorded = recordedWrite(BILLING_WRITE).request.body;
+      const sent = await bodySent(recordedWrite(BILLING_WRITE), "PUT");
+      mustHold(
+        isEqual(sent, recorded),
+        `the request carried ${JSON.stringify(sent)}, not ${JSON.stringify(recorded)}`
+      );
+      mustHold(
+        !!find(recordedList(ADDRESS_LIST), { id: recorded?.address_id }) &&
+          recorded?.company_id === null,
+        "the recorded pick is not one of my addresses with no company"
+      );
+    }
+  );
+  Then(
+    "I am told it bills to the address of that company and that company",
+    () =>
+      settles(async () => {
+        const sent = recordedWrite(BILLING_WRITE).request.body ?? {};
+        const held = await liveProduct();
+        mustHold(
+          held.billingCompanyId === sent.company_id &&
+            held.billingAddressId === sent.address_id,
+          "the subscription does not bill to that company"
+        );
+      })
+  );
+  Then("I am told it bills to that address and no company", () =>
+    settles(async () => {
+      const sent = recordedWrite(BILLING_WRITE).request.body ?? {};
+      const held = await liveProduct();
+      mustHold(
+        held.billingAddressId === sent.address_id &&
+          isNil(held.billingCompanyId),
+        "the subscription does not bill to that address alone"
+      );
+    })
+  );
+  Then("I am given my subscription as it stands", () => {
+    const given = outcome?.value as
+      | { id?: string; billingCompanyId?: string; billingAddressId?: string }
+      | false
+      | undefined;
+    const recorded = changeProduct().contract;
+    mustHold(
+      !!given &&
+        given.id === changeProduct().id &&
+        given.billingCompanyId === recorded?.company_id &&
+        given.billingAddressId === recorded?.address_id,
+      `the action gave ${JSON.stringify(given)}, not the subscription as recorded`
+    );
+  });
+
+  for (const write of [
+    "turn its renewal invoicing off",
+    "raise its next invoice",
+    "end its trial",
+    "set its label",
+    "change what it bills to"
+  ] as const) {
+    Given(
+      `a product of mine where the platform will refuse to ${write}`,
+      openLifecycle
+    );
+  }
+  const refusedWrites: [string, (actions: LiveActions) => Promise<unknown>][] =
+    [
+      [
+        "turn its renewal invoicing off",
+        actions => actions.setAutoRenew(false)
+      ],
+      ["raise its next invoice", actions => actions.issueNextInvoice()],
+      ["end its trial", actions => actions.endTrial()],
+      [
+        "set its label",
+        actions =>
+          actions.setClientLabel(
+            String(recordedWrite(LABEL_WRITE).request.body?.client_label)
+          )
+      ],
+      [
+        "change what it bills to",
+        async actions => actions.setBillingEntity(await recordedPick())
+      ]
+    ];
+  for (const [write, call] of refusedWrites)
+    When(`I ask to ${write}`, world => attempt(world, undefined, call));
+  Then("I am told the platform refused it", () => {
+    const { refusal } = outcome ?? {};
+    mustHold(
+      isDetailedError(refusal) &&
+        refusal.code === anyRecordedWrite().response.status,
+      `the action was not refused with the platform's answer: ${String(refusal)}`
+    );
+  });
+  Then("the billing form stays open on my pick", async world => {
+    const { address_id, company_id } = recordedWrite(BILLING_WRITE).request
+      .body as { address_id: string; company_id: string | null };
+    await settles(async () => {
+      await world.expectMeta({
+        isBillingEntityOpen: true,
+        isProcessing: false
+      });
+      const model = (await liveManager()).useContext().billingEntity.value
+        ?.model as { billing_entity?: string } | undefined;
+      mustHold(
+        model?.billing_entity === (company_id ?? address_id),
+        `the billing form holds ${JSON.stringify(model)}, not the pick`
+      );
+    });
+  });
+  Then("my product is not read again", () =>
+    mustHold(
+      sentByWhen(
+        (url, method) =>
+          method === "GET" &&
+          url.pathname.endsWith(`/contract_products/${changeProduct().id}`)
+      ).length === 0,
+      "the product was read again"
+    )
+  );
+  Then("my product is still given to me", world =>
+    settles(async () => {
+      await world.expectMeta({ isAvailable: true });
+      await world.expectContext({
+        contractProduct: { id: changeProduct().id }
+      });
+    })
+  );
+
+  const listAndProduct = async (world: World) => {
+    await openLifecycle(world);
+    await world.boot(CONTRACT_PRODUCTS_SCENARIO, {
+      actor: ScopeActorTypes.CLIENT
+    });
+    await world.fire(CONTRACT_PRODUCTS_COVERED_ACTIONS.isReady).catch(() => {});
+    await settles(() => world.expectMeta({ hasError: false }));
+  };
+  const landedWrites: [string, (actions: LiveActions) => Promise<unknown>][] = [
+    ["turn its renewal invoicing off", actions => actions.setAutoRenew(false)],
+    ["raise its next invoice", actions => actions.issueNextInvoice()],
+    ["end its trial", actions => actions.endTrial()],
+    [
+      "set its label",
+      actions =>
+        actions.setClientLabel(
+          String(recordedWrite(LABEL_WRITE).request.body?.client_label)
+        )
+    ],
+    [
+      "change what it bills to",
+      async actions => actions.setBillingEntity(await recordedPick())
+    ]
+  ];
+  for (const [write, call] of landedWrites) {
+    Given(
+      `my products list and a product of mine where I can ${write}`,
+      listAndProduct
+    );
+    When(`I ${write}`, async world => {
+      await attempt(world, undefined, call);
+      mustHold(
+        !outcome?.refusal,
+        `the write was refused: ${String(outcome?.refusal)}`
+      );
+    });
+  }
+  Then("my products list is read again", async () => {
+    const reread = map(recordedList(PRODUCTS_PAGE), "id");
+    moduleLoad ??= import("..");
+    const { useContractProducts } = await moduleLoad;
+    const list = useContractProducts().as(ScopeActorTypes.CLIENT);
+    await settles(async () => {
+      mustHold(
+        sentByWhen(
+          (url, method) =>
+            method === "GET" && url.pathname.endsWith("/contracts_products")
+        ).length > 0,
+        "my products list was not read again"
+      );
+      mustHold(
+        isEqual(map(list.useContext().data.value, "id"), reread),
+        "my products list does not hold the page its re-read returned"
+      );
+    });
+  });
+  for (const write of ["raise its next invoice", "end its trial"] as const)
+    Given(
+      `my invoices list and a product of mine where I can ${write}`,
+      async world => {
+        await openLifecycle(world);
+        moduleLoad ??= import("..");
+        const { useInvoices } = await import("../../invoices");
+        await useInvoices().as(ScopeActorTypes.CLIENT).useActions().isReady();
+      }
+    );
+  Then("my invoices list is read again", async () => {
+    const reread = map(recordedList(INVOICES_PAGE), "id");
+    const { useInvoices } = await import("../../invoices");
+    const invoices = useInvoices().as(ScopeActorTypes.CLIENT);
+    await settles(async () => {
+      mustHold(
+        sentByWhen(
+          (url, method) =>
+            method === "GET" && url.pathname.endsWith("/invoices")
+        ).length > 0,
+        "my invoices list was not read again"
+      );
+      mustHold(
+        isEqual(map(invoices.useContext().data.value, "id"), reread),
+        "my invoices list does not hold the page its re-read returned"
+      );
+    });
+  });
+
+  Given(
+    "a subscription of mine that bills to one of my companies at an address that is not that company's",
+    async world => {
+      await openLifecycle(world);
+      await settles(async () => {
+        const held = await liveProduct();
+        const company = find(recordedList(COMPANY_LIST), {
+          id: held.billingCompanyId
+        });
+        mustHold(
+          !!company &&
+            !!held.billingAddressId &&
+            company.address_id !== held.billingAddressId,
+          "the subscription does not bill to a company at an address other than that company's"
+        );
+      });
+    }
+  );
+
+  Given(
+    "my products list, newest first, and a subscription of mine whose renewal invoicing is on",
+    async world => {
+      await listAndProduct(world);
+      await world.fire(CONTRACT_PRODUCTS_COVERED_ACTIONS.sortBy, [
+        {
+          field: ContractProductsSortableProperties.CREATED_AT,
+          dir: SortDirection.DESC
+        }
+      ]);
+      await settles(async () =>
+        mustHold(
+          (await liveProduct()).autoCreateRenewInvoice,
+          "the subscription's renewal invoicing is not on"
+        )
+      );
+    }
+  );
+
+  Then(
+    "its row on my products list shows its renewal invoicing off",
+    async () => {
+      type PageRow = { id: string; auto_create_renew_invoice: boolean };
+      const rowOf = (recording: unknown) =>
+        find(
+          (recording as { response: { body: { data: PageRow[] } } }).response
+            .body.data,
+          { id: changeProduct().id }
+        );
+      const before = rowOf(changeRecordingOf(2, PRODUCTS_PAGE));
+      const after = rowOf(mustRecord(3, PRODUCTS_PAGE));
+      mustHold(
+        !!before && !!after,
+        "the recorded first pages do not hold my subscription"
+      );
+      mustHold(
+        before?.auto_create_renew_invoice === true &&
+          after?.auto_create_renew_invoice === false,
+        "the recorded re-read does not show the renewal invoicing turned off"
+      );
+      moduleLoad ??= import("..");
+      const { useContractProducts } = await moduleLoad;
+      const list = useContractProducts().as(ScopeActorTypes.CLIENT);
+      await settles(async () => {
+        const row = find(list.useContext().data.value, {
+          id: changeProduct().id
+        });
+        mustHold(
+          row?.autoCreateRenewInvoice === after?.auto_create_renew_invoice,
+          `my row holds renewal invoicing ${String(row?.autoCreateRenewInvoice)}`
+        );
+      });
+    }
   );
 });
 

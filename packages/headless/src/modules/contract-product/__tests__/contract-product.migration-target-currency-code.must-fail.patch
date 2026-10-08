@@ -1,13 +1,11 @@
-# Negative-control mutant 17 — target-currency-code (FE-3206)
+# Negative-control mutant — the plan reads use the contract currency
 #
-# Mutation: drop the explicit-currency check of `withCurrency`.
-# Spec it must turn red: "Choose a plan ..." ("without my basket's currency"), and the R11 unit spec.
-#
-# Authored by the developer seat against the landed production source. The
-# prover applies it blind (tasks.md T41): apply, run the named spec, revert.
+# Spec it must flip: contract-product.replay.int.test.ts > "@AC-29 @AC-30 @AC-32 Choose a plan and see what the change costs before I commit"
+# Mutation: `withCurrency` drops its explicit-currency check.
 #
 # Apply with:  git apply <this file>   (run from repo root)
 # Revert with: git apply -R <this file>
+
 diff --git a/packages/headless/src/modules/query/useQuery.ts b/packages/headless/src/modules/query/useQuery.ts
 --- a/packages/headless/src/modules/query/useQuery.ts
 +++ b/packages/headless/src/modules/query/useQuery.ts

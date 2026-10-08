@@ -39,35 +39,28 @@ try {
 
 ## A future-cancellation date must land exactly on a billing anniversary 🧪
 
-`scheduleCancellation` does **not** accept "today or later". The date has to be an exact multiple of the product's billing cycle from its `nextDueDate`, and not earlier than the next anniversary strictly after today. Sending an off-anniversary date is a caller bug the machine does not itself reject at the transition level — validate first.
+`scheduleCancellation` does **not** accept "today or later". The date has to be an exact multiple of the product's billing cycle from its `nextDueDate`, and not earlier than the next anniversary strictly after today. Sending an off-anniversary date is a caller bug the machine does not itself reject at the transition level. Build the picker from `minFutureCancellationDate` and whole billing cycles, so no other date is offered.
 
 ```typescript
-import {
-  ScopeActorTypes,
-  isSelectableFutureCancellationDate,
-  useContractProduct
-} from "@upmind-automation/headless";
+import { ScopeActorTypes, useContractProduct } from "@upmind-automation/headless";
 
 declare const productId: string;
 declare const pickedDate: string;
 
 const product = useContractProduct().as(ScopeActorTypes.CLIENT).withId(productId);
 await product.useActions().isReady();
-const { contractProduct } = product.useContext();
+const { minFutureCancellationDate } = product.useContext();
 
 // ❌ Wrong — picks an arbitrary future date
 await product.useActions().scheduleCancellation({ futureCancellationDate: "2026-11-01" });
 
-// ✅ Correct — validate against the product's own anniversaries first
-if (
-  contractProduct.value &&
-  isSelectableFutureCancellationDate(contractProduct.value, pickedDate)
-) {
+// ✅ Correct — offer only the earliest anniversary and whole cycles after it
+if (minFutureCancellationDate.value) {
   await product.useActions().scheduleCancellation({ futureCancellationDate: pickedDate });
 }
 ```
 
-**Test scenario:** build a date picker constrained to `minFutureCancellationDate(product)` plus whole-cycle steps; assert `isSelectableFutureCancellationDate` rejects any date off that grid.
+**Test scenario:** build a date picker constrained to `minFutureCancellationDate` plus whole-cycle steps; assert it offers no date off that grid.
 
 ---
 
@@ -93,9 +86,37 @@ if (term.length >= 3) setCriteria({ query: term });
 
 ---
 
-## `unavailable` (staged/cancelled/lapsed/fraud) has no way out except a fresh read
+## `unavailable` (staged/cancelled/lapsed/fraud) accepts the five lifecycle writes and nothing else
 
-Once a product is placed on `unavailable`, no event moves it — not even `REFRESH` targets a child of `unavailable` directly; `REFRESH` always re-enters `#loading` from the top, and the settled read walks the load's ordered list of status guards again from scratch. Do not attempt to `send()` a write event while `isStaged`/`isCancelled`/`isLapsed`/`isFraud` is true — none of those child states declare a handler for it.
+Once a product is placed on `unavailable`, only the five lifecycle writes move it: `setAutoRenew`, `issueNextInvoice`, `endTrial`, `setClientLabel` and `setBillingEntity`. They are accepted there on purpose, because the platform judges the request, and a client can still label a cancelled product or change what it bills to. The first four are events on the `unavailable` node. `setBillingEntity` runs in the `billingEntity` form region that `unavailable` holds beside its `status` region. The cancellation, consolidation and change-of-plan events have no handler on any `unavailable` node. `REFRESH` always re-enters `#loading` from the top, and the settled read walks the load's ordered list of status guards again from scratch, so that is the only way back to `available`.
+
+Each lifecycle write is also gated by the record. A write whose gate is closed resolves `false` with nothing sent, on `unavailable` as on `available`. A write also resolves `false` at once when the product is on no placed node (loading, or on `error`) or when another write is in flight. Read the gate in `useMeta()` (`canEndTrial`, `canSetBillingEntity` and the rest) before the call. `isUnavailable` is `true` on any `unavailable` node.
+
+---
+
+## Unpaid invoices do not close the auto-renew switch-off
+
+`canDisableAutoRenew` does not read the unpaid invoices of the product, and the platform does not need it to. The platform allows the switch-off while unpaid invoices exist (checked on staging on 2026-10-07: `200`). It refuses only when the catalogue product's `can_disable_auto_create_renew_invoice` is `false`, with a `409`; `canDisableAutoRenew` reads that flag, and an absent flag counts as allowed. Whether to warn the client about unpaid invoices first is a choice of the consuming interface. The manager does not request that set, because `useInvoices` owns `GET invoices`. 
+
+A consumer that wants the hint reads `useInvoices().as(ScopeActorTypes.CLIENT).for(InvoicesContextTypes.CONTRACT_PRODUCT, id)`. `contractProduct.unpaidRecurringInvoices` is the list the product record carries, not the filtered read.
+
+## `setBillingEntity()` validates, and a pick of the current entity is a no-op
+
+`setBillingEntity()` opens the billing-entity form, waits for the client's addresses and companies, feeds the picked id and submits. The form validates the id against the picker schema (`schemas.billingEntity`), and the call rejects with the validation errors when the id fails. An id that matches nothing in the picker list fails the same way. A pick of the entity the contract already bills to sends nothing, closes the form and resolves the current product. That is a success, not a refusal.
+
+A refusal by the platform rejects and keeps the form open, with its model, on its `error` node. The caller can correct the pick and submit again with `submitBillingEntity()`, or close the form with `cancelForm`. `false` means a closed gate, or a product on no placed node. `schemas.billingEntity` carries `default`, the current billing entity: the company when the record has one, else the address. The default is absent on a list row, which carries neither id.
+
+## `billingAddressId` and `billingCompanyId` are `undefined` on a list row
+
+The list read does not include the contract, so every row from `useContractProducts` leaves `billingAddressId` and `billingCompanyId` `undefined`. `undefined` does not mean the contract has no address or no company. The manager's single-product read carries both.
+
+## Two invoice writes and `migrate` also invalidate `["invoices"]`
+
+`issueNextInvoice()`, `endTrial()` and the `migrate()` of a change of plan raise an invoice. Each invalidates the module root `["contracts"]` and the invoices root `["invoices"]`, with `exact: false` on both. The other four lifecycle writes invalidate `["contracts"]` only. The invoices list has a long stale time, so without the second invalidation a raised invoice would be missing from a cached list and from the unpaid set above.
+
+## `endTrial()` can resolve `null`; `issueNextInvoice()` cannot
+
+`endTrial()` resolves `null` when the end of trial raised no invoice. That is a success. A trial that ends by cancelling resolves the platform's credit note (category `credit_note`), not a regular invoice. `issueNextInvoice()` rejects with a `DetailedError` when the platform returns no invoice. `issuedInvoice` keeps the last result of either write, and survives `refresh()` and later writes of other kinds, so it is not the current state of the product.
 
 ---
 
@@ -136,7 +157,9 @@ Neither form reads the platform's own actor-permission model (e.g. whether THIS 
 
 ## `hasScheduledFutureCancellation` and `canScheduleFutureCancellation` are not opposites
 
-`hasScheduledFutureCancellation` reports whether one is currently booked. `canScheduleFutureCancellation` reports whether booking a **new** one is currently allowed — which also requires not cancelling, not pending, and a computable anniversary. A product can have neither true (no anniversary computable, e.g. missing `nextDueDate`). While a write is in flight (`isProcessing`), the machine has left the whole `available.status` region, so `isCancelling` and `isPending` both read `false` — this can make `canScheduleFutureCancellation` read `true` mid-write, even though no new booking can actually be sent until the write settles. Gate a "schedule cancellation" control on `!isProcessing` too, not on `canScheduleFutureCancellation` alone.
+`hasScheduledFutureCancellation` reports whether one is currently booked. `canScheduleFutureCancellation` reports whether booking a **new** one is currently allowed — which also requires not cancelling, not pending, and a computable anniversary. A product can have neither true (no anniversary computable, e.g. missing `nextDueDate`).
+
+While a write is in flight (`isProcessing`), the machine has left the whole `available.status` region. So `isCancelling` and `isPending` both read `false`. This can make `canScheduleFutureCancellation` read `true` mid-write. No new booking can be sent until the write settles. Gate a "schedule cancellation" control on `!isProcessing` too, not on `canScheduleFutureCancellation` alone.
 
 ---
 
@@ -165,11 +188,11 @@ The commit is one write, followed by a re-read of the product. `migrate()` resol
 
 ### Reading `contractProduct.raw` for a field the view model already maps
 
-The view model on `useContractProduct().useContext().contractProduct` already maps every field this module reads. Reach for `.raw` only when a consumer genuinely needs an unmapped wire field (e.g. `tags`, which is carried via a local wire-type augmentation rather than the shared platform interface) — not as a shortcut around the mapper.
+The view model on `useContractProduct().useContext().contractProduct` already maps every field this module reads. Reach for `.raw` only when a consumer needs an unmapped wire field. An example is `tags`, which a local wire-type augmentation carries, not the shared platform interface. Do not use `.raw` as a shortcut around the mapper.
 
 ### Assuming the collection and the manager share a cache entry per product
 
-They don't. The collection's list query and one manager instance's machine context are independent reads with independent cache keys under the same `["contracts"]` root. A write through the manager invalidates the whole root (so the list will refetch), but the manager's own context is only updated by its own re-read, not by the list's.
+They don't. The collection's list query and one manager instance's machine context are independent reads with independent cache keys under the same `["contracts"]` root. A write through the manager invalidates the whole root, so the list refetches. The manager's own context updates only from its own re-read, not from the list's.
 
 ---
 
@@ -177,8 +200,8 @@ They don't. The collection's list query and one manager instance's machine conte
 
 | Scenario | Expected Behavior | Notes |
 |----------|-------------------|-------|
-| Product has no `nextDueDate` | All anniversary helpers return `null`/`false` | No anchor at all to compute from |
-| Product has a `nextDueDate` but `billingCycleMonths <= 0` | `minFutureCancellationDate` returns the **`nextDueDate` string itself**, NOT `null`; the other anniversary helpers (`anniversaryCycleForDate`, `isSelectableFutureCancellationDate`) still return `null`/`false` | `minFutureCancellationCycle`/`anniversaryAnchor` return `null` for this input, and `minFutureCancellationDate` falls back to `product.nextDueDate` when its own cycle lookup is `null` — do not treat a falsy `minFutureCancellationDate` as the guard for "hide the date picker"; a one-time product still returns a truthy date string here |
+| Product has no `nextDueDate` | `minFutureCancellationDate` is `null` | No anchor at all to compute from |
+| Product has a `nextDueDate` but `billingCycleMonths <= 0` | `minFutureCancellationDate` returns the **`nextDueDate` string itself**, NOT `null` | `canScheduleFutureCancellation` is `false` for such a product, but `minFutureCancellationDate` falls back to `nextDueDate` when it finds no anniversary — do not treat a falsy `minFutureCancellationDate` as the guard for "hide the date picker"; a one-time product still returns a truthy date string here |
 | Client has delegated products and holds the choice "exclude" | `exclude_delegated=1` | The held choice wins |
 | Client has delegated products and holds the choice "include" | `exclude_delegated=0` | The held choice wins |
 | Client has delegated products and holds no choice | `exclude_delegated=0` — delegated products are **included** | The default choice is "include" |
@@ -186,7 +209,7 @@ They don't. The collection's list query and one manager instance's machine conte
 | Client has no delegated products | `exclude_delegated=1`, whatever choice is held | Nothing is delegated, so the held choice is not read into the request |
 | The brand's portal setting `@context.oneTimePurchases` is `"hidden"` | The list always sends `billing_cycle_days` `neq` `0`, and the filter bar does not offer the one-off position | A request that also asks for one-off purchases (`eq`) is rejected with a validation error. The category counts read does not carry the forced hide |
 | `.for('delegated')` selector context | The exclude-delegated force-set is always `0`, the held preference is never read | This turns exclusion OFF — the client's own products and their delegated products both come back. It is not a delegated-only view; nothing narrows the result to delegated items alone |
-| An invoice's status is `ADJUSTED` | `isDue` is true, `isCancellable` is false | The cancellable set is narrower than the due set |
+| An invoice's status is `ADJUSTED` | The `isDue` flag is true, the `isCancellable` flag is false | The cancellable set is narrower than the due set |
 
 ---
 

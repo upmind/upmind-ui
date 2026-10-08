@@ -1,13 +1,11 @@
-# Negative-control mutant 23 — stale-cost-after-refusal (FE-3206)
+# Negative-control mutant — a refused commit shows no stale cost
 #
-# Mutation: leave `clearMigrationPreview` out of the `previewing` entry only.
-# Spec it must turn red: the AC-30 unit spec, the preview (the refused-commit path).
-#
-# Authored by the developer seat against the landed production source. The
-# prover applies it blind (tasks.md T41): apply, run the named spec, revert.
+# Spec it must flip: contract-product.migration.unit.test.ts > "AC-30 — the preview > after a refused commit, a new model the platform refuses to price shows no cost"
+# Mutation: `clearMigrationPreview` leaves the `previewing` entry only.
 #
 # Apply with:  git apply <this file>   (run from repo root)
 # Revert with: git apply -R <this file>
+
 diff --git a/packages/headless/src/modules/contract-product/contract-product.machine.ts b/packages/headless/src/modules/contract-product/contract-product.machine.ts
 --- a/packages/headless/src/modules/contract-product/contract-product.machine.ts
 +++ b/packages/headless/src/modules/contract-product/contract-product.machine.ts

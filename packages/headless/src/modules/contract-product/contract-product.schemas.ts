@@ -11,15 +11,30 @@ import {
 } from "../client-custom-fields";
 import { SortDirection } from "../query/query.types";
 import { PAGINATION } from "../query/query.utils";
+import { mapBillingEntityOptions } from "./contract-product.mappers";
 import {
   ContractProductCancelOption,
-  DEFAULT_SORT
+  ContractProductsSortableProperties,
+  DEFAULT_SORT,
+  MigrationModelOmittedFields
 } from "./contract-product.types";
-import { hidesOneTimePurchasesForced } from "./contract-product.utils";
-import { isEmpty, map, omit, reject, startsWith, without } from "lodash-es";
+import {
+  compact,
+  isEmpty,
+  map,
+  omit,
+  reject,
+  some,
+  startsWith,
+  values,
+  without
+} from "lodash-es";
 import type { CustomField } from "../client-custom-fields";
 import type {
-  ContractProductServices,
+  BillingEntityLists,
+  ContractProduct,
+  ContractProductLayout,
+  ContractProductPickerLookupService,
   ContractProductsQuerySchema
 } from "./contract-product.types";
 import type {
@@ -31,33 +46,23 @@ import type {
 // -----------------------------------------------------------------------------
 /**
  * @module contract-product/contract-product.schemas
- * @description The collection's QUERY schema family — its whole request state
- * (filters · sort · pagination) as ONE Draft-07 schema (design 8.2), the
- * filter-bar uischema and the sort uischema. Beside it, the manager's two
- * WRITE forms — the combined cancellation form and the consolidation form
- * (R33). Each form's builder runs in the machine's open transition, which sets
- * that form's own `cancellation` / `consolidation` slot on context.
- *
- * WARNING: Do not import directly. Consumers read the query family off
- * `useContractProducts().useContext().schemas`, and each open form off its own
- * `cancellation` / `consolidation` slot of `useContractProduct().useContext()`.
+ * @description The collection's query schema family (filters, sort and
+ * pagination as one Draft-07 schema, the filter-bar uischema and the sort
+ * uischema), the product picker, and the manager's write forms. Each form's
+ * builder runs in the machine's open transition, which sets that form's own
+ * slot on context.
  */
 
 /**
  * One `billing_cycle_days` branch carries both operator leaves (`neq` for
  * `subscriptionsOnly` and the forced hide-one-time leaf, `eq` for
- * `oneTimeOnly` — ADR-15). A bare column (`status.code`, `product.category.id`,
- * `total_amount`) declares no operator, so the translator emits
- * `filter[column]`.
- *
- * @decision
- * what: the forced hide-one-time leaf is a `const: 0` AND a `default: 0`.
- * why: ADR-14 — a `const` alone may inject nothing into an empty model, and
- *   an unfiltered list is the most dangerous silent failure of the family.
- * rejected: a `const` alone; a hidden uischema control; a second query.
+ * `oneTimeOnly`). A bare column declares no operator, so the translator emits
+ * `filter[column]`. The forced hide-one-time leaf is a `const` and a
+ * `default`, because a `const` alone injects nothing into an empty model.
  */
 export function useQuerySchema(): ContractProductsQuerySchema {
-  const forced = hidesOneTimePurchasesForced(useBrand().portal.value);
+  const forced =
+    useBrand().portal.value?.["@context.oneTimePurchases"] === "hidden";
 
   return {
     $schema: "http://json-schema.org/draft-07/schema#",
@@ -68,39 +73,22 @@ export function useQuerySchema(): ContractProductsQuerySchema {
         type: "object",
         additionalProperties: false,
         properties: {
-          "product.name": {
-            type: "object",
-            title: "text.product_name",
-            additionalProperties: false,
-            properties: {
-              like: { type: ["string", "null"], minLength: 1 }
-            }
-          },
-          "product.category.name": {
-            type: "object",
-            title: "text.category_name",
-            additionalProperties: false,
-            properties: {
-              like: { type: ["string", "null"], minLength: 1 }
-            }
-          },
+          "product.name": useLikeFilterSchema("text.product_name"),
+          "product.category.name": useLikeFilterSchema("text.category_name"),
           "product.category.id": {
             type: ["string", "null"],
             title: "text.category"
           },
-          "status.code": {
-            type: ["string", "null"],
-            title: "text.status"
-          },
+          "status.code": { type: ["string", "null"], title: "text.status" },
           billing_cycle_days: {
             type: "object",
             title: "text.billing_cycle",
             additionalProperties: false,
             // Mutually exclusive operators on ONE wire column — a client
-            // never picks Subscriptions AND One-time at once (R38 item 1).
+            // never picks Subscriptions AND One-time at once.
             not: { required: ["neq", "eq"] },
-            // Forced, `eq` is undeclared: the parser drops a one-time ask
-            // and the brand's hide outranks it (legacy cProdsProvider).
+            // Forced, `eq` is undeclared: the parser drops a one-time ask, so
+            // the brand's hide outranks it.
             properties: forced
               ? { neq: { type: "integer", const: 0, default: 0 } }
               : {
@@ -108,26 +96,9 @@ export function useQuerySchema(): ContractProductsQuerySchema {
                   eq: { type: ["integer", "null"], enum: [0, null] }
                 }
           },
-          created_at: {
-            type: "object",
-            title: "text.purchase_date",
-            additionalProperties: false,
-            properties: {
-              gt: { type: ["string", "null"], format: "date" }
-            }
-          },
-          next_due_date: {
-            type: "object",
-            title: "text.next_due_date",
-            additionalProperties: false,
-            properties: {
-              gt: { type: ["string", "null"], format: "date" }
-            }
-          },
-          total_amount: {
-            type: ["number", "null"],
-            title: "text.price"
-          }
+          created_at: useDateFilterSchema("text.purchase_date"),
+          next_due_date: useDateFilterSchema("text.next_due_date"),
+          total_amount: { type: ["number", "null"], title: "text.price" }
         }
       },
       query: { type: ["string", "null"], minLength: 3 },
@@ -136,128 +107,153 @@ export function useQuerySchema(): ContractProductsQuerySchema {
         default: DEFAULT_SORT,
         minItems: 1,
         uniqueItems: true,
-        items: {
-          type: "object",
-          additionalProperties: false,
-          required: ["field", "dir"],
-          properties: {
-            field: {
-              enum: ["status", "created_at", "next_due_date", "cancelled_date"]
-            },
-            dir: { enum: [SortDirection.ASC, SortDirection.DESC] }
-          }
-        }
+        items: useSortItemSchema(values(ContractProductsSortableProperties))
       },
-      pagination: {
-        type: "object",
-        additionalProperties: false,
-        properties: {
-          limit: { type: "integer", minimum: 0, default: PAGINATION.limit },
-          offset: { type: "integer", minimum: 0, default: PAGINATION.offset }
-        }
-      }
+      pagination: usePaginationSchema()
     }
-  } satisfies JsonSchema7;
+  };
+}
+
+function usePaginationSchema(): JsonSchema7 {
+  return {
+    type: "object",
+    additionalProperties: false,
+    properties: {
+      limit: { type: "integer", minimum: 0, default: PAGINATION.limit },
+      offset: { type: "integer", minimum: 0, default: PAGINATION.offset }
+    }
+  };
+}
+
+/** A text-search filter leaf: the `like` operator over one wire column. */
+function useLikeFilterSchema(title: string): JsonSchema7 {
+  return {
+    type: "object",
+    title,
+    additionalProperties: false,
+    properties: { like: { type: ["string", "null"], minLength: 1 } }
+  };
+}
+
+/** A date filter leaf: the `gt` operator over one wire column. */
+function useDateFilterSchema(title: string): JsonSchema7 {
+  return {
+    type: "object",
+    title,
+    additionalProperties: false,
+    properties: { gt: { type: ["string", "null"], format: "date" } }
+  };
+}
+
+/** One sort entry: a `field` of the declared vocabulary, and a direction. */
+function useSortItemSchema(fields: string[]): JsonSchema7 {
+  return {
+    type: "object",
+    additionalProperties: false,
+    required: ["field", "dir"],
+    properties: {
+      field: { enum: fields },
+      dir: { enum: [SortDirection.ASC, SortDirection.DESC] }
+    }
+  };
 }
 
 /**
  * The collection's filter-bar presentation. The top-level `query` box is the
- * legacy quick search; the rest scope operator leaves of `useQuerySchema()`'s
+ * quick search; the rest scope operator leaves of `useQuerySchema()`'s
  * `filters` branch, so each leaf's own write is the wire shape.
  * `billing_cycle_days` is ONE three-way toggle over the whole operator object
- * (All │ Subscriptions │ One-time, R38 item 1) — never two independent
+ * (All │ Subscriptions │ One-time) — never two independent
  * toggles — and its option labels resolve through the element's `i18n`
- * prefix. In the ADR-14 forced case the one-time position is not offered, and
+ * prefix. In the forced case the one-time position is not offered, and
  * `neq` is the const seam that position would have written.
  */
-export function useQueryUischema(): UISchemaElement {
-  const forced = hidesOneTimePurchasesForced(useBrand().portal.value);
-
-  return {
-    type: "FilterBar",
-    elements: [
-      {
-        type: "Control",
-        scope: "#/properties/query",
-        i18n: "form.contract_product_search",
-        options: {
-          format: "search",
-          icon: "search-md",
-          noLabel: true,
-          optionalText: ""
-        }
-      },
-      {
-        type: "Control",
-        scope: "#/properties/filters/properties/product.name/properties/like",
-        i18n: "form.contract_product_name_search",
-        options: {
-          format: "search",
-          icon: "search-md",
-          noLabel: true,
-          optionalText: ""
-        }
-      },
-      {
-        type: "Control",
-        scope:
-          "#/properties/filters/properties/product.category.name/properties/like",
-        i18n: "form.contract_product_category_name",
-        options: {
-          format: "search",
-          icon: "search-md",
-          noLabel: true,
-          optionalText: ""
-        }
-      },
-      {
-        type: "Control",
-        scope: "#/properties/filters/properties/product.category.id",
-        i18n: "form.contract_product_category",
-        options: { noLabel: true, optionalText: "" }
-      },
-      {
-        type: "Control",
-        scope: "#/properties/filters/properties/status.code",
-        i18n: "form.contract_product_status",
-        options: { noLabel: true, optionalText: "" }
-      },
-      {
-        type: "Control",
-        scope: "#/properties/filters/properties/total_amount",
-        i18n: "form.contract_product_price",
-        options: { optionalText: "" }
-      },
-      {
-        type: "Control",
-        scope: "#/properties/filters/properties/created_at/properties/gt",
-        i18n: "form.contract_product_date_purchased",
-        options: { optionalText: "" }
-      },
-      {
-        type: "Control",
-        scope: "#/properties/filters/properties/next_due_date/properties/gt",
-        i18n: "form.contract_product_next_due_date",
-        options: { optionalText: "" }
-      },
-      {
-        type: "Control",
-        scope: "#/properties/filters/properties/billing_cycle_days",
-        i18n: "form.contract_product_subscription_type",
-        options: {
-          format: "filter-exclusive-toggle-group",
-          noLabel: true,
-          optionalText: "",
-          items: [
-            { member: "all" },
-            { member: "subscriptions", key: "neq", value: 0 },
-            ...(forced ? [] : [{ member: "one_time", key: "eq", value: 0 }])
-          ]
-        }
+export function useQueryUischema(): Layout {
+  const forced =
+    useBrand().portal.value?.["@context.oneTimePurchases"] === "hidden";
+  const controls: ControlElement[] = [
+    {
+      type: "Control",
+      scope: "#/properties/query",
+      i18n: "form.contract_product_search",
+      options: SEARCH_OPTIONS
+    },
+    {
+      type: "Control",
+      scope: "#/properties/filters/properties/product.name/properties/like",
+      i18n: "form.contract_product_name_search",
+      options: SEARCH_OPTIONS
+    },
+    {
+      type: "Control",
+      scope:
+        "#/properties/filters/properties/product.category.name/properties/like",
+      i18n: "form.contract_product_category_name",
+      options: SEARCH_OPTIONS
+    },
+    {
+      type: "Control",
+      scope: "#/properties/filters/properties/product.category.id",
+      i18n: "form.contract_product_category",
+      options: LABELLESS_OPTIONS
+    },
+    {
+      type: "Control",
+      scope: "#/properties/filters/properties/status.code",
+      i18n: "form.contract_product_status",
+      options: LABELLESS_OPTIONS
+    },
+    {
+      type: "Control",
+      scope: "#/properties/filters/properties/total_amount",
+      i18n: "form.contract_product_price",
+      options: OPTIONAL_OPTIONS
+    },
+    {
+      type: "Control",
+      scope: "#/properties/filters/properties/created_at/properties/gt",
+      i18n: "form.contract_product_date_purchased",
+      options: OPTIONAL_OPTIONS
+    },
+    {
+      type: "Control",
+      scope: "#/properties/filters/properties/next_due_date/properties/gt",
+      i18n: "form.contract_product_next_due_date",
+      options: OPTIONAL_OPTIONS
+    },
+    {
+      type: "Control",
+      scope: "#/properties/filters/properties/billing_cycle_days",
+      i18n: "form.contract_product_subscription_type",
+      options: {
+        format: "filter-exclusive-toggle-group",
+        noLabel: true,
+        optionalText: "",
+        items: [
+          { member: "all" },
+          { member: "subscriptions", key: "neq", value: 0 },
+          ...(forced ? [] : [{ member: "one_time", key: "eq", value: 0 }])
+        ]
       }
-    ]
-  } as UISchemaElement;
+    }
+  ];
+
+  return { type: "FilterBar", elements: controls };
 }
+
+const SEARCH_OPTIONS: Record<string, unknown> = {
+  format: "search",
+  icon: "search-md",
+  noLabel: true,
+  optionalText: ""
+};
+
+const LABELLESS_OPTIONS: Record<string, unknown> = {
+  noLabel: true,
+  optionalText: ""
+};
+
+const OPTIONAL_OPTIONS: Record<string, unknown> = { optionalText: "" };
 
 /** The collection's ORDERING presentation — one element over the `sort` branch. */
 export function useSortUischema(): ControlElement {
@@ -269,18 +265,18 @@ export function useSortUischema(): ControlElement {
 }
 
 /**
- * The dashboard grouped-count read's OWN request state (design 8.1, R36). No
+ * The dashboard grouped-count read's OWN request state. No
  * consumer narrows it: the active-status filter and the `service_identifier`
  * ordering are the SHAPE of that read, so each is a forced leaf — a `const`
- * AND a `default` (ADR-14) — and the read parses an empty model against it.
- * The brand's forced hide-one-time leaf rides here too, as legacy
- * `cProdsGroupingProvider` sends it on the grouped read.
+ * AND a `default` — and the read parses an empty model against it.
+ * The brand's forced hide-one-time leaf rides here too.
  * `service_identifier` is declared ONLY here; `useQuerySchema()`'s
  * client-facing sort vocabulary omits it, because the products list cannot
  * honour a sort the client could then pick.
  */
 export function useGroupedCountsQuerySchema(): ContractProductsQuerySchema {
-  const forced = hidesOneTimePurchasesForced(useBrand().portal.value);
+  const forced =
+    useBrand().portal.value?.["@context.oneTimePurchases"] === "hidden";
 
   return {
     $schema: "http://json-schema.org/draft-07/schema#",
@@ -300,9 +296,7 @@ export function useGroupedCountsQuerySchema(): ContractProductsQuerySchema {
             billing_cycle_days: {
               type: "object",
               additionalProperties: false,
-              properties: {
-                neq: { type: "integer", const: 0, default: 0 }
-              }
+              properties: { neq: { type: "integer", const: 0, default: 0 } }
             }
           })
         }
@@ -313,23 +307,14 @@ export function useGroupedCountsQuerySchema(): ContractProductsQuerySchema {
         minItems: 1,
         maxItems: 1,
         uniqueItems: true,
-        items: {
-          type: "object",
-          additionalProperties: false,
-          required: ["field", "dir"],
-          properties: {
-            field: { enum: ["service_identifier"] },
-            dir: { enum: [SortDirection.ASC, SortDirection.DESC] }
-          }
-        }
+        items: useSortItemSchema(["service_identifier"])
       }
     }
-  } satisfies JsonSchema7;
+  };
 }
 
 // -----------------------------------------------------------------------------
-// The product picker: the client's own contract products (R38 item 2, the
-// `useTickets`' `ticketPicker` sibling on this collection).
+// The product picker: the client's own contract products.
 // -----------------------------------------------------------------------------
 
 /**
@@ -346,29 +331,30 @@ export function useContractProductPickerSchema(): ContractProductsQuerySchema {
     properties: {
       contractProduct: { type: ["string", "null"] }
     }
-  } as ContractProductsQuerySchema;
+  };
 }
 
 export function useContractProductPickerUischema(
-  lookups: ContractProductServices["lookups"]
-): UISchemaElement {
+  lookup: ContractProductPickerLookupService
+): ContractProductLayout {
   return {
     type: "VerticalLayout",
+    i18n: "form.contract_product_lookup",
     elements: [
       {
-        type: "Lookup",
+        type: "Control",
         scope: "#/properties/contractProduct",
         i18n: "form.contract_product_lookup",
         options: {
           lookup: {
-            service: lookups.contractProduct,
+            service: lookup,
             searchScope: "filters.service_identifier.like"
           },
           optionalText: ""
         }
       }
     ]
-  } as UISchemaElement;
+  };
 }
 
 /** The picker lookup's OWN criteria — a `service_identifier` search. */
@@ -389,20 +375,57 @@ export function useContractProductPickerQuerySchema(): ContractProductsQuerySche
           }
         }
       },
-      pagination: {
-        type: "object",
-        additionalProperties: false,
-        properties: {
-          limit: { type: "integer", minimum: 0, default: 10 },
-          offset: { type: "integer", minimum: 0, default: 0 }
-        }
+      pagination: usePaginationSchema()
+    }
+  };
+}
+
+/**
+ * The billing-entity form's model: the picked address or company id, chosen
+ * from the client's own addresses and companies. It opens on the entity the
+ * contract bills to now. `oneOf` is left off while neither list holds an
+ * entry, since an empty `oneOf` is not a valid schema.
+ */
+export function useBillingEntitySchema(
+  { addresses, companies }: BillingEntityLists,
+  product?: Pick<ContractProduct, "billingAddressId" | "billingCompanyId">
+): JsonSchema7 {
+  const options = mapBillingEntityOptions(addresses, companies);
+  const current = product?.billingCompanyId ?? product?.billingAddressId;
+
+  return {
+    $schema: "http://json-schema.org/draft-07/schema#",
+    type: "object",
+    additionalProperties: false,
+    required: ["billing_entity"],
+    properties: {
+      billing_entity: {
+        type: "string",
+        ...(current ? { default: current } : {}),
+        ...(isEmpty(options) ? {} : { oneOf: options })
       }
     }
-  } satisfies JsonSchema7;
+  };
+}
+
+/** The billing-entity picker's one control. */
+export function useBillingEntityUischema(): ContractProductLayout {
+  return {
+    type: "VerticalLayout",
+    i18n: "form.contract_product_billing_entity",
+    elements: [
+      {
+        type: "Control",
+        scope: "#/properties/billing_entity",
+        i18n: "form.contract_product_billing_entity",
+        options: { optionalText: "" }
+      }
+    ]
+  };
 }
 
 // -----------------------------------------------------------------------------
-// WRITE SCHEMAS — one pair per model-taking write (R28 amendment)
+// WRITE SCHEMAS — one pair per model-taking write
 // -----------------------------------------------------------------------------
 
 /** The `setConsolidation` form over `SetConsolidationModel`. */
@@ -415,9 +438,9 @@ export function useSetConsolidationSchema(): JsonSchema7 {
     properties: {
       invoiceConsolidationEnabled: {
         type: "integer",
-        title: "Invoice consolidation",
-        // Legacy's two positions (`cProdInvoiceConsolidationForm.vue:43-52`);
-        // un-pressing writes INHERIT through `defaultOptionValue`.
+        title: "form.contract_product_invoice_consolidation",
+        // Un-pressing either toggle position writes INHERIT through
+        // `defaultOptionValue`.
         enum: [
           InvoiceConsolidationTypes.ENABLED,
           InvoiceConsolidationTypes.DISABLED,
@@ -425,12 +448,13 @@ export function useSetConsolidationSchema(): JsonSchema7 {
         ]
       }
     }
-  } satisfies JsonSchema7;
+  };
 }
 
-export function useSetConsolidationUischema(): UISchemaElement {
+export function useSetConsolidationUischema(): ContractProductLayout {
   return {
     type: "VerticalLayout",
+    i18n: "form.contract_product_invoice_consolidation",
     elements: [
       {
         type: "Control",
@@ -443,19 +467,27 @@ export function useSetConsolidationUischema(): UISchemaElement {
         }
       }
     ]
-  } as UISchemaElement;
+  };
+}
+
+/** The client-label write over `ClientLabelModel`; an empty string clears the label. */
+export function useClientLabelSchema(): JsonSchema7 {
+  return {
+    $schema: "http://json-schema.org/draft-07/schema#",
+    type: "object",
+    additionalProperties: false,
+    required: ["client_label"],
+    properties: { client_label: { type: "string", maxLength: 255 } }
+  };
 }
 
 /**
- * The ONE combined cancellation form (R33; legacy `clientContractCancellationModal`
- * + `contractCancellationOptions.vue`) over `CancellationModel`. `option` is a
- * bare enum of the options this product allows — the control's `i18n` key is the
- * option-key PREFIX, so each position labels via i18n (`tickets`/`client-email`
- * enum pattern), never a `oneOf`/`options` array (operator ruling).
- * `futureCancellationDate` is required only for `SCHEDULE_FUTURE` (the schema's
- * `if`/`then`, as `payment-details` conditions its `oneOf`) and floored at the
- * product's earliest selectable anniversary. `customFields` is the brand's
- * CANCEL_REQUEST catalogue, omitted when none are defined.
+ * The combined cancellation form over `CancellationModel`. `option` is a bare
+ * enum of the options this product allows; the control's `i18n` key is the
+ * option-key prefix, so each position labels through i18n.
+ * `futureCancellationDate` is required only for `SCHEDULE_FUTURE` and floored
+ * at the product's earliest selectable anniversary. `customFields` is the
+ * brand's CANCEL_REQUEST catalogue, omitted when none are defined.
  */
 export function useCancellationSchema({
   options,
@@ -474,16 +506,16 @@ export function useCancellationSchema({
     properties: {
       option: {
         type: "string",
-        title: "Cancellation option",
+        title: "form.contract_product_cancellation_option",
         enum: options
       },
       futureCancellationDate: {
         type: "string",
-        title: "Cancellation date",
+        title: "form.contract_product_future_cancellation_date",
         format: "date",
         ...(minDate ? { formatMinimum: minDate, default: minDate } : {})
       },
-      reason: { type: "string", title: "Reason" },
+      reason: { type: "string", title: "form.contract_cancellation_reason" },
       ...(!isEmpty(customFields) && {
         customFields: useCustomFieldsSchema(customFields)
       })
@@ -494,14 +526,15 @@ export function useCancellationSchema({
       }
     },
     then: { required: ["futureCancellationDate"] }
-  } as JsonSchema7;
+  };
 }
 
 export function useCancellationUischema(
   customFields?: CustomField[]
-): UISchemaElement {
+): ContractProductLayout {
   return {
     type: "VerticalLayout",
+    i18n: "form.contract_product_cancellation_option",
     elements: [
       {
         type: "Control",
@@ -509,12 +542,11 @@ export function useCancellationUischema(
         i18n: "form.contract_product_cancellation_option",
         options: { format: "radio" }
       },
+      // Only relevant to SCHEDULE_FUTURE; hidden for the other options.
       {
         type: "Control",
         scope: "#/properties/futureCancellationDate",
         i18n: "form.contract_product_future_cancellation_date",
-        // Only relevant to SCHEDULE_FUTURE; hidden for the other options
-        // (the `payment-gateways` SHOW-rule pattern).
         rule: {
           effect: RuleEffect.SHOW,
           condition: {
@@ -532,22 +564,21 @@ export function useCancellationUischema(
         type: "Control",
         scope: "#/properties/reason",
         i18n: "form.contract_cancellation_reason",
-        options: { multi: true }
+        options: {
+          multi: true
+        }
       },
       ...useCustomFieldsUischema(customFields)
     ]
-  } as UISchemaElement;
+  };
 }
 
 // -----------------------------------------------------------------------------
-// Change of product — the configurator form (FE-3206)
-
-const MIGRATION_OMITTED_FIELDS = ["provisionFields", "startTrial"];
+// Migration — the configurator form
 
 /**
- * The configurator schema of a change of product: no provision field and no
- * trial choice, and neither is required. Legacy draws only the options and the
- * attributes [o36], and FE-3207 owns the trial.
+ * The configurator schema of a migration: no provision field and no trial
+ * choice, and neither is required. The trial is a separate write.
  */
 export function omitMigrationSchema(
   schema: JsonSchema7 | undefined
@@ -556,37 +587,40 @@ export function omitMigrationSchema(
 
   return {
     ...schema,
-    properties: omit(schema.properties, MIGRATION_OMITTED_FIELDS),
+    properties: omit(schema.properties, values(MigrationModelOmittedFields)),
     ...(schema.required
-      ? { required: without(schema.required, ...MIGRATION_OMITTED_FIELDS) }
+      ? {
+          required: without(
+            schema.required,
+            ...values(MigrationModelOmittedFields)
+          )
+        }
       : {})
   };
 }
 
-function isMigrationOmittedScope(scope?: string): boolean {
-  return (
-    !!scope &&
-    (startsWith(scope, "#/properties/provisionFields") ||
-      scope === "#/properties/startTrial")
-  );
-}
-
-/** The configurator uischema of a change of product: each element that draws a provision field or the trial choice is left out. */
+/** The configurator uischema of a migration: each element that draws a provision field or the trial choice is left out. */
 export function omitMigrationUischema(
-  uischema: UISchemaElement | undefined
+  element: UISchemaElement | undefined
 ): UISchemaElement | undefined {
-  if (!uischema) return uischema;
-
-  const elements = (uischema as Layout).elements;
-  if (!elements) return uischema;
+  if (!element || !("elements" in element) || !element.elements) {
+    return element;
+  }
 
   return {
-    ...uischema,
-    elements: map(
-      reject(elements, element =>
-        isMigrationOmittedScope((element as ControlElement).scope)
-      ),
-      element => omitMigrationUischema(element)
+    ...element,
+    elements: compact(
+      map(
+        reject(
+          element.elements,
+          child =>
+            "scope" in child &&
+            some(values(MigrationModelOmittedFields), field =>
+              startsWith(child.scope, `#/properties/${field}`)
+            )
+        ),
+        omitMigrationUischema
+      )
     )
-  } as UISchemaElement;
+  };
 }

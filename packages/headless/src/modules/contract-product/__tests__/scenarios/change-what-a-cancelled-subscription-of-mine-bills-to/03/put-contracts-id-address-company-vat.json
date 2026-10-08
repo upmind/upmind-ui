@@ -1,0 +1,113 @@
+{
+  "version": 3,
+  "request": {
+    "method": "PUT",
+    "path": "/api/contracts/085e69d5-6237-197e-5ddc-218e940d4237/address_company_vat",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": {
+      "address_id": "d0367942-4d0e-7109-44da-3153698d582e",
+      "company_id": null
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a4700a3abf066cb8-DUR",
+      "connection": "keep-alive",
+      "content-encoding": "br",
+      "content-type": "application/json",
+      "date": "Wed, 07 Oct 2026 21:36:12 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=0W429WkP64gj3D0KWb6r%2BCSTT0qwmwV3V9fiboYoFShxuSHrgWXLhFlO8KeMS1JWe4w6KF2N6ThX2pxwDwwRoUXpJOKs8aXSVoV2NxCZORCy9c%2BH%2FBHZly2AbhPsQZNt6TPm%2BHzuBg%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "vary": "Accept-Encoding",
+      "x-frame-options": "SAMEORIGIN"
+    },
+    "body": {
+      "status": "ok",
+      "data": {
+        "id": "085e69d5-6237-197e-5ddc-218e940d4237",
+        "import_id": null,
+        "staged_import": false,
+        "finished_staged_import": null,
+        "external_id": null,
+        "name": null,
+        "notes": null,
+        "start_date": "2026-10-07",
+        "end_date": "0000-00-00",
+        "next_due_date": "2026-11-07",
+        "next_invoice_date": "2026-11-07",
+        "cancellation_date": "2026-10-07",
+        "cancellation_reason": null,
+        "activation_date": "2026-10-07",
+        "status_id": "47d73824-8507-9315-36f8-1e642d59e063",
+        "total_recurrent_amount": 0,
+        "total_amount": 4.8,
+        "account_id": "d0367942-4d0e-7109-92eb-3153698d582e",
+        "user_id": "sys",
+        "brand_id": "2785d26e-9678-3d16-999f-314502e70439",
+        "company_id": null,
+        "phone_id": null,
+        "address_id": "d0367942-4d0e-7109-44da-3153698d582e",
+        "billing_cycle_months": 1,
+        "currency_id": "3825d96e-763e-d091-3dc4-174825283406",
+        "main_invoice_id": "085e69d5-6237-1972-9969-f218e940d423",
+        "main_invoice_number": "QA-INV-26315",
+        "gateway_id": null,
+        "payment_details_id": null,
+        "promotion_id": null,
+        "promotion_code": null,
+        "created_at": "2026-10-07 21:35:46",
+        "updated_at": "2026-10-07 21:36:12",
+        "reseller_account_id": null,
+        "client_id": "25d96e76-3ed0-913d-d52c-417482528340",
+        "pricelist_id": "825d96e7-63ed-0913-d66c-417482528340",
+        "fraud_status": 1,
+        "currency_exchange_rate": "1.000000",
+        "locked": "6548f7aa-2820-4fd7-9741-00594cc73d2e",
+        "billing_cycle_days": 30,
+        "reconciliation_strict": 0,
+        "tax_type": 0,
+        "moved_from_contract_id": null,
+        "moved_to_contract_id": null,
+        "moved": false,
+        "partially_moved": false,
+        "total_recurrent_amount_formatted": "£0.00",
+        "total_amount_formatted": "£4.80",
+        "currency": {
+          "id": "3825d96e-763e-d091-3dc4-174825283406",
+          "name": "British Pound",
+          "prefix": "£",
+          "suffix": "",
+          "code": "GBP",
+          "created_at": "2017-10-18 14:16:22",
+          "updated_at": "2026-09-28 11:08:14",
+          "base": true,
+          "decimals": true,
+          "manual": 0
+        }
+      },
+      "related": null,
+      "total": null,
+      "error": null,
+      "messages": [],
+      "meta": null
+    }
+  },
+  "captured_at": "2026-10-07T21:36:12.484Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "contract-product"
+  }
+}

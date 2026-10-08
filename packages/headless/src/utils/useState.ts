@@ -353,12 +353,16 @@ export const useStateMatches = (
  * @param service - XState service/interpreter
  * @param successStates - States that indicate completion
  * @param errorStates - States that indicate failure (default: "error")
+ * @param excludedStates - States that keep the wait going even while a success
+ *   or error state also matches, such as a write still in flight inside a
+ *   parallel region of a settled node
  * @param timeout - Timeout in milliseconds (default: 60_000)
  */
 export async function waitForProcessing(
   service: AnyActorRef,
   successStates: string | string[],
   errorStates?: string | string[],
+  excludedStates?: string[],
   timeout: number = 60_000
 ): Promise<boolean> {
   const successArray = isArray(successStates) ? successStates : [successStates];
@@ -366,9 +370,13 @@ export async function waitForProcessing(
   const allStates = [...successArray, ...errorArray, "done"];
   const failOnDone = !includes(successArray, "done");
 
-  return waitFor(service, s => stateMatches(s, compact(allStates)), {
-    timeout
-  })
+  return waitFor(
+    service,
+    s =>
+      stateMatches(s, compact(allStates)) &&
+      !stateMatches(s, excludedStates ?? []),
+    { timeout }
+  )
     .then(s => {
       if (failOnDone && s.done) return false;
       return stateMatches(s, compact(successArray));

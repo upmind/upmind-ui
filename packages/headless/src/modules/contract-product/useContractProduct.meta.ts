@@ -1,14 +1,22 @@
 import { computed } from "vue";
-import { ContractStatusCodes } from "@upmind-automation/types";
-import { ContractProductState } from "./contract-product.types";
+import { InvoiceStatus, InvoiceStatusGroups } from "@upmind-automation/types";
 import {
-  anniversaryAnchor,
+  ContractProductMigrationStates,
+  ContractProductRegionLoadingStates,
+  ContractProductRegionWriteStates,
+  ContractProductState
+} from "./contract-product.types";
+import {
+  canDisableAutoRenew,
+  canEnableAutoRenew,
+  canEndTrial,
+  canIssueNextInvoice,
   canMigrateProduct,
-  cancellationOptions,
+  canRequestCancellation,
+  canRequestEndOfTerm,
+  canScheduleFutureCancellation,
   canConsolidate as isConsolidationEligible,
-  hasHardCancellationRequest,
-  isCancellable,
-  isDue
+  isNextInvoiceDateInFuture
 } from "./contract-product.utils";
 import {
   contextValue,
@@ -16,369 +24,404 @@ import {
   useContext,
   useStateMatches
 } from "../../utils";
-import { isEmpty, isUndefined, some } from "lodash-es";
+import { includes, isEmpty, isUndefined, some, values } from "lodash-es";
 import type {
   ContractProduct,
-  MigrationHolders,
-  MigrationResult,
-  UnpaidInvoice
+  ContractProductMetaMembers,
+  MigrationHolders
 } from "./contract-product.types";
 import type { UseActor } from "../../utils";
 import type { ScopeActorTypes } from "../scope/scope.types";
 // -----------------------------------------------------------------------------
 /**
  * @module contract-product/useContractProduct.meta
- * @description Manager meta — flags only (R23): the thirteen reportable node
- * flags of flow.md §3 read with `useStateMatches`, and the record facts of
- * design 8.7 read off the view model with lodash paths.
- *
- * @doctrine clause 2 — shared-only (armless).
+ * @description Manager meta: the node flags, the record facts, and the gate
+ * of each write. Each gate reads the util its machine guard reads, inside the
+ * node terms that guard sits behind: a placed node, and no form-region write
+ * in flight.
  */
 export function createContractProductMeta(
   _actorScope: ScopeActorTypes,
   actor: UseActor,
   holders: MigrationHolders
-) {
+): ContractProductMetaMembers {
   const { state } = actor;
-
   const contractProduct = useContext<ContractProduct>(state, "contractProduct");
 
   const isAvailable = useStateMatches(state, "available");
-
-  const isCancelling = useStateMatches(state, ContractProductState.CANCELLING);
-
-  const isPending = useStateMatches(state, ContractProductState.PENDING);
-
-  const hasScheduledFutureCancellation = computed(
-    () =>
-      !!contextValue<boolean>(
-        state,
-        "contractProduct.hasScheduledFutureCancellation"
-      )
+  const isUnavailable = useStateMatches(state, "unavailable");
+  const isRegionWriteActive = useStateMatches(
+    state,
+    values(ContractProductRegionWriteStates)
   );
-
-  const isMigrationOpen = useStateMatches(state, [
-    "available.migrating.choosing",
-    "available.migrating.configuring"
-  ]);
-
-  /** The product list's meta; `undefined` while the list is not built or the change is closed. */
+  // The node terms every lifecycle gate shares with its machine guard.
+  const isLifecycleOpen = computed(
+    () =>
+      (isAvailable.value || isUnavailable.value) && !isRegionWriteActive.value
+  );
+  const isMigrationOpen = useStateMatches(
+    state,
+    values(ContractProductMigrationStates)
+  );
+  /** The product list's meta; `undefined` while the list is not built or the migration is closed. */
   const listMeta = computed(() =>
     isMigrationOpen.value ? holders.list.value?.meta.value : undefined
   );
-
-  const unpaidRecurringInvoices = computed<UnpaidInvoice[]>(
-    () =>
-      contextValue<UnpaidInvoice[]>(
-        state,
-        "contractProduct.unpaidRecurringInvoices"
-      ) ?? []
+  const unpaidInvoices = computed(
+    () => contractProduct.value?.unpaidRecurringInvoices ?? []
   );
+
+  // --- gates
+  const canCommitMigration = computed(
+    () =>
+      stateMatches(state, [
+        "available.migrating.configuring.previewed",
+        "available.migrating.configuring.unpreviewed",
+        "available.migrating.configuring.error"
+      ]) &&
+      !isRegionWriteActive.value &&
+      stateMatches(holders.config.value?.state, ["available"])
+  );
+  const canConsolidate = computed(
+    () =>
+      isAvailable.value &&
+      !isRegionWriteActive.value &&
+      !!contractProduct.value &&
+      isConsolidationEligible(contractProduct.value)
+  );
+  const canDisable = computed(
+    () =>
+      isLifecycleOpen.value &&
+      !!contractProduct.value &&
+      canDisableAutoRenew(contractProduct.value)
+  );
+  const canEnable = computed(
+    () =>
+      isLifecycleOpen.value &&
+      !!contractProduct.value &&
+      canEnableAutoRenew(contractProduct.value)
+  );
+  const canEnd = computed(
+    () =>
+      isLifecycleOpen.value &&
+      !!contractProduct.value &&
+      canEndTrial(contractProduct.value)
+  );
+  const canIssue = computed(
+    () =>
+      isLifecycleOpen.value &&
+      !!contractProduct.value &&
+      canIssueNextInvoice(contractProduct.value)
+  );
+  const canMigrate = computed(
+    () =>
+      isAvailable.value &&
+      !isMigrationOpen.value &&
+      !!contractProduct.value &&
+      canMigrateProduct(contractProduct.value)
+  );
+  const canRequest = computed(
+    () =>
+      isAvailable.value &&
+      !isRegionWriteActive.value &&
+      !!contractProduct.value &&
+      canRequestCancellation(contractProduct.value)
+  );
+  const canRequestEnd = computed(
+    () =>
+      isAvailable.value &&
+      !isRegionWriteActive.value &&
+      !!contractProduct.value &&
+      canRequestEndOfTerm(contractProduct.value)
+  );
+  const canSchedule = computed(
+    () =>
+      isAvailable.value &&
+      !isRegionWriteActive.value &&
+      !!contractProduct.value &&
+      canScheduleFutureCancellation(contractProduct.value)
+  );
+  const canSetBillingEntity = computed(
+    () => isLifecycleOpen.value && !!contractProduct.value?.isSubscription
+  );
+  const canUpdateContractProduct = computed(
+    () => isLifecycleOpen.value && !!contractProduct.value
+  );
+  // --- record facts
+  const canCancel = computed(() => !!contractProduct.value?.canCancel);
+  const hasAutoRenewDisabled = computed(
+    () => !contractProduct.value?.autoCreateRenewInvoice
+  );
+  const hasError = computed(() => !!contextValue(state, "error"));
+  const hasFetchedScheduledActions = computed(
+    () => !isUndefined(contractProduct.value?.scheduledActions)
+  );
+  const hasMoved = computed(() => !!contractProduct.value?.moved);
+  const hasPendingProRata = computed(
+    () => !!contractProduct.value?.proRataPending
+  );
+  const hasScheduledFutureCancellation = computed(
+    () => !!contractProduct.value?.hasScheduledFutureCancellation
+  );
+  const hasUnpaidRecurringInvoices = computed(
+    () => !isEmpty(unpaidInvoices.value)
+  );
+  const isCancellableInvoice = computed(() =>
+    some(unpaidInvoices.value, invoice =>
+      includes(
+        [InvoiceStatus.UNPAID, InvoiceStatus.OVERDUE],
+        invoice.invoice_status?.code
+      )
+    )
+  );
+  const isDelegatedAccess = computed(
+    () => !!contractProduct.value?.isDelegatedObject
+  );
+  const isDueInvoice = computed(() =>
+    some(unpaidInvoices.value, invoice =>
+      includes(InvoiceStatusGroups.UNPAID, invoice.invoice_status?.code)
+    )
+  );
+  const isEmptyProduct = computed(() => !contractProduct.value);
+  const isImported = computed(() => !!contractProduct.value?.importId);
+  const isNextInvoiceDateAhead = computed(
+    () =>
+      !!contractProduct.value &&
+      isNextInvoiceDateInFuture(contractProduct.value)
+  );
+  const isSubscription = computed(
+    () => !!contractProduct.value?.isSubscription
+  );
+
+  // --- migration
+  const isMigrationFree = computed(
+    () => !!contextValue(state, "migration.preview.isFree")
+  );
+  const isPaymentRequired = computed(
+    () => !!contextValue(state, "migrationResult.requiresPayment")
+  );
+  const hasMigrationTargetsError = computed(() => !!listMeta.value?.hasError);
+  const hasMoreMigrationTargets = computed(() => !!listMeta.value?.hasNextPage);
+  const hasNoMigrationTargets = computed(
+    () =>
+      !!listMeta.value && !listMeta.value.isLoading && listMeta.value.isEmpty
+  );
+  const isMigrationTargetsLoading = computed(
+    () => !!listMeta.value?.isLoading && !listMeta.value.isLoadingMore
+  );
+  const isMigrationTargetsLoadingMore = computed(
+    () => !!listMeta.value?.isLoadingMore
+  );
+
+  // --- nodes
+  const isActive = useStateMatches(state, ContractProductState.ACTIVE);
+  const isBillingEntityOpen = useStateMatches(state, [
+    "available.billingEntity.loading",
+    "available.billingEntity.available",
+    "available.billingEntity.processing",
+    "unavailable.billingEntity.loading",
+    "unavailable.billingEntity.available",
+    "unavailable.billingEntity.processing"
+  ]);
+  const isBillingEntityValid = useStateMatches(state, [
+    "available.billingEntity.available.valid",
+    "unavailable.billingEntity.available.valid"
+  ]);
+  const isCancellationOpen = useStateMatches(state, [
+    "available.cancelling.loading",
+    "available.cancelling.available",
+    "available.cancelling.processing"
+  ]);
+  const isCancellationValid = useStateMatches(
+    state,
+    "available.cancelling.available.valid"
+  );
+  const isCancelled = useStateMatches(state, ContractProductState.CANCELLED);
+  const isCancelling = useStateMatches(state, ContractProductState.CANCELLING);
+  const isChoosingMigrationTarget = useStateMatches(
+    state,
+    ContractProductMigrationStates.CHOOSING
+  );
+  const isConsolidationOpen = useStateMatches(state, [
+    "available.consolidating.available",
+    "available.consolidating.processing"
+  ]);
+  const isConsolidationValid = useStateMatches(
+    state,
+    "available.consolidating.available.valid"
+  );
+  const isExpiring = useStateMatches(state, ContractProductState.EXPIRING);
+  const isFraud = useStateMatches(state, ContractProductState.FRAUD);
+  const isInactive = useStateMatches(state, ContractProductState.INACTIVE);
+  const isLapsed = useStateMatches(state, ContractProductState.LAPSED);
+  const isLoading = useStateMatches(state, ["subscribing", "loading"]);
+  const isMigrationPreviewed = useStateMatches(
+    state,
+    "available.migrating.configuring.previewed"
+  );
+  const isMigrationPreviewing = useStateMatches(
+    state,
+    "available.migrating.configuring.previewing"
+  );
+  const isMigrationProcessing = useStateMatches(
+    state,
+    ContractProductRegionWriteStates.MIGRATING
+  );
+  const isMigrationTargetLoading = useStateMatches(
+    state,
+    "available.migrating.configuring.loading"
+  );
+  const isMigrationTargetUnavailable = useStateMatches(
+    state,
+    "available.migrating.configuring.unavailable"
+  );
+  const isOnTerminatingTrial = useStateMatches(
+    state,
+    ContractProductState.TRIAL_ENDING
+  );
+  const isOnTrial = useStateMatches(state, ContractProductState.TRIAL_RUNNING);
+  const isPending = useStateMatches(state, ContractProductState.PENDING);
+  const isProcessing = useStateMatches(state, [
+    "processing",
+    ...values(ContractProductRegionLoadingStates),
+    ...values(ContractProductRegionWriteStates)
+  ]);
+  const isSetupIncomplete = useStateMatches(
+    state,
+    ContractProductState.SETUP_INCOMPLETE
+  );
+  const isStaged = useStateMatches(state, ContractProductState.STAGED);
+  const isSuspended = useStateMatches(state, ContractProductState.SUSPENDED);
 
   return {
     /** True if the platform reports the product as cancellable. */
-    canCancel: computed(
-      () => !!contextValue<boolean>(state, "contractProduct.canCancel")
-    ),
-
-    /**
-     * True when the consolidation form may be opened at all: the product is on
-     * an `available` node (staged, cancelled, lapsed and fraud refuse, P4g) and
-     * passes the machine's `canConsolidate` guard (G3).
-     */
-    canConsolidate: computed(
-      () =>
-        isAvailable.value &&
-        !!contractProduct.value &&
-        isConsolidationEligible(contractProduct.value)
-    ),
-
-    /**
-     * True when the client may open a cancellation REQUEST (HARD): no hard
-     * request already pending (a pending contract is allowed). Derived from the
-     * record; the brand setting `SUBSCRIPTIONS_ALLOW_IMMEDIATE_CANCELLATION` is
-     * NOT read (design 8.3 — the module reads no brand setting).
-     */
-    canRequestCancellation: computed(
-      () =>
-        !!contractProduct.value &&
-        !hasHardCancellationRequest(contractProduct.value) &&
-        !hasScheduledFutureCancellation.value
-    ),
-
-    /**
-     * True when the client may cancel at END OF TERM (SOFT): no hard request
-     * pending, and the contract is not pending. Derived from the record.
-     */
-    canRequestEndOfTerm: computed(
-      () =>
-        !!contractProduct.value &&
-        !hasHardCancellationRequest(contractProduct.value) &&
-        !hasScheduledFutureCancellation.value &&
-        contractProduct.value.contractStatus !== ContractStatusCodes.PENDING
-    ),
-
-    /** True when a future cancellation can be booked: not cancelling, not pending, none booked, and an anniversary exists. */
-    canScheduleFutureCancellation: computed(
-      () =>
-        !!contractProduct.value &&
-        !isCancelling.value &&
-        !isPending.value &&
-        !hasScheduledFutureCancellation.value &&
-        !!anniversaryAnchor(contractProduct.value)
-    ),
-
-    /** True when the client may start a change of product: the offer clauses and the start clauses (R14). */
-    canMigrate: computed(
-      () => !!contractProduct.value && canMigrateProduct(contractProduct.value)
-    ),
-
-    /** True when the open change of product can be committed: a dry run is not in flight, and the configurator can take the commit. Local validation does not gate it; the platform judges it (R8). */
-    canCommitMigration: computed(
-      () =>
-        stateMatches(state, [
-          "available.migrating.configuring.previewed",
-          "available.migrating.configuring.unpreviewed",
-          "available.migrating.configuring.error"
-        ]) && holders.isMigrationTargetReady.value
-    ),
-
-    /** True if the product's pro-rata invoice from an earlier change is still unpaid. */
-    hasPendingProRata: computed(
-      () => !!contextValue<boolean>(state, "contractProduct.proRataPending")
-    ),
-
-    /** True if the product list failed to load. */
-    hasMigrationTargetsError: computed(() => !!listMeta.value?.hasError),
-
-    /** True if the product list has another page. */
-    hasMoreMigrationTargets: computed(() => !!listMeta.value?.hasNextPage),
-
-    /** True if the product list loaded and holds no product. */
-    hasNoMigrationTargets: computed(
-      () =>
-        !!listMeta.value && !listMeta.value.isLoading && listMeta.value.isEmpty
-    ),
-
-    /** True if the product no longer creates its renewal invoice (R9). */
-    hasAutoRenewDisabled: computed(
-      () =>
-        !contextValue<boolean>(state, "contractProduct.autoCreateRenewInvoice")
-    ),
-
-    /**
-     * True when the cancellation form may be opened at all: the product is on
-     * an `available` node (staged, cancelled, lapsed and fraud refuse, P4g) and
-     * passes the machine's `hasCancellationOptions` guard (G2).
-     */
-    hasCancellationOptions: computed(
-      () =>
-        isAvailable.value &&
-        !!contractProduct.value &&
-        !isEmpty(cancellationOptions(contractProduct.value))
-    ),
-
+    canCancel,
+    /** True when the open migration can be committed: no dry run is in flight and the configurator can take the commit. The platform, not local validation, judges it. */
+    canCommitMigration,
+    /** True when the consolidation form may be opened: an `available` node and consolidation allowed. */
+    canConsolidate,
+    /** True when renewal invoicing may be turned off. The unpaid invoices of the product do not hold it back; a consumer that wants them to reads the set through `useInvoices().as("client").for("contracts_product", id)`. */
+    canDisableAutoRenew: canDisable,
+    /** True when renewal invoicing may be turned on. */
+    canEnableAutoRenew: canEnable,
+    /** True when the trial may be ended early: in trial and not awaiting activation, on any node. */
+    canEndTrial: canEnd,
+    /** True when the next invoice may be raised now: a subscription, not staged, and the platform allows it. */
+    canIssueNextInvoice: canIssue,
+    /** True when the client may start a migration. */
+    canMigrate,
+    /** True when the client may request immediate cancellation (HARD), which is also when the cancellation form may be opened. */
+    canRequestCancellation: canRequest,
+    /** True when the client may cancel at the end of the term (SOFT). */
+    canRequestEndOfTerm: canRequestEnd,
+    /** True when a cancellation can be booked for a future anniversary. */
+    canScheduleFutureCancellation: canSchedule,
+    /** True when the billing entity may change: a subscription on any placed node. */
+    canSetBillingEntity,
+    /** True when the client label may be set, on any node. */
+    canUpdateContractProduct,
+    /** True if the product no longer creates its renewal invoice. */
+    hasAutoRenewDisabled,
     /** True if the machine captured an error. */
-    hasError: computed(() => !!contextValue(state, "error")),
-
+    hasError,
     /** True if the read carried the `scheduled_actions` include. */
-    hasFetchedScheduledActions: computed(
-      () =>
-        !isUndefined(contextValue(state, "contractProduct.scheduledActions"))
-    ),
-
+    hasFetchedScheduledActions,
+    /** True if the product list failed to load. */
+    hasMigrationTargetsError,
+    /** True if the product list has another page. */
+    hasMoreMigrationTargets,
     /** True if the product moved to another contract product. */
-    hasMoved: computed(
-      () => !!contextValue<boolean>(state, "contractProduct.moved")
-    ),
-
+    hasMoved,
+    /** True if the product list loaded and holds no product. */
+    hasNoMigrationTargets,
+    /** True if the product's pro-rata invoice from an earlier migration is still unpaid. */
+    hasPendingProRata,
     /** True if a scheduled future cancellation is booked. */
     hasScheduledFutureCancellation,
-
     /** True if the product carries unpaid recurring invoices. */
-    hasUnpaidRecurringInvoices: computed(
-      () =>
-        !!contextValue<number>(
-          state,
-          "contractProduct.unpaidRecurringInvoices.length"
-        )
-    ),
-
+    hasUnpaidRecurringInvoices,
     /** True on `available.status.active`. */
-    isActive: useStateMatches(state, ContractProductState.ACTIVE),
-
+    isActive,
     /** True once the product is placed on any `available` node. */
     isAvailable,
-
-    /**
-     * True while an outstanding invoice of this product can still be
-     * cancelled. Legacy rule [o23]: `invoice_unpaid` or `invoice_overdue`.
-     */
-    isCancellable: computed(() =>
-      some(unpaidRecurringInvoices.value, isCancellable)
-    ),
-
-    /** True while the cancellation form is open (available or processing). */
-    isCancellationOpen: useStateMatches(state, [
-      "available.cancelling.available",
-      "available.cancelling.processing"
-    ]),
-
+    /** True while the billing-entity form is open (loading, available or processing). */
+    isBillingEntityOpen,
+    /** True when the open billing-entity form passes validation. */
+    isBillingEntityValid,
+    /** True while an outstanding invoice of this product can still be cancelled: `invoice_unpaid` or `invoice_overdue`. */
+    isCancellable: isCancellableInvoice,
+    /** True while the cancellation form is open (loading, available or processing). */
+    isCancellationOpen,
     /** True when the open cancellation form passes validation. */
-    isCancellationValid: useStateMatches(
-      state,
-      "available.cancelling.available.valid"
-    ),
-
-    /** True on `unavailable.cancelled`. */
-    isCancelled: useStateMatches(state, ContractProductState.CANCELLED),
-
+    isCancellationValid,
+    /** True on `unavailable.status.cancelled`. */
+    isCancelled,
     /** True on `available.status.cancelling`. */
     isCancelling,
-
-    /** True while the consolidation form is open (available or processing). */
-    isConsolidationOpen: useStateMatches(state, [
-      "available.consolidating.available",
-      "available.consolidating.processing"
-    ]),
-
-    /** True when the open consolidation form passes validation. */
-    isConsolidationValid: useStateMatches(
-      state,
-      "available.consolidating.available.valid"
-    ),
-
     /** True when the product list is open. */
-    isChoosingMigrationTarget: useStateMatches(
-      state,
-      "available.migrating.choosing"
-    ),
-
+    isChoosingMigrationTarget,
+    /** True while the consolidation form is open (available or processing). */
+    isConsolidationOpen,
+    /** True when the open consolidation form passes validation. */
+    isConsolidationValid,
     /** True if the product is delegated to this client. */
-    isDelegatedAccess: computed(
-      () => !!contextValue<boolean>(state, "contractProduct.isDelegatedObject")
-    ),
-
-    /**
-     * True while an outstanding invoice of this product is still due. Legacy
-     * rule [o23]: `invoice_unpaid`, `invoice_adjusted` or `invoice_overdue`.
-     */
-    isDue: computed(() => some(unpaidRecurringInvoices.value, isDue)),
-
+    isDelegatedAccess,
+    /** True while an outstanding invoice of this product is still due: `invoice_unpaid`, `invoice_adjusted` or `invoice_overdue`. */
+    isDue: isDueInvoice,
     /** True when no product is loaded. */
-    isEmpty: computed(() => !contractProduct.value),
-
+    isEmpty: isEmptyProduct,
     /** True on `available.status.expiring`. */
-    isExpiring: useStateMatches(state, ContractProductState.EXPIRING),
-
-    /** True on `unavailable.fraud`. */
-    isFraud: useStateMatches(state, ContractProductState.FRAUD),
-
+    isExpiring,
+    /** True on `unavailable.status.fraud`. */
+    isFraud,
     /** True if the product was imported. */
-    isImported: computed(
-      () => !!contextValue<string>(state, "contractProduct.importId")
-    ),
-
-    /** True when a dry run says the change costs nothing. */
-    isMigrationFree: computed(
-      () => !!contextValue<boolean>(state, "migration.preview.isFree")
-    ),
-
-    /** True while a change of product is open: the product list, or a chosen product. */
-    isMigrationOpen,
-
-    /** True while the dry run is in flight. */
-    isMigrationPreviewing: useStateMatches(
-      state,
-      "available.migrating.configuring.previewing"
-    ),
-
-    /** True when the dry run of the chosen product has a cost. */
-    isMigrationPreviewed: useStateMatches(
-      state,
-      "available.migrating.configuring.previewed"
-    ),
-
-    /** True while the commit is in flight. */
-    isMigrationProcessing: useStateMatches(
-      state,
-      "available.migrating.configuring.processing"
-    ),
-
-    /** True while the chosen product loads. */
-    isMigrationTargetLoading: useStateMatches(
-      state,
-      "available.migrating.configuring.loading"
-    ),
-
-    /** True when the chosen product failed to load. */
-    isMigrationTargetUnavailable: useStateMatches(
-      state,
-      "available.migrating.configuring.unavailable"
-    ),
-
-    /** True while the product list loads its first page. */
-    isMigrationTargetsLoading: computed(
-      () => !!listMeta.value?.isLoading && !listMeta.value.isLoadingMore
-    ),
-
-    /** True while the product list loads another page. */
-    isMigrationTargetsLoadingMore: computed(
-      () => !!listMeta.value?.isLoadingMore
-    ),
-
+    isImported,
     /** True on `available.status.inactive` (awaiting activation). */
-    isInactive: useStateMatches(state, ContractProductState.INACTIVE),
-
-    /** True on `unavailable.lapsed`. */
-    isLapsed: useStateMatches(state, ContractProductState.LAPSED),
-
+    isInactive,
+    /** True on `unavailable.status.lapsed`. */
+    isLapsed,
     /** True while waiting for a session or reading the product. */
-    isLoading: useStateMatches(state, ["subscribing", "loading"]),
-
+    isLoading,
+    /** True when a dry run says the migration costs nothing. */
+    isMigrationFree,
+    /** True while a migration is open: the product list, or a chosen product. */
+    isMigrationOpen,
+    /** True when the dry run of the chosen product has a cost. */
+    isMigrationPreviewed,
+    /** True while the dry run is in flight. */
+    isMigrationPreviewing,
+    /** True while the commit is in flight. */
+    isMigrationProcessing,
+    /** True while the chosen product loads. */
+    isMigrationTargetLoading,
+    /** True while the product list loads its first page. */
+    isMigrationTargetsLoading,
+    /** True while the product list loads another page. */
+    isMigrationTargetsLoadingMore,
+    /** True when the chosen product failed to load. */
+    isMigrationTargetUnavailable,
+    /** True when the next invoice date is still ahead by the UTC end of its day; false when there is no date. */
+    isNextInvoiceDateInFuture: isNextInvoiceDateAhead,
     /** True on `available.trial.ending`. */
-    isOnTerminatingTrial: useStateMatches(
-      state,
-      ContractProductState.TRIAL_ENDING
-    ),
-
+    isOnTerminatingTrial,
     /** True on `available.trial.running`. */
-    isOnTrial: useStateMatches(state, ContractProductState.TRIAL_RUNNING),
-
+    isOnTrial,
+    /** True when the committed migration left an amount to pay. */
+    isPaymentRequired,
     /** True on `available.status.pending`. */
     isPending,
-
-    /** True while a write is in flight. */
-    isProcessing: useStateMatches(state, [
-      "processing",
-      "available.cancelling.processing",
-      "available.consolidating.processing",
-      "available.migrating.configuring.processing"
-    ]),
-
+    /** True while a write is in flight, or a direct write waits for its form to open. */
+    isProcessing,
     /** True on `available.setup.incomplete`. */
-    isSetupIncomplete: useStateMatches(
-      state,
-      ContractProductState.SETUP_INCOMPLETE
-    ),
-
-    /** True on `unavailable.staged`. */
-    isStaged: useStateMatches(state, ContractProductState.STAGED),
-
+    isSetupIncomplete,
+    /** True on `unavailable.status.staged`. */
+    isStaged,
     /** True if the product is a subscription (`billing_cycle_months > 0`). */
-    isSubscription: computed(
-      () => !!contextValue<boolean>(state, "contractProduct.isSubscription")
-    ),
-
+    isSubscription,
     /** True on `available.status.suspended`. */
-    isSuspended: useStateMatches(state, ContractProductState.SUSPENDED),
-
-    /** True when the committed change of product left an amount to pay. */
-    requiresPayment: computed(
-      () =>
-        !!contextValue<MigrationResult>(state, "migrationResult")
-          ?.requiresPayment
-    )
+    isSuspended,
+    /** True once the product is placed on any `unavailable` node. */
+    isUnavailable
   };
 }
 

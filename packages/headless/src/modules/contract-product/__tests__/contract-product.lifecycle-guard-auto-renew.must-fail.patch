@@ -1,0 +1,20 @@
+# Negative-control mutant — renewal invoicing is refused while a form-region write is in flight
+#
+# Spec it must flip: contract-product.client.unit.test.ts > "AC-44 — a write in flight > AUTO_RENEW.SET"
+# Mutation: the `canSetAutoRenew` guard drops its no-region-write term.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+
+diff --git a/packages/headless/src/modules/contract-product/contract-product.machine.ts b/packages/headless/src/modules/contract-product/contract-product.machine.ts
+--- a/packages/headless/src/modules/contract-product/contract-product.machine.ts
++++ b/packages/headless/src/modules/contract-product/contract-product.machine.ts
+@@ -1221,7 +1221,7 @@
+         { data }: AnyEventObject,
+         { state }
+       ) =>
+-        !hasRegionWrite(state) &&
++        !!state &&
+         !!contractProduct &&
+         (data.on
+           ? canEnableAutoRenew(contractProduct)

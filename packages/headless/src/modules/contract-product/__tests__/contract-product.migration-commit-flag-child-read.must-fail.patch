@@ -1,23 +1,21 @@
-# Negative-control mutant 38 — commit-flag-child-read (FE-3206)
+# Negative-control mutant — the commit gate reads the configurator reactively
 #
-# Mutation: let `canCommitMigration` read `stateMatches(migration.ref, ["available"])`, not the reactive child read.
-# Spec it must turn red: the AC-34 unit spec, the forced commit (the reset case).
-#
-# Authored by the developer seat against the landed production source. The
-# prover applies it blind (tasks.md T41): apply, run the named spec, revert.
+# Spec it must flip: contract-product.migration.unit.test.ts > "AC-34 — the forced commit > a reset of the configuration turns the commit off"
+# Mutation: `canCommitMigration` reads the spawned ref's snapshot, not the
+#   holder's reactive state.
 #
 # Apply with:  git apply <this file>   (run from repo root)
 # Revert with: git apply -R <this file>
+
 diff --git a/packages/headless/src/modules/contract-product/useContractProduct.meta.ts b/packages/headless/src/modules/contract-product/useContractProduct.meta.ts
 --- a/packages/headless/src/modules/contract-product/useContractProduct.meta.ts
 +++ b/packages/headless/src/modules/contract-product/useContractProduct.meta.ts
-@@ -139,7 +139,8 @@
-           "available.migrating.configuring.previewed",
-           "available.migrating.configuring.unpreviewed",
-           "available.migrating.configuring.error"
--        ]) && holders.isMigrationTargetReady.value
-+        ]) &&
-+        stateMatches(contextValue(state, "migration.ref"), ["available"])
-     ),
- 
-     /** True if the product's pro-rata invoice from an earlier change is still unpaid. */
+@@ -80,7 +80,7 @@
+         "available.migrating.configuring.error"
+       ]) &&
+       !isRegionWriteActive.value &&
+-      stateMatches(holders.config.value?.state, ["available"])
++      stateMatches(contextValue(state, "migration.ref"), ["available"])
+   );
+   const canConsolidate = computed(
+     () =>

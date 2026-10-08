@@ -483,17 +483,16 @@ export function useActorScopeSelector() {
 
   /**
    * Add a session — the auth OVERLAY over the page the pool is open on, never a
-   * navigation away to `useAuth` (`AC7.2`).
+   * navigation away.
    *
-   * The control's own scope IS the choice (`R6-15b`): "Add another staff
-   * session" opens the overlay at the staff actor and "Add another client" at
-   * the client one, the same `/as/<actor>` pick the `useAuth` page collects a
-   * session under. So it is carried, not asked for a second time.
+   * The control's own scope IS the choice: "Add another staff session" opens
+   * the overlay at the staff actor and "Add another client" at the client one.
+   * So it is carried, not asked for a second time.
    */
   async function addSession(scope: ScopeActorTypes): Promise<void> {
     // Guest has no credentials to collect, so the overlay would offer a form
     // nobody can fill. `addGuest` is the store's own fresh-session seam, and it
-    // mints a NEW guest beside the ones already pooled (FE-3087 ruling R11).
+    // mints a NEW guest beside the ones already pooled.
     if (scope === ScopeActorTypes.GUEST) return addGuest();
 
     await router.push(authOverlayTarget(route, { actor: scope, fresh: true }));

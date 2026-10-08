@@ -1,0 +1,21 @@
+# Negative-control mutant — the label gate is closed while the product is not placed
+#
+# Spec it must flip: contract-product.client.unit.test.ts > "AC-40 — canUpdateContractProduct > is closed while the product is read again"
+# Mutation: the meta `canUpdateContractProduct` drops its placed and
+#   no-region-write term.
+#
+# Apply with:  git apply <this file>   (run from repo root)
+# Revert with: git apply -R <this file>
+
+diff --git a/packages/headless/src/modules/contract-product/useContractProduct.meta.ts b/packages/headless/src/modules/contract-product/useContractProduct.meta.ts
+--- a/packages/headless/src/modules/contract-product/useContractProduct.meta.ts
++++ b/packages/headless/src/modules/contract-product/useContractProduct.meta.ts
+@@ -145,7 +145,7 @@
+     () => isLifecycleOpen.value && !!contractProduct.value?.isSubscription
+   );
+   const canUpdateContractProduct = computed(
+-    () => isLifecycleOpen.value && !!contractProduct.value
++    () => !!contractProduct.value
+   );
+   // --- record facts
+   const canCancel = computed(() => !!contractProduct.value?.canCancel);

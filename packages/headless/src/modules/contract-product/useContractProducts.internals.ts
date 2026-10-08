@@ -1,21 +1,23 @@
-import type { ContractProductListQuery } from "./contract-product.types";
+import type {
+  ContractProductListQuery,
+  ContractProductsInternalMembers
+} from "./contract-product.types";
 import type { ScopeActorTypes } from "../scope/scope.types";
 // -----------------------------------------------------------------------------
 /**
  * @module contract-product/useContractProducts.internals
- * @description Collection internals (debugging). The query half exposes the
- * raw `query` object; the manager half exposes `send`/`state`/`service`.
- * @doctrine clause 1 (uniform four-layer default) — TanStack-variant form.
+ * @description Collection internals: the raw list query, for debugging.
  */
+
 export function createContractProductsInternals(
   actorScope: ScopeActorTypes,
   query: ContractProductListQuery
-) {
+): ContractProductsInternalMembers {
   return {
-    /** Actor scope for this instance. */
-    actorScope,
     /** Raw TanStack query object backing the collection. */
-    query
+    query,
+    /** Actor scope for this instance. */
+    scopeActor: actorScope
   };
 }
 

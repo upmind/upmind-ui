@@ -1,10 +1,11 @@
 // -----------------------------------------------------------------------------
 /**
- * @module contract-product/__tests__/contract-product.replay
- * @description The co-located `contract-product.feature`, REPLAYED through the
+ * @fileoverview contract-product replay
+ *
+ * ## Job To Be Done
+ * The co-located `contract-product.feature`, REPLAYED through the
  * module's own step catalog against the real `useContractProducts` (collection)
- * and `useContractProduct` (manager) — ONE scenario, ONE recording (FE-3145,
- * ADR 035 Am.1). Each scenario plays its own `scenarios/<slug>/` fixtures, step
+ * and `useContractProduct` (manager) — ONE scenario, ONE recording (ADR 035). Each scenario plays its own `scenarios/<slug>/` fixtures, step
  * by step: before each step, that step's recorded answers are armed. A request
  * no step of the scenario recorded fails the scenario by name. A scenario no
  * step drives is skipped by name (spec-only, ADR-020 Am.5).
@@ -54,7 +55,7 @@ import {
 } from "./contract-product.steps";
 import { closeWire, openWire } from "./contract-product.wire";
 import { server } from "./setup.integration";
-import { forEach, includes, reject } from "lodash-es";
+import { forEach, includes, map, reject } from "lodash-es";
 import type { NodeComposable } from "../../../testing";
 import type { FeatureScenario } from "@upmind-automation/scenario-harness";
 
@@ -67,10 +68,20 @@ const feature = readFileSync(
 
 let replay: ReturnType<typeof startScenarioReplay> | undefined;
 
+/** The URL fragments whose request bodies a step reads: the change of plan and the five lifecycle writes. */
+const BODY_FRAGMENTS = [
+  "/change",
+  "/stop_start_invoicing",
+  "/recurring",
+  "/trial_end_action_manual",
+  "contract_products/",
+  "/address_company_vat"
+];
+
 /**
  * The earliest `captured_at` across a scenario's step recordings — the instant
  * the scenario was recorded against staging. Replaying under this clock keeps
- * every now-relative read (AC-22's earliest-cancellation-date, which the module
+ * every now-relative read (the earliest cancellation date, which the module
  * derives from the product's next-due date and the current date) reading as it
  * did at capture, so the suite is deterministic on any calendar date.
  */
@@ -117,7 +128,7 @@ async function arrangeScenario(scenario: FeatureScenario): Promise<void> {
   openWire(
     scenario.name,
     observeRequests(server, "/api/"),
-    observeRequestBodies(server, "/change")
+    ...map(BODY_FRAGMENTS, fragment => observeRequestBodies(server, fragment))
   );
   // Step 01 answers the seed's own boot reads (brand settings, the session's
   // `/self`), so it is armed before the session is seeded, not after.

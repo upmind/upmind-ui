@@ -1,95 +1,52 @@
 /** @internal */
-import { useBrand } from "../brand";
+import { effectScope } from "vue";
+import { useClientAddresses } from "../client-address";
+import { useClientCompanies } from "../client-company";
 import {
   ClientCustomFieldsContextTypes,
   useClientCustomFields
 } from "../client-custom-fields";
-import { invalidateQueryByKey, useQuery, useQueryCriteria } from "../query";
+import { invalidateQueryByKey, useQuery } from "../query";
 import { ScopeActorTypes } from "../scope/scope.types";
-import { useActiveSession } from "../session-store";
 import {
-  mapContractProductPickerItems,
-  mapContractProducts,
-  toConsolidationBody,
+  mapContractProduct,
+  toBillingEntityBody,
+  toChangeProductBody,
+  toChangeProductInput,
   toRequestCancellationBody,
   toScheduleCancellationBody,
   toSoftCancelBody
 } from "./contract-product.mappers";
-import {
-  useContractProductPickerQuerySchema,
-  useGroupedCountsQuerySchema,
-  useQuerySchema
-} from "./contract-product.schemas";
-import {
-  buildChangeProductBody,
-  notAvailableError,
-  validateForm,
-  watchMigrationTarget
-} from "./contract-product.utils";
-import { DEBOUNCE_DELAY, NotAuthenticatedError, useTime } from "../../utils";
-import { join, reject, startsWith } from "lodash-es";
+import { useClientLabelSchema } from "./contract-product.schemas";
+import { notAvailableError, validateForm } from "./contract-product.utils";
+import { queryKey } from "./contract-products.services";
+import { contextValue, stateMatches } from "../../utils";
+import { find, isNil, isObject, join } from "lodash-es";
 import type {
-  CancellationModel,
+  BillingEntityLists,
+  ChangeProductInput,
   ContractProduct,
-  ContractProductContext,
-  ContractProductListQuery,
-  ContractProductLoaded,
-  ContractProductLookups,
+  ContractProductIds,
   ContractProductMachineServices,
-  ContractProductPickerLookupQuery,
-  ContractProductPickerQueryModel,
-  ContractProductServices,
-  QueryModel,
-  SetConsolidationModel,
-  ShowDelegatedPreference
+  ClientLabelModel,
+  ContractProductServices
 } from "./contract-product.types";
-import type { LookupItem } from "../lookup";
-import type { ProductModel } from "../product";
+import type { CustomField } from "../client-custom-fields";
+import type { QueryResponse } from "../query";
 import type { ScopeContext } from "../scope/scope.types";
-import type { QueryKey } from "@tanstack/vue-query";
-import type {
-  ICProdGroup,
-  IContractProduct,
-  IInvoice,
-  IProductCategory
-} from "@upmind-automation/types";
-import type { ComputedRef } from "vue";
+import type { IContractProduct, IInvoice } from "@upmind-automation/types";
+import type { AnyEventObject } from "xstate";
 // -----------------------------------------------------------------------------
 /**
  * @module contract-product/contract-product.services
- * @description The ONE services file both halves consume — the collection's
- * list, grouped-counts and purchased-category reads, and the machine services
- * `contract-product.machine.ts` invokes (the product read and the five writes
- * of design 8.3). One factory: one identity seam, one cache key.
+ * @description The manager's services: the product read and every write, and
+ * the adapter that turns them into the services map
+ * `contract-product.machine.ts` invokes. The collection's services are in
+ * `contract-products.services.ts`.
  *
  * WARNING: Do not import directly from another module. Resolve via
- * `useContractProducts.ts` / `useContractProduct.ts` only
- * (`@internal/no-cross-module-imports`).
+ * `useContractProduct.ts` only (`@internal/no-cross-module-imports`).
  */
-
-/** The module's base cache key (design 8.4). Every write invalidates it whole. */
-export const queryKey: QueryKey = ["contracts"];
-
-const CONTRACT_PRODUCTS_LIST_WITH = [
-  "clients",
-  "clients.image",
-  "clients.brand",
-  "status",
-  "product.image",
-  "brand.currency",
-  "product.provision_blueprint",
-  "product.provision_blueprint.category",
-  "contract_request",
-  "future_cancellation_request",
-  "moved_to_contract_product",
-  "moved_to_contract_product.clients",
-  "tags"
-];
-
-const CONTRACT_PRODUCTS_GROUPED_WITH = join(
-  reject(CONTRACT_PRODUCTS_LIST_WITH, member => startsWith(member, "clients")),
-  ","
-);
 
 const CONTRACT_PRODUCT_WITH = join(
   [
@@ -133,307 +90,123 @@ const CONTRACT_PRODUCT_WITH = join(
   ","
 );
 
-// -----------------------------------------------------------------------------
-// COLLECTION
-
 /**
- * The reactive list query, minted once per scope. The KEY carries the refs, so
- * a late client id or a changed preference re-keys into its own cache entry;
- * the URL is re-pointed in the `guard`, the last hook before the request is
- * built, so the wire carries the value resolved at fire time.
+ * Invalidates the module's key and the invoices key, then resolves `result`.
+ * Each invalidation is awaited on its own: `invalidateQueryByKey` resolves
+ * `undefined` when it fails, which would drop the result from a chain.
  */
-function loadList(
-  clientId: ComputedRef<string | undefined>,
-  preference: ShowDelegatedPreference
-): ContractProductListQuery {
-  const { list, useUrl } = useQuery();
-  const { isAuthenticated } = useActiveSession().useMeta();
-  const { excludeDelegated } = preference;
-  const { taxType } = useBrand();
-  const url = useUrl("contracts_products", {
-    with: join(CONTRACT_PRODUCTS_LIST_WITH, ","),
-    split_count: 1
-  });
-
-  return list<IContractProduct[], ContractProduct[], QueryModel>({
-    criteria: { schema: useQuerySchema() },
-    queryKey: [
-      ...queryKey,
-      { client: clientId },
-      "products",
-      { excludeDelegated }
-    ],
-    url,
-    // Must stay an `async` function — `list()` detects a guard by `isPromise`.
-    // The split count reads through this guard un-gated by `enabled`, so it
-    // waits here for the stored preference the page read is enabled on.
-    guard: async () => {
-      if (!isAuthenticated.value || !clientId.value) {
-        throw new NotAuthenticatedError();
-      }
-      await preference.whenSettled();
-      url.searchParams.set("exclude_delegated", `${excludeDelegated.value}`);
-      return true;
-    },
-    withAccessToken: true,
-    withSplitCount: true,
-    select: raw => mapContractProducts(raw, taxType.value),
-    staleTime: useTime().DAY,
-    retryDelay: DEBOUNCE_DELAY,
-    enabled: () =>
-      isAuthenticated.value && !!clientId.value && preference.isSettled.value
-  });
-}
-
-/** The dashboard's grouped counts (design 8.1, ADR-4). No `exclude_delegated`. */
-async function loadGroupedCounts(
-  clientId: ComputedRef<string | undefined>
-): Promise<ICProdGroup[]> {
-  const { request, useUrl } = useQuery();
-  const { isAuthenticated } = useActiveSession().useMeta();
-
-  if (!isAuthenticated.value || !clientId.value) {
-    return Promise.reject(new NotAuthenticatedError());
-  }
-
-  const { props } = useQueryCriteria({
-    schema: useGroupedCountsQuerySchema()
-  });
-
-  // `limit: "count"` is the API's count-mode switch, not a page size (R36):
-  // it returns `data: []` and rides the grouped rows on the envelope's
-  // `total`, unreachable through `get`'s `select`. Read the whole envelope
-  // via `request` (legacy `products.ts` reads the same `total` channel).
-  const response = await request<ICProdGroup[]>({
-    url: useUrl(`clients/${clientId.value}/contracts/products`, {
-      limit: "count",
-      group_count: "products.category_id,service_identifier",
-      with: CONTRACT_PRODUCTS_GROUPED_WITH
-    }),
-    sort: props.value.sort,
-    filters: props.value.filters,
-    withAccessToken: true
-  });
-
-  return (response.total as unknown as ICProdGroup[] | null) ?? [];
-}
-
-/** The purchased categories (R10, ADR-20) — the SAME force-set the list sends. */
-async function loadPurchasedCategories(
-  clientId: ComputedRef<string | undefined>,
-  preference: ShowDelegatedPreference
-): Promise<IProductCategory[]> {
-  const { get, useUrl } = useQuery();
-  const { isAuthenticated } = useActiveSession().useMeta();
-  const { excludeDelegated } = preference;
-
-  if (!isAuthenticated.value || !clientId.value) {
-    return Promise.reject(new NotAuthenticatedError());
-  }
-
-  return get<IProductCategory[], IProductCategory[]>({
-    queryKey: [
-      ...queryKey,
-      { client: clientId.value },
-      "categories",
-      { excludeDelegated: excludeDelegated.value }
-    ],
-    url: useUrl("contract_product_categories", {
-      exclude_delegated: excludeDelegated.value
-    }),
-    withAccessToken: true
-  });
+async function invalidateWithInvoices<T>(result: T): Promise<T> {
+  await invalidateQueryByKey(queryKey, { exact: false })();
+  await invalidateQueryByKey(["invoices"], { exact: false })();
+  return result;
 }
 
 /**
- * The `contractProductPicker`'s own lookup (R38 item 2) — THIS client's own
- * contract products, searched by service identifier, as `useTickets`'
- * `loadContractProductLookup` searches the same resource for a different
- * caller. Minted on the picker's first call.
- *
- * @decision
- * what: the picker sends the list's own `exclude_delegated` force-set (the
- *   show-delegated preference, or the `DELEGATED` context's forced value),
- *   read at fire time.
- * why: the picker finds a product the list page shows; a hardcoded `1` hid a
- *   delegated product the list offered to a client who opted to see them (W1).
- * rejected: a hardcoded `exclude_delegated=1`; omitting the param (the
- *   platform then returns delegated products whatever the preference).
- */
-function loadContractProductPickerLookup(
-  clientId: ComputedRef<string | undefined>,
-  preference: ShowDelegatedPreference
-): ContractProductPickerLookupQuery {
-  const { listInfinite, useUrl } = useQuery();
-  const { isAuthenticated } = useActiveSession().useMeta();
-  const { excludeDelegated } = preference;
-  const url = useUrl("contracts_products", { client_id: clientId.value });
-
-  return listInfinite<
-    IContractProduct[],
-    LookupItem[],
-    ContractProductPickerQueryModel
-  >({
-    criteria: { schema: useContractProductPickerQuerySchema() },
-    queryKey: [
-      ...queryKey,
-      "lookups",
-      "contract-products",
-      { client: clientId },
-      { excludeDelegated }
-    ],
-    url,
-    withAccessToken: true,
-    guard: async () =>
-      new Promise((resolve, reject) => {
-        if (!isAuthenticated.value || !clientId.value) {
-          reject(new NotAuthenticatedError());
-          return;
-        }
-        url.searchParams.set("exclude_delegated", `${excludeDelegated.value}`);
-        resolve(true);
-      }),
-    select: mapContractProductPickerItems,
-    retryDelay: DEBOUNCE_DELAY,
-    enabled: () => isAuthenticated.value && !!clientId.value
-  }) as unknown as ContractProductPickerLookupQuery;
-}
-
-// -----------------------------------------------------------------------------
-// Service Factory
-
-/**
- * Service matrix: maps scopeActor types to their service implementations. The
- * shape is the same armed or armless — an armless module has only the
- * `default:` case (design 8.8).
- */
-function scopedServices(
-  scopeActor: ScopeActorTypes,
-  _scopeContext?: ScopeContext
-): Partial<ContractProductServices> {
-  switch (scopeActor) {
-    default:
-      return {};
-  }
-}
-
-/**
- * Services factory — the concrete actor, the context it acts upon, and the
- * client id and preference `useContractProducts.ts` resolves for that scope.
- * `useContractProducts.ts` calls it once per scope.
- */
-export const createContractProductServices = (
-  scopeActor: ScopeActorTypes,
-  scopeContext: ScopeContext | undefined,
-  clientId: ComputedRef<string | undefined>,
-  preference: ShowDelegatedPreference
-): ContractProductServices => {
-  return {
-    queryKey,
-    loadList: () => loadList(clientId, preference),
-    loadGroupedCounts: () => loadGroupedCounts(clientId),
-    loadPurchasedCategories: () =>
-      loadPurchasedCategories(clientId, preference),
-    lookups: {
-      contractProduct: () =>
-        loadContractProductPickerLookup(clientId, preference)
-    },
-    ...scopedServices(scopeActor, scopeContext)
-  };
-};
-
-export default createContractProductServices;
-
-// -----------------------------------------------------------------------------
-// Machine services (manager half) — each returns the RAW record; the machine maps
-
-/**
- * `loading` — the 35-member client detail read (design 8.1, ADR-29) plus its
- * reused CANCEL_REQUEST field lookups, settled together. The lookup degrades to
- * an empty form on any failure and never fails the load.
+ * The product read, mapped to the view model. It warms the CANCEL_REQUEST
+ * fields the cancellation form reads, so the form opens on them at once.
  */
 async function load(
-  context: ContractProductContext
-): Promise<ContractProductLoaded> {
+  scopeActor: ScopeActorTypes,
+  ids: ContractProductIds
+): Promise<ContractProduct> {
   const { get, useUrl } = useQuery();
-  if (!context.contractProductId)
-    return Promise.reject(notAvailableError(context));
+  if (!ids.contractProductId) return Promise.reject(notAvailableError(ids));
 
-  const [record, lookups] = await Promise.all([
-    get<IContractProduct>({
+  const [contractProduct] = await Promise.all([
+    get<IContractProduct, ContractProduct>({
       queryKey: [
         ...queryKey,
-        context.contractId,
+        ids.contractId,
         "products",
-        context.contractProductId
+        ids.contractProductId
       ],
-      url: useUrl(`contract_products/${context.contractProductId}`, {
+      url: useUrl(`contract_products/${ids.contractProductId}`, {
         with: CONTRACT_PRODUCT_WITH
       }),
+      select: raw => mapContractProduct(raw),
       withAccessToken: true,
       staleTime: 0,
       gcTime: 0
     }),
-    loadLookups().catch(() => ({}) as ContractProductLookups)
+    loadCancellationFields(scopeActor)
   ]);
 
-  return { record, lookups };
+  return contractProduct;
 }
 
 /**
- * The schedule-cancel form's fields, REUSED off the client's CANCEL_REQUEST
- * definitions so no new request is issued.
+ * The client's addresses and companies, read off their owner modules once both
+ * lists are read. The owners are read inside a scope that stops after the
+ * read, so no reader outlives it.
  */
-async function loadLookups(): Promise<ContractProductLookups> {
-  const cancelFields = useClientCustomFields()
-    .as(ScopeActorTypes.CLIENT)
-    .for(ClientCustomFieldsContextTypes.CANCEL_REQUEST);
-  const { isReady } = cancelFields.useActions();
-  const { data: customFields } = cancelFields.useContext();
+async function loadBillingEntities(
+  scopeActor: ScopeActorTypes
+): Promise<BillingEntityLists> {
+  const scope = effectScope(true);
+  const read = scope.run(() => {
+    const addresses = useClientAddresses().as(scopeActor);
+    const companies = useClientCompanies().as(scopeActor);
+    const addressList = addresses.useContext().data;
+    const companyList = companies.useContext().data;
 
-  await isReady();
+    return Promise.all([
+      addresses.useActions().isReady(),
+      companies.useActions().isReady()
+    ]).then(() => ({
+      addresses: addressList.value,
+      companies: companyList.value
+    }));
+  });
 
-  return { customFields: customFields.value };
-}
-
-async function validateCancellation({ cancellation }: ContractProductContext) {
-  return validateForm(cancellation);
-}
-
-async function validateConsolidation({
-  consolidation
-}: ContractProductContext) {
-  return validateForm(consolidation);
+  return (read ?? Promise.resolve({ addresses: [], companies: [] })).finally(
+    () => scope.stop()
+  );
 }
 
 /**
- * `processing.stoppingRenewal.updating` (SOFT) — `{ renew: false }` plus what
- * the form carried.
- *
- * @decision
- * what: every write below is contract-scoped, `contracts/{c}/products/{p}/…`.
- * why: the legacy `apiPath({ contractId, contractProductId }).contextual`
- *   getter resolves that form whenever a contract id is supplied, and both
- *   client callers of the two scheduled-cancellation writes always supply one
- *   (R18; operator correction 2026-09-19).
- * rejected: the bare `contract_products/{p}/schedule-cancel[-revoke]` path.
- *   design 8.3 and parity rows P23/P24 now carry this same contract-scoped
- *   form (corrected 2026-09-22) — this block's earlier "stale against the
- *   oracle" note was itself wrong and is withdrawn.
+ * The CANCEL_REQUEST fields the cancellation form draws, read off their owner
+ * inside a scope that stops after the read. Only a client has them, and a
+ * failed read gives an empty form rather than failing its caller.
  */
+async function loadCancellationFields(
+  scopeActor: ScopeActorTypes
+): Promise<CustomField[]> {
+  if (scopeActor !== ScopeActorTypes.CLIENT) return [];
+
+  const scope = effectScope(true);
+  const read = scope.run(() => {
+    const owner = useClientCustomFields()
+      .as(scopeActor)
+      .for(ClientCustomFieldsContextTypes.CANCEL_REQUEST);
+    const fields = owner.useContext().data;
+
+    return owner
+      .useActions()
+      .isReady()
+      .then(() => fields.value);
+  });
+
+  return (read ?? Promise.resolve([]))
+    .catch((): CustomField[] => [])
+    .finally(() => scope.stop());
+}
+
+// -----------------------------------------------------------------------------
+// Cancellation and consolidation — every write is contract-scoped
+
 async function requestSoftCancel(
-  context: ContractProductContext
+  ids: ContractProductIds,
+  model: Parameters<ContractProductServices["requestSoftCancel"]>[1]
 ): Promise<IContractProduct | undefined> {
   const { put, useUrl } = useQuery();
-  if (!context.contractId || !context.contractProductId) {
-    return Promise.reject(notAvailableError(context));
+  if (!ids.contractId || !ids.contractProductId) {
+    return Promise.reject(notAvailableError(ids));
   }
-  const model = context.cancellation?.model as CancellationModel;
 
   return put<IContractProduct>({
-    mutationKey: [...queryKey, context.contractProductId, "modify-renew"],
+    mutationKey: [...queryKey, ids.contractProductId, "modify-renew"],
     url: useUrl(
-      `contracts/${context.contractId}/products/${context.contractProductId}/modify_renew`
+      `contracts/${ids.contractId}/products/${ids.contractProductId}/modify_renew`
     ),
     data: toSoftCancelBody({
       renew: false,
@@ -444,59 +217,61 @@ async function requestSoftCancel(
   }).then(invalidateQueryByKey(queryKey, { exact: false }));
 }
 
-/** `processing.resumingRenewal` — `{ renew: true }`. */
 async function abortSoftCancel(
-  context: ContractProductContext
+  ids: ContractProductIds
 ): Promise<IContractProduct | undefined> {
   const { put, useUrl } = useQuery();
-  if (!context.contractId || !context.contractProductId) {
-    return Promise.reject(notAvailableError(context));
+  if (!ids.contractId || !ids.contractProductId) {
+    return Promise.reject(notAvailableError(ids));
   }
 
   return put<IContractProduct>({
-    mutationKey: [...queryKey, context.contractProductId, "resume-renew"],
+    mutationKey: [...queryKey, ids.contractProductId, "resume-renew"],
     url: useUrl(
-      `contracts/${context.contractId}/products/${context.contractProductId}/modify_renew`
+      `contracts/${ids.contractId}/products/${ids.contractProductId}/modify_renew`
     ),
     data: toSoftCancelBody({ renew: true }),
     withAccessToken: true
   }).then(invalidateQueryByKey(queryKey, { exact: false }));
 }
 
-/** `processing.settingConsolidation.updating` — the model is parsed and validated first. */
 async function setConsolidation(
-  context: ContractProductContext
+  ids: ContractProductIds,
+  model: Parameters<ContractProductServices["setConsolidation"]>[1]
 ): Promise<IContractProduct | undefined> {
   const { put, useUrl } = useQuery();
-  if (!context.contractId || !context.contractProductId) {
-    return Promise.reject(notAvailableError(context));
+  const invoiceConsolidationEnabled = model?.invoiceConsolidationEnabled;
+  if (
+    !ids.contractId ||
+    !ids.contractProductId ||
+    isNil(invoiceConsolidationEnabled)
+  ) {
+    return Promise.reject(notAvailableError(ids));
   }
-  const model = context.consolidation?.model as SetConsolidationModel;
 
   return put<IContractProduct>({
-    mutationKey: [...queryKey, context.contractProductId, "consolidation"],
+    mutationKey: [...queryKey, ids.contractProductId, "consolidation"],
     url: useUrl(
-      `contracts/${context.contractId}/products/${context.contractProductId}/properties`
+      `contracts/${ids.contractId}/products/${ids.contractProductId}/properties`
     ),
-    data: toConsolidationBody(model),
+    data: { invoice_consolidation_enabled: invoiceConsolidationEnabled },
     withAccessToken: true
   }).then(invalidateQueryByKey(queryKey, { exact: false }));
 }
 
-/** `processing.schedulingCancellation.updating` (R18) — the cancellation model is parsed and validated first. */
 async function scheduleCancellation(
-  context: ContractProductContext
+  ids: ContractProductIds,
+  model: Parameters<ContractProductServices["scheduleCancellation"]>[1]
 ): Promise<IContractProduct | undefined> {
   const { put, useUrl } = useQuery();
-  if (!context.contractId || !context.contractProductId) {
-    return Promise.reject(notAvailableError(context));
+  if (!ids.contractId || !ids.contractProductId) {
+    return Promise.reject(notAvailableError(ids));
   }
-  const model = context.cancellation?.model as CancellationModel;
 
   return put<IContractProduct>({
-    mutationKey: [...queryKey, context.contractProductId, "schedule-cancel"],
+    mutationKey: [...queryKey, ids.contractProductId, "schedule-cancel"],
     url: useUrl(
-      `contracts/${context.contractId}/products/${context.contractProductId}/schedule-cancel`
+      `contracts/${ids.contractId}/products/${ids.contractProductId}/schedule-cancel`
     ),
     data: toScheduleCancellationBody({
       futureCancellationDate: model?.futureCancellationDate ?? "",
@@ -507,25 +282,21 @@ async function scheduleCancellation(
   }).then(invalidateQueryByKey(queryKey, { exact: false }));
 }
 
-/**
- * `processing.requestingCancellation.updating` (HARD, R33) —
- * `POST contracts/{contractId}/cancel/request` for this one product. The
- * cancellation model is parsed and validated first.
- */
+/** HARD: `POST contracts/{contractId}/cancel/request` for this one product. */
 async function requestCancellation(
-  context: ContractProductContext
+  ids: ContractProductIds,
+  model: Parameters<ContractProductServices["requestCancellation"]>[1]
 ): Promise<IContractProduct | undefined> {
   const { post, useUrl } = useQuery();
-  if (!context.contractId || !context.contractProductId) {
-    return Promise.reject(notAvailableError(context));
+  if (!ids.contractId || !ids.contractProductId) {
+    return Promise.reject(notAvailableError(ids));
   }
-  const model = context.cancellation?.model as CancellationModel;
 
   return post<IContractProduct>({
-    mutationKey: [...queryKey, context.contractProductId, "cancel", "request"],
-    url: useUrl(`contracts/${context.contractId}/cancel/request`),
+    mutationKey: [...queryKey, ids.contractProductId, "cancel", "request"],
+    url: useUrl(`contracts/${ids.contractId}/cancel/request`),
     data: toRequestCancellationBody({
-      productIds: [context.contractProductId],
+      productIds: [ids.contractProductId],
       reason: model?.reason,
       customFields: model?.customFields
     }),
@@ -533,120 +304,302 @@ async function requestCancellation(
   }).then(invalidateQueryByKey(queryKey, { exact: false }));
 }
 
-/**
- * `processing.withdrawingCancellation` (R33) —
- * `DELETE contracts/{contractId}/cancel/request` with this product's own
- * `contract_request` id (legacy `cProdProvider.vue:1327-1362`). No form.
- */
+/** `DELETE contracts/{contractId}/cancel/request` with this product's own request id. */
 async function withdrawCancellation(
-  context: ContractProductContext
+  ids: ContractProductIds,
+  requestId: Parameters<ContractProductServices["withdrawCancellation"]>[1]
 ): Promise<IContractProduct | undefined> {
   const { del, useUrl } = useQuery();
-  const requestId = context.contractProduct?.contractRequest?.id;
-  if (!context.contractId || !requestId) {
-    return Promise.reject(notAvailableError(context));
+  if (!ids.contractId || !requestId) {
+    return Promise.reject(notAvailableError(ids));
   }
 
   return del<IContractProduct>({
-    mutationKey: [...queryKey, context.contractProductId, "cancel", "withdraw"],
-    url: useUrl(`contracts/${context.contractId}/cancel/request`),
+    mutationKey: [...queryKey, ids.contractProductId, "cancel", "withdraw"],
+    url: useUrl(`contracts/${ids.contractId}/cancel/request`),
     data: { contract_request_id: requestId },
     withAccessToken: true
   }).then(invalidateQueryByKey(queryKey, { exact: false }));
 }
 
-/** `processing.revokingScheduledCancellation` (R18). No body. */
 async function revokeScheduledCancellation(
-  context: ContractProductContext
+  ids: ContractProductIds
 ): Promise<IContractProduct | undefined> {
   const { put, useUrl } = useQuery();
-  if (!context.contractId || !context.contractProductId) {
-    return Promise.reject(notAvailableError(context));
+  if (!ids.contractId || !ids.contractProductId) {
+    return Promise.reject(notAvailableError(ids));
   }
 
   return put<IContractProduct>({
-    mutationKey: [
-      ...queryKey,
-      context.contractProductId,
-      "schedule-cancel-revoke"
-    ],
+    mutationKey: [...queryKey, ids.contractProductId, "schedule-cancel-revoke"],
     url: useUrl(
-      `contracts/${context.contractId}/products/${context.contractProductId}/schedule-cancel-revoke`
+      `contracts/${ids.contractId}/products/${ids.contractProductId}/schedule-cancel-revoke`
     ),
     withAccessToken: true
   }).then(invalidateQueryByKey(queryKey, { exact: false }));
 }
 
-/** `configuring.previewing` — the dry run: the platform prices the change and commits nothing. */
-async function previewMigration(
-  context: ContractProductContext
-): Promise<IInvoice> {
+// -----------------------------------------------------------------------------
+// Migration
+
+/** The dry run: the platform prices the change and commits nothing. */
+async function previewMigration(input: ChangeProductInput): Promise<IInvoice> {
   const { put, useUrl } = useQuery();
-  if (!context.contractId || !context.contractProductId) {
-    return Promise.reject(notAvailableError(context));
-  }
 
   return put<IInvoice>({
-    mutationKey: [...queryKey, context.contractProductId, "change", "preview"],
+    mutationKey: [...queryKey, input.contractProductId, "change", "preview"],
     url: useUrl(
-      `contracts/${context.contractId}/products/${context.contractProductId}/change`
+      `contracts/${input.contractId}/products/${input.contractProductId}/change`
     ),
-    data: {
-      ...buildChangeProductBody({
-        contractId: context.contractId,
-        contractProductId: context.contractProductId,
-        targetId: context.migration?.target?.id as string,
-        model: context.migration?.model as ProductModel,
-        rawProduct: context.migration?.rawProduct,
-        currentOptions: context.contractProduct?.currentOptions,
-        currencyId: context.contractProduct?.contractCurrencyId
-      }),
-      dry_run: true
-    },
+    data: { ...toChangeProductBody(input), dry_run: true },
     withAccessToken: true
   });
 }
 
-/** `configuring.processing.sending` (AC-31) — the commit of the change of product. */
+/** The commit of the migration. */
 async function migrate(
-  context: ContractProductContext
+  input: ChangeProductInput
 ): Promise<IInvoice | undefined> {
   const { put, useUrl } = useQuery();
-  if (!context.contractId || !context.contractProductId) {
-    return Promise.reject(notAvailableError(context));
-  }
 
   return put<IInvoice>({
-    mutationKey: [...queryKey, context.contractProductId, "change"],
+    mutationKey: [...queryKey, input.contractProductId, "change"],
     url: useUrl(
-      `contracts/${context.contractId}/products/${context.contractProductId}/change`
+      `contracts/${input.contractId}/products/${input.contractProductId}/change`
     ),
-    data: buildChangeProductBody({
-      contractId: context.contractId,
-      contractProductId: context.contractProductId,
-      targetId: context.migration?.target?.id as string,
-      model: context.migration?.model as ProductModel,
-      rawProduct: context.migration?.rawProduct,
-      currentOptions: context.contractProduct?.currentOptions,
-      currencyId: context.contractProduct?.contractCurrencyId
-    }),
+    data: toChangeProductBody(input),
+    withAccessToken: true
+  }).then(invalidateWithInvoices);
+}
+
+// -----------------------------------------------------------------------------
+// Lifecycle writes
+
+/** `{ invoicing }` is the renewal invoicing, not the renewal itself. */
+async function setAutoRenew(
+  ids: ContractProductIds,
+  on: boolean
+): Promise<IContractProduct | undefined> {
+  const { put, useUrl } = useQuery();
+  if (!ids.contractId || !ids.contractProductId) {
+    return Promise.reject(notAvailableError(ids));
+  }
+
+  return put<IContractProduct>({
+    mutationKey: [...queryKey, ids.contractProductId, "auto-renew"],
+    url: useUrl(
+      `contracts/${ids.contractId}/products/${ids.contractProductId}/stop_start_invoicing`
+    ),
+    data: { invoicing: on },
     withAccessToken: true
   }).then(invalidateQueryByKey(queryKey, { exact: false }));
 }
 
-/** The services map `contract-product.machine.ts` invokes, keyed by `invoke.src`. */
-export const contractProductMachineServices: ContractProductMachineServices = {
-  load,
-  validateCancellation,
-  validateConsolidation,
+/**
+ * The invoice the platform raised, or `null` when it raised none. The body is
+ * the next invoice date, when the product has one. `post` resolves the
+ * envelope itself when its `data` is `null`; an envelope carries no `id`, so
+ * it reads as no invoice.
+ */
+async function issueNextInvoice(
+  ids: ContractProductIds,
+  nextInvoiceDate: Parameters<ContractProductServices["issueNextInvoice"]>[1]
+): Promise<IInvoice | null> {
+  const { post, useUrl } = useQuery();
+  if (!ids.contractId || !ids.contractProductId) {
+    return Promise.reject(notAvailableError(ids));
+  }
+
+  return post<IInvoice | QueryResponse<null> | undefined>({
+    mutationKey: [...queryKey, ids.contractProductId, "next-invoice"],
+    url: useUrl(
+      `contracts/${ids.contractId}/products/${ids.contractProductId}/recurring`
+    ),
+    data: nextInvoiceDate ? { next_invoice_date: nextInvoiceDate } : undefined,
+    withAccessToken: true
+  })
+    .then(invalidateWithInvoices)
+    .then(response =>
+      isObject(response) && "id" in response ? response : null
+    );
+}
+
+/** The invoice the end of trial raised, or `null` when it raised none; see `issueNextInvoice`. */
+async function endTrial(ids: ContractProductIds): Promise<IInvoice | null> {
+  const { post, useUrl } = useQuery();
+  if (!ids.contractId || !ids.contractProductId) {
+    return Promise.reject(notAvailableError(ids));
+  }
+
+  return post<IInvoice | QueryResponse<null> | undefined>({
+    mutationKey: [...queryKey, ids.contractProductId, "end-trial"],
+    url: useUrl(
+      `contracts/${ids.contractId}/products/${ids.contractProductId}/trial_end_action_manual`
+    ),
+    withAccessToken: true
+  })
+    .then(invalidateWithInvoices)
+    .then(response =>
+      isObject(response) && "id" in response ? response : null
+    );
+}
+
+/** The product path, not the contract path: the label belongs to the contract product alone. */
+async function setClientLabel(
+  ids: ContractProductIds,
+  model: Parameters<ContractProductServices["setClientLabel"]>[1]
+): Promise<IContractProduct | undefined> {
+  const { put, useUrl } = useQuery();
+  if (!ids.contractProductId) return Promise.reject(notAvailableError(ids));
+
+  return put<IContractProduct>({
+    mutationKey: [...queryKey, ids.contractProductId, "client-label"],
+    url: useUrl(`contract_products/${ids.contractProductId}`),
+    data: model,
+    withAccessToken: true
+  }).then(invalidateQueryByKey(queryKey, { exact: false }));
+}
+
+/** Resolves the picked id against the owner lists, then writes the contract's address and company. */
+async function setBillingEntity(
+  scopeActor: ScopeActorTypes,
+  ids: ContractProductIds,
+  model: Parameters<ContractProductServices["setBillingEntity"]>[1]
+): Promise<IContractProduct | undefined> {
+  const { put, useUrl } = useQuery();
+  const { addresses, companies } = await loadBillingEntities(scopeActor);
+  const id = model?.billing_entity;
+  const company = find(companies, { id });
+  const address = find(addresses, { id });
+  const choice = company ? { company } : address && { address };
+  if (!ids.contractId || !ids.contractProductId || !choice) {
+    return Promise.reject(notAvailableError(ids));
+  }
+
+  return put<IContractProduct>({
+    mutationKey: [...queryKey, ids.contractProductId, "billing-entity"],
+    url: useUrl(`contracts/${ids.contractId}/address_company_vat`),
+    data: toBillingEntityBody(choice),
+    withAccessToken: true
+  }).then(invalidateQueryByKey(queryKey, { exact: false }));
+}
+
+// -----------------------------------------------------------------------------
+// Service Factory
+
+/** Maps a scope actor to its service overrides. Armless today. */
+function scopedServices(
+  scopeActor: ScopeActorTypes,
+  _scopeContext?: ScopeContext
+): Partial<ContractProductServices> {
+  switch (scopeActor) {
+    default:
+      return {};
+  }
+}
+
+/** Services factory for one manager scope; `useContractProduct.ts` calls it once per scope. */
+export const createContractProductServices = (
+  scopeActor: ScopeActorTypes,
+  scopeContext: ScopeContext | undefined
+): ContractProductServices => ({
+  queryKey,
+  load: ids => load(scopeActor, ids),
+  loadBillingEntities: () => loadBillingEntities(scopeActor),
+  loadCancellationFields: () => loadCancellationFields(scopeActor),
   requestSoftCancel,
   abortSoftCancel,
   requestCancellation,
   withdrawCancellation,
-  setConsolidation,
   scheduleCancellation,
   revokeScheduledCancellation,
+  setConsolidation,
   previewMigration,
   migrate,
-  watchMigrationTarget
-};
+  setAutoRenew,
+  issueNextInvoice,
+  endTrial,
+  setClientLabel,
+  setBillingEntity: (ids, model) => setBillingEntity(scopeActor, ids, model),
+  ...scopedServices(scopeActor, scopeContext)
+});
+
+export default createContractProductServices;
+
+// -----------------------------------------------------------------------------
+// Machine-Ready Services (the adapter)
+
+/**
+ * Adapts the scoped services object into the XState services map the machine
+ * invokes. `service` is threaded in rather than minted here, so every
+ * machine-invoked request inherits the scope it was built for.
+ */
+export const useContractProductMachineServices = (
+  service: ContractProductServices
+): ContractProductMachineServices => ({
+  load: context => service.load(context),
+  loadBillingEntities: () => service.loadBillingEntities(),
+  loadCancellationFields: () => service.loadCancellationFields(),
+  validateCancellation: ({ cancellation }) => validateForm(cancellation),
+  validateConsolidation: ({ consolidation }) => validateForm(consolidation),
+  validateBillingEntity: ({ billingEntity }) => validateForm(billingEntity),
+  validateClientLabel: async (
+    _context,
+    { data }: AnyEventObject
+  ): Promise<ClientLabelModel> => {
+    const model = { client_label: data.label };
+    await validateForm({ schema: useClientLabelSchema(), model });
+    return model;
+  },
+  requestSoftCancel: context =>
+    service.requestSoftCancel(context, context.cancellation?.model),
+  abortSoftCancel: context => service.abortSoftCancel(context),
+  requestCancellation: context =>
+    service.requestCancellation(context, context.cancellation?.model),
+  withdrawCancellation: context =>
+    service.withdrawCancellation(
+      context,
+      context.contractProduct?.contractRequest?.id
+    ),
+  scheduleCancellation: context =>
+    service.scheduleCancellation(context, context.cancellation?.model),
+  revokeScheduledCancellation: context =>
+    service.revokeScheduledCancellation(context),
+  setConsolidation: context =>
+    service.setConsolidation(context, context.consolidation?.model),
+  previewMigration: (context): Promise<IInvoice> => {
+    const input = toChangeProductInput(context);
+    return input
+      ? service.previewMigration(input)
+      : Promise.reject(notAvailableError(context));
+  },
+  migrate: (context): Promise<IInvoice | undefined> => {
+    const input = toChangeProductInput(context);
+    return input
+      ? service.migrate(input)
+      : Promise.reject(notAvailableError(context));
+  },
+  // Reports the configurator child failing, at load or later. The cleanup
+  // unsubscribes and leaves the child running: the machine stops it.
+  watchMigrationTarget:
+    ({ migration }) =>
+    (callback): (() => void) => {
+      const subscription = migration?.ref?.subscribe(state => {
+        if (!stateMatches(state, ["unavailable"])) return;
+        callback({
+          type: "MIGRATION.UNAVAILABLE",
+          data: contextValue(state, "error")
+        });
+      });
+      return () => subscription?.unsubscribe();
+    },
+  setAutoRenew: (context, { data }: AnyEventObject) =>
+    service.setAutoRenew(context, data.on),
+  issueNextInvoice: context =>
+    service.issueNextInvoice(context, context.contractProduct?.nextInvoiceDate),
+  endTrial: context => service.endTrial(context),
+  setClientLabel: (context, { data }: AnyEventObject) =>
+    service.setClientLabel(context, data),
+  setBillingEntity: context =>
+    service.setBillingEntity(context, context.billingEntity?.model)
+});
