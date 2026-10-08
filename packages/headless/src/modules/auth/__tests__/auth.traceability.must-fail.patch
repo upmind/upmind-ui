@@ -1,0 +1,18 @@
+AC: AC-4 tagged-to-named link
+Spec: auth.traceability.test.ts
+Mutation: remove the @AC-4 tag from auth.feature, so the scenario no longer links to its AC-4 titled spec
+Apply from the repo root with: git apply -p1 packages/headless/src/modules/auth/__tests__/auth.traceability.must-fail.patch
+
+diff --git a/packages/headless/src/modules/auth/__tests__/auth.feature b/packages/headless/src/modules/auth/__tests__/auth.feature
+index b1f2430d9c..9c50423a12 100644
+--- a/packages/headless/src/modules/auth/__tests__/auth.feature
++++ b/packages/headless/src/modules/auth/__tests__/auth.feature
+@@ -55,7 +55,7 @@ # A later auth story continues from AC-26 and adds its own story tag.
+     Then my client session holds the new access token
+     And the landing reports the new session id
+ 
+-  @FE-2984 @AC-4 @guest
++  @FE-2984 @guest
+   Scenario: A landing that has not started waits and sends nothing
+     When nobody starts the landing
+     Then the landing reports that it is verifying
