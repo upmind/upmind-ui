@@ -1,0 +1,29 @@
+AC: a session switch that never lands ends in the user-error text after SESSION_SWITCH_TIMEOUT_MS
+Spec: verify-registration.page.retry-and-timeout.spec.ts ("the bounded wait for the new session")
+Mutation: the session-switch wait has no timeout, so it never rejects
+Apply from the repo root with: git apply -p1 playgrounds/labs-nuxt/modules/scenarios/__tests__/verify-registration.page.retry-and-timeout.switch-unbounded.must-fail.patch
+
+diff --git a/playgrounds/labs-nuxt/modules/scenarios/useVerifyRegistration/verify-registration.page.vue b/playgrounds/labs-nuxt/modules/scenarios/useVerifyRegistration/verify-registration.page.vue
+index fdcf0e3e1f..30bbc00ac2 100644
+--- a/playgrounds/labs-nuxt/modules/scenarios/useVerifyRegistration/verify-registration.page.vue
++++ b/playgrounds/labs-nuxt/modules/scenarios/useVerifyRegistration/verify-registration.page.vue
+@@ -276,18 +276,13 @@ function readNewSession(sessionId: string): Promise<SessionUser> {
+   const switched =
+     activeSessionId.value === sessionId
+       ? Promise.resolve()
+-      : new Promise<void>((resolve, reject) => {
+-          const timer = setTimeout(() => {
+-            stopSwitchWait?.();
+-            reject(new Error(t("labs.verify_registration_user_error")));
+-          }, SESSION_SWITCH_TIMEOUT_MS);
++      : new Promise<void>(resolve => {
+           const stop = watch(activeSessionId, next => {
+             if (next !== sessionId) return;
+             stopSwitchWait?.();
+             resolve();
+           });
+           stopSwitchWait = () => {
+-            clearTimeout(timer);
+             stop();
+             stopSwitchWait = undefined;
+           };
