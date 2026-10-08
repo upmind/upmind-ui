@@ -4,15 +4,14 @@ Mutation: direct grant onError targets expiredOrInvalid
 Apply from the repo root with: git apply -p1 packages/headless/src/modules/auth/__tests__/auth.verify-registration.direct-failure.must-fail.patch
 
 diff --git a/packages/headless/src/modules/auth/auth.registration.machine.ts b/packages/headless/src/modules/auth/auth.registration.machine.ts
-index 54b5a36f7a..13ae0e4afa 100644
 --- a/packages/headless/src/modules/auth/auth.registration.machine.ts
 +++ b/packages/headless/src/modules/auth/auth.registration.machine.ts
-@@ -135,7 +135,7 @@ export const verifyRegistrationMachine = createMachine(
-         invoke: {
-           src: "completeRegistration",
-           onDone: { target: "success", actions: ["storeSession"] },
--          onError: { target: "completionFailed", actions: ["storeError"] }
-+          onError: { target: "expiredOrInvalid", actions: ["storeError"] }
+@@ -140,7 +140,7 @@ export const verifyRegistrationMachine = createMachine(
+             target: "success",
+             actions: ["persistSession", "setSession"]
+           },
+-          onError: { target: "completionFailed", actions: ["setError"] }
++          onError: { target: "expiredOrInvalid", actions: ["setError"] }
          }
        },
  

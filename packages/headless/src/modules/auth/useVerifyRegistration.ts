@@ -17,7 +17,6 @@ import {
   responseCodes
 } from "../../utils";
 import type { VerifyRegistrationScopeMatrix } from "./auth.types";
-import type { ScopeActorTypes } from "../scope/scope.types";
 import type { ScopeConfig, ScopeKey } from "../scope/scope.types";
 // -----------------------------------------------------------------------------
 /**
@@ -38,7 +37,7 @@ function createVerifyRegistrationForScope(
 ) {
   const { t } = useI18n();
 
-  const actorScope = config.actor as ScopeActorTypes;
+  const actorScope = config.actor;
 
   const service = interpret(
     verifyRegistrationMachine.withContext(
@@ -51,7 +50,7 @@ function createVerifyRegistrationForScope(
   const actorRef = createActor(service);
   if (!actorRef) {
     throw new DetailedError(
-      t("errors.auth.unavailable"),
+      t("error.auth_not_available"),
       responseCodes.Service_Unavailable,
       ErrorOrigin.Headless,
       { scope: config }

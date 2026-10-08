@@ -4,14 +4,13 @@ Mutation: the verify onError goes to idle with no error
 Apply from the repo root with: git apply -p1 packages/headless/src/modules/auth/__tests__/auth.verify-registration.swallow.must-fail.patch
 
 diff --git a/packages/headless/src/modules/auth/auth.registration.machine.ts b/packages/headless/src/modules/auth/auth.registration.machine.ts
-index 54b5a36f7a..6b47355554 100644
 --- a/packages/headless/src/modules/auth/auth.registration.machine.ts
 +++ b/packages/headless/src/modules/auth/auth.registration.machine.ts
-@@ -95,7 +95,7 @@ export const verifyRegistrationMachine = createMachine(
+@@ -97,7 +97,7 @@ export const verifyRegistrationMachine = createMachine(
          invoke: {
            src: "verifyRegistrationLink",
-           onDone: { target: "routing", actions: ["storeData"] },
--          onError: { target: "expiredOrInvalid", actions: ["storeError"] }
+           onDone: { target: "routing", actions: ["setData"] },
+-          onError: { target: "expiredOrInvalid", actions: ["setError"] }
 +          onError: { target: "idle" }
          }
        },

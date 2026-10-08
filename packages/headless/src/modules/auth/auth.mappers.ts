@@ -4,7 +4,8 @@
  * @module auth/mappers
  * @description Auth model mappers.
  */
-import { AccessRoleTypes } from "@upmind-automation/types";
+import { AccessRoleTypes, TwofaProviders } from "@upmind-automation/types";
+import { useI18n } from "../system-localisation";
 import { DetailedError, mapToHeadlessError } from "../../utils";
 import {
   floor,
@@ -13,10 +14,12 @@ import {
   isString,
   isUndefined,
   replace,
+  some,
   startsWith,
   toLower,
   toNumber,
-  trim
+  trim,
+  values
 } from "lodash-es";
 import type {
   LoginModel,
@@ -74,20 +77,41 @@ export function mapRecoverData(
 
 // -----------------------------------------------------------------------------
 /**
+ * Whether a lower-cased provider name is one the API is known to send.
+ * @private
+ */
+function isTwoFAProvider(
+  value: string
+): value is Exclude<VerifyRegistrationTwoFAProvider, ""> {
+  return some(values(TwofaProviders), known => toLower(known) === value);
+}
+
+/**
+ * Narrow an API provider name to the published union, or `""` when it is absent
+ * or unknown.
+ * @private
+ */
+function toTwoFAProvider(value: unknown): VerifyRegistrationTwoFAProvider {
+  const provider = toLower(isString(value) ? value : "");
+  return isTwoFAProvider(provider) ? provider : "";
+}
+
+/**
  * Map the unwrapped registration verify answer, with the legacy defaults for
  * each absent field.
  * @throws {TypeError} when the value is `null` or `undefined`.
  */
 export function mapVerifyRegistration(value: unknown): VerifyRegistrationData {
-  if (isNil(value)) throw new TypeError("Verify registration answer is empty");
+  if (isNil(value)) {
+    const { t } = useI18n();
+    throw new TypeError(t("error.session_verify_link_invalid"));
+  }
 
   return {
     needsPassword: !get(value, "has_password", false),
     needsCompleteStep: !get(value, "has_name", false),
     twoFARequired: !!get(value, "twofa_enabled", false),
-    twoFAProvider: toLower(
-      get(value, "twofa_provider") || ""
-    ) as VerifyRegistrationTwoFAProvider
+    twoFAProvider: toTwoFAProvider(get(value, "twofa_provider"))
   };
 }
 

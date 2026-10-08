@@ -6,8 +6,7 @@ import {
 } from "@upmind-automation/types";
 import { useBrand } from "../brand";
 import { useQuery } from "../query";
-import { AuthEvents, getTokenFromStorage } from "../session-store";
-import { persistTokenToStorage } from "../session-store/session-store.utils";
+import { getTokenFromStorage } from "../session-store";
 import { mapRegistrationToken, mapVerifyRegistration } from "./auth.mappers";
 import { AUTH_SESSION_QUERY_KEY_BASE } from "./auth.types";
 import { useCookies } from "../../utils";
@@ -88,9 +87,9 @@ export async function verifyRegistrationLink({
 }
 
 /**
- * Complete the registration with the `complete_registration` grant, then save
- * the token as the CLIENT session.
- * @returns the saved token.
+ * Complete the registration with the `complete_registration` grant. The
+ * machine saves the token, so a stopped invoke never activates a session.
+ * @returns the grant token, coerced to the CLIENT actor.
  */
 export async function completeRegistration({
   params,
@@ -112,9 +111,5 @@ export async function completeRegistration({
     url: useUrl("access_token", {}, { context: "oauth" }),
     data,
     withAccessToken: false
-  }).then(token => {
-    const clientToken = mapRegistrationToken(token);
-    persistTokenToStorage(clientToken, { event: AuthEvents.LOGIN });
-    return clientToken;
-  });
+  }).then(mapRegistrationToken);
 }

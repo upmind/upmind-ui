@@ -4,15 +4,12 @@ Mutation: persist the grant token with its own actor_type
 Apply from the repo root with: git apply -p1 packages/headless/src/modules/auth/__tests__/auth.verify-registration.client-coerce.must-fail.patch
 
 diff --git a/packages/headless/src/modules/auth/auth.services.client.registration.ts b/packages/headless/src/modules/auth/auth.services.client.registration.ts
-index 17dde4f99d..17c5ef7880 100644
 --- a/packages/headless/src/modules/auth/auth.services.client.registration.ts
 +++ b/packages/headless/src/modules/auth/auth.services.client.registration.ts
-@@ -113,7 +113,7 @@ export async function completeRegistration({
+@@ -111,5 +111,5 @@ export async function completeRegistration({
+     url: useUrl("access_token", {}, { context: "oauth" }),
      data,
      withAccessToken: false
-   }).then(token => {
--    const clientToken = mapRegistrationToken(token);
-+    const clientToken = token;
-     persistTokenToStorage(clientToken, { event: AuthEvents.LOGIN });
-     return clientToken;
-   });
+-  }).then(mapRegistrationToken);
++  }).then(token => token);
+ }

@@ -4,18 +4,17 @@ Mutation: remove the checkingLink guard
 Apply from the repo root with: git apply -p1 packages/headless/src/modules/auth/__tests__/auth.verify-registration.missing-guard.must-fail.patch
 
 diff --git a/packages/headless/src/modules/auth/auth.registration.machine.ts b/packages/headless/src/modules/auth/auth.registration.machine.ts
-index 54b5a36f7a..15920bdfb4 100644
 --- a/packages/headless/src/modules/auth/auth.registration.machine.ts
 +++ b/packages/headless/src/modules/auth/auth.registration.machine.ts
-@@ -81,14 +81,7 @@ export const verifyRegistrationMachine = createMachine(
+@@ -83,14 +83,7 @@ export const verifyRegistrationMachine = createMachine(
  
        checkingLink: {
-         entry: ["storeRedirect"],
+         entry: ["setRedirect"],
 -        always: [
 -          {
 -            target: "expiredOrInvalid",
 -            cond: "isLinkIncomplete",
--            actions: ["storeInvalidLinkError"]
+-            actions: ["setInvalidLinkError"]
 -          },
 -          { target: "verifying" }
 -        ]

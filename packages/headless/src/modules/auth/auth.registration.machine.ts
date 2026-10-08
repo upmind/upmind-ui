@@ -1,5 +1,7 @@
 /** @internal */
 import { assign, createMachine } from "xstate";
+import { AuthEvents } from "../session-store";
+import { persistTokenToStorage } from "../session-store/session-store.utils";
 import { useI18n } from "../system-localisation";
 import {
   isLinkExpired,
@@ -74,18 +76,18 @@ export const verifyRegistrationMachine = createMachine(
     states: {
       idle: {
         on: {
-          VERIFY: { target: "checkingLink", actions: ["storeParams"] },
+          VERIFY: { target: "checkingLink", actions: ["setParams"] },
           RESET: {}
         }
       },
 
       checkingLink: {
-        entry: ["storeRedirect"],
+        entry: ["setRedirect"],
         always: [
           {
             target: "expiredOrInvalid",
             cond: "isLinkIncomplete",
-            actions: ["storeInvalidLinkError"]
+            actions: ["setInvalidLinkError"]
           },
           { target: "verifying" }
         ]
@@ -94,8 +96,8 @@ export const verifyRegistrationMachine = createMachine(
       verifying: {
         invoke: {
           src: "verifyRegistrationLink",
-          onDone: { target: "routing", actions: ["storeData"] },
-          onError: { target: "expiredOrInvalid", actions: ["storeError"] }
+          onDone: { target: "routing", actions: ["setData"] },
+          onError: { target: "expiredOrInvalid", actions: ["setError"] }
         }
       },
 
@@ -111,7 +113,7 @@ export const verifyRegistrationMachine = createMachine(
           {
             target: "expiredOrInvalid",
             cond: "isExpired",
-            actions: ["storeInvalidLinkError"]
+            actions: ["setInvalidLinkError"]
           },
           { target: "needsPassword" }
         ]
@@ -119,7 +121,7 @@ export const verifyRegistrationMachine = createMachine(
 
       needsPassword: {
         on: {
-          SET: { actions: ["storeModel"] },
+          SET: { actions: ["setModel", "clearValidationErrors"] },
           COMPLETE: { target: "validating", actions: ["validate"] }
         }
       },
@@ -134,16 +136,22 @@ export const verifyRegistrationMachine = createMachine(
       completing: {
         invoke: {
           src: "completeRegistration",
-          onDone: { target: "success", actions: ["storeSession"] },
-          onError: { target: "completionFailed", actions: ["storeError"] }
+          onDone: {
+            target: "success",
+            actions: ["persistSession", "setSession"]
+          },
+          onError: { target: "completionFailed", actions: ["setError"] }
         }
       },
 
       completingWithPassword: {
         invoke: {
           src: "completeRegistration",
-          onDone: { target: "success", actions: ["storeSession"] },
-          onError: { target: "expiredOrInvalid", actions: ["storeError"] }
+          onDone: {
+            target: "success",
+            actions: ["persistSession", "setSession"]
+          },
+          onError: { target: "expiredOrInvalid", actions: ["setError"] }
         }
       },
 
@@ -156,7 +164,7 @@ export const verifyRegistrationMachine = createMachine(
   },
   {
     actions: {
-      storeParams: assign(
+      setParams: assign(
         (_context: VerifyRegistrationContext, { data }: AnyEventObject) => {
           const username = data?.username ?? "";
           return {
@@ -167,26 +175,26 @@ export const verifyRegistrationMachine = createMachine(
         }
       ),
 
-      storeRedirect: assign({
+      setRedirect: assign({
         redirect: ({ params }: VerifyRegistrationContext) =>
           toSafeRedirect(params.redirect)
       }),
 
-      storeInvalidLinkError: assign({ error: () => invalidLinkError() }),
+      setInvalidLinkError: assign({ error: () => invalidLinkError() }),
 
-      storeData: assign({
+      setData: assign({
         data: (_context: VerifyRegistrationContext, { data }: AnyEventObject) =>
           data
       }),
 
-      storeError: assign({
+      setError: assign({
         error: (
           _context: VerifyRegistrationContext,
           { data }: AnyEventObject
         ) => mapVerifyRegistrationError(data)
       }),
 
-      storeModel: assign({
+      setModel: assign({
         model: (
           { model }: VerifyRegistrationContext,
           { data }: AnyEventObject
@@ -209,7 +217,16 @@ export const verifyRegistrationMachine = createMachine(
         }
       }),
 
-      storeSession: assign({
+      persistSession: (
+        _context: VerifyRegistrationContext,
+        { data }: AnyEventObject
+      ) => {
+        persistTokenToStorage(data, { event: AuthEvents.LOGIN });
+      },
+
+      clearValidationErrors: assign({ validationErrors: () => [] }),
+
+      setSession: assign({
         sessionId: (
           _context: VerifyRegistrationContext,
           { data }: AnyEventObject

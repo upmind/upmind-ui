@@ -4,14 +4,16 @@ Mutation: map a null value with the defaults
 Apply from the repo root with: git apply -p1 packages/headless/src/modules/auth/__tests__/auth.verify-registration.mapper-null.must-fail.patch
 
 diff --git a/packages/headless/src/modules/auth/auth.mappers.ts b/packages/headless/src/modules/auth/auth.mappers.ts
-index 337085c514..85a1d62982 100644
 --- a/packages/headless/src/modules/auth/auth.mappers.ts
 +++ b/packages/headless/src/modules/auth/auth.mappers.ts
-@@ -79,7 +79,6 @@ export function mapRecoverData(
+@@ -102,10 +102,6 @@ function toTwoFAProvider(value: unknown): VerifyRegistrationTwoFAProvider {
   * @throws {TypeError} when the value is `null` or `undefined`.
   */
  export function mapVerifyRegistration(value: unknown): VerifyRegistrationData {
--  if (isNil(value)) throw new TypeError("Verify registration answer is empty");
+-  if (isNil(value)) {
+-    const { t } = useI18n();
+-    throw new TypeError(t("error.session_verify_link_invalid"));
+-  }
  
    return {
      needsPassword: !get(value, "has_password", false),

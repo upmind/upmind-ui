@@ -38,6 +38,7 @@
             </Button>
             <Button
               variant="outline"
+              :disabled="meta.isProcessing.value"
               :data-attrs="{ 'data-test-key': 'verify-registration-retry' }"
               @click="actions.reset()"
             >
@@ -193,6 +194,7 @@ import { useI18n } from "vue-i18n";
 import { Form, Icon, Section } from "@upmind-automation/foundation";
 import {
   LINK_PARAMS,
+  responseCodes,
   ScopeActorTypes,
   useActiveSession,
   useVerifyRegistration
@@ -207,6 +209,7 @@ import type {
 } from "@upmind-automation/headless";
 
 const START_DELAY_MS = 1000;
+const SESSION_SWITCH_TIMEOUT_MS = 10000;
 const BLOCKED_IP_CODE = "ip_address_disallowed";
 
 const { t, te } = useI18n();
@@ -259,19 +262,35 @@ function start() {
   }, START_DELAY_MS);
 }
 
-/** Wait for the new session, then for its user. */
+let stopSwitchWait: (() => void) | undefined;
+
+/**
+ * Wait for the new session, then for its user. The wait is bounded: when
+ * another client is signed in the active session never becomes the new one
+ * (the known AC-19 limit), so the panel shows the error text instead of
+ * "Checking the link" for ever.
+ */
 function readNewSession(sessionId: string): Promise<SessionUser> {
   const session = useActiveSession();
   const { sessionId: activeSessionId } = session.useContext();
   const switched =
     activeSessionId.value === sessionId
       ? Promise.resolve()
-      : new Promise<void>(resolve => {
+      : new Promise<void>((resolve, reject) => {
+          const timer = setTimeout(() => {
+            stopSwitchWait?.();
+            reject(new Error(t("labs.verify_registration_user_error")));
+          }, SESSION_SWITCH_TIMEOUT_MS);
           const stop = watch(activeSessionId, next => {
             if (next !== sessionId) return;
-            stop();
+            stopSwitchWait?.();
             resolve();
           });
+          stopSwitchWait = () => {
+            clearTimeout(timer);
+            stop();
+            stopSwitchWait = undefined;
+          };
         });
   return switched.then(() => session.useActions().whenAuthenticated());
 }
@@ -288,7 +307,7 @@ watch(
 
 const isBlockedIp = computed(
   () =>
-    context.error.value?.status === 403 &&
+    context.error.value?.status === responseCodes.Forbidden &&
     context.error.value?.apiCode === BLOCKED_IP_CODE
 );
 
@@ -326,6 +345,7 @@ const contextValues = computed(() =>
 
 onUnmounted(() => {
   clearTimeout(startTimer);
+  stopSwitchWait?.();
   actions.destroy();
 });
 </script>

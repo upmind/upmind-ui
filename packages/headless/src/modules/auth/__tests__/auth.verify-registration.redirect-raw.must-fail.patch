@@ -4,16 +4,15 @@ Mutation: publish the raw redirect
 Apply from the repo root with: git apply -p1 packages/headless/src/modules/auth/__tests__/auth.verify-registration.redirect-raw.must-fail.patch
 
 diff --git a/packages/headless/src/modules/auth/auth.registration.machine.ts b/packages/headless/src/modules/auth/auth.registration.machine.ts
-index 54b5a36f7a..bdc1b2ae1f 100644
 --- a/packages/headless/src/modules/auth/auth.registration.machine.ts
 +++ b/packages/headless/src/modules/auth/auth.registration.machine.ts
-@@ -168,8 +168,7 @@ export const verifyRegistrationMachine = createMachine(
+@@ -176,8 +176,7 @@ export const verifyRegistrationMachine = createMachine(
        ),
  
-       storeRedirect: assign({
+       setRedirect: assign({
 -        redirect: ({ params }: VerifyRegistrationContext) =>
 -          toSafeRedirect(params.redirect)
 +        redirect: ({ params }: VerifyRegistrationContext) => params.redirect
        }),
  
-       storeInvalidLinkError: assign({ error: () => invalidLinkError() }),
+       setInvalidLinkError: assign({ error: () => invalidLinkError() }),

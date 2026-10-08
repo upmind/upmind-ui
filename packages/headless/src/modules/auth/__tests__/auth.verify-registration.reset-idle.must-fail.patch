@@ -4,16 +4,15 @@ Mutation: idle handles RESET (the root RESET reaches checkingLink)
 Apply from the repo root with: git apply -p1 packages/headless/src/modules/auth/__tests__/auth.verify-registration.reset-idle.must-fail.patch
 
 diff --git a/packages/headless/src/modules/auth/auth.registration.machine.ts b/packages/headless/src/modules/auth/auth.registration.machine.ts
-index 54b5a36f7a..cd9e5a9e41 100644
 --- a/packages/headless/src/modules/auth/auth.registration.machine.ts
 +++ b/packages/headless/src/modules/auth/auth.registration.machine.ts
-@@ -74,8 +74,7 @@ export const verifyRegistrationMachine = createMachine(
+@@ -76,8 +76,7 @@ export const verifyRegistrationMachine = createMachine(
      states: {
        idle: {
          on: {
--          VERIFY: { target: "checkingLink", actions: ["storeParams"] },
+-          VERIFY: { target: "checkingLink", actions: ["setParams"] },
 -          RESET: {}
-+          VERIFY: { target: "checkingLink", actions: ["storeParams"] }
++          VERIFY: { target: "checkingLink", actions: ["setParams"] }
          }
        },
  
