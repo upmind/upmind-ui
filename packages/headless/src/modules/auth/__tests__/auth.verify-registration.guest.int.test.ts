@@ -13,15 +13,26 @@
  * confirmation to the API, or is moved to an unsafe address.
  */
 
+import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { http, HttpResponse } from "msw";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { getFixture } from "@upmind-automation/test-fixtures";
-import { BrandConfigKeys } from "@upmind-automation/types";
+import {
+  afterEach,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi
+} from "vitest";
+import { createMemoryHistory, createRouter } from "vue-router";
+import { getFixture, getFixtureBody } from "@upmind-automation/test-fixtures";
+import { AccessRoleTypes, BrandConfigKeys } from "@upmind-automation/types";
 import {
   clearSessionCookies,
   makeFixtureOverrides
 } from "../../../__tests__/int-test-helpers";
+import { useRoutingEngine } from "../../routing";
 import { ScopeActorTypes } from "../../scope";
 import {
   persistTokenToStorage,
@@ -43,6 +54,7 @@ import {
   size,
   sortBy
 } from "lodash-es";
+import type { IToken } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
 
@@ -60,10 +72,16 @@ const RECORDING = {
     "post-oauth-access-token-case-complete-with-password-client",
   hasPassword: "patch-clients-reg-hash-verify-case-has-password",
   grantDirect: "post-oauth-access-token-case-complete-direct-client",
-  self: "get-self"
+  self: "get-self",
+  guestToken: "post-oauth-access-token-guest"
 } as const;
 
 const LINK = { username: "link-user@example.com", hash: "link-hash-value" };
+
+const router = createRouter({
+  history: createMemoryHistory(),
+  routes: [{ path: "/", component: { render: () => null } }]
+});
 
 const { brandConfig } = vi.hoisted(() => ({
   brandConfig: {} as Record<string, unknown>
@@ -170,6 +188,10 @@ function destroyLandings(): void {
 // -----------------------------------------------------------------------------
 
 describe("registration landing, guest x self (recorded staging answers)", () => {
+  beforeAll(() => {
+    useRoutingEngine().init(router);
+  });
+
   beforeEach(async () => {
     forEach(keys(brandConfig), key => delete brandConfig[key]);
     clearSessionCookies();
@@ -232,20 +254,28 @@ describe("registration landing, guest x self (recorded staging answers)", () => 
   describe("AC-1 the link is checked with the client token only", () => {
     const cases = [
       { name: "no session", seed: [], expected: null },
-      { name: "a guest token only", seed: ["guest"], expected: null },
-      { name: "a client token", seed: ["client"], expected: "client-bearer" },
+      {
+        name: "a guest token only",
+        seed: [AccessRoleTypes.GUEST],
+        expected: null
+      },
+      {
+        name: "a client token",
+        seed: [AccessRoleTypes.CLIENT],
+        expected: "client-bearer"
+      },
       {
         name: "a staff token and a client token",
-        seed: ["staff", "client"],
+        seed: [AccessRoleTypes.STAFF, AccessRoleTypes.CLIENT],
         expected: "client-bearer"
       }
-    ] as const;
+    ];
 
     forEach(cases, ({ name, seed, expected }) => {
       it(`AC-1 sends one verify with the link values and the right bearer for ${name}`, async () => {
-        if (includes(seed, "staff")) await seedSession("staff-bearer", "staff");
-        if (includes(seed, "client"))
-          await seedSession("client-bearer", "client");
+        for (const actorType of seed) {
+          await seedSession(`${actorType}-bearer`, actorType);
+        }
         if (isEmpty(seed)) clearSessionCookies();
         serve("patch", VERIFY_ROUTE, RECORDING.hasPassword);
         serve("post", GRANT_ROUTE, RECORDING.grantDirect);
@@ -398,7 +428,7 @@ describe("registration landing, guest x self (recorded staging answers)", () => 
     expect(sortBy(keys(get(context.schema.value, "properties")))).toStrictEqual(
       ["password", "password_confirmation", "username"]
     );
-    expect(context.model.value.username).toBe(LINK.username);
+    expect(context.model.value?.username).toBe(LINK.username);
     expect(context.validationErrors.value).toStrictEqual([]);
     expect(filter(await outbound(), isGrant)).toStrictEqual([]);
   });
@@ -444,11 +474,11 @@ describe("registration landing, guest x self (recorded staging answers)", () => 
           .set({ password, password_confirmation: confirmation });
         await instance.useActions().completeRegistration();
 
-        const errors = instance.useContext().validationErrors.value;
         expect(instance.useMeta().hasValidationErrors.value).toBe(true);
         expect(instance.useContext().currentState.value).toBe("needsPassword");
-        expect(errors).toHaveLength(1);
-        expect(errors[0]).toMatchObject({ instancePath: path, keyword });
+        expect(instance.useContext().validationErrors.value).toMatchObject([
+          { instancePath: path, keyword }
+        ]);
         expect(filter(await outbound(), isGrant)).toStrictEqual([]);
       });
     });
@@ -730,47 +760,95 @@ describe("registration landing, guest x self (recorded staging answers)", () => 
   });
 
   describe("AC-17 the landing never moves the guest", () => {
-    it("AC-17 leaves the page and the history alone over each outcome", async () => {
-      const assign = vi.fn();
-      const replace = vi.fn();
-      vi.stubGlobal("location", {
-        hostname: window.location.hostname,
-        host: window.location.host,
-        origin: window.location.origin,
-        protocol: window.location.protocol,
-        href: window.location.href,
-        assign,
-        replace
+    const outcomes = [
+      {
+        name: "the direct activation of AC-2",
+        state: "success",
+        drive: async (instance: Landing) => {
+          serve("patch", VERIFY_ROUTE, RECORDING.hasPassword);
+          serve("post", GRANT_ROUTE, RECORDING.grantDirect);
+          overrideSelf(RECORDING.self);
+          await instance.useActions().verify(LINK);
+        }
+      },
+      {
+        name: "the set-password step of AC-7",
+        state: "needsPassword",
+        drive: async (instance: Landing) => {
+          serve("patch", VERIFY_ROUTE, RECORDING.noPassword);
+          await instance.useActions().verify(LINK);
+        }
+      },
+      {
+        name: "the password activation of AC-9",
+        state: "success",
+        drive: async (instance: Landing) => {
+          serve("patch", VERIFY_ROUTE, RECORDING.noPassword);
+          serve("post", GRANT_ROUTE, RECORDING.grantWithPassword);
+          overrideSelf(RECORDING.self);
+          await instance.useActions().verify(LINK);
+          await instance.useActions().isReady();
+          instance
+            .useActions()
+            .set({ password: "abcdefg1", password_confirmation: "abcdefg1" });
+          await instance.useActions().completeRegistration();
+        }
+      },
+      {
+        name: "the invalid link of AC-12",
+        state: "expiredOrInvalid",
+        drive: (instance: Landing) =>
+          instance.useActions().verify({ hash: "x" })
+      },
+      {
+        name: "the refused link of AC-13",
+        state: "expiredOrInvalid",
+        drive: async (instance: Landing) => {
+          serve("patch", VERIFY_ROUTE, RECORDING.invalidHash);
+          await instance.useActions().verify(LINK);
+        }
+      },
+      {
+        name: "the refused direct activation of AC-15",
+        state: "completionFailed",
+        drive: async (instance: Landing) => {
+          serve("patch", VERIFY_ROUTE, RECORDING.hasPassword);
+          serve("post", GRANT_ROUTE, RECORDING.grantRefused);
+          await instance.useActions().verify(LINK);
+        }
+      }
+    ];
+
+    forEach(outcomes, ({ name, state, drive }) => {
+      it(`AC-17 leaves the route, the page and the history alone at ${name}`, async () => {
+        const push = vi.spyOn(router, "push");
+        const routerReplace = vi.spyOn(router, "replace");
+        const assign = vi.fn();
+        const replace = vi.fn();
+        vi.stubGlobal("location", {
+          hostname: window.location.hostname,
+          host: window.location.host,
+          origin: window.location.origin,
+          protocol: window.location.protocol,
+          href: window.location.href,
+          assign,
+          replace
+        });
+        const pushState = vi.spyOn(window.history, "pushState");
+        const replaceState = vi.spyOn(window.history, "replaceState");
+
+        const instance = landing();
+        await drive(instance);
+        await instance.useActions().isReady();
+
+        expect(instance.useContext().currentState.value).toBe(state);
+        expect(push).not.toHaveBeenCalled();
+        expect(routerReplace).not.toHaveBeenCalled();
+        expect(assign).not.toHaveBeenCalled();
+        expect(replace).not.toHaveBeenCalled();
+        expect(pushState).not.toHaveBeenCalled();
+        expect(replaceState).not.toHaveBeenCalled();
       });
-      const pushState = vi.spyOn(window.history, "pushState");
-      const replaceState = vi.spyOn(window.history, "replaceState");
-
-      serve("patch", VERIFY_ROUTE, RECORDING.hasPassword);
-      serve("post", GRANT_ROUTE, RECORDING.grantDirect);
-      overrideSelf(RECORDING.self);
-      const direct = landing();
-      await direct.useActions().verify(LINK);
-      await direct.useActions().isReady();
-      expect(direct.useMeta().isSuccess.value).toBe(true);
-      direct.useActions().destroy();
-
-      serve("patch", VERIFY_ROUTE, RECORDING.noPassword);
-      const form = landing();
-      await form.useActions().verify(LINK);
-      await form.useActions().isReady();
-      expect(form.useContext().currentState.value).toBe("needsPassword");
-      form.useActions().destroy();
-
-      serve("patch", VERIFY_ROUTE, RECORDING.invalidHash);
-      const refused = landing();
-      await refused.useActions().verify(LINK);
-      await refused.useActions().isReady();
-      expect(refused.useMeta().isExpiredOrInvalid.value).toBe(true);
-
-      expect(assign).not.toHaveBeenCalled();
-      expect(replace).not.toHaveBeenCalled();
-      expect(pushState).not.toHaveBeenCalled();
-      expect(replaceState).not.toHaveBeenCalled();
     });
   });
 
@@ -812,7 +890,7 @@ describe("registration landing, guest x self (recorded staging answers)", () => 
     });
 
     it("AC-19 keeps the signed-in client active when /self fails for the new token", async () => {
-      await seedSession("client-a-bearer", "client");
+      await seedSession("client-a-bearer", AccessRoleTypes.CLIENT);
       const self = getFixture(RECORDING.self, { recordingsDir }).response;
       server?.use(
         http.get("*/self", ({ request }) =>
@@ -852,16 +930,22 @@ describe("registration landing, guest x self (recorded staging answers)", () => 
   });
 
   describe("AC-21 a retry runs the link check again", () => {
-    it("AC-21 reports the invalid link again and sends nothing", async () => {
+    it("AC-21 publishes the invalid-link error again and sends nothing", async () => {
       const outbound = recordOutbound();
       const instance = landing();
       await instance.useActions().verify({ hash: "x" });
       await instance.useActions().isReady();
+      const refusal = instance.useContext().error.value;
+
       instance.useActions().reset();
       await instance.useActions().isReady();
 
       expect(instance.useContext().currentState.value).toBe("expiredOrInvalid");
-      expect(instance.useContext().error.value).toBeDefined();
+      expect(instance.useContext().error.value).not.toBe(refusal);
+      expect(instance.useContext().error.value).toMatchObject({
+        status: 400,
+        message: "error.session_verify_link_invalid"
+      });
       expect(await outbound()).toStrictEqual([]);
     });
 
@@ -938,6 +1022,30 @@ describe("registration landing, guest x self (recorded staging answers)", () => 
       expect(held.useMeta().isSuccess.value).toBe(true);
     });
   });
+  describe("committed recordings", () => {
+    const captures = [
+      RECORDING.noPassword,
+      RECORDING.hasPassword,
+      RECORDING.invalidHash,
+      RECORDING.grantRefused,
+      RECORDING.badBearer,
+      RECORDING.grantWithPassword,
+      RECORDING.grantDirect
+    ];
+
+    forEach(captures, capture => {
+      it(`holds the auth generator's staging capture ${capture}`, () => {
+        const file = join(recordingsDir, `${capture}.json`);
+
+        expect(existsSync(file)).toBe(true);
+        expect(JSON.parse(readFileSync(file, "utf-8"))).toMatchObject({
+          source: "case",
+          provenance: { case: "auth" }
+        });
+      });
+    });
+  });
+
   describe("D16 401 the house retry on a refused verify", () => {
     async function verifyRefused(): Promise<{
       verifies: Outbound[];
@@ -952,8 +1060,8 @@ describe("registration landing, guest x self (recorded staging answers)", () => 
     }
 
     it("D16 401 resends the staff bearer when a staff and a client token are held", async () => {
-      await seedSession("staff-bearer", "staff");
-      await seedSession("client-bearer", "client");
+      await seedSession("staff-bearer", AccessRoleTypes.STAFF);
+      await seedSession("client-bearer", AccessRoleTypes.CLIENT);
 
       const { verifies, instance } = await verifyRefused();
 
@@ -977,7 +1085,9 @@ describe("registration landing, guest x self (recorded staging answers)", () => 
 
       expect(verifies.length).toBeGreaterThan(1);
       expect(verifies[0].authorization).toBeNull();
-      expect(verifies[1].authorization).toBe("Bearer mock-access_token");
+      expect(verifies[1].authorization).toBe(
+        `Bearer ${grantBody(RECORDING.guestToken).access_token}`
+      );
       expect(instance.useMeta().isExpiredOrInvalid.value).toBe(true);
       expect(instance.useContext().error.value).toMatchObject({ status: 401 });
     });
@@ -1019,16 +1129,30 @@ const staffRecordings = join(
   "../../session-store/__tests__/fixtures"
 );
 
+const recordedToken = (actorType: AccessRoleTypes): IToken => {
+  if (actorType === AccessRoleTypes.STAFF) {
+    return getFixtureBody<IToken>("post-oauth-access-token-user", {
+      recordingsDir: staffRecordings
+    });
+  }
+  return getFixtureBody<IToken>(
+    actorType === AccessRoleTypes.GUEST
+      ? RECORDING.guestToken
+      : RECORDING.grantDirect,
+    { recordingsDir }
+  );
+};
+
 /**
- * Seeds a session whose token carries a distinct, readable bearer. The one
- * edited field of the recorded token is `access_token`, because every
- * recorded token is masked to the same text.
+ * Seeds a session whose token carries a distinct, readable bearer. The edited
+ * fields of the recorded token are `access_token`, because every recorded
+ * token is masked to the same text, and the `actor_id` of a signed-in actor.
  */
 async function seedSession(
   accessToken: string,
-  actorType: "client" | "staff"
+  actorType: AccessRoleTypes
 ): Promise<void> {
-  if (actorType === "staff") {
+  if (actorType === AccessRoleTypes.STAFF) {
     const adminSelf = getFixture("get-admin-self", {
       recordingsDir: staffRecordings
     }).response;
@@ -1040,22 +1164,22 @@ async function seedSession(
       )
     );
   }
-  const recorded =
-    actorType === "staff"
-      ? getFixture("post-oauth-access-token-user", {
-          recordingsDir: staffRecordings
-        }).response.body
-      : grantBody(RECORDING.grantDirect);
+  const recorded = recordedToken(actorType);
+  const isGuest = actorType === AccessRoleTypes.GUEST;
   await persistTokenToStorage({
     ...recorded,
-    actor_id: `${accessToken}-actor`,
+    actor_id: isGuest ? recorded.actor_id : `${accessToken}-actor`,
     access_token: accessToken
-  } as unknown as IToken);
+  });
   await vi.waitFor(() => {
-    const meta = useSessionStore().useMeta();
-    const held =
-      actorType === "client" ? meta.hasClientSession : meta.hasStaffSession;
-    if (!held.value) throw new Error("session still settling");
+    const store = useSessionStore();
+    const held = {
+      [AccessRoleTypes.GUEST]: () =>
+        store.useContext().guestSession.value?.access_token === accessToken,
+      [AccessRoleTypes.CLIENT]: () => store.useMeta().hasClientSession.value,
+      [AccessRoleTypes.STAFF]: () => store.useMeta().hasStaffSession.value
+    };
+    if (!held[actorType]()) throw new Error("session still settling");
   });
 }
 

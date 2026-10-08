@@ -6,7 +6,8 @@
  * Prove each transition of the landing machine and the data it keeps, with the
  * verify and the grant answered at the network edge: the missing-value guard,
  * the nil-answer handling, the set-password validation loop, the failure
- * routes and the retry.
+ * routes and the retry. The blocked-address 403 mapping is proven here,
+ * through the refused verify, and not in the rules spec.
  *
  * ## What Breaks If These Fail
  * A guest with a good link is sent to the wrong outcome, a bad password form is
@@ -104,8 +105,8 @@ describe("registration landing machine", () => {
     await instance.useActions().completeRegistration();
 
     expect(instance.useContext().currentState.value).toBe("needsPassword");
-    expect(instance.useContext().validationErrors.value.length).toBeGreaterThan(
-      0
+    expect(instance.useContext().validationErrors.value).toContainEqual(
+      expect.objectContaining({ instancePath: "/password" })
     );
     expect(grants).not.toHaveBeenCalled();
     server?.events.removeAllListeners("request:start");
@@ -191,7 +192,7 @@ describe("registration landing machine", () => {
       .verify({ username: "other@example.com", hash: "y" });
 
     expect(instance.useContext().currentState.value).toBe("needsPassword");
-    expect(instance.useContext().model.value.username).toBe(LINK.username);
+    expect(instance.useContext().model.value?.username).toBe(LINK.username);
   });
 
   it("ignores a completion outside the set-password step", async () => {

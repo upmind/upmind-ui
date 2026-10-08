@@ -34,14 +34,18 @@ Feature: Registration activation landing
   Background:
     Given an activation landing for my link
 
-  @FE-2984 @AC-1 @guest
+  # Blocker: the World cannot seed a staff or a client session and reads no
+  # request header. The AC-1 cases of the integration spec prove it.
+  @FE-2984 @AC-1 @guest @todo
   Scenario: The link is checked with my client session only
     Given I hold a staff session and a client session
     When the landing checks my link
     Then the link check goes out once with my username and my hash
     And it carries my client session and never my staff session
 
-  @FE-2984 @AC-2 @guest
+  # Blocker: the World reads no request body or header. The AC-2 case of the
+  # integration spec proves it.
+  @FE-2984 @AC-2 @guest @todo
   Scenario: An account that has a password is activated at once
     Given my account already has a password
     When the landing checks my link
@@ -81,7 +85,7 @@ Feature: Registration activation landing
     Given my account has no password
     When the landing checks my link
     Then the landing waits at the set-password step
-    And it offers the set-password form with my username filled in
+    And it offers the set-password form with my username as its username
     And no activation goes out
 
   @FE-2984 @AC-8 @guest
@@ -99,7 +103,9 @@ Feature: Registration activation landing
       | abcdefgh | abcdefgh     | password              | pattern   |
       | abcdefg1 | abcdefg2     | password confirmation | const     |
 
-  @FE-2984 @AC-9 @guest
+  # Blocker: the World reads no request body. The AC-9 case of the integration
+  # spec proves it.
+  @FE-2984 @AC-9 @guest @todo
   Scenario: A valid password activates the account
     Given the landing waits at the set-password step
     When I submit a valid password with an equal confirmation
@@ -114,7 +120,9 @@ Feature: Registration activation landing
     Then the landing reports the expired-or-invalid outcome with the invalid-link error
     And no activation goes out
 
-  @FE-2984 @AC-11 @guest
+  # Blocker: the World cannot set a brand setting or a cookie and reads no
+  # request body. The AC-11 cases of the integration spec prove it.
+  @FE-2984 @AC-11 @guest @todo
   Scenario: The analytics ids travel with the activation
     Given the brand has an analytics id
     And my browser holds the two analytics cookies
@@ -151,13 +159,17 @@ Feature: Registration activation landing
     Then the landing reports the completion failure with the API error
     And it does not report the expired-or-invalid outcome
 
-  @FE-2984 @AC-16 @guest
+  # Blocker: no staging capture reaches a blocked address, and the World cannot
+  # serve the one-field refusal. The AC-16 case of the integration spec proves it.
+  @FE-2984 @AC-16 @guest @todo
   Scenario: A blocked address keeps its API code
     Given the API refuses me because my IP address is blocked
     When the landing checks my link
     Then the reported error keeps the refusal status and the blocked-address code
 
-  @FE-2984 @AC-17 @guest
+  # Blocker: the World cannot watch the router, the location or the history.
+  # The AC-17 cases of the integration spec prove it.
+  @FE-2984 @AC-17 @guest @todo
   Scenario: The landing never moves me to another page
     Given my account already has a password
     When the landing checks my link

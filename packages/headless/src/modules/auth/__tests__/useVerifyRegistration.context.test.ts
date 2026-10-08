@@ -13,6 +13,7 @@
  */
 
 import { describe, expect, it, vi } from "vitest";
+import { getFixture } from "@upmind-automation/test-fixtures";
 import {
   GRANT_ROUTE,
   LINK,
@@ -21,12 +22,15 @@ import {
   landing,
   overrideSelf,
   reachSetPassword,
+  recordingsDir,
   serve,
   useLandingHarness
 } from "./useVerifyRegistration.kit";
-import { get, keys, sortBy } from "lodash-es";
+import { get, keys, sortBy, toLower } from "lodash-es";
 
 // -----------------------------------------------------------------------------
+
+const recorded = (key: string) => getFixture(key, { recordingsDir }).response;
 
 vi.mock("../../brand", () => ({
   useBrand: () => ({
@@ -54,13 +58,15 @@ describe("registration landing context", () => {
     const context = instance.useContext();
 
     expect(context.data.value).toMatchObject({ needsPassword: true });
-    expect(context.twoFAProvider.value).toBe("email");
+    expect(context.twoFAProvider.value).toBe(
+      toLower(get(recorded(RECORDING.noPassword).body, "data.twofa_provider"))
+    );
   });
 
   it("publishes the form model with the link username and the form schemas", async () => {
     const context = (await reachSetPassword()).useContext();
 
-    expect(context.model.value.username).toBe(LINK.username);
+    expect(context.model.value?.username).toBe(LINK.username);
     expect(sortBy(keys(get(context.schema.value, "properties")))).toStrictEqual(
       ["password", "password_confirmation", "username"]
     );
@@ -76,11 +82,9 @@ describe("registration landing context", () => {
 
     await instance.useActions().completeRegistration();
 
-    expect(instance.useContext().validationErrors.value).toHaveLength(1);
-    expect(instance.useContext().validationErrors.value[0]).toMatchObject({
-      instancePath: "/password_confirmation",
-      keyword: "const"
-    });
+    expect(instance.useContext().validationErrors.value).toMatchObject([
+      { instancePath: "/password_confirmation", keyword: "const" }
+    ]);
   });
 
   it("publishes the filtered redirect of the link", async () => {
@@ -100,7 +104,9 @@ describe("registration landing context", () => {
     await instance.useActions().verify(LINK);
     await instance.useActions().isReady();
 
-    expect(instance.useContext().error.value?.status).toBe(409);
+    expect(instance.useContext().error.value?.status).toBe(
+      recorded(RECORDING.invalidHash).status
+    );
   });
 
   it("publishes the session id of the activated account", async () => {
@@ -112,6 +118,8 @@ describe("registration landing context", () => {
     await instance.useActions().verify(LINK);
     await instance.useActions().isReady();
 
-    expect(instance.useContext().sessionId.value).toEqual(expect.any(String));
+    expect(instance.useContext().sessionId.value).toBe(
+      get(recorded(RECORDING.grantDirect).body, "actor_id")
+    );
   });
 });

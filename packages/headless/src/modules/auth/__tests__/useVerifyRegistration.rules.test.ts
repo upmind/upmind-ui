@@ -5,7 +5,9 @@
  * Pin the pure rules of the registration landing from their design tables: the
  * expiry verdict of every `expires` shape, the redirect filter over the attack
  * list, the verify mapper over its nil inputs and the two-factor input, and the
- * copy keys the landing reads from the i18n source.
+ * copy keys the landing reads from the i18n source. The blocked-address 403
+ * mapping is proven in the machine spec, and the analytics parse only by the
+ * three AC-11 cases of the integration spec.
  *
  * ## What Breaks If These Fail
  * A past link is shown as valid or a good link as expired, a guest is sent to

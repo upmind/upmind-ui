@@ -25,18 +25,18 @@ import { flushPromises, mount } from "@vue/test-utils";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { Suspense, defineComponent, h } from "vue";
 import { createMemoryHistory, createRouter } from "vue-router";
-import {
-  clearSessionCookies,
-  makeFixtureOverrides
-} from "../../../../../packages/headless/src/__tests__/int-test-helpers";
+import { useSessionStore } from "@upmind-automation/headless";
+import error from "@upmind-automation/i18n/core/error-en.json";
+import form from "@upmind-automation/i18n/core/form-en.json";
 import { getFixture } from "@upmind-automation/test-fixtures";
 import {
   overrideRoute,
   startReplayServer
 } from "@upmind-automation/test-fixtures/replay-server";
-import { useSessionStore } from "@upmind-automation/headless";
-import error from "@upmind-automation/i18n/core/error-en.json";
-import form from "@upmind-automation/i18n/core/form-en.json";
+import {
+  clearSessionCookies,
+  makeFixtureOverrides
+} from "../../../../../packages/headless/src/__tests__/int-test-helpers";
 import VerifyRegistrationPage from "../useVerifyRegistration/verify-registration.page.vue";
 import { get } from "lodash-es";
 import type { VueWrapper } from "@vue/test-utils";
@@ -365,18 +365,9 @@ describe("AC-25 the new texts render from the source", () => {
       `p${key("form-item-message")}[data-test-value="password-confirmation"]`
     );
 
-  it("AC-25 hands the landing's mismatch error to the confirmation field", async () => {
+  it("AC-25 shows the landing's mismatch text on the confirmation field after a submit", async () => {
     const wrapper = await openSetPasswordForm();
     expect(confirmationMessage(wrapper).exists()).toBe(false);
-
-    await fillPasswords(wrapper, "abcdefg1", "abcdefg2");
-    await submit(wrapper);
-
-    expect(confirmationMessage(wrapper).exists()).toBe(true);
-  });
-
-  it("AC-25 shows the mismatch text on the confirmation field", async () => {
-    const wrapper = await openSetPasswordForm();
 
     await fillPasswords(wrapper, "abcdefg1", "abcdefg2");
     await submit(wrapper);

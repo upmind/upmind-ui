@@ -5,29 +5,22 @@
  * `auth.feature`. Engine-free: it imports `defineSteps` and `World` and nothing
  * else, and speaks to the landing through the `World` members only.
  *
- * `World` reads no request. A step that names a wire fact is graded through
- * the state the wire decides, and each step below binds to the state that can
- * go red for the defect its text names:
+ * `World` reads no request, seeds no session and arms no recording. Each Then
+ * binds to the published state that turns red for the defect its text names:
  * - the new client session: `sessionId` equals the `actor_id` of the recorded
  *   grant;
  * - the API error: the published `error.status` equals the status of the
  *   recorded refusal the Given armed;
- * - no request: no verify answer was ever published (`twoFAProvider` is null);
- *   a request that went out and was refused also leaves it null, so the
- *   invalid-link step (the landing's own 400, not the recorded 409) is what
- *   turns that scenario red.
+ * - no request: no verify answer was ever published (`twoFAProvider` is null).
+ *   A refused request also leaves it null, so in the missing-hash scenario the
+ *   invalid-link Then (the landing's own 400) is the one that turns red.
  *
- * Three facts have no World-visible state: which bearer authorised the link
- * check (the replay never matches on `Authorization`, and the staff-session
- * Given seeds nothing), a route change, and the analytics ids in the grant
- * body. Those steps keep the planner's text and grade the outcome the landing
- * publishes (link check succeeded, success at rest, activated). Their
- * read-backs are the `AC-1` (staff-bearer), `AC-17` and `AC-11` cases of
- * `auth.verify-registration.guest.int.test.ts`.
- *
- * Several Givens arrange nothing ("my account already has a password", "the
- * API refuses my link", "the brand has an analytics id", ...): the recording
- * the World serves decides those states, not the Given.
+ * A Given that names an account state ("my account has no password") arranges
+ * nothing: the answer the World serves decides that state, and the scenario's
+ * Then asserts the outcome of that state, so a wrong answer turns it red. A
+ * scenario whose Then names a wire fact, a seeded session, a brand setting or
+ * a route change is `@todo` in the feature, with its blocker, and has no step
+ * here.
  */
 
 import { defineSteps } from "@upmind-automation/scenario-harness";
@@ -154,7 +147,6 @@ export const authSteps = defineSteps(({ Given, When, Then }) => {
     await boot(world);
   });
 
-  Given("I hold a staff session and a client session", () => undefined);
   Given("my account already has a password", () => undefined);
   Given("my account already has a password but no name", () => undefined);
   Given("my account has no password", () => undefined);
@@ -162,15 +154,12 @@ export const authSteps = defineSteps(({ Given, When, Then }) => {
     "my account has two-factor sign-in with the TOTP provider",
     () => undefined
   );
-  Given("the brand has an analytics id", () => undefined);
-  Given("my browser holds the two analytics cookies", () => undefined);
   Given("the API refuses my link", () => {
     refusedStatus = refusedLinkRecording.response.status;
   });
   Given("the API refuses the activation", () => {
     refusedStatus = refusedGrantRecording.response.status;
   });
-  Given("the API refuses me because my IP address is blocked", () => undefined);
 
   Given("my link expired in 2020", () => {
     link = { ...link, expires: EXPIRED_IN_2020 };
@@ -227,30 +216,6 @@ export const authSteps = defineSteps(({ Given, When, Then }) => {
     await world.fire(ACTIONS.destroy);
     await boot(world);
   });
-
-  Then("the link check goes out once with my username and my hash", world =>
-    settles(() => world.expectContext!({ model: { username: LINK_USERNAME } }))
-  );
-
-  Then("it carries my client session and never my staff session", world =>
-    settles(() =>
-      world.expectMeta({
-        isVerifying: false,
-        isExpiredOrInvalid: false,
-        hasErrors: false
-      })
-    )
-  );
-
-  Then(
-    "the activation goes out once with no password and no session",
-    activated
-  );
-
-  Then(
-    "the activation goes out once with my password and without the confirmation",
-    activated
-  );
 
   Then("the landing reaches the activated state", activated);
 
@@ -309,13 +274,15 @@ export const authSteps = defineSteps(({ Given, When, Then }) => {
     settledAt(world, "needsPassword")
   );
 
-  Then("it offers the set-password form with my username filled in", world =>
-    settles(() =>
-      world.expectContext!({
-        model: { username: LINK_USERNAME },
-        schema: { type: "object" }
-      })
-    )
+  Then(
+    "it offers the set-password form with my username as its username",
+    world =>
+      settles(() =>
+        world.expectContext!({
+          model: { username: LINK_USERNAME },
+          schema: { type: "object" }
+        })
+      )
   );
 
   Then("no activation goes out", world =>
@@ -375,20 +342,6 @@ export const authSteps = defineSteps(({ Given, When, Then }) => {
     world.expectMeta({ isExpiredOrInvalid: false })
   );
 
-  Then(
-    "the reported error keeps the refusal status and the blocked-address code",
-    world =>
-      settles(() =>
-        world.expectContext!({
-          error: { status: 403, apiCode: "ip_address_disallowed" }
-        })
-      )
-  );
-
-  Then("the activation carries my analytics client id and session id", world =>
-    activated(world)
-  );
-
   Then("the landing offers the return path {string}", (world, offered) =>
     settles(() =>
       offered === "none"
@@ -396,8 +349,6 @@ export const authSteps = defineSteps(({ Given, When, Then }) => {
         : world.expectContext!({ redirect: String(offered) })
     )
   );
-
-  Then("no route change happens", world => settledAt(world, "success"));
 
   Then("the consumer gets my signed-in user", world =>
     settles(async () => {

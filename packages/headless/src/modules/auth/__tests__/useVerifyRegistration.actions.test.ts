@@ -84,16 +84,22 @@ describe("registration landing actions", () => {
     expect(instance.useMeta().isSuccess.value).toBe(true);
   });
 
-  it("restarts the link check on reset after a failure", async () => {
+  it("restarts the link check on reset after a refused link", async () => {
+    serve("patch", VERIFY_ROUTE, RECORDING.invalidHash);
     const instance = landing();
-    await instance.useActions().verify({ hash: "x" });
+    await instance.useActions().verify(LINK);
     await instance.useActions().isReady();
+    const release = serveHeld("patch", VERIFY_ROUTE, RECORDING.invalidHash);
 
     instance.useActions().reset();
-    await instance.useActions().isReady();
 
+    await vi.waitFor(() =>
+      expect(instance.useMeta().isProcessing.value).toBe(true)
+    );
+    expect(instance.useMeta().isExpiredOrInvalid.value).toBe(false);
+    release();
+    await instance.useActions().isReady();
     expect(instance.useContext().currentState.value).toBe("expiredOrInvalid");
-    expect(instance.useContext().error.value).toBeDefined();
   });
 
   it("evicts the instance on destroy so the next call starts idle", async () => {
