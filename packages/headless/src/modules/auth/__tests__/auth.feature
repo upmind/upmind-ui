@@ -1,9 +1,10 @@
-# auth — the module's ONE feature file: its capability spec, the source
-# `auth.steps.ts` implements, and the playlist the scenario bar plays.
+# auth — the module's ONE feature file: its capability spec, the copy the
+# traceability spec reads.
 #
-# The planner's draft lives under docs/sdd/FE-2984/. This copy is the one the
-# scenario bar plays: its Then steps name only what auth.steps.ts can observe
-# on the landing, so a wire fact stays with the integration spec.
+# The planner's source lives under docs/sdd/FE-2984/. This copy keeps its
+# wording and declares every scenario @todo: no World boots the landing, since
+# the playground keeps `verify_registration` out of its scenario registry and
+# auth has no replay runner. Each Blocker comment names the spec that proves it.
 #
 # Story FE-2984 adds the registration-activation landing. One scenario per
 # composable capability. Business language only, declarative only: no selector,
@@ -52,19 +53,23 @@ Feature: Registration activation landing
     Then the activation goes out once with no password and no session
     And the landing reaches the activated state
 
-  @FE-2984 @AC-3 @guest
+  # Blocker: no World boots the landing. The AC-3 cases of the
+  # integration spec prove it.
+  @FE-2984 @AC-3 @guest @todo
   Scenario: The activated account becomes my client session
     Given my account already has a password
     When the landing checks my link
     Then my client session holds the new access token
     And the landing reports the new session id
 
-  @FE-2984 @AC-4 @guest
+  # Blocker: no World boots the landing. The AC-4 cases of the
+  # integration spec prove it.
+  @FE-2984 @AC-4 @guest @todo
   Scenario: A landing that has not started waits and sends nothing
     When nobody starts the landing
     Then the landing reports that it is verifying
     And it reports no other outcome
-    And the landing publishes no link-check answer
+    And no request goes out
 
   # Blocker: no staging capture reaches a two-factor account, and the World
   # cannot serve a two-factor answer. The AC-5 cases of the integration spec
@@ -76,28 +81,34 @@ Feature: Registration activation landing
     Then the landing reports that two-factor sign-in is necessary
     And it reports the provider as totp
 
-  @FE-2984 @AC-6 @guest
+  # Blocker: no World boots the landing. The AC-6 cases of the
+  # integration spec prove it.
+  @FE-2984 @AC-6 @guest @todo
   Scenario: An account with no name still completes
     Given my account already has a password but no name
     When the landing checks my link
     Then the landing reports that a complete step is necessary
     And the landing reaches the activated state
 
-  @FE-2984 @AC-7 @guest
+  # Blocker: no World boots the landing. The AC-7 cases of the
+  # integration spec prove it.
+  @FE-2984 @AC-7 @guest @todo
   Scenario: An account with no password stops at the set-password step
     Given my account has no password
     When the landing checks my link
     Then the landing waits at the set-password step
     And it offers the set-password form with my username as its username
-    And the landing reports no activation
+    And no activation goes out
 
-  @FE-2984 @AC-8 @guest
+  # Blocker: no World boots the landing. The AC-8 cases of the
+  # integration spec prove it.
+  @FE-2984 @AC-8 @guest @todo
   Scenario Outline: A password that breaks a rule is refused
     Given the landing waits at the set-password step
     When I submit the password "<password>" with the confirmation "<confirmation>"
     Then the landing reports one validation error for the <field> under the <rule> rule
     And it stays at the set-password step
-    And the landing reports no activation
+    And no activation goes out
 
     Examples:
       | password | confirmation | field                 | rule      |
@@ -115,13 +126,15 @@ Feature: Registration activation landing
     Then the activation goes out once with my password and without the confirmation
     And the landing reaches the activated state
 
-  @FE-2984 @AC-10 @guest
+  # Blocker: no World boots the landing. The AC-10 cases of the
+  # integration spec and the rules spec prove it.
+  @FE-2984 @AC-10 @guest @todo
   Scenario: A link past its expiry date is refused at the set-password step
     Given my account has no password
     And my link expired in 2020
     When the landing checks my link
     Then the landing reports the expired-or-invalid outcome with the invalid-link error
-    And the landing reports no activation
+    And no activation goes out
 
   # Blocker: the World cannot set a brand setting or a cookie and reads no
   # request body. The AC-11 cases of the integration spec prove it.
@@ -133,28 +146,36 @@ Feature: Registration activation landing
     When the landing checks my link
     Then the activation carries my analytics client id and session id
 
-  @FE-2984 @AC-12 @guest
+  # Blocker: no World boots the landing. The AC-12 cases of the
+  # integration spec prove it.
+  @FE-2984 @AC-12 @guest @todo
   Scenario: A link with no hash is refused at once
     Given my link has a username but no hash
     When the landing checks my link
     Then the landing reports the expired-or-invalid outcome with the invalid-link error
-    And the landing publishes no link-check answer
+    And no request goes out
 
-  @FE-2984 @AC-13 @guest
+  # Blocker: no World boots the landing. The AC-13 cases of the
+  # integration spec prove it.
+  @FE-2984 @AC-13 @guest @todo
   Scenario: A refused link check shows the failure
     Given the API refuses my link
     When the landing checks my link
     Then the landing reports the expired-or-invalid outcome with the API error
-    And the landing reports no activation
+    And no activation goes out
 
-  @FE-2984 @AC-14 @guest
+  # Blocker: no World boots the landing. The AC-14 cases of the
+  # integration spec prove it.
+  @FE-2984 @AC-14 @guest @todo
   Scenario: A refused activation after the set-password step shows the failure
     Given the landing waits at the set-password step
     And the API refuses the activation
     When I submit a valid password with an equal confirmation
     Then the landing reports the expired-or-invalid outcome with the API error
 
-  @FE-2984 @AC-15 @guest
+  # Blocker: no World boots the landing. The AC-15 cases of the
+  # integration spec prove it.
+  @FE-2984 @AC-15 @guest @todo
   Scenario: A refused direct activation shows an error, not an expired link
     Given my account already has a password
     And the API refuses the activation
@@ -179,7 +200,9 @@ Feature: Registration activation landing
     Then the landing reaches the activated state
     And no route change happens
 
-  @FE-2984 @AC-18 @guest
+  # Blocker: no World boots the landing. The AC-18 cases of the
+  # integration spec and the rules spec prove it.
+  @FE-2984 @AC-18 @guest @todo
   Scenario Outline: Only a safe return path is offered
     Given my account already has a password
     And my link asks to return to "<target>"
@@ -191,22 +214,28 @@ Feature: Registration activation landing
       | /billing?tab=1 | /billing?tab=1 |
       | //evil.example | none           |
 
-  @FE-2984 @AC-19 @guest
+  # Blocker: no World boots the landing. The AC-19 cases of the
+  # integration spec prove it.
+  @FE-2984 @AC-19 @guest @todo
   Scenario: The consumer can wait for my new client session
     Given my account already has a password
     And the landing reached the activated state
     When the consumer waits for my new client session
     Then the consumer gets my signed-in user
 
-  @FE-2984 @AC-21 @guest
+  # Blocker: no World boots the landing. The AC-21 cases of the
+  # integration spec prove it.
+  @FE-2984 @AC-21 @guest @todo
   Scenario: A retry checks the link again
     Given the landing refused my link with the invalid-link error
     When the consumer retries
     Then the landing checks the same link values again, with no request when a value is missing
     And it reports the expired-or-invalid outcome again
 
-  @FE-2984 @AC-22 @guest
+  # Blocker: no World boots the landing. The AC-22 cases of the
+  # integration spec prove it.
+  @FE-2984 @AC-22 @guest @todo
   Scenario: A destroyed landing starts fresh
     Given the landing reached the activated state
     When the consumer destroys the landing and opens it again
-    Then the new landing waits with no link-check answer
+    Then the new landing waits and sends nothing

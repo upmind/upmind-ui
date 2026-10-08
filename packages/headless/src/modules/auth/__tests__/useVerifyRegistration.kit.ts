@@ -4,13 +4,11 @@
  * @description Shared scaffolding of the registration-landing layer specs: the
  * replay server of the auth recordings, served answers for the verify and the
  * grant, a gate that holds an answer, and the per-test reset of the landing
- * instances and the session store. Holds no assertion.
+ * instances, the session store and the request listeners. Holds no assertion.
  */
 
-import { join } from "node:path";
 import { http, HttpResponse } from "msw";
 import { afterEach, beforeEach, vi } from "vitest";
-import { getFixture } from "@upmind-automation/test-fixtures";
 import {
   clearSessionCookies,
   makeFixtureOverrides
@@ -19,36 +17,26 @@ import { ScopeActorTypes } from "../../scope";
 import { useSessionStore } from "../../session-store";
 import { useVerifyRegistration } from "../useVerifyRegistration";
 import { server } from "./setup.integration";
+import {
+  GRANT_ROUTE,
+  LINK,
+  RECORDING,
+  VALID_PASSWORD,
+  VERIFY_ROUTE,
+  makeLandingAnswers,
+  recordingsDir
+} from "./useVerifyRegistration.recordings";
 import { forEach, includes } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 
-export const recordingsDir = join(import.meta.dirname, "fixtures");
-
-export const VERIFY_ROUTE = "*/api/clients/reg_hash/verify";
-export const GRANT_ROUTE = "*/oauth/access_token";
-
-export const RECORDING = {
-  noPassword: "patch-clients-reg-hash-verify-case-no-password",
-  hasPassword: "patch-clients-reg-hash-verify-case-has-password",
-  invalidHash: "patch-clients-reg-hash-verify-case-invalid-hash",
-  grantRefused: "post-oauth-access-token-case-complete-refused",
-  grantWithPassword:
-    "post-oauth-access-token-case-complete-with-password-client",
-  grantDirect: "post-oauth-access-token-case-complete-direct-client",
-  badBearer: "patch-clients-reg-hash-verify-case-bad-bearer",
-  guestToken: "post-oauth-access-token-guest",
-  self: "get-self"
-} as const;
-
-export const LINK = {
-  username: "link-user@example.com",
-  hash: "link-hash-value"
-};
-
-export const VALID_PASSWORD = {
-  password: "abcdefg1",
-  password_confirmation: "abcdefg1"
+export {
+  GRANT_ROUTE,
+  LINK,
+  RECORDING,
+  VALID_PASSWORD,
+  VERIFY_ROUTE,
+  recordingsDir
 };
 
 export { server };
@@ -64,24 +52,7 @@ const { overrideToken, overrideSelf } = makeFixtureOverrides(
 
 export { overrideSelf, overrideToken };
 
-/**
- * Serves a recording's recorded status and body on `route`, optionally with
- * one documented field of the body edited.
- */
-export function serve(
-  method: "patch" | "post",
-  route: string,
-  key: string,
-  edit?: (body: Record<string, unknown>) => Record<string, unknown>
-): void {
-  const { response } = getFixture(key, { recordingsDir });
-  const body = response.body as Record<string, unknown>;
-  server?.use(
-    http[method](route, () =>
-      HttpResponse.json(edit ? edit(body) : body, { status: response.status })
-    )
-  );
-}
+export const { serve, serveHeld } = makeLandingAnswers(server);
 
 /** Serves a control answer with a status and an optional JSON body. */
 export function serveControl(
@@ -97,32 +68,6 @@ export function serveControl(
         : HttpResponse.json(body as Record<string, unknown>, { status })
     )
   );
-}
-
-/**
- * Serves a recording on `route` only after the returned release is called.
- *
- * @returns The function that lets the held answer go.
- */
-export function serveHeld(
-  method: "patch" | "post",
-  route: string,
-  key: string
-): () => void {
-  const { response } = getFixture(key, { recordingsDir });
-  let release: () => void = () => undefined;
-  const gate = new Promise<void>(resolve => {
-    release = resolve;
-  });
-  server?.use(
-    http[method](route, async () => {
-      await gate;
-      return HttpResponse.json(response.body as Record<string, unknown>, {
-        status: response.status
-      });
-    })
-  );
-  return release;
 }
 
 export function landing(): Landing {
@@ -170,6 +115,8 @@ export function useLandingHarness(): void {
   });
 
   afterEach(async () => {
+    server?.events.removeAllListeners("request:start");
+    server?.events.removeAllListeners("response:mocked");
     await vi.waitFor(() => {
       if (
         includes(document.cookie, "upm_client_session=") !==

@@ -59,8 +59,6 @@ const isGrant = (request: Request): boolean =>
 
 beforeEach(() => {
   Reflect.deleteProperty(window, "dataLayer");
-  server?.events.removeAllListeners("request:start");
-  server?.events.removeAllListeners("response:mocked");
 });
 
 /**

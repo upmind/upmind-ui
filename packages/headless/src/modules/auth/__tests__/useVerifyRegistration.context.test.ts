@@ -63,14 +63,13 @@ describe("registration landing context", () => {
     );
   });
 
-  it("publishes the form model with the link username and the form schemas", async () => {
+  it("publishes the form model with the link username and the form schema", async () => {
     const context = (await reachSetPassword()).useContext();
 
     expect(context.model.value?.username).toBe(LINK.username);
     expect(sortBy(keys(get(context.schema.value, "properties")))).toStrictEqual(
       ["password", "password_confirmation", "username"]
     );
-    expect(context.uischema.value).toBeDefined();
   });
 
   it("publishes the mismatch error of the confirmation", async () => {

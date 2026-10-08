@@ -93,7 +93,6 @@ describe("registration landing meta flags", () => {
     });
     release();
     await instance.useActions().isReady();
-    server?.events.removeAllListeners("request:start");
   });
 
   it("reads the password need at the set-password step", async () => {

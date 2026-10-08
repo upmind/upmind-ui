@@ -20,51 +20,32 @@
  * faked, so the replay server and the query layer keep real time.
  */
 
-import { join } from "node:path";
-import { flushPromises, mount } from "@vue/test-utils";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { Suspense, defineComponent, h } from "vue";
-import { createMemoryHistory, createRouter } from "vue-router";
-import { useSessionStore } from "@upmind-automation/headless";
+import { flushPromises } from "@vue/test-utils";
+import { describe, expect, it, vi } from "vitest";
 import error from "@upmind-automation/i18n/core/error-en.json";
 import form from "@upmind-automation/i18n/core/form-en.json";
 import { getFixture } from "@upmind-automation/test-fixtures";
 import {
-  overrideRoute,
-  startReplayServer
-} from "@upmind-automation/test-fixtures/replay-server";
-import {
-  clearSessionCookies,
-  makeFixtureOverrides
-} from "../../../../../packages/headless/src/__tests__/int-test-helpers";
-import VerifyRegistrationPage from "../useVerifyRegistration/verify-registration.page.vue";
+  GRANT_ROUTE,
+  LINK,
+  RECORDING,
+  VALID_PASSWORD,
+  VERIFY_ROUTE,
+  key,
+  mountPage,
+  overrideSelf,
+  recordingsDir,
+  serve,
+  server,
+  start,
+  usePageHarness
+} from "./verify-registration.page.kit";
 import { get } from "lodash-es";
+import type { Mounted } from "./verify-registration.page.kit";
 import type { VueWrapper } from "@vue/test-utils";
 import type { LocationQueryRaw } from "vue-router";
 
 // -----------------------------------------------------------------------------
-
-const recordingsDir = join(
-  import.meta.dirname,
-  "../../../../../packages/headless/src/modules/auth/__tests__/fixtures"
-);
-
-const VERIFY_ROUTE = "*/api/clients/reg_hash/verify";
-const GRANT_ROUTE = "*/oauth/access_token";
-const START_DELAY_MS = 1000;
-
-const RECORDING = {
-  noPassword: "patch-clients-reg-hash-verify-case-no-password",
-  invalidHash: "patch-clients-reg-hash-verify-case-invalid-hash",
-  grantRefused: "post-oauth-access-token-case-complete-refused",
-  grantWithPassword:
-    "post-oauth-access-token-case-complete-with-password-client",
-  hasPassword: "patch-clients-reg-hash-verify-case-has-password",
-  grantDirect: "post-oauth-access-token-case-complete-direct-client",
-  self: "get-self"
-} as const;
-
-const LINK = { username: "link-user@example.com", hash: "link-hash-value" };
 
 vi.mock("../../../../../packages/headless/src/modules/brand", () => ({
   useBrand: () => ({
@@ -73,78 +54,7 @@ vi.mock("../../../../../packages/headless/src/modules/brand", () => ({
   })
 }));
 
-const server = startReplayServer({ recordingsDir });
-const { overrideToken, overrideSelf } = makeFixtureOverrides(
-  server,
-  recordingsDir
-);
-
-const NuxtLinkStub = defineComponent({
-  props: { to: { type: String, required: true } },
-  setup:
-    (props, { slots }) =>
-    () =>
-      h("a", { href: props.to }, slots.default?.())
-});
-
-type Mounted = {
-  wrapper: VueWrapper;
-  router: ReturnType<typeof createRouter>;
-};
-
-const key = (id: string) => `[data-test-key="${id}"]`;
-
-function serve(
-  method: "patch" | "post",
-  route: string,
-  recording: string,
-  edit?: (body: Record<string, unknown>) => Record<string, unknown>
-): void {
-  const { response } = getFixture(recording, { recordingsDir });
-  const body = response.body as Record<string, unknown>;
-  overrideRoute(
-    server,
-    method,
-    route,
-    edit ? edit(body) : body,
-    response.status
-  );
-}
-
-/** Mounts the page at `query`, under the Suspense its top-level await needs. */
-async function mountPage(query: LocationQueryRaw): Promise<Mounted> {
-  const router = createRouter({
-    history: createMemoryHistory(),
-    routes: [{ path: "/", component: { render: () => null } }]
-  });
-  await router.push({ path: "/", query });
-  await router.isReady();
-  vi.stubGlobal("navigateTo", (to: string) => router.push(to));
-
-  const wrapper = mount(
-    defineComponent({
-      render: () =>
-        h(Suspense, null, { default: () => h(VerifyRegistrationPage) })
-    }),
-    {
-      attachTo: document.body,
-      global: { plugins: [router], components: { NuxtLink: NuxtLinkStub } }
-    }
-  );
-  await vi.waitFor(() => {
-    if (!wrapper.find(key("verify-registration-start")).exists()) {
-      throw new Error("page still suspended");
-    }
-  });
-  return { wrapper, router };
-}
-
-/** Presses start, runs the page's own delay, and lets the landing settle. */
-async function start(wrapper: VueWrapper): Promise<void> {
-  await wrapper.find(key("verify-registration-start")).trigger("click");
-  vi.advanceTimersByTime(START_DELAY_MS);
-  await flushPromises();
-}
+usePageHarness();
 
 function recordPaths(): () => string[] {
   const paths: string[] = [];
@@ -157,32 +67,9 @@ function recordPaths(): () => string[] {
 const present = (wrapper: VueWrapper, id: string): boolean =>
   wrapper.find(key(id)).exists();
 
-let mounted: Mounted | undefined;
-
-beforeEach(async () => {
-  vi.useFakeTimers({
-    toFake: ["setTimeout", "clearTimeout"],
-    shouldAdvanceTime: true
-  });
-  clearSessionCookies();
-  sessionStorage.clear();
-  overrideToken("post-oauth-access-token-guest");
-  useSessionStore().useActions().clear();
-  await useSessionStore().useActions().isReady();
-});
-
-afterEach(() => {
-  mounted?.wrapper.unmount();
-  mounted = undefined;
-  server?.events.removeAllListeners("request:start");
-  vi.unstubAllGlobals();
-  vi.useRealTimers();
-});
-
 // -----------------------------------------------------------------------------
 
 const EXPIRED_LINK_DATE = "2020-01-01T10:00:00Z";
-const VALID_PASSWORD = "abcdefg1";
 
 const selfName = (): string =>
   get(
@@ -215,15 +102,15 @@ async function openSetPasswordForm(
   query: LocationQueryRaw = LINK
 ): Promise<VueWrapper> {
   serve("patch", VERIFY_ROUTE, RECORDING.noPassword);
-  mounted = await mountPage(query);
-  await start(mounted.wrapper);
-  return mounted.wrapper;
+  const { wrapper } = await mountPage(query);
+  await start(wrapper);
+  return wrapper;
 }
 
 describe("AC-20 the labs page renders each outcome and owns its links", () => {
   it("AC-20 shows the expired panel and a dashboard link, with no request and no form, for a link with no hash", async () => {
     const paths = recordPaths();
-    mounted = await mountPage({ username: LINK.username });
+    const mounted = await mountPage({ username: LINK.username });
 
     await start(mounted.wrapper);
 
@@ -239,7 +126,7 @@ describe("AC-20 the labs page renders each outcome and owns its links", () => {
 
   it("AC-20 shows the expired panel and no form for a link the API refuses", async () => {
     serve("patch", VERIFY_ROUTE, RECORDING.invalidHash);
-    mounted = await mountPage(LINK);
+    const mounted = await mountPage(LINK);
 
     await start(mounted.wrapper);
 
@@ -269,7 +156,11 @@ describe("AC-20 the labs page renders each outcome and owns its links", () => {
     const wrapper = await openSetPasswordForm();
     serve("post", GRANT_ROUTE, RECORDING.grantRefused);
 
-    await fillPasswords(wrapper, VALID_PASSWORD, VALID_PASSWORD);
+    await fillPasswords(
+      wrapper,
+      VALID_PASSWORD.password,
+      VALID_PASSWORD.password_confirmation
+    );
     await submit(wrapper);
 
     expect(present(wrapper, "verify-registration-expired")).toBe(true);
@@ -281,10 +172,10 @@ describe("AC-20 the labs page renders each outcome and owns its links", () => {
       serve("patch", VERIFY_ROUTE, RECORDING.hasPassword);
       serve("post", GRANT_ROUTE, RECORDING.grantDirect);
       overrideSelf(RECORDING.self);
-      mounted = await mountPage(query);
+      const mounted = await mountPage(query);
       await start(mounted.wrapper);
       await vi.waitFor(() => {
-        if (!mounted?.wrapper.text().includes(selfName())) {
+        if (!mounted.wrapper.text().includes(selfName())) {
           throw new Error("the signed-in user has not shown yet");
         }
       });
@@ -378,7 +269,7 @@ describe("AC-25 the new texts render from the source", () => {
   });
 
   it("AC-25 shows the invalid-link text on the expired panel", async () => {
-    mounted = await mountPage({ username: LINK.username });
+    const mounted = await mountPage({ username: LINK.username });
 
     await start(mounted.wrapper);
 

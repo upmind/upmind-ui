@@ -113,7 +113,6 @@ describe("registration landing machine", () => {
       expect.objectContaining({ instancePath: "/password" })
     );
     expect(grants).not.toHaveBeenCalled();
-    server?.events.removeAllListeners("request:start");
   });
 
   it("clears the validation errors once a valid model is completed", async () => {

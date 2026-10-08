@@ -18,49 +18,33 @@
  * Only `setTimeout` is faked, so the replay server keeps real time.
  */
 
-import { join } from "node:path";
-import { flushPromises, mount } from "@vue/test-utils";
+import { flushPromises } from "@vue/test-utils";
 import { http, HttpResponse } from "msw";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { Suspense, defineComponent, h } from "vue";
-import { createMemoryHistory, createRouter } from "vue-router";
+import { describe, expect, it, vi } from "vitest";
 import { useSessionStore } from "@upmind-automation/headless";
 import labs from "@upmind-automation/i18n/modules/labs-en.json";
 import { getFixture, getFixtureBody } from "@upmind-automation/test-fixtures";
-import {
-  overrideRoute,
-  startReplayServer
-} from "@upmind-automation/test-fixtures/replay-server";
-import {
-  clearSessionCookies,
-  makeFixtureOverrides
-} from "../../../../../packages/headless/src/__tests__/int-test-helpers";
 import { persistTokenToStorage } from "../../../../../packages/headless/src/modules/session-store";
-import VerifyRegistrationPage from "../useVerifyRegistration/verify-registration.page.vue";
-import type { VueWrapper } from "@vue/test-utils";
+import {
+  GRANT_ROUTE,
+  RECORDING,
+  VERIFY_ROUTE,
+  key,
+  mountPage,
+  recordingsDir,
+  serve,
+  serveHeld,
+  server,
+  start,
+  usePageHarness
+} from "./verify-registration.page.kit";
 import type { IToken } from "@upmind-automation/types";
+import type { VueWrapper } from "@vue/test-utils";
 
 // -----------------------------------------------------------------------------
 
-const recordingsDir = join(
-  import.meta.dirname,
-  "../../../../../packages/headless/src/modules/auth/__tests__/fixtures"
-);
-
-const VERIFY_ROUTE = "*/api/clients/reg_hash/verify";
-const GRANT_ROUTE = "*/oauth/access_token";
-const START_DELAY_MS = 1000;
 const SESSION_SWITCH_TIMEOUT_MS = 10000;
 const OTHER_CLIENT_BEARER = "client-a-bearer";
-
-const RECORDING = {
-  noPassword: "patch-clients-reg-hash-verify-case-no-password",
-  hasPassword: "patch-clients-reg-hash-verify-case-has-password",
-  grantDirect: "post-oauth-access-token-case-complete-direct-client",
-  self: "get-self"
-} as const;
-
-const LINK = { username: "link-user@example.com", hash: "link-hash-value" };
 
 vi.mock("../../../../../packages/headless/src/modules/brand", () => ({
   useBrand: () => ({
@@ -69,129 +53,27 @@ vi.mock("../../../../../packages/headless/src/modules/brand", () => ({
   })
 }));
 
-const server = startReplayServer({ recordingsDir });
-const { overrideToken } = makeFixtureOverrides(server, recordingsDir);
-
-const NuxtLinkStub = defineComponent({
-  props: { to: { type: String, required: true } },
-  setup:
-    (props, { slots }) =>
-    () =>
-      h("a", { href: props.to }, slots.default?.())
-});
-
-const key = (id: string) => `[data-test-key="${id}"]`;
-
-function serve(
-  method: "patch" | "post",
-  route: string,
-  recording: string
-): void {
-  const { response } = getFixture(recording, { recordingsDir });
-  overrideRoute(
-    server,
-    method,
-    route,
-    response.body as Record<string, unknown>,
-    response.status
-  );
-}
-
-/** Serves a recording on `route` only after the returned release is called. */
-function serveHeld(route: string, recording: string): () => void {
-  const { response } = getFixture(recording, { recordingsDir });
-  let release: () => void = () => undefined;
-  const gate = new Promise<void>(resolve => {
-    release = resolve;
-  });
-  server?.use(
-    http.patch(route, async () => {
-      await gate;
-      return HttpResponse.json(response.body as Record<string, unknown>, {
-        status: response.status
-      });
-    })
-  );
-  return release;
-}
-
-async function mountPage(): Promise<VueWrapper> {
-  const router = createRouter({
-    history: createMemoryHistory(),
-    routes: [{ path: "/", component: { render: () => null } }]
-  });
-  await router.push({ path: "/", query: LINK });
-  await router.isReady();
-  vi.stubGlobal("navigateTo", (to: string) => router.push(to));
-
-  const wrapper = mount(
-    defineComponent({
-      render: () =>
-        h(Suspense, null, { default: () => h(VerifyRegistrationPage) })
-    }),
-    {
-      attachTo: document.body,
-      global: { plugins: [router], components: { NuxtLink: NuxtLinkStub } }
-    }
-  );
-  await vi.waitFor(() => {
-    if (!wrapper.find(key("verify-registration-start")).exists()) {
-      throw new Error("page still suspended");
-    }
-  });
-  return wrapper;
-}
-
-async function start(wrapper: VueWrapper): Promise<void> {
-  await wrapper.find(key("verify-registration-start")).trigger("click");
-  vi.advanceTimersByTime(START_DELAY_MS);
-  await flushPromises();
-}
+usePageHarness();
 
 const retryButton = (wrapper: VueWrapper) =>
   wrapper.find(key("verify-registration-retry"));
-
-let mounted: VueWrapper | undefined;
-
-beforeEach(async () => {
-  vi.useFakeTimers({
-    toFake: ["setTimeout", "clearTimeout"],
-    shouldAdvanceTime: true
-  });
-  clearSessionCookies();
-  sessionStorage.clear();
-  overrideToken("post-oauth-access-token-guest");
-  useSessionStore().useActions().clear();
-  await useSessionStore().useActions().isReady();
-});
-
-afterEach(() => {
-  mounted?.unmount();
-  mounted = undefined;
-  vi.unstubAllGlobals();
-  vi.useRealTimers();
-});
 
 // -----------------------------------------------------------------------------
 
 describe("the retry control", () => {
   it("is disabled while the link check is in flight and enabled once it settles", async () => {
-    const release = serveHeld(VERIFY_ROUTE, RECORDING.noPassword);
-    mounted = await mountPage();
+    const release = serveHeld("patch", VERIFY_ROUTE, RECORDING.noPassword);
+    const { wrapper: mounted } = await mountPage();
     expect(retryButton(mounted).attributes("disabled")).toBeUndefined();
 
     await start(mounted);
 
     await vi.waitFor(() => {
-      expect(retryButton(mounted as VueWrapper).attributes("disabled")).toBe(
-        ""
-      );
+      expect(retryButton(mounted).attributes("disabled")).toBe("");
     });
     release();
     await vi.waitFor(() => {
-      expect(
-        (mounted as VueWrapper).find(key("verify-registration-form")).exists()
-      ).toBe(true);
+      expect(mounted.find(key("verify-registration-form")).exists()).toBe(true);
     });
     expect(retryButton(mounted).attributes("disabled")).toBeUndefined();
   });
@@ -202,26 +84,22 @@ describe("the start control", () => {
     wrapper.find(key("verify-registration-start"));
 
   it("is enabled before the first start and disabled once the landing leaves idle, through Try again", async () => {
-    const release = serveHeld(VERIFY_ROUTE, RECORDING.noPassword);
-    mounted = await mountPage();
+    const release = serveHeld("patch", VERIFY_ROUTE, RECORDING.noPassword);
+    const { wrapper: mounted } = await mountPage();
     expect(startButton(mounted).attributes("disabled")).toBeUndefined();
 
     await start(mounted);
     expect(startButton(mounted).attributes("disabled")).toBe("");
     release();
     await vi.waitFor(() => {
-      expect(
-        (mounted as VueWrapper).find(key("verify-registration-form")).exists()
-      ).toBe(true);
+      expect(mounted.find(key("verify-registration-form")).exists()).toBe(true);
     });
     expect(startButton(mounted).attributes("disabled")).toBe("");
 
     await retryButton(mounted).trigger("click");
     await flushPromises();
     await vi.waitFor(() => {
-      expect(
-        (mounted as VueWrapper).find(key("verify-registration-form")).exists()
-      ).toBe(true);
+      expect(mounted.find(key("verify-registration-form")).exists()).toBe(true);
     });
     expect(startButton(mounted).attributes("disabled")).toBe("");
   });
@@ -254,15 +132,11 @@ describe("the bounded wait for the new session", () => {
     );
     serve("patch", VERIFY_ROUTE, RECORDING.hasPassword);
     serve("post", GRANT_ROUTE, RECORDING.grantDirect);
-    mounted = await mountPage();
+    const { wrapper: mounted } = await mountPage();
 
     await start(mounted);
     await vi.waitFor(() => {
-      if (
-        !(mounted as VueWrapper)
-          .find(key("verify-registration-success"))
-          .exists()
-      ) {
+      if (!mounted.find(key("verify-registration-success")).exists()) {
         throw new Error("the landing has not reached success");
       }
     });

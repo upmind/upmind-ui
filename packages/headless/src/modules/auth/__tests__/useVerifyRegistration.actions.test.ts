@@ -57,7 +57,6 @@ describe("registration landing actions", () => {
     await expect(Promise.all(bodies)).resolves.toStrictEqual([
       { username: LINK.username, reg_hash: LINK.hash }
     ]);
-    server?.events.removeAllListeners("request:start");
   });
 
   it("merges each set call into the model and keeps the other fields", async () => {
@@ -136,6 +135,5 @@ describe("registration landing actions", () => {
     release();
     await vi.waitFor(() => expect(settled).toBe(true));
     expect(instance.useContext().currentState.value).toBe("needsPassword");
-    server?.events.removeAllListeners("request:start");
   });
 });

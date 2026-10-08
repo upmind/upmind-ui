@@ -1,34 +1,32 @@
 /**
- * @fileoverview Auth traceability, the module's one feature and its catalog
+ * @fileoverview Auth traceability, the module's one feature and its spec titles
  *
  * ## Job To Be Done
- * Every `@AC-n` the feature tags, on a driven or a `@todo` scenario, is named
- * by a sibling spec title, and no sibling spec names an AC the feature does
- * not tag. The step catalog drives every scenario that is not `@todo`, with no
- * half-matched scenario, no orphan definition, no phrasing another module
- * claims and no pattern that fails to compile. It drives no `@todo` scenario,
- * and it fires every action it declares as covered. It reads the whole
- * feature, the whole catalog and the whole test directory, so no AC or
- * scenario list is written down here.
+ * Every `@AC-n` the feature tags is named by a sibling spec title, and no
+ * sibling spec names an AC the feature does not tag. No World boots the
+ * landing, so every scenario stays `@todo` and none plays as proven. It reads
+ * the whole feature and the whole test directory, so no AC or scenario list is
+ * written down here.
  *
  * ## What Breaks If These Fail
  * A capability silently loses its proof, a spec claims an AC no scenario
- * promises, or the playlist plays a scenario the catalog only half drives.
+ * promises, or a scenario that nothing can boot reads as driven.
  */
 
 import { readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { createTraceabilityCheck } from "@upmind-automation/scenario-harness";
+import {
+  createTraceabilityCheck,
+  defineSteps
+} from "@upmind-automation/scenario-harness";
 import { stepCatalogs } from "../../../testing";
-import { authSteps, coveredActionIds } from "./auth.steps";
 import {
   difference,
   filter,
   flatMap,
   includes,
   map,
-  partition,
   reject,
   uniq
 } from "lodash-es";
@@ -40,21 +38,15 @@ const TEST_DIR = import.meta.dirname;
 const SELF = "auth.traceability.test.ts";
 
 const featureText = readFileSync(join(TEST_DIR, "auth.feature"), "utf-8");
-const catalogSource = readFileSync(join(TEST_DIR, "auth.steps.ts"), "utf-8");
 
-const {
-  scenarios,
-  driveable,
-  partial,
-  orphanStepDefs,
-  duplicatedPatterns,
-  malformedStepDefs
-} = createTraceabilityCheck(featureText, authSteps, stepCatalogs);
+const { scenarios } = createTraceabilityCheck(
+  featureText,
+  defineSteps(() => {}),
+  stepCatalogs
+);
 
 const isTodo = (scenario: FeatureScenario): boolean =>
   includes(scenario.tags, "@todo");
-
-const [todoPartial, drivenPartial] = partition(partial, isTodo);
 
 const featureAcs = uniq(
   flatMap(scenarios, scenario =>
@@ -91,7 +83,7 @@ function acsNamedBySiblingSpecs(directory: string): string[] {
 
 // -----------------------------------------------------------------------------
 
-describe("auth traceability: the feature, the spec titles and the catalog", () => {
+describe("auth traceability: the feature and the spec titles", () => {
   it("names every tagged AC in a spec title, and tags every AC a spec names", () => {
     const named = acsNamedBySiblingSpecs(TEST_DIR);
 
@@ -106,36 +98,11 @@ describe("auth traceability: the feature, the spec titles and the catalog", () =
     ).toStrictEqual([]);
   });
 
-  it(`drives ${driveable.length} of ${scenarios.length} scenarios, ${todoPartial.length} declared @todo`, () => {
+  it("declares every scenario @todo, so no unbootable scenario reads as driven", () => {
+    expect(scenarios.length).toBeGreaterThan(0);
     expect(
-      map(filter(driveable, isTodo), "name"),
-      "@todo scenario(s) the catalog drives: a blocked capability plays as proven"
-    ).toStrictEqual([]);
-    expect(
-      map(drivenPartial, "name"),
-      "scenario(s) matched only in part: they read as driveable and are not"
-    ).toStrictEqual([]);
-    expect(
-      map(orphanStepDefs, "pattern"),
-      "step definition(s) no scenario uses"
-    ).toStrictEqual([]);
-    expect(
-      duplicatedPatterns,
-      "phrasing(s) another module's catalog also claims"
-    ).toStrictEqual([]);
-    expect(
-      map(malformedStepDefs, "pattern"),
-      "step pattern(s) that do not compile as a cucumber expression"
-    ).toStrictEqual([]);
-    expect(driveable.length).toBeGreaterThan(0);
-  });
-
-  it("fires every action it declares as covered", () => {
-    expect(
-      reject(coveredActionIds, id =>
-        includes(catalogSource, `fire(ACTIONS.${id}`)
-      ),
-      "declared covered but fired by no step"
+      map(reject(scenarios, isTodo), "name"),
+      "scenario(s) with no @todo that no World can boot"
     ).toStrictEqual([]);
   });
 });

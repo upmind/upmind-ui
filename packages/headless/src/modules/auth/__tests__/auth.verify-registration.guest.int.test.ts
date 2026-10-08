@@ -49,7 +49,6 @@ import {
   server,
   useLandingHarness
 } from "./useVerifyRegistration.kit";
-import type { Landing } from "./useVerifyRegistration.kit";
 import {
   filter,
   find,
@@ -64,6 +63,7 @@ import {
   size,
   sortBy
 } from "lodash-es";
+import type { Landing } from "./useVerifyRegistration.kit";
 import type { IToken } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
@@ -152,7 +152,6 @@ describe("registration landing, guest x self (recorded staging answers)", () => 
   });
 
   afterEach(() => {
-    server?.events.removeAllListeners("request:start");
     vi.unstubAllGlobals();
     vi.restoreAllMocks();
   });
@@ -527,6 +526,28 @@ describe("registration landing, guest x self (recorded staging answers)", () => 
       const grant = await activate();
 
       expect(grant?.body?.meta).toBeUndefined();
+    });
+
+    it("AC-11 sends no meta when the client cookie is absent", async () => {
+      brandConfig[BrandConfigKeys.ANALYTICS_GA_MEASUREMENT_ID] = "G-ABC123";
+      document.cookie = `${GA_SESSION}; path=/`;
+
+      const grant = await activate();
+
+      expect(grant?.body?.meta).toBeUndefined();
+    });
+
+    it("AC-11 reads the session cookie of an analytics id with no G- prefix", async () => {
+      brandConfig[BrandConfigKeys.ANALYTICS_GA_MEASUREMENT_ID] = "ABC123";
+      document.cookie = `${GA}; path=/`;
+      document.cookie = `${GA_SESSION}; path=/`;
+
+      const grant = await activate();
+
+      expect(grant?.body?.meta).toMatchObject({
+        ga_client_id: "123456789.1690000000",
+        ga_session_id: "1690000000"
+      });
     });
   });
 
