@@ -1,0 +1,55 @@
+{
+  "version": 3,
+  "request": {
+    "method": "PATCH",
+    "path": "/api/clients/reg_hash/verify?case=invalid-hash",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173"
+    },
+    "body": {
+      "username": "fixturegen-unknown@example.com",
+      "reg_hash": "0000000000000000000000000000000000000000"
+    }
+  },
+  "response": {
+    "status": 409,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a473c3eb9d850beb-LHR",
+      "connection": "keep-alive",
+      "content-type": "application/json",
+      "date": "Thu, 08 Oct 2026 08:27:15 GMT",
+      "impersonation": "0",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=r%2FrwqI2Mpkv5noOPpDEIrY65f8rAU5rwmQUhGsvRF630gYXfXPoMerEaowr%2F3TOlqqxsCYI%2F9ulCVZSE%2BWzNrmkHnW3GtHRuRzbrg%2BQ%2Fdd5P2KGC%2B5DniKp9upZrzDi4EYWS8x4xeQ%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "x-frame-options": "SAMEORIGIN"
+    },
+    "body": {
+      "status": "error",
+      "data": null,
+      "related": null,
+      "total": null,
+      "error": {
+        "id": "a30ccea1ad630aef368ccc1752f699f2a5e5e2ce",
+        "type": 0,
+        "code": 409,
+        "message": "This link is invalid or has expired!",
+        "data": []
+      },
+      "messages": null,
+      "meta": null
+    }
+  },
+  "captured_at": "2026-10-08T08:27:15.279Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "auth"
+  }
+}

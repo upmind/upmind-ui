@@ -1,0 +1,58 @@
+{
+  "version": 3,
+  "request": {
+    "method": "PATCH",
+    "path": "/api/clients/reg_hash/verify?case=bad-bearer",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Origin": "http://qa-automation.local:5173",
+      "Authorization": "mock-Authorization"
+    },
+    "body": {
+      "username": "fixturegen-unknown@example.com",
+      "reg_hash": "0000000000000000000000000000000000000000"
+    }
+  },
+  "response": {
+    "status": 401,
+    "headers": {
+      "access-control-allow-origin": "http://qa-automation.local:5173",
+      "access-control-expose-headers": "Retry-After, X-RateLimit-Limit",
+      "cache-control": "no-cache, private",
+      "cf-cache-status": "DYNAMIC",
+      "cf-ray": "a473c3edfd0a0beb-LHR",
+      "connection": "keep-alive",
+      "content-type": "application/json",
+      "date": "Thu, 08 Oct 2026 08:27:15 GMT",
+      "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+      "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=sR9hEvobXAVMxVbXZE%2B0JugT0T8xinLd9%2FYcsyPs%2BvadL3OumBEFo2x2ZU4Ic2K%2BLicHC2C4A7xLPNeub9iIty4KvJZs1wZFWdZ7pKdT9RVhBPJ%2FTwIm4oK%2BRwfJFYunR0DdnyVLRA%3D%3D\"}]}",
+      "server": "cloudflare",
+      "transfer-encoding": "chunked",
+      "x-frame-options": "SAMEORIGIN"
+    },
+    "body": {
+      "status": "error",
+      "data": null,
+      "related": null,
+      "total": null,
+      "error": {
+        "id": "4adeb88ac7d036daa703d275a33e1f2ba8556076",
+        "type": 9,
+        "code": 401,
+        "message": "The resource owner or authorization server denied the request.",
+        "data": null
+      },
+      "messages": {
+        "hint": "The JWT string must have two dots"
+      },
+      "meta": null
+    }
+  },
+  "captured_at": "2026-10-08T08:27:15.574Z",
+  "brand_domain": "qa-automation.local",
+  "source": "case",
+  "provenance": {
+    "case": "auth"
+  }
+}

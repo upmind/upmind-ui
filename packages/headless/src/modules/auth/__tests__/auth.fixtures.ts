@@ -281,3 +281,134 @@ describe("Auth API Fixtures Generator", () => {
     }
   });
 });
+
+// -----------------------------------------------------------------------------
+
+const VERIFY_LINK_KEYS = [
+  "RECORDING_VERIFY_USERNAME_NO_PASSWORD",
+  "RECORDING_VERIFY_HASH_NO_PASSWORD",
+  "RECORDING_VERIFY_USERNAME_WITH_PASSWORD",
+  "RECORDING_VERIFY_HASH_WITH_PASSWORD"
+] as const;
+
+const VERIFY_PATH = "/api/clients/reg_hash/verify";
+const MADE_UP_HASH = "0000000000000000000000000000000000000000";
+const MADE_UP_USERNAME = "fixturegen-unknown@example.com";
+
+type VerifyLink = { username: string; hash: string };
+
+/** Read the one-time link values from the shell; they never live in a file. */
+function readVerifyLinks(): {
+  noPassword: VerifyLink;
+  withPassword: VerifyLink;
+} {
+  const missing = VERIFY_LINK_KEYS.filter(key => !process.env[key]);
+  if (missing.length > 0) {
+    throw new Error(
+      `Registration-link captures need ${VERIFY_LINK_KEYS.join(", ")} ` +
+        `exported in the shell. Missing: ${missing.join(", ")}.`
+    );
+  }
+  return {
+    noPassword: {
+      username: process.env.RECORDING_VERIFY_USERNAME_NO_PASSWORD as string,
+      hash: process.env.RECORDING_VERIFY_HASH_NO_PASSWORD as string
+    },
+    withPassword: {
+      username: process.env.RECORDING_VERIFY_USERNAME_WITH_PASSWORD as string,
+      hash: process.env.RECORDING_VERIFY_HASH_WITH_PASSWORD as string
+    }
+  };
+}
+
+const verifyBody = ({ username, hash }: VerifyLink) => ({
+  username,
+  reg_hash: hash
+});
+
+const completeBody = ({ username, hash }: VerifyLink, password?: string) => ({
+  grant_type: GrantTypes.COMPLETE_REGISTRATION,
+  username,
+  reg_hash: hash,
+  ...(password ? { password } : {})
+});
+
+describe("Auth registration-link fixtures generator", () => {
+  let generator: Generator;
+
+  beforeAll(() => {
+    generator = new Generator(API_URL, {
+      recordingsDir,
+      origin: ORIGIN,
+      source: "case",
+      name: "auth"
+    });
+  });
+
+  afterAll(() => {
+    generator.save();
+  });
+
+  // Order matters: the verify captures read a link without using it, the
+  // grant captures (8, 9) use each link up.
+  it("captures PATCH verify, has_password false (1)", async () => {
+    const { noPassword } = readVerifyLinks();
+    await generator.patch(
+      `${VERIFY_PATH}?case=no-password`,
+      verifyBody(noPassword)
+    );
+  });
+
+  it("captures PATCH verify, has_password true (2)", async () => {
+    const { withPassword } = readVerifyLinks();
+    await generator.patch(
+      `${VERIFY_PATH}?case=has-password`,
+      verifyBody(withPassword)
+    );
+  });
+
+  it("captures PATCH verify with a made-up hash (3)", async () => {
+    await generator.patch(`${VERIFY_PATH}?case=invalid-hash`, {
+      username: MADE_UP_USERNAME,
+      reg_hash: MADE_UP_HASH
+    });
+  });
+
+  it("captures POST complete_registration with a made-up hash (4)", async () => {
+    await generator.post(
+      "/oauth/access_token?case=complete-refused",
+      completeBody(
+        { username: MADE_UP_USERNAME, hash: MADE_UP_HASH },
+        "abcdefg1"
+      ),
+      FORM_URLENCODED
+    );
+  });
+
+  it("captures PATCH verify with an invalid bearer (7)", async () => {
+    generator.setBearerToken("fixturegen-invalid-token");
+    await generator.patch(`${VERIFY_PATH}?case=bad-bearer`, {
+      username: MADE_UP_USERNAME,
+      reg_hash: MADE_UP_HASH
+    });
+    generator.clearBearerToken();
+  });
+
+  it("captures POST complete_registration with a password (8)", async () => {
+    const { noPassword } = readVerifyLinks();
+    await generator.post(
+      "/oauth/access_token?case=complete-with-password",
+      completeBody(noPassword, "Fixturegen-2026-Xy!"),
+      FORM_URLENCODED
+    );
+  });
+
+  it("captures POST complete_registration with no password (9)", async () => {
+    const { withPassword } = readVerifyLinks();
+    await generator.post(
+      "/oauth/access_token?case=complete-direct",
+      completeBody(withPassword),
+      FORM_URLENCODED
+    );
+  });
+});
