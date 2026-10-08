@@ -880,6 +880,22 @@ describe("registration landing, guest x self (recorded staging answers)", () => 
       expect(get(user, "id")).toBe(get(self, "data.actor.id"));
     });
 
+    it("AC-19 G1 rejects the two-step read when /self fails for the new token", async () => {
+      server?.use(
+        http.get("*/self", () => new HttpResponse(null, { status: 500 }))
+      );
+      serve("patch", VERIFY_ROUTE, RECORDING.hasPassword);
+      serve("post", GRANT_ROUTE, RECORDING.grantDirect);
+
+      const instance = landing();
+      await instance.useActions().verify(LINK);
+      await instance.useActions().isReady();
+
+      await expect(
+        useActiveSession().useActions().whenAuthenticated()
+      ).rejects.toMatchObject({ code: 500 });
+    });
+
     it("AC-19 keeps the signed-in client active when /self fails for the new token", async () => {
       await seedSession("client-a-bearer", AccessRoleTypes.CLIENT);
       const self = getFixture(RECORDING.self, { recordingsDir }).response;

@@ -1,0 +1,17 @@
+AC: AC-19 G1 rejects the two-step read when /self fails for the new token
+Spec: auth.verify-registration.guest.int.test.ts
+Mutation: the grant is saved without the interactive login event, so a /self failure is not surfaced to the waiting reader
+Apply from the repo root with: git apply -p1 packages/headless/src/modules/auth/__tests__/auth.verify-registration.g1-load-failure.must-fail.patch
+
+diff --git a/packages/headless/src/modules/auth/auth.registration.machine.ts b/packages/headless/src/modules/auth/auth.registration.machine.ts
+--- a/packages/headless/src/modules/auth/auth.registration.machine.ts
++++ b/packages/headless/src/modules/auth/auth.registration.machine.ts
+@@ -231,7 +231,7 @@ export const verifyRegistrationMachine = createMachine(
+         _context: VerifyRegistrationContext,
+         { data }: AnyEventObject
+       ) => {
+-        persistTokenToStorage(data, { event: AuthEvents.LOGIN });
++        persistTokenToStorage(data);
+       },
+ 
+       setSession: assign({

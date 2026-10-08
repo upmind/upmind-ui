@@ -3,9 +3,10 @@
  * @fileoverview Registration landing, SET after a refused form (unit)
  *
  * ## Job To Be Done
- * At the set-password step a `SET` clears the validation errors.
- * After a mismatched confirmation, correcting a field leaves no stale error
- * and no stale `hasValidationErrors` flag. Driven through the public
+ * At the set-password step a `SET` after a refused submit validates again.
+ * A correcting keystroke leaves no stale error and no stale
+ * `hasValidationErrors` flag; a keystroke that keeps the confirmation
+ * mismatched keeps the `const` error. Driven through the public
  * `useVerifyRegistration` composable against the recorded verify answer.
  *
  * ## What Breaks If These Fail
@@ -32,6 +33,24 @@ vi.mock("../../brand", () => ({
 useLandingHarness();
 
 describe("a set after a mismatched confirmation", () => {
+  it("keeps the const error while the confirmation is still mismatched", async () => {
+    const instance = await reachSetPassword();
+    instance.useActions().set({
+      password: VALID_PASSWORD.password,
+      password_confirmation: `${VALID_PASSWORD.password_confirmation}x`
+    });
+    await instance.useActions().completeRegistration();
+
+    instance.useActions().set({
+      password_confirmation: `${VALID_PASSWORD.password_confirmation}xy`
+    });
+
+    expect(instance.useContext().validationErrors.value).toMatchObject([
+      { instancePath: "/password_confirmation", keyword: "const" }
+    ]);
+    expect(instance.useMeta().hasValidationErrors.value).toBe(true);
+  });
+
   it("clears the validation errors and the flag", async () => {
     const instance = await reachSetPassword();
     instance.useActions().set({

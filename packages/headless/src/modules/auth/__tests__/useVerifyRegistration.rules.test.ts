@@ -171,4 +171,15 @@ describe("verify mapper (mapVerifyRegistration)", () => {
       }).twoFAProvider
     ).toBe("");
   });
+
+  it("AC-5 maps a provider outside the known set to an empty provider", () => {
+    expect(
+      mapVerifyRegistration({
+        has_password: true,
+        has_name: true,
+        twofa_enabled: true,
+        twofa_provider: "SMS"
+      }).twoFAProvider
+    ).toBe("");
+  });
 });

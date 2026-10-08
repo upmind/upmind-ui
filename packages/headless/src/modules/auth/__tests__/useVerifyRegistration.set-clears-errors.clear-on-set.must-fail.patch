@@ -1,0 +1,28 @@
+AC: SET keeps the const error while the confirmation is still mismatched
+Spec: useVerifyRegistration.set-clears-errors.test.ts
+Mutation: SET clears the validation errors without validating again
+Apply from the repo root with: git apply -p1 packages/headless/src/modules/auth/__tests__/useVerifyRegistration.set-clears-errors.clear-on-set.must-fail.patch
+
+diff --git a/packages/headless/src/modules/auth/auth.registration.machine.ts b/packages/headless/src/modules/auth/auth.registration.machine.ts
+--- a/packages/headless/src/modules/auth/auth.registration.machine.ts
++++ b/packages/headless/src/modules/auth/auth.registration.machine.ts
+@@ -120,13 +120,12 @@ export const verifyRegistrationMachine = createMachine(
+ 
+       needsPassword: {
+         on: {
+-          SET: [
+-            {
+-              cond: "hasValidationErrors",
+-              actions: ["setModel", "validate"]
+-            },
+-            { actions: ["setModel"] }
+-          ],
++          SET: {
++            actions: [
++              "setModel",
++              assign({ validationErrors: () => [] })
++            ]
++          },
+           COMPLETE: { target: "validating", actions: ["validate"] }
+         }
+       },
