@@ -117,7 +117,7 @@ if (activeUser.value?.isGuest) showGuestBanner();
 
 Rules that follow: hold the one instance across the grant, never call `.as("self")` again after `success`, and call `destroy()` on the held instance on unmount. `.as("guest")` is not needed.
 
-**Signed known limit — another client already signed in.** When client A is signed in and the link activates client B, the session store decides which session is active:
+**Known limit — another client already signed in.** When client A is signed in and the link activates client B, the session store decides which session is active:
 
 - If the `/self` request for B succeeds, B becomes the active client.
 - If the `/self` request for B fails, A stays the active client. The session store does not switch to a session whose `/self` failed, and this module does not change that.
