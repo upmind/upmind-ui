@@ -27,6 +27,23 @@
       data-testid="promotions-form"
     />
 
+    <Alert
+      v-if="meta.isSwapped"
+      color="info"
+      variant="muted"
+      icon="info-circle"
+      :title="t('cart.promotions_swapped', { codes: swappedCodes })"
+      data-testid="promotions-swapped"
+    >
+      <Link
+        :label="t('action.switch_back')"
+        size="sm"
+        :disabled="meta.isProcessing"
+        @click="doSwap"
+        data-testid="promotions-switch-back"
+      />
+    </Alert>
+
     <footer
       class="flex flex-wrap items-center gap-1"
       v-if="meta.hasPromotions"
@@ -74,13 +91,19 @@
 import { ref, computed } from "vue";
 import { vAutoAnimate } from "@formkit/auto-animate";
 import { useI18n } from "vue-i18n";
-import { set } from "lodash-es";
+import { last, map, set } from "lodash-es";
 
 // --- components
 import Form from "../../../components/form/Form.vue";
 
 // --- custom elements
-import { Icon, Badge, Tooltip, Link } from "@upmind-automation/upmind-ui";
+import {
+  Alert,
+  Icon,
+  Badge,
+  Tooltip,
+  Link
+} from "@upmind-automation/upmind-ui";
 
 // --- internal
 import {
@@ -102,10 +125,12 @@ const {
   schema,
   uischema,
   promotions,
+  history,
   clear,
   input,
   add,
-  remove
+  remove,
+  swap
 } = useBasketPromotions();
 
 // ---
@@ -125,6 +150,16 @@ function doAdd() {
 function doRemove(value: string) {
   set(processing.value, value, true);
   remove(value).catch(() => {
+    // do nothing as the error is already handled in the form
+  });
+}
+
+const swappedCodes = computed(() =>
+  map(last(history.value), "promocode").join(", ")
+);
+
+function doSwap() {
+  swap().catch(() => {
     // do nothing as the error is already handled in the form
   });
 }

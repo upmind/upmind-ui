@@ -16,13 +16,13 @@ import {
 } from "../../../utils";
 import { responseCodes } from "../../../utils";
 import { useSchema, useUischema } from "./utils";
-import { remove, xorBy, get, isEmpty } from "lodash-es";
+import { get, isEmpty, isEqual, last, map, remove, xorBy } from "lodash-es";
 
 // --- types
 import type { AnyEventObject } from "xstate";
 import type { PromotionsContext, PromotionModel } from "./types";
 import { useI18n } from "../../system";
-import { parsePromotionDetails } from "./utils";
+import { isSwapped, parsePromotionDetails } from "./utils";
 
 // -----------------------------------------------------------------------------
 export default createMachine(
@@ -113,9 +113,31 @@ export default createMachine(
                 target: "#processed",
                 actions: ["clearAutoUpdate", "clearModel"]
               },
+              onError: [
+                {
+                  target: "swap",
+                  cond: "isCombinationConflict",
+                  actions: ["clearAutoUpdate"]
+                },
+                {
+                  target: "#error",
+                  actions: ["setError", "clearAutoUpdate", "setFeedbackError"]
+                }
+              ]
+            }
+          },
+          swap: {
+            id: "swap",
+            on: { REMOVE: {}, SET: {}, CLEAR: {} },
+            invoke: {
+              src: "swap",
+              onDone: {
+                target: "#processed",
+                actions: ["clearModel"]
+              },
               onError: {
                 target: "#error",
-                actions: ["setError", "clearAutoUpdate", "setFeedbackError"]
+                actions: ["setError", "setFeedbackError"]
               }
             }
           },
@@ -142,19 +164,25 @@ export default createMachine(
 
       complete: {
         id: "complete",
-        on: { ADD: { target: "processing" } }
+        on: {
+          ADD: { target: "processing" },
+          SWAP: { target: "#swap", cond: "isSwapped" }
+        }
         // type: "final"
       },
 
       error: {
         id: "error",
-        on: { ADD: { target: "processing" } }
+        on: {
+          ADD: { target: "processing" },
+          SWAP: { target: "#swap", cond: "isSwapped" }
+        }
       }
     },
     on: {
       REMOVE: {
         target: "processing.remove",
-        actions: ["removePromo"]
+        actions: ["removePromo", "clearHistory"]
       },
       CLEAR: {
         target: "checking",
@@ -167,7 +195,7 @@ export default createMachine(
 
       UNAUTHENTICATED: {
         target: "loading",
-        actions: ["clearError", "clearModel", "clearSchemas"]
+        actions: ["clearError", "clearModel", "clearSchemas", "clearHistory"]
       },
       REFRESH: {
         actions: ["refreshContext", "setSchemas"],
@@ -178,10 +206,22 @@ export default createMachine(
   {
     actions: {
       refreshContext: assign(
-        (_context: PromotionsContext, { data: basket }: AnyEventObject) => {
+        (
+          { baseModel, history }: PromotionsContext,
+          { data: basket }: AnyEventObject
+        ) => {
+          const promotions = parsePromotionDetails(basket?.promotions ?? []);
+          const codes = map(promotions, ({ code }) => ({ promocode: code }));
+          const hasChanged = !isEqual(codes, baseModel ?? []);
+
           return {
             basketId: basket?.id,
-            promotions: parsePromotionDetails(basket?.promotions ?? [])
+            promotions,
+            baseModel: codes,
+            history:
+              hasChanged && !isEmpty(baseModel)
+                ? [...(history ?? []), baseModel!]
+                : history
           };
         }
       ),
@@ -243,6 +283,8 @@ export default createMachine(
         }
       }),
 
+      clearHistory: assign({ history: undefined }),
+
       setAutoUpdate: assign({
         autoupdate: (_context: PromotionsContext, { update }: AnyEventObject) =>
           !!update
@@ -293,6 +335,10 @@ export default createMachine(
       isDirty: ({ baseModel, model }, _event) =>
         isDirty(model, baseModel) && !isEmpty(model?.promocode),
       hasBasket: ({ basketId }, _event) => !!basketId,
+      isSwapped: (context, _event) => isSwapped(context),
+      isCombinationConflict: ({ promotions }, { data }: AnyEventObject) =>
+        mapToHeadlessError(data)?.status === responseCodes.Conflict &&
+        !isEmpty(promotions),
       hasChanged: ({ promotions, basketId }, { data }: AnyEventObject) =>
         !!xorBy(promotions, data?.promotions, "id")?.length ||
         basketId !== data?.id,

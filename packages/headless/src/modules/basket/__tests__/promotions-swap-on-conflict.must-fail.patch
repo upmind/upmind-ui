@@ -1,0 +1,18 @@
+# Spec: promotions-swap-on-conflict.test.ts
+# Mutation: a 409 from the add no longer swaps, so the code is rejected as before.
+
+diff --git a/packages/headless/src/modules/basket/promotions/promotions.machine.ts b/packages/headless/src/modules/basket/promotions/promotions.machine.ts
+--- a/packages/headless/src/modules/basket/promotions/promotions.machine.ts
++++ b/packages/headless/src/modules/basket/promotions/promotions.machine.ts
+@@ -115,11 +115,6 @@
+               },
+               onError: [
+                 {
+-                  target: "swap",
+-                  cond: "isCombinationConflict",
+-                  actions: ["clearAutoUpdate"]
+-                },
+-                {
+                   target: "#error",
+                   actions: ["setError", "clearAutoUpdate", "setFeedbackError"]
+                 }
