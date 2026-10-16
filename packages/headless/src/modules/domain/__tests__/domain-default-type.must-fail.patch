@@ -1,0 +1,32 @@
+# Spec: domain-default-type.test.ts
+# Mutation: an optional domain field with no type opens on skip ("I'll decide later")
+# instead of register.
+
+diff --git b/packages/headless/src/modules/domain/domain.machine.ts a/packages/headless/src/modules/domain/domain.machine.ts
+index 185c4549e5..f6cc1feef3 100644
+--- b/packages/headless/src/modules/domain/domain.machine.ts
++++ a/packages/headless/src/modules/domain/domain.machine.ts
+@@ -653,7 +653,14 @@ export default createMachine(
+       }),
+ 
+       checkType: assign({
+-        type: ({ type, choices, model, lookups, search }: DomainContext) => {
++        type: ({
++          type,
++          choices,
++          model,
++          lookups,
++          search,
++          required
++        }: DomainContext) => {
+           // FORCE: if we dont have a type set but we have an initial search query
+           if (
+             !type &&
+@@ -679,6 +686,7 @@ export default createMachine(
+           }
+ 
+           if (!type && !isEmpty(choices)) {
++            if (!required) return DomainTypes.skip;
+             if (includes(choices, DomainTypes.register)) {
+               return DomainTypes.register;
+             }

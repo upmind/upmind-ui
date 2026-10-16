@@ -189,10 +189,10 @@ export type SmartDomainExistingProps = {
 };
 
 export const SMART_DOMAIN_CHOICES_ORDER = [
-  DomainTypes.skip,
   DomainTypes.register,
   DomainTypes.existing,
-  DomainTypes.basket
+  DomainTypes.basket,
+  DomainTypes.skip
 ];
 
 export interface SmartDomainDrawerProps {

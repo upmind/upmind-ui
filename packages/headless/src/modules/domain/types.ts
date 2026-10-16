@@ -323,7 +323,7 @@ export interface DomainContext extends BasketHelperContext<DomainProduct> {
   type?: DomainTypes;
   /**
    * Whether the domain field is required. Defaults to `true`.
-   * When `false`, skip is available and selected by default.
+   * When `false`, skip is offered; register stays the default.
    */
   required: boolean;
   // ---

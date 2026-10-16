@@ -653,14 +653,7 @@ export default createMachine(
       }),
 
       checkType: assign({
-        type: ({
-          type,
-          choices,
-          model,
-          lookups,
-          search,
-          required
-        }: DomainContext) => {
+        type: ({ type, choices, model, lookups, search }: DomainContext) => {
           // FORCE: if we dont have a type set but we have an initial search query
           if (
             !type &&
@@ -686,7 +679,6 @@ export default createMachine(
           }
 
           if (!type && !isEmpty(choices)) {
-            if (!required) return DomainTypes.skip;
             if (includes(choices, DomainTypes.register)) {
               return DomainTypes.register;
             }
