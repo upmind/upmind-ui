@@ -212,6 +212,9 @@ export interface DataSchema {
   /** Enable in-basket product option upsells (Eg. Domain Privacy Addon) */
   optionUpsellEnabled?: boolean;
 
+  /** Select the first available payment gateway on checkout when there are no stored payment methods */
+  paymentGatewaysAutoSelect?: boolean;
+
   /**
    * Add the product to the basket straight away, skipping the configure step.
    * Equivalent to arriving with `?autoupdate=true`; if the product can't be
