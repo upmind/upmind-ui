@@ -21,6 +21,7 @@ export function useTime() {
     INTERACTIVE: 80, // coalesce rapid input from interactive controls (qty steppers, sliders) before reacting
     POLL: 500, // poll every 0.5 seconds
     ERROR: 1000, // give the user time to read an error before continuing
+    NOTICE: 3000, // give the user time to read a notice before it hides
     // ---
     MILLISECOND: 1,
     get SECOND() {

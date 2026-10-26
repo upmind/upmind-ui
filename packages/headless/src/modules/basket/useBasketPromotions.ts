@@ -24,7 +24,7 @@ import {
   type PromotionsContext,
   type PromotionModel
 } from "./promotions/types";
-import { isSwapped } from "./promotions/utils";
+import { isRestored, isSwapped } from "./promotions/utils";
 import { type IBasketPromotion } from "@upmind-automation/types";
 import { type QueryResponseError } from "../query";
 
@@ -74,6 +74,16 @@ export const useBasketPromotions = () => {
         "baseModel"
       ),
       history: contextValue<PromotionsContext["history"]>(actor, "history")
+    }),
+    isRestored: isRestored({
+      baseModel: contextValue<PromotionsContext["baseModel"]>(
+        actor,
+        "baseModel"
+      ),
+      swappedIn: contextValue<PromotionsContext["swappedIn"]>(
+        actor,
+        "swappedIn"
+      )
     }),
     isDirty: !isEmpty(contextValue<PromotionsContext["model"]>(actor, "model")),
     isComplete:
@@ -224,6 +234,7 @@ export const useBasketPromotions = () => {
      * @property {boolean} isProcessing - Indicates if the promotion is processing.
      * @property {boolean} isValid - Indicates if the promotion is valid.
      * @property {boolean} isSwapped - Indicates if the last change swapped every code, so `swap` can switch back.
+     * @property {boolean} isRestored - Indicates if the basket no longer holds the entered code, so `swap` puts it back.
      * @property {boolean} isDirty - Indicates if the promotion is dirty.
      * @property {boolean} isComplete - Indicates if the promotion is complete.
      */

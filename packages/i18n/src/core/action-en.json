@@ -63,6 +63,7 @@
   "removing": "Removing...",
   "resend_code": "Resend code",
   "resend_code_in": "Resend code in {seconds}s",
+  "restore_discounts": "Restore discount | Restore discounts",
   "return_to_shop": "Return to shop",
   "review": "click here to review",
   "review_next_product": "Review next product",
@@ -83,7 +84,6 @@
   "sort_by_price": "Sort by price",
   "sort_by_subject": "Sort by subject",
   "skip": "Skip",
-  "switch_back": "Switch back",
   "verify": "Verify",
   "view": "View",
   "view_email": "View Email"

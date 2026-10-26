@@ -29,20 +29,25 @@
 
     <Alert
       v-if="meta.isSwapped"
-      color="info"
-      variant="muted"
+      color="neutral"
+      variant="minimal"
       icon="info-circle"
-      :title="t('cart.promotions_swapped', { codes: swappedCodes })"
+      :title="
+        meta.isRestored
+          ? t('cart.promotions_restored', size(baseModel))
+          : t('cart.promotions_swapped', size(last(history)))
+      "
+      :action="
+        meta.isRestored
+          ? undefined
+          : {
+              label: t('action.restore_discounts', size(last(history))),
+              disabled: meta.isProcessing
+            }
+      "
       data-testid="promotions-swapped"
-    >
-      <Link
-        :label="t('action.switch_back')"
-        size="sm"
-        :disabled="meta.isProcessing"
-        @click="doSwap"
-        data-testid="promotions-switch-back"
-      />
-    </Alert>
+      @click="doSwap"
+    />
 
     <footer
       class="flex flex-wrap items-center gap-1"
@@ -91,7 +96,7 @@
 import { ref, computed } from "vue";
 import { vAutoAnimate } from "@formkit/auto-animate";
 import { useI18n } from "vue-i18n";
-import { last, map, set } from "lodash-es";
+import { last, set, size } from "lodash-es";
 
 // --- components
 import Form from "../../../components/form/Form.vue";
@@ -125,6 +130,7 @@ const {
   schema,
   uischema,
   promotions,
+  baseModel,
   history,
   clear,
   input,
@@ -153,10 +159,6 @@ function doRemove(value: string) {
     // do nothing as the error is already handled in the form
   });
 }
-
-const swappedCodes = computed(() =>
-  map(last(history.value), "promocode").join(", ")
-);
 
 function doSwap() {
   swap().catch(() => {

@@ -22,7 +22,7 @@ import { get, isEmpty, isEqual, last, map, remove, xorBy } from "lodash-es";
 import type { AnyEventObject } from "xstate";
 import type { PromotionsContext, PromotionModel } from "./types";
 import { useI18n } from "../../system";
-import { isSwapped, parsePromotionDetails } from "./utils";
+import { isRestored, isSwapped, parsePromotionDetails } from "./utils";
 
 // -----------------------------------------------------------------------------
 export default createMachine(
@@ -111,7 +111,7 @@ export default createMachine(
               src: "add",
               onDone: {
                 target: "#processed",
-                actions: ["clearAutoUpdate", "clearModel"]
+                actions: ["clearAutoUpdate", "clearModel", "clearSwappedIn"]
               },
               onError: [
                 {
@@ -133,7 +133,7 @@ export default createMachine(
               src: "swap",
               onDone: {
                 target: "#processed",
-                actions: ["clearModel"]
+                actions: ["setSwappedIn", "clearModel"]
               },
               onError: {
                 target: "#error",
@@ -164,6 +164,14 @@ export default createMachine(
 
       complete: {
         id: "complete",
+        after: [
+          {
+            cond: "isRestored",
+            delay: "notice",
+            target: "complete",
+            actions: ["clearSwappedIn", "clearHistory"]
+          }
+        ],
         on: {
           ADD: { target: "processing" },
           SWAP: { target: "#swap", cond: "isSwapped" }
@@ -182,7 +190,7 @@ export default createMachine(
     on: {
       REMOVE: {
         target: "processing.remove",
-        actions: ["removePromo", "clearHistory"]
+        actions: ["removePromo", "clearHistory", "clearSwappedIn"]
       },
       CLEAR: {
         target: "checking",
@@ -195,7 +203,13 @@ export default createMachine(
 
       UNAUTHENTICATED: {
         target: "loading",
-        actions: ["clearError", "clearModel", "clearSchemas", "clearHistory"]
+        actions: [
+          "clearError",
+          "clearModel",
+          "clearSchemas",
+          "clearHistory",
+          "clearSwappedIn"
+        ]
       },
       REFRESH: {
         actions: ["refreshContext", "setSchemas"],
@@ -207,20 +221,23 @@ export default createMachine(
     actions: {
       refreshContext: assign(
         (
-          { baseModel, history }: PromotionsContext,
+          { baseModel, history, promotions: current }: PromotionsContext,
           { data: basket }: AnyEventObject
         ) => {
           const promotions = parsePromotionDetails(basket?.promotions ?? []);
           const codes = map(promotions, ({ code }) => ({ promocode: code }));
-          const hasChanged = !isEqual(codes, baseModel ?? []);
+          // The spawn seeds `promotions` only, so the first refresh reads the earlier codes from it.
+          const previous =
+            baseModel ?? map(current, ({ code }) => ({ promocode: code }));
+          const hasChanged = !isEqual(codes, previous);
 
           return {
             basketId: basket?.id,
             promotions,
             baseModel: codes,
             history:
-              hasChanged && !isEmpty(baseModel)
-                ? [...(history ?? []), baseModel!]
+              hasChanged && !isEmpty(previous)
+                ? [...(history ?? []), previous]
                 : history
           };
         }
@@ -285,6 +302,14 @@ export default createMachine(
 
       clearHistory: assign({ history: undefined }),
 
+      // A conflict swap still holds the entered code in `model`; a SWAP back does not.
+      setSwappedIn: assign({
+        swappedIn: ({ model, swappedIn }: PromotionsContext) =>
+          model?.promocode ? model : swappedIn
+      }),
+
+      clearSwappedIn: assign({ swappedIn: undefined }),
+
       setAutoUpdate: assign({
         autoupdate: (_context: PromotionsContext, { update }: AnyEventObject) =>
           !!update
@@ -336,6 +361,7 @@ export default createMachine(
         isDirty(model, baseModel) && !isEmpty(model?.promocode),
       hasBasket: ({ basketId }, _event) => !!basketId,
       isSwapped: (context, _event) => isSwapped(context),
+      isRestored: (context, _event) => isRestored(context),
       isCombinationConflict: ({ promotions }, { data }: AnyEventObject) =>
         mapToHeadlessError(data)?.status === responseCodes.Conflict &&
         !isEmpty(promotions),
@@ -348,7 +374,8 @@ export default createMachine(
 
     delays: {
       error: () => useTime().ERROR,
-      wait: () => useTime().WAIT
+      wait: () => useTime().WAIT,
+      notice: () => useTime().NOTICE
     },
 
     services

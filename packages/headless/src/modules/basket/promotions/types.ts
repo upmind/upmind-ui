@@ -22,6 +22,8 @@ export interface PromotionsContext {
   baseModel?: PromotionModel[];
   /** Every earlier `baseModel`, newest last, so a swap can go back */
   history?: PromotionModel[][];
+  /** The entered code a combination-conflict swap applied */
+  swappedIn?: PromotionModel;
   // ---
   autoupdate?: Boolean;
   error?: ResponseError;
