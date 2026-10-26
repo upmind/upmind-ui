@@ -34,6 +34,11 @@
       icon="info-circle"
       :title="
         meta.isRestored
+          ? t('cart.promotions_restored_title', size(baseModel))
+          : t('cart.promotions_swapped_title')
+      "
+      :description="
+        meta.isRestored
           ? t('cart.promotions_restored', size(baseModel))
           : t('cart.promotions_swapped', size(last(history)))
       "
