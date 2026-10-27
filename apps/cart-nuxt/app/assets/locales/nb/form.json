@@ -13,19 +13,51 @@
     "label": "",
     "placeholder": "Vei, gatenavn osv."
   },
+  "address_search": {
+    "placeholder": "Søk etter adresser..."
+  },
+  "address_sort": {
+    "created_at": "Dato for oppføring",
+    "name": "Adressenavn"
+  },
   "allow_auto_payment": {
     "description": "Tillat at denne betalingsmetoden brukes til å foreta automatiserte betalinger uten nett – for eksempel å betale en fornyelsesfaktura.",
     "label": "Tillat automatisk betaling"
   },
   "auth_email": {
+    "error": "Det kreves en e-postadresse",
+    "label": "E-postadressen din",
+    "placeholder": "navn@epost.com"
+  },
+  "auth_login": {
     "error": "Et brukernavn eller en e-postadresse er nødvendig",
     "label": "Brukernavnet eller e-postadressen din",
     "placeholder": "navn@epost.com"
   },
   "auth_password": {
-    "error": "Et sterkt passord er nødvendig",
+    "error": {
+      "min_length": "Passordet må bestå av minst 8 tegn",
+      "min_length_letter": "Passordet må bestå av minst 8 tegn og inneholde en bokstav",
+      "min_length_letter_number": "Passordet må bestå av minst 8 tegn og inneholde både en bokstav og et tall",
+      "min_length_letter_number_symbol": "Passordet må bestå av minst 8 tegn og inneholde en bokstav, et tall og et tegn",
+      "min_length_letter_symbol": "Passordet må bestå av minst 8 tegn, inneholde en bokstav og et tegn",
+      "min_length_number": "Passordet må bestå av minst 8 tegn og inneholde et tall.",
+      "min_length_number_symbol": "Passordet må bestå av minst 8 tegn og inneholde både et tall og et tegn",
+      "min_length_symbol": "Passordet må bestå av minst 8 tegn og inneholde et spesialtegn",
+      "missing_letter": "Passordet må inneholde en bokstav",
+      "missing_letter_number": "Passordet må inneholde en bokstav og et tall",
+      "missing_letter_number_symbol": "Passordet må inneholde en bokstav, et tall og et tegn",
+      "missing_letter_symbol": "Passordet må inneholde en bokstav og et tegn",
+      "missing_number": "Passordet må inneholde et tall",
+      "missing_number_symbol": "Passordet må inneholde et tall og et tegn",
+      "missing_symbol": "Passordet må inneholde et tegn"
+    },
+    "generate": "Lag et sterkt passord",
+    "hide": "Skjul passord",
+    "hint": "Passordet må bestå av minst 8 tegn og inneholde en bokstav, et tall og et tegn.",
     "label": "Passord",
-    "placeholder": "Passord eller passordfrase"
+    "placeholder": "Passord eller passordfrase",
+    "show": "Vis passord"
   },
   "card_cvv": {
     "error": "En gyldig CVV er nødvendig",
@@ -64,11 +96,24 @@
   },
   "companyNumber": {
     "label": "Firmanummer",
-    "placeholder": "Registrert skatt eller GST"
+    "placeholder": "Organisasjonsnummer"
+  },
+  "company_search": {
+    "placeholder": "Søk etter selskaper..."
+  },
+  "company_sort": {
+    "created_at": "Dato lagt til",
+    "name": "Firmanavn"
   },
   "country": {
     "label": "Land",
     "placeholder": "Velg et land"
+  },
+  "default_filter": {
+    "false": "Ikke standard",
+    "label": "Misligholde",
+    "null": "Alle",
+    "true": "Misligholde"
   },
   "domain": {
     "placeholder": "Skriv inn domenet ditt..."
@@ -79,6 +124,7 @@
   "email": {
     "error": "En gyldig e-postadresse er nødvendig",
     "label": "E-post",
+    "placeholder": "navn@epost.com",
     "title": "Legg til ny e-post | Oppdater e-post"
   },
   "field_notes": {
@@ -86,14 +132,22 @@
   },
   "firstname": {
     "error": "Fornavnet ditt er obligatorisk",
-    "label": "Fornavn"
+    "label": "Fornavn",
+    "placeholder": "Jay, Jane, John, ..."
+  },
+  "guest_email": {
+    "description": "Vi sender ordrebekreftelsen til denne e-postadressen",
+    "label": "E-post ved mottak av bestilling",
+    "placeholder": "navn@epost.com"
+  },
+  "language": {
+    "error": "Språket ditt er obligatorisk",
+    "label": "Språk"
   },
   "lastname": {
     "error": "Etternavnet ditt er obligatorisk",
-    "label": "Etternavn"
-  },
-  "login": {
-    "error": "Vi opplevde en feil under forsøket på å logge deg inn."
+    "label": "Etternavn",
+    "placeholder": "Doe, Smith, ..."
   },
   "payment_details_id": {
     "label": ""
@@ -110,6 +164,12 @@
     "label": "Telefon",
     "title": "Legg til nytt telefonnummer | Oppdater telefonnummer"
   },
+  "phone_search": {
+    "placeholder": "Søk etter telefonnumre..."
+  },
+  "phone_sort": {
+    "created_at": "Dato lagt til"
+  },
   "postcode": {
     "label": "Postnummer",
     "placeholder": "f.eks. 10011"
@@ -121,15 +181,13 @@
     "error": "Ugyldig kampanjekode",
     "placeholder": "Skriv inn kupongkoden her"
   },
-  "recover": {
-    "error": "Vi oppsto en feil under forsøket på å sende deg en e-post for tilbakestilling av passord."
+  "publicName": {
+    "error": "Ditt offentlige navn er obligatorisk",
+    "label": "Offentlig navn"
   },
   "region": {
     "label": "Region",
     "placeholder": "Velg en region…"
-  },
-  "register": {
-    "error": "Det oppsto en feil under forsøket på å opprette kontoen din."
   },
   "select_option": {
     "placeholder": "Velg et alternativ"
@@ -141,7 +199,28 @@
     "label": ""
   },
   "taxNumber": {
-    "label": "Skattenummer",
-    "placeholder": "Skatte-ID"
+    "label": "Registrert organisasjonsnummer",
+    "placeholder": "Skatteregistreringsnummer/MVA-nummer"
+  },
+  "twofa": {
+    "description": "Denne kontoen er sikret med tofaktorautentisering. Vennligst skriv inn bekreftelseskoden din.",
+    "label": "Verifiseringskode",
+    "placeholder": "123 456"
+  },
+  "twofa_email": {
+    "description": "For din sikkerhet har vi sendt en engangskode til e-postadressen din. For å fullføre denne forespørselen, vennligst skriv inn koden nedenfor.",
+    "label": "Verifiseringskode",
+    "placeholder": "123 456"
+  },
+  "twofa_totp": {
+    "description": "For å fullføre denne forespørselen, vennligst skriv inn engangskoden som genereres av Authenticator-appen din.",
+    "label": "Verifiseringskode",
+    "placeholder": "123 456"
+  },
+  "verified_filter": {
+    "false": "Ubekreftet",
+    "label": "Verifisert",
+    "null": "Alle",
+    "true": "Verifisert"
   }
 }

@@ -13,19 +13,51 @@
     "label": "",
     "placeholder": "道路、街道名稱等"
   },
+  "address_search": {
+    "placeholder": "搜尋地址…"
+  },
+  "address_sort": {
+    "created_at": "新增日期",
+    "name": "地址名稱"
+  },
   "allow_auto_payment": {
     "description": "允許使用此付款方式進行自動離線付款 - 例如支付續約發票。",
     "label": "允許自動付款"
   },
   "auth_email": {
+    "error": "必須提供電子郵件地址",
+    "label": "您的電子郵件",
+    "placeholder": "姓名@email.com"
+  },
+  "auth_login": {
     "error": "需要使用者名稱或電子郵件地址",
     "label": "您的使用者名稱或電子郵件地址",
-    "placeholder": "name@email.com"
+    "placeholder": "姓名@email.com"
   },
   "auth_password": {
-    "error": "需要強密碼",
+    "error": {
+      "min_length": "密碼必須至少包含8個字元",
+      "min_length_letter": "密碼必須至少包含 8 個字元，且必須包含一個字母",
+      "min_length_letter_number": "密碼必須至少包含 8 個字元，並包含一個字母和一個數字",
+      "min_length_letter_number_symbol": "密碼必須至少包含 8 個字元，並包含一個字母、一個數字和一個符號",
+      "min_length_letter_symbol": "密碼必須至少包含 8 個字元，並包含一個字母和一個符號",
+      "min_length_number": "密碼必須至少包含8個字元，並包含一個數字。",
+      "min_length_number_symbol": "密碼必須至少包含 8 個字元，並包含一個數字和一個符號",
+      "min_length_symbol": "密碼必須至少包含 8 個字元，並包含一個符號",
+      "missing_letter": "密碼必須包含一個字母",
+      "missing_letter_number": "密碼必須包含一個字母和一個數字",
+      "missing_letter_number_symbol": "密碼必須包含一個字母、一個數字和一個符號",
+      "missing_letter_symbol": "密碼必須包含一個字母和一個符號",
+      "missing_number": "密碼必須包含一個數字",
+      "missing_number_symbol": "密碼必須包含一個數字和一個符號",
+      "missing_symbol": "密碼必須包含一個符號"
+    },
+    "generate": "產生一個強密碼",
+    "hide": "隱藏密碼",
+    "hint": "密碼必須至少包含 8 個字元，並包含一個字母、一個數字和一個符號。",
     "label": "密碼",
-    "placeholder": "密碼或口令"
+    "placeholder": "密碼或口令",
+    "show": "顯示密碼"
   },
   "card_cvv": {
     "error": "需要有效的CVV",
@@ -64,11 +96,24 @@
   },
   "companyNumber": {
     "label": "公司編號",
-    "placeholder": "註冊稅務或商品及服務稅"
+    "placeholder": "公司識別號碼"
+  },
+  "company_search": {
+    "placeholder": "搜尋公司…"
+  },
+  "company_sort": {
+    "created_at": "新增日期",
+    "name": "公司名稱"
   },
   "country": {
     "label": "國家",
-    "placeholder": "選擇一個國家"
+    "placeholder": "選擇國家"
+  },
+  "default_filter": {
+    "false": "非預設",
+    "label": "預設",
+    "null": "全部",
+    "true": "預設"
   },
   "domain": {
     "placeholder": "輸入您的網域名稱..."
@@ -79,6 +124,7 @@
   "email": {
     "error": "需要有效的電子郵件地址",
     "label": "電子郵件",
+    "placeholder": "姓名@email.com",
     "title": "新增電子郵件 | 更新電子郵件"
   },
   "field_notes": {
@@ -86,14 +132,22 @@
   },
   "firstname": {
     "error": "需要您的名字",
-    "label": "名"
+    "label": "名",
+    "placeholder": "傑伊、簡、約翰…"
+  },
+  "guest_email": {
+    "description": "我們將把您的訂單確認信寄至此電子郵件地址",
+    "label": "訂單確認信",
+    "placeholder": "姓名@email.com"
+  },
+  "language": {
+    "error": "您需要輸入的語言",
+    "label": "語言"
   },
   "lastname": {
     "error": "您的姓氏是必填項",
-    "label": "姓"
-  },
-  "login": {
-    "error": "我們在嘗試登入時遇到錯誤。"
+    "label": "姓",
+    "placeholder": "Doe、Smith、…"
   },
   "payment_details_id": {
     "label": ""
@@ -110,6 +164,12 @@
     "label": "電話",
     "title": "新增電話號碼 | 更新電話號碼"
   },
+  "phone_search": {
+    "placeholder": "搜尋電話號碼..."
+  },
+  "phone_sort": {
+    "created_at": "新增日期"
+  },
   "postcode": {
     "label": "郵遞區號",
     "placeholder": "例如 10011"
@@ -121,15 +181,13 @@
     "error": "需要有效的促銷代碼",
     "placeholder": "在此輸入優惠券代碼"
   },
-  "recover": {
-    "error": "我們在嘗試向您發送密碼重設電子郵件時遇到錯誤。"
+  "publicName": {
+    "error": "您的公開姓名是必填。",
+    "label": "公共名稱"
   },
   "region": {
     "label": "地區",
     "placeholder": "選擇一個地區…"
-  },
-  "register": {
-    "error": "我們在嘗試建立您的帳戶時遇到錯誤。"
   },
   "select_option": {
     "placeholder": "選擇一個選項"
@@ -141,7 +199,28 @@
     "label": ""
   },
   "taxNumber": {
-    "label": "稅號",
-    "placeholder": "稅號"
+    "label": "註冊稅務編號",
+    "placeholder": "稅務編號／增值稅號／商品及服務稅號"
+  },
+  "twofa": {
+    "description": "此帳戶已啟用雙重驗證，請輸入驗證碼。",
+    "label": "驗證碼",
+    "placeholder": "123 456"
+  },
+  "twofa_email": {
+    "description": "為了保護您的帳戶安全，我們已向您的郵箱發送了一次性驗證碼。請在下方輸入驗證碼以完成此請求。",
+    "label": "驗證碼",
+    "placeholder": "123 456"
+  },
+  "twofa_totp": {
+    "description": "若要完成此請求，請輸入您的身份驗證器應用程式產生的一次性驗證碼。",
+    "label": "驗證碼",
+    "placeholder": "123 456"
+  },
+  "verified_filter": {
+    "false": "未經證實",
+    "label": "已驗證",
+    "null": "全部",
+    "true": "已驗證"
   }
 }

@@ -27,6 +27,33 @@
       data-testid="promotions-form"
     />
 
+    <Alert
+      v-if="meta.isSwapped"
+      color="neutral"
+      variant="minimal"
+      icon="info-circle"
+      :title="
+        meta.isRestored
+          ? t('cart.promotions_restored_title', size(baseModel))
+          : t('cart.promotions_swapped_title')
+      "
+      :description="
+        meta.isRestored
+          ? t('cart.promotions_restored', size(baseModel))
+          : t('cart.promotions_swapped', size(last(history)))
+      "
+      :action="
+        meta.isRestored
+          ? undefined
+          : {
+              label: t('action.restore_discounts', size(last(history))),
+              disabled: meta.isProcessing
+            }
+      "
+      data-testid="promotions-swapped"
+      @click="doSwap"
+    />
+
     <footer
       class="flex flex-wrap items-center gap-1"
       v-if="meta.hasPromotions"
@@ -74,13 +101,19 @@
 import { ref, computed } from "vue";
 import { vAutoAnimate } from "@formkit/auto-animate";
 import { useI18n } from "vue-i18n";
-import { set } from "lodash-es";
+import { last, set, size } from "lodash-es";
 
 // --- components
 import Form from "../../../components/form/Form.vue";
 
 // --- custom elements
-import { Icon, Badge, Tooltip, Link } from "@upmind-automation/upmind-ui";
+import {
+  Alert,
+  Icon,
+  Badge,
+  Tooltip,
+  Link
+} from "@upmind-automation/upmind-ui";
 
 // --- internal
 import {
@@ -102,10 +135,13 @@ const {
   schema,
   uischema,
   promotions,
+  baseModel,
+  history,
   clear,
   input,
   add,
-  remove
+  remove,
+  swap
 } = useBasketPromotions();
 
 // ---
@@ -125,6 +161,12 @@ function doAdd() {
 function doRemove(value: string) {
   set(processing.value, value, true);
   remove(value).catch(() => {
+    // do nothing as the error is already handled in the form
+  });
+}
+
+function doSwap() {
+  swap().catch(() => {
     // do nothing as the error is already handled in the form
   });
 }

@@ -12,7 +12,7 @@
   "once": "Egyszer",
   "one_time": "Egyszer",
   "price_by_n_years": "{price}/év | {price} /{n} év",
-  "price_msg": "Csak {price} | Feladó{price} egy hónap | -tól/-től {price} minden {period}",
+  "price_msg": "Csak {price} | Feladó {price} egy hónap | -tól/-től {price} minden {period}",
   "quarterly": "Negyedévenként",
   "renews_msg": "Egyszeri fizetés | Megújul minden {cycle} | Megújul minden {cycle}",
   "renews_usually_msg": "Általában {price}",

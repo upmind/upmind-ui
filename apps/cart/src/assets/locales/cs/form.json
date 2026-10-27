@@ -13,6 +13,13 @@
     "label": "",
     "placeholder": "Název ulice, silnice atd."
   },
+  "address_search": {
+    "placeholder": "Hledat adresy..."
+  },
+  "address_sort": {
+    "created_at": "Datum přidání",
+    "name": "Název adresy"
+  },
   "allow_auto_payment": {
     "description": "Povolit použití této platební metody pro automatické offline platby – například pro úhradu faktury za obnovení.",
     "label": "Povolit automatické platby"
@@ -91,9 +98,22 @@
     "label": "IČO",
     "placeholder": "Identifikační číslo společnosti"
   },
+  "company_search": {
+    "placeholder": "Hledat firmy..."
+  },
+  "company_sort": {
+    "created_at": "Datum přidání",
+    "name": "Název společnosti"
+  },
   "country": {
     "label": "Země",
     "placeholder": "Vyberte zemi"
+  },
+  "default_filter": {
+    "false": "Není výchozí",
+    "label": "Výchozí",
+    "null": "Vše",
+    "true": "Výchozí"
   },
   "domain": {
     "placeholder": "Zadejte svou doménu..."
@@ -112,7 +132,8 @@
   },
   "firstname": {
     "error": "Vaše křestní jméno je povinné",
-    "label": "Křestní jméno"
+    "label": "Křestní jméno",
+    "placeholder": "Jay, Jane, John, ..."
   },
   "guest_email": {
     "description": "Potvrzení objednávky vám zašleme na tuto e-mailovou adresu",
@@ -125,7 +146,8 @@
   },
   "lastname": {
     "error": "Vaše příjmení je povinné",
-    "label": "Příjmení"
+    "label": "Příjmení",
+    "placeholder": "Doe, Smith, ..."
   },
   "payment_details_id": {
     "label": ""
@@ -141,6 +163,12 @@
     "error": "Je vyžadováno platné telefonní číslo",
     "label": "Telefon",
     "title": "Přidat nové telefonní číslo | Aktualizovat telefonní číslo"
+  },
+  "phone_search": {
+    "placeholder": "Hledat telefonní čísla..."
+  },
+  "phone_sort": {
+    "created_at": "Datum přidání"
   },
   "postcode": {
     "label": "PSČ",
@@ -188,5 +216,11 @@
     "description": "Chcete-li tento požadavek dokončit, zadejte jednorázový kód vygenerovaný aplikací Authenticator.",
     "label": "Ověřovací kód",
     "placeholder": "123 456"
+  },
+  "verified_filter": {
+    "false": "Neověřené",
+    "label": "Ověřeno",
+    "null": "Vše",
+    "true": "Ověřeno"
   }
 }

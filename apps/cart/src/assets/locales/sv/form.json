@@ -13,6 +13,13 @@
     "label": "",
     "placeholder": "Väg, gatunamn etc."
   },
+  "address_search": {
+    "placeholder": "Sök adresser..."
+  },
+  "address_sort": {
+    "created_at": "Datum tillagt",
+    "name": "Adressnamn"
+  },
   "allow_auto_payment": {
     "description": "Tillåt att den här betalningsmetoden används för att göra automatiska offlinebetalningar – till exempel för att betala en förnyelsefaktura.",
     "label": "Tillåt automatisk betalning"
@@ -91,9 +98,22 @@
     "label": "Företagsnummer",
     "placeholder": "Organisationsnummer"
   },
+  "company_search": {
+    "placeholder": "Sök företag..."
+  },
+  "company_sort": {
+    "created_at": "Datum tillagt",
+    "name": "Företagsnamn"
+  },
   "country": {
     "label": "Land",
     "placeholder": "Välj land"
+  },
+  "default_filter": {
+    "false": "Inte standard",
+    "label": "Standard",
+    "null": "Alla",
+    "true": "Standard"
   },
   "domain": {
     "placeholder": "Ange din domän..."
@@ -112,7 +132,8 @@
   },
   "firstname": {
     "error": "Ditt förnamn är obligatoriskt",
-    "label": "Förnamn"
+    "label": "Förnamn",
+    "placeholder": "Jay, Jane, John, ..."
   },
   "guest_email": {
     "description": "Vi skickar din orderbekräftelse till den här e-postadressen",
@@ -125,7 +146,8 @@
   },
   "lastname": {
     "error": "Ditt efternamn är obligatoriskt",
-    "label": "Efternamn"
+    "label": "Efternamn",
+    "placeholder": "Doe, Smith, ..."
   },
   "payment_details_id": {
     "label": ""
@@ -141,6 +163,12 @@
     "error": "Ett giltigt telefonnummer krävs",
     "label": "Telefon",
     "title": "Lägg till nytt telefonnummer | Uppdatera telefonnummer"
+  },
+  "phone_search": {
+    "placeholder": "Sök telefonnummer..."
+  },
+  "phone_sort": {
+    "created_at": "Datum tillagt"
   },
   "postcode": {
     "label": "Postnummer",
@@ -188,5 +216,11 @@
     "description": "För att slutföra denna begäran, ange engångskoden som genererats av din Authenticator-app.",
     "label": "Verifieringskod",
     "placeholder": "123 456"
+  },
+  "verified_filter": {
+    "false": "Overifierad",
+    "label": "Verifierad",
+    "null": "Alla",
+    "true": "Verifierad"
   }
 }

@@ -12,7 +12,7 @@
   "once": "Веднъж",
   "one_time": "Веднъж",
   "price_by_n_years": "{price}/год. | {price} /{n} години",
-  "price_msg": "Само{price} | От{price} на месец | От{price} всеки{period}",
+  "price_msg": "Само {price} | От {price} на месец | От {price} всеки {period}",
   "quarterly": "Тримесечно",
   "renews_msg": "Еднократно плащане | Подновява се всеки {cycle} | Подновява се всеки {cycle}",
   "renews_usually_msg": "Обикновено {price}",

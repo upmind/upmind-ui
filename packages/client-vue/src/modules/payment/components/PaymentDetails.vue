@@ -121,7 +121,7 @@
 
 <script lang="ts" setup>
 // --- external
-import { computed, inject } from "vue";
+import { computed, inject, watch } from "vue";
 import { useI18n } from "vue-i18n";
 
 // --- internal
@@ -145,9 +145,13 @@ import {
   DetailedError,
   ErrorOrigin,
   responseCodes,
+  useConfig,
   type UsePaymentDetail
 } from "@upmind-automation/headless";
 import type { PaymentDetailsProps } from "../types";
+
+// --- utils
+import { first } from "lodash-es";
 
 // -----------------------------------------------------------------------------
 
@@ -182,6 +186,7 @@ const {
   clickwrap,
   currency,
   errors,
+  gateways,
   meta,
   model,
   resetPartialAmount,
@@ -213,6 +218,27 @@ const sectionLabel = computed(
 );
 
 const paymentError = computed(() => errors?.value?.message || props.error);
+
+// Runs once per mount, so a gateway the customer cancels is not selected again
+const { data } = useConfig();
+
+const shouldAutoSelectGateway = computed(
+  () =>
+    !!data.paymentGatewaysAutoSelect &&
+    meta.value.showGatewaySelection &&
+    !meta.value.isProcessing &&
+    !meta.value.hasStoredPaymentMethods
+);
+
+const stopAutoSelectGateway = watch(
+  shouldAutoSelectGateway,
+  shouldSelect => {
+    if (!shouldSelect) return;
+    stopAutoSelectGateway();
+    setGateway(first(gateways.value)?.gateway_id ?? null);
+  },
+  { flush: "post" }
+);
 
 async function doResolve() {
   emit("resolve");

@@ -24,6 +24,7 @@ import {
   type PromotionsContext,
   type PromotionModel
 } from "./promotions/types";
+import { isRestored, isSwapped } from "./promotions/utils";
 import { type IBasketPromotion } from "@upmind-automation/types";
 import { type QueryResponseError } from "../query";
 
@@ -67,6 +68,23 @@ export const useBasketPromotions = () => {
     hasErrors: stateMatches(actor, ["error"]),
     isProcessing: stateMatches(actor, ["processing"]),
     isValid: stateMatches(actor, ["valid"]),
+    isSwapped: isSwapped({
+      baseModel: contextValue<PromotionsContext["baseModel"]>(
+        actor,
+        "baseModel"
+      ),
+      history: contextValue<PromotionsContext["history"]>(actor, "history")
+    }),
+    isRestored: isRestored({
+      baseModel: contextValue<PromotionsContext["baseModel"]>(
+        actor,
+        "baseModel"
+      ),
+      swappedIn: contextValue<PromotionsContext["swappedIn"]>(
+        actor,
+        "swappedIn"
+      )
+    }),
     isDirty: !isEmpty(contextValue<PromotionsContext["model"]>(actor, "model")),
     isComplete:
       stateValue(actor, "done", false) ||
@@ -91,6 +109,11 @@ export const useBasketPromotions = () => {
   const model = useContext<PromotionsContext["model"]>(actor, "model");
   const schema = useContext<PromotionsContext["schema"]>(actor, "schema");
   const uischema = useContext<PromotionsContext["uischema"]>(actor, "uischema");
+  const baseModel = useContext<PromotionsContext["baseModel"]>(
+    actor,
+    "baseModel"
+  );
+  const history = useContext<PromotionsContext["history"]>(actor, "history");
 
   // --- methods
 
@@ -169,6 +192,25 @@ export const useBasketPromotions = () => {
       });
   }
 
+  async function swap(): Promise<void> {
+    actor.value?.send({ type: "SWAP" });
+    return waitFor(
+      actor.value!.service,
+      state => stateMatches(state, ["processed", "complete", "error"]),
+      { timeout: 60_000 }
+    ).then(state => {
+      if (stateMatches(state, "error"))
+        return Promise.reject(
+          new DetailedError(
+            t("error.promotion_update_failed"),
+            state.context.error?.status ?? responseCodes.Timeout,
+            ErrorOrigin.Headless,
+            { error: state.context.error, state: state.value }
+          )
+        );
+    });
+  }
+
   function clear(): void {
     actor.value?.send({ type: "CLEAR" });
   }
@@ -191,6 +233,8 @@ export const useBasketPromotions = () => {
      * @property {boolean} hasErrors - Indicates if there are errors.
      * @property {boolean} isProcessing - Indicates if the promotion is processing.
      * @property {boolean} isValid - Indicates if the promotion is valid.
+     * @property {boolean} isSwapped - Indicates if the last change swapped every code, so `swap` can switch back.
+     * @property {boolean} isRestored - Indicates if the basket no longer holds the entered code, so `swap` puts it back.
      * @property {boolean} isDirty - Indicates if the promotion is dirty.
      * @property {boolean} isComplete - Indicates if the promotion is complete.
      */
@@ -222,6 +266,12 @@ export const useBasketPromotions = () => {
     /** The promotion UI schema. */
     uischema,
 
+    /** The promotion codes on the basket. */
+    baseModel,
+
+    /** Every earlier set of promotion codes, newest last; `swap` puts the last one back. */
+    history,
+
     // --- methods
 
     /** Clears the promotion state. */
@@ -245,7 +295,13 @@ export const useBasketPromotions = () => {
      * @param {PromotionModel} value The promotion model to remove.
      * @returns {Promise<void>} Resolves when removed, rejects on error.
      */
-    remove
+    remove,
+
+    /**
+     * Swaps the basket's promotions for the previous set in `history`, so the customer can switch back and forth.
+     * @returns {Promise<void>} Resolves when swapped, rejects on error.
+     */
+    swap
   };
 };
 

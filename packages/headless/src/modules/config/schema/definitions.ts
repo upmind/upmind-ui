@@ -600,6 +600,11 @@ export const DATA_DEFINITIONS = {
     contexts: [UIContext.BASKET, UIContext.CHECKOUT],
     scopes: [UIScope.OPTION]
   },
+  paymentGatewaysAutoSelect: {
+    default: false,
+    contexts: [UIContext.CHECKOUT],
+    scopes: [UIScope.BRAND]
+  },
   productAutoUpdate: {
     default: false,
     contexts: [UIContext.CONFIGURE],

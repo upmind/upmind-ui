@@ -13,6 +13,13 @@
     "label": "",
     "placeholder": "Estrada, nome da rua etc."
   },
+  "address_search": {
+    "placeholder": "Pesquisar endereços..."
+  },
+  "address_sort": {
+    "created_at": "Data de adição",
+    "name": "Nome do endereço"
+  },
   "allow_auto_payment": {
     "description": "Permita que este método de pagamento seja usado para fazer pagamentos offline automatizados, como pagar uma fatura de renovação.",
     "label": "Permitir pagamento automático"
@@ -91,9 +98,22 @@
     "label": "Número da empresa",
     "placeholder": "Número de Identificação da Empresa"
   },
+  "company_search": {
+    "placeholder": "Empresas de pesquisa..."
+  },
+  "company_sort": {
+    "created_at": "Data de adição",
+    "name": "Nome da empresa"
+  },
   "country": {
     "label": "País",
     "placeholder": "Selecione um país"
+  },
+  "default_filter": {
+    "false": "Não é o padrão",
+    "label": "Padrão",
+    "null": "Todos",
+    "true": "Padrão"
   },
   "domain": {
     "placeholder": "Digite o seu domínio..."
@@ -112,7 +132,8 @@
   },
   "firstname": {
     "error": "O seu primeiro nome é obrigatório",
-    "label": "Primeiro nome"
+    "label": "Primeiro nome",
+    "placeholder": "Jay, Jane, John, ..."
   },
   "guest_email": {
     "description": "Enviaremos a confirmação da sua encomenda para este endereço de e-mail",
@@ -125,7 +146,8 @@
   },
   "lastname": {
     "error": "O seu apelido é obrigatório",
-    "label": "Apelido"
+    "label": "Apelido",
+    "placeholder": "Doe, Smith, ..."
   },
   "payment_details_id": {
     "label": ""
@@ -141,6 +163,12 @@
     "error": "É necessário um número de telefone válido",
     "label": "Telefone",
     "title": "Adicionar novo número de telefone | Atualizar número de telefone"
+  },
+  "phone_search": {
+    "placeholder": "Pesquisar números de telefone..."
+  },
+  "phone_sort": {
+    "created_at": "Data de adição"
   },
   "postcode": {
     "label": "Código postal",
@@ -188,5 +216,11 @@
     "description": "Para concluir esta solicitação, insira o código de acesso único gerado pelo seu aplicativo Authenticator.",
     "label": "Código de verificação",
     "placeholder": "123 456"
+  },
+  "verified_filter": {
+    "false": "Não verificado",
+    "label": "Verificado",
+    "null": "Todos",
+    "true": "Verificado"
   }
 }

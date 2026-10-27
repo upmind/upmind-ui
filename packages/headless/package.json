@@ -1,6 +1,6 @@
 {
   "name": "@upmind-automation/headless",
-  "version": "0.20.19",
+  "version": "0.20.20",
   "description": "",
   "type": "module",
   "sideEffects": false,

@@ -13,12 +13,12 @@ import {
   useModelParser,
   useValidation
 } from "../../../utils";
-import { get, some, trim } from "lodash-es";
+import { get, last, some, trim } from "lodash-es";
 
 // --- types
 import type { PromotionsContext } from "./types";
 import type { AnyEventObject } from "xstate";
-import type { IBasketPromotion } from "@upmind-automation/types";
+import type { IBasket, IBasketPromotion } from "@upmind-automation/types";
 
 // -----------------------------------------------------------------------------
 
@@ -84,6 +84,31 @@ async function remove(
   });
 }
 
+/**
+ * Replaces the basket's promotions in one request: the rejected `model` after
+ * a combination conflict, or the last `history` set on SWAP. The request fails
+ * as a whole if any code can't be applied, so the basket keeps its codes.
+ */
+async function swap(
+  { basketId, history, model }: PromotionsContext,
+  event: AnyEventObject
+) {
+  const { put, useUrl } = useQuery();
+
+  return put<IBasket>({
+    mutationKey: ["basket", "promotions"],
+    url: useUrl(`/orders/${basketId}`),
+    data: {
+      replace_promos: true,
+      promotions:
+        event.type === "SWAP"
+          ? last(history)
+          : [{ promocode: trim(model?.promocode) }]
+    },
+    withAccessToken: true
+  }).then(invalidateQueryByKey(["basket"], { exact: false }));
+}
+
 async function parse(
   { model, schema }: PromotionsContext,
   _event: AnyEventObject
@@ -129,6 +154,7 @@ export default {
   load,
   parse,
   validate,
+  swap,
   add: asyncDebounce(
     (context: PromotionsContext, _event: AnyEventObject) =>
       add(context, _event),

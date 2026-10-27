@@ -13,6 +13,13 @@
     "label": "",
     "placeholder": "Numele străzii, drumului etc."
   },
+  "address_search": {
+    "placeholder": "Căutați adrese..."
+  },
+  "address_sort": {
+    "created_at": "Data adăugării",
+    "name": "Numele adresei"
+  },
   "allow_auto_payment": {
     "description": "Permiteți ca această metodă de plată să fie utilizată pentru efectuarea de plăți offline automate – cum ar fi plata unei facturi de reînnoire.",
     "label": "Permiteți plata automată"
@@ -91,9 +98,22 @@
     "label": "Numărul companiei",
     "placeholder": "Numărul de identificare al societății"
   },
+  "company_search": {
+    "placeholder": "Căutați companii..."
+  },
+  "company_sort": {
+    "created_at": "Data adăugării",
+    "name": "Numele companiei"
+  },
   "country": {
     "label": "Țara",
     "placeholder": "Selectați o țară"
+  },
+  "default_filter": {
+    "false": "Neimplicit",
+    "label": "Implicit",
+    "null": "Toate",
+    "true": "Implicit"
   },
   "domain": {
     "placeholder": "Introduceți domeniul dvs...."
@@ -112,7 +132,8 @@
   },
   "firstname": {
     "error": "Prenumele dumneavoastră este obligatoriu",
-    "label": "Prenume"
+    "label": "Prenume",
+    "placeholder": "Jay, Jane, John, ..."
   },
   "guest_email": {
     "description": "Îți vom trimite confirmarea comenzii la această adresă de e-mail",
@@ -125,7 +146,8 @@
   },
   "lastname": {
     "error": "Numele dumneavoastră de familie este obligatoriu",
-    "label": "Nume"
+    "label": "Nume",
+    "placeholder": "Doe, Smith, ..."
   },
   "payment_details_id": {
     "label": ""
@@ -141,6 +163,12 @@
     "error": "Este necesar un număr de telefon valid",
     "label": "Telefon",
     "title": "Adăugați un număr de telefon nou | Actualizați numărul de telefon"
+  },
+  "phone_search": {
+    "placeholder": "Căutați numere de telefon..."
+  },
+  "phone_sort": {
+    "created_at": "Data adăugării"
   },
   "postcode": {
     "label": "Cod poștal",
@@ -188,5 +216,11 @@
     "description": "Pentru a finaliza această solicitare, vă rugăm să introduceți codul de acces unic generat de aplicația Authenticator.",
     "label": "Cod de verificare",
     "placeholder": "123 456"
+  },
+  "verified_filter": {
+    "false": "Neverificat",
+    "label": "Verificat",
+    "null": "Toate",
+    "true": "Verificat"
   }
 }

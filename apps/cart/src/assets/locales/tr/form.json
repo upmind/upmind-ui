@@ -13,6 +13,13 @@
     "label": "",
     "placeholder": "Yol, sokak adı vb."
   },
+  "address_search": {
+    "placeholder": "Adresleri ara..."
+  },
+  "address_sort": {
+    "created_at": "Eklenme tarihi",
+    "name": "Adres adı"
+  },
   "allow_auto_payment": {
     "description": "Bu ödeme yönteminin, yenileme faturası ödemeleri gibi otomatik çevrimdışı ödemeler yapmak için kullanılmasına izin verin.",
     "label": "Otomatik ödemeye izin ver"
@@ -91,9 +98,22 @@
     "label": "Şirket Numarası",
     "placeholder": "Şirket Kimlik Numarası"
   },
+  "company_search": {
+    "placeholder": "Şirketleri araştır..."
+  },
+  "company_sort": {
+    "created_at": "Eklenme tarihi",
+    "name": "Firma Adı"
+  },
   "country": {
     "label": "Ülke",
     "placeholder": "Bir ülke seçin"
+  },
+  "default_filter": {
+    "false": "Varsayılan Değil",
+    "label": "Varsayılan",
+    "null": "Tüm",
+    "true": "Varsayılan"
   },
   "domain": {
     "placeholder": "Alan adınızı girin..."
@@ -112,7 +132,8 @@
   },
   "firstname": {
     "error": "Adınız gereklidir",
-    "label": "İlk adı"
+    "label": "İlk adı",
+    "placeholder": "Jay, Jane, John, ..."
   },
   "guest_email": {
     "description": "Sipariş onayınızı bu e-posta adresine göndereceğiz",
@@ -125,7 +146,8 @@
   },
   "lastname": {
     "error": "Soyadınız gereklidir",
-    "label": "Soy isim"
+    "label": "Soy isim",
+    "placeholder": "Doe, Smith, ..."
   },
   "payment_details_id": {
     "label": ""
@@ -141,6 +163,12 @@
     "error": "Geçerli bir Telefon Numarası gereklidir",
     "label": "Telefon",
     "title": "Yeni Telefon Numarası Ekle | Telefon Numarasını Güncelle"
+  },
+  "phone_search": {
+    "placeholder": "Telefon numaralarını ara..."
+  },
+  "phone_sort": {
+    "created_at": "Eklenme tarihi"
   },
   "postcode": {
     "label": "Posta kodu",
@@ -188,5 +216,11 @@
     "description": "Bu isteği tamamlamak için lütfen Authenticator uygulamanız tarafından oluşturulan tek kullanımlık şifreyi girin.",
     "label": "Doğrulama kodu",
     "placeholder": "123 456"
+  },
+  "verified_filter": {
+    "false": "Doğrulanmamış",
+    "label": "Doğrulandı",
+    "null": "Tüm",
+    "true": "Doğrulandı"
   }
 }

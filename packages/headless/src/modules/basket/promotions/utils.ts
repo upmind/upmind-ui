@@ -6,7 +6,15 @@
 import { useTranslateField, useTranslateName } from "../../../utils";
 
 // --- types
-import { isEmpty, reduce, toNumber } from "lodash-es";
+import {
+  intersectionBy,
+  isEmpty,
+  isNil,
+  last,
+  reduce,
+  some,
+  toNumber
+} from "lodash-es";
 import type { PromotionsContext } from "./types";
 import { PromotionDisplayTypes, type PromotionDetails } from "../../product";
 import type { JsonSchema, UISchemaElement } from "@jsonforms/core";
@@ -101,3 +109,22 @@ export const parsePromotionDetails = (
     []
   );
 };
+
+/**
+ * A swap replaced every code on the basket, so the basket and the last
+ * `history` set share no code. A normal add or remove leaves them overlapping.
+ */
+export const isSwapped = ({
+  baseModel,
+  history
+}: Pick<PromotionsContext, "baseModel" | "history">): boolean =>
+  !isEmpty(baseModel) &&
+  !isEmpty(last(history)) &&
+  isEmpty(intersectionBy(baseModel ?? [], last(history) ?? [], "promocode"));
+
+/** A swap back put the earlier codes on the basket, so it no longer holds the entered code. */
+export const isRestored = ({
+  baseModel,
+  swappedIn
+}: Pick<PromotionsContext, "baseModel" | "swappedIn">): boolean =>
+  !isNil(swappedIn) && !some(baseModel, swappedIn);

@@ -13,6 +13,13 @@
     "label": "",
     "placeholder": "Nazwa drogi, ulicy itp."
   },
+  "address_search": {
+    "placeholder": "Wyszukaj adresy..."
+  },
+  "address_sort": {
+    "created_at": "Data dodania",
+    "name": "Nazwa adresu"
+  },
   "allow_auto_payment": {
     "description": "Zezwól na korzystanie z tej metody płatności w celu dokonywania zautomatyzowanych płatności offline – np. opłacania faktury odnowieniowej.",
     "label": "Zezwól na automatyczną płatność"
@@ -91,9 +98,22 @@
     "label": "Numer firmy",
     "placeholder": "Numer identyfikacyjny przedsiębiorstwa"
   },
+  "company_search": {
+    "placeholder": "Wyszukaj firmy..."
+  },
+  "company_sort": {
+    "created_at": "Data dodania",
+    "name": "Nazwa firmy"
+  },
   "country": {
     "label": "Kraj",
     "placeholder": "Wybierz kraj"
+  },
+  "default_filter": {
+    "false": "Niedomyślne",
+    "label": "Domyślny",
+    "null": "Wszystko",
+    "true": "Domyślny"
   },
   "domain": {
     "placeholder": "Wprowadź swoją domenę..."
@@ -112,7 +132,8 @@
   },
   "firstname": {
     "error": "Twoje imię jest wymagane",
-    "label": "Imię"
+    "label": "Imię",
+    "placeholder": "Jay, Jane, John, ..."
   },
   "guest_email": {
     "description": "Wyślemy potwierdzenie zamówienia na ten adres e-mail",
@@ -125,7 +146,8 @@
   },
   "lastname": {
     "error": "Twoje nazwisko jest wymagane",
-    "label": "Nazwisko"
+    "label": "Nazwisko",
+    "placeholder": "Doe, Smith, ..."
   },
   "payment_details_id": {
     "label": ""
@@ -141,6 +163,12 @@
     "error": "Wymagany jest prawidłowy numer telefonu",
     "label": "Telefon",
     "title": "Dodaj nowy numer telefonu | Zaktualizuj numer telefonu"
+  },
+  "phone_search": {
+    "placeholder": "Wyszukaj numery telefonów..."
+  },
+  "phone_sort": {
+    "created_at": "Data dodania"
   },
   "postcode": {
     "label": "Kod pocztowy",
@@ -188,5 +216,11 @@
     "description": "Aby dokończyć tę prośbę, wprowadź jednorazowy kod dostępu wygenerowany przez aplikację Authenticator.",
     "label": "Kod weryfikacyjny",
     "placeholder": "123 456"
+  },
+  "verified_filter": {
+    "false": "Niesprawdzony",
+    "label": "Zweryfikowano",
+    "null": "Wszystko",
+    "true": "Zweryfikowano"
   }
 }

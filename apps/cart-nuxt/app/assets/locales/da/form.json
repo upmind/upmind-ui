@@ -13,19 +13,51 @@
     "label": "",
     "placeholder": "Vej, gadenavn osv."
   },
+  "address_search": {
+    "placeholder": "Søg adresser..."
+  },
+  "address_sort": {
+    "created_at": "Dato tilføjet",
+    "name": "Adressenavn"
+  },
   "allow_auto_payment": {
     "description": "Tillad, at denne betalingsmetode bruges til at foretage automatiske offlinebetalinger – f.eks. betaling af en fornyelsesfaktura.",
     "label": "Tillad automatisk betaling"
   },
   "auth_email": {
+    "error": "En e-mailadresse er påkrævet",
+    "label": "Din e-mailadresse",
+    "placeholder": "navn@email.com"
+  },
+  "auth_login": {
     "error": "Et brugernavn eller en e-mailadresse er påkrævet",
     "label": "Dit brugernavn eller din e-mailadresse",
     "placeholder": "navn@email.com"
   },
   "auth_password": {
-    "error": "En stærk adgangskode er påkrævet",
+    "error": {
+      "min_length": "Adgangskoden skal bestå af mindst 8 tegn",
+      "min_length_letter": "Adgangskoden skal bestå af mindst 8 tegn og indeholde et bogstav",
+      "min_length_letter_number": "Adgangskoden skal bestå af mindst 8 tegn og indeholde både et bogstav og et tal",
+      "min_length_letter_number_symbol": "Adgangskoden skal bestå af mindst 8 tegn og indeholde et bogstav, et tal og et tegn",
+      "min_length_letter_symbol": "Adgangskoden skal bestå af mindst 8 tegn og indeholde et bogstav og et tegn",
+      "min_length_number": "Adgangskoden skal bestå af mindst 8 tegn og indeholde et tal.",
+      "min_length_number_symbol": "Adgangskoden skal bestå af mindst 8 tegn og indeholde et tal og et tegn",
+      "min_length_symbol": "Adgangskoden skal bestå af mindst 8 tegn og indeholde et tegn",
+      "missing_letter": "Adgangskoden skal indeholde et bogstav",
+      "missing_letter_number": "Adgangskoden skal indeholde et bogstav og et tal",
+      "missing_letter_number_symbol": "Adgangskoden skal indeholde et bogstav, et tal og et tegn",
+      "missing_letter_symbol": "Adgangskoden skal indeholde et bogstav og et tegn",
+      "missing_number": "Adgangskoden skal indeholde et tal",
+      "missing_number_symbol": "Adgangskoden skal indeholde et tal og et tegn",
+      "missing_symbol": "Adgangskoden skal indeholde et tegn"
+    },
+    "generate": "Opret en stærk adgangskode",
+    "hide": "Skjul adgangskode",
+    "hint": "Adgangskoden skal bestå af mindst 8 tegn og indeholde et bogstav, et tal og et tegn.",
     "label": "Adgangskode",
-    "placeholder": "Adgangskode eller adgangsfrase"
+    "placeholder": "Adgangskode eller adgangsfrase",
+    "show": "Vis adgangskode"
   },
   "card_cvv": {
     "error": "Et gyldigt CVV er påkrævet",
@@ -64,11 +96,24 @@
   },
   "companyNumber": {
     "label": "Firmanummer",
-    "placeholder": "Registreret skat eller moms"
+    "placeholder": "Virksomhedsidentifikationsnummer"
+  },
+  "company_search": {
+    "placeholder": "Søg efter virksomheder..."
+  },
+  "company_sort": {
+    "created_at": "Dato tilføjet",
+    "name": "Firmanavn"
   },
   "country": {
     "label": "Land",
     "placeholder": "Vælg et land"
+  },
+  "default_filter": {
+    "false": "Ikke standard",
+    "label": "Misligholdelse",
+    "null": "Alle",
+    "true": "Misligholdelse"
   },
   "domain": {
     "placeholder": "Indtast dit domæne..."
@@ -79,6 +124,7 @@
   "email": {
     "error": "En gyldig e-mailadresse er påkrævet",
     "label": "E-mail",
+    "placeholder": "navn@email.com",
     "title": "Tilføj ny e-mail | Opdater e-mail"
   },
   "field_notes": {
@@ -86,14 +132,22 @@
   },
   "firstname": {
     "error": "Dit fornavn er påkrævet",
-    "label": "Fornavn"
+    "label": "Fornavn",
+    "placeholder": "Jay, Jane, John, ..."
+  },
+  "guest_email": {
+    "description": "Vi sender din ordrebekræftelse til denne e-mailadresse",
+    "label": "E-mail ved modtagelse af ordre",
+    "placeholder": "navn@email.com"
+  },
+  "language": {
+    "error": "Dit sprog er påkrævet",
+    "label": "Sprog"
   },
   "lastname": {
     "error": "Dit efternavn er påkrævet",
-    "label": "Efternavn"
-  },
-  "login": {
-    "error": "Vi oplevede en fejl under forsøget på at logge dig ind."
+    "label": "Efternavn",
+    "placeholder": "Doe, Smith, ..."
   },
   "payment_details_id": {
     "label": ""
@@ -110,6 +164,12 @@
     "label": "Telefon",
     "title": "Tilføj nyt telefonnummer | Opdater telefonnummer"
   },
+  "phone_search": {
+    "placeholder": "Søg telefonnumre..."
+  },
+  "phone_sort": {
+    "created_at": "Dato tilføjet"
+  },
   "postcode": {
     "label": "Postnummer",
     "placeholder": "f.eks. 10011"
@@ -121,15 +181,13 @@
     "error": "En gyldig kampagnekode er påkrævet",
     "placeholder": "Indtast rabatkoden her"
   },
-  "recover": {
-    "error": "Vi oplevede en fejl under forsøget på at sende dig en e-mail til nulstilling af adgangskode."
+  "publicName": {
+    "error": "Dit offentlige navn er påkrævet",
+    "label": "Offentligt navn"
   },
   "region": {
     "label": "Område",
     "placeholder": "Vælg en region…"
-  },
-  "register": {
-    "error": "Vi oplevede en fejl under oprettelsen af ​​din konto."
   },
   "select_option": {
     "placeholder": "Vælg en mulighed"
@@ -141,7 +199,28 @@
     "label": ""
   },
   "taxNumber": {
-    "label": "Skattenummer",
-    "placeholder": "Skatte-ID"
+    "label": "Registreret skatteidentifikationsnummer",
+    "placeholder": "Skatteregistreringsnummer/Momsnummer/GST-nummer"
+  },
+  "twofa": {
+    "description": "Denne konto er sikret med tofaktorgodkendelse. Indtast venligst din bekræftelseskode.",
+    "label": "Bekræftelseskode",
+    "placeholder": "123 456"
+  },
+  "twofa_email": {
+    "description": "For din sikkerhed har vi sendt en engangskode til din e-mail. Indtast venligst koden nedenfor for at fuldføre denne anmodning.",
+    "label": "Bekræftelseskode",
+    "placeholder": "123 456"
+  },
+  "twofa_totp": {
+    "description": "For at gennemføre denne anmodning skal du indtaste den engangskode, der er genereret af din Authenticator-app.",
+    "label": "Bekræftelseskode",
+    "placeholder": "123 456"
+  },
+  "verified_filter": {
+    "false": "Ubekræftet",
+    "label": "Bekræftet",
+    "null": "Alle",
+    "true": "Bekræftet"
   }
 }

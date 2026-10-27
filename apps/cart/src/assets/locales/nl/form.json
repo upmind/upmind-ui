@@ -13,6 +13,13 @@
     "label": "",
     "placeholder": "Straatnaam, straatnaam etc."
   },
+  "address_search": {
+    "placeholder": "Adressen zoeken..."
+  },
+  "address_sort": {
+    "created_at": "Datum toegevoegd",
+    "name": "Adresnaam"
+  },
   "allow_auto_payment": {
     "description": "Geef deze betaalmethode toestemming voor het uitvoeren van geautomatiseerde offline betalingen, zoals het betalen van een verlengingsfactuur.",
     "label": "Automatische betaling toestaan"
@@ -91,9 +98,22 @@
     "label": "Bedrijfsnummer",
     "placeholder": "Bedrijfsregistratienummer"
   },
+  "company_search": {
+    "placeholder": "Zoek bedrijven..."
+  },
+  "company_sort": {
+    "created_at": "Datum toegevoegd",
+    "name": "Bedrijfsnaam"
+  },
   "country": {
     "label": "Land",
     "placeholder": "Selecteer een land"
+  },
+  "default_filter": {
+    "false": "Niet standaard",
+    "label": "Standaard",
+    "null": "Alle",
+    "true": "Standaard"
   },
   "domain": {
     "placeholder": "Voer uw domein in..."
@@ -112,7 +132,8 @@
   },
   "firstname": {
     "error": "Uw voornaam is vereist",
-    "label": "Voornaam"
+    "label": "Voornaam",
+    "placeholder": "Jay, Jane, John, ..."
   },
   "guest_email": {
     "description": "We sturen je bestelbevestiging naar dit e-mailadres",
@@ -125,7 +146,8 @@
   },
   "lastname": {
     "error": "Uw achternaam is vereist",
-    "label": "Achternaam"
+    "label": "Achternaam",
+    "placeholder": "Doe, Smith, ..."
   },
   "payment_details_id": {
     "label": ""
@@ -141,6 +163,12 @@
     "error": "Een geldig telefoonnummer is vereist",
     "label": "Telefoon",
     "title": "Nieuw telefoonnummer toevoegen | Telefoonnummer bijwerken"
+  },
+  "phone_search": {
+    "placeholder": "Telefoonnummers zoeken..."
+  },
+  "phone_sort": {
+    "created_at": "Datum toegevoegd"
   },
   "postcode": {
     "label": "Postcode",
@@ -188,5 +216,11 @@
     "description": "Voer de eenmalige toegangscode in die door uw Authenticator-app is gegenereerd om dit verzoek te voltooien.",
     "label": "Verificatiecode",
     "placeholder": "123 456"
+  },
+  "verified_filter": {
+    "false": "Niet geverifieerd",
+    "label": "Geverifieerd",
+    "null": "Alle",
+    "true": "Geverifieerd"
   }
 }

@@ -13,19 +13,51 @@
     "label": "",
     "placeholder": "Strada, nome della via ecc."
   },
+  "address_search": {
+    "placeholder": "Cerca indirizzi..."
+  },
+  "address_sort": {
+    "created_at": "Data di aggiunta",
+    "name": "Nome dell'indirizzo"
+  },
   "allow_auto_payment": {
     "description": "Consenti l'utilizzo di questo metodo di pagamento per effettuare pagamenti offline automatici, ad esempio per pagare una fattura di rinnovo.",
     "label": "Consenti il pagamento automatico"
   },
   "auth_email": {
+    "error": "È necessario un indirizzo e-mail",
+    "label": "La tua e-mail",
+    "placeholder": "nome@email.com"
+  },
+  "auth_login": {
     "error": "È richiesto un nome utente o un indirizzo email",
     "label": "Il tuo nome utente o indirizzo email",
     "placeholder": "nome@email.com"
   },
   "auth_password": {
-    "error": "È richiesta una password complessa",
+    "error": {
+      "min_length": "La password deve contenere almeno 8 caratteri",
+      "min_length_letter": "La password deve essere composta da almeno 8 caratteri e contenere una lettera",
+      "min_length_letter_number": "La password deve essere composta da almeno 8 caratteri e contenere una lettera e un numero",
+      "min_length_letter_number_symbol": "La password deve contenere almeno 8 caratteri, tra cui una lettera, un numero e un simbolo",
+      "min_length_letter_symbol": "La password deve essere composta da almeno 8 caratteri e contenere una lettera e un simbolo",
+      "min_length_number": "La password deve contenere almeno 8 caratteri e un numero.",
+      "min_length_number_symbol": "La password deve contenere almeno 8 caratteri, un numero e un simbolo",
+      "min_length_symbol": "La password deve contenere almeno 8 caratteri e un simbolo",
+      "missing_letter": "La password deve contenere una lettera",
+      "missing_letter_number": "La password deve contenere una lettera e un numero",
+      "missing_letter_number_symbol": "La password deve contenere una lettera, un numero e un carattere speciale",
+      "missing_letter_symbol": "La password deve contenere una lettera e un carattere speciale",
+      "missing_number": "La password deve contenere un numero",
+      "missing_number_symbol": "La password deve contenere un numero e un carattere speciale",
+      "missing_symbol": "La password deve contenere un carattere speciale"
+    },
+    "generate": "Crea una password sicura",
+    "hide": "Nascondi password",
+    "hint": "La password deve contenere almeno 8 caratteri e includere una lettera, un numero e un simbolo.",
     "label": "Password",
-    "placeholder": "Password o frase segreta"
+    "placeholder": "Password o frase segreta",
+    "show": "Mostra password"
   },
   "card_cvv": {
     "error": "È richiesto un CVV valido",
@@ -64,11 +96,24 @@
   },
   "companyNumber": {
     "label": "Numero di società",
-    "placeholder": "Imposta registrata o GST"
+    "placeholder": "Numero di identificazione aziendale"
+  },
+  "company_search": {
+    "placeholder": "Cerca aziende..."
+  },
+  "company_sort": {
+    "created_at": "Data di aggiunta",
+    "name": "Nome dell'azienda"
   },
   "country": {
     "label": "Paese",
     "placeholder": "Seleziona un paese"
+  },
+  "default_filter": {
+    "false": "Non predefinito",
+    "label": "Predefinito",
+    "null": "Tutto",
+    "true": "Predefinito"
   },
   "domain": {
     "placeholder": "Inserisci il tuo dominio..."
@@ -79,6 +124,7 @@
   "email": {
     "error": "È necessario un indirizzo email valido",
     "label": "E-mail",
+    "placeholder": "nome@email.com",
     "title": "Aggiungi nuova email | Aggiorna email"
   },
   "field_notes": {
@@ -86,14 +132,22 @@
   },
   "firstname": {
     "error": "Il tuo nome è obbligatorio",
-    "label": "Nome di battesimo"
+    "label": "Nome di battesimo",
+    "placeholder": "Jay, Jane, John, ..."
+  },
+  "guest_email": {
+    "description": "Ti invieremo la conferma dell'ordine a questo indirizzo e-mail",
+    "label": "E-mail di conferma dell'ordine",
+    "placeholder": "nome@email.com"
+  },
+  "language": {
+    "error": "La tua lingua è obbligatoria",
+    "label": "Lingua"
   },
   "lastname": {
     "error": "Il tuo cognome è obbligatorio",
-    "label": "Cognome"
-  },
-  "login": {
-    "error": "Si è verificato un errore durante il tentativo di accesso."
+    "label": "Cognome",
+    "placeholder": "Doe, Smith, ..."
   },
   "payment_details_id": {
     "label": ""
@@ -110,6 +164,12 @@
     "label": "Telefono",
     "title": "Aggiungi nuovo numero di telefono | Aggiorna numero di telefono"
   },
+  "phone_search": {
+    "placeholder": "Cerca numeri di telefono..."
+  },
+  "phone_sort": {
+    "created_at": "Data di aggiunta"
+  },
   "postcode": {
     "label": "Codice postale",
     "placeholder": "ad esempio 10011"
@@ -121,15 +181,13 @@
     "error": "Codice promozionale non valido",
     "placeholder": "Inserisci qui il codice voucher"
   },
-  "recover": {
-    "error": "Si è verificato un errore durante il tentativo di inviarti un'e-mail per reimpostare la password."
+  "publicName": {
+    "error": "Il tuo nome pubblico è obbligatorio",
+    "label": "Nome pubblico"
   },
   "region": {
     "label": "Regione",
     "placeholder": "Seleziona una regione…"
-  },
-  "register": {
-    "error": "Si è verificato un errore durante il tentativo di creare il tuo account."
   },
   "select_option": {
     "placeholder": "Seleziona un'opzione"
@@ -142,6 +200,27 @@
   },
   "taxNumber": {
     "label": "Codice fiscale",
-    "placeholder": "Codice fiscale"
+    "placeholder": "Codice fiscale/Partita IVA/Codice GST"
+  },
+  "twofa": {
+    "description": "Questo account è protetto tramite autenticazione a due fattori. Inserisci il tuo codice di verifica.",
+    "label": "Codice di verifica",
+    "placeholder": "123 456"
+  },
+  "twofa_email": {
+    "description": "Per la tua sicurezza, ti abbiamo inviato un codice di accesso monouso via email. Per completare la richiesta, inserisci il codice qui sotto.",
+    "label": "Codice di verifica",
+    "placeholder": "123 456"
+  },
+  "twofa_totp": {
+    "description": "Per completare questa richiesta, inserisci il codice di accesso monouso generato dalla tua app di autenticazione.",
+    "label": "Codice di verifica",
+    "placeholder": "123 456"
+  },
+  "verified_filter": {
+    "false": "Non verificato",
+    "label": "Verificato",
+    "null": "Tutto",
+    "true": "Verificato"
   }
 }

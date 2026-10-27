@@ -1,17 +1,24 @@
 {
   "address": {
     "error": "Se requiere su dirección",
-    "label": "DIRECCIÓN",
+    "label": "Dirección",
     "placeholder": "Empieza a escribir tu dirección",
     "title": "Agregar nueva dirección | Actualizar dirección"
   },
   "address1": {
-    "label": "DIRECCIÓN",
+    "label": "Dirección",
     "placeholder": "Nombre de la casa, número de apartamento, etc."
   },
   "address2": {
     "label": "",
     "placeholder": "Carretera, nombre de calle, etc."
+  },
+  "address_search": {
+    "placeholder": "Buscar direcciones..."
+  },
+  "address_sort": {
+    "created_at": "Fecha de adición",
+    "name": "Nombre de la dirección"
   },
   "allow_auto_payment": {
     "description": "Permitir que este método de pago se utilice para realizar pagos automáticos fuera de línea, como pagar una factura de renovación.",
@@ -91,9 +98,22 @@
     "label": "Número de empresa",
     "placeholder": "Número de identificación de la empresa"
   },
+  "company_search": {
+    "placeholder": "Buscar empresas..."
+  },
+  "company_sort": {
+    "created_at": "Fecha de adición",
+    "name": "Nombre de empresa"
+  },
   "country": {
     "label": "País",
     "placeholder": "Selecciona un país"
+  },
+  "default_filter": {
+    "false": "No es predeterminado",
+    "label": "Por defecto",
+    "null": "Todo",
+    "true": "Por defecto"
   },
   "domain": {
     "placeholder": "Ingrese su dominio..."
@@ -112,7 +132,8 @@
   },
   "firstname": {
     "error": "Tu nombre es obligatorio",
-    "label": "Nombre de pila"
+    "label": "Nombre de pila",
+    "placeholder": "Jay, Jane, John, ..."
   },
   "guest_email": {
     "description": "Te enviaremos la confirmación de tu pedido a esta dirección de correo electrónico",
@@ -125,7 +146,8 @@
   },
   "lastname": {
     "error": "Tu apellido es requerido",
-    "label": "Apellido"
+    "label": "Apellido",
+    "placeholder": "Doe, Smith, ..."
   },
   "payment_details_id": {
     "label": ""
@@ -141,6 +163,12 @@
     "error": "Se requiere un número de teléfono válido",
     "label": "Teléfono",
     "title": "Agregar nuevo número de teléfono | Actualizar número de teléfono"
+  },
+  "phone_search": {
+    "placeholder": "Buscar números de teléfono..."
+  },
+  "phone_sort": {
+    "created_at": "Fecha de adición"
   },
   "postcode": {
     "label": "Código postal",
@@ -188,5 +216,11 @@
     "description": "Para completar esta solicitud, introduzca el código de acceso único generado por su aplicación Authenticator.",
     "label": "Código de verificación",
     "placeholder": "123 456"
+  },
+  "verified_filter": {
+    "false": "Inconfirmado",
+    "label": "Verificado",
+    "null": "Todo",
+    "true": "Verificado"
   }
 }

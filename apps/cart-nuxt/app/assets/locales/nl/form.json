@@ -13,19 +13,51 @@
     "label": "",
     "placeholder": "Straatnaam, straatnaam etc."
   },
+  "address_search": {
+    "placeholder": "Adressen zoeken..."
+  },
+  "address_sort": {
+    "created_at": "Datum toegevoegd",
+    "name": "Adresnaam"
+  },
   "allow_auto_payment": {
     "description": "Geef deze betaalmethode toestemming voor het uitvoeren van geautomatiseerde offline betalingen, zoals het betalen van een verlengingsfactuur.",
     "label": "Automatische betaling toestaan"
   },
   "auth_email": {
+    "error": "Een e-mailadres is verplicht",
+    "label": "Je e-mailadres",
+    "placeholder": "naam@email.com"
+  },
+  "auth_login": {
     "error": "Een gebruikersnaam of e-mailadres is vereist",
     "label": "Uw gebruikersnaam of e-mailadres",
     "placeholder": "naam@email.com"
   },
   "auth_password": {
-    "error": "Een sterk wachtwoord is vereist",
+    "error": {
+      "min_length": "Het wachtwoord moet minimaal 8 tekens bevatten.",
+      "min_length_letter": "Het wachtwoord moet uit minimaal 8 tekens bestaan en een letter bevatten",
+      "min_length_letter_number": "Het wachtwoord moet uit minimaal 8 tekens bestaan en zowel een letter als een cijfer bevatten",
+      "min_length_letter_number_symbol": "Het wachtwoord moet uit minimaal 8 tekens bestaan en een letter, een cijfer en een teken bevatten",
+      "min_length_letter_symbol": "Het wachtwoord moet uit minimaal 8 tekens bestaan en een letter en een teken bevatten",
+      "min_length_number": "Het wachtwoord moet minimaal 8 tekens lang zijn en een cijfer bevatten.",
+      "min_length_number_symbol": "Het wachtwoord moet uit minimaal 8 tekens bestaan en een cijfer en een speciaal teken bevatten",
+      "min_length_symbol": "Het wachtwoord moet uit minimaal 8 tekens bestaan en een speciaal teken bevatten",
+      "missing_letter": "Het wachtwoord moet een letter bevatten",
+      "missing_letter_number": "Het wachtwoord moet een letter en een cijfer bevatten",
+      "missing_letter_number_symbol": "Het wachtwoord moet een letter, een cijfer en een teken bevatten",
+      "missing_letter_symbol": "Het wachtwoord moet een letter en een teken bevatten",
+      "missing_number": "Het wachtwoord moet een cijfer bevatten.",
+      "missing_number_symbol": "Het wachtwoord moet een cijfer en een teken bevatten",
+      "missing_symbol": "Het wachtwoord moet een speciaal teken bevatten"
+    },
+    "generate": "Maak een sterk wachtwoord aan",
+    "hide": "Wachtwoord verbergen",
+    "hint": "Het wachtwoord moet uit minimaal 8 tekens bestaan en een letter, een cijfer en een teken bevatten.",
     "label": "Wachtwoord",
-    "placeholder": "Wachtwoord of wachtwoordzin"
+    "placeholder": "Wachtwoord of wachtwoordzin",
+    "show": "Wachtwoord weergeven"
   },
   "card_cvv": {
     "error": "Een geldige CVV is vereist",
@@ -64,11 +96,24 @@
   },
   "companyNumber": {
     "label": "Bedrijfsnummer",
-    "placeholder": "Geregistreerde belasting of GST"
+    "placeholder": "Bedrijfsregistratienummer"
+  },
+  "company_search": {
+    "placeholder": "Zoek bedrijven..."
+  },
+  "company_sort": {
+    "created_at": "Datum toegevoegd",
+    "name": "Bedrijfsnaam"
   },
   "country": {
     "label": "Land",
     "placeholder": "Selecteer een land"
+  },
+  "default_filter": {
+    "false": "Niet standaard",
+    "label": "Standaard",
+    "null": "Alle",
+    "true": "Standaard"
   },
   "domain": {
     "placeholder": "Voer uw domein in..."
@@ -79,6 +124,7 @@
   "email": {
     "error": "Een geldig e-mailadres is vereist",
     "label": "E-mail",
+    "placeholder": "naam@email.com",
     "title": "Nieuw e-mailadres toevoegen | E-mailadres bijwerken"
   },
   "field_notes": {
@@ -86,14 +132,22 @@
   },
   "firstname": {
     "error": "Uw voornaam is vereist",
-    "label": "Voornaam"
+    "label": "Voornaam",
+    "placeholder": "Jay, Jane, John, ..."
+  },
+  "guest_email": {
+    "description": "We sturen je bestelbevestiging naar dit e-mailadres",
+    "label": "E-mail ter bevestiging van de bestelling",
+    "placeholder": "naam@email.com"
+  },
+  "language": {
+    "error": "Uw taal is vereist.",
+    "label": "Taal"
   },
   "lastname": {
     "error": "Uw achternaam is vereist",
-    "label": "Achternaam"
-  },
-  "login": {
-    "error": "Er is een fout opgetreden bij het inloggen."
+    "label": "Achternaam",
+    "placeholder": "Doe, Smith, ..."
   },
   "payment_details_id": {
     "label": ""
@@ -110,6 +164,12 @@
     "label": "Telefoon",
     "title": "Nieuw telefoonnummer toevoegen | Telefoonnummer bijwerken"
   },
+  "phone_search": {
+    "placeholder": "Telefoonnummers zoeken..."
+  },
+  "phone_sort": {
+    "created_at": "Datum toegevoegd"
+  },
   "postcode": {
     "label": "Postcode",
     "placeholder": "bijv. 10011"
@@ -121,15 +181,13 @@
     "error": "Ongeldige promotiecode",
     "placeholder": "Voer hier de vouchercode in"
   },
-  "recover": {
-    "error": "Er is een fout opgetreden bij het verzenden van een e-mail om uw wachtwoord opnieuw in te stellen."
+  "publicName": {
+    "error": "Uw openbare naam is verplicht.",
+    "label": "Publieke naam"
   },
   "region": {
     "label": "Regio",
     "placeholder": "Selecteer een regio…"
-  },
-  "register": {
-    "error": "Er is een fout opgetreden bij het aanmaken van uw account."
   },
   "select_option": {
     "placeholder": "Selecteer een optie"
@@ -141,7 +199,28 @@
     "label": ""
   },
   "taxNumber": {
-    "label": "Belastingnummer",
-    "placeholder": "Belastingnummer"
+    "label": "Geregistreerd belastingnummer",
+    "placeholder": "Fiscaal identificatienummer/btw-nummer"
+  },
+  "twofa": {
+    "description": "Dit account is beveiligd met tweefactorauthenticatie. Voer uw verificatiecode in.",
+    "label": "Verificatiecode",
+    "placeholder": "123 456"
+  },
+  "twofa_email": {
+    "description": "Ter bescherming van uw gegevens hebben we een eenmalige toegangscode naar uw e-mailadres gestuurd. Voer de onderstaande code in om dit verzoek te voltooien.",
+    "label": "Verificatiecode",
+    "placeholder": "123 456"
+  },
+  "twofa_totp": {
+    "description": "Voer de eenmalige toegangscode in die door uw Authenticator-app is gegenereerd om dit verzoek te voltooien.",
+    "label": "Verificatiecode",
+    "placeholder": "123 456"
+  },
+  "verified_filter": {
+    "false": "Niet geverifieerd",
+    "label": "Geverifieerd",
+    "null": "Alle",
+    "true": "Geverifieerd"
   }
 }

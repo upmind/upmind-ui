@@ -13,19 +13,51 @@
     "label": "",
     "placeholder": "Názov cesty, ulice atď."
   },
+  "address_search": {
+    "placeholder": "Hľadať adresy..."
+  },
+  "address_sort": {
+    "created_at": "Dátum pridania",
+    "name": "Názov adresy"
+  },
   "allow_auto_payment": {
     "description": "Povoliť používanie tejto platobnej metódy na vykonávanie automatizovaných offline platieb – napríklad na úhradu faktúry za obnovenie.",
     "label": "Povoliť automatickú platbu"
   },
   "auth_email": {
+    "error": "E-mailová adresa je povinná",
+    "label": "Tvoj e-mail",
+    "placeholder": "meno@email.com"
+  },
+  "auth_login": {
     "error": "Vyžaduje sa používateľské meno alebo e-mailová adresa",
     "label": "Vaše používateľské meno alebo e-mailová adresa",
     "placeholder": "meno@email.com"
   },
   "auth_password": {
-    "error": "Vyžaduje sa silné heslo",
+    "error": {
+      "min_length": "Heslo musí mať minimálne 8 znakov",
+      "min_length_letter": "Heslo musí mať minimálne 8 znakov a obsahovať aspoň jedno písmeno",
+      "min_length_letter_number": "Heslo musí mať minimálne 8 znakov a obsahovať jedno písmeno a jednu číslicu",
+      "min_length_letter_number_symbol": "Heslo musí mať minimálne 8 znakov a musí obsahovať písmeno, číslicu a symbol",
+      "min_length_letter_symbol": "Heslo musí mať minimálne 8 znakov a musí obsahovať jedno písmeno a jeden symbol",
+      "min_length_number": "Heslo musí mať minimálne 8 znakov a obsahovať číslo.",
+      "min_length_number_symbol": "Heslo musí mať minimálne 8 znakov a obsahovať číslicu a symbol",
+      "min_length_symbol": "Heslo musí mať minimálne 8 znakov a obsahovať symbol",
+      "missing_letter": "Heslo musí obsahovať písmeno",
+      "missing_letter_number": "Heslo musí obsahovať písmeno a číslicu",
+      "missing_letter_number_symbol": "Heslo musí obsahovať písmeno, číslicu a znak",
+      "missing_letter_symbol": "Heslo musí obsahovať písmeno a znak",
+      "missing_number": "Heslo musí obsahovať číslo",
+      "missing_number_symbol": "Heslo musí obsahovať číslicu a znak",
+      "missing_symbol": "Heslo musí obsahovať symbol"
+    },
+    "generate": "Vytvorte silné heslo",
+    "hide": "Skryť heslo",
+    "hint": "Heslo musí mať minimálne 8 znakov a musí obsahovať písmeno, číslicu a symbol.",
     "label": "Heslo",
-    "placeholder": "Heslo alebo prístupová fráza"
+    "placeholder": "Heslo alebo prístupová fráza",
+    "show": "Zobraziť heslo"
   },
   "card_cvv": {
     "error": "Je potrebné platné CVV",
@@ -64,11 +96,24 @@
   },
   "companyNumber": {
     "label": "Číslo spoločnosti",
-    "placeholder": "Registrovaná daň alebo DPH"
+    "placeholder": "Identifikačné číslo spoločnosti"
+  },
+  "company_search": {
+    "placeholder": "Hľadať firmy..."
+  },
+  "company_sort": {
+    "created_at": "Dátum pridania",
+    "name": "Názov spoločnosti"
   },
   "country": {
     "label": "Krajina",
     "placeholder": "Vyberte krajinu"
+  },
+  "default_filter": {
+    "false": "Nie je predvolené",
+    "label": "Predvolené",
+    "null": "Všetky",
+    "true": "Predvolené"
   },
   "domain": {
     "placeholder": "Zadajte svoju doménu..."
@@ -79,6 +124,7 @@
   "email": {
     "error": "Je potrebná platná e-mailová adresa",
     "label": "E-mail",
+    "placeholder": "meno@email.com",
     "title": "Pridať nový e-mail | Aktualizovať e-mail"
   },
   "field_notes": {
@@ -86,14 +132,22 @@
   },
   "firstname": {
     "error": "Vaše krstné meno je povinné",
-    "label": "Krstné meno"
+    "label": "Krstné meno",
+    "placeholder": "Jay, Jane, John, ..."
+  },
+  "guest_email": {
+    "description": "Potvrdenie objednávky vám zašleme na túto e-mailovú adresu",
+    "label": "E-mail na potvrdenie objednávky",
+    "placeholder": "meno@email.com"
+  },
+  "language": {
+    "error": "Váš jazyk je povinný",
+    "label": "Jazyk"
   },
   "lastname": {
     "error": "Vaše priezvisko je povinné",
-    "label": "Priezvisko"
-  },
-  "login": {
-    "error": "Pri pokuse o vaše prihlásenie sa vyskytla chyba."
+    "label": "Priezvisko",
+    "placeholder": "Doe, Smith, ..."
   },
   "payment_details_id": {
     "label": ""
@@ -110,6 +164,12 @@
     "label": "Telefón",
     "title": "Pridať nové telefónne číslo | Aktualizovať telefónne číslo"
   },
+  "phone_search": {
+    "placeholder": "Hľadať telefónne čísla..."
+  },
+  "phone_sort": {
+    "created_at": "Dátum pridania"
+  },
   "postcode": {
     "label": "PSČ",
     "placeholder": "napr. 10011"
@@ -121,15 +181,13 @@
     "error": "Neplatný promo kód",
     "placeholder": "Sem zadajte kód zľavového poukazu"
   },
-  "recover": {
-    "error": "Pri pokuse o odoslanie e-mailu na obnovenie hesla sa vyskytla chyba."
+  "publicName": {
+    "error": "Vyžaduje sa vaše verejné meno",
+    "label": "Verejný názov"
   },
   "region": {
     "label": "Región",
     "placeholder": "Vyberte región…"
-  },
-  "register": {
-    "error": "Pri pokuse o vytvorenie vášho účtu sa vyskytla chyba."
   },
   "select_option": {
     "placeholder": "Vyberte možnosť"
@@ -141,7 +199,28 @@
     "label": ""
   },
   "taxNumber": {
-    "label": "Daňové číslo",
-    "placeholder": "DIČ"
+    "label": "IČO",
+    "placeholder": "Daňové identifikačné číslo/číslo pre účely DPH/GST"
+  },
+  "twofa": {
+    "description": "Tento účet je zabezpečený dvojfaktorovým overením. Zadajte, prosím, svoj overovací kód.",
+    "label": "Overovací kód",
+    "placeholder": "123 456"
+  },
+  "twofa_email": {
+    "description": "Pre vašu ochranu sme vám na váš e-mail poslali jednorazový prístupový kód. Pre dokončenie tejto žiadosti zadajte kód nižšie.",
+    "label": "Overovací kód",
+    "placeholder": "123 456"
+  },
+  "twofa_totp": {
+    "description": "Na dokončenie tejto žiadosti zadajte jednorazový prístupový kód vygenerovaný aplikáciou Authenticator.",
+    "label": "Overovací kód",
+    "placeholder": "123 456"
+  },
+  "verified_filter": {
+    "false": "Neoverené",
+    "label": "Overené",
+    "null": "Všetky",
+    "true": "Overené"
   }
 }

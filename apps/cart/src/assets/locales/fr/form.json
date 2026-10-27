@@ -1,17 +1,24 @@
 {
   "address": {
     "error": "Votre adresse est requise",
-    "label": "Discours",
+    "label": "Adresse",
     "placeholder": "Commencez à taper votre adresse",
     "title": "Ajouter une nouvelle adresse | Mettre à jour l'adresse"
   },
   "address1": {
-    "label": "Discours",
+    "label": "Adresse",
     "placeholder": "Nom de la maison, numéro de l'appartement, etc."
   },
   "address2": {
     "label": "",
     "placeholder": "Route, nom de rue, etc."
+  },
+  "address_search": {
+    "placeholder": "Rechercher des adresses..."
+  },
+  "address_sort": {
+    "created_at": "Date d'ajout",
+    "name": "Nom de l'adresse"
   },
   "allow_auto_payment": {
     "description": "Autoriser l’utilisation de ce mode de paiement pour effectuer des paiements hors ligne automatisés, comme le paiement d’une facture de renouvellement.",
@@ -91,9 +98,22 @@
     "label": "Numéro d'entreprise",
     "placeholder": "Numéro d'identification de l'entreprise"
   },
+  "company_search": {
+    "placeholder": "Rechercher des entreprises..."
+  },
+  "company_sort": {
+    "created_at": "Date d'ajout",
+    "name": "Nom de l'entreprise"
+  },
   "country": {
     "label": "Pays",
     "placeholder": "Sélectionnez un pays"
+  },
+  "default_filter": {
+    "false": "Non par défaut",
+    "label": "Défaut",
+    "null": "Tous",
+    "true": "Défaut"
   },
   "domain": {
     "placeholder": "Entrez votre domaine..."
@@ -112,7 +132,8 @@
   },
   "firstname": {
     "error": "Votre prénom est obligatoire",
-    "label": "Prénom"
+    "label": "Prénom",
+    "placeholder": "Jay, Jane, John, ..."
   },
   "guest_email": {
     "description": "Nous t'enverrons la confirmation de ta commande à cette adresse e-mail",
@@ -125,7 +146,8 @@
   },
   "lastname": {
     "error": "Votre nom de famille est obligatoire",
-    "label": "Nom"
+    "label": "Nom",
+    "placeholder": "Doe, Smith, ..."
   },
   "payment_details_id": {
     "label": ""
@@ -141,6 +163,12 @@
     "error": "Un numéro de téléphone valide est requis",
     "label": "Téléphone",
     "title": "Ajouter un nouveau numéro de téléphone | Mettre à jour le numéro de téléphone"
+  },
+  "phone_search": {
+    "placeholder": "Rechercher des numéros de téléphone..."
+  },
+  "phone_sort": {
+    "created_at": "Date d'ajout"
   },
   "postcode": {
     "label": "Code postal",
@@ -188,5 +216,11 @@
     "description": "Pour finaliser cette demande, veuillez saisir le code d'accès à usage unique généré par votre application d'authentification.",
     "label": "Le code de vérification",
     "placeholder": "123 456"
+  },
+  "verified_filter": {
+    "false": "Non vérifié",
+    "label": "Vérifié",
+    "null": "Tous",
+    "true": "Vérifié"
   }
 }
