@@ -13,6 +13,13 @@
     "label": "",
     "placeholder": "道路、街道名稱等"
   },
+  "address_search": {
+    "placeholder": "搜尋地址…"
+  },
+  "address_sort": {
+    "created_at": "新增日期",
+    "name": "地址名稱"
+  },
   "allow_auto_payment": {
     "description": "允許使用此付款方式進行自動離線付款 - 例如支付續約發票。",
     "label": "允許自動付款"
@@ -91,9 +98,22 @@
     "label": "公司編號",
     "placeholder": "公司識別號碼"
   },
+  "company_search": {
+    "placeholder": "搜尋公司…"
+  },
+  "company_sort": {
+    "created_at": "新增日期",
+    "name": "公司名稱"
+  },
   "country": {
     "label": "國家",
     "placeholder": "選擇國家"
+  },
+  "default_filter": {
+    "false": "非預設",
+    "label": "預設",
+    "null": "全部",
+    "true": "預設"
   },
   "domain": {
     "placeholder": "輸入您的網域名稱..."
@@ -112,7 +132,8 @@
   },
   "firstname": {
     "error": "需要您的名字",
-    "label": "名"
+    "label": "名",
+    "placeholder": "傑伊、簡、約翰…"
   },
   "guest_email": {
     "description": "我們將把您的訂單確認信寄至此電子郵件地址",
@@ -125,7 +146,8 @@
   },
   "lastname": {
     "error": "您的姓氏是必填項",
-    "label": "姓"
+    "label": "姓",
+    "placeholder": "Doe、Smith、…"
   },
   "payment_details_id": {
     "label": ""
@@ -141,6 +163,12 @@
     "error": "需要有效的電話號碼",
     "label": "電話",
     "title": "新增電話號碼 | 更新電話號碼"
+  },
+  "phone_search": {
+    "placeholder": "搜尋電話號碼..."
+  },
+  "phone_sort": {
+    "created_at": "新增日期"
   },
   "postcode": {
     "label": "郵遞區號",
@@ -188,5 +216,11 @@
     "description": "若要完成此請求，請輸入您的身份驗證器應用程式產生的一次性驗證碼。",
     "label": "驗證碼",
     "placeholder": "123 456"
+  },
+  "verified_filter": {
+    "false": "未經證實",
+    "label": "已驗證",
+    "null": "全部",
+    "true": "已驗證"
   }
 }

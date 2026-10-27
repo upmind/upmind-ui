@@ -13,6 +13,13 @@
     "label": "",
     "placeholder": "Yol, küçə adı və s."
   },
+  "address_search": {
+    "placeholder": "Ünvanları axtarın..."
+  },
+  "address_sort": {
+    "created_at": "Əlavə tarixi",
+    "name": "Ünvan adı"
+  },
   "allow_auto_payment": {
     "description": "Bu ödəniş metodunun avtomatik oflayn ödənişlər etmək üçün istifadə edilməsinə icazə verin – məsələn, yenilənmə fakturasının ödənilməsi.",
     "label": "Avtomatik ödənişə icazə verin"
@@ -91,9 +98,22 @@
     "label": "Şirkət nömrəsi",
     "placeholder": "Şirkətin Şəxsiyyət Nömrəsi"
   },
+  "company_search": {
+    "placeholder": "Şirkətləri axtarın..."
+  },
+  "company_sort": {
+    "created_at": "Əlavə tarixi",
+    "name": "Şirkət adı"
+  },
   "country": {
     "label": "Ölkə",
     "placeholder": "Ölkə seçin"
+  },
+  "default_filter": {
+    "false": "Varsayılan deyil",
+    "label": "Defolt",
+    "null": "Hamısı",
+    "true": "Defolt"
   },
   "domain": {
     "placeholder": "Domeninizi daxil edin..."
@@ -112,7 +132,8 @@
   },
   "firstname": {
     "error": "Adınız tələb olunur",
-    "label": "Ad"
+    "label": "Ad",
+    "placeholder": "Cey, Ceyn, Con,..."
   },
   "guest_email": {
     "description": "Sifariş təsdiqinizi bu e-poçta göndərəcəyik",
@@ -125,7 +146,8 @@
   },
   "lastname": {
     "error": "Soyadınız tələb olunur",
-    "label": "Soyadı"
+    "label": "Soyadı",
+    "placeholder": "Doe, Smith, ..."
   },
   "payment_details_id": {
     "label": ""
@@ -141,6 +163,12 @@
     "error": "Etibarlı Telefon Nömrəsi tələb olunur",
     "label": "Telefon",
     "title": "Yeni Telefon Nömrəsi Əlavə et | Telefon nömrəsini yeniləyin"
+  },
+  "phone_search": {
+    "placeholder": "Telefon nömrələrini axtarın..."
+  },
+  "phone_sort": {
+    "created_at": "Əlavə tarixi"
   },
   "postcode": {
     "label": "Poçt indeksi",
@@ -188,5 +216,11 @@
     "description": "Bu sorğunu tamamlamaq üçün, zəhmət olmasa, Authenticator tətbiqiniz tərəfindən yaradılan birdəfəlik giriş kodunu daxil edin.",
     "label": "Təsdiq kodu",
     "placeholder": "123 456"
+  },
+  "verified_filter": {
+    "false": "Təsdiqlənməmiş",
+    "label": "Təsdiqlənib",
+    "null": "Hamısı",
+    "true": "Təsdiqlənib"
   }
 }

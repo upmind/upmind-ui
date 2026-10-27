@@ -13,6 +13,13 @@
     "label": "",
     "placeholder": "Utca, utca neve stb."
   },
+  "address_search": {
+    "placeholder": "Címek keresése..."
+  },
+  "address_sort": {
+    "created_at": "Hozzáadás dátuma",
+    "name": "Cím neve"
+  },
   "allow_auto_payment": {
     "description": "Engedélyezze ennek a fizetési módnak a használatát automatizált offline fizetésekhez – például megújítási számla kifizetéséhez.",
     "label": "Automatikus fizetés engedélyezése"
@@ -91,9 +98,22 @@
     "label": "Cégjegyzékszám",
     "placeholder": "Cégazonosító szám"
   },
+  "company_search": {
+    "placeholder": "Cégek keresése..."
+  },
+  "company_sort": {
+    "created_at": "Hozzáadás dátuma",
+    "name": "Cégnév"
+  },
   "country": {
     "label": "Ország",
     "placeholder": "Válasszon országot"
+  },
+  "default_filter": {
+    "false": "Nem alapértelmezett",
+    "label": "Alapértelmezett",
+    "null": "Minden",
+    "true": "Alapértelmezett"
   },
   "domain": {
     "placeholder": "Add meg a domainedet..."
@@ -112,7 +132,8 @@
   },
   "firstname": {
     "error": "A keresztneved megadása kötelező",
-    "label": "Keresztnév"
+    "label": "Keresztnév",
+    "placeholder": "Jay, Jane, John, ..."
   },
   "guest_email": {
     "description": "A megrendelés visszaigazolását erre az e-mail címre küldjük",
@@ -125,7 +146,8 @@
   },
   "lastname": {
     "error": "A vezetékneved megadása kötelező",
-    "label": "Vezetéknév"
+    "label": "Vezetéknév",
+    "placeholder": "Doe, Smith, ..."
   },
   "payment_details_id": {
     "label": ""
@@ -141,6 +163,12 @@
     "error": "Érvényes telefonszám szükséges",
     "label": "Telefon",
     "title": "Új telefonszám hozzáadása | Telefonszám frissítése"
+  },
+  "phone_search": {
+    "placeholder": "Telefonszámok keresése..."
+  },
+  "phone_sort": {
+    "created_at": "Hozzáadás dátuma"
   },
   "postcode": {
     "label": "Irányítószám",
@@ -188,5 +216,11 @@
     "description": "A kérés teljesítéséhez kérjük, adja meg a Hitelesítő alkalmazás által generált egyszer használatos jelszót.",
     "label": "Ellenőrző kód",
     "placeholder": "123 456"
+  },
+  "verified_filter": {
+    "false": "Ellenőrizetlen",
+    "label": "Ellenőrzött",
+    "null": "Minden",
+    "true": "Ellenőrzött"
   }
 }
