@@ -13,19 +13,51 @@
     "label": "",
     "placeholder": "Straße, Straßenname usw."
   },
+  "address_search": {
+    "placeholder": "Adressen suchen..."
+  },
+  "address_sort": {
+    "created_at": "Datum hinzugefügt",
+    "name": "Adressname"
+  },
   "allow_auto_payment": {
     "description": "Erlauben Sie die Verwendung dieser Zahlungsmethode für automatisierte Offline-Zahlungen – beispielsweise die Bezahlung einer Verlängerungsrechnung.",
     "label": "Automatische Zahlung zulassen"
   },
   "auth_email": {
+    "error": "Eine E-Mail-Adresse ist erforderlich",
+    "label": "Ihre E-Mail-Adresse",
+    "placeholder": "name@email.com"
+  },
+  "auth_login": {
     "error": "Ein Benutzername oder eine E-Mail-Adresse ist erforderlich",
     "label": "Ihr Benutzername oder Ihre E-Mail-Adresse",
     "placeholder": "name@email.com"
   },
   "auth_password": {
-    "error": "Ein sicheres Passwort ist erforderlich",
+    "error": {
+      "min_length": "Das Passwort muss mindestens 8 Zeichen lang sein.",
+      "min_length_letter": "Das Passwort muss mindestens 8 Zeichen lang sein und einen Buchstaben enthalten",
+      "min_length_letter_number": "Das Passwort muss mindestens 8 Zeichen lang sein und einen Buchstaben sowie eine Zahl enthalten",
+      "min_length_letter_number_symbol": "Das Passwort muss mindestens 8 Zeichen lang sein und einen Buchstaben, eine Zahl sowie ein Sonderzeichen enthalten.",
+      "min_length_letter_symbol": "Das Passwort muss mindestens 8 Zeichen lang sein und einen Buchstaben sowie ein Sonderzeichen enthalten",
+      "min_length_number": "Das Passwort muss mindestens 8 Zeichen lang sein und eine Zahl enthalten.",
+      "min_length_number_symbol": "Das Passwort muss mindestens 8 Zeichen lang sein und eine Zahl sowie ein Sonderzeichen enthalten",
+      "min_length_symbol": "Das Passwort muss mindestens 8 Zeichen lang sein und ein Sonderzeichen enthalten",
+      "missing_letter": "Das Passwort muss einen Buchstaben enthalten",
+      "missing_letter_number": "Das Passwort muss einen Buchstaben und eine Zahl enthalten",
+      "missing_letter_number_symbol": "Das Passwort muss einen Buchstaben, eine Zahl und ein Sonderzeichen enthalten",
+      "missing_letter_symbol": "Das Passwort muss einen Buchstaben und ein Sonderzeichen enthalten",
+      "missing_number": "Das Passwort muss eine Zahl enthalten.",
+      "missing_number_symbol": "Das Passwort muss eine Zahl und ein Sonderzeichen enthalten",
+      "missing_symbol": "Das Passwort muss ein Sonderzeichen enthalten"
+    },
+    "generate": "Erstellen Sie ein sicheres Passwort",
+    "hide": "Passwort ausblenden",
+    "hint": "Das Passwort muss mindestens 8 Zeichen lang sein und einen Buchstaben, eine Zahl sowie ein Sonderzeichen enthalten.",
     "label": "Passwort",
-    "placeholder": "Passwort oder Passphrase"
+    "placeholder": "Passwort oder Passphrase",
+    "show": "Passwort anzeigen"
   },
   "card_cvv": {
     "error": "Ein gültiger CVV ist erforderlich",
@@ -64,11 +96,24 @@
   },
   "companyNumber": {
     "label": "Firmennummer",
-    "placeholder": "Registrierte Steuer oder GST"
+    "placeholder": "Unternehmensidentifikationsnummer"
+  },
+  "company_search": {
+    "placeholder": "Unternehmen suchen..."
+  },
+  "company_sort": {
+    "created_at": "Datum hinzugefügt",
+    "name": "Name der Firma"
   },
   "country": {
     "label": "Land",
-    "placeholder": "Wählen Sie ein Land"
+    "placeholder": "Wählen Sie ein Land aus"
+  },
+  "default_filter": {
+    "false": "Nicht Standard",
+    "label": "Standard",
+    "null": "Alle",
+    "true": "Standard"
   },
   "domain": {
     "placeholder": "Geben Sie Ihre Domäne ein..."
@@ -79,6 +124,7 @@
   "email": {
     "error": "Eine gültige E-Mail-Adresse ist erforderlich",
     "label": "E-Mail",
+    "placeholder": "name@email.com",
     "title": "Neue E-Mail hinzufügen | E-Mail aktualisieren"
   },
   "field_notes": {
@@ -86,14 +132,22 @@
   },
   "firstname": {
     "error": "Ihr Vorname ist erforderlich",
-    "label": "Vorname"
+    "label": "Vorname",
+    "placeholder": "Jay, Jane, John, ..."
+  },
+  "guest_email": {
+    "description": "Wir senden Ihnen die Bestellbestätigung an diese E-Mail-Adresse",
+    "label": "E-Mail zur Bestellbestätigung",
+    "placeholder": "name@email.com"
+  },
+  "language": {
+    "error": "Ihre Sprache wird benötigt",
+    "label": "Sprache"
   },
   "lastname": {
     "error": "Ihr Nachname ist erforderlich",
-    "label": "Nachname"
-  },
-  "login": {
-    "error": "Beim Versuch, Sie anzumelden, ist ein Fehler aufgetreten."
+    "label": "Nachname",
+    "placeholder": "Doe, Smith, ..."
   },
   "payment_details_id": {
     "label": ""
@@ -110,6 +164,12 @@
     "label": "Telefon",
     "title": "Neue Telefonnummer hinzufügen | Telefonnummer aktualisieren"
   },
+  "phone_search": {
+    "placeholder": "Telefonnummern suchen..."
+  },
+  "phone_sort": {
+    "created_at": "Datum hinzugefügt"
+  },
   "postcode": {
     "label": "Postleitzahl",
     "placeholder": "zB. 10011"
@@ -121,15 +181,13 @@
     "error": "Ein gültiger Promo-Code ist erforderlich",
     "placeholder": "Gutscheincode hier eingeben"
   },
-  "recover": {
-    "error": "Beim Versuch, Ihnen eine E-Mail zum Zurücksetzen des Passworts zu senden, ist ein Fehler aufgetreten."
+  "publicName": {
+    "error": "Ihr öffentlicher Name ist erforderlich.",
+    "label": "Öffentlicher Name"
   },
   "region": {
     "label": "Region",
     "placeholder": "Wählen Sie eine Region…"
-  },
-  "register": {
-    "error": "Beim Erstellen Ihres Kontos ist ein Fehler aufgetreten."
   },
   "select_option": {
     "placeholder": "Wählen Sie eine Option"
@@ -141,7 +199,28 @@
     "label": ""
   },
   "taxNumber": {
-    "label": "Steuernummer",
-    "placeholder": "Steuernummer"
+    "label": "Steuer-Identifikationsnummer",
+    "placeholder": "Steuer-ID/Umsatzsteuer-ID/GST-Nummer"
+  },
+  "twofa": {
+    "description": "Dieses Konto ist durch Zwei-Faktor-Authentifizierung gesichert. Bitte geben Sie Ihren Bestätigungscode ein.",
+    "label": "Bestätigungscode",
+    "placeholder": "123 456"
+  },
+  "twofa_email": {
+    "description": "Zu Ihrem Schutz haben wir Ihnen einen Einmalpasscode per E-Mail zugesendet. Um diese Anfrage abzuschließen, geben Sie bitte den Code unten ein.",
+    "label": "Bestätigungscode",
+    "placeholder": "123 456"
+  },
+  "twofa_totp": {
+    "description": "Um diese Anfrage abzuschließen, geben Sie bitte den von Ihrer Authenticator-App generierten Einmalpasswortcode ein.",
+    "label": "Bestätigungscode",
+    "placeholder": "123 456"
+  },
+  "verified_filter": {
+    "false": "Unbestätigt",
+    "label": "Verifiziert",
+    "null": "Alle",
+    "true": "Verifiziert"
   }
 }

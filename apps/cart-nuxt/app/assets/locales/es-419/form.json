@@ -1,31 +1,63 @@
 {
   "address": {
     "error": "Se requiere su dirección",
-    "label": "DIRECCIÓN",
+    "label": "Dirección",
     "placeholder": "Empieza a escribir tu dirección",
     "title": "Agregar nueva dirección | Actualizar dirección"
   },
   "address1": {
-    "label": "DIRECCIÓN",
+    "label": "Dirección",
     "placeholder": "Nombre de la casa, número de apartamento, etc."
   },
   "address2": {
     "label": "",
     "placeholder": "Carretera, nombre de calle, etc."
   },
+  "address_search": {
+    "placeholder": "Buscar direcciones..."
+  },
+  "address_sort": {
+    "created_at": "Fecha de adición",
+    "name": "Nombre de la dirección"
+  },
   "allow_auto_payment": {
     "description": "Permitir que este método de pago se utilice para realizar pagos automáticos fuera de línea, como pagar una factura de renovación.",
     "label": "Permitir pago automático"
   },
   "auth_email": {
+    "error": "Es necesario introducir una dirección de correo electrónico",
+    "label": "Tu correo electrónico",
+    "placeholder": "nombre@email.com"
+  },
+  "auth_login": {
     "error": "Se requiere un nombre de usuario o una dirección de correo electrónico",
     "label": "Su nombre de usuario o dirección de correo electrónico",
     "placeholder": "nombre@email.com"
   },
   "auth_password": {
-    "error": "Se requiere una contraseña segura",
+    "error": {
+      "min_length": "La contraseña debe tener al menos 8 caracteres.",
+      "min_length_letter": "La contraseña debe tener al menos 8 caracteres y contener una letra",
+      "min_length_letter_number": "La contraseña debe tener al menos 8 caracteres y contener una letra y un número",
+      "min_length_letter_number_symbol": "La contraseña debe tener al menos 8 caracteres y contener una letra, un número y un símbolo",
+      "min_length_letter_symbol": "La contraseña debe tener al menos 8 caracteres, contener una letra y un símbolo",
+      "min_length_number": "La contraseña debe tener al menos 8 caracteres y contener un número.",
+      "min_length_number_symbol": "La contraseña debe tener al menos 8 caracteres, incluir un número y un símbolo",
+      "min_length_symbol": "La contraseña debe tener al menos 8 caracteres y contener un símbolo",
+      "missing_letter": "La contraseña debe contener una letra",
+      "missing_letter_number": "La contraseña debe contener una letra y un número",
+      "missing_letter_number_symbol": "La contraseña debe contener una letra, un número y un símbolo",
+      "missing_letter_symbol": "La contraseña debe contener una letra y un símbolo",
+      "missing_number": "La contraseña debe contener un número.",
+      "missing_number_symbol": "La contraseña debe contener un número y un símbolo",
+      "missing_symbol": "La contraseña debe contener un símbolo"
+    },
+    "generate": "Genera una contraseña segura",
+    "hide": "Ocultar contraseña",
+    "hint": "La contraseña debe tener al menos 8 caracteres e incluir una letra, un número y un símbolo.",
     "label": "Contraseña",
-    "placeholder": "Contraseña o frase de contraseña"
+    "placeholder": "Contraseña o frase de contraseña",
+    "show": "Mostrar contraseña"
   },
   "card_cvv": {
     "error": "Se requiere un CVV válido",
@@ -64,11 +96,24 @@
   },
   "companyNumber": {
     "label": "Número de empresa",
-    "placeholder": "Impuesto registrado o GST"
+    "placeholder": "Número de identificación de la empresa"
+  },
+  "company_search": {
+    "placeholder": "Buscar empresas..."
+  },
+  "company_sort": {
+    "created_at": "Fecha de adición",
+    "name": "Nombre de empresa"
   },
   "country": {
     "label": "País",
-    "placeholder": "Seleccione un país"
+    "placeholder": "Selecciona un país"
+  },
+  "default_filter": {
+    "false": "No es predeterminado",
+    "label": "Por defecto",
+    "null": "Todo",
+    "true": "Por defecto"
   },
   "domain": {
     "placeholder": "Ingrese su dominio..."
@@ -79,6 +124,7 @@
   "email": {
     "error": "Se requiere una dirección de correo electrónico válida",
     "label": "Correo electrónico",
+    "placeholder": "nombre@email.com",
     "title": "Agregar nuevo correo electrónico | Actualizar correo electrónico"
   },
   "field_notes": {
@@ -86,14 +132,22 @@
   },
   "firstname": {
     "error": "Tu nombre es obligatorio",
-    "label": "Nombre de pila"
+    "label": "Nombre de pila",
+    "placeholder": "Jay, Jane, John, ..."
+  },
+  "guest_email": {
+    "description": "Te enviaremos la confirmación de tu pedido a este correo electrónico",
+    "label": "Correo electrónico para la confirmación del pedido",
+    "placeholder": "nombre@email.com"
+  },
+  "language": {
+    "error": "Tu idioma es requerido",
+    "label": "Idioma"
   },
   "lastname": {
     "error": "Tu apellido es requerido",
-    "label": "Apellido"
-  },
-  "login": {
-    "error": "Experimentamos un error al intentar iniciar sesión."
+    "label": "Apellido",
+    "placeholder": "Doe, Smith, ..."
   },
   "payment_details_id": {
     "label": ""
@@ -110,6 +164,12 @@
     "label": "Teléfono",
     "title": "Agregar nuevo número de teléfono | Actualizar número de teléfono"
   },
+  "phone_search": {
+    "placeholder": "Buscar números de teléfono..."
+  },
+  "phone_sort": {
+    "created_at": "Fecha de adición"
+  },
   "postcode": {
     "label": "Código postal",
     "placeholder": "p. ej. 10011"
@@ -121,15 +181,13 @@
     "error": "Código promocional no válido",
     "placeholder": "Introduzca el código del cupón aquí"
   },
-  "recover": {
-    "error": "Experimentamos un error al intentar enviarle un correo electrónico de restablecimiento de contraseña."
+  "publicName": {
+    "error": "Se requiere su nombre público",
+    "label": "Nombre público"
   },
   "region": {
     "label": "Región",
     "placeholder": "Seleccione una región…"
-  },
-  "register": {
-    "error": "Experimentamos un error al intentar crear su cuenta."
   },
   "select_option": {
     "placeholder": "Seleccione una opción"
@@ -142,6 +200,27 @@
   },
   "taxNumber": {
     "label": "Número de identificación fiscal",
-    "placeholder": "Identificación fiscal"
+    "placeholder": "Número de identificación fiscal/IVA/GST"
+  },
+  "twofa": {
+    "description": "Esta cuenta está protegida mediante autenticación de dos factores. Introduzca su código de verificación.",
+    "label": "Código de verificación",
+    "placeholder": "123 456"
+  },
+  "twofa_email": {
+    "description": "Para su protección, le hemos enviado un código de acceso único a su correo electrónico. Para completar esta solicitud, introduzca el código a continuación.",
+    "label": "Código de verificación",
+    "placeholder": "123 456"
+  },
+  "twofa_totp": {
+    "description": "Para completar esta solicitud, introduzca el código de acceso único generado por su aplicación Authenticator.",
+    "label": "Código de verificación",
+    "placeholder": "123 456"
+  },
+  "verified_filter": {
+    "false": "Inconfirmado",
+    "label": "Verificado",
+    "null": "Todo",
+    "true": "Verificado"
   }
 }

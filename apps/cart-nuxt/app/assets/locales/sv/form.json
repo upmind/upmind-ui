@@ -13,19 +13,51 @@
     "label": "",
     "placeholder": "Väg, gatunamn etc."
   },
+  "address_search": {
+    "placeholder": "Sök adresser..."
+  },
+  "address_sort": {
+    "created_at": "Datum tillagt",
+    "name": "Adressnamn"
+  },
   "allow_auto_payment": {
     "description": "Tillåt att den här betalningsmetoden används för att göra automatiska offlinebetalningar – till exempel för att betala en förnyelsefaktura.",
     "label": "Tillåt automatisk betalning"
   },
   "auth_email": {
+    "error": "En e-postadress krävs",
+    "label": "Din e-postadress",
+    "placeholder": "namn@epost.com"
+  },
+  "auth_login": {
     "error": "Ett användarnamn eller en e-postadress krävs",
     "label": "Ditt användarnamn eller din e-postadress",
     "placeholder": "namn@epost.com"
   },
   "auth_password": {
-    "error": "Ett starkt lösenord krävs",
+    "error": {
+      "min_length": "Lösenordet måste bestå av minst 8 tecken",
+      "min_length_letter": "Lösenordet måste bestå av minst 8 tecken och innehålla en bokstav",
+      "min_length_letter_number": "Lösenordet måste bestå av minst 8 tecken och innehålla en bokstav och en siffra",
+      "min_length_letter_number_symbol": "Lösenordet måste bestå av minst 8 tecken och innehålla en bokstav, en siffra och ett tecken",
+      "min_length_letter_symbol": "Lösenordet måste bestå av minst 8 tecken och innehålla en bokstav och ett tecken",
+      "min_length_number": "Lösenordet måste bestå av minst 8 tecken och innehålla en siffra.",
+      "min_length_number_symbol": "Lösenordet måste bestå av minst 8 tecken och innehålla en siffra och ett specialtecken",
+      "min_length_symbol": "Lösenordet måste bestå av minst 8 tecken och innehålla ett specialtecken",
+      "missing_letter": "Lösenordet måste innehålla en bokstav",
+      "missing_letter_number": "Lösenordet måste innehålla en bokstav och en siffra",
+      "missing_letter_number_symbol": "Lösenordet måste innehålla en bokstav, en siffra och ett tecken",
+      "missing_letter_symbol": "Lösenordet måste innehålla en bokstav och ett tecken",
+      "missing_number": "Lösenordet måste innehålla en siffra",
+      "missing_number_symbol": "Lösenordet måste innehålla en siffra och ett tecken",
+      "missing_symbol": "Lösenordet måste innehålla ett specialtecken"
+    },
+    "generate": "Skapa ett starkt lösenord",
+    "hide": "Dölj lösenord",
+    "hint": "Lösenordet måste bestå av minst 8 tecken och innehålla en bokstav, en siffra och ett tecken.",
     "label": "Lösenord",
-    "placeholder": "Lösenord eller lösenfras"
+    "placeholder": "Lösenord eller lösenfras",
+    "show": "Visa lösenord"
   },
   "card_cvv": {
     "error": "Ett giltigt CVV krävs",
@@ -64,11 +96,24 @@
   },
   "companyNumber": {
     "label": "Företagsnummer",
-    "placeholder": "Registrerad skatt eller moms"
+    "placeholder": "Organisationsnummer"
+  },
+  "company_search": {
+    "placeholder": "Sök företag..."
+  },
+  "company_sort": {
+    "created_at": "Datum tillagt",
+    "name": "Företagsnamn"
   },
   "country": {
     "label": "Land",
-    "placeholder": "Välj ett land"
+    "placeholder": "Välj land"
+  },
+  "default_filter": {
+    "false": "Inte standard",
+    "label": "Standard",
+    "null": "Alla",
+    "true": "Standard"
   },
   "domain": {
     "placeholder": "Ange din domän..."
@@ -79,6 +124,7 @@
   "email": {
     "error": "En giltig e-postadress krävs",
     "label": "E-post",
+    "placeholder": "namn@epost.com",
     "title": "Lägg till ny e-postadress | Uppdatera e-postadress"
   },
   "field_notes": {
@@ -86,14 +132,22 @@
   },
   "firstname": {
     "error": "Ditt förnamn är obligatoriskt",
-    "label": "Förnamn"
+    "label": "Förnamn",
+    "placeholder": "Jay, Jane, John, ..."
+  },
+  "guest_email": {
+    "description": "Vi skickar din orderbekräftelse till den här e-postadressen",
+    "label": "E-post om mottagen beställning",
+    "placeholder": "namn@epost.com"
+  },
+  "language": {
+    "error": "Ditt språk är obligatoriskt",
+    "label": "Språk"
   },
   "lastname": {
     "error": "Ditt efternamn är obligatoriskt",
-    "label": "Efternamn"
-  },
-  "login": {
-    "error": "Vi upplevde ett fel när vi försökte logga in dig."
+    "label": "Efternamn",
+    "placeholder": "Doe, Smith, ..."
   },
   "payment_details_id": {
     "label": ""
@@ -110,6 +164,12 @@
     "label": "Telefon",
     "title": "Lägg till nytt telefonnummer | Uppdatera telefonnummer"
   },
+  "phone_search": {
+    "placeholder": "Sök telefonnummer..."
+  },
+  "phone_sort": {
+    "created_at": "Datum tillagt"
+  },
   "postcode": {
     "label": "Postnummer",
     "placeholder": "t.ex. 10011"
@@ -121,15 +181,13 @@
     "error": "Ogiltig kampanjkod",
     "placeholder": "Ange kupongkoden här"
   },
-  "recover": {
-    "error": "Vi uppstod ett fel när vi försökte skicka ett e-postmeddelande för återställning av lösenordet till dig."
+  "publicName": {
+    "error": "Ditt offentliga namn är obligatoriskt",
+    "label": "Offentligt namn"
   },
   "region": {
     "label": "Område",
     "placeholder": "Välj en region…"
-  },
-  "register": {
-    "error": "Vi uppstod ett fel när vi försökte skapa ditt konto."
   },
   "select_option": {
     "placeholder": "Välj ett alternativ"
@@ -141,7 +199,28 @@
     "label": ""
   },
   "taxNumber": {
-    "label": "Skattenummer",
-    "placeholder": "Skatte-ID"
+    "label": "Registrerat organisationsnummer",
+    "placeholder": "Organisationsnummer/momsnummer"
+  },
+  "twofa": {
+    "description": "Det här kontot är skyddat med tvåfaktorsautentisering. Ange din verifieringskod.",
+    "label": "Verifieringskod",
+    "placeholder": "123 456"
+  },
+  "twofa_email": {
+    "description": "För din säkerhet har vi skickat en engångskod till din e-postadress. För att slutföra denna begäran, vänligen ange koden nedan.",
+    "label": "Verifieringskod",
+    "placeholder": "123 456"
+  },
+  "twofa_totp": {
+    "description": "För att slutföra denna begäran, ange engångskoden som genererats av din Authenticator-app.",
+    "label": "Verifieringskod",
+    "placeholder": "123 456"
+  },
+  "verified_filter": {
+    "false": "Overifierad",
+    "label": "Verifierad",
+    "null": "Alla",
+    "true": "Verifierad"
   }
 }

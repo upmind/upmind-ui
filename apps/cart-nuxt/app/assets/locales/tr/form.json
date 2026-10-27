@@ -13,19 +13,51 @@
     "label": "",
     "placeholder": "Yol, sokak adı vb."
   },
+  "address_search": {
+    "placeholder": "Adresleri ara..."
+  },
+  "address_sort": {
+    "created_at": "Eklenme tarihi",
+    "name": "Adres adı"
+  },
   "allow_auto_payment": {
     "description": "Bu ödeme yönteminin, yenileme faturası ödemeleri gibi otomatik çevrimdışı ödemeler yapmak için kullanılmasına izin verin.",
     "label": "Otomatik ödemeye izin ver"
   },
   "auth_email": {
+    "error": "Bir e-posta adresi gereklidir",
+    "label": "E-posta adresiniz",
+    "placeholder": "isim@e-posta.com"
+  },
+  "auth_login": {
     "error": "Bir kullanıcı adı veya e-posta adresi gereklidir",
     "label": "Kullanıcı adınız veya e-posta adresiniz",
     "placeholder": "isim@e-posta.com"
   },
   "auth_password": {
-    "error": "Güçlü bir parola gereklidir",
+    "error": {
+      "min_length": "Şifre en az 8 karakterden oluşmalıdır.",
+      "min_length_letter": "Şifre en az 8 karakterden oluşmalı ve bir harf içermelidir",
+      "min_length_letter_number": "Şifre en az 8 karakterden oluşmalı, bir harf ve bir rakam içermelidir",
+      "min_length_letter_number_symbol": "Şifre en az 8 karakterden oluşmalı, bir harf, bir rakam ve bir özel karakter içermelidir",
+      "min_length_letter_symbol": "Şifre en az 8 karakterden oluşmalı, bir harf ve bir özel karakter içermelidir",
+      "min_length_number": "Şifre en az 8 karakterden oluşmalı ve bir rakam içermelidir.",
+      "min_length_number_symbol": "Şifre en az 8 karakterden oluşmalı, bir rakam ve bir özel karakter içermelidir",
+      "min_length_symbol": "Şifre en az 8 karakterden oluşmalı ve bir özel karakter içermelidir",
+      "missing_letter": "Şifre bir harf içermelidir",
+      "missing_letter_number": "Şifre bir harf ve bir rakam içermelidir",
+      "missing_letter_number_symbol": "Şifre bir harf, bir rakam ve bir özel karakter içermelidir",
+      "missing_letter_symbol": "Şifre bir harf ve bir sembol içermelidir",
+      "missing_number": "Şifre bir rakam içermelidir",
+      "missing_number_symbol": "Şifre bir rakam ve bir özel karakter içermelidir",
+      "missing_symbol": "Şifre bir özel karakter içermelidir"
+    },
+    "generate": "Güçlü bir şifre oluşturun",
+    "hide": "Şifreyi gizle",
+    "hint": "Şifre en az 8 karakterden oluşmalı ve bir harf, bir rakam ve bir özel karakter içermelidir.",
     "label": "Şifre",
-    "placeholder": "Şifre veya parola ifadesi"
+    "placeholder": "Şifre veya parola ifadesi",
+    "show": "Şifreyi göster"
   },
   "card_cvv": {
     "error": "Geçerli bir CVV gereklidir",
@@ -64,11 +96,24 @@
   },
   "companyNumber": {
     "label": "Şirket Numarası",
-    "placeholder": "Kayıtlı vergi veya GST"
+    "placeholder": "Şirket Kimlik Numarası"
+  },
+  "company_search": {
+    "placeholder": "Şirketleri araştır..."
+  },
+  "company_sort": {
+    "created_at": "Eklenme tarihi",
+    "name": "Firma Adı"
   },
   "country": {
     "label": "Ülke",
     "placeholder": "Bir ülke seçin"
+  },
+  "default_filter": {
+    "false": "Varsayılan Değil",
+    "label": "Varsayılan",
+    "null": "Tüm",
+    "true": "Varsayılan"
   },
   "domain": {
     "placeholder": "Alan adınızı girin..."
@@ -79,6 +124,7 @@
   "email": {
     "error": "Geçerli bir E-posta Adresi gereklidir",
     "label": "E-posta",
+    "placeholder": "isim@e-posta.com",
     "title": "Yeni E-posta Ekle | E-postayı Güncelle"
   },
   "field_notes": {
@@ -86,14 +132,22 @@
   },
   "firstname": {
     "error": "Adınız gereklidir",
-    "label": "İlk adı"
+    "label": "İlk adı",
+    "placeholder": "Jay, Jane, John, ..."
+  },
+  "guest_email": {
+    "description": "Sipariş onayınızı bu e-posta adresine göndereceğiz",
+    "label": "Sipariş onayı e-postası",
+    "placeholder": "isim@e-posta.com"
+  },
+  "language": {
+    "error": "Diliniz gereklidir.",
+    "label": "Dil"
   },
   "lastname": {
     "error": "Soyadınız gereklidir",
-    "label": "Soy isim"
-  },
-  "login": {
-    "error": "Girişinizi yapmaya çalışırken bir hatayla karşılaştık."
+    "label": "Soy isim",
+    "placeholder": "Doe, Smith, ..."
   },
   "payment_details_id": {
     "label": ""
@@ -110,6 +164,12 @@
     "label": "Telefon",
     "title": "Yeni Telefon Numarası Ekle | Telefon Numarasını Güncelle"
   },
+  "phone_search": {
+    "placeholder": "Telefon numaralarını ara..."
+  },
+  "phone_sort": {
+    "created_at": "Eklenme tarihi"
+  },
   "postcode": {
     "label": "Posta kodu",
     "placeholder": "örneğin 10011"
@@ -121,15 +181,13 @@
     "error": "Geçersiz promosyon kodu",
     "placeholder": "Kupon kodunu buraya girin"
   },
-  "recover": {
-    "error": "Size şifre sıfırlama e-postası göndermeye çalışırken bir hatayla karşılaştık."
+  "publicName": {
+    "error": "Herkese açık adınız gereklidir.",
+    "label": "Halka açık isim"
   },
   "region": {
     "label": "Bölge",
     "placeholder": "Bir bölge seçin…"
-  },
-  "register": {
-    "error": "Hesabınızı oluşturmaya çalışırken bir hatayla karşılaştık."
   },
   "select_option": {
     "placeholder": "Bir seçenek seçin"
@@ -141,7 +199,28 @@
     "label": ""
   },
   "taxNumber": {
-    "label": "Vergi Numarası",
-    "placeholder": "Vergi Kimlik No"
+    "label": "Vergi Kimlik Numarası",
+    "placeholder": "Vergi Kimlik Numarası/KDV/GST Numarası"
+  },
+  "twofa": {
+    "description": "Bu hesap iki faktörlü kimlik doğrulama ile güvence altına alınmıştır. Lütfen doğrulama kodunuzu girin.",
+    "label": "Doğrulama kodu",
+    "placeholder": "123 456"
+  },
+  "twofa_email": {
+    "description": "Güvenliğiniz için, e-posta adresinize tek kullanımlık bir şifre gönderdik. Bu isteği tamamlamak için lütfen aşağıdaki kodu girin.",
+    "label": "Doğrulama kodu",
+    "placeholder": "123 456"
+  },
+  "twofa_totp": {
+    "description": "Bu isteği tamamlamak için lütfen Authenticator uygulamanız tarafından oluşturulan tek kullanımlık şifreyi girin.",
+    "label": "Doğrulama kodu",
+    "placeholder": "123 456"
+  },
+  "verified_filter": {
+    "false": "Doğrulanmamış",
+    "label": "Doğrulandı",
+    "null": "Tüm",
+    "true": "Doğrulandı"
   }
 }

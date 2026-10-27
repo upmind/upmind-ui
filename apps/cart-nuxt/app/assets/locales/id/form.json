@@ -13,19 +13,51 @@
     "label": "",
     "placeholder": "Jalan, nama jalan, dll."
   },
+  "address_search": {
+    "placeholder": "Cari alamat..."
+  },
+  "address_sort": {
+    "created_at": "Tanggal ditambahkan",
+    "name": "Nama alamat"
+  },
   "allow_auto_payment": {
     "description": "Izinkan metode pembayaran ini digunakan untuk melakukan pembayaran offline otomatis – seperti membayar faktur perpanjangan.",
     "label": "Izinkan pembayaran otomatis"
   },
   "auth_email": {
+    "error": "Alamat email wajib diisi",
+    "label": "Alamat email Anda",
+    "placeholder": "nama@email.com"
+  },
+  "auth_login": {
     "error": "Nama pengguna atau alamat email diperlukan",
     "label": "Nama pengguna atau alamat email Anda",
     "placeholder": "nama@email.com"
   },
   "auth_password": {
-    "error": "Diperlukan kata sandi yang kuat",
+    "error": {
+      "min_length": "Kata sandi harus terdiri dari minimal 8 karakter.",
+      "min_length_letter": "Kata sandi harus terdiri dari minimal 8 karakter dan mengandung satu huruf",
+      "min_length_letter_number": "Kata sandi harus terdiri dari minimal 8 karakter, serta mengandung satu huruf dan satu angka",
+      "min_length_letter_number_symbol": "Kata sandi harus terdiri dari minimal 8 karakter, serta mengandung satu huruf, satu angka, dan satu simbol",
+      "min_length_letter_symbol": "Kata sandi harus terdiri dari minimal 8 karakter, serta mengandung satu huruf dan satu simbol",
+      "min_length_number": "Kata sandi harus terdiri dari minimal 8 karakter dan mengandung angka.",
+      "min_length_number_symbol": "Kata sandi harus terdiri dari minimal 8 karakter, serta mengandung satu angka dan satu simbol",
+      "min_length_symbol": "Kata sandi harus terdiri dari minimal 8 karakter dan mengandung satu simbol",
+      "missing_letter": "Kata sandi harus berisi satu huruf",
+      "missing_letter_number": "Kata sandi harus terdiri dari satu huruf dan satu angka",
+      "missing_letter_number_symbol": "Kata sandi harus terdiri dari satu huruf, satu angka, dan satu simbol",
+      "missing_letter_symbol": "Kata sandi harus berisi satu huruf dan satu simbol",
+      "missing_number": "Kata sandi harus mengandung angka.",
+      "missing_number_symbol": "Kata sandi harus berisi angka dan simbol",
+      "missing_symbol": "Kata sandi harus mengandung satu karakter khusus"
+    },
+    "generate": "Buat kata sandi yang kuat",
+    "hide": "Sembunyikan kata sandi",
+    "hint": "Kata sandi harus terdiri dari minimal 8 karakter dan harus mengandung satu huruf, satu angka, dan satu simbol.",
     "label": "Kata sandi",
-    "placeholder": "Kata sandi atau frasa sandi"
+    "placeholder": "Kata sandi atau frasa sandi",
+    "show": "Tampilkan kata sandi"
   },
   "card_cvv": {
     "error": "Diperlukan CVV yang valid",
@@ -64,11 +96,24 @@
   },
   "companyNumber": {
     "label": "Nomor Perusahaan",
-    "placeholder": "Pajak terdaftar atau GST"
+    "placeholder": "Nomor Identifikasi Perusahaan"
+  },
+  "company_search": {
+    "placeholder": "Cari perusahaan..."
+  },
+  "company_sort": {
+    "created_at": "Tanggal ditambahkan",
+    "name": "Nama perusahaan"
   },
   "country": {
     "label": "Negara",
     "placeholder": "Pilih negara"
+  },
+  "default_filter": {
+    "false": "Bukan Default",
+    "label": "Bawaan",
+    "null": "Semua",
+    "true": "Bawaan"
   },
   "domain": {
     "placeholder": "Masukkan domain Anda..."
@@ -79,6 +124,7 @@
   "email": {
     "error": "Alamat Email yang valid diperlukan",
     "label": "E-mail",
+    "placeholder": "nama@email.com",
     "title": "Tambahkan Email Baru | Perbarui Email"
   },
   "field_notes": {
@@ -86,14 +132,22 @@
   },
   "firstname": {
     "error": "Nama depan Anda diperlukan",
-    "label": "Nama depan"
+    "label": "Nama depan",
+    "placeholder": "Jay, Jane, John, ..."
+  },
+  "guest_email": {
+    "description": "Kami akan mengirimkan konfirmasi pesanan Anda ke alamat email ini",
+    "label": "Email untuk konfirmasi pesanan",
+    "placeholder": "nama@email.com"
+  },
+  "language": {
+    "error": "Bahasa Anda diperlukan",
+    "label": "Bahasa"
   },
   "lastname": {
     "error": "Nama belakang Anda diperlukan",
-    "label": "Nama belakang"
-  },
-  "login": {
-    "error": "Kami mengalami kesalahan saat mencoba memasukkan Anda."
+    "label": "Nama belakang",
+    "placeholder": "Doe, Smith, ..."
   },
   "payment_details_id": {
     "label": ""
@@ -110,6 +164,12 @@
     "label": "Telepon",
     "title": "Tambahkan Nomor Telepon Baru | Perbarui Nomor Telepon"
   },
+  "phone_search": {
+    "placeholder": "Cari nomor telepon..."
+  },
+  "phone_sort": {
+    "created_at": "Tanggal ditambahkan"
+  },
   "postcode": {
     "label": "Kode Pos",
     "placeholder": "misalnya 10011"
@@ -121,15 +181,13 @@
     "error": "Kode promo tidak valid",
     "placeholder": "Masukkan kode voucher di sini"
   },
-  "recover": {
-    "error": "Kami mengalami kesalahan saat mencoba mengirimi Anda email pengaturan ulang kata sandi."
+  "publicName": {
+    "error": "Nama publik Anda wajib diisi.",
+    "label": "Nama publik"
   },
   "region": {
     "label": "Wilayah",
     "placeholder": "Pilih wilayah…"
-  },
-  "register": {
-    "error": "Kami mengalami kesalahan saat mencoba membuat akun Anda."
   },
   "select_option": {
     "placeholder": "Pilih opsi"
@@ -141,7 +199,28 @@
     "label": ""
   },
   "taxNumber": {
-    "label": "Nomor Pajak",
-    "placeholder": "Nomor Pajak"
+    "label": "Nomor Identifikasi Pajak",
+    "placeholder": "Nomor NPWP/PPN/PPN-P"
+  },
+  "twofa": {
+    "description": "Akun ini diamankan menggunakan otentikasi dua faktor. Silakan masukkan kode verifikasi Anda.",
+    "label": "Kode verifikasi",
+    "placeholder": "123 456"
+  },
+  "twofa_email": {
+    "description": "Demi keamanan Anda, kami telah mengirimkan kode sandi sekali pakai ke email Anda. Untuk menyelesaikan permintaan ini, silakan masukkan kode di bawah ini.",
+    "label": "Kode verifikasi",
+    "placeholder": "123 456"
+  },
+  "twofa_totp": {
+    "description": "Untuk menyelesaikan permintaan ini, silakan masukkan kode sandi satu kali yang dihasilkan oleh aplikasi Authenticator Anda.",
+    "label": "Kode verifikasi",
+    "placeholder": "123 456"
+  },
+  "verified_filter": {
+    "false": "Tidak terverifikasi",
+    "label": "Terverifikasi",
+    "null": "Semua",
+    "true": "Terverifikasi"
   }
 }
