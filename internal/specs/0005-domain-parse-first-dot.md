@@ -4,7 +4,7 @@ title: Domain parsing splits at the first dot
 description: parseDomain splits a domain at its first dot, so a wildcard ccTLD such as .bd no longer crashes the domains page.
 tags: [domain, dac, hotfix]
 story: FE-3580
-status: approved
+status: done
 generated: {by: planner/opus, at: 2026-10-30T00:00:00Z}
 verified: [{by: "human:Dominic da Costa", at: 2026-10-30}]
 sources: [https://linear.app/upmind-automation/issue/FE-3580]
