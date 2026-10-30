@@ -583,6 +583,7 @@ export default createMachine(
             const parsed = parseDomain(raw?.service_identifier);
 
             if (
+              !parsed ||
               !isDomainProduct({
                 blueprintCode:
                   raw?.product?.provision_blueprint?.category?.code,
@@ -593,11 +594,11 @@ export default createMachine(
               return undefined;
 
             const basketProduct = parseBasketProduct(raw) as DomainProduct;
-            basketProduct.tld = parsed!.tld;
-            basketProduct.sld = parsed!.sld;
-            basketProduct.domain = parsed!.domain;
+            basketProduct.tld = parsed.tld;
+            basketProduct.sld = parsed.sld;
+            basketProduct.domain = parsed.domain;
             basketProduct.meta.added = true;
-            basketProduct.productDetails.title = parsed!.domain;
+            basketProduct.productDetails.title = parsed.domain;
             return basketProduct;
           },
 

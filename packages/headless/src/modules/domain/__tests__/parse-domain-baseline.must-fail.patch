@@ -1,0 +1,15 @@
+# Spec: parse-domain-baseline.test.ts
+# Mutation: parseDomain splits the raw input without sanitising it, so protocol, www, case and stray characters are no longer cleaned.
+
+diff --git a/packages/headless/src/modules/domain/utils.ts b/packages/headless/src/modules/domain/utils.ts
+--- a/packages/headless/src/modules/domain/utils.ts
++++ b/packages/headless/src/modules/domain/utils.ts
+@@ -446,7 +446,7 @@
+   const value = isObject(raw) ? raw.domain : raw;
+   if (typeof value !== "string" || isEmpty(value)) return undefined;
+ 
+-  const domain = sanitiseDomainInput(value);
++  const domain = value;
+   const { sld, tld } = splitAtFirstDot(domain);
+   if (!sld || !tld) return undefined;
+ 
