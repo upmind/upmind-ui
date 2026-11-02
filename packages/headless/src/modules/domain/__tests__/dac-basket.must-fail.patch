@@ -1,0 +1,15 @@
+# Spec: dac-basket.test.ts
+# Mutation: the DAC basket row keeps the raw service identifier as its domain instead of the parsed lower-case domain.
+
+diff --git a/packages/headless/src/modules/domain/dac.machine.ts b/packages/headless/src/modules/domain/dac.machine.ts
+--- a/packages/headless/src/modules/domain/dac.machine.ts
++++ b/packages/headless/src/modules/domain/dac.machine.ts
+@@ -596,7 +596,7 @@
+             const basketProduct = parseBasketProduct(raw) as DomainProduct;
+             basketProduct.tld = parsed.tld;
+             basketProduct.sld = parsed.sld;
+-            basketProduct.domain = parsed.domain;
++            basketProduct.domain = raw.service_identifier ?? parsed.domain;
+             basketProduct.meta.added = true;
+             basketProduct.productDetails.title = parsed.domain;
+             return basketProduct;

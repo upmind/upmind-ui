@@ -1,5 +1,4 @@
 // --- externals
-import { parse } from "psl";
 import { computed } from "vue";
 
 import type { Ref } from "vue";
@@ -414,6 +413,13 @@ export function sanitiseDomainInput(value: string): string {
     .toLowerCase();
 }
 
+function splitAtFirstDot(domain: string): { sld: string; tld: string } {
+  return {
+    sld: domain.split(".")[0] ?? "",
+    tld: domain.match(/(?:^[^\.]+)(\..{2,})/i)?.[1] || ""
+  };
+}
+
 /**
  * Reactive domain parser — sanitises a raw domain input into its component
  * parts (full domain, SLD, TLD).
@@ -422,34 +428,29 @@ export function useDomainParser(domain: Ref<string>) {
   const sanitisedDomain = computed(() => sanitiseDomainInput(domain.value));
 
   const sanitisedSld = computed(
-    () => sanitisedDomain.value.split(".")[0] ?? ""
+    () => splitAtFirstDot(sanitisedDomain.value).sld
   );
 
-  const sanitisedTld = computed(() => {
-    const matches = sanitisedDomain.value.match(/(?:^[^\.]+)(\..{2,})/i);
-    return matches?.[1] || "";
-  });
+  const sanitisedTld = computed(
+    () => splitAtFirstDot(sanitisedDomain.value).tld
+  );
 
   return { sanitisedDomain, sanitisedSld, sanitisedTld };
 }
 
 // ----------------------------------------------------------------------------
-const DOMAIN_PATTERN =
-  /^(((?!-))(xn--|_)?[a-z0-9-]{0,61}[a-z0-9]{1,1}\.)*(xn--)?([a-z0-9][a-z0-9\-]{0,60}|[a-z0-9-]{1,30}\.[a-z]{2,})$/i;
 
-export function parseDomain(raw: any, force = false): DomainModel | undefined {
-  let domain = (isObject(raw) ? get(raw, "domain") : raw) ?? "";
+export function parseDomain(
+  raw: string | { domain?: string } | null | undefined
+): DomainModel | undefined {
+  const value = isObject(raw) ? raw.domain : raw;
+  if (typeof value !== "string" || isEmpty(value)) return undefined;
 
-  if (isEmpty(domain) || !DOMAIN_PATTERN.test(domain)) return undefined;
+  const domain = sanitiseDomainInput(value);
+  const { sld, tld } = splitAtFirstDot(domain);
+  if (!sld || !tld) return undefined;
 
-  const parsed = parse(domain);
-  if ("error" in parsed || !parsed?.domain) return undefined;
-
-  return {
-    tld: `.${parsed.tld}`, // need to ad dthe "." back in
-    sld: parsed.sld ?? "",
-    domain: parsed.domain
-  };
+  return { tld, sld, domain };
 }
 
 export function parseSld(raw: string): string {

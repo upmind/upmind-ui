@@ -1,0 +1,15 @@
+# Spec: parse-domain-wildcard-cctld.test.ts
+# Mutation: parseDomain demands a two-label extension, so a single-label ccTLD such as .bd returns undefined again.
+
+diff --git a/packages/headless/src/modules/domain/utils.ts b/packages/headless/src/modules/domain/utils.ts
+--- a/packages/headless/src/modules/domain/utils.ts
++++ b/packages/headless/src/modules/domain/utils.ts
+@@ -448,7 +448,7 @@
+ 
+   const domain = sanitiseDomainInput(value);
+   const { sld, tld } = splitAtFirstDot(domain);
+-  if (!sld || !tld) return undefined;
++  if (!sld || !tld.includes(".", 1)) return undefined;
+ 
+   return { tld, sld, domain };
+ }

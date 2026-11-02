@@ -799,7 +799,7 @@ export default createMachine(
       setExisting: assign({
         model: (_context: DomainContext, { data }: AnyEventObject) => {
           const value = trim(isArray(data) ? first(data) : data);
-          const parsed = parseDomain(value, true);
+          const parsed = parseDomain(value);
           const domain: DomainModel = {
             type: DomainTypes.existing,
             domain: parsed?.domain ?? value,
@@ -814,7 +814,7 @@ export default createMachine(
       setExistingFromPending: assign({
         model: (context: DomainContext) => {
           const value = trim(context.pendingUpdate ?? "");
-          const parsed = parseDomain(value, true);
+          const parsed = parseDomain(value);
           return {
             type: DomainTypes.existing,
             domain: value,
@@ -837,8 +837,8 @@ export default createMachine(
           );
           // Most-recent wins: the user expects the domain they just added to
           // be the one linked to the product. DAC's `complete.data` marks
-          // `last(model)` as `selected`; `parseDomain` strips the marker so
-          // we also fall back to `last` here, keeping both sides aligned.
+          // `last(model)` as `selected`; `parseDomain` drops the marker, so
+          // fall back to `last` here to keep both sides aligned.
           return find(mapped, "selected") || last(mapped);
         },
         lookups: ({ lookups }: DomainContext, { data }: AnyEventObject) => {

@@ -94,9 +94,8 @@ function buildExactMatchPlaceholder(
   sld: string,
   tld?: string
 ): DomainProduct {
-  // Display the exact string the user typed — don't run it through
-  // `parseDomain` (psl), which strips subdomains
-  // (e.g. "ddd.ominik.com" → "ominik.com").
+  // Display the exact string the user typed, not the sanitised `parseDomain`
+  // result (e.g. "WWW.Ominik.com" stays as typed).
   return {
     domain: rawDomain,
     sld,
@@ -139,10 +138,8 @@ function buildDomainProductFromAvailability(
   availability: IDomainAvailabilityResponse,
   preferredCycle?: number
 ): DomainProduct {
-  // Display the exact string the user typed for the row — don't run it
-  // through `parseDomain` (psl), which strips subdomains
-  // (e.g. "ddd.ominik.com" → "ominik.com"). `parseDomainParts` keeps the
-  // full TLD chain (".ominik.com") which matches what the user sees.
+  // Display the exact string the user typed for the row, not the sanitised
+  // `parseDomain` result. `parseDomainParts` keeps the full TLD chain.
   const { sld, tld } = parseDomainParts(domain);
   const product = availability.product;
 
