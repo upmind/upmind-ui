@@ -39,6 +39,19 @@ let DATA_LAYER: Window["dataLayer"] =
 // -----------------------------------------------------------------------------
 
 /**
+ * Pushes a Google tag command (such as `consent` or `set`) to the data layer.
+ * Google tags read a command only from an `arguments` object, never from an array.
+ * @param {string} _command - The Google tag command.
+ * @param {...unknown} _params - The command parameters.
+ */
+function gtag(_command: string, ..._params: unknown[]): void {
+  // eslint-disable-next-line prefer-rest-params
+  DATA_LAYER.push(arguments);
+}
+
+// -----------------------------------------------------------------------------
+
+/**
  * Class to manage the tracking events.
  * @class TrackingEvent
  * @param {Object} args - The arguments to be passed to the tracking event.
@@ -245,27 +258,23 @@ export const useDataLayer = (dataLayer: string = "dataLayer") => {
 
   function init(): Promise<void> {
     // ---  Init the consent manager
-    DATA_LAYER.push([
-      "consent",
-      "default",
-      {
-        ad_personalization: "denied",
-        ad_storage: "denied",
-        ad_user_data: "denied",
-        analytics_storage: "denied",
-        functionality_storage: "denied",
-        personalization_storage: "denied",
-        security_storage: "denied",
-        wait_for_update: 500
-      }
-    ]);
+    gtag("consent", "default", {
+      ad_personalization: "denied",
+      ad_storage: "denied",
+      ad_user_data: "denied",
+      analytics_storage: "denied",
+      functionality_storage: "denied",
+      personalization_storage: "denied",
+      security_storage: "denied",
+      wait_for_update: 500
+    });
 
     UETQ.push("consent", "default", {
       ad_storage: "denied",
       wait_for_update: 500
     });
-    DATA_LAYER.push(["set", "ads_data_redaction", true]);
-    DATA_LAYER.push(["set", "url_passthrough", false]);
+    gtag("set", "ads_data_redaction", true);
+    gtag("set", "url_passthrough", true);
 
     return Promise.resolve();
   }
