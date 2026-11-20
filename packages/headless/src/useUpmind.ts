@@ -403,7 +403,7 @@ export class Upmind {
       );
 
     if (this.analytics.gtm.containerId) {
-      dataLayer({ gtm_start: new Date().getTime(), event: "gtm.js" }).push(
+      dataLayer({ "gtm.start": new Date().getTime(), event: "gtm.js" }).push(
         false
       );
 

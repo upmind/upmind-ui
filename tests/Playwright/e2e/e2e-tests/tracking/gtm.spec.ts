@@ -40,8 +40,9 @@ test.describe("Google Tag Manager", () => {
       expect(dataLayer).toBeDefined();
       const gtmStart = dataLayer?.find(
         (entry: unknown) => (entry as { event?: string }).event === "gtm.js"
-      );
+      ) as { "gtm.start"?: unknown } | undefined;
       expect(gtmStart).toBeDefined();
+      expect(typeof gtmStart?.["gtm.start"]).toBe("number");
     });
   });
 });
